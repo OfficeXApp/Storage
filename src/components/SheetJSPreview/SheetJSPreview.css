@@ -1,0 +1,33 @@
+.table-container {
+    max-width: 100%;  /* The container will be the full width of its parent */
+    overflow-x: auto; /* Horizontal scrolling only */
+    overflow-y: hidden; /* Disable vertical scrolling */
+  }
+  
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Ensures cells maintain consistent size */
+    min-width: 800px; /* Adjust depending on your column count */
+  }
+  
+  .styled-table th, .styled-table td {
+    border: 1px solid lightgray; /* Light gray borders */
+    padding: 8px;
+    text-align: left; /* Align text left */
+    vertical-align: top; /* Align content to the top */
+    min-width: 200px; /* Minimum width of 100px for each cell */
+    overflow: hidden; /* Hide overflowing content */
+    text-overflow: ellipsis; /* Add ellipsis for hidden overflow */
+    white-space: nowrap; /* Prevent text from wrapping */
+  }
+  
+  .styled-table th {
+    background-color: #f4f4f4; /* Optional: Different background for headers */
+  }
+  
+  /* Optional: Add zebra striping */
+  .styled-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  

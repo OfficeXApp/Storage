@@ -1,0 +1,110 @@
+type CanisterSettings = record {
+    controllers : opt vec principal;
+    compute_allocation : opt nat;
+    memory_allocation : opt nat;
+    freezing_threshold : opt nat;
+};
+
+type UserID = principal;
+type FolderUUID = text;
+type FileUUID = text;
+type DriveFullFilePath = text;
+type Tag = text;
+
+type StorageLocationEnum = variant {
+    BrowserCache;
+    HardDrive;
+    Web3Storj;
+};
+
+type FolderMetadata = record {
+    id : FolderUUID;
+    original_folder_name : text;
+    parent_folder_uuid : opt FolderUUID;
+    subfolder_uuids : vec FolderUUID;
+    file_uuids : vec FileUUID;
+    full_folder_path : DriveFullFilePath;
+    tags : vec Tag;
+    owner : UserID;
+    created_date : nat64;  // Changed from text to nat64
+    storage_location : StorageLocationEnum;
+};
+
+type FileMetadata = record {
+    id : FileUUID;
+    original_file_name : text;
+    folder_uuid : FolderUUID;
+    file_version : nat32;
+    prior_version : opt FileUUID;
+    next_version : opt FileUUID;
+    extension : text;
+    full_file_path : DriveFullFilePath;
+    tags : vec Tag;
+    owner : UserID;
+    created_date : nat64;  // Changed from text to nat64
+    modified_date : nat64;  // Changed from text to nat64
+    storage_location : StorageLocationEnum;
+    file_size : nat64;
+    raw_url : text;
+};
+
+type FetchFilesAtFolderPathConfig = record {
+    full_folder_path : DriveFullFilePath;
+    limit : nat32;
+    after : nat32;
+};
+
+type FetchFilesResult = record {
+    folders : vec FolderMetadata;
+    files : vec FileMetadata;
+    total : nat32;
+    has_more : bool;
+};
+
+
+type StateSnapshot = record {
+    folder_uuid_to_metadata : vec record { text; FolderMetadata };
+    file_uuid_to_metadata : vec record { text; FileMetadata };
+    full_folder_path_to_uuid : vec record { text; text };
+    full_file_path_to_uuid : vec record { text; text };
+};
+
+type Result = variant {
+    Ok : principal;
+    Err : text;
+};
+
+type ResultText = variant {
+    Ok : text;
+    Err : text;
+};
+
+type UpdateResult = variant {
+    Ok : null;
+    Err : text;
+};
+
+type Result_FolderMetadata = variant {
+    Ok : FolderMetadata;
+    Err : text;
+};
+
+service : {
+    "ping" : () -> (text) query;
+    "create_folder" : (DriveFullFilePath, StorageLocationEnum) -> (Result_FolderMetadata);
+    "get_folder_by_id" : (FolderUUID) -> (opt FolderMetadata) query;
+    "get_file_by_id" : (FileUUID) -> (opt FileMetadata) query;
+    "get_folder_by_path" : (DriveFullFilePath) -> (opt FolderMetadata) query;
+    "get_file_by_path" : (DriveFullFilePath) -> (opt FileMetadata) query;
+    "rename_folder" : (FolderUUID, text) -> (UpdateResult);
+    "rename_file" : (FileUUID, text) -> (UpdateResult);
+    "delete_folder" : (FolderUUID) -> (UpdateResult);
+    "delete_file" : (FileUUID) -> (UpdateResult);
+    "fetch_files_at_folder_path" : (FetchFilesAtFolderPathConfig) -> (FetchFilesResult) query;
+    "upsert_file_to_hash_tables" : (text, StorageLocationEnum) -> (text);
+    "snapshot_hashtables" : () -> (StateSnapshot) query;
+    "get_canister_balance" : () -> (nat64) query;
+    "update_username" : (text) -> (UpdateResult);
+    "get_username" : () -> (text) query;
+    "get_owner" : () -> (principal) query;
+};

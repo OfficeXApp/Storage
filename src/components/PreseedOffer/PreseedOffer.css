@@ -1,0 +1,33 @@
+.glowing-card {
+  box-shadow: 0 0 10px #4e94f5;
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px #4e94f5;
+  }
+  to {
+    box-shadow:
+      0 0 20px #4e94f5,
+      0 0 30px #4e94f5;
+  }
+}
+
+.highlighted-text {
+  background-color: #4e94f5;
+  color: white;
+  padding: 0 5px;
+}
+
+.highlighted-text.red {
+  background-color: #ff6b6b;
+}
+
+.highlighted-text.yellow {
+  background-color: #feca57;
+}
+
+.highlighted-text.blue {
+  background-color: #48dbfb;
+}

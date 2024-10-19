@@ -1,0 +1,12 @@
+type Result = variant {
+    Ok : text;
+    Err : text;
+};
+
+service : {
+    "create_drive" : (text) -> (Result);
+    "get_user_drive" : () -> (opt text) query;
+    "get_total_drives" : () -> (nat64) query;
+    "get_drive_by_index" : (nat64) -> (opt text) query;
+    "get_canister_balance" : () -> (nat64) query;
+}

@@ -1,0 +1,55 @@
+{
+  "name": "drive-officex",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.4.0",
+    "@officexapp/framework": "^0.0.240",
+    "antd": "^5.20.1",
+    "mixpanel-browser": "^2.55.1",
+    "react": "^18.3.1",
+    "react-device-detect": "^2.2.3",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.2.3",
+    "react-fast-marquee": "^1.6.5",
+    "react-responsive": "^10.0.0",
+    "react-router-dom": "^6.26.0",
+    "react-screentype-hook": "^1.0.18",
+    "rxjs": "^7.8.1",
+    "tailwind-merge": "^2.5.2",
+    "uuid": "^10.0.0",
+    "viem": "^2.19.4",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/mixpanel-browser": "^2.50.1",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.8.0",
+    "@vite-pwa/assets-generator": "^0.2.4",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.10",
+    "vite-plugin-pwa": "^0.20.0",
+    "workbox-core": "^7.1.0"
+  },
+  "overrides": {
+    "sharp": "0.32.6",
+    "sharp-ico": "0.1.5"
+  }
+}

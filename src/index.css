@@ -1,0 +1,44 @@
+/* Global Clean Scrollbar Styling */
+
+/* For Chrome, Safari, and Opera */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1); /* Scrollbar thumb color */
+  border-radius: 10px; /* Rounded scrollbar thumb */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin; /* Makes scrollbar thinner */
+  scrollbar-color: rgba(0, 0, 0, 0.1) transparent; /* Thumb and track color */
+}
+
+/* For IE and Edge */
+* {
+  -ms-overflow-style: scrollbar; /* Ensures scrollbar is visible with the applied style */
+}
+
+/* Invisible Scrollbar Class */
+
+/* For Chrome, Safari, and Opera */
+.invisible-scrollbar::-webkit-scrollbar {
+  display: none; /* Hide scrollbar */
+}
+
+/* For IE and Edge */
+.invisible-scrollbar {
+  -ms-overflow-style: none; /* Hide scrollbar */
+}
+
+/* For Firefox */
+.invisible-scrollbar {
+  scrollbar-width: none; /* Hide scrollbar */
+}

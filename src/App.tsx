@@ -11,18 +11,16 @@ import RouterUI from "./RouterUI";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Spin } from "antd";
 import Marquee from "react-fast-marquee";
-import { setupFreeTrialStorj } from './api/storj'
+import { setupFreeTrialStorj } from "./api/storj";
 import mixpanel from "mixpanel-browser";
 
 const { CONSTANTS, ONBOARDING_CHECKPOINTS, useIdentity } = Identity;
 
- 
 function App() {
   const [emvMnemonic, setEvmMnemonic] = useState<string | null>(null);
   const [icpMnemonic, setIcpMnemonic] = useState<string | null>(null);
   const { evmSlug, evmAccount, icpAccount } = useIdentity();
- 
-  
+
   useEffect(() => {
     const _evmMnemonic = localStorage.getItem(
       Identity.CONSTANTS.LOCAL_STORAGE_EVM_WALLET_MNEMONIC
@@ -36,31 +34,36 @@ function App() {
     if (_icpMnemonic) {
       setIcpMnemonic(_icpMnemonic);
     }
-    setupFreeTrialStorj()
+    setupFreeTrialStorj();
   }, []);
 
   useEffect(() => {
-    setupAnalytics()
-  }, [evmAccount, icpAccount, evmSlug])
+    setupAnalytics();
+  }, [evmAccount, icpAccount, evmSlug]);
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-  const ref = urlParams.get('ref') || '';
+  const ref = urlParams.get("ref") || "";
 
   const setupAnalytics = useCallback(() => {
-    if (window.location.hostname === "drive.officex.app" && evmSlug !== '0x0' && evmAccount && icpAccount) {
-      mixpanel.identify(evmAccount?.address)
-      mixpanel.people.set({ 
-        '$name': evmSlug,
-        'evmAddress': evmAccount?.address,
-        'icpAddress': icpAccount?.publicKeyHex,
-        'ref': ref
+    if (
+      window.location.hostname === "drive.officex.app" &&
+      evmSlug !== "0x0" &&
+      evmAccount &&
+      icpAccount
+    ) {
+      mixpanel.identify(evmAccount?.address);
+      mixpanel.people.set({
+        $name: evmSlug,
+        evmAddress: evmAccount?.address,
+        icpAddress: icpAccount?.publicKeyHex,
+        ref: ref,
       });
     }
-  },[evmAccount, icpAccount, evmSlug, ref]);
+  }, [evmAccount, icpAccount, evmSlug, ref]);
 
   return (
     <div style={{ height: "100vh", maxHeight: "100vh", overflow: "hidden" }}>
-      <Alert
+      {/* <Alert
         message={
           <Marquee pauseOnHover gradient={false}>
             <div
@@ -89,7 +92,7 @@ function App() {
         type="info"
         banner
         closable={false}
-      />
+      /> */}
       <RouterUI />
     </div>
   );

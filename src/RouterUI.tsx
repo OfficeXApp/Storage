@@ -39,7 +39,7 @@ import useScreenType from "react-screentype-hook";
 import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
 import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
-import GiftPage from './components/GiftPage';
+import GiftPage from "./components/GiftPage";
 
 const { Sider, Content } = Layout;
 
@@ -180,7 +180,7 @@ const RouterUI = () => {
                   </section>
                   <SideMenu />
                 </div>
-                <Card
+                {/* <Card
                   style={{
                     margin: "10px 10px",
                   }}
@@ -205,7 +205,7 @@ const RouterUI = () => {
                       Buy $OFX
                     </Button>
                   </Link>
-                </Card>
+                </Card> */}
               </div>
             </Sider>
           )}

@@ -433,6 +433,15 @@ const PreseedOffer: React.FC = () => {
               textWrap: "wrap",
             }}
           >
+            Official Fundraiser has started, you can{" "}
+            <a
+              href="https://buy.indiecrypto.club/fund/8453/0x9916a602b99d61fb43E79678F3630d479E3194ca"
+              target="_blank"
+            >
+              buy $OFFICEX on IndieCrypto.
+            </a>{" "}
+            <br />
+            <br />
             Buy $OFFICEX to own a piece of OfficeX Protocol before 100,000x user
             growth. Open source powered by crypto.{" "}
             <a
@@ -441,15 +450,7 @@ const PreseedOffer: React.FC = () => {
             >
               Read the Whitepaper
             </a>
-            . <br />
-            <br />
-            Official Fundraiser has started, you can{" "}
-            <a
-              href="https://buy.indiecrypto.club/fund/8453/0x9916a602b99d61fb43E79678F3630d479E3194ca"
-              target="_blank"
-            >
-              buy $OFFICEX on IndieCrypto.
-            </a>
+            .
           </Paragraph>
 
           <Title level={2}>How To Buy</Title>

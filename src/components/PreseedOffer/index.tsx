@@ -34,7 +34,7 @@ const { Panel } = Collapse;
 
 const ETH_PRESALE_WALLET = "0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4";
 const SOLANA_PRESALE_WALLET = "6TSUB6YbubYs8kcxoB2KDF3N84ReG2aaaFZyZL3zq6nY";
-const BINANCE_PRESALE_WALLET = "0x5d2e6EE80d7B460AC3Ed4249b2b4D86E6670Ca63";
+const BINANCE_PRESALE_WALLET = "0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4";
 
 const cardStyle: React.CSSProperties = {
   width: "100%",
@@ -149,20 +149,24 @@ const items: TabsProps["items"] = [
     children: (
       <>
         <Paragraph style={grayParagraphStyle}>
-          To buy $OFX at floor presale price $0.01 USDT per token:
+          To buy $OFFICEX at floor presale price $0.01 USDC per token:
         </Paragraph>
         <ol>
           <li>
             Ensure you have{" "}
             <a
-              href="https://etherscan.io/address/0xdac17f958d2ee523a2206206994597c13d831ec7"
+              href="https://etherscan.io/address/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
               target="_blank"
             >
-              USDT on the Ethereum network.
+              USDC on the Ethereum network.
             </a>
           </li>
           <li>Copy the wallet address below.</li>
-          <li>Send your desired amount of USDT to this address. Only send from a wallet you control, so that $OFX can be airdropped to you. Careful when sending from CEX wallet.</li>
+          <li>
+            Send your desired amount of USDC to this address. Only send from a
+            wallet you control, so that $OFFICEX can be airdropped to you.
+            Careful when sending from CEX wallet.
+          </li>
           <li>
             Verify your transfer in the{" "}
             <a
@@ -173,7 +177,7 @@ const items: TabsProps["items"] = [
             </a>
           </li>
           <li>
-            Wait for the Airdrop on Oct 31st 2024. Follow us on Twitter (X){" "}
+            Wait for the Official Fundraiser to send. Follow us on Twitter (X){" "}
             <a href="https://x.com/officexapp" target="_blank">
               @officexapp
             </a>{" "}
@@ -181,7 +185,7 @@ const items: TabsProps["items"] = [
           </li>
         </ol>
         <Space direction="vertical" style={{ width: "100%" }}>
-          <Text strong>Send USDT on Ethereum to:</Text>
+          <Text strong>Send USDC on Ethereum to:</Text>
           <Input
             addonAfter={
               <CopyOutlined
@@ -196,43 +200,47 @@ const items: TabsProps["items"] = [
           />
         </Space>
         <p style={{ fontSize: "0.7rem", color: "gray", fontStyle: "italic" }}>
-          Presale price limited to first $100k usd across all chains. Excess
-          will be refunded.
+          Presale price limited to first $15k usd across all chains. Excess will
+          be refunded.
         </p>
       </>
     ),
   },
   {
-    key: "solana",
-    label: "Solana",
+    key: "base",
+    label: "Base",
     children: (
       <>
         <Paragraph style={grayParagraphStyle}>
-          To buy $OFX at floor presale price $0.01 USDT per token:
+          To buy $OFFICEX at floor presale price $0.01 USDC per token:
         </Paragraph>
         <ol>
           <li>
             Ensure you have{" "}
             <a
-              href="https://explorer.solana.com/address/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+              href="https://basescan.org/address/0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
               target="_blank"
             >
-              USDT on the Solana network.
+              USDC on the Base L2 network.
             </a>
           </li>
           <li>Copy the wallet address below.</li>
-          <li>Send your desired amount of USDT to this address. Only send from a wallet you control, so that $OFX can be airdropped to you. Careful when sending from CEX wallet.</li>
+          <li>
+            Send your desired amount of USDC to this address. Only send from a
+            wallet you control, so that $OFFICEX can be airdropped to you.
+            Careful when sending from CEX wallet.
+          </li>
           <li>
             Verify your transfer in the{" "}
             <a
-              href="https://explorer.solana.com/address/6TSUB6YbubYs8kcxoB2KDF3N84ReG2aaaFZyZL3zq6nY"
+              href="https://basescan.org/address/0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4#tokentxns"
               target="_blank"
             >
-              solana block history.
+              basescan history.
             </a>
           </li>
           <li>
-            Wait for the Airdrop on Oct 31st 2024. Follow us on Twitter (X){" "}
+            Wait for the Official Fundraiser to send. Follow us on Twitter (X){" "}
             <a href="https://x.com/officexapp" target="_blank">
               @officexapp
             </a>{" "}
@@ -240,66 +248,7 @@ const items: TabsProps["items"] = [
           </li>
         </ol>
         <Space direction="vertical" style={{ width: "100%" }}>
-          <Text strong>Send USDT on Solana to:</Text>
-          <Input
-            addonAfter={
-              <CopyOutlined
-                onClick={() => {
-                  navigator.clipboard.writeText(SOLANA_PRESALE_WALLET);
-                  message.success("Wallet Address copied to clipboard!");
-                }}
-              />
-            }
-            defaultValue={SOLANA_PRESALE_WALLET}
-            value={SOLANA_PRESALE_WALLET}
-          />
-        </Space>
-        <p style={{ fontSize: "0.7rem", color: "gray", fontStyle: "italic" }}>
-          Presale price limited to first $100k usd across all chains. Excess
-          will be refunded.
-        </p>
-      </>
-    ),
-  },
-  {
-    key: "binance",
-    label: "Binance",
-    children: (
-      <>
-        <Paragraph style={grayParagraphStyle}>
-          To buy $OFX at floor presale price $0.01 USDT per token:
-        </Paragraph>
-        <ol>
-          <li>
-            Ensure you have{" "}
-            <a
-              href="https://bscscan.com/address/0x55d398326f99059ff775485246999027b3197955"
-              target="_blank"
-            >
-              USDT on the Binance smart chain network.
-            </a>
-          </li>
-          <li>Copy the wallet address below.</li>
-          <li>Send your desired amount of USDT to this address. Only send from a wallet you control, so that $OFX can be airdropped to you. Careful when sending from CEX wallet.</li>
-          <li>
-            Verify your transfer in the{" "}
-            <a
-              href="https://bscscan.com/address/0x5d2e6EE80d7B460AC3Ed4249b2b4D86E6670Ca63#tokentxns"
-              target="_blank"
-            >
-              bscscan history.
-            </a>
-          </li>
-          <li>
-            Wait for the Airdrop on Oct 31st 2024. Follow us on Twitter (X){" "}
-            <a href="https://x.com/officexapp" target="_blank">
-              @officexapp
-            </a>{" "}
-            for updates
-          </li>
-        </ol>
-        <Space direction="vertical" style={{ width: "100%" }}>
-          <Text strong>Send USDT on Binance Smart Chain to:</Text>
+          <Text strong>Send USDC on Base L2 to:</Text>
           <Input
             addonAfter={
               <CopyOutlined
@@ -314,8 +263,135 @@ const items: TabsProps["items"] = [
           />
         </Space>
         <p style={{ fontSize: "0.7rem", color: "gray", fontStyle: "italic" }}>
-          Presale price limited to first $100k usd across all chains. Excess
-          will be refunded.
+          Presale price limited to first $15k usd across all chains. Excess will
+          be refunded.
+        </p>
+      </>
+    ),
+  },
+  {
+    key: "binance",
+    label: "Binance",
+    children: (
+      <>
+        <Paragraph style={grayParagraphStyle}>
+          To buy $OFFICEX at floor presale price $0.01 USDC per token:
+        </Paragraph>
+        <ol>
+          <li>
+            Ensure you have{" "}
+            <a
+              href="https://bscscan.com/address/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"
+              target="_blank"
+            >
+              USDC on the Binance smart chain network.
+            </a>
+          </li>
+          <li>Copy the wallet address below.</li>
+          <li>
+            Send your desired amount of USDC to this address. Only send from a
+            wallet you control, so that $OFFICEX can be airdropped to you.
+            Careful when sending from CEX wallet.
+          </li>
+          <li>
+            Verify your transfer in the{" "}
+            <a
+              href="https://bscscan.com/address/0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4#tokentxns"
+              target="_blank"
+            >
+              bscscan history.
+            </a>
+          </li>
+          <li>
+            Wait for the Official Fundraiser to send. Follow us on Twitter (X){" "}
+            <a href="https://x.com/officexapp" target="_blank">
+              @officexapp
+            </a>{" "}
+            for updates
+          </li>
+        </ol>
+        <Space direction="vertical" style={{ width: "100%" }}>
+          <Text strong>Send USDC on Binance Smart Chain to:</Text>
+          <Input
+            addonAfter={
+              <CopyOutlined
+                onClick={() => {
+                  navigator.clipboard.writeText(BINANCE_PRESALE_WALLET);
+                  message.success("Wallet Address copied to clipboard!");
+                }}
+              />
+            }
+            defaultValue={BINANCE_PRESALE_WALLET}
+            value={BINANCE_PRESALE_WALLET}
+          />
+        </Space>
+        <p style={{ fontSize: "0.7rem", color: "gray", fontStyle: "italic" }}>
+          Presale price limited to first $15k usd across all chains. Excess will
+          be refunded.
+        </p>
+      </>
+    ),
+  },
+  {
+    key: "solana",
+    label: "Solana",
+    disabled: true,
+    children: (
+      <>
+        <Paragraph style={grayParagraphStyle}>
+          To buy $OFFICEX at floor presale price $0.01 USDC per token:
+        </Paragraph>
+        <ol>
+          <li>
+            Ensure you have{" "}
+            <a
+              href="https://explorer.solana.com/address/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+              target="_blank"
+            >
+              USDC on the Solana network.
+            </a>
+          </li>
+          <li>Copy the wallet address below.</li>
+          <li>
+            Send your desired amount of USDC to this address. Only send from a
+            wallet you control, so that $OFFICEX can be airdropped to you.
+            Careful when sending from CEX wallet.
+          </li>
+          <li>
+            Verify your transfer in the{" "}
+            <a
+              href="https://explorer.solana.com/address/6TSUB6YbubYs8kcxoB2KDF3N84ReG2aaaFZyZL3zq6nY"
+              target="_blank"
+            >
+              solana block history.
+            </a>
+          </li>
+          <li>
+            Wait for the Official Fundraiser to send. Follow us on Twitter (X){" "}
+            <a href="https://x.com/officexapp" target="_blank">
+              @officexapp
+            </a>{" "}
+            for updates
+          </li>
+        </ol>
+        <Space direction="vertical" style={{ width: "100%" }}>
+          <Text strong>Send USDC on Solana to:</Text>
+          <Input
+            addonAfter={
+              <CopyOutlined
+                onClick={() => {
+                  navigator.clipboard.writeText(SOLANA_PRESALE_WALLET);
+                  message.success("Wallet Address copied to clipboard!");
+                }}
+              />
+            }
+            defaultValue={SOLANA_PRESALE_WALLET}
+            value={SOLANA_PRESALE_WALLET}
+          />
+        </Space>
+        <p style={{ fontSize: "0.7rem", color: "gray", fontStyle: "italic" }}>
+          Presale price limited to first $15k usd across all chains. Excess will
+          be refunded.
         </p>
       </>
     ),
@@ -331,8 +407,8 @@ const items: TabsProps["items"] = [
 const PreseedOffer: React.FC = () => {
   const screenType = useScreenType();
   useEffect(() => {
-    mixpanel.track('View Token Sale')
-  }, [])
+    mixpanel.track("View Token Sale");
+  }, []);
   return (
     <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
       <Content style={{ padding: "0 32px" }}>
@@ -345,7 +421,7 @@ const PreseedOffer: React.FC = () => {
               fontWeight: "bold",
             }}
           >
-            $OFX
+            $OFFICEX
           </i>
           <Title level={1} style={{ fontWeight: "bold" }}>
             Token Presale
@@ -357,7 +433,16 @@ const PreseedOffer: React.FC = () => {
               textWrap: "wrap",
             }}
           >
-            Buy $OFX to own a piece of OfficeX Protocol before 100,000x user
+            Official Fundraiser has started, you can{" "}
+            <a
+              href="https://buy.indiecrypto.club/fund/8453/0x9916a602b99d61fb43E79678F3630d479E3194ca"
+              target="_blank"
+            >
+              buy $OFFICEX on IndieCrypto.
+            </a>{" "}
+            <br />
+            <br />
+            Buy $OFFICEX to own a piece of OfficeX Protocol before 100,000x user
             growth. Open source powered by crypto.{" "}
             <a
               href="https://docs.google.com/document/d/1J565dlAKY6dNPBZbXnxUezsTJGQBDKcO6vuklZ94BC0/edit?usp=sharing"
@@ -365,6 +450,7 @@ const PreseedOffer: React.FC = () => {
             >
               Read the Whitepaper
             </a>
+            .
           </Paragraph>
 
           <Title level={2}>How To Buy</Title>
@@ -385,7 +471,7 @@ const PreseedOffer: React.FC = () => {
               <Timeline>
                 <Timeline.Item color="green">
                   <Text strong>
-                    $0.01 USDT - Pre-Seed Price, First 1000 Users
+                    $0.01 USDC - Pre-Seed Price, First 1000 Users
                   </Text>
                 </Timeline.Item>
                 <Timeline.Item color="gray">
@@ -450,10 +536,10 @@ const PreseedOffer: React.FC = () => {
             </a>
           </Paragraph>
           <Collapse accordion>
-            <Panel header="How do I buy $OFX?" key="1">
+            <Panel header="How do I buy $OFFICEX?" key="1">
               <Paragraph>
-                Send USDT on Ethereum to the wallet address and you will receive
-                $OFX airdrop to the same wallet you send from. Airdrop is
+                Send USDC on Ethereum to the wallet address and you will receive
+                $OFFICEX airdrop to the same wallet you send from. Airdrop is
                 tentatively set for Oct 31st 2024 and will be announced on our
                 official X account{" "}
                 <a href="https://twitter.com/officexapp" target="_blank">
@@ -461,7 +547,7 @@ const PreseedOffer: React.FC = () => {
                 </a>
               </Paragraph>
               <Paragraph>
-                Send USDT on Ethereum to:
+                Send USDC on Ethereum to:
                 0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4
               </Paragraph>
               <Paragraph>Announcements on X (Twitter) @officexapp</Paragraph>
@@ -489,31 +575,32 @@ const PreseedOffer: React.FC = () => {
             </Panel>
             <Panel header="Pre-Seed Perks" key="4">
               <Paragraph>
-                Pre-Seed offers $OFX at the best floor price of ~$0.01 USD at a
-                $2M FDV. Early holders have the most potential for 1000x user
-                growth, as well as prestige ownership of a flagship dapp. See
-                growth potential explanation for more details.
+                Pre-Seed offers $OFFICEX at the best floor price of ~$0.01 USD
+                at a $2M FDV. Early holders have the most potential for 1000x
+                user growth, as well as prestige ownership of a flagship dapp.
+                See growth potential explanation for more details.
               </Paragraph>
             </Panel>
             <Panel header="What are the Tokenomics?" key="5">
               <Paragraph>
-                $OFX is a fixed supply token representing ownership in OfficeX
-                Protocol. It appreciates in value from hardcoded profit margins
-                at the smart contract level. When OfficeX users pay for gas, the
-                protocol fees auto-buy $OFX on decentralized exchanges. $OFX
-                also offers utility in the form of "gas-gated knowledge", DDoS
-                protection & governance voting power. Pre-seed buyers receive
-                frozen $OFX to be unlocked at public token offering. $OFX is a
-                pre-seed token, not a production token. Pre-seed $OFX is
-                auto-exchanged for production $OFX on the release date of
-                OfficeX v1.0-prod (currently v0.1-alpha). Read Tokenomics Offer
-                Letter for full details.
+                $OFFICEX is a fixed supply token representing ownership in
+                OfficeX Protocol. It appreciates in value from hardcoded profit
+                margins at the smart contract level. When OfficeX users pay for
+                gas, the protocol fees auto-buy $OFFICEX on decentralized
+                exchanges. $OFFICEX also offers utility in the form of
+                "gas-gated knowledge", DDoS protection & governance voting
+                power. Pre-seed buyers receive frozen $OFFICEX to be unlocked at
+                public token offering. $OFFICEX is a pre-seed token, not a
+                production token. Pre-seed $OFFICEX is auto-exchanged for
+                production $OFFICEX on the release date of OfficeX v1.0-prod
+                (currently v0.1-alpha). Read Tokenomics Offer Letter for full
+                details.
               </Paragraph>
             </Panel>
             <Panel header="When does the Token Sale End?" key="6">
               <Paragraph>
-                $OFX Pre-seed at $0.01 USD ends at $500k USD raised or earlier
-                subject to momentum. Estimated end date is Oct 2024.
+                $OFFICEX Pre-seed at $0.01 USD ends at $500k USD raised or
+                earlier subject to momentum. Estimated end date is Oct 2024.
               </Paragraph>
             </Panel>
           </Collapse>

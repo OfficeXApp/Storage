@@ -63,7 +63,7 @@ function App() {
 
   return (
     <div style={{ height: "100vh", maxHeight: "100vh", overflow: "hidden" }}>
-      {/* <Alert
+      <Alert
         message={
           <Marquee pauseOnHover gradient={false}>
             <div
@@ -74,16 +74,33 @@ function App() {
               }}
             >
               <span>
-                $OFX Token Pre-Seed Sept 2024 | Buy $OFX at bottom price{" "}
-                <a href="/presale" style={{ padding: "0px 10px" }}>
-                  Buy Presale
+                Buy $OFFICEX today! Grassroots crypto, zero insiders, zero VCs
+                <a
+                  href="https://buy.indiecrypto.club/fund/8453/0x1899C4e4129045c322cA2c5dFbE762FbcFf94633"
+                  target="_blank"
+                  style={{ padding: "0px 10px" }}
+                >
+                  Buy $OFFICEX
+                </a>
+                Official & Only Sale - Extreme Healthy Tokenomics, Industry
+                Leading Liquidity{" "}
+                <a
+                  href="https://buy.indiecrypto.club/fund/8453/0x1899C4e4129045c322cA2c5dFbE762FbcFf94633"
+                  target="_blank"
+                  style={{ padding: "0px 10px" }}
+                >
+                  Buy $OFFICEX
                 </a>
               </span>
               <span>
                 #OfficeX - Where Freedom Works | 100% Decentralized | 100% Open
                 Source{" "}
-                <a href="/presale" style={{ padding: "0px 10px" }}>
-                  Buy Presale
+                <a
+                  href="https://buy.indiecrypto.club/fund/8453/0x1899C4e4129045c322cA2c5dFbE762FbcFf94633"
+                  target="_blank"
+                  style={{ padding: "0px 10px" }}
+                >
+                  Buy $OFFICEX
                 </a>
               </span>
             </div>
@@ -92,7 +109,7 @@ function App() {
         type="info"
         banner
         closable={false}
-      /> */}
+      />
       <RouterUI />
     </div>
   );

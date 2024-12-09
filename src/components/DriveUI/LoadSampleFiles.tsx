@@ -30,9 +30,12 @@ const LoadSampleFiles = () => {
       console.log("Uploading default files...");
       const isLocalhost = window.location.hostname === "localhost";
       const filesToUpload = isLocalhost
-        ? ["Whitepaper.pdf", "Logo.jpg"]
+        ? [
+            // "Whitepaper.pdf",
+            "Logo.jpg",
+          ]
         : [
-            "https://firebasestorage.googleapis.com/v0/b/arbitrage-bot-ea10c.appspot.com/o/officex%2Fwhitepaper.pdf?alt=media&token=9c239cc8-b1c5-47f7-a00b-e4d09b876a34",
+            // "https://firebasestorage.googleapis.com/v0/b/arbitrage-bot-ea10c.appspot.com/o/officex%2Fwhitepaper.pdf?alt=media&token=9c239cc8-b1c5-47f7-a00b-e4d09b876a34",
             "https://firebasestorage.googleapis.com/v0/b/arbitrage-bot-ea10c.appspot.com/o/officex%2Flogo.jpg?alt=media&token=223e42d5-3cdf-4be6-ba9b-32e89ab0faa5",
           ];
       const fileObjects: File[] = [];

@@ -110,9 +110,9 @@ const SideMenu = ({
   );
 };
 
-function ExternalRedirect() {
+function ExternalRedirect({ url }: { url: string }) {
   useEffect(() => {
-    window.location.href = "https://tinyurl.com/ofx-whitepaper";
+    window.location.href = url;
   }, []);
 
   return null;
@@ -219,17 +219,28 @@ const RouterUI = () => {
               }}
             >
               <Routes>
-                <Route path="/" element={<Navigate to="/drive" />} />
+                <Route path="/" element={<Navigate to="/drive/Web3Storj/" />} />
                 <Route
                   path="/drive/*"
                   element={
                     <DriveUI toggleUploadPanel={setUploadPanelVisible} />
                   }
                 />
+                <Route
+                  path="/buy"
+                  element={
+                    <ExternalRedirect url="https://buy.indiecrypto.club/fund/8453/0x1899C4e4129045c322cA2c5dFbE762FbcFf94633" />
+                  }
+                />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/presale" element={<PreseedOffer />} />
                 <Route path="/preseed" element={<Navigate to="/presale" />} />
-                <Route path="/whitepaper" element={<ExternalRedirect />} />
+                <Route
+                  path="/whitepaper"
+                  element={
+                    <ExternalRedirect url="https://tinyurl.com/ofx-whitepaper" />
+                  }
+                />
                 <Route path="/gift" element={<GiftPage />} />
                 {/* Add other routes here */}
               </Routes>

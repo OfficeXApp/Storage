@@ -32,9 +32,9 @@ const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
 const { Panel } = Collapse;
 
-const ETH_PRESALE_WALLET = "0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4";
+const ETH_PRESALE_WALLET = "0xed75933Fc4Ebb1284833549443BF184531C0A6ac";
 const SOLANA_PRESALE_WALLET = "6TSUB6YbubYs8kcxoB2KDF3N84ReG2aaaFZyZL3zq6nY";
-const BINANCE_PRESALE_WALLET = "0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4";
+const BINANCE_PRESALE_WALLET = "0xed75933Fc4Ebb1284833549443BF184531C0A6ac";
 
 const cardStyle: React.CSSProperties = {
   width: "100%",
@@ -170,7 +170,7 @@ const items: TabsProps["items"] = [
           <li>
             Verify your transfer in the{" "}
             <a
-              href="https://etherscan.io/address/0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4#tokentxns"
+              href="https://etherscan.io/address/0xed75933Fc4Ebb1284833549443BF184531C0A6ac#tokentxns"
               target="_blank"
             >
               etherscan history.
@@ -233,7 +233,7 @@ const items: TabsProps["items"] = [
           <li>
             Verify your transfer in the{" "}
             <a
-              href="https://basescan.org/address/0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4#tokentxns"
+              href="https://basescan.org/address/0xed75933Fc4Ebb1284833549443BF184531C0A6ac#tokentxns"
               target="_blank"
             >
               basescan history.
@@ -296,7 +296,7 @@ const items: TabsProps["items"] = [
           <li>
             Verify your transfer in the{" "}
             <a
-              href="https://bscscan.com/address/0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4#tokentxns"
+              href="https://bscscan.com/address/0xed75933Fc4Ebb1284833549443BF184531C0A6ac#tokentxns"
               target="_blank"
             >
               bscscan history.
@@ -445,7 +445,7 @@ const PreseedOffer: React.FC = () => {
             Buy $OFFICEX to own a piece of OfficeX Protocol before 100,000x user
             growth. Open source powered by crypto.{" "}
             <a
-              href="https://docs.google.com/document/d/1J565dlAKY6dNPBZbXnxUezsTJGQBDKcO6vuklZ94BC0/edit?usp=sharing"
+              href="https://x.com/officexapp/status/1862459322946724026?s=46&t=5lZijnKkxLN53Dcu6LTCWw"
               target="_blank"
             >
               Read the Whitepaper
@@ -548,7 +548,7 @@ const PreseedOffer: React.FC = () => {
               </Paragraph>
               <Paragraph>
                 Send USDC on Ethereum to:
-                0x86E87DB7Ecc260eCC6EE91C5352F98997e6c4ac4
+                0xed75933Fc4Ebb1284833549443BF184531C0A6ac
               </Paragraph>
               <Paragraph>Announcements on X (Twitter) @officexapp</Paragraph>
             </Panel>

@@ -24,6 +24,8 @@ export interface FileMetadata {
   'id' : FileUUID,
   'folder_uuid' : FolderUUID,
   'raw_url' : string,
+  'deleted' : boolean,
+  'last_changed_unix_ms' : bigint,
   'file_version' : number,
   'owner' : UserID,
   'storage_location' : StorageLocationEnum,
@@ -40,6 +42,8 @@ export interface FileMetadata {
 export type FileUUID = string;
 export interface FolderMetadata {
   'id' : FolderUUID,
+  'deleted' : boolean,
+  'last_changed_unix_ms' : bigint,
   'original_folder_name' : string,
   'owner' : UserID,
   'storage_location' : StorageLocationEnum,
@@ -54,6 +58,8 @@ export type FolderUUID = string;
 export type Result = { 'Ok' : Principal } |
   { 'Err' : string };
 export type ResultText = { 'Ok' : string } |
+  { 'Err' : string };
+export type Result_FileUUID = { 'Ok' : FileUUID } |
   { 'Err' : string };
 export type Result_FolderMetadata = { 'Ok' : FolderMetadata } |
   { 'Err' : string };
@@ -96,9 +102,17 @@ export interface _SERVICE {
   'rename_folder' : ActorMethod<[FolderUUID, string], UpdateResult>,
   'snapshot_hashtables' : ActorMethod<[], StateSnapshot>,
   'update_username' : ActorMethod<[string], UpdateResult>,
+  'upsert_cloud_file_with_local_sync' : ActorMethod<
+    [FileUUID, FileMetadata],
+    Result_FileUUID
+  >,
+  'upsert_cloud_folder_with_local_sync' : ActorMethod<
+    [FolderUUID, FolderMetadata],
+    Result_FolderMetadata
+  >,
   'upsert_file_to_hash_tables' : ActorMethod<
     [string, StorageLocationEnum],
-    string
+    FileUUID
   >,
 }
 export declare const idlFactory: IDL.InterfaceFactory;

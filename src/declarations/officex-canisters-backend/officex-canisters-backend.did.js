@@ -11,6 +11,8 @@ export const idlFactory = ({ IDL }) => {
   const FileUUID = IDL.Text;
   const FolderMetadata = IDL.Record({
     'id' : FolderUUID,
+    'deleted' : IDL.Bool,
+    'last_changed_unix_ms' : IDL.Nat64,
     'original_folder_name' : IDL.Text,
     'owner' : UserID,
     'storage_location' : StorageLocationEnum,
@@ -35,6 +37,8 @@ export const idlFactory = ({ IDL }) => {
     'id' : FileUUID,
     'folder_uuid' : FolderUUID,
     'raw_url' : IDL.Text,
+    'deleted' : IDL.Bool,
+    'last_changed_unix_ms' : IDL.Nat64,
     'file_version' : IDL.Nat32,
     'owner' : UserID,
     'storage_location' : StorageLocationEnum,
@@ -60,6 +64,7 @@ export const idlFactory = ({ IDL }) => {
     'full_file_path_to_uuid' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
     'file_uuid_to_metadata' : IDL.Vec(IDL.Tuple(IDL.Text, FileMetadata)),
   });
+  const Result_FileUUID = IDL.Variant({ 'Ok' : FileUUID, 'Err' : IDL.Text });
   return IDL.Service({
     'create_folder' : IDL.Func(
         [DriveFullFilePath, StorageLocationEnum],
@@ -97,9 +102,19 @@ export const idlFactory = ({ IDL }) => {
     'rename_folder' : IDL.Func([FolderUUID, IDL.Text], [UpdateResult], []),
     'snapshot_hashtables' : IDL.Func([], [StateSnapshot], ['query']),
     'update_username' : IDL.Func([IDL.Text], [UpdateResult], []),
+    'upsert_cloud_file_with_local_sync' : IDL.Func(
+        [FileUUID, FileMetadata],
+        [Result_FileUUID],
+        [],
+      ),
+    'upsert_cloud_folder_with_local_sync' : IDL.Func(
+        [FolderUUID, FolderMetadata],
+        [Result_FolderMetadata],
+        [],
+      ),
     'upsert_file_to_hash_tables' : IDL.Func(
         [IDL.Text, StorageLocationEnum],
-        [IDL.Text],
+        [FileUUID],
         [],
       ),
   });

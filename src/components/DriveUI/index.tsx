@@ -41,6 +41,7 @@ import {
   AudioOutlined,
   FilePdfOutlined,
   FieldTimeOutlined,
+  CloudSyncOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -110,31 +111,43 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
 
-
   useEffect(() => {
-    if (window.location.pathname === '/drive/Web3Storj/') {
-      const isFreeTrialStorjCreds = localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) === freeTrialStorjCreds.access_key 
+    if (window.location.pathname === "/drive/Web3Storj/") {
+      const isFreeTrialStorjCreds =
+        localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
+        freeTrialStorjCreds.access_key;
       if (isFreeTrialStorjCreds) {
         apiNotifs.open({
-          message: 'Free Public Sharing',
-          description: "Public files are deleted every 24 hours. Please upgrade OfficeX for your own private storage.",
+          message: "Free Public Sharing",
+          description:
+            "Public files are deleted every 24 hours. Please upgrade OfficeX for your own private storage.",
           icon: <FieldTimeOutlined />,
-          btn: (<Space>
-            <Link to="/settings">
-              <Button onClick={() => {
-                mixpanel.track('Upgrade Intent')
-              }} type="link" size="small">
-                Upgrade
+          btn: (
+            <Space>
+              <Link to="/settings">
+                <Button
+                  onClick={() => {
+                    mixpanel.track("Upgrade Intent");
+                  }}
+                  type="link"
+                  size="small"
+                >
+                  Upgrade
+                </Button>
+              </Link>
+              <Button
+                type="primary"
+                size="small"
+                onClick={() => apiNotifs.destroy()}
+              >
+                Close
               </Button>
-            </Link>
-            <Button type="primary" size="small" onClick={() => apiNotifs.destroy()}>
-              Close
-            </Button>
-          </Space>)
-        })
+            </Space>
+          ),
+        });
       }
     }
-  }, [window.location.pathname])
+  }, [window.location.pathname]);
 
   useEffect(() => {
     const path = encodedPath ? decodeURIComponent(encodedPath) : "";
@@ -186,6 +199,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               createdDate: new Date(),
               storageLocation: StorageLocationEnum.Web3Storj,
               isDisabled: false,
+              lastChangedUnixMs: 0,
             },
             {
               id: "BrowserCache" as FolderUUID,
@@ -199,6 +213,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               createdDate: new Date(),
               storageLocation: StorageLocationEnum.BrowserCache,
               isDisabled: false,
+              lastChangedUnixMs: 0,
             },
             {
               id: "HardDrive" as FolderUUID,
@@ -212,6 +227,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               createdDate: new Date(),
               storageLocation: StorageLocationEnum.HardDrive,
               isDisabled: true,
+              lastChangedUnixMs: 0,
             },
             {
               id: "AWS" as FolderUUID,
@@ -225,6 +241,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               createdDate: new Date(),
               storageLocation: StorageLocationEnum.HardDrive,
               isDisabled: true,
+              lastChangedUnixMs: 0,
             },
           ],
           files: [],
@@ -246,7 +263,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           100,
           0
         );
-        console.log("result", result);
+        console.log(`>>>> result from ${fullPathString}`, result);
         setContent(result);
         // this might be a file not a folder, so lets attempt to retrieve the file
         if (result.files.length === 0 && result.folders.length === 0) {
@@ -263,7 +280,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           const file = await getFileByFullPath(
             filePathString as DriveFullFilePath
           );
-          
+
           if (file) {
             setSingleFile(file);
           } else {
@@ -381,10 +398,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         title: "Last modified",
         dataIndex: "modifiedAt",
         key: "modifiedAt",
-        render: (date: Date) =>
-          date
-            ? `${date.toLocaleTimeString()} ${date.toLocaleDateString()}`
-            : "N/A",
+        render: (date: Date) => (date ? `${date.toLocaleString()}` : "N/A"),
         responsive: ["lg"] as Breakpoint[],
       },
       {
@@ -474,32 +488,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     },
   ];
 
-  const newButtonItems: MenuProps["items"] = [
-    {
-      label: "New Folder",
-      key: "newFolder",
-    },
-    {
-      type: "divider",
-    },
-    {
-      label: "File Upload",
-      key: "uploadFile",
-    },
-    {
-      label: "Folder Upload",
-      key: "uploadFolder",
-    },
-    {
-      type: "divider",
-    },
-    {
-      label: "Connect Hard Drive",
-      key: "connectHardDrive",
-      disabled: true,
-    },
-  ];
-
   const onClick: MenuProps["onClick"] = ({ key }) => {
     message.info(`Click on item ${key}`);
   };
@@ -524,7 +512,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         id: f.id,
         title: f.originalFolderName,
         owner: "System",
-        modifiedAt: new Date(),
+        modifiedAt: new Date(f.lastChangedUnixMs),
         isFolder: true,
         fullPath: f.fullFolderPath,
         isDisabled: f.isDisabled || false,

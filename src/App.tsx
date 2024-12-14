@@ -76,7 +76,7 @@ function App() {
               <span>
                 Buy $OFFICEX today! Grassroots crypto, zero insiders, zero VCs
                 <a
-                  href="https://buy.indiecrypto.club/fund/8453/0x1899C4e4129045c322cA2c5dFbE762FbcFf94633"
+                  href="https://app.uniswap.org/swap?inputCurrency=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&outputCurrency=0x48808407d95f691D076C90337d42eE3836656990"
                   target="_blank"
                   style={{ padding: "0px 10px" }}
                 >
@@ -85,7 +85,7 @@ function App() {
                 Official & Only Sale - Extreme Healthy Tokenomics, Industry
                 Leading Liquidity{" "}
                 <a
-                  href="https://buy.indiecrypto.club/fund/8453/0x1899C4e4129045c322cA2c5dFbE762FbcFf94633"
+                  href="https://app.uniswap.org/swap?inputCurrency=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&outputCurrency=0x48808407d95f691D076C90337d42eE3836656990"
                   target="_blank"
                   style={{ padding: "0px 10px" }}
                 >
@@ -96,7 +96,7 @@ function App() {
                 #OfficeX - Where Freedom Works | 100% Decentralized | 100% Open
                 Source{" "}
                 <a
-                  href="https://buy.indiecrypto.club/fund/8453/0x1899C4e4129045c322cA2c5dFbE762FbcFf94633"
+                  href="https://app.uniswap.org/swap?inputCurrency=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&outputCurrency=0x48808407d95f691D076C90337d42eE3836656990"
                   target="_blank"
                   style={{ padding: "0px 10px" }}
                 >

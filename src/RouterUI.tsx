@@ -229,7 +229,7 @@ const RouterUI = () => {
                 <Route
                   path="/buy"
                   element={
-                    <ExternalRedirect url="https://buy.indiecrypto.club/fund/8453/0x1899C4e4129045c322cA2c5dFbE762FbcFf94633" />
+                    <ExternalRedirect url="https://app.uniswap.org/swap?inputCurrency=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&outputCurrency=0x48808407d95f691D076C90337d42eE3836656990" />
                   }
                 />
                 <Route path="/settings" element={<SettingsPage />} />

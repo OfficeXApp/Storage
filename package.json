@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
-    "@officexapp/framework": "^0.0.282",
+    "@officexapp/framework": "^0.0.327",
     "antd": "^5.20.1",
     "mixpanel-browser": "^2.55.1",
     "react": "^18.3.1",

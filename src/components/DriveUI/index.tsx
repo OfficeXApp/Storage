@@ -71,7 +71,6 @@ interface DriveItemRow {
   id: FolderUUID | FileUUID;
   title: string;
   owner: string;
-  modifiedAt: Date;
   isFolder: boolean;
   fullPath: DriveFullFilePath;
   isDisabled: boolean;
@@ -264,9 +263,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           0
         );
         console.log(`>>>> result from ${fullPathString}`, result);
-        setContent(result);
+        const filteredDeleted = {
+          ...result,
+          folders: result.folders.filter((f) => !f.deleted),
+          files: result.files.filter((f) => !f.deleted),
+        };
+        setContent(filteredDeleted);
         // this might be a file not a folder, so lets attempt to retrieve the file
-        if (result.files.length === 0 && result.folders.length === 0) {
+        if (
+          filteredDeleted.files.length === 0 &&
+          filteredDeleted.folders.length === 0
+        ) {
           // getFileByFullPath
           console.log("fetching file", fullPathString);
           let filePathString = fullPathString;
@@ -395,13 +402,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         responsive: ["md"] as Breakpoint[],
       },
       {
-        title: "Last modified",
-        dataIndex: "modifiedAt",
-        key: "modifiedAt",
-        render: (date: Date) => (date ? `${date.toLocaleString()}` : "N/A"),
-        responsive: ["lg"] as Breakpoint[],
-      },
-      {
         title: "Actions",
         key: "actions",
         align: "right" as const,
@@ -512,7 +512,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         id: f.id,
         title: f.originalFolderName,
         owner: "System",
-        modifiedAt: new Date(f.lastChangedUnixMs),
         isFolder: true,
         fullPath: f.fullFolderPath,
         isDisabled: f.isDisabled || false,
@@ -523,7 +522,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         id: f.id,
         title: f.originalFolderName,
         owner: f.owner,
-        modifiedAt: f.createdDate,
         isFolder: true,
         fullPath: f.fullFolderPath,
         isDisabled: false,
@@ -532,7 +530,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         id: f.id,
         title: f.originalFileName,
         owner: f.owner,
-        modifiedAt: f.modifiedDate,
         isFolder: false,
         fullPath: f.fullFilePath,
         isDisabled: false,

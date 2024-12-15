@@ -29,7 +29,6 @@ export interface FileMetadata {
   'file_version' : number,
   'owner' : UserID,
   'storage_location' : StorageLocationEnum,
-  'modified_date' : bigint,
   'tags' : Array<Tag>,
   'full_file_path' : DriveFullFilePath,
   'file_size' : bigint,

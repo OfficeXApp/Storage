@@ -42,7 +42,6 @@ export const idlFactory = ({ IDL }) => {
     'file_version' : IDL.Nat32,
     'owner' : UserID,
     'storage_location' : StorageLocationEnum,
-    'modified_date' : IDL.Nat64,
     'tags' : IDL.Vec(Tag),
     'full_file_path' : DriveFullFilePath,
     'file_size' : IDL.Nat64,

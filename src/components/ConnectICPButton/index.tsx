@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CloudSyncOutlined } from "@ant-design/icons";
 import { checkIsProdByURL } from "../../api/helpers";
 import mixpanel from "mixpanel-browser";
+import useCloudSync from "../../api/cloud-sync";
 
 const { Text } = Typography;
 const { useIdentity } = Identity;
@@ -12,6 +13,7 @@ const ConnectICPButton = () => {
   const { icpCanisterId, deployIcpCanister } = useIdentity();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { syncOfflineWithCloud } = useCloudSync();
 
   const connectICP = async () => {
     setLoading(true);
@@ -19,6 +21,10 @@ const ConnectICPButton = () => {
     setLoading(false);
     setIsModalVisible(false);
     message.success("Successfully Enabled Cloud");
+    // refresh the page
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   if (icpCanisterId) return null;

@@ -44,7 +44,6 @@ type FileMetadata = record {
     tags : vec Tag;
     owner : UserID;
     created_date : nat64;  // Changed from text to nat64
-    modified_date : nat64;  // Changed from text to nat64
     storage_location : StorageLocationEnum;
     file_size : nat64;
     raw_url : text;

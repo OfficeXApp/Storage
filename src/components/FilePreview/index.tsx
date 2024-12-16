@@ -169,6 +169,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
           const url = await indexdbGetFileUrl(file.id as FileUUID);
           setFileUrl(url);
         } else if (file.storageLocation === StorageLocationEnum.Web3Storj) {
+          console.log(`setFileUrl Web3Storj`, file);
           setFileUrl(file.rawURL as string);
         }
       } catch (error) {

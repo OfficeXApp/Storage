@@ -94,7 +94,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const location = useLocation();
   const screenType = useScreenType();
   const { icpCanisterId, deployIcpCanister } = useIdentity();
-  const { syncOfflineWithCloud, isSyncing } = useCloudSync();
+  const { syncOfflineWithCloud, exportSnapshots, isSyncing } = useCloudSync();
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [content, setContent] = useState<{
     folders: FolderMetadataUI[];
@@ -644,6 +644,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               />
             </div>
           )}
+
+          {/* <p onClick={exportSnapshots}>Snapshot</p> */}
 
           <ActionMenuButton
             isBigButton={false}

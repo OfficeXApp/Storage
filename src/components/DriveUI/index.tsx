@@ -13,6 +13,7 @@ import {
   Breakpoint,
   Modal,
   notification,
+  Spin,
 } from "antd";
 import {
   FolderOutlined,
@@ -41,6 +42,7 @@ import {
   AudioOutlined,
   FilePdfOutlined,
   FieldTimeOutlined,
+  CloudSyncOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -55,6 +57,7 @@ import {
   LOCAL_STORAGE_STORJ_ACCESS_KEY,
   LOCAL_STORAGE_STORJ_SECRET_KEY,
   LOCAL_STORAGE_STORJ_ENDPOINT,
+  Identity,
 } from "@officexapp/framework";
 import useScreenType from "react-screentype-hook";
 import ActionMenuButton from "../ActionMenuButton";
@@ -65,12 +68,14 @@ import { isMobile } from "react-device-detect";
 import { getFileType } from "../../api/helpers";
 import { freeTrialStorjCreds } from "../../api/storj";
 import mixpanel from "mixpanel-browser";
+import useCloudSync from "../../api/cloud-sync";
+
+const { useIdentity } = Identity;
 
 interface DriveItemRow {
   id: FolderUUID | FileUUID;
   title: string;
   owner: string;
-  modifiedAt: Date;
   isFolder: boolean;
   fullPath: DriveFullFilePath;
   isDisabled: boolean;
@@ -88,6 +93,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const screenType = useScreenType();
+  const { icpCanisterId, deployIcpCanister } = useIdentity();
+  const { syncOfflineWithCloud, exportSnapshots, isSyncing } = useCloudSync();
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [content, setContent] = useState<{
     folders: FolderMetadataUI[];
@@ -110,31 +117,43 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
 
-
   useEffect(() => {
-    if (window.location.pathname === '/drive/Web3Storj/') {
-      const isFreeTrialStorjCreds = localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) === freeTrialStorjCreds.access_key 
+    if (window.location.pathname === "/drive/Web3Storj/") {
+      const isFreeTrialStorjCreds =
+        localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
+        freeTrialStorjCreds.access_key;
       if (isFreeTrialStorjCreds) {
         apiNotifs.open({
-          message: 'Free Public Sharing',
-          description: "Public files are deleted every 24 hours. Please upgrade OfficeX for your own private storage.",
+          message: "Free Public Sharing",
+          description:
+            "Public files are deleted every 24 hours. Please upgrade OfficeX for your own private storage.",
           icon: <FieldTimeOutlined />,
-          btn: (<Space>
-            <Link to="/settings">
-              <Button onClick={() => {
-                mixpanel.track('Upgrade Intent')
-              }} type="link" size="small">
-                Upgrade
+          btn: (
+            <Space>
+              <Link to="/settings">
+                <Button
+                  onClick={() => {
+                    mixpanel.track("Upgrade Intent");
+                  }}
+                  type="link"
+                  size="small"
+                >
+                  Upgrade
+                </Button>
+              </Link>
+              <Button
+                type="primary"
+                size="small"
+                onClick={() => apiNotifs.destroy()}
+              >
+                Close
               </Button>
-            </Link>
-            <Button type="primary" size="small" onClick={() => apiNotifs.destroy()}>
-              Close
-            </Button>
-          </Space>)
-        })
+            </Space>
+          ),
+        });
       }
     }
-  }, [window.location.pathname])
+  }, [window.location.pathname]);
 
   useEffect(() => {
     const path = encodedPath ? decodeURIComponent(encodedPath) : "";
@@ -186,6 +205,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               createdDate: new Date(),
               storageLocation: StorageLocationEnum.Web3Storj,
               isDisabled: false,
+              lastChangedUnixMs: 0,
             },
             {
               id: "BrowserCache" as FolderUUID,
@@ -199,6 +219,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               createdDate: new Date(),
               storageLocation: StorageLocationEnum.BrowserCache,
               isDisabled: false,
+              lastChangedUnixMs: 0,
             },
             {
               id: "HardDrive" as FolderUUID,
@@ -212,6 +233,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               createdDate: new Date(),
               storageLocation: StorageLocationEnum.HardDrive,
               isDisabled: true,
+              lastChangedUnixMs: 0,
             },
             {
               id: "AWS" as FolderUUID,
@@ -225,6 +247,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               createdDate: new Date(),
               storageLocation: StorageLocationEnum.HardDrive,
               isDisabled: true,
+              lastChangedUnixMs: 0,
             },
           ],
           files: [],
@@ -246,10 +269,18 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           100,
           0
         );
-        console.log("result", result);
-        setContent(result);
+        console.log(`>>>> result from ${fullPathString}`, result);
+        const filteredDeleted = {
+          ...result,
+          folders: result.folders.filter((f) => !f.deleted),
+          files: result.files.filter((f) => !f.deleted),
+        };
+        setContent(filteredDeleted);
         // this might be a file not a folder, so lets attempt to retrieve the file
-        if (result.files.length === 0 && result.folders.length === 0) {
+        if (
+          filteredDeleted.files.length === 0 &&
+          filteredDeleted.folders.length === 0
+        ) {
           // getFileByFullPath
           console.log("fetching file", fullPathString);
           let filePathString = fullPathString;
@@ -263,7 +294,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           const file = await getFileByFullPath(
             filePathString as DriveFullFilePath
           );
-          
+
           if (file) {
             setSingleFile(file);
           } else {
@@ -378,16 +409,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         responsive: ["md"] as Breakpoint[],
       },
       {
-        title: "Last modified",
-        dataIndex: "modifiedAt",
-        key: "modifiedAt",
-        render: (date: Date) =>
-          date
-            ? `${date.toLocaleTimeString()} ${date.toLocaleDateString()}`
-            : "N/A",
-        responsive: ["lg"] as Breakpoint[],
-      },
-      {
         title: "Actions",
         key: "actions",
         align: "right" as const,
@@ -474,32 +495,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     },
   ];
 
-  const newButtonItems: MenuProps["items"] = [
-    {
-      label: "New Folder",
-      key: "newFolder",
-    },
-    {
-      type: "divider",
-    },
-    {
-      label: "File Upload",
-      key: "uploadFile",
-    },
-    {
-      label: "Folder Upload",
-      key: "uploadFolder",
-    },
-    {
-      type: "divider",
-    },
-    {
-      label: "Connect Hard Drive",
-      key: "connectHardDrive",
-      disabled: true,
-    },
-  ];
-
   const onClick: MenuProps["onClick"] = ({ key }) => {
     message.info(`Click on item ${key}`);
   };
@@ -524,7 +519,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         id: f.id,
         title: f.originalFolderName,
         owner: "System",
-        modifiedAt: new Date(),
         isFolder: true,
         fullPath: f.fullFolderPath,
         isDisabled: f.isDisabled || false,
@@ -535,7 +529,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         id: f.id,
         title: f.originalFolderName,
         owner: f.owner,
-        modifiedAt: f.createdDate,
         isFolder: true,
         fullPath: f.fullFolderPath,
         isDisabled: false,
@@ -544,7 +537,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         id: f.id,
         title: f.originalFileName,
         owner: f.owner,
-        modifiedAt: f.modifiedDate,
         isFolder: false,
         fullPath: f.fullFilePath,
         isDisabled: false,
@@ -589,6 +581,20 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     setIsStorjModalVisible(false);
   };
 
+  const handleCloudSync = async () => {
+    if (isSyncing) return;
+    if (window.location.pathname.includes("Web3Storj")) {
+      apiNotifs.open({
+        message: "Syncing Cloud...",
+        description:
+          "Please wait while we sync your offline changes with the cloud",
+        icon: <ReloadOutlined spin size={16} />,
+      });
+      await syncOfflineWithCloud({});
+      await fetchContent();
+    }
+  };
+
   return (
     <div
       style={{
@@ -614,9 +620,33 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       >
         <Breadcrumb items={breadcrumbItems} />
         <div style={{ display: "flex", flexDirection: "row" }}>
-          {/* <Button onClick={() => fetchContent()} type="link">
-                <ReloadOutlined size={32} style={{ color: 'gray' }} />
-            </Button> */}
+          {icpCanisterId && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-start",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ color: "gray", marginRight: "10px" }}>
+                {isSyncing ? "Syncing..." : ""}
+              </span>
+              <ReloadOutlined
+                onClick={handleCloudSync}
+                size={32}
+                style={{
+                  color: "gray",
+                  marginRight: "12px",
+                  cursor: isSyncing ? "not-allowed" : "pointer",
+                }}
+                spin={isSyncing}
+              />
+            </div>
+          )}
+
+          {/* <p onClick={exportSnapshots}>Snapshot</p> */}
+
           <ActionMenuButton
             isBigButton={false}
             toggleUploadPanel={toggleUploadPanel}

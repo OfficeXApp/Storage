@@ -13,6 +13,7 @@ import {
   FolderOutlined,
   UploadOutlined,
   FolderAddOutlined,
+  CloudSyncOutlined,
 } from "@ant-design/icons";
 import {
   useDrive,
@@ -22,10 +23,9 @@ import {
 } from "@officexapp/framework";
 import { useLocation, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import {
-  Identity,
-} from "@officexapp/framework";
+import { Identity } from "@officexapp/framework";
 import mixpanel from "mixpanel-browser";
+import useCloudSync from "../../api/cloud-sync";
 
 const { useIdentity } = Identity;
 
@@ -38,7 +38,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   isBigButton = false,
   toggleUploadPanel,
 }) => {
-  const { icpCanister } = useIdentity();
+  const { icpCanisterId } = useIdentity();
   const { uploadFilesFolders, createFolder } = useDrive();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
@@ -73,17 +73,17 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   };
 
   const handleUploadFiles = () => {
-    mixpanel.track('Upload Files')
+    mixpanel.track("Upload Files");
     fileInputRef.current?.click();
   };
 
   const handleUploadFolder = () => {
-    mixpanel.track('Upload Files')
+    mixpanel.track("Upload Files");
     folderInputRef.current?.click();
   };
 
   const handleCreateFolder = async () => {
-    mixpanel.track('Create Folder')
+    mixpanel.track("Create Folder");
     if (newFolderName.trim()) {
       try {
         const { uploadFolderPath, storageLocation } = getUploadFolderPath();
@@ -161,7 +161,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     <>
       <Dropdown menu={{ items: newButtonItems }}>
         <Button
-          type={isBigButton && icpCanister ? "primary" : undefined}
+          type={isBigButton && icpCanisterId ? "primary" : undefined}
           block={isBigButton}
           style={
             isBigButton

@@ -28,6 +28,8 @@ type FolderMetadata = record {
     owner : UserID;
     created_date : nat64;  // Changed from text to nat64
     storage_location : StorageLocationEnum;
+    last_changed_unix_ms: nat64;
+    deleted: bool;
 };
 
 type FileMetadata = record {
@@ -42,10 +44,11 @@ type FileMetadata = record {
     tags : vec Tag;
     owner : UserID;
     created_date : nat64;  // Changed from text to nat64
-    modified_date : nat64;  // Changed from text to nat64
     storage_location : StorageLocationEnum;
     file_size : nat64;
     raw_url : text;
+    last_changed_unix_ms: nat64;
+    deleted: bool;
 };
 
 type FetchFilesAtFolderPathConfig = record {
@@ -89,6 +92,16 @@ type Result_FolderMetadata = variant {
     Err : text;
 };
 
+type Result_FileUUID = variant {
+    Ok : FileUUID;
+    Err : text;
+};
+
+type Result_FolderUUID = variant {
+    Ok : FolderUUID;
+    Err : text;
+};
+
 service : {
     "ping" : () -> (text) query;
     "create_folder" : (DriveFullFilePath, StorageLocationEnum) -> (Result_FolderMetadata);
@@ -100,8 +113,10 @@ service : {
     "rename_file" : (FileUUID, text) -> (UpdateResult);
     "delete_folder" : (FolderUUID) -> (UpdateResult);
     "delete_file" : (FileUUID) -> (UpdateResult);
+    "upsert_cloud_file_with_local_sync": (file_id: FileUUID, file_metadata: FileMetadata) -> (Result_FileUUID);
+    "upsert_cloud_folder_with_local_sync":(folder_id: FolderUUID, folder_metadata: FolderMetadata) -> (Result_FolderUUID);
     "fetch_files_at_folder_path" : (FetchFilesAtFolderPathConfig) -> (FetchFilesResult) query;
-    "upsert_file_to_hash_tables" : (text, StorageLocationEnum) -> (text);
+    "upsert_file_to_hash_tables" : (text, StorageLocationEnum) -> (FileUUID);
     "snapshot_hashtables" : () -> (StateSnapshot) query;
     "get_canister_balance" : () -> (nat64) query;
     "update_username" : (text) -> (UpdateResult);

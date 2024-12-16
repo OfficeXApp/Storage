@@ -46,7 +46,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { syncOfflineWithCloud } = useCloudSync();
 
   const handleFileSelect = (files: FileList | null) => {
     if (files) {
@@ -150,16 +149,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     },
     {
       type: "divider",
-    },
-    {
-      label: (
-        <Space>
-          <CloudSyncOutlined />
-          Sync Cloud
-        </Space>
-      ),
-      key: "syncCloud",
-      onClick: () => syncOfflineWithCloud({}),
     },
     {
       label: "Connect Hard Drive",

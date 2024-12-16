@@ -13,6 +13,7 @@ import {
   Breakpoint,
   Modal,
   notification,
+  Spin,
 } from "antd";
 import {
   FolderOutlined,
@@ -56,6 +57,7 @@ import {
   LOCAL_STORAGE_STORJ_ACCESS_KEY,
   LOCAL_STORAGE_STORJ_SECRET_KEY,
   LOCAL_STORAGE_STORJ_ENDPOINT,
+  Identity,
 } from "@officexapp/framework";
 import useScreenType from "react-screentype-hook";
 import ActionMenuButton from "../ActionMenuButton";
@@ -66,6 +68,9 @@ import { isMobile } from "react-device-detect";
 import { getFileType } from "../../api/helpers";
 import { freeTrialStorjCreds } from "../../api/storj";
 import mixpanel from "mixpanel-browser";
+import useCloudSync from "../../api/cloud-sync";
+
+const { useIdentity } = Identity;
 
 interface DriveItemRow {
   id: FolderUUID | FileUUID;
@@ -88,6 +93,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const screenType = useScreenType();
+  const { icpCanisterId, deployIcpCanister } = useIdentity();
+  const { syncOfflineWithCloud, isSyncing } = useCloudSync();
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [content, setContent] = useState<{
     folders: FolderMetadataUI[];
@@ -574,6 +581,20 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     setIsStorjModalVisible(false);
   };
 
+  const handleCloudSync = async () => {
+    if (isSyncing) return;
+    if (window.location.pathname.includes("Web3Storj")) {
+      apiNotifs.open({
+        message: "Syncing Cloud...",
+        description:
+          "Please wait while we sync your offline changes with the cloud",
+        icon: <ReloadOutlined spin size={16} />,
+      });
+      await syncOfflineWithCloud({});
+      await fetchContent();
+    }
+  };
+
   return (
     <div
       style={{
@@ -599,9 +620,31 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       >
         <Breadcrumb items={breadcrumbItems} />
         <div style={{ display: "flex", flexDirection: "row" }}>
-          {/* <Button onClick={() => fetchContent()} type="link">
-                <ReloadOutlined size={32} style={{ color: 'gray' }} />
-            </Button> */}
+          {icpCanisterId && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-start",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ color: "gray", marginRight: "10px" }}>
+                {isSyncing ? "Syncing..." : ""}
+              </span>
+              <ReloadOutlined
+                onClick={handleCloudSync}
+                size={32}
+                style={{
+                  color: "gray",
+                  marginRight: "12px",
+                  cursor: isSyncing ? "not-allowed" : "pointer",
+                }}
+                spin={isSyncing}
+              />
+            </div>
+          )}
+
           <ActionMenuButton
             isBigButton={false}
             toggleUploadPanel={toggleUploadPanel}

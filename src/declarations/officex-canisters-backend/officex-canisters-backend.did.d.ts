@@ -62,6 +62,8 @@ export type Result_FileUUID = { 'Ok' : FileUUID } |
   { 'Err' : string };
 export type Result_FolderMetadata = { 'Ok' : FolderMetadata } |
   { 'Err' : string };
+export type Result_FolderUUID = { 'Ok' : FolderUUID } |
+  { 'Err' : string };
 export interface StateSnapshot {
   'full_folder_path_to_uuid' : Array<[string, string]>,
   'folder_uuid_to_metadata' : Array<[string, FolderMetadata]>,
@@ -107,7 +109,7 @@ export interface _SERVICE {
   >,
   'upsert_cloud_folder_with_local_sync' : ActorMethod<
     [FolderUUID, FolderMetadata],
-    Result_FolderMetadata
+    Result_FolderUUID
   >,
   'upsert_file_to_hash_tables' : ActorMethod<
     [string, StorageLocationEnum],

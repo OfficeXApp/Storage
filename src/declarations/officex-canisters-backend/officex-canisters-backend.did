@@ -97,6 +97,11 @@ type Result_FileUUID = variant {
     Err : text;
 };
 
+type Result_FolderUUID = variant {
+    Ok : FolderUUID;
+    Err : text;
+};
+
 service : {
     "ping" : () -> (text) query;
     "create_folder" : (DriveFullFilePath, StorageLocationEnum) -> (Result_FolderMetadata);
@@ -109,7 +114,7 @@ service : {
     "delete_folder" : (FolderUUID) -> (UpdateResult);
     "delete_file" : (FileUUID) -> (UpdateResult);
     "upsert_cloud_file_with_local_sync": (file_id: FileUUID, file_metadata: FileMetadata) -> (Result_FileUUID);
-    "upsert_cloud_folder_with_local_sync":(folder_id: FolderUUID, folder_metadata: FolderMetadata) -> (Result_FolderMetadata);
+    "upsert_cloud_folder_with_local_sync":(folder_id: FolderUUID, folder_metadata: FolderMetadata) -> (Result_FolderUUID);
     "fetch_files_at_folder_path" : (FetchFilesAtFolderPathConfig) -> (FetchFilesResult) query;
     "upsert_file_to_hash_tables" : (text, StorageLocationEnum) -> (FileUUID);
     "snapshot_hashtables" : () -> (StateSnapshot) query;

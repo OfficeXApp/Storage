@@ -16,6 +16,8 @@ import {
   StorageLocationEnum,
   Tag,
 } from "../declarations/officex-canisters-backend/officex-canisters-backend.did.js";
+import { useState } from "react";
+import { message, notification, Spin } from "antd";
 
 const { useIdentity } = Identity;
 
@@ -29,6 +31,9 @@ export enum FileSyncStrategy {
 function timestampToBigInt(date: string | Date): bigint {
   const timestamp =
     typeof date === "string" ? new Date(date).getTime() : date.getTime();
+  if (isNaN(timestamp)) {
+    return BigInt(0);
+  }
   return BigInt(timestamp);
 }
 
@@ -44,12 +49,37 @@ const useCloudSync = () => {
     upsertLocalFolderWithCloudSync,
   } = useDrive();
   const { icpCanisterId, icpActor, icpAgent, icpAccount } = useIdentity();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [apiNotifs, contextHolder] = notification.useNotification();
 
   const syncFolderPath = async (
-    fullPathString: string,
-    _syncStrategy?: FileSyncStrategy
+    current: { folderPath: string; depth: number },
+    queue: { folderPath: string; depth: number }[],
+    syncConfig: { syncDepth: number; _syncStrategy?: FileSyncStrategy }
   ) => {
-    const syncStrategy = _syncStrategy || FileSyncStrategy.keepNewer;
+    console.log(
+      `=============== SYNCING AT DEPTH ${current.depth} ===============`
+    );
+    // Cases
+    /**
+     *  case 1: local file none, cloud file exists --> download cloud file to local
+     *  case 2: local file new, cloud file none --> upload local file to cloud
+     *  case 3: local file new, cloud file old --> ask user which they want to keep & show timestamps (local, cloud, newer, both)
+     *  case 4: local file old, cloud file new --> ask user which they want to keep & show timestamps (local, cloud, newer, both)
+     *  case 5: local file old, cloud file old --> last modified timestamp should be same, so no action needed
+     *
+     *  these should also naturally handle deletions on either side. however deletion is also dangerous so we should ask user for confirmation before deleting anything, or implement a trashbin
+     */
+    // Process
+    /**
+     * step 1: scan both local & cloud at current path. receive both lists for comparison
+     * step 2: traverse breadth first search until syncDepth is reached
+     * step 3: check file by file, folder by folder, for each case & handle
+     * step 4: proceed to next folderfile, until all are done and syncDepth is reached
+     * step 5: note any conflicts and ask user for resolution
+     */
+    const fullPathString = current.folderPath;
+    const syncStrategy = syncConfig._syncStrategy || FileSyncStrategy.keepNewer;
     console.log("syncing...", icpAccount?.principal.toString());
     if (!icpAccount?.principal) return;
     console.log("canister principal", icpAccount.principal.toText());
@@ -111,7 +141,7 @@ const useCloudSync = () => {
       );
       await surgicallySyncFolderUUID(
         newFolderMetadata.id as FolderUUID,
-        cloudFolderLayer0[0].id as FolderUUID
+        cloudFolderMetadata.id as FolderUUID
       );
     }
     // local exists, cloud doesnt, create cloud folder
@@ -224,7 +254,7 @@ const useCloudSync = () => {
           );
           if (!updatedFolderUUID) continue;
           const upsertFolderData = {
-            id: updatedFolderUUID,
+            id: metadata.id as FolderUUID,
             originalFolderName: localFolder.originalFolderName,
             parentFolderUUID: localFolder.parentFolderUUID,
             subfolderUUIDs: localFolder.subfolderUUIDs,
@@ -238,11 +268,11 @@ const useCloudSync = () => {
             deleted: localFolder.deleted || false,
           };
           const upsertedFolderMetadata = await upsertLocalFolderWithCloudSync(
-            updatedFolderUUID,
+            updatedFolderUUID as FolderUUID,
             upsertFolderData
           );
           await surgicallySyncFolderUUID(
-            updatedFolderUUID,
+            updatedFolderUUID as FolderUUID,
             upsertedFolderMetadata.id as FolderUUID
           );
         }
@@ -289,19 +319,21 @@ const useCloudSync = () => {
       ) {
         console.log(
           "Local folder is newer than cloud folder, overwrite cloud folder metadata",
-          localFolder.id
+          localFolder
         );
         const cloudFolderMetadata = {
           id: cloudFolder.id as FolderUUID,
           original_folder_name: localFolder.originalFolderName,
-          parent_folder_uuid: localFolder.parentFolderUUID,
+          parent_folder_uuid: localFolder.parentFolderUUID
+            ? [localFolder.parentFolderUUID]
+            : [],
           subfolder_uuids: localFolder.subfolderUUIDs,
           file_uuids: localFolder.fileUUIDs,
           full_folder_path: localFolder.fullFolderPath,
           tags: localFolder.tags,
           owner: icpAccount.principal,
           created_date: timestampToBigInt(localFolder.createdDate),
-          storage_location: { [localFolder.storageLocation]: null },
+          storage_location: { [`${localFolder.storageLocation}`]: null },
           last_changed_unix_ms: BigInt(localFolder.lastChangedUnixMs),
           deleted: localFolder.deleted,
         };
@@ -315,7 +347,7 @@ const useCloudSync = () => {
         if ("Ok" in savedCloudFolderUUIDRes) {
           const finalFolderUUID = await surgicallySyncFolderUUID(
             localFolder.id as FolderUUID,
-            savedCloudFolderUUIDRes.Ok.id as FolderUUID
+            savedCloudFolderUUIDRes.Ok as FolderUUID
           );
         }
         continue;
@@ -352,7 +384,7 @@ const useCloudSync = () => {
           owner: cloudFolder.owner.toString() as UserID,
           createdDate: new Date(Number(cloudFolder.created_date)),
           storageLocation:
-            `${cloudFolder.storage_location}` as StorageLocationEnumFE,
+            `${Object.keys(cloudFolder.storage_location)[0]}` as StorageLocationEnumFE,
           lastChangedUnixMs: Number(cloudFolder.last_changed_unix_ms),
           deleted: cloudFolder.deleted || false,
         };
@@ -424,7 +456,7 @@ const useCloudSync = () => {
           // console.log(`savedCloudFileUUIDRes`, savedCloudFileUUIDRes);
           if ("Ok" in savedCloudFileUUIDRes) {
             const finalFileUUID = await surgicallySyncFileUUID(
-              cloud_file_uuid,
+              fileUUID,
               savedCloudFileUUIDRes.Ok as FileUUID
             );
           }
@@ -507,7 +539,7 @@ const useCloudSync = () => {
           tags: cloudFile.tags,
           owner: cloudFile.owner,
           createdDate: new Date(Number(cloudFile.created_date)),
-          storageLocation: `${cloudFile.storage_location}`,
+          storageLocation: `${Object.keys(cloudFile.storage_location)[0]}`,
           fileSize: Number(cloudFile.file_size),
           rawURL: cloudFile.raw_url,
           lastChangedUnixMs: cloudFile.last_changed_unix_ms,
@@ -577,6 +609,20 @@ const useCloudSync = () => {
       }
     }
 
+    // add subfolders to queue
+    if (current.depth === syncConfig.syncDepth) return;
+    for (const subfolder of localDriveContents.folders) {
+      queue.push({
+        folderPath: subfolder.fullFolderPath,
+        depth: current.depth + 1,
+      });
+    }
+    for (const subfolder of cloudDriveContents.folders) {
+      queue.push({
+        folderPath: subfolder.full_folder_path,
+        depth: current.depth + 1,
+      });
+    }
     return;
   };
 
@@ -586,13 +632,15 @@ const useCloudSync = () => {
   // needs to handle per file conflict resolution (which should be newer version, offline or cloud?)
   const syncOfflineWithCloud = async ({
     fullFolderPath,
-    syncDepth = 10,
+    syncDepth = 5,
   }: {
     fullFolderPath?: string;
     // syncDepth determines how many levels of subfolders to sync. -1 means all levels, 0 means only the current folder, 1 means current folder and its immediate children, etc.
     syncDepth?: number;
   }) => {
     console.log("Syncing offline changes with cloud...");
+
+    setIsSyncing(true);
     const { uploadFolderPath: currentUploadFolderPath, storageLocation } =
       getUploadFolderPath();
     let targetFolderPath = `${storageLocation}::${currentUploadFolderPath}`;
@@ -600,7 +648,13 @@ const useCloudSync = () => {
       targetFolderPath = fullFolderPath;
     }
     console.log("targetFolderPath", targetFolderPath);
-    await syncFolderPath(targetFolderPath);
+
+    let queue: { folderPath: string; depth: number }[] = [];
+    queue.push({ folderPath: targetFolderPath, depth: 1 });
+
+    for (const current of queue) {
+      await syncFolderPath(current, queue, { syncDepth });
+    }
 
     // snapshots after
     const actor = icpActor as ActorSubclass<DriveSERVICE>;
@@ -609,28 +663,13 @@ const useCloudSync = () => {
     console.log(`cloud snapshot`, snapshot);
     const localSnapshot = await exportSnapshot();
     console.log(`local snapshot`, localSnapshot);
-    // Cases
-    /**
-     *  case 1: local file none, cloud file exists --> download cloud file to local
-     *  case 2: local file new, cloud file none --> upload local file to cloud
-     *  case 3: local file new, cloud file old --> ask user which they want to keep & show timestamps (local, cloud, newer, both)
-     *  case 4: local file old, cloud file new --> ask user which they want to keep & show timestamps (local, cloud, newer, both)
-     *  case 5: local file old, cloud file old --> last modified timestamp should be same, so no action needed
-     *
-     *  these should also naturally handle deletions on either side. however deletion is also dangerous so we should ask user for confirmation before deleting anything, or implement a trashbin
-     */
-    // Process
-    /**
-     * step 1: scan both local & cloud at current path. receive both lists for comparison
-     * step 2: traverse breadth first search until syncDepth is reached
-     * step 3: check file by file, folder by folder, for each case & handle
-     * step 4: proceed to next folderfile, until all are done and syncDepth is reached
-     * step 5: note any conflicts and ask user for resolution
-     */
+    setIsSyncing(false);
+    message.success("Sync with cloud success");
     return;
   };
 
   return {
+    isSyncing,
     syncOfflineWithCloud,
   };
 };

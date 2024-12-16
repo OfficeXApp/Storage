@@ -64,6 +64,10 @@ export const idlFactory = ({ IDL }) => {
     'file_uuid_to_metadata' : IDL.Vec(IDL.Tuple(IDL.Text, FileMetadata)),
   });
   const Result_FileUUID = IDL.Variant({ 'Ok' : FileUUID, 'Err' : IDL.Text });
+  const Result_FolderUUID = IDL.Variant({
+    'Ok' : FolderUUID,
+    'Err' : IDL.Text,
+  });
   return IDL.Service({
     'create_folder' : IDL.Func(
         [DriveFullFilePath, StorageLocationEnum],
@@ -108,7 +112,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'upsert_cloud_folder_with_local_sync' : IDL.Func(
         [FolderUUID, FolderMetadata],
-        [Result_FolderMetadata],
+        [Result_FolderUUID],
         [],
       ),
     'upsert_file_to_hash_tables' : IDL.Func(

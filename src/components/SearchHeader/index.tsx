@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Input, Avatar, Typography, AutoComplete, message, Button, Modal } from "antd";
+import {
+  Input,
+  Avatar,
+  Typography,
+  AutoComplete,
+  message,
+  Button,
+  Modal,
+} from "antd";
 import {
   CloseOutlined,
   CloudSyncOutlined,
@@ -11,7 +19,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import {
-  FileMetadata, 
+  FileMetadata,
   FolderMetadata,
   Identity,
   useDrive,
@@ -167,12 +175,11 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
       <div style={{ flex: 1 }}>{renderSearchBar()}</div>
 
       <div className="header-right" style={{ cursor: "not-allowed" }}>
-        <Text style={{ margin: "0px 16px" }}>{`${alias} (${evmSlug})`}</Text>
+        <Text style={{ margin: "0px 16px" }}>{`${alias} (${icpSlug})`}</Text>
         <Link to="/settings">
-         <Avatar icon={<UserOutlined />} size="large" />
+          <Avatar icon={<UserOutlined />} size="large" />
         </Link>
       </div>
-
     </div>
   );
 };

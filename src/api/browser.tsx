@@ -11,7 +11,8 @@ const BrowserSandbox: React.FC = () => {
   const storageRef = useRef<IndexedDBStorage>();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [lastProgress, setLastProgress] = useState<number>(0);
-  const [finalMetadata, setFinalMetadata] = useState<FileMetadataFragment | null>(null);
+  const [finalMetadata, setFinalMetadata] =
+    useState<FileMetadataFragment | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [files, setFiles] = useState<FileWithThumbnail[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +37,9 @@ const BrowserSandbox: React.FC = () => {
         const filesWithThumbnails = await Promise.all(
           fileList.map(async (file) => {
             try {
-              const thumbnailBlob = await storageRef.current?.getThumbnail(file.rawURL);
+              const thumbnailBlob = await storageRef.current?.getThumbnail(
+                file.rawURL
+              );
               if (thumbnailBlob) {
                 return {
                   ...file,
@@ -58,7 +61,9 @@ const BrowserSandbox: React.FC = () => {
     }
   };
 
-  const handleFileChangeAndUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChangeAndUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) {
       console.log("No file selected");
@@ -83,10 +88,10 @@ const BrowserSandbox: React.FC = () => {
           setIsUploading(false);
         },
         complete: () => {
-          console.log('Upload complete');
+          console.log("Upload complete");
           setIsUploading(false);
           if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+            fileInputRef.current.value = "";
           }
           listFiles(); // Refresh the file list after upload
         },
@@ -100,7 +105,7 @@ const BrowserSandbox: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await storageRef.current?.deleteFile(id);
-      message.success('File deleted successfully');
+      message.success("File deleted successfully");
       listFiles(); // Refresh the file list after deletion
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -112,7 +117,7 @@ const BrowserSandbox: React.FC = () => {
       const blob = await storageRef.current?.downloadFile(file.rawURL);
       if (blob) {
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = file.name;
         document.body.appendChild(a);
@@ -132,7 +137,7 @@ const BrowserSandbox: React.FC = () => {
   useEffect(() => {
     return () => {
       // Clean up object URLs when component unmounts
-      files.forEach(file => {
+      files.forEach((file) => {
         if (file.thumbnailUrl) {
           URL.revokeObjectURL(file.thumbnailUrl);
         }
@@ -147,10 +152,10 @@ const BrowserSandbox: React.FC = () => {
         ref={fileInputRef}
         accept="*"
         onChange={handleFileChangeAndUpload}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
       <Button onClick={triggerFileInput} disabled={isUploading}>
-        {isUploading ? 'Uploading...' : 'Select and Upload File'}
+        {isUploading ? "Uploading..." : "Select and Upload File"}
       </Button>
       <br />
       <div>Progress: {lastProgress.toFixed(2)}%</div>
@@ -160,40 +165,45 @@ const BrowserSandbox: React.FC = () => {
           <p>Name: {finalMetadata.name}</p>
           <p>Size: {finalMetadata.fileSize} bytes</p>
           <p>Type: {finalMetadata.mimeType}</p>
-          <p>Modified Date: {finalMetadata.modifiedDate.toLocaleString()}</p>
         </div>
       )}
       <br />
-      <Button onClick={listFiles} disabled={isUploading}>List Files</Button>
+      <Button onClick={listFiles} disabled={isUploading}>
+        List Files
+      </Button>
       <br />
       <List
         dataSource={files}
         renderItem={(item) => (
           <List.Item
             actions={[
-              <Button key="download" onClick={() => handleDownload(item)}>Download</Button>,
-              <Button key="delete" onClick={() => handleDelete(item.rawURL)}>Delete</Button>
+              <Button key="download" onClick={() => handleDownload(item)}>
+                Download
+              </Button>,
+              <Button key="delete" onClick={() => handleDelete(item.rawURL)}>
+                Delete
+              </Button>,
             ]}
           >
             <List.Item.Meta
               avatar={
                 item.thumbnailUrl && (
-                  <div 
-                    style={{ 
-                      width: '50px', 
-                      height: '50px', 
-                      overflow: 'hidden', 
-                      borderRadius: '4px'
+                  <div
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      overflow: "hidden",
+                      borderRadius: "4px",
                     }}
                   >
-                    <img 
-                      src={item.thumbnailUrl} 
-                      alt={item.name} 
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'cover' 
-                      }} 
+                    <img
+                      src={item.thumbnailUrl}
+                      alt={item.name}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
                     />
                   </div>
                 )
@@ -204,7 +214,7 @@ const BrowserSandbox: React.FC = () => {
           </List.Item>
         )}
       />
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {error && <div style={{ color: "red" }}>{error}</div>}
     </div>
   );
 };

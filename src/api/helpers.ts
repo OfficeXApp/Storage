@@ -57,11 +57,15 @@ export const getFileType = (
   }
 };
 
-
-export function checkIsProdByURL(): boolean {
-  if (typeof window !== 'undefined' && window.location) {
-      return window.location.hostname === 'drive.officex.app';
+export function checkShouldAllowWorldComputer(): boolean {
+  if (typeof window !== "undefined" && window.location) {
+    // To enable showing, add `?allow_world_computer=1` to the URL
+    // or be in dev env
+    return (
+      window.location.search.includes("allow_world_computer=1") ||
+      window.location.origin === "http://localhost:5173"
+    );
   }
-  console.error('Window or location is undefined.');
+  console.error("Window or location is undefined.");
   return false;
 }

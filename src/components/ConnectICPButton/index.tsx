@@ -2,7 +2,7 @@ import { Button, message, Modal, Result, Typography } from "antd";
 import { Identity } from "@officexapp/framework";
 import { useEffect, useState } from "react";
 import { CloudSyncOutlined } from "@ant-design/icons";
-import { checkIsProdByURL } from "../../api/helpers";
+import { checkShouldAllowWorldComputer } from "../../api/helpers";
 import mixpanel from "mixpanel-browser";
 import useCloudSync from "../../api/cloud-sync";
 
@@ -65,7 +65,7 @@ const ConnectICPButton = () => {
             </Text>
           }
           extra={[
-            !checkIsProdByURL() ? (
+            checkShouldAllowWorldComputer() ? (
               <Button
                 loading={loading}
                 type="primary"

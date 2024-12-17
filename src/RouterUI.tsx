@@ -161,6 +161,15 @@ const RouterUI = () => {
                     }}
                   >
                     <h1>OfficeX</h1>
+                    <span
+                      style={{
+                        fontWeight: 300,
+                        marginLeft: "10px",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      Alpha v0.1
+                    </span>
                   </div>
                   <section
                     style={{
@@ -248,36 +257,43 @@ const RouterUI = () => {
           </Layout>
           {screenType.isMobile && (
             <Drawer
-              title="OfficeX Drive"
+              title={
+                <div>
+                  <b>OfficeX</b>
+                  <span style={{ fontWeight: 300, marginLeft: "5px" }}>
+                    Alpha
+                  </span>
+                </div>
+              }
               placement="left"
               onClose={() => setSidebarVisible(false)}
               open={sidebarVisible}
               width={SIDEBAR_WIDTH}
-              footer={
-                <div style={{ padding: "16px 16px" }}>
-                  <Statistic
-                    title="Token Pre-Seed Sale"
-                    value={0.01}
-                    precision={2}
-                    valueStyle={{ color: "#4e94f5" }}
-                    prefix="$"
-                    suffix={<span style={{ fontSize: "0.7rem" }}>USDT</span>}
-                  />
-                  <Link to="/presale">
-                    <Button
-                      type="dashed"
-                      onClick={() => setSidebarVisible(false)}
-                      style={{
-                        marginTop: 16,
-                        border: "1px dashed #4e94f5",
-                        color: "#4e94f5",
-                      }}
-                    >
-                      Buy $OFX
-                    </Button>
-                  </Link>
-                </div>
-              }
+              // footer={
+              //   <div style={{ padding: "16px 16px" }}>
+              //     <Statistic
+              //       title="Token Pre-Seed Sale"
+              //       value={0.01}
+              //       precision={2}
+              //       valueStyle={{ color: "#4e94f5" }}
+              //       prefix="$"
+              //       suffix={<span style={{ fontSize: "0.7rem" }}>USDT</span>}
+              //     />
+              //     <Link to="/presale">
+              //       <Button
+              //         type="dashed"
+              //         onClick={() => setSidebarVisible(false)}
+              //         style={{
+              //           marginTop: 16,
+              //           border: "1px dashed #4e94f5",
+              //           color: "#4e94f5",
+              //         }}
+              //       >
+              //         Buy $OFX
+              //       </Button>
+              //     </Link>
+              //   </div>
+              // }
             >
               <ConnectICPButton />
               <SideMenu setSidebarVisible={setSidebarVisible} />

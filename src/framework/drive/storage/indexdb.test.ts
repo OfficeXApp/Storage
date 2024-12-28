@@ -1,4 +1,4 @@
-// npx vitest run src/drive/storage/indexdb.test.ts
+// npx vitest run src/framework/drive/storage/indexdb.test.ts
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { IDBFactory } from "fake-indexeddb";

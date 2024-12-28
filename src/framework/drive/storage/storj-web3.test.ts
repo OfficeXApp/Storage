@@ -1,4 +1,4 @@
-// npx vitest run src/drive/storage/storj-web3.test.ts
+// npx vitest run src/framework/drive/storage/storj-web3.test.ts > ./test-logs/storj-web3.test.log
 
 import dotenv from "dotenv";
 dotenv.config();

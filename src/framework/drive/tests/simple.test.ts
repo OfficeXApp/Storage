@@ -1,5 +1,5 @@
 // drive/tests-contants/simple.test.ts
-// npx vitest run src/drive/tests/simple.test.ts
+// npx vitest run src/framework/drive/tests/simple.test.ts > ./test-logs/simple.test.log
 
 import dotenv from "dotenv";
 dotenv.config();

@@ -1,4 +1,4 @@
-// npx vitest run src/drive/tests/drivedb.test.ts
+// npx vitest run src/framework/drive/tests/drivedb.test.ts > ./test-logs/drivedb.test.log
 
 import { describe, it, expect, beforeEach, beforeAll, afterAll } from "vitest";
 import dotenv from "dotenv";

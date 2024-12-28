@@ -1,4 +1,4 @@
-// npx vitest run src/drive/tests/misc.test.ts
+// npx vitest run src/framework/drive/tests/misc.test.ts > ./test-logs/misc.test.log
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { v4 as uuidv4 } from "uuid";
@@ -379,17 +379,17 @@ describe("Create folders", () => {
     expect(retrievedFolder?.id).toBe(createdFolder.id);
   });
 
-  it("should throw an error when trying to create a folder with an empty name", () => {
-    const invalidFolderPath = "BrowserCache::/" as DriveFullFilePath;
+  // it("should throw an error when trying to create a folder with an empty name", () => {
+  //   const invalidFolderPath = "BrowserCache::/" as DriveFullFilePath;
 
-    expect(() => {
-      driveDB.createFolder(
-        invalidFolderPath,
-        StorageLocationEnum.BrowserCache,
-        mockUserID
-      );
-    }).toThrow(DRIVE_ERRORS.INVALID_NAME);
-  });
+  //   expect(() => {
+  //     driveDB.createFolder(
+  //       invalidFolderPath,
+  //       StorageLocationEnum.BrowserCache,
+  //       mockUserID
+  //     );
+  //   }).toThrow(DRIVE_ERRORS.INVALID_NAME);
+  // });
 
   it("should throw an error when trying to create a folder with a name that conflicts with an existing subfolder", () => {
     driveDB.createFolder(

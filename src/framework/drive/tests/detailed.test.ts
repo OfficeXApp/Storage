@@ -1,4 +1,4 @@
-// drive/tests-contants/comphrehensive.test.ts
+// npx vitest run src/framework/drive/tests/detailed.test.ts > ./test-logs/detailed.test.log
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { v4 as uuidv4 } from "uuid";

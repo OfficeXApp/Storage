@@ -1,3 +1,5 @@
+// npx vitest run src/framework/drive/tests/uploads.test.ts > ./test-logs/uploads.test.log
+
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { v4 as uuidv4 } from "uuid";
 import { UserID } from "../../identity/types";

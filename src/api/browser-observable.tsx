@@ -1,10 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Button, Progress, List, Upload, message, Flex } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-import { RcFile, UploadProps } from 'antd/lib/upload/interface';
-import { DriveDB, IndexedDBStorage, UserID } from '@officexapp/framework'; 
-import { StorageLocationEnum, UploadProgress, UploadItem, FileUploadStatusEnum } from '@officexapp/framework';
-import { green, red, grey } from '@ant-design/colors';
+import React, { useState, useRef, useEffect } from "react";
+import { Button, Progress, List, Upload, message, Flex } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import { RcFile, UploadProps } from "antd/lib/upload/interface";
+import { DriveDB, IndexedDBStorage, UserID } from "../framework";
+import {
+  StorageLocationEnum,
+  UploadProgress,
+  UploadItem,
+  FileUploadStatusEnum,
+} from "../framework";
+import { green, red, grey } from "@ant-design/colors";
 
 const UploadFiles: React.FC = () => {
   const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
@@ -16,31 +21,32 @@ const UploadFiles: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       const indexDBStorage = IndexedDBStorage.getInstance();
-      await indexDBStorage.initialize()
+      await indexDBStorage.initialize();
       driveDBRef.current = new DriveDB(indexDBStorage);
-    }
-    init()
+    };
+    init();
   }, []);
 
   const handleUpload = async (files: File[]) => {
     const driveDB = driveDBRef.current;
 
     if (!driveDB) {
-      message.error('DriveDB is not initialized');
+      message.error("DriveDB is not initialized");
       return;
     }
 
-    const userId = 'user123' as UserID;
-    const uploadFolderPath = 'uploads';
+    const userId = "user123" as UserID;
+    const uploadFolderPath = "uploads";
 
     try {
-      const { progress$, cancelUpload, uploadComplete$, getUploadQueue } = driveDB.uploadFilesFolders(
-        files,
-        uploadFolderPath,
-        StorageLocationEnum.BrowserCache,
-        userId,
-        1
-      );
+      const { progress$, cancelUpload, uploadComplete$, getUploadQueue } =
+        driveDB.uploadFilesFolders(
+          files,
+          uploadFolderPath,
+          StorageLocationEnum.BrowserCache,
+          userId,
+          1
+        );
 
       cancelUploadRef.current = cancelUpload;
 
@@ -59,23 +65,26 @@ const UploadFiles: React.FC = () => {
           setUploadItems(getUploadQueue());
         },
         complete: () => {
-          console.log('All uploads complete');
-          message.success('All files uploaded successfully');
+          console.log("All uploads complete");
+          message.success("All files uploaded successfully");
         },
         error: (err) => {
-          console.error('Upload error:', err);
-          message.error('Upload failed.');
-        }
+          console.error("Upload error:", err);
+          message.error("Upload failed.");
+        },
       });
     } catch (error) {
-      console.error('Upload failed:', error);
-      message.error('Upload failed.');
+      console.error("Upload failed:", error);
+      message.error("Upload failed.");
     }
   };
 
-  const handleSelectFiles: UploadProps['customRequest'] = ({ file, onSuccess }) => {
+  const handleSelectFiles: UploadProps["customRequest"] = ({
+    file,
+    onSuccess,
+  }) => {
     handleUpload([file as RcFile]);
-    onSuccess?.('OK');
+    onSuccess?.("OK");
   };
 
   const handleCancel = (id: string) => {
@@ -93,13 +102,16 @@ const UploadFiles: React.FC = () => {
       case FileUploadStatusEnum.Cancelled:
         return grey[5];
       default:
-        return 'rgba(0, 0, 0, 0.06)';
+        return "rgba(0, 0, 0, 0.06)";
     }
   };
 
-  const MultiColorProgress: React.FC<{ percent: number, items: UploadItem[] }> = ({ percent, items }) => {
+  const MultiColorProgress: React.FC<{
+    percent: number;
+    items: UploadItem[];
+  }> = ({ percent, items }) => {
     const totalSteps = items.length;
-    const strokeColors = items.map(item => getProgressColor(item.status));
+    const strokeColors = items.map((item) => getProgressColor(item.status));
 
     return (
       <Progress
@@ -112,11 +124,7 @@ const UploadFiles: React.FC = () => {
 
   return (
     <div>
-      <Upload
-        customRequest={handleSelectFiles}
-        multiple
-        showUploadList={false}
-      >
+      <Upload customRequest={handleSelectFiles} multiple showUploadList={false}>
         <Button icon={<UploadOutlined />}>Select and Upload Files</Button>
       </Upload>
 
@@ -128,21 +136,25 @@ const UploadFiles: React.FC = () => {
         itemLayout="horizontal"
         dataSource={uploadItems.reverse()}
         renderItem={(item) => (
-          <List.Item 
+          <List.Item
             actions={[
-              item.status === FileUploadStatusEnum.Queued || item.status === FileUploadStatusEnum.Uploading
-                ? <Button onClick={() => handleCancel(item.id)}>Cancel</Button>
-                : null
+              item.status === FileUploadStatusEnum.Queued ||
+              item.status === FileUploadStatusEnum.Uploading ? (
+                <Button onClick={() => handleCancel(item.id)}>Cancel</Button>
+              ) : null,
             ]}
           >
             <List.Item.Meta title={item.name} description={item.status} />
             <Progress
               percent={item.progress}
               status={
-                item.status === FileUploadStatusEnum.Failed ? 'exception' :
-                item.status === FileUploadStatusEnum.Completed ? 'success' :
-                item.status === FileUploadStatusEnum.Cancelled ? 'normal' :
-                'active'
+                item.status === FileUploadStatusEnum.Failed
+                  ? "exception"
+                  : item.status === FileUploadStatusEnum.Completed
+                    ? "success"
+                    : item.status === FileUploadStatusEnum.Cancelled
+                      ? "normal"
+                      : "active"
               }
               strokeColor={getProgressColor(item.status)}
             />

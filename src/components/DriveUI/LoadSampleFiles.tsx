@@ -4,7 +4,7 @@ import {
   StorageLocationEnum,
   useDrive,
   UserID,
-} from "@officexapp/framework";
+} from "../../framework";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";

@@ -2,62 +2,71 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Button, Result, message } from "antd";
 import { GiftOutlined, DisconnectOutlined } from "@ant-design/icons";
-import { FileMetadata, FileUUID, FolderUUID, Identity, StorageLocationEnum } from "@officexapp/framework";
+import {
+  FileMetadata,
+  FileUUID,
+  FolderUUID,
+  Identity,
+  StorageLocationEnum,
+} from "../../framework";
 import FilePreview from "../FilePreview";
 import useScreenType from "react-screentype-hook";
-import { getPseudoShareLink, updateRefInShareUrl } from "../../api/pseudo-share";
+import {
+  getPseudoShareLink,
+  updateRefInShareUrl,
+} from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
 
 const { useIdentity } = Identity;
 
 const GiftPage: React.FC = () => {
   const [searchParams] = useSearchParams(); // Use to extract query params
-  const [giftID, setGiftID] = useState<string >('');
-  const [giftUrl, setGiftUrl] = useState<string >('');
-  const [giftTitle, setGiftTitle] = useState<string >('');
-  const [error, setError] = useState<string >('');
+  const [giftID, setGiftID] = useState<string>("");
+  const [giftUrl, setGiftUrl] = useState<string>("");
+  const [giftTitle, setGiftTitle] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const [fileMetadata, setFileMetadata] = useState<FileMetadata>();
   const screenType = useScreenType();
   const { evmSlug, evmAccount, icpAccount } = useIdentity();
 
   useEffect(() => {
-    const id = searchParams.get('id'); // Get the 'id' query param from the URL
+    const id = searchParams.get("id"); // Get the 'id' query param from the URL
 
     if (id) {
       setGiftID(id);
-       
+
       // Fetch the Firestore record based on the giftID
       const fetchGift = async () => {
         try {
           const gift = await getPseudoShareLink(id);
-          
+
           // Extract the URL and title from the Firestore response
           setGiftUrl(gift.url);
           setGiftTitle(gift.title);
-            const metadata = {
-                id: '' as FileUUID,
-                originalFileName: gift.title,
-                folderUUID: '' as FolderUUID,
-                fileVersion: 0,
-                priorVersion: null,
-                nextVersion: null,
-                extension: gift.title.split('.').pop(),
-                fullFilePath: `${StorageLocationEnum.BrowserCache}::${gift.title}`,
-                tags: [],
-                owner: '',
-                createdDate: new Date(),
-                modifiedDate: new Date(),
-                storageLocation: StorageLocationEnum.BrowserCache,
-                fileSize: 0,
-                rawURL: gift.url,
-            } as unknown as FileMetadata;
-            setFileMetadata(metadata);
+          const metadata = {
+            id: "" as FileUUID,
+            originalFileName: gift.title,
+            folderUUID: "" as FolderUUID,
+            fileVersion: 0,
+            priorVersion: null,
+            nextVersion: null,
+            extension: gift.title.split(".").pop(),
+            fullFilePath: `${StorageLocationEnum.BrowserCache}::${gift.title}`,
+            tags: [],
+            owner: "",
+            createdDate: new Date(),
+            modifiedDate: new Date(),
+            storageLocation: StorageLocationEnum.BrowserCache,
+            fileSize: 0,
+            rawURL: gift.url,
+          } as unknown as FileMetadata;
+          setFileMetadata(metadata);
         } catch (error: any) {
           console.error("Error fetching gift:", error);
           setError(error.message);
         }
       };
-      
+
       fetchGift();
     }
   }, [searchParams]);
@@ -102,18 +111,19 @@ const GiftPage: React.FC = () => {
 
   const handleShare = () => {
     const currentUrl = window.location.href;
-    const newUrl = updateRefInShareUrl(currentUrl, evmAccount?.address || '');
-    navigator.clipboard.writeText(newUrl)
+    const newUrl = updateRefInShareUrl(currentUrl, evmAccount?.address || "");
+    navigator.clipboard
+      .writeText(newUrl)
       .then(() => {
         message.success("URL copied to clipboard!");
       })
       .catch(() => {
         message.error("Failed to copy the URL.");
       });
-      mixpanel.track('Share File', {
-        'File Type': giftTitle.split('.').pop(),
-        'Link': newUrl,
-      })
+    mixpanel.track("Share File", {
+      "File Type": giftTitle.split(".").pop(),
+      Link: newUrl,
+    });
   };
 
   return (
@@ -123,40 +133,40 @@ const GiftPage: React.FC = () => {
         title={giftTitle || "Loading gift..."}
         subTitle="This file was shared with you"
         extra={[
-            <a
-                  href={giftUrl}
-                  download={giftTitle}
-                  target={
-                    giftUrl.split('.').pop() === "pdf" ? "_blank" : "_self"
-                  }
-                >
-          <Button 
-            type="primary" 
-            key="download" 
-            disabled={!giftUrl}
-            onClick={() => {
-                mixpanel.track('Download File', {
-                    'File Type': giftTitle.split('.').pop(),
-                  })
-                  
-            }}
+          <a
+            href={giftUrl}
+            download={giftTitle}
+            target={giftUrl.split(".").pop() === "pdf" ? "_blank" : "_self"}
           >
-            Download
-          </Button></a>,
-          <Button 
-            key="share" 
-            onClick={handleShare}
-          >
+            <Button
+              type="primary"
+              key="download"
+              disabled={!giftUrl}
+              onClick={() => {
+                mixpanel.track("Download File", {
+                  "File Type": giftTitle.split(".").pop(),
+                });
+              }}
+            >
+              Download
+            </Button>
+          </a>,
+          <Button key="share" onClick={handleShare}>
             Copy Share
           </Button>,
         ]}
       />
       <div style={{ padding: screenType.isMobile ? 10 : 0 }}>
-      {
-        fileMetadata && <FilePreview file={fileMetadata} showButtons={false} />
-      }
+        {fileMetadata && (
+          <FilePreview file={fileMetadata} showButtons={false} />
+        )}
       </div>
-        <br /><br /><br /><br /><br /><br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
     </div>
   );
 };

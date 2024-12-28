@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, List, message } from "antd";
 import IndexedDBStorage from "./indexdb";
-import { FileMetadataFragment } from "@officexapp/framework";
+import { FileMetadataFragment } from "../framework";
 
 interface FileWithThumbnail extends FileMetadataFragment {
   thumbnailUrl?: string;

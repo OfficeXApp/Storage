@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import { ConfigProvider } from "antd";
-import { Identity, DriveProvider } from "@officexapp/framework";
+import { Identity, DriveProvider } from "./framework";
 import "./index.css";
 import mixpanel from "mixpanel-browser";
 

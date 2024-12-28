@@ -6,7 +6,7 @@ import {
   StorageLocationEnum,
   useDrive,
   UserID,
-} from "@officexapp/framework";
+} from "./framework";
 import RouterUI from "./RouterUI";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Spin } from "antd";

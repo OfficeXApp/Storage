@@ -23,7 +23,7 @@ import {
   FolderMetadata,
   Identity,
   useDrive,
-} from "@officexapp/framework";
+} from "../../framework";
 import { Link, useNavigate } from "react-router-dom";
 import { trimToFolderPath, truncateMiddlePath } from "../../api/helpers";
 import useScreenType from "react-screentype-hook";

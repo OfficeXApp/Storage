@@ -35,7 +35,7 @@ import {
   Identity,
   StorageLocationEnum,
   useDrive,
-} from "@officexapp/framework";
+} from "../../framework";
 import useScreenType from "react-screentype-hook";
 import { useNavigate } from "react-router-dom";
 import FilePreview from "../FilePreview";

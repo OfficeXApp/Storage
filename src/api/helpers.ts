@@ -61,10 +61,15 @@ export function checkShouldAllowWorldComputer(): boolean {
   if (typeof window !== "undefined" && window.location) {
     // To enable showing, add `?allow_world_computer=1` to the URL
     // or be in dev env
-    return (
+    const alreadyAllowed = localStorage.getItem("allow_world_computer");
+    const showAllow =
       window.location.search.includes("allow_world_computer=1") ||
-      window.location.origin === "http://localhost:5173"
-    );
+      alreadyAllowed; // || window.location.origin === "http://localhost:5173";
+    console.log(`Should allow world computer: ${showAllow}`);
+    if (showAllow) {
+      localStorage.setItem("allow_world_computer", "1");
+    }
+    return Boolean(showAllow);
   }
   console.error("Window or location is undefined.");
   return false;

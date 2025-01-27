@@ -16,7 +16,7 @@ import {
   EyeTwoTone,
   ReloadOutlined,
 } from "@ant-design/icons";
-import { Identity } from "@officexapp/framework";
+import { Identity } from "../../framework";
 import { Actor } from "@dfinity/agent";
 import { idlFactory as idlFactory_Drive } from "../../declarations/officex-canisters-backend/officex-canisters-backend.did.js";
 import { formatCycles } from "../../api/icp.js";

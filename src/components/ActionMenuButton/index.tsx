@@ -20,10 +20,10 @@ import {
   getUploadFolderPath,
   UserID,
   DriveFullFilePath,
-} from "@officexapp/framework";
+  Identity,
+} from "../../framework";
 import { useLocation, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { Identity } from "@officexapp/framework";
 import mixpanel from "mixpanel-browser";
 import useCloudSync from "../../api/cloud-sync";
 

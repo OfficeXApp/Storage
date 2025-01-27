@@ -5,7 +5,7 @@ import {
   UserID,
   DriveDB,
   getUploadFolderPath,
-} from "@officexapp/framework";
+} from "../../framework";
 import {
   Upload,
   Button,
@@ -85,12 +85,12 @@ const UploadPanel: React.FC<{
   };
 
   const handleUploadFiles = () => {
-    mixpanel.track('Upload Files')
+    mixpanel.track("Upload Files");
     fileInputRef.current?.click();
   };
 
   const handleUploadFolder = () => {
-    mixpanel.track('Upload Files')
+    mixpanel.track("Upload Files");
     folderInputRef.current?.click();
   };
 
@@ -269,33 +269,35 @@ const UploadPanel: React.FC<{
               dataSource={uploadQueue}
               renderItem={(item) => (
                 <Link to={handleViewFile(item.path, item.storageLocation)}>
-                <List.Item
-                  key={item.id}
-                  onClick={() => handleViewFile(item.path, item.storageLocation)}
-                  actions={[
-                    <Dropdown
-                      menu={{
-                        items: [] // menuItems(item.path, item.storageLocation),
-                      }}
-                      trigger={["click"]}
-                    >
-                      <Button
-                        type="link"
-                        icon={<EllipsisOutlined />}
-                        size="large"
-                        style={{ color: "black", marginRight: "-30px" }}
-                      />
-                    </Dropdown>,
-                  ]}
-                >
-                  <List.Item.Meta
-                    avatar={<FileOutlined />}
-                    title={item.name}
-                    description={
-                      <Progress percent={item.progress} size="small" />
+                  <List.Item
+                    key={item.id}
+                    onClick={() =>
+                      handleViewFile(item.path, item.storageLocation)
                     }
-                  />
-                </List.Item>
+                    actions={[
+                      <Dropdown
+                        menu={{
+                          items: [], // menuItems(item.path, item.storageLocation),
+                        }}
+                        trigger={["click"]}
+                      >
+                        <Button
+                          type="link"
+                          icon={<EllipsisOutlined />}
+                          size="large"
+                          style={{ color: "black", marginRight: "-30px" }}
+                        />
+                      </Dropdown>,
+                    ]}
+                  >
+                    <List.Item.Meta
+                      avatar={<FileOutlined />}
+                      title={item.name}
+                      description={
+                        <Progress percent={item.progress} size="small" />
+                      }
+                    />
+                  </List.Item>
                 </Link>
               )}
             />

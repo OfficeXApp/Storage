@@ -8,7 +8,7 @@ import {
   useDrive,
   UserID,
   StorageLocationEnum as StorageLocationEnumFE,
-} from "@officexapp/framework";
+} from "../framework";
 import { Actor, ActorSubclass, HttpAgent } from "@dfinity/agent";
 import {
   idlFactory as idlFactory_Drive,

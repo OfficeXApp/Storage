@@ -58,7 +58,7 @@ import {
   LOCAL_STORAGE_STORJ_SECRET_KEY,
   LOCAL_STORAGE_STORJ_ENDPOINT,
   Identity,
-} from "@officexapp/framework";
+} from "../../framework";
 import useScreenType from "react-screentype-hook";
 import ActionMenuButton from "../ActionMenuButton";
 import UploadDropZone from "../UploadDropZone";

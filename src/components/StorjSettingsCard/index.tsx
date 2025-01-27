@@ -7,7 +7,7 @@ import {
   LOCAL_STORAGE_STORJ_ENDPOINT,
   LOCAL_STORAGE_STORJ_SECRET_KEY,
   useDrive,
-} from "@officexapp/framework";
+} from "../../framework";
 import mixpanel from "mixpanel-browser";
 
 const { Text, Link } = Typography;
@@ -51,7 +51,7 @@ const StorjSettingsCard: React.FC<StorjSettingsCardProps> = ({
       if (onSave) {
         onSave(values);
       }
-      mixpanel.track('Valid Storj Creds')
+      mixpanel.track("Valid Storj Creds");
     }
   };
 

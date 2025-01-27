@@ -32,3 +32,6 @@ firebase.json
 firebase-debug.log
 .firebaserc
 .firebase
+
+.env
+test-logs/*

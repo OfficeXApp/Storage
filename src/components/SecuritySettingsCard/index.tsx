@@ -16,7 +16,7 @@ import {
   EyeInvisibleOutlined,
   EyeTwoTone,
 } from "@ant-design/icons";
-import { Identity } from "@officexapp/framework";
+import { Identity } from "../../framework";
 import useScreenType from "react-screentype-hook";
 import mixpanel from "mixpanel-browser";
 const { useIdentity } = Identity;

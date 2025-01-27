@@ -2,7 +2,7 @@ import {
   LOCAL_STORAGE_STORJ_ACCESS_KEY,
   LOCAL_STORAGE_STORJ_ENDPOINT,
   LOCAL_STORAGE_STORJ_SECRET_KEY,
-} from "@officexapp/framework";
+} from "../framework";
 import { notification } from "antd";
 import { Link } from "react-router-dom";
 

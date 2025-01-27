@@ -4,7 +4,7 @@ import {
   DriveFileRawDestination,
   FileMetadataFragment,
   FileUUID,
-} from "@officexapp/framework";
+} from "../framework";
 
 class IndexedDBStorage {
   private static instance: IndexedDBStorage;

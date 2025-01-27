@@ -1,5 +1,5 @@
 import { Button, message, Modal, Result, Typography } from "antd";
-import { Identity } from "@officexapp/framework";
+import { Identity } from "../../framework";
 import { useEffect, useState } from "react";
 import { CloudSyncOutlined } from "@ant-design/icons";
 import { checkShouldAllowWorldComputer } from "../../api/helpers";

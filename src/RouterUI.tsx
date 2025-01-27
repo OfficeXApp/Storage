@@ -40,6 +40,7 @@ import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
 import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
+import TorrentSandbox from "./components/TorrentSandbox";
 
 const { Sider, Content } = Layout;
 
@@ -244,6 +245,7 @@ const RouterUI = () => {
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/presale" element={<PreseedOffer />} />
                 <Route path="/preseed" element={<Navigate to="/presale" />} />
+                <Route path="/torrent" element={<TorrentSandbox />} />
                 <Route
                   path="/whitepaper"
                   element={

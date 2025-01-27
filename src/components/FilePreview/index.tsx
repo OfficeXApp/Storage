@@ -42,6 +42,7 @@ import SheetJSPreview from "../SheetJSPreview";
 import { createPseudoShareLink } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
 import { isFreeTrialStorj } from "../../api/storj";
+import useTorrent from "../../api/torrent";
 
 const { Text } = Typography;
 const { useIdentity } = Identity;

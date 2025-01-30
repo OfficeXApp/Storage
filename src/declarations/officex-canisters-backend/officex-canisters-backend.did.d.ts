@@ -30,11 +30,13 @@ export interface FileMetadata {
   'owner' : UserID,
   'storage_location' : StorageLocationEnum,
   'tags' : Array<Tag>,
+  'canister_id' : Principal,
   'full_file_path' : DriveFullFilePath,
   'file_size' : bigint,
   'next_version' : [] | [FileUUID],
   'prior_version' : [] | [FileUUID],
   'original_file_name' : string,
+  'expires_at' : bigint,
   'created_date' : bigint,
   'extension' : string,
 }
@@ -47,9 +49,11 @@ export interface FolderMetadata {
   'owner' : UserID,
   'storage_location' : StorageLocationEnum,
   'tags' : Array<Tag>,
+  'canister_id' : Principal,
   'file_uuids' : Array<FileUUID>,
   'full_folder_path' : DriveFullFilePath,
   'parent_folder_uuid' : [] | [FolderUUID],
+  'expires_at' : bigint,
   'created_date' : bigint,
   'subfolder_uuids' : Array<FolderUUID>,
 }
@@ -79,7 +83,7 @@ export type UpdateResult = { 'Ok' : null } |
 export type UserID = Principal;
 export interface _SERVICE {
   'create_folder' : ActorMethod<
-    [DriveFullFilePath, StorageLocationEnum],
+    [DriveFullFilePath, StorageLocationEnum, bigint],
     Result_FolderMetadata
   >,
   'delete_file' : ActorMethod<[FileUUID], UpdateResult>,
@@ -112,7 +116,7 @@ export interface _SERVICE {
     Result_FolderUUID
   >,
   'upsert_file_to_hash_tables' : ActorMethod<
-    [string, StorageLocationEnum],
+    [string, StorageLocationEnum, bigint],
     FileUUID
   >,
 }

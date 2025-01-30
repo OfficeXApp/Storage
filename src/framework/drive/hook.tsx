@@ -19,6 +19,7 @@ import {
   FolderMetadata,
   FileMetadata,
   FolderUUID,
+  DirectoryExtraData,
 } from "./types";
 import DriveDB from "./core";
 import IndexedDBStorage from "./storage/indexdb";
@@ -30,6 +31,7 @@ import {
   S3ClientAuth,
 } from "./storage/storj-web3";
 import { getMimeTypeFromExtension } from "./helpers";
+import { useIdentity } from "../identity/identity.provider";
 
 interface DriveContextType {
   isInitialized: boolean;
@@ -122,6 +124,7 @@ export const DriveProvider: React.FC<DriveProviderProps> = ({
   onUploadComplete,
 }) => {
   const driveDB = useRef<DriveDB | null>(null);
+  const { evmSlug, evmAccount, icpAccount, userID } = useIdentity();
   const [isInitialized, setIsInitialized] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
     totalFiles: 0,
@@ -133,7 +136,7 @@ export const DriveProvider: React.FC<DriveProviderProps> = ({
   useEffect(() => {
     const run = async () => {
       const indexDBStorage = IndexedDBStorage.getInstance();
-      const db = new DriveDB(indexDBStorage);
+      const db = new DriveDB(indexDBStorage, userID);
       await db.initialize();
       setIsInitialized(true);
       driveDB.current = db;
@@ -167,9 +170,14 @@ export const DriveProvider: React.FC<DriveProviderProps> = ({
       storageLocation: StorageLocationEnum,
       userID: UserID,
       concurrency: number = 5,
-      localOnUploadComplete?: (fileUUID: FileUUID) => void
+      localOnUploadComplete?: (fileUUID: FileUUID) => void,
+      expiresAt?: number
     ) => {
       if (driveDB.current) {
+        const directoryExtraData = {
+          canisterID: driveDB.current.canisterID,
+          expiresAt,
+        };
         const {
           progress$,
           // cancelUpload,
@@ -181,7 +189,8 @@ export const DriveProvider: React.FC<DriveProviderProps> = ({
           uploadFolderPath,
           storageLocation,
           userID,
-          concurrency
+          concurrency,
+          directoryExtraData
         );
 
         progress$.subscribe(setUploadProgress);
@@ -332,15 +341,21 @@ export const DriveProvider: React.FC<DriveProviderProps> = ({
     async (
       fullFolderPath: DriveFullFilePath,
       storageLocation: StorageLocationEnum,
-      userId: UserID
+      userId: UserID,
+      expiresAt?: number
     ): Promise<FolderMetadata> => {
       if (!driveDB.current) {
         throw new Error("DriveDB is not initialized");
       }
+      const directoryExtraData = {
+        canisterID: driveDB.current.canisterID,
+        expiresAt,
+      };
       return driveDB.current.createFolder(
         fullFolderPath,
         storageLocation,
-        userId
+        userId,
+        directoryExtraData
       );
     },
     []

@@ -10,10 +10,13 @@ import {
   FileUploadStatusEnum,
 } from "../framework";
 import { green, red, grey } from "@ant-design/colors";
+import { useIdentity } from "../framework/identity/identity.provider";
 
 const UploadFiles: React.FC = () => {
   const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
   const [overallProgress, setOverallProgress] = useState<number>(0);
+
+  const { userID } = useIdentity();
 
   const driveDBRef = useRef<DriveDB>();
   const cancelUploadRef = useRef<(id: string) => void>();
@@ -22,12 +25,12 @@ const UploadFiles: React.FC = () => {
     const init = async () => {
       const indexDBStorage = IndexedDBStorage.getInstance();
       await indexDBStorage.initialize();
-      driveDBRef.current = new DriveDB(indexDBStorage);
+      driveDBRef.current = new DriveDB(indexDBStorage, userID);
     };
     init();
   }, []);
 
-  const handleUpload = async (files: File[]) => {
+  const handleUpload = async (files: File[], expiresAt?: number) => {
     const driveDB = driveDBRef.current;
 
     if (!driveDB) {
@@ -39,13 +42,18 @@ const UploadFiles: React.FC = () => {
     const uploadFolderPath = "uploads";
 
     try {
+      const directoryExtraData = {
+        canisterID: driveDB.canisterID,
+        expiresAt,
+      };
       const { progress$, cancelUpload, uploadComplete$, getUploadQueue } =
         driveDB.uploadFilesFolders(
           files,
           uploadFolderPath,
           StorageLocationEnum.BrowserCache,
           userId,
-          1
+          1,
+          directoryExtraData
         );
 
       cancelUploadRef.current = cancelUpload;

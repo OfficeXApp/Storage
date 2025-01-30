@@ -1,4 +1,4 @@
-import Identity from "./identity_deprecated";
+import Identity from "./identity";
 import {
   DriveDB,
   IndexedDBStorage,

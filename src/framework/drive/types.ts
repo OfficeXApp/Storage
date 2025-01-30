@@ -1,6 +1,15 @@
 // drive/types.ts
 
-import type { UserID } from "../identity/types";
+import type {
+  ApiKeyID,
+  APIKeyMetadata,
+  ApiKeyValue,
+  CanisterID,
+  Team,
+  TeamID,
+  User,
+  UserID,
+} from "../identity/types";
 
 export type FolderUUID = string & { readonly __folderUUID: unique symbol };
 export type FileUUID = string & { readonly __fileUUID: unique symbol };
@@ -15,6 +24,7 @@ export enum StorageLocationEnum {
 export type UploadFolderPath = string;
 export type DriveFilePath = string;
 export type DriveFullFilePath = `${StorageLocationEnum}::${DriveFilePath}`;
+export type CosmicPath = `${CanisterID}>>${DriveFullFilePath}`;
 export type DriveFileRawDestinationIndexDBFileID = string;
 export type DriveFileRawDestination =
   | DriveFileRawDestinationIndexDBFileID
@@ -36,7 +46,12 @@ export interface FolderMetadata {
   createdDate: Date; // ISO 8601 format
   storageLocation: StorageLocationEnum;
   lastChangedUnixMs: number; // unix time ms
-  deleted?: boolean;
+  deleted: boolean;
+  expiresAt: number; // unix time ms
+  canisterID: CanisterID;
+  // const cosmicPath = `${canisterID}>>${StorageLocationEnum}::${DriveFilePath}` eg. `adf424123d4e>>BrowserCache::test.txt`
+  // or if deleted const cosmicPath = `${canisterID}_trash>>${StorageLocationEnum}::${DriveFilePath}`
+  cosmicPath: CosmicPath;
 }
 
 // Type for File Metadata
@@ -56,7 +71,12 @@ export interface FileMetadata {
   fileSize: number; // in bytes
   rawURL: DriveFileRawDestination; // the real location of the file
   lastChangedUnixMs: number; // unix time ms
-  deleted?: boolean;
+  deleted: boolean;
+  expiresAt: number; // unix time ms
+  canisterID: CanisterID;
+  // const cosmicPath = `${canisterID}>>${StorageLocationEnum}::${DriveFilePath}` eg. `adf424123d4e>>BrowserCache::test.txt`
+  // or if deleted const cosmicPath = `${canisterID}_trash>>${StorageLocationEnum}::${DriveFilePath}`
+  cosmicPath: CosmicPath;
 }
 
 // Type for Full Folder Path to UUID Hashtable
@@ -85,6 +105,10 @@ export interface DriveDBSnapshot {
   fullFilePathToUUID: Hashtable_FullFilePathToUUID;
   folderUUIDToMetadata: Hashtable_FolderUUIDToMetadata;
   fileUUIDToMetadata: Hashtable_FileUUIDToMetadata;
+  rolodexUsers: RolodexUsers;
+  rolodexApiKeys: RolodexApiKeys;
+  rolodexTeams: RolodexTeams;
+  rolodexCanisters: RolodexCanisters;
 }
 
 // Fetch files & folders at a given path
@@ -129,6 +153,11 @@ export enum FileUploadStatusEnum {
   Cancelled = "cancelled",
 }
 
+export interface DirectoryExtraData {
+  canisterID: CanisterID;
+  expiresAt?: number;
+}
+
 export interface UploadItem {
   id: FileUUID;
   file: File;
@@ -137,6 +166,7 @@ export interface UploadItem {
   progress: number;
   status: FileUploadStatusEnum;
   storageLocation: StorageLocationEnum;
+  directoryExtraData: DirectoryExtraData;
 }
 
 export interface UploadProgress {
@@ -151,4 +181,51 @@ export enum HashtableTypeEnum {
   FullFilePathToUUID = "fullFilePathToUUID",
   FolderUUIDToMetadata = "folderUUIDToMetadata",
   FileUUIDToMetadata = "fileUUIDToMetadata",
+}
+
+// Everything in OfficeX lives in folders and share same auth roles
+// Even metadata about your organization is in a folder .officex/metadata
+// Member permissions are also in your folder .officex/teams (whereas file permissions are in hashtables)
+// Torrent records are in your folder .officex/torrents
+export enum ResourcePermissionEnum {
+  READ = "read", // Can view the resource
+  WRITE = "write", // Can edit the resource
+  DELETE = "delete", // Can delete the resource
+  INVITE = "invite", // Can invite others to the resource at same scope or lower
+  SYNC = "sync", // Can sync the resource to a local folder
+}
+const mockSystemDirectory = {
+  ".officex": {
+    organization: [], //
+    teams: [], // team_id.json holds info about remote (cosmic) teams
+    torrents: [], // torrent_id.json holds info about torrents
+  },
+};
+
+export type UserOrTeamID = UserID | TeamID;
+export interface ResourceACL {
+  fullPath: DriveFullFilePath;
+  scopes: Record<UserOrTeamID, ResourcePermissionEnum[]>;
+}
+
+export interface RolodexUsers {
+  [userID: UserID]: User;
+}
+
+export interface RolodexApiKeys {
+  [apiKeyValue: ApiKeyValue]: APIKeyMetadata;
+}
+
+export interface RolodexTeams {
+  [teamID: TeamID]: Team;
+}
+
+export interface RolodexCanisters {
+  [canisterID: CanisterID]: DriveCanister;
+}
+
+export interface DriveCanister {
+  canisterID: CanisterID;
+  nickname: string;
+  createdAt: number;
 }

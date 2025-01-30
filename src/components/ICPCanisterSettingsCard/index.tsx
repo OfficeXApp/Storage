@@ -43,7 +43,7 @@ const ICPCanisterSettingsCard = () => {
     }
     const actor = Actor.createActor(idlFactory_Drive, {
       agent: icpAgent.current,
-      canisterId: icpCanisterId,
+      canisterID: icpCanisterId,
     });
     const res = await actor.ping();
     console.log(`Ping response: ${res}`);

@@ -28,12 +28,28 @@ import {
   FileUploadStatusEnum,
   HashtableTypeEnum,
   DriveFileRawDestinationIndexDBFileID,
+  DirectoryExtraData,
+  CosmicPath,
   // DriveFileRawDestinationIndexDBFileID,
+  RolodexApiKeys,
+  RolodexCanisters,
+  RolodexTeams,
+  RolodexUsers,
+  DriveCanister,
 } from "./types";
 import { getFileExtension, sanitizeFilePath } from "./helpers";
 
 import { StorjClient, S3ClientAuth } from "./storage/storj-web3";
-import { UserID } from "../identity/types";
+import {
+  ApiKeyID,
+  APIKeyMetadata,
+  ApiKeyValue,
+  CanisterID,
+  Team,
+  TeamID,
+  User,
+  UserID,
+} from "../identity/types";
 import IndexedDBStorage from "./storage/indexdb";
 import {
   BehaviorSubject,
@@ -53,6 +69,9 @@ import {
 } from "rxjs";
 
 class DriveDB {
+  public canisterID: CanisterID = "offchain_anonymous" as CanisterID;
+  private owner: UserID;
+
   // hashtables
   private fullFolderPathToUUID: Hashtable_FullFolderPathToUUID;
   private fullFilePathToUUID: Hashtable_FullFilePathToUUID;
@@ -61,6 +80,12 @@ class DriveDB {
   private fuseIndex: Fuse<FuseRecord>;
   private indexDBStorage: IndexedDBStorage;
   private isInitialized: boolean = false;
+
+  // rolodex
+  private rolodexUsers: RolodexUsers;
+  private rolodexApiKeys: RolodexApiKeys;
+  private rolodexTeams: RolodexTeams;
+  private rolodexCanisters: RolodexCanisters;
 
   private storjClient: StorjClient | null = null;
 
@@ -73,7 +98,12 @@ class DriveDB {
 
   public isUploading: boolean = false;
 
-  constructor(indexDBStorage: IndexedDBStorage) {
+  constructor(indexDBStorage: IndexedDBStorage, owner: UserID) {
+    this.owner = owner;
+    this.rolodexUsers = {};
+    this.rolodexApiKeys = {};
+    this.rolodexTeams = {};
+    this.rolodexCanisters = {};
     this.fullFolderPathToUUID = {};
     this.fullFilePathToUUID = {};
     this.folderUUIDToMetadata = {};
@@ -151,6 +181,7 @@ class DriveDB {
     uploadFilePath: DriveFilePath,
     storageLocation: StorageLocationEnum,
     userId: UserID,
+    directoryExtraData: DirectoryExtraData,
     metadata?: FileMetadataFragment
   ): FileUUID {
     const filePath = sanitizeFilePath(uploadFilePath);
@@ -173,7 +204,8 @@ class DriveDB {
     const folderUUID = this.ensureFolderStructure(
       filePath,
       storageLocation,
-      userId
+      userId,
+      directoryExtraData
     );
 
     // Create file metadata
@@ -199,6 +231,12 @@ class DriveDB {
       fileSize: metadata?.fileSize || 0,
       rawURL: metadata?.rawURL || "",
       lastChangedUnixMs: now.getTime(),
+      deleted: false,
+      expiresAt: directoryExtraData.expiresAt
+        ? directoryExtraData.expiresAt
+        : -1,
+      canisterID: directoryExtraData.canisterID,
+      cosmicPath: `${directoryExtraData.canisterID}>>${fullFilePath}`,
     };
 
     // Update hashtables
@@ -258,7 +296,8 @@ class DriveDB {
   private ensureFolderStructure(
     filePath: string,
     storageLocation: StorageLocationEnum,
-    userId: UserID
+    userId: UserID,
+    directoryExtraData: DirectoryExtraData
   ): FolderUUID {
     const pathParts = filePath.split("/").filter((part) => part.length > 0);
     let currentPath = `${storageLocation}::` as DriveFullFilePath;
@@ -280,6 +319,11 @@ class DriveDB {
         createdDate: new Date(),
         storageLocation,
         lastChangedUnixMs: new Date().getTime(),
+        deleted: false,
+        expiresAt: -1,
+        canisterID: directoryExtraData.canisterID,
+        cosmicPath:
+          `${directoryExtraData.canisterID}>>${currentPath}` as CosmicPath,
       };
       const folderFuseRecord: FuseRecord = {
         id: `folder:::${rootFolderUUID}`,
@@ -311,6 +355,11 @@ class DriveDB {
           createdDate: new Date(),
           storageLocation,
           lastChangedUnixMs: new Date().getTime(),
+          deleted: false,
+          expiresAt: directoryExtraData.expiresAt || -1,
+          canisterID: directoryExtraData.canisterID,
+          cosmicPath:
+            `${directoryExtraData.canisterID}>>${currentPath}` as CosmicPath,
         };
 
         this.folderUUIDToMetadata[newFolderUUID] = newFolderMetadata;
@@ -344,7 +393,8 @@ class DriveDB {
   createFolder(
     fullFolderPath: DriveFullFilePath,
     storageLocation: StorageLocationEnum,
-    userId: UserID
+    userId: UserID,
+    directoryExtraData: DirectoryExtraData
   ): FolderMetadata {
     const [storagePart, ...pathParts] = fullFolderPath.split("::");
     const pathString = pathParts.join("/"); // Rejoin in case there were extra "::" in the path
@@ -372,6 +422,12 @@ class DriveDB {
         createdDate: new Date(),
         storageLocation,
         lastChangedUnixMs: new Date().getTime(),
+        deleted: false,
+        expiresAt: directoryExtraData.expiresAt
+          ? directoryExtraData.expiresAt
+          : -1,
+        canisterID: directoryExtraData.canisterID,
+        cosmicPath: `${directoryExtraData.canisterID}>>${currentPath}`,
       };
       if (!sanitizedPath) {
         // throw new Error(DRIVE_ERRORS.INVALID_NAME);
@@ -417,6 +473,11 @@ class DriveDB {
           createdDate: new Date(),
           storageLocation,
           lastChangedUnixMs: new Date().getTime(),
+          deleted: false,
+          expiresAt: directoryExtraData.expiresAt || -1,
+          canisterID: directoryExtraData.canisterID,
+          cosmicPath:
+            `${directoryExtraData.canisterID}>>${currentPath}` as CosmicPath,
         };
 
         // Update hashtables
@@ -455,7 +516,8 @@ class DriveDB {
     uploadFolderPath: UploadFolderPath,
     storageLocation: StorageLocationEnum,
     userID: UserID,
-    concurrency: number = 5
+    concurrency: number = 5,
+    directoryExtraData: DirectoryExtraData
   ): {
     progress$: Observable<UploadProgress>;
     cancelUpload: (id: string) => void;
@@ -470,7 +532,7 @@ class DriveDB {
         uploadFolderPath,
         file
       ) as DriveFilePath;
-      this.addToQueue(file, filePath, storageLocation);
+      this.addToQueue(file, filePath, storageLocation, directoryExtraData);
     });
 
     const progress$ = new BehaviorSubject<UploadProgress>({
@@ -507,7 +569,8 @@ class DriveDB {
       userID,
       concurrency,
       progress$,
-      uploadComplete$
+      uploadComplete$,
+      directoryExtraData
     );
 
     return {
@@ -522,7 +585,8 @@ class DriveDB {
   private addToQueue(
     file: File,
     path: DriveFilePath,
-    storageLocation: StorageLocationEnum
+    storageLocation: StorageLocationEnum,
+    directoryExtraData: DirectoryExtraData
   ): void {
     const newItem: UploadItem = {
       id: uuidv4() as FileUUID,
@@ -532,6 +596,7 @@ class DriveDB {
       progress: 0,
       status: FileUploadStatusEnum.Queued,
       storageLocation,
+      directoryExtraData,
     };
 
     this.uploadQueue.push(newItem);
@@ -555,7 +620,8 @@ class DriveDB {
     userID: UserID,
     concurrency: number,
     progress$: Subject<UploadProgress>,
-    uploadComplete$: Subject<FileUUID>
+    uploadComplete$: Subject<FileUUID>,
+    directoryExtraData: DirectoryExtraData
   ): void {
     if (this.uploadQueue.length === 0) {
       // If there are no items to upload, complete the uploadComplete$ Subject immediately
@@ -572,7 +638,8 @@ class DriveDB {
               storageLocation,
               userID,
               progress$,
-              uploadComplete$
+              uploadComplete$,
+              directoryExtraData
             ),
           concurrency
         )
@@ -590,7 +657,8 @@ class DriveDB {
     storageLocation: StorageLocationEnum,
     userID: UserID,
     progress$: Subject<UploadProgress>,
-    uploadComplete$: Subject<FileUUID>
+    uploadComplete$: Subject<FileUUID>,
+    directoryExtraData: DirectoryExtraData
   ): Observable<void> {
     return new Observable<void>((observer) => {
       if (item.status === FileUploadStatusEnum.Cancelled) {
@@ -618,7 +686,7 @@ class DriveDB {
               item.path,
               storageLocation,
               userID,
-              result.metadataFragment
+              directoryExtraData
             );
             uploadComplete$.next(result.metadataFragment.id);
             observer.complete();
@@ -1248,6 +1316,10 @@ class DriveDB {
         storageLocation as StorageLocationEnum,
         (fileMetadata.owner || "") as UserID,
         {
+          canisterID: fileMetadata.canisterID as CanisterID,
+          expiresAt: fileMetadata.expiresAt || -1,
+        },
+        {
           id: fileID,
           name: newFileName,
           mimeType: newFileName.split(".").pop() || "",
@@ -1267,7 +1339,8 @@ class DriveDB {
       nextVersion: null,
       priorVersion: null,
       extension: "",
-      fullFilePath: "" as DriveFullFilePath,
+      fullFilePath:
+        `${StorageLocationEnum.BrowserCache}::` as DriveFullFilePath,
       tags: [],
       owner: "" as UserID,
       createdDate: new Date(),
@@ -1276,6 +1349,11 @@ class DriveDB {
       rawURL: "",
       deleted: false,
       lastChangedUnixMs: new Date().getTime(),
+      expiresAt: -1,
+      canisterID: fileMetadata.canisterID as CanisterID,
+      cosmicPath:
+        fileMetadata.cosmicPath ||
+        (`${fileMetadata.canisterID}>>${StorageLocationEnum.BrowserCache}::` as CosmicPath),
     };
 
     const newFile = existingFile ? { ...existingFile } : defaultMetdata;
@@ -1392,6 +1470,11 @@ class DriveDB {
         storageLocation: folderMetadata.storageLocation as StorageLocationEnum,
         lastChangedUnixMs: folderMetadata.lastChangedUnixMs || 0,
         deleted: folderMetadata.deleted || false,
+        expiresAt: folderMetadata.expiresAt ? folderMetadata.expiresAt : -1,
+        canisterID: folderMetadata.canisterID as CanisterID,
+        cosmicPath:
+          folderMetadata.cosmicPath ||
+          (`${folderMetadata.canisterID}>>${newFullFolderPath}` as CosmicPath),
       };
     }
 
@@ -1496,6 +1579,10 @@ class DriveDB {
       fullFilePathToUUID: this.fullFilePathToUUID,
       folderUUIDToMetadata: this.folderUUIDToMetadata,
       fileUUIDToMetadata: this.fileUUIDToMetadata,
+      rolodexApiKeys: this.rolodexApiKeys,
+      rolodexCanisters: this.rolodexCanisters,
+      rolodexUsers: this.rolodexUsers,
+      rolodexTeams: this.rolodexTeams,
     };
     return snapshot;
   }
@@ -1552,6 +1639,70 @@ class DriveDB {
   checkIfInitialized(): boolean {
     return this.isInitialized;
   }
+
+  // rolodex
+  getRolodexUser(userID: UserID): User {
+    return this.rolodexUsers[userID];
+  }
+  upsertRolodexUser(userID: UserID, payload: Partial<User>) {
+    this.rolodexUsers[userID] = {
+      ...this.rolodexUsers[userID],
+      ...payload,
+    };
+    return this.rolodexUsers[userID];
+  }
+  getRolodexApiKey(apiKeyValue: ApiKeyValue): APIKeyMetadata {
+    return this.rolodexApiKeys[apiKeyValue];
+  }
+  upsertRolodexApiKey(
+    apiKeyValue: ApiKeyValue,
+    payload: Partial<APIKeyMetadata>
+  ) {
+    this.rolodexApiKeys[apiKeyValue] = {
+      ...this.rolodexApiKeys[apiKeyValue],
+      ...payload,
+    };
+    return this.rolodexApiKeys[apiKeyValue];
+  }
+  getRolodexTeam(teamID: TeamID): Team {
+    return this.rolodexTeams[teamID];
+  }
+  upsertRolodexTeam(teamID: TeamID, payload: Partial<Team>) {
+    this.rolodexTeams[teamID] = {
+      ...this.rolodexTeams[teamID],
+      ...payload,
+    };
+    return this.rolodexTeams[teamID];
+  }
+  getRolodexCanister(canisterID: CanisterID): DriveCanister {
+    return this.rolodexCanisters[canisterID];
+  }
+  upsertRolodexCanister(
+    canisterID: CanisterID,
+    payload: Partial<DriveCanister>
+  ) {
+    this.rolodexCanisters[canisterID] = {
+      ...this.rolodexCanisters[canisterID],
+      ...payload,
+    };
+    return this.rolodexCanisters[canisterID];
+  }
 }
 
 export default DriveDB;
+
+// export interface RolodexUsers {
+//   [userID: UserID]: User;
+// }
+
+// export interface RolodexApiKeys {
+//   [apiKey: ApiKeyID]: APIKeyMetadata;
+// }
+
+// export interface RolodexTeams {
+//   [teamID: TeamID]: Team;
+// }
+
+// export interface RolodexCanisters {
+//   [canisterID: CanisterID]: DriveCanister;
+// }

@@ -98,6 +98,7 @@ const SandboxPage: React.FC<{
 
     const CHUNK_SIZE = 0.5 * 1024 * 1024;
     const fileId = crypto.randomUUID();
+    const originalFilename = file.name;
     console.log(`fileId=`, fileId);
     setTempFileId(fileId);
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
@@ -129,7 +130,7 @@ const SandboxPage: React.FC<{
       "uploadRawFile: All chunks uploaded, now calling completeUpload..."
     );
 
-    return completeUpload(fileId);
+    return completeUpload(fileId, originalFilename);
   };
 
   const uploadChunk = async (
@@ -161,7 +162,7 @@ const SandboxPage: React.FC<{
     return response.json();
   };
 
-  const completeUpload = async (fileId: string) => {
+  const completeUpload = async (fileId: string, filename: string) => {
     const response = await fetch(
       `http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/directory/raw_upload/complete`,
       {
@@ -171,6 +172,7 @@ const SandboxPage: React.FC<{
         },
         body: JSON.stringify({
           file_id: fileId,
+          filename,
         }),
       }
     );
@@ -286,7 +288,9 @@ const SandboxPage: React.FC<{
       if (!metaRes.ok) {
         throw new Error(`Metadata request failed: ${metaRes.statusText}`);
       }
-      const { file_id, total_size, total_chunks } = await metaRes.json();
+      // Read the response body *once*
+      const meta = await metaRes.json();
+      const { file_id, total_size, total_chunks, filename } = meta;
       console.log(
         `Download metadata => size: ${total_size}, chunks: ${total_chunks}`
       );
@@ -313,7 +317,7 @@ const SandboxPage: React.FC<{
       const downloadUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = "myDownloadedFile.bin"; // You can customize the filename
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

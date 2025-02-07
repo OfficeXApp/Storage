@@ -789,7 +789,8 @@ class DriveDB {
         }
         const key = `${item.id}${getFileExtension(item.path)}`;
         return StorjClient.uploadObject(item.id, key, item.file);
-      // Add cases for other storage locations here
+      case StorageLocationEnum.ICPCanister:
+      // implement ICPCanister upload
       default:
         return new Observable((observer) => {
           observer.error(

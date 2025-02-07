@@ -1,0 +1,15 @@
+.custom-upload-dropzone {
+    border: none;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch; /* Ensure child elements are not centered */
+  }
+  
+  .custom-upload-dropzone.drag-active {
+    border: 1px dashed #97c9ff;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  

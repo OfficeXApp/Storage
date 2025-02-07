@@ -20,6 +20,7 @@ export enum StorageLocationEnum {
   BrowserCache = "BrowserCache",
   HardDrive = "HardDrive",
   Web3Storj = "Web3Storj",
+  ICPCanister = "ICPCanister",
 }
 export type UploadFolderPath = string;
 export type DriveFilePath = string;

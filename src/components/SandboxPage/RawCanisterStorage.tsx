@@ -55,6 +55,7 @@ const SandboxPage: React.FC<{
   const folderInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const [imageUrl, setImageUrl] = useState("");
 
   const [tempFileId, setTempFileId] = useState<string | null>(null);
 
@@ -65,29 +66,6 @@ const SandboxPage: React.FC<{
     if (file) {
       uploadRawFile(file);
     }
-    // if (files) {
-    //   const fileArray = Array.from(files);
-    //   setSelectedFiles(
-    //     fileArray.map((file) => ({
-    //       uid: file.name,
-    //       name: file.name,
-    //       status: "uploading",
-    //     }))
-    //   );
-    //   const { uploadFolderPath, storageLocation } = getUploadFolderPath();
-    //   console.log(`uploadFolderPath: ${uploadFolderPath}`);
-
-    //   uploadFilesFolders(
-    //     fileArray,
-    //     uploadFolderPath,
-    //     storageLocation,
-    //     "user123" as UserID,
-    //     5,
-    //     (fileUUID) => {
-    //       console.log(`Local callback: File ${fileUUID} upload completed`);
-    //     }
-    //   );
-    // }
   };
 
   const uploadRawFile = async (file: File) => {
@@ -270,66 +248,7 @@ const SandboxPage: React.FC<{
   };
 
   // chunked streaming write download is more memory efficient but requires filesystem permissions
-  async function downloadFile() {
-    if (!tempFileId) {
-      console.warn(
-        "No tempFileId found. Upload a file first or set a valid file_id."
-      );
-      return;
-    }
-
-    try {
-      // 1. Fetch metadata
-      const metaRes = await fetch(
-        `http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/directory/raw_download/meta?file_id=${tempFileId}`
-      );
-      if (!metaRes.ok) {
-        throw new Error(`Metadata request failed: ${metaRes.statusText}`);
-      }
-
-      const { file_id, total_size, total_chunks, filename } =
-        await metaRes.json();
-
-      // 2. Ask the user where they want to save the file:
-      // @ts-ignore
-      const fileHandle = await window.showSaveFilePicker({
-        suggestedName: filename,
-      });
-
-      // 3. Create a writable stream to that file.
-      const writable = await fileHandle.createWritable();
-
-      try {
-        // 4. Fetch each chunk in a loop, write directly to disk
-        for (let i = 0; i < total_chunks; i++) {
-          const chunkRes = await fetch(
-            `http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/directory/raw_download/chunk?file_id=${file_id}&chunk_index=${i}`
-          );
-          if (!chunkRes.ok) {
-            throw new Error(
-              `Chunk request #${i} failed: ${chunkRes.statusText}`
-            );
-          }
-
-          // Read the chunk's bytes
-          const chunkBuf = await chunkRes.arrayBuffer();
-
-          // Write these bytes directly to disk
-          await writable.write(chunkBuf);
-        }
-      } finally {
-        // 5. Close the file once done (very important!)
-        await writable.close();
-      }
-
-      console.log("Download completed successfully!");
-    } catch (err) {
-      console.error("Download failed:", err);
-    }
-  }
-
-  // chunked in-memory download is simpler no filesystem permissions required, but holds entire file in memory
-  // const downloadFile = async () => {
+  // async function downloadFile() {
   //   if (!tempFileId) {
   //     console.warn(
   //       "No tempFileId found. Upload a file first or set a valid file_id."
@@ -340,54 +259,119 @@ const SandboxPage: React.FC<{
   //   try {
   //     // 1. Fetch metadata
   //     const metaRes = await fetch(
-  //       `http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/directory/raw_download/meta?file_id=${tempFileId}`,
-  //       {
-  //         method: "GET",
-  //       }
+  //       `http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/directory/raw_download/meta?file_id=${tempFileId}`
   //     );
   //     if (!metaRes.ok) {
   //       throw new Error(`Metadata request failed: ${metaRes.statusText}`);
   //     }
-  //     // Read the response body *once*
-  //     const meta = await metaRes.json();
-  //     const { file_id, total_size, total_chunks, filename } = meta;
-  //     console.log(
-  //       `Download metadata => size: ${total_size}, chunks: ${total_chunks}`
-  //     );
 
-  //     // 2. Fetch all chunks in a loop
-  //     let allBytes = new Uint8Array(total_size);
-  //     let offset = 0;
-  //     for (let i = 0; i < total_chunks; i++) {
-  //       const chunkRes = await fetch(
-  //         `http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/directory/raw_download/chunk?file_id=${tempFileId}&chunk_index=${i}`
-  //       );
-  //       if (!chunkRes.ok) {
-  //         throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);
+  //     const { file_id, total_size, total_chunks, filename } =
+  //       await metaRes.json();
+
+  //     // 2. Ask the user where they want to save the file:
+  //     // @ts-ignore
+  //     const fileHandle = await window.showSaveFilePicker({
+  //       suggestedName: filename,
+  //     });
+
+  //     // 3. Create a writable stream to that file.
+  //     const writable = await fileHandle.createWritable();
+
+  //     try {
+  //       // 4. Fetch each chunk in a loop, write directly to disk
+  //       for (let i = 0; i < total_chunks; i++) {
+  //         const chunkRes = await fetch(
+  //           `http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/directory/raw_download/chunk?file_id=${file_id}&chunk_index=${i}`
+  //         );
+  //         if (!chunkRes.ok) {
+  //           throw new Error(
+  //             `Chunk request #${i} failed: ${chunkRes.statusText}`
+  //           );
+  //         }
+
+  //         // Read the chunk's bytes
+  //         const chunkBuf = await chunkRes.arrayBuffer();
+
+  //         // Write these bytes directly to disk
+  //         await writable.write(chunkBuf);
   //       }
-  //       const chunkBuf = await chunkRes.arrayBuffer();
-  //       allBytes.set(new Uint8Array(chunkBuf), offset);
-  //       offset += chunkBuf.byteLength;
+  //     } finally {
+  //       // 5. Close the file once done (very important!)
+  //       await writable.close();
   //     }
 
-  //     // 3. Create a Blob from the combined data
-  //     const blob = new Blob([allBytes]);
-
-  //     // 4. Trigger a download in the browser
-  //     const downloadUrl = URL.createObjectURL(blob);
-  //     const a = document.createElement("a");
-  //     a.href = downloadUrl;
-  //     a.download = filename;
-  //     document.body.appendChild(a);
-  //     a.click();
-  //     document.body.removeChild(a);
-  //     URL.revokeObjectURL(downloadUrl);
-
-  //     console.log("File downloaded successfully!");
+  //     console.log("Download completed successfully!");
   //   } catch (err) {
   //     console.error("Download failed:", err);
   //   }
-  // };
+  // }
+
+  // chunked in-memory download is simpler no filesystem permissions required, but holds entire file in memory
+  const downloadFile = async () => {
+    if (!tempFileId) {
+      console.warn(
+        "No tempFileId found. Upload a file first or set a valid file_id."
+      );
+      return;
+    }
+
+    try {
+      // 1. Fetch metadata
+      const metaRes = await fetch(
+        `http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/directory/raw_download/meta?file_id=${tempFileId}`,
+        {
+          method: "GET",
+        }
+      );
+      if (!metaRes.ok) {
+        throw new Error(`Metadata request failed: ${metaRes.statusText}`);
+      }
+      // Read the response body *once*
+      const meta = await metaRes.json();
+      const { file_id, total_size, total_chunks, filename } = meta;
+      console.log(
+        `Download metadata => size: ${total_size}, chunks: ${total_chunks}`
+      );
+
+      // 2. Fetch all chunks in a loop
+      let allBytes = new Uint8Array(total_size);
+      let offset = 0;
+      for (let i = 0; i < total_chunks; i++) {
+        const chunkRes = await fetch(
+          `http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/directory/raw_download/chunk?file_id=${tempFileId}&chunk_index=${i}`
+        );
+        if (!chunkRes.ok) {
+          throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);
+        }
+        const chunkBuf = await chunkRes.arrayBuffer();
+        allBytes.set(new Uint8Array(chunkBuf), offset);
+        offset += chunkBuf.byteLength;
+      }
+
+      // 3. Create a Blob from the combined data
+      const blob = new Blob([allBytes]);
+
+      // If it's an image, display it
+      if (filename.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        const url = URL.createObjectURL(blob);
+        setImageUrl(url);
+      }
+
+      // 4. Trigger a download in the browser
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(downloadUrl);
+
+      console.log("File downloaded successfully!");
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
+  };
 
   const appendRefreshParam = () => {
     const params = new URLSearchParams(location.search);
@@ -454,6 +438,15 @@ const SandboxPage: React.FC<{
       />
 
       <UploadDropZone toggleUploadPanel={setUploadPanelVisible}>
+        {imageUrl && (
+          <div className="mt-4">
+            <img
+              src={imageUrl}
+              alt="Preview"
+              className="max-w-full h-auto rounded-lg shadow-lg"
+            />
+          </div>
+        )}
         {uploadQueue.length === 0 ? (
           <Result
             icon={

@@ -40,7 +40,8 @@ import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
 import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
-import SandboxPage from "./components/SandboxPage";
+import RawCanisterStorage from "./components/SandboxPage/RawCanisterStorage";
+import S3ClientUpload from "./components/SandboxPage/S3ClientUpload";
 
 const { Sider, Content } = Layout;
 
@@ -243,13 +244,17 @@ const RouterUI = () => {
                   }
                 />
                 <Route
-                  path="/sandbox"
+                  path="/sandbox_rawcanisterstorage"
                   element={
-                    <SandboxPage
+                    <RawCanisterStorage
                       uploadPanelVisible={true}
                       setUploadPanelVisible={(visible: boolean) => {}}
                     />
                   }
+                />
+                <Route
+                  path="/sandbox_s3clientupload"
+                  element={<S3ClientUpload />}
                 />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/presale" element={<PreseedOffer />} />

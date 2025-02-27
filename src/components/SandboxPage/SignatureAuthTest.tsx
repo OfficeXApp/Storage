@@ -47,64 +47,57 @@ const SignatureAuthTest = () => {
     }
   };
 
-  const generateSignatureProof = async () => {
+  const generateSignatureProof = async (): Promise<string | null> => {
     try {
       if (!icpIdentity) {
         message.error("Please generate wallets first");
         return null;
       }
 
-      const now = Date.now();
-
-      // Get the raw public key directly from the identity
-      const rawPublicKey = icpIdentity.getPublicKey().toRaw(); // This gets the raw key without DER encoding
-
-      // Create the compatible principal using Principal.selfAuthenticating
-      const compatiblePrincipal = Principal.selfAuthenticating(
-        new Uint8Array(rawPublicKey)
-      );
-      console.log(
-        "Expected backend principal:",
-        compatiblePrincipal.toString()
-      );
-
-      // For the challenge, we still need the raw key as an array
+      // Use the raw public key (32 bytes) for signature verification.
+      const rawPublicKey = icpIdentity.getPublicKey().toRaw();
       const publicKeyArray = Array.from(new Uint8Array(rawPublicKey));
 
+      // Get the canonical principal from getPrincipal() (users expect this).
+      const canonicalPrincipal = icpIdentity.getPrincipal().toString();
+      // const spoofedPrincipal =
+      //   "aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa";
+
+      const now = Date.now();
+
+      // Build the challenge.
+      // self_auth_principal is the raw key (used by the Rust verifier)
+      // canonical_principal is what users expect (computed from DER)
       const challenge = {
         timestamp_ms: now,
         drive_canister_id: "drive_canister_id",
-        user_icp_public_key: publicKeyArray,
+        self_auth_principal: publicKeyArray,
+        canonical_principal: canonicalPrincipal, //spoofedPrincipal,
       };
 
-      const challengeBytes = new TextEncoder().encode(
-        JSON.stringify(challenge)
-      );
-
+      // Serialize and sign the challenge.
+      const challengeJson = JSON.stringify(challenge);
+      const challengeBytes = new TextEncoder().encode(challengeJson);
       const signature = await icpIdentity.sign(challengeBytes);
-      const signatureArray = new Uint8Array(signature);
+      const signatureArray = Array.from(new Uint8Array(signature));
 
+      // Build the proof object.
       const proof = {
         auth_type: "Signature",
         challenge,
-        signature: Array.from(signatureArray),
+        signature: signatureArray,
       };
 
-      // For debugging, log what we're about to encode
       console.log("Proof structure before encoding:", JSON.stringify(proof));
-      console.log(
-        "Expected backend principal:",
-        compatiblePrincipal.toString()
-      );
+      console.log("Canonical principal (expected):", canonicalPrincipal);
 
+      // Encode the proof as base64.
       const proofString = btoa(JSON.stringify(proof));
       setProofString(proofString);
       return proofString;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Signature generation error:", error);
-      message.error(
-        "Failed to generate signature proof: " + (error as Error).message
-      );
+      message.error("Failed to generate signature proof: " + error.message);
       return null;
     }
   };

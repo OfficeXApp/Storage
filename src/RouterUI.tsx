@@ -42,6 +42,7 @@ import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
 import RawCanisterStorage from "./components/SandboxPage/RawCanisterStorage";
 import S3ClientUpload from "./components/SandboxPage/S3ClientUpload";
+import SignatureAuthTest from "./components/SandboxPage/SignatureAuthTest";
 
 const { Sider, Content } = Layout;
 
@@ -255,6 +256,10 @@ const RouterUI = () => {
                 <Route
                   path="/sandbox_s3clientupload"
                   element={<S3ClientUpload />}
+                />
+                <Route
+                  path="/sandbox_authTest"
+                  element={<SignatureAuthTest />}
                 />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/presale" element={<PreseedOffer />} />

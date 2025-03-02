@@ -83,7 +83,7 @@ const SignatureAuthTest = () => {
 
       // Build the proof object.
       const proof = {
-        auth_type: "Signature",
+        auth_type: "SIGNATURE",
         challenge,
         signature: signatureArray,
       };

@@ -18,6 +18,7 @@ import {
 } from "../declarations/officex-canisters-backend/officex-canisters-backend.did.js";
 import { useState } from "react";
 import { message, notification, Spin } from "antd";
+import { canisterID } from "../declarations/factory-canister/index.js";
 
 const { useIdentity } = Identity;
 
@@ -167,7 +168,8 @@ const useCloudSync = () => {
       const cloudFolderResult = await actor.create_folder(
         fullPathString,
         // @ts-ignore
-        { [localFolderLayer0.storageLocation]: null }
+        { [localFolderLayer0.storageLocation]: null },
+        localFolderLayer0.expiresAt
       );
 
       if ("Ok" in cloudFolderResult) {
@@ -229,7 +231,8 @@ const useCloudSync = () => {
         const cloudFolderResult = await actor.create_folder(
           localFolder.fullFolderPath,
           // @ts-ignore
-          { [localFolder.storageLocation]: null }
+          { [localFolder.storageLocation]: null },
+          localFolder.expiresAt
         );
         if ("Ok" in cloudFolderResult) {
           const metadata = cloudFolderResult.Ok;
@@ -397,7 +400,8 @@ const useCloudSync = () => {
         } as StorageLocationEnum;
         const cloud_file_uuid = (await actor.upsert_file_to_hash_tables(
           localFile.fullFilePath,
-          storageLocationVariant
+          storageLocationVariant,
+          BigInt(localFile.expiresAt)
         )) as FileUUID;
         const [cloud_file] = await actor.get_file_by_id(cloud_file_uuid);
 
@@ -577,6 +581,8 @@ const useCloudSync = () => {
           rawURL: cloudFile.raw_url,
           lastChangedUnixMs: Number(cloudFile.last_changed_unix_ms),
           deleted: cloudFile.deleted,
+          expiresAt: cloudFile.expires_at,
+          canisterID: cloudFile.canister_id,
         };
 
         const newLocalFileSaved = await upsertLocalFileWithCloudSync(

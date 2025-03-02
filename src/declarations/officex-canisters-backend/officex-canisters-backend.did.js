@@ -17,9 +17,11 @@ export const idlFactory = ({ IDL }) => {
     'owner' : UserID,
     'storage_location' : StorageLocationEnum,
     'tags' : IDL.Vec(Tag),
+    'canister_id' : IDL.Principal,
     'file_uuids' : IDL.Vec(FileUUID),
     'full_folder_path' : DriveFullFilePath,
     'parent_folder_uuid' : IDL.Opt(FolderUUID),
+    'expires_at' : IDL.Int64,
     'created_date' : IDL.Nat64,
     'subfolder_uuids' : IDL.Vec(FolderUUID),
   });
@@ -43,11 +45,13 @@ export const idlFactory = ({ IDL }) => {
     'owner' : UserID,
     'storage_location' : StorageLocationEnum,
     'tags' : IDL.Vec(Tag),
+    'canister_id' : IDL.Principal,
     'full_file_path' : DriveFullFilePath,
     'file_size' : IDL.Nat64,
     'next_version' : IDL.Opt(FileUUID),
     'prior_version' : IDL.Opt(FileUUID),
     'original_file_name' : IDL.Text,
+    'expires_at' : IDL.Int64,
     'created_date' : IDL.Nat64,
     'extension' : IDL.Text,
   });
@@ -70,7 +74,7 @@ export const idlFactory = ({ IDL }) => {
   });
   return IDL.Service({
     'create_folder' : IDL.Func(
-        [DriveFullFilePath, StorageLocationEnum],
+        [DriveFullFilePath, StorageLocationEnum, IDL.Int64],
         [Result_FolderMetadata],
         [],
       ),
@@ -116,7 +120,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'upsert_file_to_hash_tables' : IDL.Func(
-        [IDL.Text, StorageLocationEnum],
+        [IDL.Text, StorageLocationEnum, IDL.Int64],
         [FileUUID],
         [],
       ),

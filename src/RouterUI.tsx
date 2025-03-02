@@ -40,6 +40,9 @@ import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
 import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
+import RawCanisterStorage from "./components/SandboxPage/RawCanisterStorage";
+import S3ClientUpload from "./components/SandboxPage/S3ClientUpload";
+import SignatureAuthTest from "./components/SandboxPage/SignatureAuthTest";
 
 const { Sider, Content } = Layout;
 
@@ -240,6 +243,23 @@ const RouterUI = () => {
                   element={
                     <ExternalRedirect url="https://app.uniswap.org/swap?inputCurrency=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&outputCurrency=0x48808407d95f691D076C90337d42eE3836656990" />
                   }
+                />
+                <Route
+                  path="/sandbox_rawcanisterstorage"
+                  element={
+                    <RawCanisterStorage
+                      uploadPanelVisible={true}
+                      setUploadPanelVisible={(visible: boolean) => {}}
+                    />
+                  }
+                />
+                <Route
+                  path="/sandbox_s3clientupload"
+                  element={<S3ClientUpload />}
+                />
+                <Route
+                  path="/sandbox_authTest"
+                  element={<SignatureAuthTest />}
                 />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/presale" element={<PreseedOffer />} />

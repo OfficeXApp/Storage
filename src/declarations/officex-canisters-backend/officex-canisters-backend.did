@@ -30,6 +30,8 @@ type FolderMetadata = record {
     storage_location : StorageLocationEnum;
     last_changed_unix_ms: nat64;
     deleted: bool;
+    expires_at: int64;
+    canister_id: principal;
 };
 
 type FileMetadata = record {
@@ -49,6 +51,8 @@ type FileMetadata = record {
     raw_url : text;
     last_changed_unix_ms: nat64;
     deleted: bool;
+    expires_at: int64;
+    canister_id: principal;
 };
 
 type FetchFilesAtFolderPathConfig = record {
@@ -104,7 +108,7 @@ type Result_FolderUUID = variant {
 
 service : {
     "ping" : () -> (text) query;
-    "create_folder" : (DriveFullFilePath, StorageLocationEnum) -> (Result_FolderMetadata);
+    "create_folder" : (DriveFullFilePath, StorageLocationEnum, int64) -> (Result_FolderMetadata);
     "get_folder_by_id" : (FolderUUID) -> (opt FolderMetadata) query;
     "get_file_by_id" : (FileUUID) -> (opt FileMetadata) query;
     "get_folder_by_path" : (DriveFullFilePath) -> (opt FolderMetadata) query;
@@ -116,7 +120,7 @@ service : {
     "upsert_cloud_file_with_local_sync": (file_id: FileUUID, file_metadata: FileMetadata) -> (Result_FileUUID);
     "upsert_cloud_folder_with_local_sync":(folder_id: FolderUUID, folder_metadata: FolderMetadata) -> (Result_FolderUUID);
     "fetch_files_at_folder_path" : (FetchFilesAtFolderPathConfig) -> (FetchFilesResult) query;
-    "upsert_file_to_hash_tables" : (text, StorageLocationEnum) -> (FileUUID);
+    "upsert_file_to_hash_tables" : (text, StorageLocationEnum, int64) -> (FileUUID);
     "snapshot_hashtables" : () -> (StateSnapshot) query;
     "get_canister_balance" : () -> (nat64) query;
     "update_username" : (text) -> (UpdateResult);

@@ -9,10 +9,9 @@ export { idlFactory } from "./officex-canisters-backend.did.js";
  * process.env.CANISTER_ID_<CANISTER_NAME_UPPERCASE>
  * beginning in dfx 0.15.0
  */
-export const canisterId =
-  process.env.CANISTER_ID_OFFICEX_CANISTERS_BACKEND;
+export const canisterID = process.env.CANISTER_ID_OFFICEX_CANISTERS_BACKEND;
 
-export const createActor = (canisterId, options = {}) => {
+export const createActor = (canisterID, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
 
   if (options.agent && options.agentOptions) {
@@ -34,9 +33,11 @@ export const createActor = (canisterId, options = {}) => {
   // Creates an actor with using the candid interface and the HttpAgent
   return Actor.createActor(idlFactory, {
     agent,
-    canisterId,
+    canisterID,
     ...options.actorOptions,
   });
 };
 
-export const officex_canisters_backend = canisterId ? createActor(canisterId) : undefined;
+export const officex_canisters_backend = canisterID
+  ? createActor(canisterID)
+  : undefined;

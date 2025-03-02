@@ -38,8 +38,10 @@ import {
   idlFactory as idlFactory_Drive,
   _SERVICE as DriveSERVICE,
 } from "../../declarations/officex-canisters-backend/officex-canisters-backend.did.js";
+import { UserID } from "./types.js";
 
 export interface IdentityContextProps {
+  userID: UserID;
   evmAccount: Account | null;
   evmSlug: string;
   icpAccount: ICPAccount | null;
@@ -61,12 +63,14 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const icpAgent = useRef<HttpAgent>();
   const [identity, setIdentity] = useState<{
+    userID: UserID;
     evmAccount: Account | null;
     evmSlug: string;
     icpAccount: ICPAccount | null;
     icpSlug: string;
     alias: string;
   }>({
+    userID: "0i0" as UserID,
     evmAccount: null,
     evmSlug: "0x0",
     icpAccount: null,
@@ -120,6 +124,7 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
       await initIcpAgent(icpAccount.identity);
 
       setIdentity((prev) => ({
+        userID: icpAccount.principal.toText() as UserID,
         evmAccount: prev.evmAccount,
         icpAccount: icpAccount,
         alias: existingAlias || "", // Use the stored alias or empty string if not found
@@ -133,6 +138,7 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
       const newICPIdentity = await generateICPIdentityWithMnemonic();
       await initIcpAgent(newICPIdentity.identity);
       setIdentity({
+        userID: newICPIdentity.principal.toText() as UserID,
         evmAccount: newEVMIdentity.account,
         evmSlug: newEVMIdentity.slug,
         icpAccount: newICPIdentity,
@@ -179,14 +185,14 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
 
   const retrieveIcpCanister = async () => {
     // check local storage
-    const canisterId = localStorage.getItem(
+    const canisterID = localStorage.getItem(
       LOCAL_STORAGE_ICP_CANISTER_DRIVE_ID
     );
-    if (canisterId) {
+    if (canisterID) {
       // set to usestate
-      setIcpCanisterId(canisterId);
+      setIcpCanisterId(canisterID);
       // check ping
-      await initPingIcpCanister(canisterId);
+      await initPingIcpCanister(canisterID);
     } else {
       console.log(
         "No ICP Canister found in local storage, try public key directly"

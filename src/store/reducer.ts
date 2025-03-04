@@ -1,6 +1,6 @@
 // store/root-reducer.ts
 import { combineReducers } from "redux";
-import { disksReducer } from "../components/SandboxPage/disks.reducer";
+import { disksReducer } from "./disks.reducer";
 import { OfflineAction } from "@redux-offline/redux-offline/lib/types";
 
 export const rootReducer = combineReducers({

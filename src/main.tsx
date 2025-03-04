@@ -1,4 +1,4 @@
-// main.tsx
+// src/main.tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
@@ -8,6 +8,7 @@ import "./index.css";
 import mixpanel from "mixpanel-browser";
 import { Provider as ReduxProvider } from "react-redux";
 import { configureStore } from "./store/store";
+import { registerServiceWorker } from "./registerSW.ts";
 
 mixpanel.init("cae2fd45d17ff2cdf642b1d8afd80aa8", {
   debug: true,
@@ -32,6 +33,26 @@ if (isFileSystemAccessSupported) {
 }
 
 const store = configureStore();
+
+// Register service worker with UI notifications
+registerServiceWorker({
+  onNeedRefresh: () => {
+    // Show a UI notification that an update is available
+    const updateConfirm = window.confirm(
+      "New content available. Reload to update?"
+    );
+    if (updateConfirm) {
+      window.location.reload();
+    }
+  },
+  onOfflineReady: () => {
+    // Notify the user that the app can work offline
+    console.log("Service Worker - App is ready for offline use");
+  },
+  onRegistered: (registration) => {
+    console.log("Service Worker registered:", registration);
+  },
+});
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

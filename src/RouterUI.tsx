@@ -18,6 +18,7 @@ import {
   Space,
   Card,
   Statistic,
+  Select,
 } from "antd";
 import {
   FolderOutlined,
@@ -29,6 +30,10 @@ import {
   PlusOutlined,
   ArrowUpOutlined,
   SettingOutlined,
+  SwapOutlined,
+  HomeOutlined,
+  UnorderedListOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import DriveUI from "./components/DriveUI";
 import UploadPanel from "./components/UploadPanel";
@@ -41,6 +46,14 @@ import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
 import SandboxPage from "./components/SandboxPage";
+import ContactsPage from "./components/ContactsPage";
+import TeamsPage from "./components/TeamsPage";
+import PermissionsPage from "./components/PermissionsPage";
+import TagsPage from "./components/TagsPage";
+import DisksPage from "./components/DisksPage";
+import DrivesPage from "./components/DrivesPage";
+import WebhooksPage from "./components/WebhooksPage";
+import ApiKeysPage from "./components/ApiKeysPage";
 
 const { Sider, Content } = Layout;
 
@@ -54,40 +67,191 @@ const SideMenu = ({
 }) => {
   const navigate = useNavigate();
   const menuItems = [
+    // {
+    //   key: "drive",
+    //   icon: <FolderOutlined />,
+    //   label: "My Drive",
+    //   onClick: () => {
+    //     navigate("/drive");
+    //     if (setSidebarVisible) {
+    //       setSidebarVisible(false);
+    //     }
+    //   },
+    // },
+    // {
+    //   key: "shared",
+    //   icon: <UserOutlined />,
+    //   label: "Shared with me",
+    //   disabled: true,
+    // },
+    // {
+    //   key: "recent",
+    //   icon: <ClockCircleOutlined />,
+    //   label: "Recent",
+    //   disabled: true,
+    // },
+    // {
+    //   key: "starred",
+    //   icon: <StarOutlined />,
+    //   label: "Starred",
+    //   disabled: true,
+    // },
+    // {
+    //   key: "trash",
+    //   icon: <DeleteOutlined />,
+    //   label: "Trash",
+    //   disabled: true,
+    // },
     {
-      key: "drive",
+      key: "navigate-storage",
+      label: "Storage",
       icon: <FolderOutlined />,
-      label: "My Drive",
-      onClick: () => {
-        navigate("/drive");
-        if (setSidebarVisible) {
-          setSidebarVisible(false);
-        }
-      },
+      children: [
+        {
+          key: "drive",
+          label: "My Drive",
+          type: "item",
+          // icon: <FolderOutlined />,
+          onClick: () => {
+            navigate("/drive");
+            if (setSidebarVisible) {
+              setSidebarVisible(false);
+            }
+          },
+        },
+        {
+          key: "shared",
+          label: "Shared with me",
+          type: "item",
+          // icon: <UserOutlined />,
+        },
+        {
+          key: "recent",
+          label: "Recent",
+          type: "item",
+          // icon: <ClockCircleOutlined />,
+        },
+        {
+          key: "starred",
+          label: "Tagged",
+          type: "item",
+          // icon: <StarOutlined />,
+        },
+        {
+          key: "trash",
+          label: "Trash",
+          type: "item",
+          // icon: <DeleteOutlined />,
+        },
+      ],
     },
     {
-      key: "shared",
-      icon: <UserOutlined />,
-      label: "Shared with me",
-      disabled: true,
-    },
-    {
-      key: "recent",
-      icon: <ClockCircleOutlined />,
-      label: "Recent",
-      disabled: true,
-    },
-    {
-      key: "starred",
-      icon: <StarOutlined />,
-      label: "Starred",
-      disabled: true,
-    },
-    {
-      key: "trash",
-      icon: <DeleteOutlined />,
-      label: "Trash",
-      disabled: true,
+      key: "organization",
+      label: "Organization",
+      icon: <TeamOutlined />,
+      children: [
+        {
+          key: "people",
+          label: "Teams",
+          type: "group",
+          children: [
+            {
+              key: "contacts",
+              label: "Contacts",
+              onClick: () => {
+                navigate("/resources/contacts");
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              },
+            },
+            {
+              key: "teams",
+              label: "Teams",
+              onClick: () => {
+                navigate("/resources/teams");
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              },
+            },
+            {
+              key: "permissions",
+              label: "Permissions",
+              onClick: () => {
+                navigate("/resources/permissions");
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              },
+            },
+            {
+              key: "tags",
+              label: "Tags",
+              onClick: () => {
+                navigate("/resources/tags");
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              },
+            },
+          ],
+        },
+        {
+          key: "storage",
+          label: "Storage",
+          type: "group",
+          children: [
+            {
+              key: "disks",
+              label: "Disks",
+              onClick: () => {
+                navigate("/resources/disks");
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              },
+            },
+            {
+              key: "drives",
+              label: "Drives",
+              onClick: () => {
+                navigate("/resources/drives");
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              },
+            },
+          ],
+        },
+        {
+          key: "developers",
+          label: "Developers",
+          type: "group",
+          children: [
+            {
+              key: "webhooks",
+              label: "Webhooks",
+              onClick: () => {
+                navigate("/resources/webhooks");
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              },
+            },
+            {
+              key: "api-keys",
+              label: "API Keys",
+              onClick: () => {
+                navigate("/resources/api-keys");
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              },
+            },
+          ],
+        },
+      ],
     },
     {
       key: "settings",
@@ -106,6 +270,7 @@ const SideMenu = ({
     <Menu
       mode="inline"
       items={menuItems}
+      defaultOpenKeys={["navigate-storage"]}
       style={{ backgroundColor: "inherit", border: 0 }}
     />
   );
@@ -124,6 +289,36 @@ const RouterUI = () => {
   const screenType = useScreenType();
 
   const [uploadPanelVisible, setUploadPanelVisible] = useState(false);
+
+  const OrganizationSwitcher = () => {
+    return (
+      <Select
+        showSearch
+        placeholder="Switch Organization"
+        filterOption={(input, option) =>
+          (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+        }
+        defaultValue="anonymous"
+        options={[
+          { value: "anonymous", label: "Anonymous" },
+          { value: "personal", label: "Personal" },
+          { value: "new-org", label: "➕ New Org" },
+        ]}
+        suffixIcon={
+          <span>
+            <SwapOutlined style={{ marginRight: "5px" }} />
+            Switch Org
+          </span>
+        }
+        variant="borderless"
+        style={{
+          margin: "16px",
+          backgroundColor: "rgba(255, 255, 255, 1)",
+          borderRadius: "8px",
+        }}
+      />
+    );
+  };
   return (
     <BrowserRouter>
       <LoadSampleFiles />
@@ -146,6 +341,7 @@ const RouterUI = () => {
                   flexDirection: "column",
                   justifyContent: "space-between",
                   height: "95%",
+                  overflowY: "auto",
                 }}
               >
                 <div style={{ flex: 1 }}>
@@ -190,32 +386,7 @@ const RouterUI = () => {
                   </section>
                   <SideMenu />
                 </div>
-                {/* <Card
-                  style={{
-                    margin: "10px 10px",
-                  }}
-                >
-                  <Statistic
-                    title="Token Pre-Seed Sale"
-                    value={0.01}
-                    precision={2}
-                    valueStyle={{ color: "#4e94f5" }}
-                    prefix="$"
-                    suffix={<span style={{ fontSize: "0.7rem" }}>USDT</span>}
-                  />
-                  <Link to="/presale">
-                    <Button
-                      type="dashed"
-                      style={{
-                        marginTop: 16,
-                        border: "1px dashed #4e94f5",
-                        color: "#4e94f5",
-                      }}
-                    >
-                      Buy $OFX
-                    </Button>
-                  </Link>
-                </Card> */}
+                {OrganizationSwitcher()}
               </div>
             </Sider>
           )}
@@ -253,6 +424,20 @@ const RouterUI = () => {
                   }
                 />
                 <Route path="/gift" element={<GiftPage />} />
+
+                {/* Organization Level Routes */}
+                <Route path="/resources/contacts" element={<ContactsPage />} />
+                <Route path="/resources/teams" element={<TeamsPage />} />
+                <Route
+                  path="/resources/permissions"
+                  element={<PermissionsPage />}
+                />
+                <Route path="/resources/tags" element={<TagsPage />} />
+                <Route path="/resources/disks" element={<DisksPage />} />
+                <Route path="/resources/drives" element={<DrivesPage />} />
+                <Route path="/resources/webhooks" element={<WebhooksPage />} />
+                <Route path="/resources/api-keys" element={<ApiKeysPage />} />
+
                 {/* Add other routes here */}
               </Routes>
             </Content>
@@ -271,31 +456,12 @@ const RouterUI = () => {
               onClose={() => setSidebarVisible(false)}
               open={sidebarVisible}
               width={SIDEBAR_WIDTH}
-              // footer={
-              //   <div style={{ padding: "16px 16px" }}>
-              //     <Statistic
-              //       title="Token Pre-Seed Sale"
-              //       value={0.01}
-              //       precision={2}
-              //       valueStyle={{ color: "#4e94f5" }}
-              //       prefix="$"
-              //       suffix={<span style={{ fontSize: "0.7rem" }}>USDT</span>}
-              //     />
-              //     <Link to="/presale">
-              //       <Button
-              //         type="dashed"
-              //         onClick={() => setSidebarVisible(false)}
-              //         style={{
-              //           marginTop: 16,
-              //           border: "1px dashed #4e94f5",
-              //           color: "#4e94f5",
-              //         }}
-              //       >
-              //         Buy $OFX
-              //       </Button>
-              //     </Link>
-              //   </div>
-              // }
+              footer={
+                <div style={{ padding: "16px 16px" }}>
+                  {OrganizationSwitcher()}
+                </div>
+              }
+              style={{ overflowY: "auto" }}
             >
               <ConnectICPButton />
               <SideMenu setSidebarVisible={setSidebarVisible} />

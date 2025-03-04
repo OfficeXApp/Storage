@@ -40,6 +40,7 @@ import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
 import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
+import SandboxPage from "./components/SandboxPage";
 
 const { Sider, Content } = Layout;
 
@@ -242,6 +243,7 @@ const RouterUI = () => {
                   }
                 />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/sandbox" element={<SandboxPage />} />
                 <Route path="/presale" element={<PreseedOffer />} />
                 <Route path="/preseed" element={<Navigate to="/presale" />} />
                 <Route

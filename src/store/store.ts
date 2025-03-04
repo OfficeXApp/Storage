@@ -4,7 +4,7 @@ import { createOffline } from "@redux-offline/redux-offline";
 import offlineConfig from "@redux-offline/redux-offline/lib/defaults";
 import { rootReducer } from "./reducer";
 import { customNetworkDetector } from "./network-detector";
-import { DISKS_PERSIST_KEY } from "../components/SandboxPage/disks.reducer";
+import { DISKS_PERSIST_KEY } from "./disks.reducer";
 
 // Custom effect handler using browser fetch API instead of axios
 const effect = (effect: any) => {

@@ -10,7 +10,7 @@ import type {
 import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../../store/store";
-import { createDisk, fetchDisks } from "./disks.actions";
+import { createDisk, fetchDisks } from "../../store/disks.actions";
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
 

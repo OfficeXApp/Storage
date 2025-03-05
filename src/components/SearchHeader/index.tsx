@@ -37,7 +37,7 @@ import { trimToFolderPath, truncateMiddlePath } from "../../api/helpers";
 import useScreenType from "react-screentype-hook";
 import { generate } from "random-words"; // Import random-words library
 import { useIdentity } from "../../framework/identity"; // Import corrected useIdentity hook
-import { useMultipleOrgs } from "../../api/switch-profiles";
+import { useSwitchOrgProfiles } from "../../api/switch-profiles";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -96,13 +96,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
 
   // Get multi org hook
   const {
-    _currentProfile,
-    _listOfProfiles,
-    _addProfile,
-    _updateProfile,
-    _removeProfile,
-    _selectProfile,
-  } = useMultipleOrgs("default-drive-id", "default-user-id"); // Replace with your actual default IDs
+    currentProfile,
+    listOfProfiles,
+    addProfile,
+    updateProfile,
+    removeProfile,
+    selectProfile,
+  } = useSwitchOrgProfiles();
 
   // Search functionality
   const handleSearch = useCallback(
@@ -242,15 +242,15 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     const options = [];
 
     // Current user option
-    if (_currentProfile) {
+    if (currentProfile) {
       options.push({
-        value: _currentProfile.userID,
+        value: currentProfile.userID,
         label: (
           <Space>
             <UserOutlined />
-            <span>{_currentProfile.note || "Anonymous"}</span>
+            <span>{currentProfile.note || "Anonymous"}</span>
             <Tag color="blue">
-              {_currentProfile.icpPublicAddress ||
+              {currentProfile.icpPublicAddress ||
                 profile.icpAccount?.principal.toString()}
             </Tag>
           </Space>
@@ -259,10 +259,9 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     }
 
     // Other users
-    _listOfProfiles
+    listOfProfiles
       .filter(
-        (profile) =>
-          !_currentProfile || profile.userID !== _currentProfile.userID
+        (profile) => !currentProfile || profile.userID !== currentProfile.userID
       )
       .forEach((profile) => {
         options.push({
@@ -307,7 +306,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             .toLowerCase()
             .includes(input.toLowerCase())
         }
-        value={_currentProfile ? _currentProfile.userID : undefined}
+        value={currentProfile ? currentProfile.userID : undefined}
         options={renderUserOptions()}
         onChange={(value) => {
           if (value === "add-profile") {
@@ -319,7 +318,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             setModalMode("new");
             setIsModalVisible(true);
           } else {
-            const profile = _listOfProfiles.find((p) => p.userID === value);
+            const profile = listOfProfiles.find((p) => p.userID === value);
             if (profile) {
               setSelectedProfileId(value);
               setExistingUserNickname(profile.note || "Anonymous");
@@ -522,7 +521,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               const newAuthProfile = await importProfileFromSeed(seedToUse);
 
               // Add profile to local storage
-              const newProfile = await _addProfile({
+              const newProfile = await addProfile({
                 icpPublicAddress: newAuthProfile.icpSlug,
                 emvPublicAddress: newAuthProfile.evmSlug,
                 seedPhrase: seedToUse,
@@ -531,7 +530,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               });
 
               // Select the new profile
-              _selectProfile(newProfile);
+              selectProfile(newProfile);
 
               message.success(`User ${nicknameToUse} added successfully!`);
               setIsModalVisible(false);
@@ -588,7 +587,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   );
 
   const renderExistingUserModal = () => {
-    const profile = _listOfProfiles.find((p) => p.userID === selectedProfileId);
+    const profile = listOfProfiles.find((p) => p.userID === selectedProfileId);
 
     if (!profile) return null;
 
@@ -608,7 +607,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             onConfirm={async () => {
               try {
                 if (selectedProfileId) {
-                  await _removeProfile(selectedProfileId);
+                  await removeProfile(selectedProfileId);
                   message.success("User removed successfully!");
                   setIsModalVisible(false);
                 }
@@ -631,11 +630,11 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               if (!selectedProfileId) return;
 
               try {
-                const existingProfile = _listOfProfiles.find(
+                const existingProfile = listOfProfiles.find(
                   (p) => p.userID === selectedProfileId
                 );
                 if (existingProfile) {
-                  await _updateProfile({
+                  await updateProfile({
                     ...existingProfile,
                     note: existingUserNickname,
                   });
@@ -659,7 +658,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             onClick={async () => {
               if (!selectedProfileId) return;
 
-              const profile = _listOfProfiles.find(
+              const profile = listOfProfiles.find(
                 (p) => p.userID === selectedProfileId
               );
               if (profile) {
@@ -668,7 +667,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                   await importProfileFromSeed(profile.seedPhrase);
 
                   // Then switch the local profile
-                  _selectProfile(profile);
+                  selectProfile(profile);
 
                   message.success(`Switched to ${profile.note || "Anonymous"}`);
                   setIsModalVisible(false);
@@ -678,7 +677,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                 }
               }
             }}
-            disabled={_currentProfile?.userID === profile.userID}
+            disabled={currentProfile?.userID === profile.userID}
           >
             Switch to User
           </Button>,

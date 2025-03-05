@@ -22,7 +22,6 @@ import {
 } from "./types";
 import DriveDB from "./core";
 import IndexedDBStorage from "./storage/indexdb";
-import { UserID } from "../identity/types";
 import {
   LOCAL_STORAGE_STORJ_ACCESS_KEY,
   LOCAL_STORAGE_STORJ_ENDPOINT,
@@ -30,6 +29,7 @@ import {
   S3ClientAuth,
 } from "./storage/storj-web3";
 import { getMimeTypeFromExtension } from "./helpers";
+import { UserID } from "@officexapp/types";
 
 interface DriveContextType {
   isInitialized: boolean;

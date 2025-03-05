@@ -10,6 +10,7 @@ import { Provider as ReduxProvider } from "react-redux";
 import { configureStore } from "./store/store";
 import { registerServiceWorker } from "./registerSW.ts";
 import { IdentityProvider as IdentityProvider_NEW } from "./framework/identity";
+import { SwitchOrgProfilesProvider } from "./api/switch-profiles.tsx";
 
 mixpanel.init("cae2fd45d17ff2cdf642b1d8afd80aa8", {
   debug: true,
@@ -61,13 +62,18 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <ConfigProvider>
         <IdentityProvider>
           <IdentityProvider_NEW>
-            <DriveProvider
-              onUploadComplete={(fileUUID) =>
-                console.log(`Uploaded ${fileUUID}`)
-              }
+            <SwitchOrgProfilesProvider
+              initialDriveID="your-drive-id"
+              initialUserID="your-user-id"
             >
-              <App />
-            </DriveProvider>
+              <DriveProvider
+                onUploadComplete={(fileUUID) =>
+                  console.log(`Uploaded ${fileUUID}`)
+                }
+              >
+                <App />
+              </DriveProvider>
+            </SwitchOrgProfilesProvider>
           </IdentityProvider_NEW>
         </IdentityProvider>
       </ConfigProvider>

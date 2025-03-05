@@ -1,4 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  ReactNode,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
 
 // Define types for our data structures
@@ -23,73 +30,157 @@ export interface IndexDB_ApiKey {
   note: string;
 }
 
-// IndexedDB utility class
-class MultiOrgIndexedDB {
-  private static instance: MultiOrgIndexedDB;
-  private db: IDBDatabase | null = null;
-  private readonly DB_NAME = "officex-storage";
-  private readonly ORGS_STORE_NAME = "organizations";
-  private readonly PROFILES_STORE_NAME = "profiles";
-  private readonly API_KEYS_STORE_NAME = "apiKeys";
+// Context type definition
+interface SwitchOrgProfilesContextType {
+  isInitialized: boolean;
+  error: Error | null;
 
-  private constructor() {}
+  currentOrg: IndexDB_Organization | null;
+  currentProfile: IndexDB_Profile | null;
+  currentAPIKey: IndexDB_ApiKey | null;
 
-  public static getInstance(): MultiOrgIndexedDB {
-    if (!MultiOrgIndexedDB.instance) {
-      MultiOrgIndexedDB.instance = new MultiOrgIndexedDB();
-    }
-    return MultiOrgIndexedDB.instance;
-  }
+  listOfOrgs: IndexDB_Organization[];
+  listOfProfiles: IndexDB_Profile[];
 
-  public async initialize(
-    initialDriveID: string,
-    initialUserID: string
-  ): Promise<void> {
-    if (this.db) {
-      console.log("MultiOrgIndexedDB already initialized");
-      return Promise.resolve();
-    }
+  addOrganization: (note: string) => Promise<IndexDB_Organization>;
+  updateOrganization: (org: IndexDB_Organization) => Promise<void>;
+  removeOrganization: (driveID: string) => Promise<void>;
+  selectOrganization: (org: IndexDB_Organization) => void;
 
-    return new Promise((resolve, reject) => {
-      if (!window.indexedDB) {
-        reject(new Error("INDEXEDDB_NOT_SUPPORTED"));
-        return;
-      }
+  addProfile: (
+    profile: Omit<IndexDB_Profile, "userID">
+  ) => Promise<IndexDB_Profile>;
+  updateProfile: (profile: IndexDB_Profile) => Promise<void>;
+  removeProfile: (userID: string) => Promise<void>;
+  selectProfile: (profile: IndexDB_Profile) => void;
 
-      const request = window.indexedDB.open(this.DB_NAME, 1);
+  addApiKey: (
+    apiKey: Omit<IndexDB_ApiKey, "apiKeyID">
+  ) => Promise<IndexDB_ApiKey>;
+  updateApiKey: (apiKey: IndexDB_ApiKey) => Promise<void>;
+  removeApiKey: (apiKeyID: string) => Promise<void>;
+  createApiKeyForCurrentOrgAndProfile: (
+    note: string
+  ) => Promise<IndexDB_ApiKey>;
 
-      request.onerror = (event) => {
-        const error = (event.target as IDBOpenDBRequest).error;
-        if (error?.name === "QuotaExceededError") {
-          reject(new Error("STORAGE_QUOTA_EXCEEDED"));
-        } else if (/^Access is denied/.test(error?.message || "")) {
-          reject(new Error("PRIVATE_MODE_NOT_SUPPORTED"));
-        } else {
-          reject(new Error("INDEXEDDB_INITIALIZATION_FAILED"));
+  refreshOrganizations: () => Promise<void>;
+  refreshProfiles: () => Promise<void>;
+  refreshApiKeys: () => Promise<void>;
+}
+
+// Create the context
+const SwitchOrgProfilesContext = createContext<
+  SwitchOrgProfilesContextType | undefined
+>(undefined);
+
+// Constants for IndexedDB
+const DB_NAME = "switch-multiple";
+const DB_VERSION = 1;
+const ORGS_STORE_NAME = "organizations";
+const PROFILES_STORE_NAME = "profiles";
+const API_KEYS_STORE_NAME = "apiKeys";
+
+// Provider component
+export function SwitchOrgProfilesProvider({
+  children,
+  initialDriveID,
+  initialUserID,
+}: {
+  children: ReactNode;
+  initialDriveID: string;
+  initialUserID: string;
+}) {
+  // State declarations
+  const [db, setDb] = useState<IDBDatabase | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const [currentOrg, setCurrentOrg] = useState<IndexDB_Organization | null>(
+    null
+  );
+  const [currentProfile, setCurrentProfile] = useState<IndexDB_Profile | null>(
+    null
+  );
+  const [currentAPIKey, setCurrentAPIKey] = useState<IndexDB_ApiKey | null>(
+    null
+  );
+
+  const [listOfOrgs, setListOfOrgs] = useState<IndexDB_Organization[]>([]);
+  const [listOfProfiles, setListOfProfiles] = useState<IndexDB_Profile[]>([]);
+  const [listOfAPIKeys, setListOfAPIKeys] = useState<IndexDB_ApiKey[]>([]);
+
+  // Initialize IndexedDB when component mounts
+  useEffect(() => {
+    const initDB = async () => {
+      try {
+        if (!window.indexedDB) {
+          throw new Error("INDEXEDDB_NOT_SUPPORTED");
         }
-      };
 
-      request.onsuccess = async (event) => {
-        this.db = (event.target as IDBOpenDBRequest).result;
+        const request = window.indexedDB.open(DB_NAME, DB_VERSION);
 
-        // Initialize with initial org and profile if provided
-        if (initialDriveID && initialUserID) {
+        request.onerror = (event) => {
+          const error = (event.target as IDBOpenDBRequest).error;
+          if (error?.name === "QuotaExceededError") {
+            setError(new Error("STORAGE_QUOTA_EXCEEDED"));
+          } else if (/^Access is denied/.test(error?.message || "")) {
+            setError(new Error("PRIVATE_MODE_NOT_SUPPORTED"));
+          } else {
+            setError(new Error("INDEXEDDB_INITIALIZATION_FAILED"));
+          }
+        };
+
+        request.onupgradeneeded = (event) => {
+          const database = (event.target as IDBOpenDBRequest).result;
+
+          // Create object stores if they don't exist
+          if (!database.objectStoreNames.contains(ORGS_STORE_NAME)) {
+            database.createObjectStore(ORGS_STORE_NAME, { keyPath: "driveID" });
+          }
+
+          if (!database.objectStoreNames.contains(PROFILES_STORE_NAME)) {
+            database.createObjectStore(PROFILES_STORE_NAME, {
+              keyPath: "userID",
+            });
+          }
+
+          if (!database.objectStoreNames.contains(API_KEYS_STORE_NAME)) {
+            database.createObjectStore(API_KEYS_STORE_NAME, {
+              keyPath: "apiKeyID",
+            });
+          }
+        };
+
+        request.onsuccess = async (event) => {
+          const database = (event.target as IDBOpenDBRequest).result;
+          setDb(database);
+
+          // Initialize with initial org and profile if provided
           try {
+            // Setup database
+            setDb(database);
+
             // Check if organization exists
-            const orgExists = await this.getOrganization(initialDriveID);
+            const orgExists = await getOrganizationFromDB(
+              database,
+              initialDriveID
+            );
             if (!orgExists) {
               // Create initial organization
-              await this.saveOrganization({
+              await saveOrganizationToDB(database, {
                 driveID: initialDriveID,
                 note: "Default Organization",
               });
             }
 
             // Check if profile exists
-            const profileExists = await this.getProfile(initialUserID);
+            const profileExists = await getProfileFromDB(
+              database,
+              initialUserID
+            );
             if (!profileExists) {
               // Create initial profile
-              await this.saveProfile({
+              await saveProfileToDB(database, {
                 userID: initialUserID,
                 icpPublicAddress: "",
                 emvPublicAddress: "",
@@ -98,72 +189,35 @@ class MultiOrgIndexedDB {
                 avatar: "",
               });
             }
+
+            // Load initial data
+            await loadOrganizationsFromDB(database);
+            await loadProfilesFromDB(database);
+            await loadApiKeysFromDB(database);
+
+            setIsInitialized(true);
           } catch (err) {
             console.error("Error initializing default data:", err);
+            setError(err instanceof Error ? err : new Error(String(err)));
           }
-        }
+        };
+      } catch (err) {
+        console.error("Error initializing database:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+      }
+    };
 
-        resolve();
-      };
+    initDB();
+  }, [initialDriveID, initialUserID]);
 
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-
-        // Create object stores if they don't exist
-        if (!db.objectStoreNames.contains(this.ORGS_STORE_NAME)) {
-          db.createObjectStore(this.ORGS_STORE_NAME, { keyPath: "driveID" });
-        }
-
-        if (!db.objectStoreNames.contains(this.PROFILES_STORE_NAME)) {
-          db.createObjectStore(this.PROFILES_STORE_NAME, { keyPath: "userID" });
-        }
-
-        if (!db.objectStoreNames.contains(this.API_KEYS_STORE_NAME)) {
-          db.createObjectStore(this.API_KEYS_STORE_NAME, {
-            keyPath: "apiKeyID",
-          });
-        }
-      };
-    });
-  }
-
-  // Organization methods
-  public async saveOrganization(org: IndexDB_Organization): Promise<void> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.ORGS_STORE_NAME],
-        "readwrite"
-      );
-      const store = transaction.objectStore(this.ORGS_STORE_NAME);
-      const request = store.put(org);
-
-      request.onerror = () => {
-        reject(new Error("SAVE_ORGANIZATION_FAILED"));
-      };
-
-      request.onsuccess = () => {
-        resolve();
-      };
-    });
-  }
-
-  public async getOrganization(
+  // DB helper functions
+  const getOrganizationFromDB = async (
+    database: IDBDatabase,
     driveID: string
-  ): Promise<IndexDB_Organization | null> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
+  ): Promise<IndexDB_Organization | null> => {
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.ORGS_STORE_NAME],
-        "readonly"
-      );
-      const store = transaction.objectStore(this.ORGS_STORE_NAME);
+      const transaction = database.transaction([ORGS_STORE_NAME], "readonly");
+      const store = transaction.objectStore(ORGS_STORE_NAME);
       const request = store.get(driveID);
 
       request.onerror = () => {
@@ -174,89 +228,37 @@ class MultiOrgIndexedDB {
         resolve(request.result || null);
       };
     });
-  }
+  };
 
-  public async getAllOrganizations(): Promise<IndexDB_Organization[]> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
+  const saveOrganizationToDB = async (
+    database: IDBDatabase,
+    org: IndexDB_Organization
+  ): Promise<void> => {
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.ORGS_STORE_NAME],
-        "readonly"
-      );
-      const store = transaction.objectStore(this.ORGS_STORE_NAME);
-      const request = store.getAll();
+      const transaction = database.transaction([ORGS_STORE_NAME], "readwrite");
+      const store = transaction.objectStore(ORGS_STORE_NAME);
+      const request = store.put(org);
 
       request.onerror = () => {
-        reject(new Error("GET_ORGANIZATIONS_FAILED"));
-      };
-
-      request.onsuccess = () => {
-        resolve(request.result);
-      };
-    });
-  }
-
-  public async deleteOrganization(driveID: string): Promise<void> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.ORGS_STORE_NAME],
-        "readwrite"
-      );
-      const store = transaction.objectStore(this.ORGS_STORE_NAME);
-      const request = store.delete(driveID);
-
-      request.onerror = () => {
-        reject(new Error("DELETE_ORGANIZATION_FAILED"));
+        reject(new Error("SAVE_ORGANIZATION_FAILED"));
       };
 
       request.onsuccess = () => {
         resolve();
       };
     });
-  }
+  };
 
-  // Profile methods
-  public async saveProfile(profile: IndexDB_Profile): Promise<void> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
+  const getProfileFromDB = async (
+    database: IDBDatabase,
+    userID: string
+  ): Promise<IndexDB_Profile | null> => {
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.PROFILES_STORE_NAME],
-        "readwrite"
-      );
-      const store = transaction.objectStore(this.PROFILES_STORE_NAME);
-      const request = store.put(profile);
-
-      request.onerror = () => {
-        reject(new Error("SAVE_PROFILE_FAILED"));
-      };
-
-      request.onsuccess = () => {
-        resolve();
-      };
-    });
-  }
-
-  public async getProfile(userID: string): Promise<IndexDB_Profile | null> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.PROFILES_STORE_NAME],
+      const transaction = database.transaction(
+        [PROFILES_STORE_NAME],
         "readonly"
       );
-      const store = transaction.objectStore(this.PROFILES_STORE_NAME);
+      const store = transaction.objectStore(PROFILES_STORE_NAME);
       const request = store.get(userID);
 
       request.onerror = () => {
@@ -267,19 +269,92 @@ class MultiOrgIndexedDB {
         resolve(request.result || null);
       };
     });
-  }
+  };
 
-  public async getAllProfiles(): Promise<IndexDB_Profile[]> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
+  const saveProfileToDB = async (
+    database: IDBDatabase,
+    profile: IndexDB_Profile
+  ): Promise<void> => {
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.PROFILES_STORE_NAME],
+      const transaction = database.transaction(
+        [PROFILES_STORE_NAME],
+        "readwrite"
+      );
+      const store = transaction.objectStore(PROFILES_STORE_NAME);
+      const request = store.put(profile);
+
+      request.onerror = () => {
+        reject(new Error("SAVE_PROFILE_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve();
+      };
+    });
+  };
+
+  // Load data methods
+  const loadOrganizationsFromDB = async (database: IDBDatabase) => {
+    try {
+      const orgs = await getAllOrganizationsFromDB(database);
+      setListOfOrgs(orgs);
+
+      // Set current org to the initial one if none is selected
+      if (!currentOrg && orgs.length > 0) {
+        const initialOrg = orgs.find((org) => org.driveID === initialDriveID);
+        setCurrentOrg(initialOrg || orgs[0]);
+      }
+    } catch (err) {
+      console.error("Error loading organizations:", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+    }
+  };
+
+  const getAllOrganizationsFromDB = async (
+    database: IDBDatabase
+  ): Promise<IndexDB_Organization[]> => {
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction([ORGS_STORE_NAME], "readonly");
+      const store = transaction.objectStore(ORGS_STORE_NAME);
+      const request = store.getAll();
+
+      request.onerror = () => {
+        reject(new Error("GET_ORGANIZATIONS_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+    });
+  };
+
+  const loadProfilesFromDB = async (database: IDBDatabase) => {
+    try {
+      const profiles = await getAllProfilesFromDB(database);
+      setListOfProfiles(profiles);
+
+      // Set current profile to the initial one if none is selected
+      if (!currentProfile && profiles.length > 0) {
+        const initialProfile = profiles.find(
+          (profile) => profile.userID === initialUserID
+        );
+        setCurrentProfile(initialProfile || profiles[0]);
+      }
+    } catch (err) {
+      console.error("Error loading profiles:", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
+    }
+  };
+
+  const getAllProfilesFromDB = async (
+    database: IDBDatabase
+  ): Promise<IndexDB_Profile[]> => {
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction(
+        [PROFILES_STORE_NAME],
         "readonly"
       );
-      const store = transaction.objectStore(this.PROFILES_STORE_NAME);
+      const store = transaction.objectStore(PROFILES_STORE_NAME);
       const request = store.getAll();
 
       request.onerror = () => {
@@ -290,66 +365,28 @@ class MultiOrgIndexedDB {
         resolve(request.result);
       };
     });
-  }
+  };
 
-  public async deleteProfile(userID: string): Promise<void> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
+  const loadApiKeysFromDB = async (database: IDBDatabase) => {
+    try {
+      const apiKeys = await getAllApiKeysFromDB(database);
+      setListOfAPIKeys(apiKeys);
+      updateCurrentApiKey(apiKeys);
+    } catch (err) {
+      console.error("Error loading API keys:", err);
+      setError(err instanceof Error ? err : new Error(String(err)));
     }
+  };
 
+  const getAllApiKeysFromDB = async (
+    database: IDBDatabase
+  ): Promise<IndexDB_ApiKey[]> => {
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.PROFILES_STORE_NAME],
-        "readwrite"
-      );
-      const store = transaction.objectStore(this.PROFILES_STORE_NAME);
-      const request = store.delete(userID);
-
-      request.onerror = () => {
-        reject(new Error("DELETE_PROFILE_FAILED"));
-      };
-
-      request.onsuccess = () => {
-        resolve();
-      };
-    });
-  }
-
-  // API Key methods
-  public async saveApiKey(apiKey: IndexDB_ApiKey): Promise<void> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.API_KEYS_STORE_NAME],
-        "readwrite"
-      );
-      const store = transaction.objectStore(this.API_KEYS_STORE_NAME);
-      const request = store.put(apiKey);
-
-      request.onerror = () => {
-        reject(new Error("SAVE_API_KEY_FAILED"));
-      };
-
-      request.onsuccess = () => {
-        resolve();
-      };
-    });
-  }
-
-  public async getAllApiKeys(): Promise<IndexDB_ApiKey[]> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.API_KEYS_STORE_NAME],
+      const transaction = database.transaction(
+        [API_KEYS_STORE_NAME],
         "readonly"
       );
-      const store = transaction.objectStore(this.API_KEYS_STORE_NAME);
+      const store = transaction.objectStore(API_KEYS_STORE_NAME);
       const request = store.getAll();
 
       request.onerror = () => {
@@ -360,164 +397,67 @@ class MultiOrgIndexedDB {
         resolve(request.result);
       };
     });
-  }
-
-  public async deleteApiKey(apiKeyID: string): Promise<void> {
-    if (!this.db) {
-      throw new Error("INDEXEDDB_NOT_INITIALIZED");
-    }
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.API_KEYS_STORE_NAME],
-        "readwrite"
-      );
-      const store = transaction.objectStore(this.API_KEYS_STORE_NAME);
-      const request = store.delete(apiKeyID);
-
-      request.onerror = () => {
-        reject(new Error("DELETE_API_KEY_FAILED"));
-      };
-
-      request.onsuccess = () => {
-        resolve();
-      };
-    });
-  }
-}
-
-// The actual React hook
-export function useMultipleOrgs(initialDriveID: string, initialUserID: string) {
-  // State declarations
-  const [isInitialized_localIndexDB, setIsInitialized] = useState(false);
-  const [error_localIndexDB, setError] = useState<Error | null>(null);
-
-  const [currentOrg_localIndexDB, setCurrentOrg] =
-    useState<IndexDB_Organization | null>(null);
-  const [currentProfile_localIndexDB, setCurrentProfile] =
-    useState<IndexDB_Profile | null>(null);
-  const [currentAPIKey_localIndexDB, setCurrentAPIKey] =
-    useState<IndexDB_ApiKey | null>(null);
-
-  const [listOfOrgs_localIndexDB, setListOfOrgs] = useState<
-    IndexDB_Organization[]
-  >([]);
-  const [listOfProfiles_localIndexDB, setListOfProfiles] = useState<
-    IndexDB_Profile[]
-  >([]);
-  const [listOfAPIKeys_localIndexDB, setListOfAPIKeys] = useState<
-    IndexDB_ApiKey[]
-  >([]);
-
-  // Initialize IndexedDB on component mount
-  useEffect(() => {
-    const initDB = async () => {
-      try {
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.initialize(initialDriveID, initialUserID);
-        setIsInitialized(true);
-
-        // Load initial data
-        await loadOrganizations();
-        await loadProfiles();
-        await loadApiKeys();
-      } catch (err) {
-        console.error("Error initializing database:", err);
-        setError(err instanceof Error ? err : new Error(String(err)));
-      }
-    };
-
-    initDB();
-  }, [initialDriveID, initialUserID]);
-
-  // Load data methods
-  const loadOrganizations = useCallback(async () => {
-    try {
-      const db = MultiOrgIndexedDB.getInstance();
-      const orgs = await db.getAllOrganizations();
-      setListOfOrgs(orgs);
-
-      // Set current org to the initial one if none is selected
-      if (!currentOrg_localIndexDB && orgs.length > 0) {
-        const initialOrg = orgs.find((org) => org.driveID === initialDriveID);
-        setCurrentOrg(initialOrg || orgs[0]);
-      }
-    } catch (err) {
-      console.error("Error loading organizations:", err);
-      setError(err instanceof Error ? err : new Error(String(err)));
-    }
-  }, [currentOrg_localIndexDB, initialDriveID]);
-
-  const loadProfiles = useCallback(async () => {
-    try {
-      const db = MultiOrgIndexedDB.getInstance();
-      const profiles = await db.getAllProfiles();
-      setListOfProfiles(profiles);
-
-      // Set current profile to the initial one if none is selected
-      if (!currentProfile_localIndexDB && profiles.length > 0) {
-        const initialProfile = profiles.find(
-          (profile) => profile.userID === initialUserID
-        );
-        setCurrentProfile(initialProfile || profiles[0]);
-      }
-    } catch (err) {
-      console.error("Error loading profiles:", err);
-      setError(err instanceof Error ? err : new Error(String(err)));
-    }
-  }, [currentProfile_localIndexDB, initialUserID]);
-
-  const loadApiKeys = useCallback(async () => {
-    try {
-      const db = MultiOrgIndexedDB.getInstance();
-      const apiKeys = await db.getAllApiKeys();
-      setListOfAPIKeys(apiKeys);
-      updateCurrentApiKey(apiKeys);
-    } catch (err) {
-      console.error("Error loading API keys:", err);
-      setError(err instanceof Error ? err : new Error(String(err)));
-    }
-  }, []);
+  };
 
   // Update current API key based on current org and profile
   const updateCurrentApiKey = useCallback(
     (apiKeys: IndexDB_ApiKey[]) => {
-      if (currentOrg_localIndexDB && currentProfile_localIndexDB) {
+      if (currentOrg && currentProfile) {
         const matchingKey = apiKeys.find(
           (key) =>
-            key.driveID === currentOrg_localIndexDB.driveID &&
-            key.userID === currentProfile_localIndexDB.userID
+            key.driveID === currentOrg.driveID &&
+            key.userID === currentProfile.userID
         );
         setCurrentAPIKey(matchingKey || null);
       } else {
         setCurrentAPIKey(null);
       }
     },
-    [currentOrg_localIndexDB, currentProfile_localIndexDB]
+    [currentOrg, currentProfile]
   );
 
   // Update current API key when org or profile changes
   useEffect(() => {
-    updateCurrentApiKey(listOfAPIKeys_localIndexDB);
-  }, [
-    currentOrg_localIndexDB,
-    currentProfile_localIndexDB,
-    listOfAPIKeys_localIndexDB,
-    updateCurrentApiKey,
-  ]);
+    updateCurrentApiKey(listOfAPIKeys);
+  }, [currentOrg, currentProfile, listOfAPIKeys, updateCurrentApiKey]);
+
+  // Public data refresh methods
+  const refreshOrganizations = useCallback(async () => {
+    if (!db) {
+      throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    }
+    await loadOrganizationsFromDB(db);
+  }, [db]);
+
+  const refreshProfiles = useCallback(async () => {
+    if (!db) {
+      throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    }
+    await loadProfilesFromDB(db);
+  }, [db]);
+
+  const refreshApiKeys = useCallback(async () => {
+    if (!db) {
+      throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    }
+    await loadApiKeysFromDB(db);
+  }, [db]);
 
   // CRUD operations for organizations
   const addOrganization = useCallback(
     async (note: string) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
       try {
         const newOrg: IndexDB_Organization = {
           driveID: uuidv4(),
           note,
         };
 
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.saveOrganization(newOrg);
-        await loadOrganizations();
+        await saveOrganizationToDB(db, newOrg);
+        await refreshOrganizations();
         return newOrg;
       } catch (err) {
         console.error("Error adding organization:", err);
@@ -525,21 +465,21 @@ export function useMultipleOrgs(initialDriveID: string, initialUserID: string) {
         throw err;
       }
     },
-    [loadOrganizations]
+    [db, refreshOrganizations]
   );
 
   const updateOrganization = useCallback(
     async (org: IndexDB_Organization) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
       try {
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.saveOrganization(org);
-        await loadOrganizations();
+        await saveOrganizationToDB(db, org);
+        await refreshOrganizations();
 
         // Update current org if it's the one being updated
-        if (
-          currentOrg_localIndexDB &&
-          currentOrg_localIndexDB.driveID === org.driveID
-        ) {
+        if (currentOrg && currentOrg.driveID === org.driveID) {
           setCurrentOrg(org);
         }
       } catch (err) {
@@ -548,22 +488,22 @@ export function useMultipleOrgs(initialDriveID: string, initialUserID: string) {
         throw err;
       }
     },
-    [currentOrg_localIndexDB, loadOrganizations]
+    [currentOrg, db, refreshOrganizations]
   );
 
   const removeOrganization = useCallback(
     async (driveID: string) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
       try {
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.deleteOrganization(driveID);
-        await loadOrganizations();
+        await deleteOrganizationFromDB(db, driveID);
+        await refreshOrganizations();
 
         // Clear current org if it's the one being deleted
-        if (
-          currentOrg_localIndexDB &&
-          currentOrg_localIndexDB.driveID === driveID
-        ) {
-          const remainingOrgs = listOfOrgs_localIndexDB.filter(
+        if (currentOrg && currentOrg.driveID === driveID) {
+          const remainingOrgs = listOfOrgs.filter(
             (org) => org.driveID !== driveID
           );
           setCurrentOrg(remainingOrgs.length > 0 ? remainingOrgs[0] : null);
@@ -574,21 +514,43 @@ export function useMultipleOrgs(initialDriveID: string, initialUserID: string) {
         throw err;
       }
     },
-    [currentOrg_localIndexDB, listOfOrgs_localIndexDB, loadOrganizations]
+    [currentOrg, db, listOfOrgs, refreshOrganizations]
   );
+
+  const deleteOrganizationFromDB = async (
+    database: IDBDatabase,
+    driveID: string
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction([ORGS_STORE_NAME], "readwrite");
+      const store = transaction.objectStore(ORGS_STORE_NAME);
+      const request = store.delete(driveID);
+
+      request.onerror = () => {
+        reject(new Error("DELETE_ORGANIZATION_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve();
+      };
+    });
+  };
 
   // CRUD operations for profiles
   const addProfile = useCallback(
     async (profile: Omit<IndexDB_Profile, "userID">) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
       try {
         const newProfile: IndexDB_Profile = {
           ...profile,
           userID: uuidv4(),
         };
 
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.saveProfile(newProfile);
-        await loadProfiles();
+        await saveProfileToDB(db, newProfile);
+        await refreshProfiles();
         return newProfile;
       } catch (err) {
         console.error("Error adding profile:", err);
@@ -596,21 +558,21 @@ export function useMultipleOrgs(initialDriveID: string, initialUserID: string) {
         throw err;
       }
     },
-    [loadProfiles]
+    [db, refreshProfiles]
   );
 
   const updateProfile = useCallback(
     async (profile: IndexDB_Profile) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
       try {
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.saveProfile(profile);
-        await loadProfiles();
+        await saveProfileToDB(db, profile);
+        await refreshProfiles();
 
         // Update current profile if it's the one being updated
-        if (
-          currentProfile_localIndexDB &&
-          currentProfile_localIndexDB.userID === profile.userID
-        ) {
+        if (currentProfile && currentProfile.userID === profile.userID) {
           setCurrentProfile(profile);
         }
       } catch (err) {
@@ -619,22 +581,22 @@ export function useMultipleOrgs(initialDriveID: string, initialUserID: string) {
         throw err;
       }
     },
-    [currentProfile_localIndexDB, loadProfiles]
+    [currentProfile, db, refreshProfiles]
   );
 
   const removeProfile = useCallback(
     async (userID: string) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
       try {
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.deleteProfile(userID);
-        await loadProfiles();
+        await deleteProfileFromDB(db, userID);
+        await refreshProfiles();
 
         // Clear current profile if it's the one being deleted
-        if (
-          currentProfile_localIndexDB &&
-          currentProfile_localIndexDB.userID === userID
-        ) {
-          const remainingProfiles = listOfProfiles_localIndexDB.filter(
+        if (currentProfile && currentProfile.userID === userID) {
+          const remainingProfiles = listOfProfiles.filter(
             (profile) => profile.userID !== userID
           );
           setCurrentProfile(
@@ -647,21 +609,46 @@ export function useMultipleOrgs(initialDriveID: string, initialUserID: string) {
         throw err;
       }
     },
-    [currentProfile_localIndexDB, listOfProfiles_localIndexDB, loadProfiles]
+    [currentProfile, db, listOfProfiles, refreshProfiles]
   );
+
+  const deleteProfileFromDB = async (
+    database: IDBDatabase,
+    userID: string
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction(
+        [PROFILES_STORE_NAME],
+        "readwrite"
+      );
+      const store = transaction.objectStore(PROFILES_STORE_NAME);
+      const request = store.delete(userID);
+
+      request.onerror = () => {
+        reject(new Error("DELETE_PROFILE_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve();
+      };
+    });
+  };
 
   // CRUD operations for API keys
   const addApiKey = useCallback(
     async (apiKey: Omit<IndexDB_ApiKey, "apiKeyID">) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
       try {
         const newApiKey: IndexDB_ApiKey = {
           ...apiKey,
           apiKeyID: uuidv4(),
         };
 
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.saveApiKey(newApiKey);
-        await loadApiKeys();
+        await saveApiKeyToDB(db, newApiKey);
+        await refreshApiKeys();
         return newApiKey;
       } catch (err) {
         console.error("Error adding API key:", err);
@@ -669,38 +656,88 @@ export function useMultipleOrgs(initialDriveID: string, initialUserID: string) {
         throw err;
       }
     },
-    [loadApiKeys]
+    [db, refreshApiKeys]
   );
+
+  const saveApiKeyToDB = async (
+    database: IDBDatabase,
+    apiKey: IndexDB_ApiKey
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction(
+        [API_KEYS_STORE_NAME],
+        "readwrite"
+      );
+      const store = transaction.objectStore(API_KEYS_STORE_NAME);
+      const request = store.put(apiKey);
+
+      request.onerror = () => {
+        reject(new Error("SAVE_API_KEY_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve();
+      };
+    });
+  };
 
   const updateApiKey = useCallback(
     async (apiKey: IndexDB_ApiKey) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
       try {
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.saveApiKey(apiKey);
-        await loadApiKeys();
+        await saveApiKeyToDB(db, apiKey);
+        await refreshApiKeys();
       } catch (err) {
         console.error("Error updating API key:", err);
         setError(err instanceof Error ? err : new Error(String(err)));
         throw err;
       }
     },
-    [loadApiKeys]
+    [db, refreshApiKeys]
   );
 
   const removeApiKey = useCallback(
     async (apiKeyID: string) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
       try {
-        const db = MultiOrgIndexedDB.getInstance();
-        await db.deleteApiKey(apiKeyID);
-        await loadApiKeys();
+        await deleteApiKeyFromDB(db, apiKeyID);
+        await refreshApiKeys();
       } catch (err) {
         console.error("Error removing API key:", err);
         setError(err instanceof Error ? err : new Error(String(err)));
         throw err;
       }
     },
-    [loadApiKeys]
+    [db, refreshApiKeys]
   );
+
+  const deleteApiKeyFromDB = async (
+    database: IDBDatabase,
+    apiKeyID: string
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction(
+        [API_KEYS_STORE_NAME],
+        "readwrite"
+      );
+      const store = transaction.objectStore(API_KEYS_STORE_NAME);
+      const request = store.delete(apiKeyID);
+
+      request.onerror = () => {
+        reject(new Error("DELETE_API_KEY_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve();
+      };
+    });
+  };
 
   // Methods to set current selections
   const selectOrganization = useCallback((org: IndexDB_Organization) => {
@@ -714,50 +751,67 @@ export function useMultipleOrgs(initialDriveID: string, initialUserID: string) {
   // Create API key for current org and profile
   const createApiKeyForCurrentOrgAndProfile = useCallback(
     async (note: string) => {
-      if (!currentOrg_localIndexDB || !currentProfile_localIndexDB) {
+      if (!currentOrg || !currentProfile) {
         throw new Error("No current organization or profile selected");
       }
 
       return addApiKey({
-        userID: currentProfile_localIndexDB.userID,
-        driveID: currentOrg_localIndexDB.driveID,
+        userID: currentProfile.userID,
+        driveID: currentOrg.driveID,
         note,
       });
     },
-    [addApiKey, currentOrg_localIndexDB, currentProfile_localIndexDB]
+    [addApiKey, currentOrg, currentProfile]
   );
 
-  return {
-    // State variables with underscore prefix
-    _isInitialized: isInitialized_localIndexDB,
-    _error: error_localIndexDB,
-    _currentOrg: currentOrg_localIndexDB,
-    _currentProfile: currentProfile_localIndexDB,
-    _currentAPIKey: currentAPIKey_localIndexDB,
-    _listOfOrgs: listOfOrgs_localIndexDB,
-    _listOfProfiles: listOfProfiles_localIndexDB,
+  // Create context value
+  const contextValue: SwitchOrgProfilesContextType = {
+    isInitialized,
+    error,
 
-    // Organization operations with underscore prefix
-    _addOrganization: addOrganization,
-    _updateOrganization: updateOrganization,
-    _removeOrganization: removeOrganization,
-    _selectOrganization: selectOrganization,
+    currentOrg,
+    currentProfile,
+    currentAPIKey,
 
-    // Profile operations with underscore prefix
-    _addProfile: addProfile,
-    _updateProfile: updateProfile,
-    _removeProfile: removeProfile,
-    _selectProfile: selectProfile,
+    listOfOrgs,
+    listOfProfiles,
 
-    // API key operations with underscore prefix
-    _addApiKey: addApiKey,
-    _updateApiKey: updateApiKey,
-    _removeApiKey: removeApiKey,
-    _createApiKeyForCurrentOrgAndProfile: createApiKeyForCurrentOrgAndProfile,
+    addOrganization,
+    updateOrganization,
+    removeOrganization,
+    selectOrganization,
 
-    // Refresh methods with underscore prefix
-    _refreshOrganizations: loadOrganizations,
-    _refreshProfiles: loadProfiles,
-    _refreshApiKeys: loadApiKeys,
+    addProfile,
+    updateProfile,
+    removeProfile,
+    selectProfile,
+
+    addApiKey,
+    updateApiKey,
+    removeApiKey,
+    createApiKeyForCurrentOrgAndProfile,
+
+    refreshOrganizations,
+    refreshProfiles,
+    refreshApiKeys,
   };
+
+  return (
+    <SwitchOrgProfilesContext.Provider value={contextValue}>
+      {children}
+    </SwitchOrgProfilesContext.Provider>
+  );
+}
+
+// Hook to use the context
+export function useSwitchOrgProfiles() {
+  const context = useContext(SwitchOrgProfilesContext);
+
+  if (context === undefined) {
+    throw new Error(
+      "useSwitchOrgProfiles must be used within a SwitchOrgProfilesProvider"
+    );
+  }
+
+  return context;
 }

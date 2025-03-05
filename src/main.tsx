@@ -9,6 +9,7 @@ import mixpanel from "mixpanel-browser";
 import { Provider as ReduxProvider } from "react-redux";
 import { configureStore } from "./store/store";
 import { registerServiceWorker } from "./registerSW.ts";
+import { IdentityProvider as IdentityProvider_NEW } from "./framework/identity";
 
 mixpanel.init("cae2fd45d17ff2cdf642b1d8afd80aa8", {
   debug: true,
@@ -59,11 +60,15 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ReduxProvider store={store}>
       <ConfigProvider>
         <IdentityProvider>
-          <DriveProvider
-            onUploadComplete={(fileUUID) => console.log(`Uploaded ${fileUUID}`)}
-          >
-            <App />
-          </DriveProvider>
+          <IdentityProvider_NEW>
+            <DriveProvider
+              onUploadComplete={(fileUUID) =>
+                console.log(`Uploaded ${fileUUID}`)
+              }
+            >
+              <App />
+            </DriveProvider>
+          </IdentityProvider_NEW>
         </IdentityProvider>
       </ConfigProvider>
     </ReduxProvider>

@@ -300,9 +300,9 @@ const RouterUI = () => {
         }
         defaultValue="anonymous"
         options={[
-          { value: "anonymous", label: "Anonymous" },
+          { value: "anonymous", label: "Anonymous Org" },
           { value: "personal", label: "Personal" },
-          { value: "new-org", label: "➕ New Org" },
+          { value: "new-org", label: "➕ Add Org" },
         ]}
         suffixIcon={
           <span>

@@ -43,7 +43,7 @@ export const createLocalWalletWithMnemonic = (): Account => {
 export function shortenAddress(address: string): string {
   // if less than 10 chars, throw error
   if (address.length < 10) {
-    throw new Error("Invalid address");
+    return address;
   }
   const slug = `${address.slice(0, 5)}..${address.slice(-3)}`;
   return slug;

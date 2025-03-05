@@ -62,10 +62,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <ConfigProvider>
         <IdentityProvider>
           <IdentityProvider_NEW>
-            <SwitchOrgProfilesProvider
-              initialDriveID="your-drive-id"
-              initialUserID="your-user-id"
-            >
+            <SwitchOrgProfilesProvider>
               <DriveProvider
                 onUploadComplete={(fileUUID) =>
                   console.log(`Uploaded ${fileUUID}`)

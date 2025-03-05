@@ -15,9 +15,10 @@ import { mnemonicToSeed } from "@scure/bip39";
 import { HttpAgent, Actor, ActorSubclass } from "@dfinity/agent";
 import { shortenAddress } from "../identity_deprecated/evm-auth";
 import { generate } from "random-words";
+import { UserID } from "@officexapp/types";
 
 // Constants - Adjust these based on your needs
-const LOCAL_STORAGE_SEED_PHRASE = "local_storage_seed_phrase";
+export const LOCAL_STORAGE_SEED_PHRASE = "local_storage_seed_phrase";
 const LOCAL_STORAGE_ALIAS_NICKNAME = "alias_nickname";
 const LOCAL_STORAGE_ICP_PUBLIC_ADDRESS = "icp_public_address";
 
@@ -33,11 +34,11 @@ export interface AuthProfile {
   icpAccount: ICPAccount | null;
   icpSlug: string;
   alias: string;
+  userID: UserID;
 }
 
 export interface IdentityContextProps {
   profile: AuthProfile;
-  icpAgent: React.MutableRefObject<HttpAgent | undefined>;
   importProfileFromSeed: (
     seedPhrase: string,
     evmSeedPhrase?: string
@@ -62,27 +63,10 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
     icpAccount: null,
     icpSlug: "0i0",
     alias: "0x0",
+    userID: "0x0",
   });
 
   const [isInitialized, setIsInitialized] = useState(false);
-  const icpAgent = useRef<HttpAgent>();
-
-  // Initialize ICP agent
-  const initIcpAgent = async (identity: Ed25519KeyIdentity) => {
-    // const isProduction =
-    //   window.location.hostname === "your-production-domain.com";
-    // const host = isProduction ? "https://icp-api.io" : "http://localhost:4943";
-    // const agent = new HttpAgent({ identity, host });
-    // // Fetch root key for local development
-    // if (!isProduction) {
-    //   try {
-    //     await agent.fetchRootKey();
-    //   } catch (error) {
-    //     console.error("Error fetching root key:", error);
-    //   }
-    // }
-    // icpAgent.current = agent;
-  };
 
   // Generate addresses from seed phrase
   const importProfileFromSeed = useCallback(
@@ -114,9 +98,6 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
         const storedAlias =
           localStorage.getItem(LOCAL_STORAGE_ALIAS_NICKNAME) || "User";
 
-        // Initialize ICP agent
-        await initIcpAgent(icpIdentity);
-
         const newProfile = {
           evmAccount,
           evmSlug,
@@ -126,6 +107,7 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
           },
           icpSlug,
           alias: storedAlias,
+          userID: `UserID_${icpAddress}` as UserID,
         };
 
         // Update state
@@ -227,7 +209,6 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
 
   const contextValue = {
     profile,
-    icpAgent,
     importProfileFromSeed,
     generateSignature,
     isInitialized,

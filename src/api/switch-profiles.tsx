@@ -7,6 +7,7 @@ import {
   ReactNode,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
+import useIdentity, { LOCAL_STORAGE_SEED_PHRASE } from "../framework/identity";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -16,6 +17,7 @@ export interface IndexDB_Organization {
 
 export interface IndexDB_Profile {
   userID: string;
+  nickname: string;
   icpPublicAddress: string;
   emvPublicAddress: string;
   seedPhrase: string;
@@ -83,12 +85,8 @@ const API_KEYS_STORE_NAME = "apiKeys";
 // Provider component
 export function SwitchOrgProfilesProvider({
   children,
-  initialDriveID,
-  initialUserID,
 }: {
   children: ReactNode;
-  initialDriveID: string;
-  initialUserID: string;
 }) {
   // State declarations
   const [db, setDb] = useState<IDBDatabase | null>(null);
@@ -108,6 +106,9 @@ export function SwitchOrgProfilesProvider({
   const [listOfOrgs, setListOfOrgs] = useState<IndexDB_Organization[]>([]);
   const [listOfProfiles, setListOfProfiles] = useState<IndexDB_Profile[]>([]);
   const [listOfAPIKeys, setListOfAPIKeys] = useState<IndexDB_ApiKey[]>([]);
+  const { profile } = useIdentity();
+  const initialUserID = profile.userID;
+  const initialDriveID = "DriveID_defaultdrive";
 
   // Initialize IndexedDB when component mounts
   useEffect(() => {
@@ -173,22 +174,22 @@ export function SwitchOrgProfilesProvider({
               });
             }
 
-            // Check if profile exists
-            const profileExists = await getProfileFromDB(
-              database,
-              initialUserID
-            );
-            if (!profileExists) {
-              // Create initial profile
-              await saveProfileToDB(database, {
-                userID: initialUserID,
-                icpPublicAddress: "",
-                emvPublicAddress: "",
-                seedPhrase: "",
-                note: "Default Profile",
-                avatar: "",
-              });
-            }
+            // // Check if profile exists
+            // const profileExists = await getProfileFromDB(
+            //   database,
+            //   initialUserID
+            // );
+            // if (!profileExists) {
+            //   // Create initial profile
+            //   await saveProfileToDB(database, {
+            //     userID: initialUserID,
+            //     icpPublicAddress: "",
+            //     emvPublicAddress: "",
+            //     seedPhrase: "",
+            //     note: "Default Profile",
+            //     avatar: "",
+            //   });
+            // }
 
             // Load initial data
             await loadOrganizationsFromDB(database);
@@ -745,6 +746,7 @@ export function SwitchOrgProfilesProvider({
   }, []);
 
   const selectProfile = useCallback((profile: IndexDB_Profile) => {
+    localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
     setCurrentProfile(profile);
   }, []);
 

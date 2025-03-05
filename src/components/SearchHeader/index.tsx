@@ -37,7 +37,11 @@ import { trimToFolderPath, truncateMiddlePath } from "../../api/helpers";
 import useScreenType from "react-screentype-hook";
 import { generate } from "random-words"; // Import random-words library
 import { useIdentity } from "../../framework/identity"; // Import corrected useIdentity hook
-import { useSwitchOrgProfiles } from "../../api/switch-profiles";
+import {
+  IndexDB_Profile,
+  useSwitchOrgProfiles,
+} from "../../api/switch-profiles";
+import { shortenAddress } from "../../framework/identity_deprecated/evm-auth";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -55,7 +59,7 @@ interface HeaderProps {
 }
 
 const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
-  const { importProfileFromSeed, profile, generateNewAccount } = useIdentity(); // Use the corrected hook
+  const { importProfileFromSeed, profile, generateNewAccount } = useIdentity();
   const [searchValue, setSearchValue] = useState("");
   const [options, setOptions] = useState<
     { value: string; label: React.ReactNode }[]
@@ -75,7 +79,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const [newUserNickname, setNewUserNickname] = useState("Anonymous");
   const [newSeedPhrase, setNewSeedPhrase] = useState(generateRandomSeed());
 
-  const [importUserNickname, setImportUserNickname] = useState("Anonymous");
+  const [importUserNickname, setImportUserNickname] = useState("A Past Life");
   const [importSeedPhrase, setImportSeedPhrase] = useState("");
 
   // Shared editing nickname for existing user
@@ -246,12 +250,14 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
       options.push({
         value: currentProfile.userID,
         label: (
-          <Space>
-            <UserOutlined />
-            <span>{currentProfile.note || "Anonymous"}</span>
+          <Space style={{ width: "100%", justifyContent: "space-between" }}>
+            <Space>
+              <UserOutlined />
+              <span>{currentProfile.nickname || "Anonymous"}</span>
+            </Space>
             <Tag color="blue">
-              {currentProfile.icpPublicAddress ||
-                profile.icpAccount?.principal.toString()}
+              {shortenAddress(currentProfile.icpPublicAddress) ||
+                shortenAddress(profile.icpAccount?.principal.toString() || "")}
             </Tag>
           </Space>
         ),
@@ -267,10 +273,14 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
         options.push({
           value: profile.userID,
           label: (
-            <Space>
-              <UserOutlined />
-              <span>{profile.note || "Anonymous"}</span>
-              <Tag color="default">{profile.icpPublicAddress}</Tag>
+            <Space style={{ width: "100%", justifyContent: "space-between" }}>
+              <Space>
+                <UserOutlined />
+                <span>{profile.nickname || "Anonymous"}</span>
+              </Space>
+              <Tag color="default">
+                {shortenAddress(profile.icpPublicAddress)}
+              </Tag>
             </Space>
           ),
         });
@@ -311,7 +321,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
         onChange={(value) => {
           if (value === "add-profile") {
             setNewUserNickname("Anonymous");
-            setImportUserNickname("Anonymous");
+            setImportUserNickname("A Past Life");
             setNewSeedPhrase(generateRandomSeed());
             setImportSeedPhrase("");
             setActiveTabKey("newUser");
@@ -321,7 +331,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             const profile = listOfProfiles.find((p) => p.userID === value);
             if (profile) {
               setSelectedProfileId(value);
-              setExistingUserNickname(profile.note || "Anonymous");
+              setExistingUserNickname(profile.nickname || "Anonymous");
               setModalMode("existing");
               setIsModalVisible(true);
             }
@@ -333,7 +343,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           margin: "16px",
           backgroundColor: "rgba(255, 255, 255, 1)",
           borderRadius: "8px",
-          minWidth: "200px",
+          minWidth: "250px",
         }}
         optionRender={(option) => option.label}
       />
@@ -525,8 +535,9 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                 icpPublicAddress: newAuthProfile.icpSlug,
                 emvPublicAddress: newAuthProfile.evmSlug,
                 seedPhrase: seedToUse,
-                note: nicknameToUse,
+                note: "",
                 avatar: "",
+                nickname: nicknameToUse,
               });
 
               // Select the new profile
@@ -586,103 +597,99 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     </Modal>
   );
 
+  const renderExistingUserPreviewSection = (profile: IndexDB_Profile) => {
+    return (
+      <details style={{ marginBottom: "8px" }}>
+        <summary
+          style={{
+            cursor: "pointer",
+            color: "#595959",
+            fontSize: "14px",
+            marginBottom: "4px",
+            userSelect: "none",
+          }}
+        >
+          Preview
+        </summary>
+        <div
+          style={{
+            padding: "0 12px",
+            marginBottom: "8px",
+            fontSize: "13px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "6px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                minWidth: "70px",
+              }}
+            >
+              <span style={{ color: "#8c8c8c", marginRight: "4px" }}>ICP</span>
+            </div>
+            <Input
+              value={profile.icpPublicAddress}
+              readOnly
+              variant="borderless"
+              style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
+              suffix={
+                <Typography.Text
+                  copyable={{ text: profile.icpPublicAddress }}
+                  style={{ color: "#8c8c8c" }}
+                />
+              }
+            />
+          </div>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                minWidth: "70px",
+              }}
+            >
+              <span style={{ color: "#8c8c8c" }}>EVM</span>
+            </div>
+            <Input
+              value={profile.emvPublicAddress}
+              readOnly
+              variant="borderless"
+              style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
+              suffix={
+                <Typography.Text
+                  copyable={{ text: profile.emvPublicAddress }}
+                  style={{ color: "#8c8c8c" }}
+                />
+              }
+            />
+          </div>
+        </div>
+      </details>
+    );
+  };
+
   const renderExistingUserModal = () => {
     const profile = listOfProfiles.find((p) => p.userID === selectedProfileId);
+    const nicknameChanged =
+      profile && profile.nickname !== existingUserNickname;
 
     if (!profile) return null;
 
     return (
       <Modal
-        title="User Profile"
+        title="Switch Profile"
         open={isModalVisible && modalMode === "existing"}
         onCancel={() => setIsModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setIsModalVisible(false)}>
-            Cancel
-          </Button>,
-          <Popconfirm
-            key="remove"
-            title="Are you sure you want to remove this user?"
-            description="This action cannot be undone."
-            onConfirm={async () => {
-              try {
-                if (selectedProfileId) {
-                  await removeProfile(selectedProfileId);
-                  message.success("User removed successfully!");
-                  setIsModalVisible(false);
-                }
-              } catch (error) {
-                console.error("Error removing user:", error);
-                message.error("Failed to remove user. Please try again.");
-              }
-            }}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button danger icon={<DeleteOutlined />}>
-              Remove User
-            </Button>
-          </Popconfirm>,
-          <Button
-            key="update"
-            icon={<SaveOutlined />}
-            onClick={async () => {
-              if (!selectedProfileId) return;
-
-              try {
-                const existingProfile = listOfProfiles.find(
-                  (p) => p.userID === selectedProfileId
-                );
-                if (existingProfile) {
-                  await updateProfile({
-                    ...existingProfile,
-                    note: existingUserNickname,
-                  });
-                  message.success(
-                    `User ${existingUserNickname} updated successfully!`
-                  );
-                  setIsModalVisible(false);
-                }
-              } catch (error) {
-                console.error("Error updating user:", error);
-                message.error("Failed to update user. Please try again.");
-              }
-            }}
-            disabled={profile.note === existingUserNickname}
-          >
-            Save Changes
-          </Button>,
-          <Button
-            key="switch"
-            type="primary"
-            onClick={async () => {
-              if (!selectedProfileId) return;
-
-              const profile = listOfProfiles.find(
-                (p) => p.userID === selectedProfileId
-              );
-              if (profile) {
-                try {
-                  // First import the seed to the identity provider
-                  await importProfileFromSeed(profile.seedPhrase);
-
-                  // Then switch the local profile
-                  selectProfile(profile);
-
-                  message.success(`Switched to ${profile.note || "Anonymous"}`);
-                  setIsModalVisible(false);
-                } catch (error) {
-                  console.error("Error switching user:", error);
-                  message.error("Failed to switch user. Please try again.");
-                }
-              }
-            }}
-            disabled={currentProfile?.userID === profile.userID}
-          >
-            Switch to User
-          </Button>,
-        ]}
+        closeIcon={<CloseOutlined />}
         width={500}
+        footer={null}
       >
         <Form layout="vertical">
           <Form.Item label="Nickname">
@@ -693,69 +700,111 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             />
           </Form.Item>
 
-          <Divider>User Information</Divider>
+          {renderExistingUserPreviewSection(profile)}
 
-          <details style={{ marginBottom: "8px" }}>
-            <summary
-              style={{
-                cursor: "pointer",
-                color: "#595959",
-                fontSize: "14px",
-                marginBottom: "4px",
-                userSelect: "none",
-              }}
-            >
-              Preview
-            </summary>
-            <div
-              style={{
-                padding: "0 12px",
-                marginBottom: "8px",
-                fontSize: "13px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "6px",
+          {/* Custom footer with proper alignment */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "24px",
+              marginBottom: "12px",
+            }}
+          >
+            <div>
+              <Popconfirm
+                title="Are you sure you want to remove this profile?"
+                description="This action cannot be undone."
+                onConfirm={async () => {
+                  try {
+                    if (selectedProfileId) {
+                      await removeProfile(selectedProfileId);
+                      message.success("Profile removed successfully!");
+                      setIsModalVisible(false);
+                    }
+                  } catch (error) {
+                    console.error("Error removing profile:", error);
+                    message.error(
+                      "Failed to remove profile. Please try again."
+                    );
+                  }
                 }}
+                okText="Yes"
+                cancelText="No"
               >
-                <span style={{ color: "#8c8c8c", minWidth: "70px" }}>
-                  ICP Address:
-                </span>
-                <Input
-                  value={profile.icpPublicAddress}
-                  readOnly
-                  variant="borderless"
-                  style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
-                  suffix={
-                    <Typography.Text
-                      copyable={{ text: profile.icpPublicAddress }}
-                      style={{ color: "#8c8c8c" }}
-                    />
-                  }
-                />
-              </div>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ color: "#8c8c8c", minWidth: "70px" }}>
-                  EVM Address:
-                </span>
-                <Input
-                  value={profile.emvPublicAddress}
-                  readOnly
-                  variant="borderless"
-                  style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
-                  suffix={
-                    <Typography.Text
-                      copyable={{ text: profile.emvPublicAddress }}
-                      style={{ color: "#8c8c8c" }}
-                    />
-                  }
-                />
-              </div>
+                <Button
+                  danger
+                  type="text"
+                  size="small"
+                  icon={<DeleteOutlined style={{ fontSize: "18px" }} />}
+                >
+                  Remove
+                </Button>
+              </Popconfirm>
             </div>
-          </details>
+
+            <div>
+              <Space>
+                <Button key="cancel" onClick={() => setIsModalVisible(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  key="confirm"
+                  type="primary"
+                  onClick={async () => {
+                    if (!selectedProfileId) return;
+
+                    // If the nickname has been edited, update the profile first
+                    if (nicknameChanged) {
+                      try {
+                        const updatedProfile = {
+                          ...profile,
+                          nickname: existingUserNickname,
+                        };
+                        await updateProfile(updatedProfile);
+                        message.success(
+                          `Profile updated to ${existingUserNickname} successfully!`
+                        );
+                      } catch (error) {
+                        console.error("Error updating profile:", error);
+                        message.error(
+                          "Failed to update profile. Please try again."
+                        );
+                        return;
+                      }
+                    }
+
+                    // If we're not already using this profile, switch to it
+                    if (currentProfile?.userID !== profile.userID) {
+                      try {
+                        // First import the seed to the identity provider
+                        await importProfileFromSeed(profile.seedPhrase);
+
+                        // Then switch the local profile
+                        selectProfile(profile);
+
+                        message.success(
+                          `Switched to ${existingUserNickname || "Anonymous"} (${shortenAddress(
+                            profile.icpPublicAddress
+                          )})`
+                        );
+                      } catch (error) {
+                        console.error("Error switching profile:", error);
+                        message.error(
+                          "Failed to switch profile. Please try again."
+                        );
+                        return;
+                      }
+                    }
+
+                    setIsModalVisible(false);
+                  }}
+                >
+                  {nicknameChanged ? "Update Profile" : "Switch Profile"}
+                </Button>
+              </Space>
+            </div>
+          </div>
         </Form>
       </Modal>
     );

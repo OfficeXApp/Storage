@@ -7,7 +7,14 @@ import {
   ReactNode,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
-import useIdentity, { LOCAL_STORAGE_SEED_PHRASE } from "../framework/identity";
+import {
+  LOCAL_STORAGE_ALIAS_NICKNAME,
+  LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
+  LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
+  LOCAL_STORAGE_SEED_PHRASE,
+} from "../framework/identity/constants";
+import useIdentity from "../framework/identity";
+import { DriveID, UserID } from "@officexapp/types";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -19,7 +26,7 @@ export interface IndexDB_Profile {
   userID: string;
   nickname: string;
   icpPublicAddress: string;
-  emvPublicAddress: string;
+  evmPublicAddress: string;
   seedPhrase: string;
   note: string;
   avatar: string;
@@ -44,16 +51,20 @@ interface SwitchOrgProfilesContextType {
   listOfOrgs: IndexDB_Organization[];
   listOfProfiles: IndexDB_Profile[];
 
+  queryExistingOrganization: (
+    driveID: DriveID
+  ) => Promise<IndexDB_Organization | null>;
   addOrganization: (note: string) => Promise<IndexDB_Organization>;
   updateOrganization: (org: IndexDB_Organization) => Promise<void>;
-  removeOrganization: (driveID: string) => Promise<void>;
+  removeOrganization: (driveID: DriveID) => Promise<void>;
   selectOrganization: (org: IndexDB_Organization) => void;
 
+  queryExistingProfile: (userID: UserID) => Promise<IndexDB_Profile | null>;
   addProfile: (
     profile: Omit<IndexDB_Profile, "userID">
   ) => Promise<IndexDB_Profile>;
   updateProfile: (profile: IndexDB_Profile) => Promise<void>;
-  removeProfile: (userID: string) => Promise<void>;
+  removeProfile: (userID: UserID) => Promise<void>;
   selectProfile: (profile: IndexDB_Profile) => void;
 
   addApiKey: (
@@ -106,9 +117,6 @@ export function SwitchOrgProfilesProvider({
   const [listOfOrgs, setListOfOrgs] = useState<IndexDB_Organization[]>([]);
   const [listOfProfiles, setListOfProfiles] = useState<IndexDB_Profile[]>([]);
   const [listOfAPIKeys, setListOfAPIKeys] = useState<IndexDB_ApiKey[]>([]);
-  const { profile } = useIdentity();
-  const initialUserID = profile.userID;
-  const initialDriveID = "DriveID_defaultdrive";
 
   // Initialize IndexedDB when component mounts
   useEffect(() => {
@@ -161,35 +169,35 @@ export function SwitchOrgProfilesProvider({
             // Setup database
             setDb(database);
 
-            // Check if organization exists
-            const orgExists = await getOrganizationFromDB(
-              database,
-              initialDriveID
-            );
-            if (!orgExists) {
-              // Create initial organization
-              await saveOrganizationToDB(database, {
-                driveID: initialDriveID,
-                note: "Default Organization",
-              });
-            }
-
-            // // Check if profile exists
-            // const profileExists = await getProfileFromDB(
+            // // Check if organization exists
+            // const orgExists = await getOrganizationFromDB(
             //   database,
-            //   initialUserID
+            //   initialDriveID
             // );
-            // if (!profileExists) {
-            //   // Create initial profile
-            //   await saveProfileToDB(database, {
-            //     userID: initialUserID,
-            //     icpPublicAddress: "",
-            //     emvPublicAddress: "",
-            //     seedPhrase: "",
-            //     note: "Default Profile",
-            //     avatar: "",
+            // if (!orgExists) {
+            //   // Create initial organization
+            //   await saveOrganizationToDB(database, {
+            //     driveID: initialDriveID,
+            //     note: "Default Organization",
             //   });
             // }
+
+            // // // Check if profile exists
+            // // const profileExists = await getProfileFromDB(
+            // //   database,
+            // //   initialUserID
+            // // );
+            // // if (!profileExists) {
+            // //   // Create initial profile
+            // //   await saveProfileToDB(database, {
+            // //     userID: initialUserID,
+            // //     icpPublicAddress: "",
+            // //     evmPublicAddress: "",
+            // //     seedPhrase: "",
+            // //     note: "Default Profile",
+            // //     avatar: "",
+            // //   });
+            // // }
 
             // Load initial data
             await loadOrganizationsFromDB(database);
@@ -209,12 +217,13 @@ export function SwitchOrgProfilesProvider({
     };
 
     initDB();
-  }, [initialDriveID, initialUserID]);
+  }, []);
 
+  // AI Slop 😢 should refactor
   // DB helper functions
   const getOrganizationFromDB = async (
     database: IDBDatabase,
-    driveID: string
+    driveID: DriveID
   ): Promise<IndexDB_Organization | null> => {
     return new Promise((resolve, reject) => {
       const transaction = database.transaction([ORGS_STORE_NAME], "readonly");
@@ -299,12 +308,6 @@ export function SwitchOrgProfilesProvider({
     try {
       const orgs = await getAllOrganizationsFromDB(database);
       setListOfOrgs(orgs);
-
-      // Set current org to the initial one if none is selected
-      if (!currentOrg && orgs.length > 0) {
-        const initialOrg = orgs.find((org) => org.driveID === initialDriveID);
-        setCurrentOrg(initialOrg || orgs[0]);
-      }
     } catch (err) {
       console.error("Error loading organizations:", err);
       setError(err instanceof Error ? err : new Error(String(err)));
@@ -333,14 +336,6 @@ export function SwitchOrgProfilesProvider({
     try {
       const profiles = await getAllProfilesFromDB(database);
       setListOfProfiles(profiles);
-
-      // Set current profile to the initial one if none is selected
-      if (!currentProfile && profiles.length > 0) {
-        const initialProfile = profiles.find(
-          (profile) => profile.userID === initialUserID
-        );
-        setCurrentProfile(initialProfile || profiles[0]);
-      }
     } catch (err) {
       console.error("Error loading profiles:", err);
       setError(err instanceof Error ? err : new Error(String(err)));
@@ -445,6 +440,22 @@ export function SwitchOrgProfilesProvider({
   }, [db]);
 
   // CRUD operations for organizations
+  const queryExistingOrganization = useCallback(
+    async (driveID: DriveID): Promise<IndexDB_Organization | null> => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
+      try {
+        return await getOrganizationFromDB(db, driveID);
+      } catch (err) {
+        console.error("Error querying existing organization:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [db]
+  );
   const addOrganization = useCallback(
     async (note: string) => {
       if (!db) {
@@ -538,6 +549,22 @@ export function SwitchOrgProfilesProvider({
   };
 
   // CRUD operations for profiles
+  const queryExistingProfile = useCallback(
+    async (userID: UserID): Promise<IndexDB_Profile | null> => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
+      try {
+        return await getProfileFromDB(db, userID);
+      } catch (err) {
+        console.error("Error querying existing profile:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [db]
+  );
   const addProfile = useCallback(
     async (profile: Omit<IndexDB_Profile, "userID">) => {
       if (!db) {
@@ -747,6 +774,15 @@ export function SwitchOrgProfilesProvider({
 
   const selectProfile = useCallback((profile: IndexDB_Profile) => {
     localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
+    localStorage.setItem(
+      LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
+      profile.evmPublicAddress
+    );
+    localStorage.setItem(
+      LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
+      profile.icpPublicAddress
+    );
+    localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
     setCurrentProfile(profile);
   }, []);
 
@@ -778,11 +814,13 @@ export function SwitchOrgProfilesProvider({
     listOfOrgs,
     listOfProfiles,
 
+    queryExistingOrganization,
     addOrganization,
     updateOrganization,
     removeOrganization,
     selectOrganization,
 
+    queryExistingProfile,
     addProfile,
     updateProfile,
     removeProfile,

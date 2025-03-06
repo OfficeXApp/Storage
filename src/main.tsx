@@ -61,8 +61,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ReduxProvider store={store}>
       <ConfigProvider>
         <IdentityProvider>
-          <IdentityProvider_NEW>
-            <SwitchOrgProfilesProvider>
+          <SwitchOrgProfilesProvider>
+            <IdentityProvider_NEW>
               <DriveProvider
                 onUploadComplete={(fileUUID) =>
                   console.log(`Uploaded ${fileUUID}`)
@@ -70,8 +70,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               >
                 <App />
               </DriveProvider>
-            </SwitchOrgProfilesProvider>
-          </IdentityProvider_NEW>
+            </IdentityProvider_NEW>
+          </SwitchOrgProfilesProvider>
         </IdentityProvider>
       </ConfigProvider>
     </ReduxProvider>

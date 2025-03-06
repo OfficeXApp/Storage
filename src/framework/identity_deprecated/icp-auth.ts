@@ -7,8 +7,8 @@ import {
 } from "@scure/bip39";
 import {
   LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
-  LOCAL_STORAGE_ICP_WALLET_MNEMONIC,
-} from "./constants";
+  LOCAL_STORAGE_SEED_PHRASE,
+} from "../identity/constants";
 import { Principal } from "@dfinity/principal";
 
 export interface ICPAccount {
@@ -52,7 +52,7 @@ export const generateICPIdentityWithMnemonic = async (): Promise<{
   const principal = Principal.selfAuthenticating(publicKeyBuffer);
 
   localStorage.setItem(LOCAL_STORAGE_ICP_PUBLIC_ADDRESS, publicKeyHex);
-  localStorage.setItem(LOCAL_STORAGE_ICP_WALLET_MNEMONIC, mnemonic);
+  localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, mnemonic);
   console.log("ICP Principal:", principal.toText());
 
   return {
@@ -121,7 +121,7 @@ const arrayBufferToHex = (buffer: ArrayBuffer): string => {
 };
 
 // Helper function to convert hex string to Uint8Array
-const hexStringToUint8Array = (hexString: string): Uint8Array => {
+export const hexStringToUint8Array = (hexString: string): Uint8Array => {
   const result = new Uint8Array(hexString.length / 2);
   for (let i = 0; i < hexString.length; i += 2) {
     result[i / 2] = parseInt(hexString.substr(i, 2), 16);

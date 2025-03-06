@@ -7,8 +7,8 @@ import {
 import {
   LOCAL_STORAGE_ALIAS_NICKNAME,
   LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
-  LOCAL_STORAGE_EVM_WALLET_MNEMONIC,
-} from "./constants";
+  LOCAL_STORAGE_SEED_PHRASE,
+} from "../identity/constants";
 
 /**
  * Function createLocalWalletWithMnemonic
@@ -30,7 +30,7 @@ export const createLocalWalletWithMnemonic = (): Account => {
 
   // Store the mnemonic securely in local storage
   localStorage.setItem(LOCAL_STORAGE_EVM_PUBLIC_ADDRESS, account.address);
-  localStorage.setItem(LOCAL_STORAGE_EVM_WALLET_MNEMONIC, mnemonic);
+  localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, mnemonic);
 
   return account;
 };

@@ -3,7 +3,7 @@
  *
  * Handles creation of anonymous identity via evm wallet
  */
-import { CONSTANTS, ONBOARDING_CHECKPOINTS } from "./constants";
+import { CONSTANTS, ONBOARDING_CHECKPOINTS } from "../identity/constants";
 import { createDefaultAnonEVMIdentity } from "./evm-auth";
 import { IdentityProvider, useIdentity } from "./identity.provider";
 

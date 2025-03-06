@@ -59,7 +59,8 @@ interface HeaderProps {
 }
 
 const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
-  const { importProfileFromSeed, profile, generateNewAccount } = useIdentity();
+  const { importProfileFromSeed, currentProfile, generateNewAccount } =
+    useIdentity();
   const [searchValue, setSearchValue] = useState("");
   const [options, setOptions] = useState<
     { value: string; label: React.ReactNode }[]
@@ -68,7 +69,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const navigate = useNavigate();
   const screenType = useScreenType();
 
-  // User profile management states
+  // User currentProfile management states
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState<"new" | "existing">("new");
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
@@ -100,7 +101,6 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
 
   // Get multi org hook
   const {
-    currentProfile,
     listOfProfiles,
     addProfile,
     updateProfile,
@@ -173,8 +173,8 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           // Preview for new user tab
           const tempProfile = await importProfileFromSeed(newSeedPhrase);
           setNewUserPreviewAddresses({
-            icpAddress: tempProfile.icpAccount?.principal.toString() || "",
-            evmAddress: tempProfile.evmAccount?.address || "",
+            icpAddress: tempProfile.icpPublicAddress,
+            evmAddress: tempProfile.evmPublicAddress,
           });
         } else if (
           activeTabKey === "importSeed" &&
@@ -184,8 +184,8 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           // Preview for import seed tab
           const tempProfile = await importProfileFromSeed(importSeedPhrase);
           setImportUserPreviewAddresses({
-            icpAddress: tempProfile.icpAccount?.principal.toString() || "",
-            evmAddress: tempProfile.evmAccount?.address || "",
+            icpAddress: tempProfile.icpPublicAddress,
+            evmAddress: tempProfile.evmPublicAddress,
           });
         }
       } catch (error) {
@@ -207,6 +207,12 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
 
     previewWalletAddresses();
   }, [activeTabKey, newSeedPhrase, importSeedPhrase, importProfileFromSeed]);
+
+  console.log(`currentProfile`, currentProfile);
+
+  if (!currentProfile) {
+    return null;
+  }
 
   const onSelect = (value: string) => {
     const [storageLocation, ...pathParts] = value.split("::");
@@ -256,8 +262,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               <span>{currentProfile.nickname || "Anonymous"}</span>
             </Space>
             <Tag color="blue">
-              {shortenAddress(currentProfile.icpPublicAddress) ||
-                shortenAddress(profile.icpAccount?.principal.toString() || "")}
+              {shortenAddress(currentProfile.icpPublicKey)}
             </Tag>
           </Space>
         ),
@@ -267,19 +272,20 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     // Other users
     listOfProfiles
       .filter(
-        (profile) => !currentProfile || profile.userID !== currentProfile.userID
+        (currentProfile) =>
+          !currentProfile || currentProfile.userID !== currentProfile.userID
       )
-      .forEach((profile) => {
+      .forEach((currentProfile) => {
         options.push({
-          value: profile.userID,
+          value: currentProfile.userID,
           label: (
             <Space style={{ width: "100%", justifyContent: "space-between" }}>
               <Space>
                 <UserOutlined />
-                <span>{profile.nickname || "Anonymous"}</span>
+                <span>{currentProfile.nickname || "Anonymous"}</span>
               </Space>
               <Tag color="default">
-                {shortenAddress(profile.icpPublicAddress)}
+                {shortenAddress(currentProfile.icpPublicAddress)}
               </Tag>
             </Space>
           ),
@@ -288,7 +294,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
 
     // Add new user option
     options.push({
-      value: "add-profile",
+      value: "add-currentProfile",
       label: (
         <Space>
           <PlusOutlined
@@ -319,7 +325,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
         value={currentProfile ? currentProfile.userID : undefined}
         options={renderUserOptions()}
         onChange={(value) => {
-          if (value === "add-profile") {
+          if (value === "add-currentProfile") {
             setNewUserNickname("Anonymous");
             setImportUserNickname("A Past Life");
             setNewSeedPhrase(generateRandomSeed());
@@ -328,10 +334,12 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             setModalMode("new");
             setIsModalVisible(true);
           } else {
-            const profile = listOfProfiles.find((p) => p.userID === value);
-            if (profile) {
+            const currentProfile = listOfProfiles.find(
+              (p) => p.userID === value
+            );
+            if (currentProfile) {
               setSelectedProfileId(value);
-              setExistingUserNickname(profile.nickname || "Anonymous");
+              setExistingUserNickname(currentProfile.nickname || "Anonymous");
               setModalMode("existing");
               setIsModalVisible(true);
             }
@@ -340,7 +348,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
         suffixIcon={<SwapOutlined />}
         variant="borderless"
         style={{
-          margin: "16px",
+          margin: "0px 8px",
           backgroundColor: "rgba(255, 255, 255, 1)",
           borderRadius: "8px",
           minWidth: "250px",
@@ -530,17 +538,17 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               // Create new anonymous user or import from seed
               const newAuthProfile = await importProfileFromSeed(seedToUse);
 
-              // Add profile to local storage
+              // Add currentProfile to local storage
               const newProfile = await addProfile({
-                icpPublicAddress: newAuthProfile.icpSlug,
-                emvPublicAddress: newAuthProfile.evmSlug,
+                icpPublicAddress: newAuthProfile.icpPublicAddress,
+                evmPublicAddress: newAuthProfile.evmPublicAddress,
                 seedPhrase: seedToUse,
                 note: "",
                 avatar: "",
                 nickname: nicknameToUse,
               });
 
-              // Select the new profile
+              // Select the new currentProfile
               selectProfile(newProfile);
 
               message.success(`User ${nicknameToUse} added successfully!`);
@@ -597,7 +605,9 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     </Modal>
   );
 
-  const renderExistingUserPreviewSection = (profile: IndexDB_Profile) => {
+  const renderExistingUserPreviewSection = (
+    currentProfile: IndexDB_Profile
+  ) => {
     return (
       <details style={{ marginBottom: "8px" }}>
         <summary
@@ -635,13 +645,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               <span style={{ color: "#8c8c8c", marginRight: "4px" }}>ICP</span>
             </div>
             <Input
-              value={profile.icpPublicAddress}
+              value={currentProfile.icpPublicAddress}
               readOnly
               variant="borderless"
               style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
               suffix={
                 <Typography.Text
-                  copyable={{ text: profile.icpPublicAddress }}
+                  copyable={{ text: currentProfile.icpPublicAddress }}
                   style={{ color: "#8c8c8c" }}
                 />
               }
@@ -658,13 +668,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               <span style={{ color: "#8c8c8c" }}>EVM</span>
             </div>
             <Input
-              value={profile.emvPublicAddress}
+              value={currentProfile.evmPublicAddress}
               readOnly
               variant="borderless"
               style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
               suffix={
                 <Typography.Text
-                  copyable={{ text: profile.emvPublicAddress }}
+                  copyable={{ text: currentProfile.evmPublicAddress }}
                   style={{ color: "#8c8c8c" }}
                 />
               }
@@ -676,11 +686,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   };
 
   const renderExistingUserModal = () => {
-    const profile = listOfProfiles.find((p) => p.userID === selectedProfileId);
+    const currentProfile = listOfProfiles.find(
+      (p) => p.userID === selectedProfileId
+    );
     const nicknameChanged =
-      profile && profile.nickname !== existingUserNickname;
+      currentProfile && currentProfile.nickname !== existingUserNickname;
 
-    if (!profile) return null;
+    if (!currentProfile) return null;
 
     return (
       <Modal
@@ -700,7 +712,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             />
           </Form.Item>
 
-          {renderExistingUserPreviewSection(profile)}
+          {renderExistingUserPreviewSection(currentProfile)}
 
           {/* Custom footer with proper alignment */}
           <div
@@ -713,7 +725,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           >
             <div>
               <Popconfirm
-                title="Are you sure you want to remove this profile?"
+                title="Are you sure you want to remove this currentProfile?"
                 description="This action cannot be undone."
                 onConfirm={async () => {
                   try {
@@ -723,9 +735,9 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                       setIsModalVisible(false);
                     }
                   } catch (error) {
-                    console.error("Error removing profile:", error);
+                    console.error("Error removing currentProfile:", error);
                     message.error(
-                      "Failed to remove profile. Please try again."
+                      "Failed to remove currentProfile. Please try again."
                     );
                   }
                 }}
@@ -754,11 +766,11 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                   onClick={async () => {
                     if (!selectedProfileId) return;
 
-                    // If the nickname has been edited, update the profile first
+                    // If the nickname has been edited, update the currentProfile first
                     if (nicknameChanged) {
                       try {
                         const updatedProfile = {
-                          ...profile,
+                          ...currentProfile,
                           nickname: existingUserNickname,
                         };
                         await updateProfile(updatedProfile);
@@ -766,32 +778,29 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                           `Profile updated to ${existingUserNickname} successfully!`
                         );
                       } catch (error) {
-                        console.error("Error updating profile:", error);
+                        console.error("Error updating currentProfile:", error);
                         message.error(
-                          "Failed to update profile. Please try again."
+                          "Failed to update currentProfile. Please try again."
                         );
                         return;
                       }
                     }
 
-                    // If we're not already using this profile, switch to it
-                    if (currentProfile?.userID !== profile.userID) {
+                    // If we're not already using this currentProfile, switch to it
+                    if (currentProfile?.userID !== currentProfile.userID) {
                       try {
-                        // First import the seed to the identity provider
-                        await importProfileFromSeed(profile.seedPhrase);
-
-                        // Then switch the local profile
-                        selectProfile(profile);
+                        // Then switch the local currentProfile
+                        selectProfile(currentProfile);
 
                         message.success(
                           `Switched to ${existingUserNickname || "Anonymous"} (${shortenAddress(
-                            profile.icpPublicAddress
+                            currentProfile.icpPublicAddress
                           )})`
                         );
                       } catch (error) {
-                        console.error("Error switching profile:", error);
+                        console.error("Error switching currentProfile:", error);
                         message.error(
-                          "Failed to switch profile. Please try again."
+                          "Failed to switch currentProfile. Please try again."
                         );
                         return;
                       }

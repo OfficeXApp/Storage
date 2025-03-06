@@ -3,8 +3,8 @@ import { mnemonicToAccount } from "viem/accounts";
 import { createLocalWalletWithMnemonic, shortenAddress } from "./evm-auth";
 import {
   LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
-  LOCAL_STORAGE_EVM_WALLET_MNEMONIC,
-} from "./constants";
+  LOCAL_STORAGE_SEED_PHRASE,
+} from "../identity/constants";
 
 // Mock localStorage for testing
 const localStorageMock = (() => {
@@ -29,9 +29,7 @@ describe("createLocalWalletWithMnemonic", () => {
   it("should generate the same wallet from the same mnemonic", () => {
     // Step 1: Generate the wallet and store the mnemonic
     const account1 = createLocalWalletWithMnemonic();
-    const storedMnemonic = localStorage.getItem(
-      LOCAL_STORAGE_EVM_WALLET_MNEMONIC
-    );
+    const storedMnemonic = localStorage.getItem(LOCAL_STORAGE_SEED_PHRASE);
 
     // Step 2: Regenerate the wallet using the stored mnemonic
     const regeneratedAccount = mnemonicToAccount(storedMnemonic!);
@@ -48,9 +46,7 @@ describe("createLocalWalletWithMnemonic", () => {
     const storedAddress = localStorage.getItem(
       LOCAL_STORAGE_EVM_PUBLIC_ADDRESS
     );
-    const storedMnemonic = localStorage.getItem(
-      LOCAL_STORAGE_EVM_WALLET_MNEMONIC
-    );
+    const storedMnemonic = localStorage.getItem(LOCAL_STORAGE_SEED_PHRASE);
 
     // Validate that the stored values match the generated ones
     expect(storedAddress).toBe(account.address);

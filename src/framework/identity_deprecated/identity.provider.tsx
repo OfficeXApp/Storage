@@ -14,15 +14,14 @@ import {
 } from "viem/accounts";
 import { Actor, ActorSubclass, HttpAgent } from "@dfinity/agent";
 import {
-  LOCAL_STORAGE_EVM_WALLET_MNEMONIC,
+  LOCAL_STORAGE_SEED_PHRASE,
   LOCAL_STORAGE_ALIAS_NICKNAME,
   LOCAL_STORAGE_ONBOARDING_CHECKPOINT,
   ONBOARDING_CHECKPOINTS,
-  LOCAL_STORAGE_ICP_WALLET_MNEMONIC,
   FACTORY_CANISTER_ID,
   LOCAL_STORAGE_ICP_CANISTER_DRIVE_ID,
   LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
-} from "./constants";
+} from "../identity/constants.js";
 import { createDefaultAnonEVMIdentity, shortenAddress } from "./evm-auth"; // Adjust the import path to where your utils file is located.
 import {
   generateICPIdentityWithMnemonic,
@@ -82,24 +81,22 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   const initializeIdentity = async (icpMnemonic?: string) => {
-    const existingEvmMnemonic = localStorage.getItem(
-      LOCAL_STORAGE_EVM_WALLET_MNEMONIC
-    );
+    const existingEvmMnemonic = localStorage.getItem(LOCAL_STORAGE_SEED_PHRASE);
     const _existingIcpMnemonic = localStorage.getItem(
-      LOCAL_STORAGE_ICP_WALLET_MNEMONIC
+      LOCAL_STORAGE_SEED_PHRASE
     );
     const existingIcpMnemonic = icpMnemonic || _existingIcpMnemonic || "";
-    localStorage.setItem(
-      LOCAL_STORAGE_ICP_WALLET_MNEMONIC,
-      existingIcpMnemonic
-    );
+    localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, existingIcpMnemonic);
     const existingAlias = localStorage.getItem(LOCAL_STORAGE_ALIAS_NICKNAME);
+
     console.log("Existing EVM Mnemonic:", existingEvmMnemonic);
     console.log("Existing ICP Mnemonic:", existingIcpMnemonic);
+    console.log("Existing Alias:", existingAlias);
     if (
       // existingEvmMnemonic &&
       existingIcpMnemonic
     ) {
+      // should search indexdb
       console.log("Restoring existing identity");
       // Convert the mnemonic to an account object
       // const evmAccount = mnemonicToAccount(existingEvmMnemonic);
@@ -130,6 +127,7 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
     } else {
       console.log("Creating new anon identity");
       // Create a new default anonymous identity
+      const newAnonNickname = "Anonymous";
       const newEVMIdentity = await createDefaultAnonEVMIdentity();
       const newICPIdentity = await generateICPIdentityWithMnemonic();
       await initIcpAgent(newICPIdentity.identity);
@@ -144,6 +142,7 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
         LOCAL_STORAGE_ONBOARDING_CHECKPOINT,
         ONBOARDING_CHECKPOINTS.FRESH_USER
       );
+      localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, newAnonNickname);
       await trackUserSignup(newICPIdentity.principal.toText());
     }
   };

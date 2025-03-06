@@ -23,10 +23,10 @@ function App() {
 
   useEffect(() => {
     const _evmMnemonic = localStorage.getItem(
-      Identity.CONSTANTS.LOCAL_STORAGE_EVM_WALLET_MNEMONIC
+      Identity.CONSTANTS.LOCAL_STORAGE_SEED_PHRASE
     );
     const _icpMnemonic = localStorage.getItem(
-      Identity.CONSTANTS.LOCAL_STORAGE_ICP_WALLET_MNEMONIC
+      Identity.CONSTANTS.LOCAL_STORAGE_SEED_PHRASE
     );
     if (_evmMnemonic) {
       setEvmMnemonic(_evmMnemonic);

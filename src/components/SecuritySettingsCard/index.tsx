@@ -42,13 +42,13 @@ const SecuritySettingsCard = () => {
 
   useEffect(() => {
     const _seedICPPhrase = localStorage.getItem(
-      CONSTANTS.LOCAL_STORAGE_ICP_WALLET_MNEMONIC
+      CONSTANTS.LOCAL_STORAGE_SEED_PHRASE
     );
     if (_seedICPPhrase) {
       setICPSeedPhrase(_seedICPPhrase);
     }
     const _seedEVMPhrase = localStorage.getItem(
-      CONSTANTS.LOCAL_STORAGE_EVM_WALLET_MNEMONIC
+      CONSTANTS.LOCAL_STORAGE_SEED_PHRASE
     );
     if (_seedEVMPhrase) {
       setEVMSeedPhrase(_seedEVMPhrase);

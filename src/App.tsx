@@ -1,33 +1,24 @@
 // App.tsx
 
-import {
-  DriveFullFilePath,
-  Identity,
-  StorageLocationEnum,
-  useDrive,
-  UserID,
-} from "./framework";
+import { DriveFullFilePath, StorageLocationEnum, useDrive } from "./framework";
 import RouterUI from "./RouterUI";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Spin } from "antd";
 import Marquee from "react-fast-marquee";
 import { setupFreeTrialStorj } from "./api/storj";
 import mixpanel from "mixpanel-browser";
-
-const { CONSTANTS, ONBOARDING_CHECKPOINTS, useIdentity } = Identity;
+import { useIdentitySystem } from "./framework/identity";
+import { LOCAL_STORAGE_SEED_PHRASE } from "./framework/identity/constants";
 
 function App() {
   const [emvMnemonic, setEvmMnemonic] = useState<string | null>(null);
   const [icpMnemonic, setIcpMnemonic] = useState<string | null>(null);
-  const { evmSlug, evmAccount, icpAccount } = useIdentity();
+  const { currentProfile } = useIdentitySystem();
+  const { evmPublicKey, icpPublicKey, slug } = currentProfile || {};
 
   useEffect(() => {
-    const _evmMnemonic = localStorage.getItem(
-      Identity.CONSTANTS.LOCAL_STORAGE_SEED_PHRASE
-    );
-    const _icpMnemonic = localStorage.getItem(
-      Identity.CONSTANTS.LOCAL_STORAGE_SEED_PHRASE
-    );
+    const _evmMnemonic = localStorage.getItem(LOCAL_STORAGE_SEED_PHRASE);
+    const _icpMnemonic = localStorage.getItem(LOCAL_STORAGE_SEED_PHRASE);
     if (_evmMnemonic) {
       setEvmMnemonic(_evmMnemonic);
     }
@@ -39,27 +30,22 @@ function App() {
 
   useEffect(() => {
     setupAnalytics();
-  }, [evmAccount, icpAccount, evmSlug]);
+  }, [currentProfile]);
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const ref = urlParams.get("ref") || "";
 
   const setupAnalytics = useCallback(() => {
-    if (
-      window.location.hostname === "drive.officex.app" &&
-      evmSlug !== "0x0" &&
-      evmAccount &&
-      icpAccount
-    ) {
-      mixpanel.identify(evmAccount?.address);
+    if (window.location.hostname === "drive.officex.app" && currentProfile) {
+      mixpanel.identify(evmPublicKey);
       mixpanel.people.set({
-        $name: evmSlug,
-        evmAddress: evmAccount?.address,
-        icpAddress: icpAccount?.publicKeyHex,
+        $name: slug,
+        evmAddress: evmPublicKey,
+        icpAddress: icpPublicKey,
         ref: ref,
       });
     }
-  }, [evmAccount, icpAccount, evmSlug, ref]);
+  }, [evmPublicKey, icpPublicKey, slug, ref]);
 
   return (
     <div style={{ height: "100vh", maxHeight: "100vh", overflow: "hidden" }}>

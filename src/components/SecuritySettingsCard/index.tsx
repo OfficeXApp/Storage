@@ -16,21 +16,22 @@ import {
   EyeInvisibleOutlined,
   EyeTwoTone,
 } from "@ant-design/icons";
-import { Identity } from "../../framework";
 import useScreenType from "react-screentype-hook";
 import mixpanel from "mixpanel-browser";
-const { useIdentity } = Identity;
+import { CONSTANTS } from "../../framework/identity/constants";
+import { useIdentitySystem } from "../../framework/identity";
 
-const { CONSTANTS, ONBOARDING_CHECKPOINTS } = Identity;
 const { Text, Link } = Typography;
 const SecuritySettingsCard = () => {
   const {
-    icpCanisterId,
-    icpAgent,
-    initializeIdentity,
-    icpAccount,
-    evmAccount,
-  } = useIdentity();
+    currentProfile,
+    currentOrg,
+    deriveProfileFromSeed,
+    createProfile,
+    switchProfile,
+  } = useIdentitySystem();
+  const icpCanisterId = currentOrg?.driveID;
+  const { icpAccount, evmPublicKey } = currentProfile || {};
   const [showICPSeedPhrase, setShowICPSeedPhrase] = useState(false);
   const [icpSeedPhrase, setICPSeedPhrase] = useState("");
   const [showEVMSeedPhrase, setShowEVMSeedPhrase] = useState(false);
@@ -69,7 +70,12 @@ const SecuritySettingsCard = () => {
   const handleRestore = async () => {
     setIsRestoring(true);
     console.log("Attempting to restore from seed phrase:", restoreSeedPhrase);
-    await initializeIdentity(restoreSeedPhrase);
+    const profile = await deriveProfileFromSeed(restoreSeedPhrase);
+    profile.nickname = `Restored User`;
+    profile.note = "Restored from seed phrase";
+    console.log("Restored profile:", profile);
+    await createProfile(profile);
+    await switchProfile(profile);
     setIsRestoring(false);
     setIsModalVisible(false);
     message.success("Account restored successfully!");
@@ -91,7 +97,7 @@ const SecuritySettingsCard = () => {
     // Step 1: Create the text content
     const textContent = `---- OfficeX Account Backup ----
 
-EVM Public Key: ${evmAccount?.address}
+EVM Public Key: ${evmPublicKey}
 ICP Public Key: ${icpAccount?.principal.toText()}
 
 1. Open the webapp and scroll down to "Restore Account"
@@ -112,7 +118,7 @@ If you need help, message us at https://officex.app or email admin@officex.app o
     // Step 3: Create a download link
     const downloadLink = document.createElement("a");
     downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = `OfficeX_AccountBackup_${evmAccount?.address}.txt`; // Set the file name for the download
+    downloadLink.download = `OfficeX_AccountBackup_${evmPublicKey}.txt`; // Set the file name for the download
 
     // Step 4: Simulate a click on the download link to trigger the download
     downloadLink.click();
@@ -136,11 +142,11 @@ If you need help, message us at https://officex.app or email admin@officex.app o
       <Space direction="vertical" style={{ maxWidth: "800px" }}>
         <label style={{ color: "gray" }}>EVM Public Address</label>
         <Space direction="horizontal">
-          <Input readOnly value={evmAccount?.address} />
+          <Input readOnly value={evmPublicKey} />
           <Button
             type="text"
             icon={<CopyOutlined />}
-            onClick={() => handleCopy(evmAccount?.address)}
+            onClick={() => handleCopy(evmPublicKey)}
             aria-label="Copy public address"
           />
         </Space>

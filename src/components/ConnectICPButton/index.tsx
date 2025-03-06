@@ -1,23 +1,20 @@
 import { Button, message, Modal, Result, Typography } from "antd";
-import { Identity } from "../../framework";
 import { useEffect, useState } from "react";
 import { CloudSyncOutlined } from "@ant-design/icons";
 import { checkShouldAllowWorldComputer } from "../../api/helpers";
 import mixpanel from "mixpanel-browser";
-import useCloudSync from "../../api/cloud-sync";
+// import useCloudSync from "../../api/cloud-sync";
 
 const { Text } = Typography;
-const { useIdentity } = Identity;
 
 const ConnectICPButton = () => {
-  const { icpCanisterId, deployIcpCanister } = useIdentity();
+  // const { icpCanisterId, deployIcpCanister } = useIdentity();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { syncOfflineWithCloud } = useCloudSync();
 
   const connectICP = async () => {
     setLoading(true);
-    await deployIcpCanister();
+    // await deployIcpCanister();
     setLoading(false);
     setIsModalVisible(false);
     message.success("Successfully Enabled Cloud");
@@ -27,7 +24,7 @@ const ConnectICPButton = () => {
     }, 1000);
   };
 
-  if (icpCanisterId) return null;
+  // if (icpCanisterId) return null;
   return (
     <>
       <Button

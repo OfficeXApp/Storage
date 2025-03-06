@@ -1,37 +1,57 @@
-// hooks/useIdentity.tsx
 import {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
   createContext,
+  useState,
+  useEffect,
+  useCallback,
   useContext,
   ReactNode,
-  useMemo,
+  useRef,
 } from "react";
-import { Account, mnemonicToAccount } from "viem/accounts";
-import { Ed25519KeyIdentity } from "@dfinity/identity";
-import { Principal } from "@dfinity/principal";
-import { mnemonicToSeed, mnemonicToSeedSync } from "@scure/bip39";
-import { HttpAgent, Actor, ActorSubclass } from "@dfinity/agent";
-import { shortenAddress } from "../identity_deprecated/evm-auth";
-import { generate } from "random-words";
+import { v4 as uuidv4 } from "uuid";
 import {
+  hexStringToUint8Array,
+  LOCAL_STORAGE_ALIAS_NICKNAME,
+  LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
+  LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
+  LOCAL_STORAGE_ORGANIZATION_DRIVE_ID,
+  LOCAL_STORAGE_SEED_PHRASE,
+  shortenAddress,
+} from "./constants";
+import {
+  DriveID,
   EvmPublicAddress,
   ICPPrincipalString,
   UserID,
 } from "@officexapp/types";
-import {
-  LOCAL_STORAGE_ALIAS_NICKNAME,
-  LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
-  LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
-  LOCAL_STORAGE_SEED_PHRASE,
-} from "./constants";
-import {
-  IndexDB_Profile,
-  useSwitchOrgProfiles,
-} from "../../api/switch-profiles";
-import { hexStringToUint8Array } from "../identity_deprecated/icp-auth";
+import { Ed25519KeyIdentity } from "@dfinity/identity";
+import { Principal } from "@dfinity/principal";
+import { mnemonicToAccount } from "viem/accounts";
+import { mnemonicToSeed, mnemonicToSeedSync } from "@scure/bip39";
+import { generate } from "random-words";
+
+// Define types for our data structures
+export interface IndexDB_Organization {
+  driveID: string;
+  note: string;
+}
+
+export interface IndexDB_Profile {
+  userID: string;
+  nickname: string;
+  icpPublicAddress: string;
+  evmPublicAddress: string;
+  seedPhrase: string;
+  note: string;
+  avatar: string;
+}
+
+export interface IndexDB_ApiKey {
+  apiKeyID: string;
+  userID: string;
+  driveID: string;
+  note: string;
+  value: string;
+}
 
 export interface AuthProfile {
   evmPublicKey: EvmPublicAddress;
@@ -45,13 +65,56 @@ export interface AuthProfile {
   userID: UserID;
 }
 
-export interface IdentityContextProps {
-  currentProfile: AuthProfile | undefined;
-  importProfileFromSeed: (seedPhrase: string) => Promise<IndexDB_Profile>;
-  generateSignature: (message: string) => Promise<string | null>;
-  generateNewAccount: () => Promise<IndexDB_Profile>;
+// Context type definition
+interface IdentitySystemContextType {
   isInitialized: boolean;
+  error: Error | null;
+
+  currentOrg: IndexDB_Organization | null;
+  currentProfile: AuthProfile | null;
+  currentAPIKey: IndexDB_ApiKey | null;
+
+  listOfOrgs: IndexDB_Organization[];
+  listOfProfiles: IndexDB_Profile[];
+
+  listOrganizations: () => Promise<IndexDB_Organization[]>;
+  createOrganization: (
+    driveID: DriveID,
+    note: string
+  ) => Promise<IndexDB_Organization>;
+  readOrganization: (driveID: DriveID) => Promise<IndexDB_Organization | null>;
+  updateOrganization: (org: IndexDB_Organization) => Promise<void>;
+  deleteOrganization: (driveID: DriveID) => Promise<void>;
+  switchOrganization: (org: IndexDB_Organization) => void;
+
+  listProfiles: () => Promise<IndexDB_Profile[]>;
+  createProfile: (
+    profile: Omit<IndexDB_Profile, "userID">
+  ) => Promise<IndexDB_Profile>;
+  readProfile: (userID: UserID) => Promise<IndexDB_Profile | null>;
+  updateProfile: (profile: IndexDB_Profile) => Promise<void>;
+  deleteProfile: (userID: UserID) => Promise<void>;
+  switchProfile: (profile: IndexDB_Profile) => void;
+
+  createApiKey: (apiKey: IndexDB_ApiKey) => Promise<IndexDB_ApiKey>;
+  removeApiKey: (apiKeyID: string) => Promise<void>;
+
+  syncLatestIdentities: () => Promise<void>;
+  deriveProfileFromSeed: (seedPhrase: string) => Promise<IndexDB_Profile>;
+  generateSignature: (message: string) => Promise<string | null>;
 }
+
+// Create the context
+const IdentitySystemContext = createContext<
+  IdentitySystemContextType | undefined
+>(undefined);
+
+// Constants for IndexedDB
+const DB_NAME = "local-identity-system";
+const DB_VERSION = 1;
+const ORGS_STORE_NAME = "organizations";
+const PROFILES_STORE_NAME = "profiles";
+const API_KEYS_STORE_NAME = "apiKeys";
 
 // Function to derive Ed25519 key from seed (uses the first 32 bytes of the seed)
 const deriveEd25519KeyFromSeed = async (
@@ -61,52 +124,185 @@ const deriveEd25519KeyFromSeed = async (
   return new Uint8Array(hashBuffer).slice(0, 32); // Ed25519 secret key should be 32 bytes
 };
 
-// Create Context
-const IdentityContext = createContext<IdentityContextProps | undefined>(
-  undefined
-);
-
-// Provider Component - Separate the logic from the hook definition
-export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const { queryExistingProfile, selectProfile, addProfile, currentProfile } =
-    useSwitchOrgProfiles();
+// Provider component
+export function IdentitySystemProvider({ children }: { children: ReactNode }) {
+  // State declarations
+  const _db = useRef<IDBDatabase | null>(null);
+  const db = _db.current;
   const [isInitialized, setIsInitialized] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  const [profile, setProfile] = useState<AuthProfile>();
+  const [currentOrg, setCurrentOrg] = useState<IndexDB_Organization | null>(
+    null
+  );
+  const [_currentProfile, _setCurrentProfile] =
+    useState<IndexDB_Profile | null>(null);
+  const [currentProfile, setCurrentProfile] = useState<AuthProfile | null>(
+    null
+  );
+  const [currentAPIKey, setCurrentAPIKey] = useState<IndexDB_ApiKey | null>(
+    null
+  );
 
-  console.log(`multi-currentprofile`, currentProfile);
+  const [listOfOrgs, setListOfOrgs] = useState<IndexDB_Organization[]>([]);
+  const [listOfProfiles, setListOfProfiles] = useState<IndexDB_Profile[]>([]);
+  const [listOfAPIKeys, setListOfAPIKeys] = useState<IndexDB_ApiKey[]>([]);
 
+  // Initialize IndexedDB when component mounts
   useEffect(() => {
-    const setOfficialCurrentProfile = async () => {
-      const derivedKey = await deriveEd25519KeyFromSeed(
-        mnemonicToSeedSync(currentProfile?.seedPhrase || "")
-      );
-      // Create the identity from the derived key
-      const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
-      const publicKeyBuffer = hexStringToUint8Array(
-        currentProfile?.icpPublicAddress || ""
-      );
-      const principal = Principal.selfAuthenticating(publicKeyBuffer);
-      const auth_profile = {
-        evmPublicKey: currentProfile?.evmPublicAddress || "",
-        icpPublicKey: currentProfile?.icpPublicAddress || "",
-        slug: shortenAddress(currentProfile?.icpPublicAddress || ""),
-        nickname: currentProfile?.nickname || "",
-        userID: currentProfile?.userID || "",
-        icpAccount: {
-          identity,
-          principal,
-        },
-      };
-      setProfile(auth_profile);
-    };
-    setOfficialCurrentProfile();
-  }, [currentProfile]);
+    const initDB = async () => {
+      try {
+        if (!window.indexedDB) {
+          throw new Error("INDEXEDDB_NOT_SUPPORTED");
+        }
 
-  // Generate addresses from seed phrase
-  const importProfileFromSeed = useCallback(
+        const request = window.indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onerror = (event) => {
+          const error = (event.target as IDBOpenDBRequest).error;
+          if (error?.name === "QuotaExceededError") {
+            setError(new Error("STORAGE_QUOTA_EXCEEDED"));
+          } else if (/^Access is denied/.test(error?.message || "")) {
+            setError(new Error("PRIVATE_MODE_NOT_SUPPORTED"));
+          } else {
+            setError(new Error("INDEXEDDB_INITIALIZATION_FAILED"));
+          }
+        };
+
+        request.onupgradeneeded = (event) => {
+          const database = (event.target as IDBOpenDBRequest).result;
+
+          // Create object stores if they don't exist
+          if (!database.objectStoreNames.contains(ORGS_STORE_NAME)) {
+            database.createObjectStore(ORGS_STORE_NAME, { keyPath: "driveID" });
+          }
+
+          if (!database.objectStoreNames.contains(PROFILES_STORE_NAME)) {
+            database.createObjectStore(PROFILES_STORE_NAME, {
+              keyPath: "userID",
+            });
+          }
+
+          if (!database.objectStoreNames.contains(API_KEYS_STORE_NAME)) {
+            database.createObjectStore(API_KEYS_STORE_NAME, {
+              keyPath: "apiKeyID",
+            });
+          }
+        };
+
+        request.onsuccess = async (event) => {
+          const database = (event.target as IDBOpenDBRequest).result;
+          _db.current = database;
+
+          // Initialize with initial org and profile if provided
+          try {
+            // Check if profile exists
+            const localStorageICPPublicAddress = localStorage.getItem(
+              LOCAL_STORAGE_ICP_PUBLIC_ADDRESS
+            );
+            const local_storage_profile_id =
+              `UserID_${localStorageICPPublicAddress}` as UserID;
+            const existingProfile = await readProfile(local_storage_profile_id);
+            if (existingProfile) {
+              // select profile
+              _setCurrentProfile(existingProfile);
+            } else {
+              // Create initial profile
+              const seedPhrase = (generate(12) as string[]).join(" ");
+              const newProfile = await deriveProfileFromSeed(seedPhrase);
+              await createProfile(newProfile);
+              _setCurrentProfile(newProfile);
+              overwriteLocalStorageProfile(newProfile);
+            }
+
+            // Check if organization exists LOCAL_STORAGE_ORGANIZATION_DRIVE_ID
+            const localStorageOrgDriveID = localStorage.getItem(
+              LOCAL_STORAGE_ORGANIZATION_DRIVE_ID
+            );
+            const existingOrg = await readOrganization(
+              localStorageOrgDriveID || ""
+            );
+            if (existingOrg) {
+              setCurrentOrg(existingOrg);
+            } else {
+              const newOrg = await createOrganization(
+                "DriveID_Anonymous",
+                "Default Anonymous Organization"
+              );
+              setCurrentOrg(newOrg);
+            }
+
+            // Load initial data
+            await syncLatestIdentities();
+
+            setIsInitialized(true);
+          } catch (err) {
+            console.error("Error initializing default data:", err);
+            setError(err instanceof Error ? err : new Error(String(err)));
+          }
+        };
+      } catch (err) {
+        console.error("Error initializing database:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+      }
+    };
+
+    initDB();
+  }, []);
+
+  // Internal
+  const hydrateFullAuthProfile = async (profile: IndexDB_Profile) => {
+    const derivedKey = await deriveEd25519KeyFromSeed(
+      mnemonicToSeedSync(_currentProfile?.seedPhrase || "")
+    );
+    // Create the identity from the derived key
+    const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
+    const publicKeyBuffer = hexStringToUint8Array(
+      _currentProfile?.icpPublicAddress || ""
+    );
+    const principal = Principal.selfAuthenticating(publicKeyBuffer);
+    const auth_profile = {
+      evmPublicKey: _currentProfile?.evmPublicAddress || "",
+      icpPublicKey: _currentProfile?.icpPublicAddress || "",
+      slug: shortenAddress(_currentProfile?.icpPublicAddress || ""),
+      nickname: _currentProfile?.nickname || "",
+      userID: _currentProfile?.userID || "",
+      icpAccount: {
+        identity,
+        principal,
+      },
+    };
+    setCurrentProfile(auth_profile);
+  };
+  const overwriteLocalStorageProfile = useCallback(
+    (profile: IndexDB_Profile) => {
+      localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
+      localStorage.setItem(
+        LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
+        profile.evmPublicAddress
+      );
+      localStorage.setItem(
+        LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
+        profile.icpPublicAddress
+      );
+      localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
+    },
+    []
+  );
+  const syncLatestIdentities = useCallback(async () => {
+    if (!db) {
+      throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    }
+    const orgs = await listOrganizations();
+    setListOfOrgs(orgs);
+    const profiles = await listProfiles();
+    setListOfProfiles(profiles);
+    const apiKeys = await listApiKeys();
+    setListOfAPIKeys(apiKeys);
+  }, [db]);
+
+  // Helpers
+  const deriveProfileFromSeed = useCallback(
     async (seedPhrase: string): Promise<IndexDB_Profile> => {
       try {
         // For EVM address generation
@@ -125,30 +321,17 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
         const icpIdentity = Ed25519KeyIdentity.generate(identitySeed);
         const icpPrincipal = icpIdentity.getPrincipal();
         const icpAddress = icpPrincipal.toString();
-        const icpSlug = shortenAddress(icpAddress);
-
-        // Store in local storage
-        localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, seedPhrase);
-        localStorage.setItem(LOCAL_STORAGE_ICP_PUBLIC_ADDRESS, icpAddress);
-        localStorage.setItem(LOCAL_STORAGE_EVM_PUBLIC_ADDRESS, evmAddress);
-
-        // Get alias from local storage or use a default
-        const storedAlias =
-          localStorage.getItem(LOCAL_STORAGE_ALIAS_NICKNAME) || "Restored User";
-
+        const derivedUserID = `UserID_${icpAddress}` as UserID;
         const newProfile = {
-          userID: `UserID_${icpAddress}` as UserID,
-          nickname: storedAlias,
+          userID: derivedUserID,
+          nickname: derivedUserID,
           icpPublicAddress: icpAddress,
           evmPublicAddress: evmAddress,
           seedPhrase: seedPhrase,
           note: "",
           avatar: "",
         };
-
-        const profile = await addProfile(newProfile);
-        await selectProfile(profile);
-        return profile;
+        return newProfile;
       } catch (error) {
         console.error("Failed to generate addresses:", error);
         throw error;
@@ -156,16 +339,15 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
     },
     []
   );
-
   // Generate signature using ICP identity
   const generateSignature = useCallback(
     async (message: string): Promise<string | null> => {
       try {
-        if (!profile) {
+        if (!currentProfile) {
           console.error("ICP account not initialized");
           return null;
         }
-        const identity = profile.icpAccount.identity;
+        const identity = currentProfile.icpAccount.identity;
 
         // Use the raw public key for signature verification
         const rawPublicKey = identity.getPublicKey().toRaw();
@@ -204,78 +386,379 @@ export const IdentityProvider: React.FC<{ children: ReactNode }> = ({
         return null;
       }
     },
-    [profile?.icpAccount]
+    [currentProfile?.icpAccount]
   );
 
-  const generateNewAccount = async () => {
-    // generate new seed phrase
-    const seedPhrase = (generate(12) as string[]).join(" ");
-    // call importProfileFromSeed
-    const newProfile = await importProfileFromSeed(seedPhrase);
+  // Profiles
+  const listProfiles = async (): Promise<IndexDB_Profile[]> => {
+    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([PROFILES_STORE_NAME], "readonly");
+      const store = transaction.objectStore(PROFILES_STORE_NAME);
+      const request = store.getAll();
 
-    // return auth profile
-    return newProfile;
+      request.onerror = () => {
+        reject(new Error("GET_PROFILES_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve(request.result as IndexDB_Profile[]);
+      };
+    });
   };
+  const createProfile = useCallback(
+    async (profile: Omit<IndexDB_Profile, "userID">) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+      try {
+        const newProfile: IndexDB_Profile = {
+          ...profile,
+          userID: `UserID_${profile.icpPublicAddress}` as UserID,
+        };
+        const transaction = db.transaction([PROFILES_STORE_NAME], "readwrite");
+        const store = transaction.objectStore(PROFILES_STORE_NAME);
+        store.put(profile);
+        await syncLatestIdentities();
+        return newProfile;
+      } catch (err) {
+        console.error("Error adding profile:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [db, syncLatestIdentities]
+  );
+  const readProfile = async (
+    userID: string
+  ): Promise<IndexDB_Profile | null> => {
+    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([PROFILES_STORE_NAME], "readonly");
+      const store = transaction.objectStore(PROFILES_STORE_NAME);
+      const request = store.get(userID);
 
-  // Initialize from localStorage on component mount
-  useEffect(() => {
-    const initializeFromStorage = async () => {
-      const localStorageICPPublicAddress = localStorage.getItem(
-        LOCAL_STORAGE_ICP_PUBLIC_ADDRESS
-      );
-      const restored_user_id =
-        `UserID_${localStorageICPPublicAddress}` as UserID;
+      request.onerror = () => {
+        reject(new Error("GET_PROFILE_FAILED"));
+      };
 
-      if (localStorageICPPublicAddress) {
-        try {
-          const existing_restored_profile =
-            await queryExistingProfile(restored_user_id);
-          if (existing_restored_profile) {
-            await selectProfile(existing_restored_profile);
-            setIsInitialized(true);
-          } else {
-            generateNewAccount();
-            setIsInitialized(true);
-          }
-          // check if  exists in indexdb
-        } catch (error) {
-          console.error(
-            "Failed to initialize from stored seed phrases:",
-            error
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+    });
+  };
+  const updateProfile = useCallback(
+    async (profile: IndexDB_Profile) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
+      try {
+        const transaction = db.transaction([PROFILES_STORE_NAME], "readwrite");
+        const store = transaction.objectStore(PROFILES_STORE_NAME);
+        store.put(profile);
+        await syncLatestIdentities();
+
+        // Update current profile if it's the one being updated
+        if (_currentProfile && _currentProfile.userID === profile.userID) {
+          _setCurrentProfile(profile);
+        }
+      } catch (err) {
+        console.error("Error updating profile:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [_currentProfile, db, syncLatestIdentities]
+  );
+  const deleteProfile = useCallback(
+    async (userID: string) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
+      try {
+        const transaction = db.transaction([PROFILES_STORE_NAME], "readwrite");
+        const store = transaction.objectStore(PROFILES_STORE_NAME);
+        store.delete(userID);
+        await syncLatestIdentities();
+
+        // Clear current profile if it's the one being deleted
+        if (_currentProfile && _currentProfile.userID === userID) {
+          const remainingProfiles = listOfProfiles.filter(
+            (profile) => profile.userID !== userID
+          );
+          _setCurrentProfile(
+            remainingProfiles.length > 0 ? remainingProfiles[0] : null
           );
         }
-      } else {
-        generateNewAccount();
-        setIsInitialized(true); // Mark as initialized even if no stored phrases
+      } catch (err) {
+        console.error("Error removing profile:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
       }
-    };
+    },
+    [_currentProfile, db, listOfProfiles, syncLatestIdentities]
+  );
+  const switchProfile = useCallback((profile: IndexDB_Profile) => {
+    localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
+    localStorage.setItem(
+      LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
+      profile.evmPublicAddress
+    );
+    localStorage.setItem(
+      LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
+      profile.icpPublicAddress
+    );
+    localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
+    _setCurrentProfile(profile);
+    hydrateFullAuthProfile(profile);
+    switchApiKeyForCurrentOrgAndProfile(
+      currentOrg?.driveID || "",
+      profile.userID
+    );
+  }, []);
 
-    initializeFromStorage();
-  }, [importProfileFromSeed]);
+  // Organizations
+  const listOrganizations = async (): Promise<IndexDB_Organization[]> => {
+    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([ORGS_STORE_NAME], "readonly");
+      const store = transaction.objectStore(ORGS_STORE_NAME);
+      const request = store.getAll();
 
-  const contextValue = {
-    currentProfile: profile,
-    importProfileFromSeed,
-    generateSignature,
+      request.onerror = () => {
+        reject(new Error("GET_ORGANIZATIONS_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+    });
+  };
+  const createOrganization = useCallback(
+    async (driveID: DriveID, note: string) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
+      try {
+        const newOrg: IndexDB_Organization = {
+          driveID,
+          note,
+        };
+        const transaction = db.transaction([ORGS_STORE_NAME], "readwrite");
+        const store = transaction.objectStore(ORGS_STORE_NAME);
+        store.put(newOrg);
+        await syncLatestIdentities();
+        return newOrg;
+      } catch (err) {
+        console.error("Error adding organization:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [db, syncLatestIdentities]
+  );
+  const readOrganization = async (
+    driveID: DriveID
+  ): Promise<IndexDB_Organization | null> => {
+    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([ORGS_STORE_NAME], "readonly");
+      const store = transaction.objectStore(ORGS_STORE_NAME);
+      const request = store.get(driveID);
+
+      request.onerror = () => {
+        reject(new Error("GET_ORGANIZATION_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+    });
+  };
+  const updateOrganization = useCallback(
+    async (org: IndexDB_Organization) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
+      try {
+        const transaction = db.transaction([ORGS_STORE_NAME], "readwrite");
+        const store = transaction.objectStore(ORGS_STORE_NAME);
+        store.put(org);
+        await syncLatestIdentities();
+
+        // Update current org if it's the one being updated
+        if (currentOrg && currentOrg.driveID === org.driveID) {
+          setCurrentOrg(org);
+        }
+      } catch (err) {
+        console.error("Error updating organization:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [currentOrg, db, syncLatestIdentities]
+  );
+  const deleteOrganization = useCallback(
+    async (driveID: string) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+
+      try {
+        const transaction = db.transaction([ORGS_STORE_NAME], "readwrite");
+        const store = transaction.objectStore(ORGS_STORE_NAME);
+        const request = store.delete(driveID);
+        await syncLatestIdentities();
+
+        // Clear current org if it's the one being deleted
+        if (currentOrg && currentOrg.driveID === driveID) {
+          const remainingOrgs = listOfOrgs.filter(
+            (org) => org.driveID !== driveID
+          );
+          setCurrentOrg(remainingOrgs.length > 0 ? remainingOrgs[0] : null);
+        }
+      } catch (err) {
+        console.error("Error removing organization:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [currentOrg, db, listOfOrgs, syncLatestIdentities]
+  );
+  const switchOrganization = useCallback((org: IndexDB_Organization) => {
+    setCurrentOrg(org);
+    switchApiKeyForCurrentOrgAndProfile(
+      org.driveID,
+      _currentProfile?.userID || ""
+    );
+  }, []);
+
+  // API Keys
+  const listApiKeys = async (): Promise<IndexDB_ApiKey[]> => {
+    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([API_KEYS_STORE_NAME], "readonly");
+      const store = transaction.objectStore(API_KEYS_STORE_NAME);
+      const request = store.getAll();
+
+      request.onerror = () => {
+        reject(new Error("GET_API_KEYS_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        resolve(request.result as IndexDB_ApiKey[]);
+      };
+    });
+  };
+  const createApiKey = useCallback(
+    async (apiKey: IndexDB_ApiKey) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+      try {
+        const transaction = db.transaction([API_KEYS_STORE_NAME], "readwrite");
+        const store = transaction.objectStore(API_KEYS_STORE_NAME);
+        store.put(apiKey);
+        await syncLatestIdentities();
+        return apiKey;
+      } catch (err) {
+        console.error("Error adding API key:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [db, syncLatestIdentities]
+  );
+  const removeApiKey = useCallback(
+    async (apiKeyID: string) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+      try {
+        const transaction = db.transaction([API_KEYS_STORE_NAME], "readwrite");
+        const store = transaction.objectStore(API_KEYS_STORE_NAME);
+        store.delete(apiKeyID);
+        await syncLatestIdentities();
+      } catch (err) {
+        console.error("Error removing API key:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [db, syncLatestIdentities]
+  );
+  const switchApiKeyForCurrentOrgAndProfile = useCallback(
+    async (userID: UserID, driveID: DriveID) => {
+      if (!db) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+      // Check if an API key already exists matching the arg userID and driveID
+      const existingApiKey = listOfAPIKeys.find(
+        (apiKey) => apiKey.userID === userID && apiKey.driveID === driveID
+      );
+      // if exists, set it as the current API key
+      if (existingApiKey) {
+        setCurrentAPIKey(existingApiKey);
+        return;
+      }
+    },
+    [db, listOfAPIKeys]
+  );
+
+  // Context value
+  const contextValue: IdentitySystemContextType = {
     isInitialized,
-    generateNewAccount,
+    error,
+
+    currentOrg,
+    currentProfile,
+    currentAPIKey,
+
+    listOfOrgs,
+    listOfProfiles,
+
+    listOrganizations,
+    createOrganization,
+    readOrganization,
+    updateOrganization,
+    deleteOrganization,
+    switchOrganization,
+
+    listProfiles,
+    createProfile,
+    readProfile,
+    updateProfile,
+    deleteProfile,
+    switchProfile,
+
+    createApiKey,
+    removeApiKey,
+
+    syncLatestIdentities,
+    deriveProfileFromSeed,
+    generateSignature,
   };
 
   return (
-    <IdentityContext.Provider value={contextValue}>
+    <IdentitySystemContext.Provider value={contextValue}>
       {children}
-    </IdentityContext.Provider>
+    </IdentitySystemContext.Provider>
   );
-};
+}
 
-// Custom hook to use the identity context
-export const useIdentity = () => {
-  const context = useContext(IdentityContext);
+// Hook to use the context
+export function useIdentitySystem() {
+  const context = useContext(IdentitySystemContext);
+
   if (context === undefined) {
-    throw new Error("useIdentity must be used within an IdentityProvider");
+    throw new Error(
+      "useIdentitySystem must be used within a useIdentitySystem"
+    );
   }
-  return context;
-};
 
-// Export default hook for backward compatibility if needed
-export default useIdentity;
+  return context;
+}

@@ -6,7 +6,6 @@ import {
   FileMetadata,
   FileUUID,
   FolderUUID,
-  Identity,
   StorageLocationEnum,
 } from "../../framework";
 import FilePreview from "../FilePreview";
@@ -16,8 +15,7 @@ import {
   updateRefInShareUrl,
 } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
-
-const { useIdentity } = Identity;
+import { useIdentitySystem } from "../../framework/identity";
 
 const GiftPage: React.FC = () => {
   const [searchParams] = useSearchParams(); // Use to extract query params
@@ -27,7 +25,8 @@ const GiftPage: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [fileMetadata, setFileMetadata] = useState<FileMetadata>();
   const screenType = useScreenType();
-  const { evmSlug, evmAccount, icpAccount } = useIdentity();
+  const { currentProfile } = useIdentitySystem();
+  const { evmPublicKey, icpAccount } = currentProfile || {};
 
   useEffect(() => {
     const id = searchParams.get("id"); // Get the 'id' query param from the URL
@@ -111,7 +110,7 @@ const GiftPage: React.FC = () => {
 
   const handleShare = () => {
     const currentUrl = window.location.href;
-    const newUrl = updateRefInShareUrl(currentUrl, evmAccount?.address || "");
+    const newUrl = updateRefInShareUrl(currentUrl, evmPublicKey || "");
     navigator.clipboard
       .writeText(newUrl)
       .then(() => {

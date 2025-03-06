@@ -36,12 +36,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { trimToFolderPath, truncateMiddlePath } from "../../api/helpers";
 import useScreenType from "react-screentype-hook";
 import { generate } from "random-words"; // Import random-words library
-import { useIdentity } from "../../framework/identity"; // Import corrected useIdentity hook
-import {
-  IndexDB_Profile,
-  useSwitchOrgProfiles,
-} from "../../api/switch-profiles";
-import { shortenAddress } from "../../framework/identity_deprecated/evm-auth";
+import { useIdentitySystem } from "../../framework/identity"; // Import corrected useIdentity hook
+import { IndexDB_Profile } from "../../framework/identity";
+import { shortenAddress } from "../../framework/identity/constants";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -59,8 +56,7 @@ interface HeaderProps {
 }
 
 const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
-  const { importProfileFromSeed, currentProfile, generateNewAccount } =
-    useIdentity();
+  const { currentProfile, deriveProfileFromSeed } = useIdentitySystem();
   const [searchValue, setSearchValue] = useState("");
   const [options, setOptions] = useState<
     { value: string; label: React.ReactNode }[]
@@ -102,11 +98,11 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   // Get multi org hook
   const {
     listOfProfiles,
-    addProfile,
+    createProfile,
     updateProfile,
-    removeProfile,
-    selectProfile,
-  } = useSwitchOrgProfiles();
+    deleteProfile,
+    switchProfile,
+  } = useIdentitySystem();
 
   // Search functionality
   const handleSearch = useCallback(
@@ -171,7 +167,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           newSeedPhrase.trim() !== ""
         ) {
           // Preview for new user tab
-          const tempProfile = await importProfileFromSeed(newSeedPhrase);
+          const tempProfile = await deriveProfileFromSeed(newSeedPhrase);
           setNewUserPreviewAddresses({
             icpAddress: tempProfile.icpPublicAddress,
             evmAddress: tempProfile.evmPublicAddress,
@@ -182,7 +178,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           importSeedPhrase.trim() !== ""
         ) {
           // Preview for import seed tab
-          const tempProfile = await importProfileFromSeed(importSeedPhrase);
+          const tempProfile = await deriveProfileFromSeed(importSeedPhrase);
           setImportUserPreviewAddresses({
             icpAddress: tempProfile.icpPublicAddress,
             evmAddress: tempProfile.evmPublicAddress,
@@ -206,13 +202,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     };
 
     previewWalletAddresses();
-  }, [activeTabKey, newSeedPhrase, importSeedPhrase, importProfileFromSeed]);
+  }, [activeTabKey, newSeedPhrase, importSeedPhrase, deriveProfileFromSeed]);
 
   console.log(`currentProfile`, currentProfile);
 
-  if (!currentProfile) {
-    return null;
-  }
+  // if (!currentProfile) {
+  //   return null;
+  // }
 
   const onSelect = (value: string) => {
     const [storageLocation, ...pathParts] = value.split("::");
@@ -536,10 +532,10 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                   : importUserNickname;
 
               // Create new anonymous user or import from seed
-              const newAuthProfile = await importProfileFromSeed(seedToUse);
+              const newAuthProfile = await deriveProfileFromSeed(seedToUse);
 
               // Add currentProfile to local storage
-              const newProfile = await addProfile({
+              const newProfile = await createProfile({
                 icpPublicAddress: newAuthProfile.icpPublicAddress,
                 evmPublicAddress: newAuthProfile.evmPublicAddress,
                 seedPhrase: seedToUse,
@@ -549,7 +545,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               });
 
               // Select the new currentProfile
-              selectProfile(newProfile);
+              switchProfile(newProfile);
 
               message.success(`User ${nicknameToUse} added successfully!`);
               setIsModalVisible(false);
@@ -730,7 +726,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                 onConfirm={async () => {
                   try {
                     if (selectedProfileId) {
-                      await removeProfile(selectedProfileId);
+                      await deleteProfile(selectedProfileId);
                       message.success("Profile removed successfully!");
                       setIsModalVisible(false);
                     }
@@ -790,7 +786,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                     if (currentProfile?.userID !== currentProfile.userID) {
                       try {
                         // Then switch the local currentProfile
-                        selectProfile(currentProfile);
+                        switchProfile(currentProfile);
 
                         message.success(
                           `Switched to ${existingUserNickname || "Anonymous"} (${shortenAddress(

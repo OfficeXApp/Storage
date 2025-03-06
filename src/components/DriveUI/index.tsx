@@ -53,11 +53,9 @@ import {
   FolderUUID,
   StorageLocationEnum,
   useDrive,
-  UserID,
   LOCAL_STORAGE_STORJ_ACCESS_KEY,
   LOCAL_STORAGE_STORJ_SECRET_KEY,
   LOCAL_STORAGE_STORJ_ENDPOINT,
-  Identity,
 } from "../../framework";
 import useScreenType from "react-screentype-hook";
 import ActionMenuButton from "../ActionMenuButton";
@@ -68,9 +66,8 @@ import { isMobile } from "react-device-detect";
 import { getFileType } from "../../api/helpers";
 import { freeTrialStorjCreds } from "../../api/storj";
 import mixpanel from "mixpanel-browser";
-import useCloudSync from "../../api/cloud-sync";
-
-const { useIdentity } = Identity;
+import { UserID } from "@officexapp/types";
+// import useCloudSync from "../../api/cloud-sync";
 
 interface DriveItemRow {
   id: FolderUUID | FileUUID;
@@ -93,8 +90,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const screenType = useScreenType();
-  const { icpCanisterId, deployIcpCanister } = useIdentity();
-  const { syncOfflineWithCloud, exportSnapshots, isSyncing } = useCloudSync();
+
+  // const { syncOfflineWithCloud, exportSnapshots, isSyncing } = useCloudSync();
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [content, setContent] = useState<{
     folders: FolderMetadataUI[];
@@ -581,19 +578,19 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     setIsStorjModalVisible(false);
   };
 
-  const handleCloudSync = async () => {
-    if (isSyncing) return;
-    if (window.location.pathname.includes("Web3Storj")) {
-      apiNotifs.open({
-        message: "Syncing Cloud...",
-        description:
-          "Please wait while we sync your offline changes with the cloud",
-        icon: <ReloadOutlined spin size={16} />,
-      });
-      await syncOfflineWithCloud({});
-      await fetchContent();
-    }
-  };
+  // const handleCloudSync = async () => {
+  //   if (isSyncing) return;
+  //   if (window.location.pathname.includes("Web3Storj")) {
+  //     apiNotifs.open({
+  //       message: "Syncing Cloud...",
+  //       description:
+  //         "Please wait while we sync your offline changes with the cloud",
+  //       icon: <ReloadOutlined spin size={16} />,
+  //     });
+  //     await syncOfflineWithCloud({});
+  //     await fetchContent();
+  //   }
+  // };
 
   return (
     <div
@@ -620,7 +617,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       >
         <Breadcrumb items={breadcrumbItems} />
         <div style={{ display: "flex", flexDirection: "row" }}>
-          {icpCanisterId && (
+          {/* {icpCanisterId && (
             <div
               style={{
                 display: "flex",
@@ -643,7 +640,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 spin={isSyncing}
               />
             </div>
-          )}
+          )} */}
 
           {/* <p onClick={exportSnapshots}>Snapshot</p> */}
 

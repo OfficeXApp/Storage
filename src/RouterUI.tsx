@@ -54,6 +54,7 @@ import DisksPage from "./components/DisksPage";
 import DrivesPage from "./components/DrivesPage";
 import WebhooksPage from "./components/WebhooksPage";
 import ApiKeysPage from "./components/ApiKeysPage";
+import OrganizationSwitcher from "./components/SwitchOrganization";
 
 const { Sider, Content } = Layout;
 
@@ -290,35 +291,6 @@ const RouterUI = () => {
 
   const [uploadPanelVisible, setUploadPanelVisible] = useState(false);
 
-  const OrganizationSwitcher = () => {
-    return (
-      <Select
-        showSearch
-        placeholder="Switch Organization"
-        filterOption={(input, option) =>
-          (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-        }
-        defaultValue="anonymous"
-        options={[
-          { value: "anonymous", label: "Anonymous Org" },
-          { value: "personal", label: "Personal" },
-          { value: "new-org", label: "➕ Add Org" },
-        ]}
-        suffixIcon={
-          <span>
-            <SwapOutlined style={{ marginRight: "5px" }} />
-            Switch Org
-          </span>
-        }
-        variant="borderless"
-        style={{
-          margin: "16px",
-          backgroundColor: "rgba(255, 255, 255, 1)",
-          borderRadius: "8px",
-        }}
-      />
-    );
-  };
   return (
     <BrowserRouter>
       <LoadSampleFiles />
@@ -386,7 +358,7 @@ const RouterUI = () => {
                   </section>
                   <SideMenu />
                 </div>
-                {OrganizationSwitcher()}
+                <OrganizationSwitcher />
               </div>
             </Sider>
           )}
@@ -458,7 +430,7 @@ const RouterUI = () => {
               width={SIDEBAR_WIDTH}
               footer={
                 <div style={{ padding: "16px 16px" }}>
-                  {OrganizationSwitcher()}
+                  <OrganizationSwitcher />
                 </div>
               }
               style={{ overflowY: "auto" }}

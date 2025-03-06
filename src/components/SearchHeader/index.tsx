@@ -311,12 +311,34 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
       <Select
         showSearch
         placeholder="Switch Profile"
-        filterOption={(input, option) =>
-          (option?.label ?? "")
-            .toString()
-            .toLowerCase()
-            .includes(input.toLowerCase())
-        }
+        filterOption={(input, option) => {
+          // Get the profile associated with this option
+          const profile = listOfProfiles.find(
+            (p) => p.userID === option?.value
+          );
+
+          // If it's the "add profile" option
+          if (option?.value === "add-currentProfile") {
+            return "add profile".includes(input.toLowerCase());
+          }
+
+          // If we have a profile, check if input matches nickname or address
+          if (profile) {
+            const nickname = (profile.nickname || "Anonymous").toLowerCase();
+            const icpAddress = profile.icpPublicAddress.toLowerCase();
+            const inputLower = input.toLowerCase();
+
+            return (
+              nickname.includes(inputLower) ||
+              icpAddress.includes(inputLower) ||
+              shortenAddress(profile.icpPublicAddress)
+                .toLowerCase()
+                .includes(inputLower)
+            );
+          }
+
+          return false;
+        }}
         value={currentProfile ? currentProfile.userID : undefined}
         options={renderUserOptions()}
         onChange={(value: UserID) => {

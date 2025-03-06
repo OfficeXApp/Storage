@@ -39,6 +39,7 @@ import { generate } from "random-words"; // Import random-words library
 import { useIdentitySystem } from "../../framework/identity"; // Import corrected useIdentity hook
 import { IndexDB_Profile } from "../../framework/identity";
 import { shortenAddress } from "../../framework/identity/constants";
+import { UserID } from "@officexapp/types";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -56,7 +57,8 @@ interface HeaderProps {
 }
 
 const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
-  const { currentProfile, deriveProfileFromSeed } = useIdentitySystem();
+  const { currentProfile, deriveProfileFromSeed, readProfile } =
+    useIdentitySystem();
   const [searchValue, setSearchValue] = useState("");
   const [options, setOptions] = useState<
     { value: string; label: React.ReactNode }[]
@@ -204,8 +206,6 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     previewWalletAddresses();
   }, [activeTabKey, newSeedPhrase, importSeedPhrase, deriveProfileFromSeed]);
 
-  console.log(`currentProfile`, currentProfile);
-
   // if (!currentProfile) {
   //   return null;
   // }
@@ -268,20 +268,19 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     // Other users
     listOfProfiles
       .filter(
-        (currentProfile) =>
-          !currentProfile || currentProfile.userID !== currentProfile.userID
+        (profile) => !profile || profile.userID !== currentProfile?.userID
       )
-      .forEach((currentProfile) => {
+      .forEach((profile) => {
         options.push({
-          value: currentProfile.userID,
+          value: profile.userID,
           label: (
             <Space style={{ width: "100%", justifyContent: "space-between" }}>
               <Space>
                 <UserOutlined />
-                <span>{currentProfile.nickname || "Anonymous"}</span>
+                <span>{profile.nickname || "Anonymous"}</span>
               </Space>
               <Tag color="default">
-                {shortenAddress(currentProfile.icpPublicAddress)}
+                {shortenAddress(profile.icpPublicAddress)}
               </Tag>
             </Space>
           ),
@@ -320,7 +319,8 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
         }
         value={currentProfile ? currentProfile.userID : undefined}
         options={renderUserOptions()}
-        onChange={(value) => {
+        onChange={(value: UserID) => {
+          console.log(`Clicked on `, value);
           if (value === "add-currentProfile") {
             setNewUserNickname("Anonymous");
             setImportUserNickname("A Past Life");
@@ -602,7 +602,8 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   );
 
   const renderExistingUserPreviewSection = (
-    currentProfile: IndexDB_Profile
+    evmPublicKey: string,
+    icpPublicKey: string
   ) => {
     return (
       <details style={{ marginBottom: "8px" }}>
@@ -641,13 +642,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               <span style={{ color: "#8c8c8c", marginRight: "4px" }}>ICP</span>
             </div>
             <Input
-              value={currentProfile.icpPublicAddress}
+              value={icpPublicKey}
               readOnly
               variant="borderless"
               style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
               suffix={
                 <Typography.Text
-                  copyable={{ text: currentProfile.icpPublicAddress }}
+                  copyable={{ text: icpPublicKey }}
                   style={{ color: "#8c8c8c" }}
                 />
               }
@@ -664,13 +665,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               <span style={{ color: "#8c8c8c" }}>EVM</span>
             </div>
             <Input
-              value={currentProfile.evmPublicAddress}
+              value={evmPublicKey}
               readOnly
               variant="borderless"
               style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
               suffix={
                 <Typography.Text
-                  copyable={{ text: currentProfile.evmPublicAddress }}
+                  copyable={{ text: evmPublicKey }}
                   style={{ color: "#8c8c8c" }}
                 />
               }
@@ -682,13 +683,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   };
 
   const renderExistingUserModal = () => {
-    const currentProfile = listOfProfiles.find(
-      (p) => p.userID === selectedProfileId
+    const selectedProfile = listOfProfiles.find(
+      (profile) => profile.userID === selectedProfileId
     );
     const nicknameChanged =
-      currentProfile && currentProfile.nickname !== existingUserNickname;
+      selectedProfile && selectedProfile.nickname !== existingUserNickname;
 
-    if (!currentProfile) return null;
+    if (!selectedProfile) return null;
 
     return (
       <Modal
@@ -708,7 +709,10 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             />
           </Form.Item>
 
-          {renderExistingUserPreviewSection(currentProfile)}
+          {renderExistingUserPreviewSection(
+            selectedProfile.evmPublicAddress,
+            selectedProfile.icpPublicAddress
+          )}
 
           {/* Custom footer with proper alignment */}
           <div
@@ -721,7 +725,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           >
             <div>
               <Popconfirm
-                title="Are you sure you want to remove this currentProfile?"
+                title="Are you sure you want to remove this profile?"
                 description="This action cannot be undone."
                 onConfirm={async () => {
                   try {
@@ -765,8 +769,18 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                     // If the nickname has been edited, update the currentProfile first
                     if (nicknameChanged) {
                       try {
+                        // const updatedProfile = {
+                        //   ...currentProfile,
+                        //   nickname: existingUserNickname,
+                        // };
+                        if (!selectedProfile) {
+                          message.error(
+                            "Failed to read preexisting profile. Please try again."
+                          );
+                          return;
+                        }
                         const updatedProfile = {
-                          ...currentProfile,
+                          ...selectedProfile,
                           nickname: existingUserNickname,
                         };
                         await updateProfile(updatedProfile);
@@ -781,16 +795,25 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                         return;
                       }
                     }
-
                     // If we're not already using this currentProfile, switch to it
-                    if (currentProfile?.userID !== currentProfile.userID) {
+                    if (
+                      !nicknameChanged &&
+                      currentProfile?.userID !== selectedProfileId
+                    ) {
                       try {
-                        // Then switch the local currentProfile
-                        switchProfile(currentProfile);
+                        // Then switch to selected profile
+                        if (!selectedProfile) {
+                          message.error(
+                            "Failed to read selected profile. Please try again."
+                          );
+                          return;
+                        }
+                        console.log(`switching to `, selectedProfile);
+                        switchProfile(selectedProfile);
 
                         message.success(
                           `Switched to ${existingUserNickname || "Anonymous"} (${shortenAddress(
-                            currentProfile.icpPublicAddress
+                            selectedProfile.icpPublicAddress
                           )})`
                         );
                       } catch (error) {

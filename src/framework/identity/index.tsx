@@ -127,8 +127,7 @@ const deriveEd25519KeyFromSeed = async (
 // Provider component
 export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   // State declarations
-  const _db = useRef<IDBDatabase | null>(null);
-  const db = _db.current;
+  const db = useRef<IDBDatabase | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -192,7 +191,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
 
         request.onsuccess = async (event) => {
           const database = (event.target as IDBOpenDBRequest).result;
-          _db.current = database;
+          db.current = database;
 
           // Initialize with initial org and profile if provided
           try {
@@ -202,16 +201,19 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             );
             const local_storage_profile_id =
               `UserID_${localStorageICPPublicAddress}` as UserID;
+
+            console.log("local_storage_profile_id", local_storage_profile_id);
             const existingProfile = await readProfile(local_storage_profile_id);
-            if (existingProfile) {
+            if (localStorageICPPublicAddress && existingProfile) {
               // select profile
-              _setCurrentProfile(existingProfile);
+              hydrateFullAuthProfile(existingProfile);
             } else {
               // Create initial profile
               const seedPhrase = (generate(12) as string[]).join(" ");
               const newProfile = await deriveProfileFromSeed(seedPhrase);
+              newProfile.nickname = "Anonymous";
               await createProfile(newProfile);
-              _setCurrentProfile(newProfile);
+              hydrateFullAuthProfile(newProfile);
               overwriteLocalStorageProfile(newProfile);
             }
 
@@ -252,21 +254,22 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
 
   // Internal
   const hydrateFullAuthProfile = async (profile: IndexDB_Profile) => {
+    _setCurrentProfile(profile);
     const derivedKey = await deriveEd25519KeyFromSeed(
-      mnemonicToSeedSync(_currentProfile?.seedPhrase || "")
+      mnemonicToSeedSync(profile.seedPhrase || "")
     );
     // Create the identity from the derived key
     const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
     const publicKeyBuffer = hexStringToUint8Array(
-      _currentProfile?.icpPublicAddress || ""
+      profile.icpPublicAddress || ""
     );
     const principal = Principal.selfAuthenticating(publicKeyBuffer);
     const auth_profile = {
-      evmPublicKey: _currentProfile?.evmPublicAddress || "",
-      icpPublicKey: _currentProfile?.icpPublicAddress || "",
-      slug: shortenAddress(_currentProfile?.icpPublicAddress || ""),
-      nickname: _currentProfile?.nickname || "",
-      userID: _currentProfile?.userID || "",
+      evmPublicKey: profile.evmPublicAddress || "",
+      icpPublicKey: profile.icpPublicAddress || "",
+      slug: shortenAddress(profile.icpPublicAddress || ""),
+      nickname: profile.nickname || "",
+      userID: profile.userID || "",
       icpAccount: {
         identity,
         principal,
@@ -391,9 +394,12 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
 
   // Profiles
   const listProfiles = async (): Promise<IndexDB_Profile[]> => {
-    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([PROFILES_STORE_NAME], "readonly");
+      if (!db.current) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      const transaction = db.current.transaction(
+        [PROFILES_STORE_NAME],
+        "readonly"
+      );
       const store = transaction.objectStore(PROFILES_STORE_NAME);
       const request = store.getAll();
 
@@ -408,7 +414,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   };
   const createProfile = useCallback(
     async (profile: Omit<IndexDB_Profile, "userID">) => {
-      if (!db) {
+      if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
       }
       try {
@@ -416,9 +422,12 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           ...profile,
           userID: `UserID_${profile.icpPublicAddress}` as UserID,
         };
-        const transaction = db.transaction([PROFILES_STORE_NAME], "readwrite");
+        const transaction = db.current.transaction(
+          [PROFILES_STORE_NAME],
+          "readwrite"
+        );
         const store = transaction.objectStore(PROFILES_STORE_NAME);
-        store.put(profile);
+        store.add(newProfile);
         await syncLatestIdentities();
         return newProfile;
       } catch (err) {
@@ -432,9 +441,12 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   const readProfile = async (
     userID: string
   ): Promise<IndexDB_Profile | null> => {
-    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([PROFILES_STORE_NAME], "readonly");
+      if (!db.current) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      const transaction = db.current.transaction(
+        [PROFILES_STORE_NAME],
+        "readonly"
+      );
       const store = transaction.objectStore(PROFILES_STORE_NAME);
       const request = store.get(userID);
 
@@ -449,19 +461,22 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   };
   const updateProfile = useCallback(
     async (profile: IndexDB_Profile) => {
-      if (!db) {
+      if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
       }
 
       try {
-        const transaction = db.transaction([PROFILES_STORE_NAME], "readwrite");
+        const transaction = db.current.transaction(
+          [PROFILES_STORE_NAME],
+          "readwrite"
+        );
         const store = transaction.objectStore(PROFILES_STORE_NAME);
         store.put(profile);
         await syncLatestIdentities();
 
         // Update current profile if it's the one being updated
         if (_currentProfile && _currentProfile.userID === profile.userID) {
-          _setCurrentProfile(profile);
+          hydrateFullAuthProfile(profile);
         }
       } catch (err) {
         console.error("Error updating profile:", err);
@@ -473,12 +488,15 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   const deleteProfile = useCallback(
     async (userID: string) => {
-      if (!db) {
+      if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
       }
 
       try {
-        const transaction = db.transaction([PROFILES_STORE_NAME], "readwrite");
+        const transaction = db.current.transaction(
+          [PROFILES_STORE_NAME],
+          "readwrite"
+        );
         const store = transaction.objectStore(PROFILES_STORE_NAME);
         store.delete(userID);
         await syncLatestIdentities();
@@ -488,9 +506,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           const remainingProfiles = listOfProfiles.filter(
             (profile) => profile.userID !== userID
           );
-          _setCurrentProfile(
-            remainingProfiles.length > 0 ? remainingProfiles[0] : null
-          );
+          if (remainingProfiles.length > 0) {
+            hydrateFullAuthProfile(remainingProfiles[0]);
+          }
         }
       } catch (err) {
         console.error("Error removing profile:", err);
@@ -511,19 +529,14 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       profile.icpPublicAddress
     );
     localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
-    _setCurrentProfile(profile);
     hydrateFullAuthProfile(profile);
-    switchApiKeyForCurrentOrgAndProfile(
-      currentOrg?.driveID || "",
-      profile.userID
-    );
   }, []);
 
   // Organizations
   const listOrganizations = async (): Promise<IndexDB_Organization[]> => {
-    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([ORGS_STORE_NAME], "readonly");
+      if (!db.current) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      const transaction = db.current.transaction([ORGS_STORE_NAME], "readonly");
       const store = transaction.objectStore(ORGS_STORE_NAME);
       const request = store.getAll();
 
@@ -538,7 +551,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   };
   const createOrganization = useCallback(
     async (driveID: DriveID, note: string) => {
-      if (!db) {
+      if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
       }
 
@@ -547,9 +560,12 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           driveID,
           note,
         };
-        const transaction = db.transaction([ORGS_STORE_NAME], "readwrite");
+        const transaction = db.current.transaction(
+          [ORGS_STORE_NAME],
+          "readwrite"
+        );
         const store = transaction.objectStore(ORGS_STORE_NAME);
-        store.put(newOrg);
+        store.add(newOrg);
         await syncLatestIdentities();
         return newOrg;
       } catch (err) {
@@ -563,9 +579,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   const readOrganization = async (
     driveID: DriveID
   ): Promise<IndexDB_Organization | null> => {
-    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([ORGS_STORE_NAME], "readonly");
+      if (!db.current) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      const transaction = db.current.transaction([ORGS_STORE_NAME], "readonly");
       const store = transaction.objectStore(ORGS_STORE_NAME);
       const request = store.get(driveID);
 
@@ -580,12 +596,15 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   };
   const updateOrganization = useCallback(
     async (org: IndexDB_Organization) => {
-      if (!db) {
+      if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
       }
 
       try {
-        const transaction = db.transaction([ORGS_STORE_NAME], "readwrite");
+        const transaction = db.current.transaction(
+          [ORGS_STORE_NAME],
+          "readwrite"
+        );
         const store = transaction.objectStore(ORGS_STORE_NAME);
         store.put(org);
         await syncLatestIdentities();
@@ -604,12 +623,15 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   const deleteOrganization = useCallback(
     async (driveID: string) => {
-      if (!db) {
+      if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
       }
 
       try {
-        const transaction = db.transaction([ORGS_STORE_NAME], "readwrite");
+        const transaction = db.current.transaction(
+          [ORGS_STORE_NAME],
+          "readwrite"
+        );
         const store = transaction.objectStore(ORGS_STORE_NAME);
         const request = store.delete(driveID);
         await syncLatestIdentities();
@@ -631,17 +653,16 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   const switchOrganization = useCallback((org: IndexDB_Organization) => {
     setCurrentOrg(org);
-    switchApiKeyForCurrentOrgAndProfile(
-      org.driveID,
-      _currentProfile?.userID || ""
-    );
   }, []);
 
   // API Keys
   const listApiKeys = async (): Promise<IndexDB_ApiKey[]> => {
-    if (!db) throw new Error("INDEXEDDB_NOT_INITIALIZED");
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([API_KEYS_STORE_NAME], "readonly");
+      if (!db.current) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      const transaction = db.current.transaction(
+        [API_KEYS_STORE_NAME],
+        "readonly"
+      );
       const store = transaction.objectStore(API_KEYS_STORE_NAME);
       const request = store.getAll();
 
@@ -656,13 +677,16 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   };
   const createApiKey = useCallback(
     async (apiKey: IndexDB_ApiKey) => {
-      if (!db) {
+      if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
       }
       try {
-        const transaction = db.transaction([API_KEYS_STORE_NAME], "readwrite");
+        const transaction = db.current.transaction(
+          [API_KEYS_STORE_NAME],
+          "readwrite"
+        );
         const store = transaction.objectStore(API_KEYS_STORE_NAME);
-        store.put(apiKey);
+        store.add(apiKey);
         await syncLatestIdentities();
         return apiKey;
       } catch (err) {
@@ -675,11 +699,14 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   const removeApiKey = useCallback(
     async (apiKeyID: string) => {
-      if (!db) {
+      if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
       }
       try {
-        const transaction = db.transaction([API_KEYS_STORE_NAME], "readwrite");
+        const transaction = db.current.transaction(
+          [API_KEYS_STORE_NAME],
+          "readwrite"
+        );
         const store = transaction.objectStore(API_KEYS_STORE_NAME);
         store.delete(apiKeyID);
         await syncLatestIdentities();
@@ -690,23 +717,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       }
     },
     [db, syncLatestIdentities]
-  );
-  const switchApiKeyForCurrentOrgAndProfile = useCallback(
-    async (userID: UserID, driveID: DriveID) => {
-      if (!db) {
-        throw new Error("INDEXEDDB_NOT_INITIALIZED");
-      }
-      // Check if an API key already exists matching the arg userID and driveID
-      const existingApiKey = listOfAPIKeys.find(
-        (apiKey) => apiKey.userID === userID && apiKey.driveID === driveID
-      );
-      // if exists, set it as the current API key
-      if (existingApiKey) {
-        setCurrentAPIKey(existingApiKey);
-        return;
-      }
-    },
-    [db, listOfAPIKeys]
   );
 
   // Context value
@@ -745,7 +755,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
 
   return (
     <IdentitySystemContext.Provider value={contextValue}>
-      {children}
+      {isInitialized && currentProfile ? children : null}
     </IdentitySystemContext.Provider>
   );
 }

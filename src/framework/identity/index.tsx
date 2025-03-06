@@ -32,6 +32,9 @@ import { generate } from "random-words";
 // Define types for our data structures
 export interface IndexDB_Organization {
   driveID: string;
+  nickname: string;
+  icpPublicAddress: string;
+  endpoint: string;
   note: string;
 }
 
@@ -78,10 +81,19 @@ interface IdentitySystemContextType {
   listOfProfiles: IndexDB_Profile[];
 
   listOrganizations: () => Promise<IndexDB_Organization[]>;
-  createOrganization: (
-    driveID: DriveID,
-    note: string
-  ) => Promise<IndexDB_Organization>;
+  createOrganization: ({
+    driveID,
+    nickname,
+    icpPublicAddress,
+    endpoint,
+    note,
+  }: {
+    driveID: DriveID;
+    nickname: string;
+    icpPublicAddress: string;
+    endpoint: string;
+    note: string;
+  }) => Promise<IndexDB_Organization>;
   readOrganization: (driveID: DriveID) => Promise<IndexDB_Organization | null>;
   updateOrganization: (org: IndexDB_Organization) => Promise<void>;
   deleteOrganization: (driveID: DriveID) => Promise<void>;
@@ -227,11 +239,18 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             if (existingOrg) {
               setCurrentOrg(existingOrg);
             } else {
-              const newOrg = await createOrganization(
-                "DriveID_Anonymous",
-                "Default Anonymous Organization"
-              );
+              const newOrg = await createOrganization({
+                driveID: `DriveID_${uuidv4()}`,
+                nickname: "Anonymous Org",
+                icpPublicAddress: uuidv4(),
+                endpoint: "https://api.officex.app",
+                note: "",
+              });
               setCurrentOrg(newOrg);
+              localStorage.setItem(
+                LOCAL_STORAGE_ORGANIZATION_DRIVE_ID,
+                newOrg.driveID
+              );
             }
 
             // Load initial data
@@ -550,7 +569,19 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     });
   };
   const createOrganization = useCallback(
-    async (driveID: DriveID, note: string) => {
+    async ({
+      driveID,
+      nickname,
+      icpPublicAddress,
+      endpoint,
+      note,
+    }: {
+      driveID: DriveID;
+      nickname: string;
+      icpPublicAddress: string;
+      endpoint: string;
+      note: string;
+    }) => {
       if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
       }
@@ -558,6 +589,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       try {
         const newOrg: IndexDB_Organization = {
           driveID,
+          nickname,
+          icpPublicAddress,
+          endpoint,
           note,
         };
         const transaction = db.current.transaction(
@@ -653,6 +687,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   const switchOrganization = useCallback((org: IndexDB_Organization) => {
     setCurrentOrg(org);
+    localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
   }, []);
 
   // API Keys

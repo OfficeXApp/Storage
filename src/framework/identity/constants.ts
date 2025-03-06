@@ -32,7 +32,7 @@ export function shortenAddress(address: string): string {
   if (address.length < 10) {
     return address;
   }
-  const slug = `${address.slice(0, 5)}..${address.slice(-3)}`;
+  const slug = `${address.slice(0, 3)}..${address.slice(-3)}`;
   return slug;
 }
 

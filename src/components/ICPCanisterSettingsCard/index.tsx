@@ -16,42 +16,41 @@ import {
   EyeTwoTone,
   ReloadOutlined,
 } from "@ant-design/icons";
-import { Identity } from "../../framework";
+
 import { Actor } from "@dfinity/agent";
 import { idlFactory as idlFactory_Drive } from "../../declarations/officex-canisters-backend/officex-canisters-backend.did.js";
 import { formatCycles } from "../../api/icp.js";
 import ConnectICPButton from "../ConnectICPButton/index.js";
 const { Text, Link } = Typography;
-const { useIdentity } = Identity;
 
 const ICPCanisterSettingsCard = () => {
-  const { icpCanisterId, icpAgent } = useIdentity();
+  // const { icpCanisterId, icpAgent } = useIdentity();
   const [gasBalance, setGasBalance] = useState(0n);
 
-  useEffect(() => {
-    setTimeout(() => {
-      checkGasBalance();
-    }, 500);
-  }, [icpCanisterId]);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     checkGasBalance();
+  //   }, 500);
+  // }, [icpCanisterId]);
 
-  const checkGasBalance = async () => {
-    if (!icpAgent.current) {
-      return;
-    }
-    if (!icpCanisterId) {
-      return;
-    }
-    const actor = Actor.createActor(idlFactory_Drive, {
-      agent: icpAgent.current,
-      canisterId: icpCanisterId,
-    });
-    const res = await actor.ping();
-    console.log(`Ping response: ${res}`);
-    const gas = await actor.get_canister_balance();
-    console.log(`Gas: `, gas);
-    console.log("Gas Balance:", gas);
-    setGasBalance(gas as bigint);
-  };
+  // const checkGasBalance = async () => {
+  //   if (!icpAgent.current) {
+  //     return;
+  //   }
+  //   if (!icpCanisterId) {
+  //     return;
+  //   }
+  //   const actor = Actor.createActor(idlFactory_Drive, {
+  //     agent: icpAgent.current,
+  //     canisterId: icpCanisterId,
+  //   });
+  //   const res = await actor.ping();
+  //   console.log(`Ping response: ${res}`);
+  //   const gas = await actor.get_canister_balance();
+  //   console.log(`Gas: `, gas);
+  //   console.log("Gas Balance:", gas);
+  //   setGasBalance(gas as bigint);
+  // };
   return (
     <Card title="Cloud Settings" type="inner">
       <Text>
@@ -65,7 +64,7 @@ const ICPCanisterSettingsCard = () => {
       </Text>
       <br />
       <br />
-      {icpAgent.current && icpCanisterId ? (
+      {/* {icpAgent.current && icpCanisterId ? (
         <>
           <Col span={12}>
             <Statistic
@@ -100,7 +99,7 @@ const ICPCanisterSettingsCard = () => {
             <ConnectICPButton />
           </div>
         </>
-      )}
+      )} */}
     </Card>
   );
 };

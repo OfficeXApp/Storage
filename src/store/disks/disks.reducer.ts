@@ -12,12 +12,12 @@ import {
 export const DISKS_PERSIST_KEY = "disks";
 
 interface DisksState {
-  items: Disk[];
+  disks: Disk[];
   loading: boolean;
   error: string | null;
 }
 const initialState: DisksState = {
-  items: [],
+  disks: [],
   loading: false,
   error: null,
 };
@@ -35,7 +35,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     case FETCH_DISKS_COMMIT:
       return {
         ...state,
-        items: action.payload.ok.data.items,
+        disks: action.payload.ok.data.items,
         loading: false,
       };
 
@@ -58,7 +58,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
       return {
         ...state,
         // Add the newly created disk to our items array
-        items: [...state.items, action.payload.ok.data],
+        disks: [...state.disks, action.payload.ok.data],
         loading: false,
       };
 

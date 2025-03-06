@@ -1,4 +1,3 @@
-import Identity from "./identity_deprecated";
 import {
   DriveDB,
   IndexedDBStorage,
@@ -20,7 +19,6 @@ export {
   LOCAL_STORAGE_STORJ_SECRET_KEY,
   LOCAL_STORAGE_STORJ_ENDPOINT,
 };
-export { Identity };
 export type {
   DriveFileRawDestination,
   FileMetadataFragment,
@@ -37,5 +35,3 @@ export {
   StorageLocationEnum,
   FileUploadStatusEnum,
 } from "./drive/types";
-
-export type { UserID } from "./identity/types";

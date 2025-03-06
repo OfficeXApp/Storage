@@ -23,7 +23,7 @@ const SandboxPage = () => {
   const [error, setError] = useState(null);
 
   const isOnline = useSelector((state: AppState) => state.offline?.online);
-  const disks = useSelector((state: AppState) => state.disks.items);
+  const disks = useSelector((state: AppState) => state.disks.disks);
 
   const handleCreateDisk = () => {
     dispatch(

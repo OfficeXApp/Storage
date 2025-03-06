@@ -3,20 +3,19 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import { ConfigProvider } from "antd";
-import { Identity, DriveProvider } from "./framework";
+import { DriveProvider } from "./framework";
 import "./index.css";
 import mixpanel from "mixpanel-browser";
 import { Provider as ReduxProvider } from "react-redux";
 import { configureStore } from "./store/store";
 import { registerServiceWorker } from "./registerSW.ts";
+import { IdentitySystemProvider } from "./framework/identity/index.tsx";
 
 mixpanel.init("cae2fd45d17ff2cdf642b1d8afd80aa8", {
   debug: true,
   track_pageview: true,
   persistence: "localStorage",
 });
-
-const { IdentityProvider } = Identity;
 
 const isFileSystemAccessSupported = "showDirectoryPicker" in window;
 
@@ -58,13 +57,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ReduxProvider store={store}>
       <ConfigProvider>
-        <IdentityProvider>
+        <IdentitySystemProvider>
           <DriveProvider
             onUploadComplete={(fileUUID) => console.log(`Uploaded ${fileUUID}`)}
           >
             <App />
           </DriveProvider>
-        </IdentityProvider>
+        </IdentitySystemProvider>
       </ConfigProvider>
     </ReduxProvider>
   </React.StrictMode>

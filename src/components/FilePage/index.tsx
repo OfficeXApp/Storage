@@ -32,7 +32,6 @@ import {
 import {
   FileMetadata,
   FileUUID,
-  Identity,
   StorageLocationEnum,
   useDrive,
 } from "../../framework";
@@ -42,9 +41,9 @@ import FilePreview from "../FilePreview";
 import { createPseudoShareLink } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
 import { isFreeTrialStorj } from "../../api/storj";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Text } = Typography;
-const { useIdentity } = Identity;
 
 interface FilePreviewProps {
   file: FileMetadata;
@@ -64,7 +63,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     indexdbDownloadFile,
     indexdbGetVideoStream,
   } = useDrive();
-  const { evmSlug, evmAccount, icpAccount } = useIdentity();
+  const { currentProfile } = useIdentitySystem();
+  const { evmPublicKey, icpAccount } = currentProfile || {};
 
   const [fileUrl, setFileUrl] = useState<string>("");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(true);
@@ -243,7 +243,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     const shareLink = await createPseudoShareLink({
       title: `${isFreeTrialStorj() ? `Expires in 24 hours - ` : ``}${file.originalFileName}`,
       url,
-      ref: evmAccount?.address || "",
+      ref: evmPublicKey,
     });
     message.info("Link copied to clipboard");
     navigator.clipboard.writeText(shareLink);

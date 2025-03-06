@@ -1,15 +1,16 @@
+import { UserID } from "@officexapp/types";
 import {
   DriveFullFilePath,
-  Identity,
   StorageLocationEnum,
   useDrive,
-  UserID,
 } from "../../framework";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-
-const { CONSTANTS, ONBOARDING_CHECKPOINTS } = Identity;
+import {
+  CONSTANTS,
+  ONBOARDING_CHECKPOINTS,
+} from "../../framework/identity/constants";
 
 const LoadSampleFiles = () => {
   const navigate = useNavigate();

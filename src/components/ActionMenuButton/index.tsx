@@ -18,16 +18,14 @@ import {
 import {
   useDrive,
   getUploadFolderPath,
-  UserID,
   DriveFullFilePath,
-  Identity,
 } from "../../framework";
 import { useLocation, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import mixpanel from "mixpanel-browser";
-import useCloudSync from "../../api/cloud-sync";
-
-const { useIdentity } = Identity;
+// import useCloudSync from "../../api/cloud-sync";
+import { UserID } from "@officexapp/types";
+import { useIdentitySystem } from "../../framework/identity";
 
 interface ActionMenuButtonProps {
   isBigButton?: boolean; // Determines the button style
@@ -38,7 +36,8 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   isBigButton = false,
   toggleUploadPanel,
 }) => {
-  const { icpCanisterId } = useIdentity();
+  const { currentOrg } = useIdentitySystem();
+  const icpCanisterId = currentOrg?.driveID;
   const { uploadFilesFolders, createFolder } = useDrive();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);

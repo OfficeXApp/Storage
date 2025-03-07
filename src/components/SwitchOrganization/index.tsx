@@ -454,7 +454,7 @@ const OrganizationSwitcher = () => {
           </Form>
         </TabPane>
 
-        <TabPane tab="Add Existing Organization" key="existingOrg">
+        <TabPane tab="Login Existing" key="existingOrg">
           <Form layout="vertical">
             <Form.Item
               label={
@@ -517,7 +517,7 @@ const OrganizationSwitcher = () => {
                     !existingOrgNickname.trim() || !existingOrgEndpoint.trim()
                   }
                 >
-                  Add Existing Organization
+                  Login Organization
                 </Button>
               </Space>
             </div>

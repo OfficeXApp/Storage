@@ -85,13 +85,14 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   );
   const [importApiLoading, setImportApiLoading] = useState(false);
   const [importApiError, setImportApiError] = useState<string | null>(null);
-  const [importApiPreviewAddresses, setImportApiPreviewAddresses] = useState({
+  const [importApiPreviewData, setImportApiPreviewData] = useState({
     icpAddress: "",
     evmAddress: "",
     userID: "",
     driveID: "",
     isOwner: false,
     nickname: "",
+    driveNickname: "",
   });
 
   // Separate state for each tab
@@ -102,6 +103,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const [importSeedPhrase, setImportSeedPhrase] = useState("");
 
   const [importApiUserNickname, setImportApiUserNickname] = useState("");
+  const [importApiOrgNickname, setImportApiOrgNickname] = useState("");
   const [importApiKey, setImportApiKey] = useState("");
 
   // Shared editing nickname for existing user
@@ -580,9 +582,40 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             <div style={{ color: "#ff4d4f", padding: "10px" }}>
               {importApiError}
             </div>
-          ) : importApiPreviewAddresses.userID ? (
+          ) : importApiPreviewData.userID ? (
             <>
-              {/* Editable nickname field */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c", marginRight: "4px" }}>
+                    Org Name
+                  </span>
+                </div>
+                <Input
+                  value={importApiOrgNickname}
+                  onChange={(e) => setImportApiOrgNickname(e.target.value)}
+                  placeholder="Enter organization nickname"
+                  variant="borderless"
+                  style={{
+                    flex: 1,
+                    color: "#1f1f1f",
+                    padding: "0",
+                    borderBottom: "1px dashed #d9d9d9",
+                    borderRadius: 0,
+                  }}
+                />
+              </div>
               <div
                 style={{
                   display: "flex",
@@ -634,13 +667,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                   </span>
                 </div>
                 <Input
-                  value={importApiPreviewAddresses.icpAddress}
+                  value={importApiPreviewData.icpAddress}
                   readOnly
                   variant="borderless"
                   style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
                   suffix={
                     <Typography.Text
-                      copyable={{ text: importApiPreviewAddresses.icpAddress }}
+                      copyable={{ text: importApiPreviewData.icpAddress }}
                       style={{ color: "#8c8c8c" }}
                     />
                   }
@@ -657,13 +690,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                   <span style={{ color: "#8c8c8c" }}>EVM</span>
                 </div>
                 <Input
-                  value={importApiPreviewAddresses.evmAddress}
+                  value={importApiPreviewData.evmAddress}
                   readOnly
                   variant="borderless"
                   style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
                   suffix={
                     <Typography.Text
-                      copyable={{ text: importApiPreviewAddresses.evmAddress }}
+                      copyable={{ text: importApiPreviewData.evmAddress }}
                       style={{ color: "#8c8c8c" }}
                     />
                   }
@@ -684,13 +717,14 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const debouncedFetchWhoAmI = useCallback(
     debounce(async (passwordInput: string) => {
       if (!passwordInput || passwordInput.trim() === "") {
-        setImportApiPreviewAddresses({
+        setImportApiPreviewData({
           icpAddress: "",
           evmAddress: "",
           userID: "",
           driveID: "",
           isOwner: false,
           nickname: "",
+          driveNickname: "",
         });
         setImportApiLoading(false);
         return;
@@ -752,28 +786,22 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
         // Handle nested structure where data is inside ok.data
         if (data && data.ok && data.ok.data) {
           const whoAmI = data.ok.data;
-          console.log("setImportApiPreviewAddresses", {
+          setImportApiPreviewData({
             icpAddress: whoAmI.icp_principal,
             evmAddress: whoAmI.evm_public_address || "",
             userID: whoAmI.userID,
-            driveID: driveID, // Use the extracted drive ID
+            driveID: driveID,
             isOwner: whoAmI.is_owner,
             nickname: whoAmI.nickname || "",
+            driveNickname: whoAmI.drive_nickname || "",
           });
-          setImportApiPreviewAddresses({
-            icpAddress: whoAmI.icp_principal,
-            evmAddress: whoAmI.evm_public_address || "",
-            userID: whoAmI.userID,
-            driveID: driveID, // Use the extracted drive ID
-            isOwner: whoAmI.is_owner,
-            nickname: whoAmI.nickname || "",
-          });
-          console.log(`importaApiPreview`, importApiPreviewAddresses);
+          console.log(`importaApiPreview`, importApiPreviewData);
 
           // Auto-populate nickname field if it's empty and server returned a nickname
           if (!importApiUserNickname && whoAmI.nickname) {
             setImportApiUserNickname(whoAmI.nickname);
           }
+          setImportApiOrgNickname(whoAmI.drive_nickname);
         } else {
           throw new Error("Invalid response format from server");
         }
@@ -786,13 +814,14 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             ? error.message
             : "Invalid password or network error"
         );
-        setImportApiPreviewAddresses({
+        setImportApiPreviewData({
           icpAddress: "",
           evmAddress: "",
           userID: "",
           driveID: "",
           isOwner: false,
           nickname: "",
+          driveNickname: "",
         });
       } finally {
         setImportApiLoading(false);
@@ -811,13 +840,14 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
       debouncedFetchWhoAmI.cancel();
       setImportApiLoading(false);
       setImportApiError(null);
-      setImportApiPreviewAddresses({
+      setImportApiPreviewData({
         icpAddress: "",
         evmAddress: "",
         userID: "",
         driveID: "",
         isOwner: false,
         nickname: "",
+        driveNickname: "",
       });
     }
   };
@@ -837,8 +867,8 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             (activeTabKey === "importSeed" &&
               importUserPreviewAddresses.evmAddress === "Invalid seed") ||
             (activeTabKey === "importApi" &&
-              (!importApiPreviewAddresses.userID ||
-                !importApiPreviewAddresses.icpAddress ||
+              (!importApiPreviewData.userID ||
+                !importApiPreviewData.icpAddress ||
                 importApiLoading))
           }
           onClick={async () => {
@@ -873,8 +903,8 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               } else if (activeTabKey === "importApi") {
                 // Only proceed if we have valid API preview data
                 if (
-                  !importApiPreviewAddresses.userID ||
-                  !importApiPreviewAddresses.icpAddress
+                  !importApiPreviewData.userID ||
+                  !importApiPreviewData.icpAddress
                 ) {
                   message.error("Invalid or expired password");
                   return;
@@ -918,13 +948,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                 // Use either user-provided nickname or server-provided nickname (if available)
                 const nickToUse =
                   importApiUserNickname ||
-                  importApiPreviewAddresses.nickname ||
+                  importApiPreviewData.nickname ||
                   "API User";
 
                 // Create the profile
                 const newProfile = await createProfile({
-                  icpPublicAddress: importApiPreviewAddresses.icpAddress,
-                  evmPublicAddress: importApiPreviewAddresses.evmAddress,
+                  icpPublicAddress: importApiPreviewData.icpAddress,
+                  evmPublicAddress: importApiPreviewData.evmAddress,
                   seedPhrase: "",
                   note: `Imported via API password for organization ${driveID}`,
                   avatar: "",
@@ -947,13 +977,14 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                 message.success(`Successfully logged in as ${nickToUse}`);
                 setImportApiKey("");
                 setImportApiUserNickname("");
-                setImportApiPreviewAddresses({
+                setImportApiPreviewData({
                   icpAddress: "",
                   evmAddress: "",
                   userID: "",
                   driveID: "",
                   isOwner: false,
                   nickname: "",
+                  driveNickname: "",
                 });
               }
 

@@ -24,20 +24,14 @@ import {
   Tabs,
   Tooltip,
 } from "antd";
-import { useIdentitySystem } from "../../framework/identity";
+import {
+  IndexDB_Organization,
+  useIdentitySystem,
+} from "../../framework/identity";
 import { DriveID } from "@officexapp/types";
 import { shortenAddress } from "../../framework/identity/constants";
 
 const { TabPane } = Tabs;
-
-// Updated organization interface
-interface IndexDB_Organization {
-  driveID: string;
-  nickname: string;
-  icpPublicAddress: string;
-  endpoint: string;
-  note: string;
-}
 
 const OrganizationSwitcher = () => {
   const {
@@ -91,7 +85,9 @@ const OrganizationSwitcher = () => {
         setHasChanges(false); // Reset changes flag when loading org details
 
         // Set default selected profile to current profile
-        if (currentProfile) {
+        if (org.defaultProfile) {
+          setSelectedProfileId(org.defaultProfile);
+        } else if (currentProfile) {
           setSelectedProfileId(currentProfile.userID);
         } else if (listOfProfiles.length > 0) {
           setSelectedProfileId(listOfProfiles[0].userID);
@@ -172,7 +168,7 @@ const OrganizationSwitcher = () => {
       });
 
       // Switch to the new organization
-      switchOrganization(newOrg);
+      await switchOrganization(newOrg, "");
 
       message.success(`Organization "${newOrgNickname}" created successfully!`);
       setIsModalVisible(false);
@@ -204,7 +200,7 @@ const OrganizationSwitcher = () => {
       });
 
       // Switch to the imported organization
-      switchOrganization(newOrg);
+      await switchOrganization(newOrg, "");
 
       message.success(
         `Organization "${existingOrgNickname}" imported successfully!`
@@ -272,7 +268,7 @@ const OrganizationSwitcher = () => {
     }
   };
 
-  const handleEnterOrg = (orgId: string) => {
+  const handleEnterOrg = async (orgId: string) => {
     const org = listOfOrgs.find(
       (org) => org.driveID === orgId
     ) as IndexDB_Organization;
@@ -281,14 +277,18 @@ const OrganizationSwitcher = () => {
       (profile) => profile.userID === selectedProfileId
     );
 
+    console.log(
+      `Entering org ${org.nickname} with profile ${profile?.nickname}`
+    );
+
     if (org) {
       // Switch profile if needed and if a valid profile is selected
-      if (profile && currentProfile?.userID !== selectedProfileId) {
-        switchProfile(profile);
+      if (profile) {
+        await switchProfile(profile);
       }
 
       // Switch to the organization
-      switchOrganization(org);
+      await switchOrganization(org, profile?.userID);
       message.success(`Entered "${org.nickname}" organization`);
       setIsModalVisible(false);
     }
@@ -554,7 +554,6 @@ const OrganizationSwitcher = () => {
     ) as IndexDB_Organization;
 
     if (!org) return null;
-
     return (
       <Modal
         title={

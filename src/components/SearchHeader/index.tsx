@@ -81,6 +81,9 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const [importUserNickname, setImportUserNickname] = useState("A Past Life");
   const [importSeedPhrase, setImportSeedPhrase] = useState("");
 
+  const [importApiUserNickname, setImportApiUserNickname] = useState("");
+  const [importApiKey, setImportApiKey] = useState("");
+
   // Shared editing nickname for existing user
   const [existingUserNickname, setExistingUserNickname] = useState("");
 
@@ -567,7 +570,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               });
 
               // Select the new currentProfile
-              switchProfile(newProfile);
+              await switchProfile(newProfile);
 
               message.success(`User ${nicknameToUse} added successfully!`);
               setIsModalVisible(false);
@@ -612,6 +615,28 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                 value={importSeedPhrase}
                 onChange={(e) => setImportSeedPhrase(e.target.value)}
                 placeholder="Enter 12-word seed phrase"
+                rows={2}
+              />
+            </Form.Item>
+          </Form>
+
+          {renderPreviewSection()}
+        </TabPane>
+
+        <TabPane tab="Import with API" key="importApi">
+          <Form layout="vertical">
+            <Form.Item label="Nickname" style={{ marginBottom: "12px" }}>
+              <Input
+                value={importApiUserNickname}
+                onChange={(e) => setImportApiUserNickname(e.target.value)}
+                placeholder="Enter nickname"
+              />
+            </Form.Item>
+            <Form.Item label="API Key" style={{ marginBottom: "16px" }}>
+              <Input.TextArea
+                value={importApiKey}
+                onChange={(e) => setImportApiKey(e.target.value)}
+                placeholder="Password shared by organization admin"
                 rows={2}
               />
             </Form.Item>
@@ -831,7 +856,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                           return;
                         }
                         console.log(`switching to `, selectedProfile);
-                        switchProfile(selectedProfile);
+                        await switchProfile(selectedProfile);
 
                         message.success(
                           `Switched to ${existingUserNickname || "Anonymous"} (${shortenAddress(

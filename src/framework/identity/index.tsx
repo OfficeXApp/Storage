@@ -36,6 +36,7 @@ export interface IndexDB_Organization {
   icpPublicAddress: string;
   endpoint: string;
   note: string;
+  defaultProfile: string; // the userID string of a IndexDB_Profile
 }
 
 export interface IndexDB_Profile {
@@ -97,7 +98,10 @@ interface IdentitySystemContextType {
   readOrganization: (driveID: DriveID) => Promise<IndexDB_Organization | null>;
   updateOrganization: (org: IndexDB_Organization) => Promise<void>;
   deleteOrganization: (driveID: DriveID) => Promise<void>;
-  switchOrganization: (org: IndexDB_Organization) => void;
+  switchOrganization: (
+    org: IndexDB_Organization,
+    defaultProfile?: string
+  ) => void;
 
   listProfiles: () => Promise<IndexDB_Profile[]>;
   createProfile: (
@@ -537,7 +541,8 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     },
     [_currentProfile, db, listOfProfiles, syncLatestIdentities]
   );
-  const switchProfile = useCallback((profile: IndexDB_Profile) => {
+  const switchProfile = useCallback(async (profile: IndexDB_Profile) => {
+    console.log(`before switchProfile, currentProfile`, currentProfile);
     localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
     localStorage.setItem(
       LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
@@ -548,7 +553,8 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       profile.icpPublicAddress
     );
     localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
-    hydrateFullAuthProfile(profile);
+    await hydrateFullAuthProfile(profile);
+    console.log(`after switchProfile, currentProfile`, currentProfile);
   }, []);
 
   // Organizations
@@ -593,6 +599,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           icpPublicAddress,
           endpoint,
           note,
+          defaultProfile: "",
         };
         const transaction = db.current.transaction(
           [ORGS_STORE_NAME],
@@ -685,10 +692,20 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     },
     [currentOrg, db, listOfOrgs, syncLatestIdentities]
   );
-  const switchOrganization = useCallback((org: IndexDB_Organization) => {
-    setCurrentOrg(org);
-    localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
-  }, []);
+  const switchOrganization = useCallback(
+    async (org: IndexDB_Organization, defaultProfile?: string) => {
+      // get current profile and set as org.defaultProfile
+      const updated_org: IndexDB_Organization = {
+        ...org,
+        defaultProfile: defaultProfile || "",
+      };
+      await updateOrganization(updated_org);
+      console.log(`updated org`, updated_org);
+      setCurrentOrg(updated_org);
+      localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
+    },
+    []
+  );
 
   // API Keys
   const listApiKeys = async (): Promise<IndexDB_ApiKey[]> => {

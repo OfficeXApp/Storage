@@ -36,6 +36,7 @@ export interface IndexDB_Organization {
   icpPublicAddress: string;
   endpoint: string;
   note: string;
+  defaultProfile: string; // the userID string of a IndexDB_Profile
 }
 
 export interface IndexDB_Profile {
@@ -54,6 +55,7 @@ export interface IndexDB_ApiKey {
   driveID: string;
   note: string;
   value: string;
+  endpoint: string;
 }
 
 export interface AuthProfile {
@@ -62,7 +64,7 @@ export interface AuthProfile {
   icpAccount: {
     identity: Ed25519KeyIdentity;
     principal: Principal;
-  };
+  } | null;
   slug: string;
   nickname: string;
   userID: UserID;
@@ -87,17 +89,22 @@ interface IdentitySystemContextType {
     icpPublicAddress,
     endpoint,
     note,
+    defaultProfile,
   }: {
     driveID: DriveID;
     nickname: string;
     icpPublicAddress: string;
     endpoint: string;
     note: string;
+    defaultProfile: string;
   }) => Promise<IndexDB_Organization>;
   readOrganization: (driveID: DriveID) => Promise<IndexDB_Organization | null>;
   updateOrganization: (org: IndexDB_Organization) => Promise<void>;
   deleteOrganization: (driveID: DriveID) => Promise<void>;
-  switchOrganization: (org: IndexDB_Organization) => void;
+  switchOrganization: (
+    org: IndexDB_Organization,
+    defaultProfile?: string
+  ) => void;
 
   listProfiles: () => Promise<IndexDB_Profile[]>;
   createProfile: (
@@ -274,27 +281,39 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   // Internal
   const hydrateFullAuthProfile = async (profile: IndexDB_Profile) => {
     _setCurrentProfile(profile);
-    const derivedKey = await deriveEd25519KeyFromSeed(
-      mnemonicToSeedSync(profile.seedPhrase || "")
-    );
-    // Create the identity from the derived key
-    const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
-    const publicKeyBuffer = hexStringToUint8Array(
-      profile.icpPublicAddress || ""
-    );
-    const principal = Principal.selfAuthenticating(publicKeyBuffer);
-    const auth_profile = {
-      evmPublicKey: profile.evmPublicAddress || "",
-      icpPublicKey: profile.icpPublicAddress || "",
-      slug: shortenAddress(profile.icpPublicAddress || ""),
-      nickname: profile.nickname || "",
-      userID: profile.userID || "",
-      icpAccount: {
-        identity,
-        principal,
-      },
-    };
-    setCurrentProfile(auth_profile);
+    if (profile.seedPhrase) {
+      const derivedKey = await deriveEd25519KeyFromSeed(
+        mnemonicToSeedSync(profile.seedPhrase || "")
+      );
+      // Create the identity from the derived key
+      const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
+      const publicKeyBuffer = hexStringToUint8Array(
+        profile.icpPublicAddress || ""
+      );
+      const principal = Principal.selfAuthenticating(publicKeyBuffer);
+      const auth_profile = {
+        evmPublicKey: profile.evmPublicAddress || "",
+        icpPublicKey: profile.icpPublicAddress || "",
+        slug: shortenAddress(profile.icpPublicAddress || ""),
+        nickname: profile.nickname || "",
+        userID: profile.userID || "",
+        icpAccount: {
+          identity,
+          principal,
+        },
+      };
+      setCurrentProfile(auth_profile);
+    } else {
+      const auth_profile = {
+        evmPublicKey: profile.evmPublicAddress || "",
+        icpPublicKey: profile.icpPublicAddress || "",
+        slug: shortenAddress(profile.icpPublicAddress || ""),
+        nickname: profile.nickname || "",
+        userID: profile.userID || "",
+        icpAccount: null,
+      };
+      setCurrentProfile(auth_profile);
+    }
   };
   const overwriteLocalStorageProfile = useCallback(
     (profile: IndexDB_Profile) => {
@@ -367,6 +386,12 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       try {
         if (!currentProfile) {
           console.error("ICP account not initialized");
+          return null;
+        }
+        if (!currentProfile.icpAccount) {
+          console.error(
+            "No ICP Account via private key, this is likely an API user"
+          );
           return null;
         }
         const identity = currentProfile.icpAccount.identity;
@@ -537,7 +562,8 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     },
     [_currentProfile, db, listOfProfiles, syncLatestIdentities]
   );
-  const switchProfile = useCallback((profile: IndexDB_Profile) => {
+  const switchProfile = useCallback(async (profile: IndexDB_Profile) => {
+    console.log(`before switchProfile, currentProfile`, currentProfile);
     localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
     localStorage.setItem(
       LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
@@ -548,7 +574,8 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       profile.icpPublicAddress
     );
     localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
-    hydrateFullAuthProfile(profile);
+    await hydrateFullAuthProfile(profile);
+    console.log(`after switchProfile, currentProfile`, currentProfile);
   }, []);
 
   // Organizations
@@ -593,6 +620,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           icpPublicAddress,
           endpoint,
           note,
+          defaultProfile: "",
         };
         const transaction = db.current.transaction(
           [ORGS_STORE_NAME],
@@ -685,10 +713,20 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     },
     [currentOrg, db, listOfOrgs, syncLatestIdentities]
   );
-  const switchOrganization = useCallback((org: IndexDB_Organization) => {
-    setCurrentOrg(org);
-    localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
-  }, []);
+  const switchOrganization = useCallback(
+    async (org: IndexDB_Organization, defaultProfile?: string) => {
+      // get current profile and set as org.defaultProfile
+      const updated_org: IndexDB_Organization = {
+        ...org,
+        defaultProfile: defaultProfile || "",
+      };
+      await updateOrganization(updated_org);
+      console.log(`updated org`, updated_org);
+      setCurrentOrg(updated_org);
+      localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
+    },
+    []
+  );
 
   // API Keys
   const listApiKeys = async (): Promise<IndexDB_ApiKey[]> => {

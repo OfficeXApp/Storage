@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   SwapOutlined,
   PlusOutlined,
@@ -10,6 +10,7 @@ import {
   CloudOutlined,
   QuestionCircleOutlined,
   UserOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   Select,
@@ -23,21 +24,20 @@ import {
   Tag,
   Tabs,
   Tooltip,
+  Typography,
 } from "antd";
-import { useIdentitySystem } from "../../framework/identity";
+import {
+  IndexDB_Organization,
+  useIdentitySystem,
+} from "../../framework/identity";
 import { DriveID } from "@officexapp/types";
 import { shortenAddress } from "../../framework/identity/constants";
+import { debounce } from "lodash";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import { UserID } from "@officexapp/types";
+import { v4 as uuidv4 } from "uuid";
 
 const { TabPane } = Tabs;
-
-// Updated organization interface
-interface IndexDB_Organization {
-  driveID: string;
-  nickname: string;
-  icpPublicAddress: string;
-  endpoint: string;
-  note: string;
-}
 
 const OrganizationSwitcher = () => {
   const {
@@ -50,6 +50,8 @@ const OrganizationSwitcher = () => {
     deleteOrganization,
     switchOrganization,
     switchProfile,
+    createProfile,
+    createApiKey,
   } = useIdentitySystem();
 
   // Modal states
@@ -78,6 +80,21 @@ const OrganizationSwitcher = () => {
   // Preview states
   const [previewEndpoint, setPreviewEndpoint] = useState("");
 
+  const [importApiLoading, setImportApiLoading] = useState(false);
+  const [importApiError, setImportApiError] = useState<string | null>(null);
+  const [importApiKey, setImportApiKey] = useState("");
+  const [importApiUserNickname, setImportApiUserNickname] = useState("");
+  const [importApiOrgNickname, setImportApiOrgNickname] = useState("");
+  const [importApiPreviewData, setImportApiPreviewData] = useState({
+    icpAddress: "",
+    evmAddress: "",
+    userID: "",
+    driveID: "",
+    isOwner: false,
+    nickname: "",
+    driveNickname: "",
+  });
+
   // Effect to set existing org details when editing
   useEffect(() => {
     if (modalMode === "edit-enter" && selectedOrgId) {
@@ -91,7 +108,9 @@ const OrganizationSwitcher = () => {
         setHasChanges(false); // Reset changes flag when loading org details
 
         // Set default selected profile to current profile
-        if (currentProfile) {
+        if (org.defaultProfile) {
+          setSelectedProfileId(org.defaultProfile);
+        } else if (currentProfile) {
           setSelectedProfileId(currentProfile.userID);
         } else if (listOfProfiles.length > 0) {
           setSelectedProfileId(listOfProfiles[0].userID);
@@ -123,6 +142,149 @@ const OrganizationSwitcher = () => {
     modalMode,
   ]);
 
+  const debouncedFetchWhoAmI = useCallback(
+    debounce(async (passwordInput: string) => {
+      if (!passwordInput || passwordInput.trim() === "") {
+        setImportApiPreviewData({
+          icpAddress: "",
+          evmAddress: "",
+          userID: "",
+          driveID: "",
+          isOwner: false,
+          nickname: "",
+          driveNickname: "",
+        });
+        setImportApiLoading(false);
+        return;
+      }
+
+      try {
+        // Parse the format DriveID_abc123:password123@https://endpoint.com
+        const colonIndex = passwordInput.indexOf(":");
+        const atSymbolIndex = passwordInput.lastIndexOf("@");
+
+        if (
+          colonIndex === -1 ||
+          atSymbolIndex === -1 ||
+          atSymbolIndex === passwordInput.length - 1
+        ) {
+          throw new Error(
+            "Invalid format. Expected: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)"
+          );
+        }
+
+        // Extract driveID, password and endpoint
+        const driveID = passwordInput.substring(0, colonIndex).trim();
+        const password = passwordInput
+          .substring(colonIndex + 1, atSymbolIndex)
+          .trim();
+        let endpoint = passwordInput.substring(atSymbolIndex + 1).trim();
+
+        // Validate driveID
+        if (!driveID.startsWith("DriveID_")) {
+          throw new Error(
+            "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+          );
+        }
+
+        // Remove trailing slash if present in endpoint
+        if (endpoint.endsWith("/")) {
+          endpoint = endpoint.slice(0, -1);
+        }
+
+        // Extract Org ICP from DriveID
+        const orgIcp = driveID.replace("DriveID_", "");
+
+        // Construct the whoami URL with the specific drive ID
+        const whoamiUrl = `${endpoint}/v1/${driveID}/organization/whoami`;
+
+        // Only the password part should go in the Authorization header
+        const response = await fetch(whoamiUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${password}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Received data:", data);
+
+        // Handle nested structure where data is inside ok.data
+        if (data && data.ok && data.ok.data) {
+          const whoAmI = data.ok.data;
+          setImportApiPreviewData({
+            icpAddress: whoAmI.icp_principal,
+            evmAddress: whoAmI.evm_public_address || "",
+            userID: whoAmI.userID,
+            driveID: driveID,
+            isOwner: whoAmI.is_owner,
+            nickname: whoAmI.nickname || "",
+            driveNickname: whoAmI.drive_nickname || "",
+          });
+
+          // Auto-populate nickname fields if they're empty and server returned nicknames
+          if (!importApiUserNickname && whoAmI.nickname) {
+            setImportApiUserNickname(whoAmI.nickname);
+          }
+
+          if (!importApiOrgNickname && whoAmI.drive_nickname) {
+            setImportApiOrgNickname(whoAmI.drive_nickname);
+          }
+        } else {
+          throw new Error("Invalid response format from server");
+        }
+
+        setImportApiError(null);
+      } catch (error) {
+        console.error("Error fetching whoami:", error);
+        setImportApiError(
+          error instanceof Error
+            ? error.message
+            : "Invalid password or network error"
+        );
+        setImportApiPreviewData({
+          icpAddress: "",
+          evmAddress: "",
+          userID: "",
+          driveID: "",
+          isOwner: false,
+          nickname: "",
+          driveNickname: "",
+        });
+      } finally {
+        setImportApiLoading(false);
+      }
+    }, 500),
+    [importApiUserNickname, importApiOrgNickname]
+  );
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newPassword = e.target.value;
+    setImportApiKey(newPassword);
+
+    if (newPassword && newPassword.trim() !== "") {
+      setImportApiLoading(true);
+      debouncedFetchWhoAmI(newPassword);
+    } else {
+      debouncedFetchWhoAmI.cancel();
+      setImportApiLoading(false);
+      setImportApiError(null);
+      setImportApiPreviewData({
+        icpAddress: "",
+        evmAddress: "",
+        userID: "",
+        driveID: "",
+        isOwner: false,
+        nickname: "",
+        driveNickname: "",
+      });
+    }
+  };
+
   const handleOrgSelect = (driveID: string) => {
     if (driveID === "add-organization") {
       // Reset form states
@@ -139,6 +301,319 @@ const OrganizationSwitcher = () => {
       setModalMode("edit-enter");
       setEnterOrgTabKey("enterOrg");
       setIsModalVisible(true);
+    }
+  };
+
+  const renderApiLoginPreviewSection = () => {
+    return (
+      <details style={{ marginBottom: "8px" }} open>
+        <summary
+          style={{
+            cursor: "pointer",
+            color: "#595959",
+            fontSize: "14px",
+            marginBottom: "4px",
+            userSelect: "none",
+          }}
+        >
+          Preview
+        </summary>
+        <div
+          style={{
+            padding: "0 12px",
+            marginBottom: "8px",
+            fontSize: "13px",
+          }}
+        >
+          {importApiLoading ? (
+            <div style={{ textAlign: "center", padding: "10px" }}>
+              <SyncOutlined spin />
+              <span style={{ marginLeft: "8px" }}>Verifying password...</span>
+            </div>
+          ) : importApiError ? (
+            <div style={{ color: "#ff4d4f", padding: "10px" }}>
+              {importApiError}
+            </div>
+          ) : importApiPreviewData.userID ? (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c", marginRight: "4px" }}>
+                    Org Name
+                  </span>
+                </div>
+                <Input
+                  value={importApiOrgNickname}
+                  onChange={(e) => setImportApiOrgNickname(e.target.value)}
+                  placeholder="Enter organization nickname"
+                  variant="borderless"
+                  style={{
+                    flex: 1,
+                    color: "#1f1f1f",
+                    padding: "0",
+                    borderBottom: "1px dashed #d9d9d9",
+                    borderRadius: 0,
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c", marginRight: "4px" }}>
+                    Org ICP
+                  </span>
+                </div>
+                <Input
+                  value={importApiPreviewData.driveID.replace("DriveID_", "")}
+                  readOnly
+                  variant="borderless"
+                  style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
+                  suffix={
+                    <Typography.Text
+                      copyable={{
+                        text: importApiPreviewData.driveID.replace(
+                          "DriveID_",
+                          ""
+                        ),
+                      }}
+                      style={{ color: "#8c8c8c" }}
+                    />
+                  }
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c", marginRight: "4px" }}>
+                    Profile
+                  </span>
+                </div>
+                <Input
+                  value={importApiUserNickname}
+                  onChange={(e) => setImportApiUserNickname(e.target.value)}
+                  placeholder="Enter profile nickname"
+                  variant="borderless"
+                  style={{
+                    flex: 1,
+                    color: "#1f1f1f",
+                    padding: "0",
+                    borderBottom: "1px dashed #d9d9d9",
+                    borderRadius: 0,
+                  }}
+                />
+              </div>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c" }}>ICP</span>
+                </div>
+                <Input
+                  value={importApiPreviewData.icpAddress}
+                  readOnly
+                  variant="borderless"
+                  style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
+                  suffix={
+                    <Typography.Text
+                      copyable={{ text: importApiPreviewData.icpAddress }}
+                      style={{ color: "#8c8c8c" }}
+                    />
+                  }
+                />
+              </div>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c" }}>EVM</span>
+                </div>
+                <Input
+                  value={importApiPreviewData.evmAddress}
+                  readOnly
+                  variant="borderless"
+                  style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
+                  suffix={
+                    <Typography.Text
+                      copyable={{ text: importApiPreviewData.evmAddress }}
+                      style={{ color: "#8c8c8c" }}
+                    />
+                  }
+                />
+              </div>
+            </>
+          ) : (
+            <div
+              style={{ padding: "10px", color: "#8c8c8c", textAlign: "center" }}
+            >
+              Enter a valid password to see organization details
+            </div>
+          )}
+        </div>
+      </details>
+    );
+  };
+
+  const handleApiLogin = async () => {
+    // Only proceed if we have valid API preview data
+    if (!importApiPreviewData.userID || !importApiPreviewData.icpAddress) {
+      message.error("Invalid or expired password");
+      return;
+    }
+
+    // Parse the format DriveID_abc123:password123@https://endpoint.com
+    const colonIndex = importApiKey.indexOf(":");
+    const atSymbolIndex = importApiKey.lastIndexOf("@");
+
+    if (
+      colonIndex === -1 ||
+      atSymbolIndex === -1 ||
+      atSymbolIndex === importApiKey.length - 1
+    ) {
+      message.error(
+        "Invalid format. Expected: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)"
+      );
+      return;
+    }
+
+    // Extract driveID, password and endpoint
+    const driveID = importApiKey.substring(0, colonIndex).trim();
+    const password = importApiKey
+      .substring(colonIndex + 1, atSymbolIndex)
+      .trim();
+    let endpoint = importApiKey.substring(atSymbolIndex + 1).trim();
+
+    // Validate driveID
+    if (!driveID.startsWith("DriveID_")) {
+      message.error(
+        "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+      );
+      return;
+    }
+
+    // Remove trailing slash if present in endpoint
+    if (endpoint.endsWith("/")) {
+      endpoint = endpoint.slice(0, -1);
+    }
+
+    try {
+      // Use either user-provided nickname or server-provided nickname
+      const profileNickToUse =
+        importApiUserNickname || importApiPreviewData.nickname || "API User";
+
+      const orgNickToUse =
+        importApiOrgNickname ||
+        importApiPreviewData.driveNickname ||
+        "Imported Organization";
+
+      // First check if a profile with this ICP address already exists
+      const existingProfiles = listOfProfiles.filter(
+        (profile) =>
+          profile.icpPublicAddress === importApiPreviewData.icpAddress
+      );
+
+      let profileToUse;
+
+      if (existingProfiles.length > 0) {
+        // Use existing profile
+        profileToUse = existingProfiles[0];
+        setSelectedProfileId(profileToUse.userID);
+      } else {
+        // Create a new profile
+        profileToUse = await createProfile({
+          icpPublicAddress: importApiPreviewData.icpAddress,
+          evmPublicAddress: importApiPreviewData.evmAddress || "",
+          seedPhrase: "",
+          note: `Imported via API password for organization ${driveID}`,
+          avatar: "",
+          nickname: profileNickToUse,
+        });
+      }
+
+      // Create the new organization with the API info
+      const newOrg = await createOrganization({
+        driveID: importApiPreviewData.driveID as DriveID,
+        nickname: orgNickToUse,
+        icpPublicAddress: importApiPreviewData.driveID.replace("DriveID_", ""),
+        endpoint: endpoint,
+        note: `Organization imported via API for user ${profileNickToUse}`,
+        defaultProfile: profileToUse.userID,
+      });
+
+      // Store the API key for later use
+      await createApiKey({
+        apiKeyID: `ApiKey_${uuidv4()}`,
+        userID: profileToUse.userID,
+        driveID: driveID,
+        note: `Auto-generated for ${orgNickToUse} (${endpoint})`,
+        value: password,
+        endpoint,
+      });
+
+      // Switch to this organization with the profile
+      await switchProfile(profileToUse);
+      await switchOrganization(newOrg, profileToUse.userID);
+
+      message.success(
+        `Successfully logged in to organization "${orgNickToUse}"`
+      );
+      setImportApiKey("");
+      setImportApiUserNickname("");
+      setImportApiOrgNickname("");
+      setImportApiPreviewData({
+        icpAddress: "",
+        evmAddress: "",
+        userID: "",
+        driveID: "",
+        isOwner: false,
+        nickname: "",
+        driveNickname: "",
+      });
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error("Error logging in to organization:", error);
+      message.error("Failed to log in to organization. Please try again.");
     }
   };
 
@@ -169,10 +644,11 @@ const OrganizationSwitcher = () => {
         icpPublicAddress: newDriveID, // This would come from identity system or be generated
         endpoint: "https://api.officex.app",
         note: `Created on ${new Date().toLocaleDateString()}`,
+        defaultProfile: "",
       });
 
       // Switch to the new organization
-      switchOrganization(newOrg);
+      await switchOrganization(newOrg, "");
 
       message.success(`Organization "${newOrgNickname}" created successfully!`);
       setIsModalVisible(false);
@@ -201,10 +677,11 @@ const OrganizationSwitcher = () => {
         icpPublicAddress: "", // This would be fetched or derived from the endpoint
         endpoint: normalizedEndpoint,
         note: `Imported on ${new Date().toLocaleDateString()}`,
+        defaultProfile: "",
       });
 
       // Switch to the imported organization
-      switchOrganization(newOrg);
+      await switchOrganization(newOrg, "");
 
       message.success(
         `Organization "${existingOrgNickname}" imported successfully!`
@@ -272,7 +749,7 @@ const OrganizationSwitcher = () => {
     }
   };
 
-  const handleEnterOrg = (orgId: string) => {
+  const handleEnterOrg = async (orgId: string) => {
     const org = listOfOrgs.find(
       (org) => org.driveID === orgId
     ) as IndexDB_Organization;
@@ -281,14 +758,18 @@ const OrganizationSwitcher = () => {
       (profile) => profile.userID === selectedProfileId
     );
 
+    console.log(
+      `Entering org ${org.nickname} with profile ${profile?.nickname}`
+    );
+
     if (org) {
       // Switch profile if needed and if a valid profile is selected
-      if (profile && currentProfile?.userID !== selectedProfileId) {
-        switchProfile(profile);
+      if (profile) {
+        await switchProfile(profile);
       }
 
       // Switch to the organization
-      switchOrganization(org);
+      await switchOrganization(org, profile?.userID);
       message.success(`Entered "${org.nickname}" organization`);
       setIsModalVisible(false);
     }
@@ -454,49 +935,30 @@ const OrganizationSwitcher = () => {
           </Form>
         </TabPane>
 
-        <TabPane tab="Add Existing Organization" key="existingOrg">
+        <TabPane tab="Login Existing" key="existingOrg">
           <Form layout="vertical">
             <Form.Item
               label={
-                <Space>
-                  Organization Name
-                  <Tooltip title="Enter a nickname for this organization. Only you will see this.">
-                    <QuestionCircleOutlined />
+                <span>
+                  Password&nbsp;
+                  <Tooltip title="Format: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)">
+                    <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Tooltip>
-                </Space>
+                </span>
               }
-              required
-              style={{ marginTop: "8px" }}
+              style={{ marginBottom: "16px" }}
+              validateStatus={importApiError ? "error" : ""}
+              help={importApiError}
             >
-              <Input
-                value={existingOrgNickname}
-                onChange={(e) => setExistingOrgNickname(e.target.value)}
-                placeholder="Enter organization nickname"
+              <Input.TextArea
+                value={importApiKey}
+                onChange={handlePasswordChange}
+                placeholder="DriveID_abc123:password123@https://endpoint.com"
+                rows={2}
               />
             </Form.Item>
 
-            <Form.Item
-              label={
-                <Space>
-                  Endpoint URL
-                  <Tooltip title="Enter the endpoint URL of the existing organization">
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </Space>
-              }
-              required
-              style={{ marginTop: "-8px" }}
-            >
-              <Input
-                value={existingOrgEndpoint}
-                onChange={(e) => {
-                  setExistingOrgEndpoint(e.target.value);
-                  setPreviewEndpoint(e.target.value);
-                }}
-                placeholder="https://api.officex.app"
-                prefix={<LinkOutlined />}
-              />
-            </Form.Item>
+            {renderApiLoginPreviewSection()}
 
             <div
               style={{
@@ -512,12 +974,14 @@ const OrganizationSwitcher = () => {
                 <Button
                   key="submit"
                   type="primary"
-                  onClick={handleImportExistingOrg}
+                  onClick={handleApiLogin}
                   disabled={
-                    !existingOrgNickname.trim() || !existingOrgEndpoint.trim()
+                    !importApiPreviewData.userID ||
+                    !importApiPreviewData.icpAddress ||
+                    importApiLoading
                   }
                 >
-                  Add Existing Organization
+                  Login Organization
                 </Button>
               </Space>
             </div>
@@ -554,7 +1018,6 @@ const OrganizationSwitcher = () => {
     ) as IndexDB_Organization;
 
     if (!org) return null;
-
     return (
       <Modal
         title={

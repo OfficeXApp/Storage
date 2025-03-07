@@ -631,7 +631,43 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                   }}
                 >
                   <span style={{ color: "#8c8c8c", marginRight: "4px" }}>
-                    Nickname
+                    Org ICP
+                  </span>
+                </div>
+                <Input
+                  value={importApiPreviewData.driveID.replace("DriveID_", "")}
+                  readOnly
+                  variant="borderless"
+                  style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
+                  suffix={
+                    <Typography.Text
+                      copyable={{
+                        text: importApiPreviewData.driveID.replace(
+                          "DriveID_",
+                          ""
+                        ),
+                      }}
+                      style={{ color: "#8c8c8c" }}
+                    />
+                  }
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c", marginRight: "4px" }}>
+                    Profile
                   </span>
                 </div>
                 <Input
@@ -963,6 +999,17 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
 
                 // Switch to the new profile
                 await switchProfile(newProfile);
+
+                // Switch to the newly created organization with the current profile as default
+                const newOrg = await createOrganization({
+                  driveID: importApiPreviewData.driveID,
+                  nickname: importApiOrgNickname || "Imported Organization",
+                  icpPublicAddress: importApiPreviewData.icpAddress,
+                  endpoint: endpoint,
+                  note: `Organization imported via API for user ${nickToUse}`,
+                  defaultProfile: newProfile.userID,
+                });
+                await switchOrganization(newOrg, newProfile.userID);
 
                 // Store the API key for later use - store the full string including driveID
                 await createApiKey({

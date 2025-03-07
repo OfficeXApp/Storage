@@ -89,12 +89,14 @@ interface IdentitySystemContextType {
     icpPublicAddress,
     endpoint,
     note,
+    defaultProfile,
   }: {
     driveID: DriveID;
     nickname: string;
     icpPublicAddress: string;
     endpoint: string;
     note: string;
+    defaultProfile: string;
   }) => Promise<IndexDB_Organization>;
   readOrganization: (driveID: DriveID) => Promise<IndexDB_Organization | null>;
   updateOrganization: (org: IndexDB_Organization) => Promise<void>;

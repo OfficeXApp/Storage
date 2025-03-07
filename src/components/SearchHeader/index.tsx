@@ -30,7 +30,9 @@ import {
   DeleteOutlined,
   PlusOutlined,
   SaveOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
+import { v4 as uuidv4 } from "uuid";
 import { FileMetadata, FolderMetadata, useDrive } from "../../framework";
 import { Link, useNavigate } from "react-router-dom";
 import { trimToFolderPath, truncateMiddlePath } from "../../api/helpers";
@@ -40,6 +42,7 @@ import { useIdentitySystem } from "../../framework/identity"; // Import correcte
 import { IndexDB_Profile } from "../../framework/identity";
 import { shortenAddress } from "../../framework/identity/constants";
 import { UserID } from "@officexapp/types";
+import { debounce } from "lodash";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -57,8 +60,15 @@ interface HeaderProps {
 }
 
 const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
-  const { currentProfile, deriveProfileFromSeed, readProfile } =
-    useIdentitySystem();
+  const {
+    currentProfile,
+    deriveProfileFromSeed,
+    readProfile,
+    listOfOrgs,
+    createOrganization,
+    createApiKey,
+    switchOrganization,
+  } = useIdentitySystem();
   const [searchValue, setSearchValue] = useState("");
   const [options, setOptions] = useState<
     { value: string; label: React.ReactNode }[]
@@ -73,6 +83,16 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     null
   );
+  const [importApiLoading, setImportApiLoading] = useState(false);
+  const [importApiError, setImportApiError] = useState<string | null>(null);
+  const [importApiPreviewAddresses, setImportApiPreviewAddresses] = useState({
+    icpAddress: "",
+    evmAddress: "",
+    userID: "",
+    driveID: "",
+    isOwner: false,
+    nickname: "",
+  });
 
   // Separate state for each tab
   const [newUserNickname, setNewUserNickname] = useState("Anonymous");
@@ -530,6 +550,277 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
       </details>
     );
   };
+  const renderApiLoginPreviewSection = () => {
+    return (
+      <details style={{ marginBottom: "8px" }} open>
+        <summary
+          style={{
+            cursor: "pointer",
+            color: "#595959",
+            fontSize: "14px",
+            marginBottom: "4px",
+            userSelect: "none",
+          }}
+        >
+          Preview
+        </summary>
+        <div
+          style={{
+            padding: "0 12px",
+            marginBottom: "8px",
+            fontSize: "13px",
+          }}
+        >
+          {importApiLoading ? (
+            <div style={{ textAlign: "center", padding: "10px" }}>
+              <SyncOutlined spin />
+              <span style={{ marginLeft: "8px" }}>Verifying password...</span>
+            </div>
+          ) : importApiError ? (
+            <div style={{ color: "#ff4d4f", padding: "10px" }}>
+              {importApiError}
+            </div>
+          ) : importApiPreviewAddresses.userID ? (
+            <>
+              {/* Editable nickname field */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c", marginRight: "4px" }}>
+                    Nickname
+                  </span>
+                </div>
+                <Input
+                  value={importApiUserNickname}
+                  onChange={(e) => setImportApiUserNickname(e.target.value)}
+                  placeholder="Enter nickname"
+                  variant="borderless"
+                  style={{
+                    flex: 1,
+                    color: "#1f1f1f",
+                    padding: "0",
+                    borderBottom: "1px dashed #d9d9d9",
+                    borderRadius: 0,
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c", marginRight: "4px" }}>
+                    ICP
+                  </span>
+                </div>
+                <Input
+                  value={importApiPreviewAddresses.icpAddress}
+                  readOnly
+                  variant="borderless"
+                  style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
+                  suffix={
+                    <Typography.Text
+                      copyable={{ text: importApiPreviewAddresses.icpAddress }}
+                      style={{ color: "#8c8c8c" }}
+                    />
+                  }
+                />
+              </div>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    minWidth: "70px",
+                  }}
+                >
+                  <span style={{ color: "#8c8c8c" }}>EVM</span>
+                </div>
+                <Input
+                  value={importApiPreviewAddresses.evmAddress}
+                  readOnly
+                  variant="borderless"
+                  style={{ flex: 1, color: "#8c8c8c", padding: "0" }}
+                  suffix={
+                    <Typography.Text
+                      copyable={{ text: importApiPreviewAddresses.evmAddress }}
+                      style={{ color: "#8c8c8c" }}
+                    />
+                  }
+                />
+              </div>
+            </>
+          ) : (
+            <div
+              style={{ padding: "10px", color: "#8c8c8c", textAlign: "center" }}
+            >
+              Enter a valid password to see account details
+            </div>
+          )}
+        </div>
+      </details>
+    );
+  };
+  const debouncedFetchWhoAmI = useCallback(
+    debounce(async (passwordInput: string) => {
+      if (!passwordInput || passwordInput.trim() === "") {
+        setImportApiPreviewAddresses({
+          icpAddress: "",
+          evmAddress: "",
+          userID: "",
+          driveID: "",
+          isOwner: false,
+          nickname: "",
+        });
+        setImportApiLoading(false);
+        return;
+      }
+
+      try {
+        // Parse the new format DriveID_abc123:password123@https://endpoint.com
+        // First check for the colon to separate driveID from password
+        const colonIndex = passwordInput.indexOf(":");
+        const atSymbolIndex = passwordInput.lastIndexOf("@");
+
+        if (
+          colonIndex === -1 ||
+          atSymbolIndex === -1 ||
+          atSymbolIndex === passwordInput.length - 1
+        ) {
+          throw new Error(
+            "Invalid format. Expected: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)"
+          );
+        }
+
+        // Extract driveID, password and endpoint
+        const driveID = passwordInput.substring(0, colonIndex).trim();
+        const password = passwordInput
+          .substring(colonIndex + 1, atSymbolIndex)
+          .trim();
+        let endpoint = passwordInput.substring(atSymbolIndex + 1).trim();
+
+        // Validate driveID
+        if (!driveID.startsWith("DriveID_")) {
+          throw new Error(
+            "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+          );
+        }
+
+        // Remove trailing slash if present in endpoint
+        if (endpoint.endsWith("/")) {
+          endpoint = endpoint.slice(0, -1);
+        }
+
+        // Construct the whoami URL with the specific drive ID
+        const whoamiUrl = `${endpoint}/v1/${driveID}/organization/whoami`;
+
+        // Important: Only the password part should go in the Authorization header, not the driveID
+        const response = await fetch(whoamiUrl, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${password}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Received data:", data);
+
+        // Handle nested structure where data is inside ok.data
+        if (data && data.ok && data.ok.data) {
+          const whoAmI = data.ok.data;
+          console.log("setImportApiPreviewAddresses", {
+            icpAddress: whoAmI.icp_principal,
+            evmAddress: whoAmI.evm_public_address || "",
+            userID: whoAmI.userID,
+            driveID: driveID, // Use the extracted drive ID
+            isOwner: whoAmI.is_owner,
+            nickname: whoAmI.nickname || "",
+          });
+          setImportApiPreviewAddresses({
+            icpAddress: whoAmI.icp_principal,
+            evmAddress: whoAmI.evm_public_address || "",
+            userID: whoAmI.userID,
+            driveID: driveID, // Use the extracted drive ID
+            isOwner: whoAmI.is_owner,
+            nickname: whoAmI.nickname || "",
+          });
+          console.log(`importaApiPreview`, importApiPreviewAddresses);
+
+          // Auto-populate nickname field if it's empty and server returned a nickname
+          if (!importApiUserNickname && whoAmI.nickname) {
+            setImportApiUserNickname(whoAmI.nickname);
+          }
+        } else {
+          throw new Error("Invalid response format from server");
+        }
+
+        setImportApiError(null);
+      } catch (error) {
+        console.error("Error fetching whoami:", error);
+        setImportApiError(
+          error instanceof Error
+            ? error.message
+            : "Invalid password or network error"
+        );
+        setImportApiPreviewAddresses({
+          icpAddress: "",
+          evmAddress: "",
+          userID: "",
+          driveID: "",
+          isOwner: false,
+          nickname: "",
+        });
+      } finally {
+        setImportApiLoading(false);
+      }
+    }, 500),
+    [importApiUserNickname]
+  );
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newPassword = e.target.value;
+    setImportApiKey(newPassword);
+
+    if (newPassword && newPassword.trim() !== "") {
+      setImportApiLoading(true);
+      debouncedFetchWhoAmI(newPassword);
+    } else {
+      debouncedFetchWhoAmI.cancel();
+      setImportApiLoading(false);
+      setImportApiError(null);
+      setImportApiPreviewAddresses({
+        icpAddress: "",
+        evmAddress: "",
+        userID: "",
+        driveID: "",
+        isOwner: false,
+        nickname: "",
+      });
+    }
+  };
   const renderAddNewUserModal = () => (
     <Modal
       title="Add Profile"
@@ -543,36 +834,129 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           key="submit"
           type="primary"
           disabled={
-            activeTabKey === "importSeed" &&
-            importUserPreviewAddresses.evmAddress == "Invalid seed"
+            (activeTabKey === "importSeed" &&
+              importUserPreviewAddresses.evmAddress === "Invalid seed") ||
+            (activeTabKey === "importApi" &&
+              (!importApiPreviewAddresses.userID ||
+                !importApiPreviewAddresses.icpAddress ||
+                importApiLoading))
           }
           onClick={async () => {
             try {
-              // Determine which seed and nickname to use based on active tab
-              const seedToUse =
-                activeTabKey === "newUser" ? newSeedPhrase : importSeedPhrase;
-              const nicknameToUse =
-                activeTabKey === "newUser"
-                  ? newUserNickname
-                  : importUserNickname;
+              // Handle different tabs
+              if (activeTabKey === "newUser" || activeTabKey === "importSeed") {
+                // Determine which seed and nickname to use based on active tab
+                const seedToUse =
+                  activeTabKey === "newUser" ? newSeedPhrase : importSeedPhrase;
+                const nicknameToUse =
+                  activeTabKey === "newUser"
+                    ? newUserNickname
+                    : importUserNickname;
 
-              // Create new anonymous user or import from seed
-              const newAuthProfile = await deriveProfileFromSeed(seedToUse);
+                // Create new anonymous user or import from seed
+                const newAuthProfile = await deriveProfileFromSeed(seedToUse);
 
-              // Add currentProfile to local storage
-              const newProfile = await createProfile({
-                icpPublicAddress: newAuthProfile.icpPublicAddress,
-                evmPublicAddress: newAuthProfile.evmPublicAddress,
-                seedPhrase: seedToUse,
-                note: "",
-                avatar: "",
-                nickname: nicknameToUse,
-              });
+                // Add profile to local storage
+                const newProfile = await createProfile({
+                  icpPublicAddress: newAuthProfile.icpPublicAddress,
+                  evmPublicAddress: newAuthProfile.evmPublicAddress,
+                  seedPhrase: seedToUse,
+                  note: "",
+                  avatar: "",
+                  nickname: nicknameToUse,
+                });
 
-              // Select the new currentProfile
-              await switchProfile(newProfile);
+                // Select the new profile
+                await switchProfile(newProfile);
 
-              message.success(`User ${nicknameToUse} added successfully!`);
+                message.success(`User ${nicknameToUse} added successfully!`);
+              } else if (activeTabKey === "importApi") {
+                // Only proceed if we have valid API preview data
+                if (
+                  !importApiPreviewAddresses.userID ||
+                  !importApiPreviewAddresses.icpAddress
+                ) {
+                  message.error("Invalid or expired password");
+                  return;
+                }
+
+                // Parse the new format DriveID_abc123:password123@https://endpoint.com
+                const colonIndex = importApiKey.indexOf(":");
+                const atSymbolIndex = importApiKey.lastIndexOf("@");
+
+                if (
+                  colonIndex === -1 ||
+                  atSymbolIndex === -1 ||
+                  atSymbolIndex === importApiKey.length - 1
+                ) {
+                  message.error(
+                    "Invalid format. Expected: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)"
+                  );
+                  return;
+                }
+
+                // Extract driveID, password and endpoint
+                const driveID = importApiKey.substring(0, colonIndex).trim();
+                const password = importApiKey
+                  .substring(colonIndex + 1, atSymbolIndex)
+                  .trim();
+                let endpoint = importApiKey.substring(atSymbolIndex + 1).trim();
+
+                // Validate driveID
+                if (!driveID.startsWith("DriveID_")) {
+                  message.error(
+                    "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+                  );
+                  return;
+                }
+
+                // Remove trailing slash if present in endpoint
+                if (endpoint.endsWith("/")) {
+                  endpoint = endpoint.slice(0, -1);
+                }
+
+                // Use either user-provided nickname or server-provided nickname (if available)
+                const nickToUse =
+                  importApiUserNickname ||
+                  importApiPreviewAddresses.nickname ||
+                  "API User";
+
+                // Create the profile
+                const newProfile = await createProfile({
+                  icpPublicAddress: importApiPreviewAddresses.icpAddress,
+                  evmPublicAddress: importApiPreviewAddresses.evmAddress,
+                  seedPhrase: "",
+                  note: `Imported via API password for organization ${driveID}`,
+                  avatar: "",
+                  nickname: nickToUse,
+                });
+
+                // Switch to the new profile
+                await switchProfile(newProfile);
+
+                // Store the API key for later use - store the full string including driveID
+                await createApiKey({
+                  apiKeyID: `ApiKey_${uuidv4()}`,
+                  userID: newProfile.userID,
+                  driveID: driveID,
+                  note: `Auto-generated for ${nickToUse} (${endpoint})`,
+                  value: password,
+                  endpoint,
+                });
+
+                message.success(`Successfully logged in as ${nickToUse}`);
+                setImportApiKey("");
+                setImportApiUserNickname("");
+                setImportApiPreviewAddresses({
+                  icpAddress: "",
+                  evmAddress: "",
+                  userID: "",
+                  driveID: "",
+                  isOwner: false,
+                  nickname: "",
+                });
+              }
+
               setIsModalVisible(false);
             } catch (error) {
               console.error("Error adding user:", error);
@@ -580,7 +964,11 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             }
           }}
         >
-          {activeTabKey === "newUser" ? "Create Profile" : "Import Profile"}
+          {activeTabKey === "newUser"
+            ? "Create Profile"
+            : activeTabKey === "importSeed"
+              ? "Import Profile"
+              : "Login Existing"}
         </Button>,
       ]}
       width={500}
@@ -600,6 +988,33 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           {renderPreviewSection()}
         </TabPane>
 
+        <TabPane tab="Login Existing" key="importApi">
+          <Form layout="vertical">
+            <Form.Item
+              label={
+                <span>
+                  Password&nbsp;
+                  <Tooltip title="Format: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)">
+                    <InfoCircleOutlined style={{ color: "#aaa" }} />
+                  </Tooltip>
+                </span>
+              }
+              style={{ marginBottom: "16px" }}
+              validateStatus={importApiError ? "error" : ""}
+              help={importApiError}
+            >
+              <Input.TextArea
+                value={importApiKey}
+                onChange={handlePasswordChange}
+                placeholder="DriveID_abc123:password123@https://endpoint.com"
+                rows={2}
+              />
+            </Form.Item>
+          </Form>
+
+          {renderApiLoginPreviewSection()}
+        </TabPane>
+
         <TabPane tab="Import from Seed" key="importSeed">
           <Form layout="vertical">
             <Form.Item label="Nickname" style={{ marginBottom: "12px" }}>
@@ -615,28 +1030,6 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                 value={importSeedPhrase}
                 onChange={(e) => setImportSeedPhrase(e.target.value)}
                 placeholder="Enter 12-word seed phrase"
-                rows={2}
-              />
-            </Form.Item>
-          </Form>
-
-          {renderPreviewSection()}
-        </TabPane>
-
-        <TabPane tab="Import with API" key="importApi">
-          <Form layout="vertical">
-            <Form.Item label="Nickname" style={{ marginBottom: "12px" }}>
-              <Input
-                value={importApiUserNickname}
-                onChange={(e) => setImportApiUserNickname(e.target.value)}
-                placeholder="Enter nickname"
-              />
-            </Form.Item>
-            <Form.Item label="API Key" style={{ marginBottom: "16px" }}>
-              <Input.TextArea
-                value={importApiKey}
-                onChange={(e) => setImportApiKey(e.target.value)}
-                placeholder="Password shared by organization admin"
                 rows={2}
               />
             </Form.Item>

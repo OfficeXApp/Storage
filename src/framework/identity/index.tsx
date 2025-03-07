@@ -55,6 +55,7 @@ export interface IndexDB_ApiKey {
   driveID: string;
   note: string;
   value: string;
+  endpoint: string;
 }
 
 export interface AuthProfile {
@@ -63,7 +64,7 @@ export interface AuthProfile {
   icpAccount: {
     identity: Ed25519KeyIdentity;
     principal: Principal;
-  };
+  } | null;
   slug: string;
   nickname: string;
   userID: UserID;
@@ -278,27 +279,39 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   // Internal
   const hydrateFullAuthProfile = async (profile: IndexDB_Profile) => {
     _setCurrentProfile(profile);
-    const derivedKey = await deriveEd25519KeyFromSeed(
-      mnemonicToSeedSync(profile.seedPhrase || "")
-    );
-    // Create the identity from the derived key
-    const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
-    const publicKeyBuffer = hexStringToUint8Array(
-      profile.icpPublicAddress || ""
-    );
-    const principal = Principal.selfAuthenticating(publicKeyBuffer);
-    const auth_profile = {
-      evmPublicKey: profile.evmPublicAddress || "",
-      icpPublicKey: profile.icpPublicAddress || "",
-      slug: shortenAddress(profile.icpPublicAddress || ""),
-      nickname: profile.nickname || "",
-      userID: profile.userID || "",
-      icpAccount: {
-        identity,
-        principal,
-      },
-    };
-    setCurrentProfile(auth_profile);
+    if (profile.seedPhrase) {
+      const derivedKey = await deriveEd25519KeyFromSeed(
+        mnemonicToSeedSync(profile.seedPhrase || "")
+      );
+      // Create the identity from the derived key
+      const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
+      const publicKeyBuffer = hexStringToUint8Array(
+        profile.icpPublicAddress || ""
+      );
+      const principal = Principal.selfAuthenticating(publicKeyBuffer);
+      const auth_profile = {
+        evmPublicKey: profile.evmPublicAddress || "",
+        icpPublicKey: profile.icpPublicAddress || "",
+        slug: shortenAddress(profile.icpPublicAddress || ""),
+        nickname: profile.nickname || "",
+        userID: profile.userID || "",
+        icpAccount: {
+          identity,
+          principal,
+        },
+      };
+      setCurrentProfile(auth_profile);
+    } else {
+      const auth_profile = {
+        evmPublicKey: profile.evmPublicAddress || "",
+        icpPublicKey: profile.icpPublicAddress || "",
+        slug: shortenAddress(profile.icpPublicAddress || ""),
+        nickname: profile.nickname || "",
+        userID: profile.userID || "",
+        icpAccount: null,
+      };
+      setCurrentProfile(auth_profile);
+    }
   };
   const overwriteLocalStorageProfile = useCallback(
     (profile: IndexDB_Profile) => {
@@ -371,6 +384,12 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       try {
         if (!currentProfile) {
           console.error("ICP account not initialized");
+          return null;
+        }
+        if (!currentProfile.icpAccount) {
+          console.error(
+            "No ICP Account via private key, this is likely an API user"
+          );
           return null;
         }
         const identity = currentProfile.icpAccount.identity;

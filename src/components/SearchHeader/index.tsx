@@ -282,7 +282,22 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               <UserOutlined />
               <span>{currentProfile.nickname || "Anonymous"}</span>
             </Space>
-            <Tag color="blue">
+            <Tag
+              color="blue"
+              onClick={() => {
+                if (currentProfile) {
+                  const userstring = `${currentProfile.nickname.replace(" ", "_")}@${currentProfile.userID}`;
+                  navigator.clipboard
+                    .writeText(userstring)
+                    .then(() => {
+                      message.success("Copied to clipboard!");
+                    })
+                    .catch(() => {
+                      message.error("Failed to copy to clipboard.");
+                    });
+                }
+              }}
+            >
               {shortenAddress(currentProfile.icpPublicKey)}
             </Tag>
           </Space>

@@ -74,3 +74,7 @@ export function checkShouldAllowWorldComputer(): boolean {
   console.error("Window or location is undefined.");
   return false;
 }
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

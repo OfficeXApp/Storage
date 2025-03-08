@@ -33,7 +33,6 @@ import {
 import { getFileExtension, sanitizeFilePath } from "./helpers";
 
 import { StorjClient, S3ClientAuth } from "./storage/storj-web3";
-import { UserID } from "../identity/types";
 import IndexedDBStorage from "./storage/indexdb";
 import {
   BehaviorSubject,
@@ -51,6 +50,7 @@ import {
   // takeUntil,
   tap,
 } from "rxjs";
+import { UserID } from "@officexapp/types";
 
 class DriveDB {
   // hashtables

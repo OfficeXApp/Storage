@@ -31,11 +31,15 @@ import {
   useIdentitySystem,
 } from "../../framework/identity";
 import { DriveID } from "@officexapp/types";
-import { shortenAddress } from "../../framework/identity/constants";
+import {
+  FACTORY_CANISTER_ENDPOINT,
+  shortenAddress,
+} from "../../framework/identity/constants";
 import { debounce } from "lodash";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { UserID } from "@officexapp/types";
 import { v4 as uuidv4 } from "uuid";
+import { sleep } from "../../api/helpers";
 
 const { TabPane } = Tabs;
 
@@ -76,9 +80,11 @@ const OrganizationSwitcher = () => {
   const [editOrgEndpoint, setEditOrgEndpoint] = useState("");
   const [editOrgNote, setEditOrgNote] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
 
   // Preview states
   const [previewEndpoint, setPreviewEndpoint] = useState("");
+  const [giftCardValue, setGiftCardValue] = useState("");
 
   const [importApiLoading, setImportApiLoading] = useState(false);
   const [importApiError, setImportApiError] = useState<string | null>(null);
@@ -115,6 +121,12 @@ const OrganizationSwitcher = () => {
         } else if (listOfProfiles.length > 0) {
           setSelectedProfileId(listOfProfiles[0].userID);
         }
+      }
+    } else if (modalMode === "new") {
+      if (currentProfile) {
+        setSelectedProfileId(currentProfile.userID);
+      } else if (listOfProfiles.length > 0) {
+        setSelectedProfileId(listOfProfiles[0].userID);
       }
     }
   }, [modalMode, selectedOrgId, listOfOrgs, currentProfile, listOfProfiles]);
@@ -295,6 +307,7 @@ const OrganizationSwitcher = () => {
       setActiveTabKey("newOrg");
       setModalMode("new");
       setIsModalVisible(true);
+      setGiftCardValue("");
     } else {
       // For entering or editing an existing organization
       setSelectedOrgId(driveID);
@@ -634,27 +647,192 @@ const OrganizationSwitcher = () => {
 
   const handleCreateNewOrg = async () => {
     try {
-      // Generate a unique drive ID for the new organization
-      const newDriveID = `DriveID_${newOrgNickname.replace(/\s+/g, "_")}_${Date.now()}`;
+      // Set loading state
+      setCreateLoading(true);
 
-      // Create the new organization
-      const newOrg = await createOrganization({
-        driveID: newDriveID as DriveID,
-        nickname: newOrgNickname,
-        icpPublicAddress: newDriveID, // This would come from identity system or be generated
-        endpoint: "https://api.officex.app",
-        note: `Created on ${new Date().toLocaleDateString()}`,
-        defaultProfile: "",
-      });
+      // Check if gift card is provided
+      if (giftCardValue && giftCardValue.trim() !== "") {
+        try {
+          // Step 1: Redeem the gift card at the factory endpoint
+          const profile = listOfProfiles.find(
+            (profile) => profile.userID === selectedProfileId
+          );
 
-      // Switch to the new organization
-      await switchOrganization(newOrg, "");
+          if (!profile) {
+            throw new Error("No profile selected");
+          }
 
-      message.success(`Organization "${newOrgNickname}" created successfully!`);
-      setIsModalVisible(false);
+          // Extract ICP principal from profile UserID (remove the UserID prefix)
+          const icpPrincipal = profile.userID.replace("UserID_", "");
+
+          message.info("Redeeming gift card...");
+
+          // Make the first POST request to redeem the voucher
+          const redeemResponse = await fetch(
+            `${FACTORY_CANISTER_ENDPOINT}/v1/default/giftcards/redeem`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                id: giftCardValue,
+                owner_icp_principal: icpPrincipal,
+                organization_name: newOrgNickname,
+              }),
+            }
+          );
+
+          if (!redeemResponse.ok) {
+            message.error("Failed to redeem gift card");
+            throw new Error(
+              `Failed to redeem gift card: ${redeemResponse.statusText}`
+            );
+          }
+
+          const redeemData = await redeemResponse.json();
+
+          if (!redeemData.ok || !redeemData.ok.data) {
+            throw new Error("Invalid response from voucher redemption");
+          }
+
+          message.info("Syncing with the blockchain...");
+
+          // wait 5 seconds
+          await sleep(5000);
+
+          message.info("Claiming your cloud...");
+
+          const { drive_id, endpoint, redeem_code } = redeemData.ok.data;
+
+          // Step 2: Make the second POST request to complete the organization setup
+          const completeRedeemUrl = `${endpoint}/v1/${drive_id}/organization/redeem`;
+          const completeRedeemResponse = await fetch(completeRedeemUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              redeem_code: redeem_code,
+            }),
+          });
+
+          if (!completeRedeemResponse.ok) {
+            throw new Error(
+              `Failed to complete organization setup: ${completeRedeemResponse.statusText}`
+            );
+          }
+
+          const completeRedeemData = await completeRedeemResponse.json();
+
+          if (!completeRedeemData.ok || !completeRedeemData.ok.data) {
+            message.error(`Error deploying organization - ${redeem_code}`);
+            localStorage.setItem("FACTORY_REDEEM_CODE", redeem_code);
+            throw new Error("Invalid response from organization setup");
+          }
+
+          // Extract the admin login password from the response
+          const { admin_login_password } = completeRedeemData.ok.data;
+
+          // Step 3: Use the admin login password to log in with the API flow
+          // Parse the format DriveID_abc123:password123@https://endpoint.com
+          const colonIndex = admin_login_password.indexOf(":");
+          const atSymbolIndex = admin_login_password.lastIndexOf("@");
+
+          if (
+            colonIndex === -1 ||
+            atSymbolIndex === -1 ||
+            atSymbolIndex === admin_login_password.length - 1
+          ) {
+            throw new Error("Invalid admin login password format");
+          }
+
+          // Extract driveID, password and endpoint
+          const driveID = admin_login_password.substring(0, colonIndex).trim();
+          const password = admin_login_password
+            .substring(colonIndex + 1, atSymbolIndex)
+            .trim();
+          let adminEndpoint = admin_login_password
+            .substring(atSymbolIndex + 1)
+            .trim();
+
+          // Validate driveID
+          if (!driveID.startsWith("DriveID_")) {
+            throw new Error("Invalid Drive ID format in admin login password");
+          }
+
+          // Remove trailing slash if present in endpoint
+          if (adminEndpoint.endsWith("/")) {
+            adminEndpoint = adminEndpoint.slice(0, -1);
+          }
+
+          // Use either user-provided nickname or the one we set earlier
+          const profileNickToUse = profile.nickname || "API User";
+          const orgNickToUse = newOrgNickname;
+
+          // Create the new organization with the API info
+          const newOrg = await createOrganization({
+            driveID: driveID as DriveID,
+            nickname: orgNickToUse,
+            icpPublicAddress: driveID.replace("DriveID_", ""),
+            endpoint: adminEndpoint,
+            note: `Organization created with gift card ${giftCardValue}`,
+            defaultProfile: profile.userID,
+          });
+
+          // Store the API key for later use
+          await createApiKey({
+            apiKeyID: `ApiKey_${uuidv4()}`,
+            userID: profile.userID,
+            driveID: driveID,
+            note: `Auto-generated from gift card for ${orgNickToUse} (${adminEndpoint})`,
+            value: password,
+            endpoint: adminEndpoint,
+          });
+
+          // Switch to this organization with the profile
+          await switchProfile(profile);
+          await switchOrganization(newOrg, profile.userID);
+
+          message.success(
+            `Successfully created organization "${orgNickToUse}" with gift card`
+          );
+          setGiftCardValue("");
+          setIsModalVisible(false);
+        } catch (error) {
+          console.error("Error redeeming gift card:", error);
+          message.error(
+            `Failed to redeem gift card: ${error instanceof Error ? error.message : "Unknown error"}`
+          );
+        }
+      } else {
+        // Original flow for creating organization without gift card
+        // Generate a unique drive ID for the new organization
+        const newDriveID = `DriveID_${newOrgNickname.replace(/\s+/g, "_")}_${Date.now()}`;
+
+        // Create the new organization
+        const newOrg = await createOrganization({
+          driveID: newDriveID as DriveID,
+          nickname: newOrgNickname,
+          icpPublicAddress: newDriveID,
+          endpoint: "https://api.officex.app",
+          note: `Created on ${new Date().toLocaleDateString()}`,
+          defaultProfile: selectedProfileId, // Use the selectedProfileId
+        });
+
+        // Switch to the new organization
+        await switchOrganization(newOrg, selectedProfileId);
+
+        message.success(
+          `Organization "${newOrgNickname}" created successfully!`
+        );
+        setIsModalVisible(false);
+      }
     } catch (error) {
       console.error("Error creating organization:", error);
       message.error("Failed to create organization. Please try again.");
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -777,7 +955,7 @@ const OrganizationSwitcher = () => {
 
   const renderPreviewSection = (endpoint: string) => {
     return (
-      <details style={{ marginBottom: "12px", marginTop: "-16px" }}>
+      <details style={{ marginBottom: "12px", marginTop: "8px" }}>
         <summary
           style={{
             cursor: "pointer",
@@ -789,21 +967,30 @@ const OrganizationSwitcher = () => {
         >
           Advanced
         </summary>
+        <Form.Item label={<Space>Owner</Space>} style={{ marginTop: "8px" }}>
+          <Select
+            style={{ width: "100%" }}
+            options={renderProfileOptions()}
+            value={selectedProfileId}
+            onChange={setSelectedProfileId}
+            placeholder="Select Profile"
+          />
+        </Form.Item>
         <Form.Item
           label={
             <Space>
-              Endpoint URL
-              <Tooltip title="Enter the endpoint URL of the existing organization. Leave empty for offline local org">
+              Gift Card
+              <Tooltip title="Gift Cards let you connect to the world computer $ICP">
                 <QuestionCircleOutlined />
               </Tooltip>
             </Space>
           }
-          style={{ marginTop: "8px" }}
+          style={{ marginTop: "-16px" }}
         >
           <Input
-            value={endpoint || ""}
-            onChange={(e) => setPreviewEndpoint(e.target.value)}
-            placeholder="https://api.officex.app"
+            value={giftCardValue}
+            onChange={(e) => setGiftCardValue(e.target.value)}
+            placeholder="GiftCardID_abc123"
             style={{ flex: 1, color: "#8c8c8c" }}
             prefix={<LinkOutlined />}
           />
@@ -927,6 +1114,7 @@ const OrganizationSwitcher = () => {
                   type="primary"
                   onClick={handleCreateNewOrg}
                   disabled={!newOrgNickname.trim()}
+                  loading={createLoading}
                 >
                   Create Organization
                 </Button>

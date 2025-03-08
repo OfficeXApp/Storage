@@ -44,9 +44,7 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
   return result;
 };
 
-// [TEMP]
-export const FACTORY_CANISTER_ID = "jjx63-5iaaa-aaaak-ao7xq-cai";
-// export const FACTORY_CANISTER_ID =
-//   window.location.origin === "http://localhost:5173"
-//     ? "bkyz2-fmaaa-aaaaa-qaaaq-cai"
-//     : "jjx63-5iaaa-aaaak-ao7xq-cai";
+// LOCAL vs. PROD
+// "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000/v1/default/giftcards/redeem"
+export const FACTORY_CANISTER_ENDPOINT =
+  "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000";

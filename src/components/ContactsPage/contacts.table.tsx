@@ -9,6 +9,7 @@ import {
   Tag,
   Badge,
   Menu,
+  List,
 } from "antd";
 import {
   BarsOutlined,
@@ -20,10 +21,12 @@ import {
   UserAddOutlined,
   MailOutlined,
   DeleteOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
 import { ContactFE } from "@officexapp/types";
+import useScreenType from "react-screentype-hook";
 
 interface ContactsTableListProps {
   contacts: ContactFE[];
@@ -36,6 +39,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   isContactTabOpen,
   handleContactTab,
 }) => {
+  const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredContacts, setFilteredContacts] = useState(contacts);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -171,6 +175,73 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     { key: "3", label: "Option 3" },
   ];
 
+  const renderMobileList = () => {
+    return (
+      <List
+        itemLayout="horizontal"
+        dataSource={filteredContacts}
+        renderItem={(contact: ContactFE) => (
+          <List.Item
+            style={{
+              padding: "12px 16px",
+              cursor: "pointer",
+              backgroundColor: isContactTabOpen(contact.id)
+                ? "#e6f7ff"
+                : "transparent",
+            }}
+            onClick={() => handleContactTab(contact, true)}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                justifyContent: "space-between",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+              >
+                <Avatar
+                  size="default"
+                  src={
+                    contact.avatar
+                      ? contact.avatar
+                      : `https://ui-avatars.com/api/?name=${contact.name}`
+                  }
+                />
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <span style={{ fontWeight: "500" }}>{contact.name}</span>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <Badge color="green" dot />
+                    <span
+                      style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}
+                    >
+                      <ClockCircleOutlined style={{ marginRight: 4 }} />
+                      Active 2h ago
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+              >
+                <Tag color="default">{shortenAddress(contact.id)}</Tag>
+                <RightOutlined style={{ color: "rgba(0,0,0,0.4)" }} />
+              </div>
+            </div>
+          </List.Item>
+        )}
+      />
+    );
+  };
+
   return (
     <div
       style={{
@@ -215,7 +286,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                   </Space>
                 </a>
               </Dropdown>
-
               <Dropdown menu={{ items: filterItems, onClick: () => {} }}>
                 <a
                   onClick={(e) => e.preventDefault()}
@@ -226,7 +296,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                   </Space>
                 </a>
               </Dropdown>
-
               <Dropdown menu={{ items: filterItems, onClick: () => {} }}>
                 <a
                   onClick={(e) => e.preventDefault()}
@@ -237,7 +306,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                   </Space>
                 </a>
               </Dropdown>
-
               <Dropdown
                 menu={{ items: manageMenuItems }}
                 disabled={selectedRowKeys.length === 0}
@@ -305,30 +373,34 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                   </a>
                 </Dropdown>
 
-                <Dropdown menu={{ items: filterItems, onClick: () => {} }}>
-                  <a
-                    onClick={(e) => e.preventDefault()}
-                    style={{ color: "rgba(0,0,0,0.4)" }}
-                  >
-                    <Space>
-                      <TeamOutlined /> Group By <DownOutlined />
-                    </Space>
-                  </a>
-                </Dropdown>
+                {!screenType.isMobile && (
+                  <Dropdown menu={{ items: filterItems, onClick: () => {} }}>
+                    <a
+                      onClick={(e) => e.preventDefault()}
+                      style={{ color: "rgba(0,0,0,0.4)" }}
+                    >
+                      <Space>
+                        <TeamOutlined /> Group By <DownOutlined />
+                      </Space>
+                    </a>
+                  </Dropdown>
+                )}
               </div>
 
-              <Dropdown
-                menu={{ items: manageMenuItems }}
-                disabled={selectedRowKeys.length === 0}
-              >
-                <Button>
-                  Manage{" "}
-                  {selectedRowKeys.length > 0
-                    ? `(${selectedRowKeys.length})`
-                    : ""}
-                  <DownOutlined />
-                </Button>
-              </Dropdown>
+              {!screenType.isMobile && (
+                <Dropdown
+                  menu={{ items: manageMenuItems }}
+                  disabled={selectedRowKeys.length === 0}
+                >
+                  <Button>
+                    Manage{" "}
+                    {selectedRowKeys.length > 0
+                      ? `(${selectedRowKeys.length})`
+                      : ""}
+                    <DownOutlined />
+                  </Button>
+                </Dropdown>
+              )}
             </div>
           </div>
         </div>
@@ -336,34 +408,40 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
 
       {/* Contacts Table */}
       <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
-        <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            columnWidth: 50,
-          }}
-          columns={columns}
-          dataSource={filteredContacts}
-          rowKey="id"
-          pagination={false}
-          onRow={(record) => ({
-            onClick: () => {
-              // Now clicking row just selects the checkbox
-              const key = record.id;
-              const newSelectedRowKeys = selectedRowKeys.includes(key)
-                ? selectedRowKeys.filter((k) => k !== key)
-                : [...selectedRowKeys, key];
-              setSelectedRowKeys(newSelectedRowKeys);
-            },
-            style: {
-              backgroundColor: selectedRowKeys.includes(record.id)
-                ? "#e6f7ff"
-                : "transparent",
-              cursor: "pointer",
-            },
-          })}
-          size="middle"
-        />
+        {screenType.isMobile ? (
+          renderMobileList()
+        ) : (
+          <Table
+            rowSelection={{
+              type: "checkbox",
+              ...rowSelection,
+              columnWidth: 50,
+            }}
+            columns={columns}
+            dataSource={filteredContacts}
+            rowKey="id"
+            pagination={false}
+            onRow={(record) => ({
+              onClick: () => {
+                // Now clicking row just selects the checkbox
+                const key = record.id;
+                const newSelectedRowKeys = selectedRowKeys.includes(key)
+                  ? selectedRowKeys.filter((k) => k !== key)
+                  : [...selectedRowKeys, key];
+                setSelectedRowKeys(newSelectedRowKeys);
+              },
+              style: {
+                backgroundColor: selectedRowKeys.includes(record.id)
+                  ? "#e6f7ff"
+                  : "transparent",
+                cursor: "pointer",
+              },
+            })}
+            size="middle"
+          />
+        )}
+        <br />
+        <br />
       </div>
     </div>
   );

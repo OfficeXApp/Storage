@@ -20,6 +20,7 @@ import ContactsAddDrawer from "./contacts.add";
 import ContactTab from "./contacts.tab";
 import ContactsTableList from "./contacts.table";
 import { SAMPLE_CONTACTS } from "./sample";
+import useScreenType from "react-screentype-hook";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -35,6 +36,7 @@ type TabItem = {
 const ContactsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const screenType = useScreenType();
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
@@ -158,7 +160,7 @@ const ContactsPage: React.FC = () => {
     >
       <Content
         style={{
-          padding: "0 16px",
+          padding: screenType.isMobile ? "0px" : "0 16px",
           flex: 1,
           display: "flex",
           flexDirection: "column",
@@ -170,7 +172,9 @@ const ContactsPage: React.FC = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-end",
-            margin: "0px 0px 16px 16px",
+            margin: screenType.isMobile
+              ? "0px 8px 8px 16px"
+              : "0px 0px 16px 16px",
           }}
         >
           <Title
@@ -184,7 +188,17 @@ const ContactsPage: React.FC = () => {
           >
             Contacts
           </Title>
-          <Button type="primary" icon={<PlusOutlined />} onClick={toggleDrawer}>
+          <Button
+            size={screenType.isMobile ? "small" : "middle"}
+            type={
+              screenType.isMobile && activeKey !== "list"
+                ? "default"
+                : "primary"
+            }
+            icon={<PlusOutlined />}
+            onClick={toggleDrawer}
+            style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
+          >
             Add Contact
           </Button>
         </div>
@@ -203,7 +217,7 @@ const ContactsPage: React.FC = () => {
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              minHeight: 0, // Critical fix for flexbox scrolling
+              minHeight: screenType.isMobile ? "70vh" : 0, // Critical fix for flexbox scrolling
             }}
           >
             {/* Custom tab bar with pinned first tab */}
@@ -283,7 +297,7 @@ const ContactsPage: React.FC = () => {
                 flex: 1,
                 overflow: "hidden",
                 display: "flex",
-                minHeight: 0,
+                minHeight: screenType.isMobile ? "70vh" : 0,
                 position: "relative", // Added for absolute positioning of children
               }}
             >
@@ -336,7 +350,9 @@ const ContactsPage: React.FC = () => {
         onAddContact={() => {}}
       />
 
-      <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>
+      {!screenType.isMobile && (
+        <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>
+      )}
     </Layout>
   );
 };

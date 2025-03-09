@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Card,
@@ -37,8 +37,12 @@ import {
   CodeOutlined,
 } from "@ant-design/icons";
 import { ContactFE, SystemPermissionType } from "@officexapp/types";
-import { shortenAddress } from "../../framework/identity/constants";
+import {
+  LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
+  shortenAddress,
+} from "../../framework/identity/constants";
 import CodeBlock from "../CodeBlock";
+import useScreenType from "react-screentype-hook";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -52,8 +56,18 @@ interface ContactTabProps {
 const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [showCodeSnippets, setShowCodeSnippets] = useState(true);
+  const [showCodeSnippets, setShowCodeSnippets] = useState(false);
   const [form] = Form.useForm();
+  const screenType = useScreenType();
+
+  useEffect(() => {
+    const _showCodeSnippets = localStorage.getItem(
+      LOCAL_STORAGE_TOGGLE_REST_API_DOCS
+    );
+    if (_showCodeSnippets === "true") {
+      setShowCodeSnippets(true);
+    }
+  }, []);
 
   const toggleEdit = () => {
     if (isEditing) {
@@ -195,26 +209,28 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
           <Space>
             {isEditing ? (
               <>
-                <Button onClick={handleSave} type="primary">
-                  Save Changes
-                </Button>
-                <Button onClick={toggleEdit} type="default">
+                <Button
+                  size={screenType.isMobile ? "small" : "middle"}
+                  onClick={toggleEdit}
+                  type="default"
+                >
                   Cancel
+                </Button>
+                <Button
+                  size={screenType.isMobile ? "small" : "middle"}
+                  onClick={handleSave}
+                  type="primary"
+                >
+                  Save Changes
                 </Button>
               </>
             ) : (
               <>
                 <Button
-                  icon={<TeamOutlined />}
-                  onClick={() => {}}
-                  type="primary"
-                >
-                  Invite
-                </Button>
-                <Button
                   icon={<EditOutlined />}
                   onClick={toggleEdit}
                   type="primary"
+                  size={screenType.isMobile ? "small" : "middle"}
                   ghost
                   disabled={
                     !contact.permission_previews.includes(
@@ -224,6 +240,14 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                 >
                   Edit
                 </Button>
+                <Button
+                  icon={<TeamOutlined />}
+                  onClick={() => {}}
+                  type="primary"
+                  size={screenType.isMobile ? "small" : "middle"}
+                >
+                  Invite
+                </Button>
               </>
             )}
           </Space>
@@ -231,7 +255,7 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
       </Row>
 
       <Row gutter={16}>
-        <Col span={showCodeSnippets ? 16 : 24}>
+        <Col span={showCodeSnippets && !screenType.isMobile ? 16 : 24}>
           <Card
             bordered={false}
             style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
@@ -331,6 +355,7 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                             flexDirection: "column",
                             justifyContent: "center",
                             height: "64px",
+                            marginTop: screenType.isMobile ? "-32px" : 0,
                           }}
                         >
                           <div
@@ -385,28 +410,34 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                   <Col span={24}>
                     {/* Always displayed fields */}
 
-                    <div
-                      style={{
-                        marginTop: 4,
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      {contact.tags.map((tag, index) => (
-                        <Tag
-                          key={index}
-                          style={{ marginBottom: 4, marginLeft: 4 }}
-                        >
-                          {tag}
-                        </Tag>
-                      ))}
-                    </div>
+                    {!screenType.isMobile && (
+                      <div
+                        style={{
+                          marginTop: 4,
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {contact.tags.map((tag, index) => (
+                          <Tag
+                            key={index}
+                            style={{ marginBottom: 4, marginLeft: 4 }}
+                          >
+                            {tag}
+                          </Tag>
+                        ))}
+                      </div>
+                    )}
 
                     <div
                       style={{
-                        marginBottom: 16,
-                        marginTop: contact.tags.length > 0 ? 0 : 32,
+                        marginBottom: screenType.isMobile ? 8 : 16,
+                        marginTop: screenType.isMobile
+                          ? 16
+                          : contact.tags.length > 0
+                            ? 0
+                            : 32,
                       }}
                     >
                       <Card size="small" style={{ marginTop: 8 }}>
@@ -414,6 +445,26 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                         {contact.public_note || "Add a public note"}
                       </Card>
                     </div>
+
+                    {screenType.isMobile && (
+                      <div
+                        style={{
+                          marginTop: 4,
+                          display: "flex",
+                          justifyContent: "flex-start",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {contact.tags.map((tag, index) => (
+                          <Tag
+                            key={index}
+                            style={{ marginBottom: 4, marginLeft: 4 }}
+                          >
+                            {tag}
+                          </Tag>
+                        ))}
+                      </div>
+                    )}
 
                     {/* Advanced section with details */}
                     <details
@@ -551,17 +602,29 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
         </Col>
 
         {/* Conditional rendering of code snippets column */}
-        {showCodeSnippets && <Col span={8}>{renderCodeSnippets()}</Col>}
+        {showCodeSnippets && !screenType.isMobile && (
+          <Col span={8}>{renderCodeSnippets()}</Col>
+        )}
       </Row>
 
       {/* FloatButton for View Code at bottom right corner */}
-      <FloatButton
-        icon={<CodeOutlined />}
-        type={showCodeSnippets ? "primary" : "default"}
-        tooltip={showCodeSnippets ? "Hide Code" : "View Code"}
-        onClick={() => setShowCodeSnippets(!showCodeSnippets)}
-        style={{ right: 24, bottom: 64 }}
-      />
+      {!screenType.isMobile && (
+        <FloatButton
+          icon={<CodeOutlined />}
+          type={showCodeSnippets ? "primary" : "default"}
+          tooltip={showCodeSnippets ? "Hide Code" : "View Code"}
+          onClick={() => {
+            setShowCodeSnippets(!showCodeSnippets);
+            localStorage.setItem(
+              LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
+              JSON.stringify(!showCodeSnippets)
+            );
+          }}
+          style={{ right: 24, bottom: 64 }}
+        />
+      )}
+      <br />
+      <br />
     </div>
   );
 };

@@ -321,6 +321,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
         >
           <Input
             prefix={<UserOutlined />}
+            size="large"
             placeholder="Enter name or userstring"
             onChange={handleNameChange}
             variant="borderless"

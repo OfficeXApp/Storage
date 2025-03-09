@@ -136,19 +136,11 @@ const SAMPLE_CONTACTS: ContactFE[] = [
     private_note: "Great at providing feedback, potential case study candidate",
     evm_public_address: "0x4567890123456789012345678901234567890123",
     icp_principal: "oazcs-eqaaa-aaaaa-aaaaq-cai",
-    teams: ["team_01HX7ZQA1BCDEF123456789"],
-    tags: ["design", "early-adopter"],
+    teams: [],
+    tags: [],
     last_online_at: 1709652045000, // March 5, 2025
     created_at: 1672603245000, // January 1, 2023
-    team_previews: [
-      {
-        team_id: "team_01HX7ZQA1BCDEF123456789",
-        invite_id: "invite_01HX8ZQA1BCDEF123456789",
-        is_admin: false,
-        team_name: "Design",
-        team_avatar: "",
-      },
-    ],
+    team_previews: [],
   },
   {
     // Contact 5
@@ -157,43 +149,17 @@ const SAMPLE_CONTACTS: ContactFE[] = [
     avatar: "",
     email: "elena.rodriguez@example.com",
     webhook_url: "https://webhook.site/567890-efgh-ijkl-mnop-567890123abc",
-    public_note: "CTO at TechStartup",
+    public_note: "",
     private_note:
       "Looking to scale their infrastructure, potential upsell opportunity",
     evm_public_address: "0x5678901234567890123456789012345678901234",
     icp_principal: "pfouk-5yaaa-aaaaa-aaaaq-cai",
-    teams: [
-      "team_01HX7ZQB1BCDEF123456789",
-      "team_01HX7ZQC1BCDEF123456789",
-      "team_01HX7ZQD1BCDEF123456789",
-    ],
-    tags: ["technical", "startup", "growth"],
+    teams: [],
+    tags: [],
     last_online_at: 1709565645000, // March 4, 2025
     created_at: 1683125445000, // May 3, 2023
     external_id: "TECH-34567",
-    team_previews: [
-      {
-        team_id: "team_01HX7ZQB1BCDEF123456789",
-        invite_id: "invite_01HX8ZQB1BCDEF123456789",
-        is_admin: true,
-        team_name: "Technical Leadership",
-        team_avatar: "",
-      },
-      {
-        team_id: "team_01HX7ZQC1BCDEF123456789",
-        invite_id: "invite_01HX8ZQC1BCDEF123456789",
-        is_admin: false,
-        team_name: "Infrastructure",
-        team_avatar: "",
-      },
-      {
-        team_id: "team_01HX7ZQD1BCDEF123456789",
-        invite_id: "invite_01HX8ZQD1BCDEF123456789",
-        is_admin: false,
-        team_name: "Product Development",
-        team_avatar: "",
-      },
-    ],
+    team_previews: [],
   },
   {
     // Contact 6
@@ -266,7 +232,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x8901234567890123456789012345678901234567",
     icp_principal: "ske6q-saaaa-aaaaa-aaaaq-cai",
     teams: ["team_01HX7ZQH1BCDEF123456789"],
-    tags: ["sales", "enterprise", "prospect"],
+    tags: [],
     last_online_at: 1709306445000, // March 1, 2025
     created_at: 1696149245000, // October 1, 2023
     external_id: "SALES-67890",
@@ -384,7 +350,7 @@ const ContactsPage: React.FC = () => {
 
   // Function to handle clicking on a contact
   const handleContactTab = useCallback(
-    (contact: ContactFE) => {
+    (contact: ContactFE, focus_tab = false) => {
       setLastClickedId(contact.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
@@ -418,7 +384,9 @@ const ContactsPage: React.FC = () => {
         });
 
         // Switch to the clicked contact's tab
-        // setActiveKey(contact.id);
+        if (focus_tab) {
+          setActiveKey(contact.id);
+        }
       }
     },
     [] // No dependencies needed since we use the ref

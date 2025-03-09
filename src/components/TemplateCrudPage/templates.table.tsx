@@ -28,7 +28,7 @@ import { shortenAddress } from "../../framework/identity/constants";
 interface TemplatesTableListProps {
   profiles: TemplateItem[];
   isTemplateTabOpen: (id: string) => boolean;
-  handleTemplateTab: (profile: TemplateItem) => void;
+  handleTemplateTab: (profile: TemplateItem, focus_tab?: boolean) => void;
 }
 
 const TemplatesTableList: React.FC<TemplatesTableListProps> = ({
@@ -153,7 +153,7 @@ const TemplatesTableList: React.FC<TemplatesTableListProps> = ({
           style={{ width: "100%" }} // Make button take up full column width
           onClick={(e) => {
             e.stopPropagation();
-            handleTemplateTab(record);
+            handleTemplateTab(record, true);
           }}
         >
           Open

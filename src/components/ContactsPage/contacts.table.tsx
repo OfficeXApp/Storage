@@ -28,7 +28,7 @@ import { ContactFE } from "@officexapp/types";
 interface ContactsTableListProps {
   contacts: ContactFE[];
   isContactTabOpen: (id: string) => boolean;
-  handleContactTab: (contact: ContactFE) => void;
+  handleContactTab: (contact: ContactFE, focus_tab?: boolean) => void;
 }
 
 const ContactsTableList: React.FC<ContactsTableListProps> = ({
@@ -155,7 +155,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           style={{ width: "100%" }} // Make button take up full column width
           onClick={(e) => {
             e.stopPropagation();
-            handleContactTab(record);
+            handleContactTab(record, true);
           }}
         >
           Open

@@ -193,7 +193,7 @@ const ContactsPage: React.FC = () => {
 
   // Function to handle clicking on a contact
   const handleTemplateTab = useCallback(
-    (profile: TemplateItem) => {
+    (profile: TemplateItem, focus_tab = false) => {
       setLastClickedId(profile.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
@@ -227,7 +227,9 @@ const ContactsPage: React.FC = () => {
         });
 
         // Switch to the clicked contact's tab
-        // setActiveKey(profile.id);
+        if (focus_tab) {
+          setActiveKey(profile.id);
+        }
       }
     },
     [] // No dependencies needed since we use the ref

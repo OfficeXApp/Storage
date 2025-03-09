@@ -13,12 +13,12 @@ export type TemplateItem = {
   phone?: string;
 };
 
-// Define the props for the ContactTab component
-interface ContactTabProps {
+// Define the props for the TemplateTab component
+interface TemplateTabProps {
   contact: TemplateItem;
 }
 
-const ContactTab: React.FC<ContactTabProps> = ({ contact }) => {
+const TemplateTab: React.FC<TemplateTabProps> = ({ contact }) => {
   const { name, email, phone } = contact;
   return (
     <div
@@ -86,4 +86,4 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact }) => {
   );
 };
 
-export default ContactTab;
+export default TemplateTab;

@@ -25,16 +25,16 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
 
-interface ContactsTableListProps {
+interface TemplatesTableListProps {
   profiles: TemplateItem[];
-  isContactTabOpen: (id: string) => boolean;
-  handleContactTab: (profile: TemplateItem) => void;
+  isTemplateTabOpen: (id: string) => boolean;
+  handleTemplateTab: (profile: TemplateItem) => void;
 }
 
-const ContactsTableList: React.FC<ContactsTableListProps> = ({
+const TemplatesTableList: React.FC<TemplatesTableListProps> = ({
   profiles,
-  isContactTabOpen,
-  handleContactTab,
+  isTemplateTabOpen,
+  handleTemplateTab,
 }) => {
   const [searchText, setSearchText] = useState("");
   const [filteredProfiles, setFilteredProfiles] = useState(profiles);
@@ -112,7 +112,12 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
       dataIndex: "name",
       key: "name",
       render: (_: any, record: TemplateItem) => (
-        <Space>
+        <Space
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleTemplateTab(record);
+          }}
+        >
           <Avatar
             size="default"
             src={
@@ -142,13 +147,13 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
       width: 150, // Increased width for actions column
       render: (_: any, record: TemplateItem) => (
         <Button
-          type={isContactTabOpen(record.id) ? "primary" : "default"}
-          ghost={isContactTabOpen(record.id)}
+          type={isTemplateTabOpen(record.id) ? "primary" : "default"}
+          ghost={isTemplateTabOpen(record.id)}
           size="middle"
           style={{ width: "100%" }} // Make button take up full column width
           onClick={(e) => {
             e.stopPropagation();
-            handleContactTab(record);
+            handleTemplateTab(record);
           }}
         >
           Open
@@ -362,4 +367,4 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   );
 };
 
-export default ContactsTableList;
+export default TemplatesTableList;

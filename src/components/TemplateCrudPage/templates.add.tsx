@@ -14,13 +14,13 @@ export type Profile = {
   phone?: string;
 };
 
-interface ContactsAddDrawerProps {
+interface TemplatesAddDrawerProps {
   open: boolean;
   onClose: () => void;
   onAddContact: (name: string) => void;
 }
 
-const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
+const TemplatesAddDrawer: React.FC<TemplatesAddDrawerProps> = ({
   open,
   onClose,
   onAddContact,
@@ -36,7 +36,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
 
   return (
     <Drawer
-      title="Add New Contact"
+      title="Add New Template"
       placement="right"
       onClose={onClose}
       open={open}
@@ -75,4 +75,4 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
   );
 };
 
-export default ContactsAddDrawer;
+export default TemplatesAddDrawer;

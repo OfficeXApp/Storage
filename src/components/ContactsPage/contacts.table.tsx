@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { TemplateItem } from "./contacts.tab";
 import {
   Button,
   Dropdown,
@@ -24,29 +23,30 @@ import {
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
+import { ContactFE } from "@officexapp/types";
 
 interface ContactsTableListProps {
-  profiles: TemplateItem[];
+  contacts: ContactFE[];
   isContactTabOpen: (id: string) => boolean;
-  handleContactTab: (profile: TemplateItem) => void;
+  handleContactTab: (contact: ContactFE) => void;
 }
 
 const ContactsTableList: React.FC<ContactsTableListProps> = ({
-  profiles,
+  contacts,
   isContactTabOpen,
   handleContactTab,
 }) => {
   const [searchText, setSearchText] = useState("");
-  const [filteredProfiles, setFilteredProfiles] = useState(profiles);
+  const [filteredContacts, setFilteredContacts] = useState(contacts);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // Update filtered profiles whenever search text or profiles change
+  // Update filtered contacts whenever search text or contacts change
   useEffect(() => {
-    const filtered = profiles.filter((profile) =>
-      profile.name.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = contacts.filter((contact) =>
+      contact.name.toLowerCase().includes(searchText.toLowerCase())
     );
-    setFilteredProfiles(filtered);
-  }, [searchText, profiles]);
+    setFilteredContacts(filtered);
+  }, [searchText, contacts]);
 
   // Handle responsive layout
   useEffect(() => {
@@ -106,17 +106,24 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   ];
 
   // Define table columns
-  const columns: ColumnsType<TemplateItem> = [
+  const columns: ColumnsType<ContactFE> = [
     {
       title: "Contact",
       dataIndex: "name",
       key: "name",
-      render: (_: any, record: TemplateItem) => (
-        <Space>
+      render: (_: any, record: ContactFE) => (
+        <Space
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleContactTab(record);
+          }}
+        >
           <Avatar
             size="default"
             src={
-              record.avatar || `https://ui-avatars.com/api/?name=${record.name}`
+              record.avatar
+                ? record.avatar
+                : `https://ui-avatars.com/api/?name=${record.name}`
             }
           />
           <span>{record.name}</span>
@@ -140,7 +147,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
       title: "Actions",
       key: "actions",
       width: 150, // Increased width for actions column
-      render: (_: any, record: TemplateItem) => (
+      render: (_: any, record: ContactFE) => (
         <Button
           type={isContactTabOpen(record.id) ? "primary" : "default"}
           ghost={isContactTabOpen(record.id)}
@@ -336,7 +343,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
             columnWidth: 50,
           }}
           columns={columns}
-          dataSource={filteredProfiles}
+          dataSource={filteredContacts}
           rowKey="id"
           pagination={false}
           onRow={(record) => ({

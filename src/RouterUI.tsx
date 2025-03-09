@@ -279,12 +279,14 @@ const SideMenu = ({
   ];
 
   return (
-    <Menu
-      mode="inline"
-      items={menuItems}
-      defaultOpenKeys={["navigate-storage"]}
-      style={{ backgroundColor: "inherit", border: 0 }}
-    />
+    <div style={{ maxHeight: "75vh", overflowY: "scroll" }}>
+      <Menu
+        mode="inline"
+        items={menuItems}
+        defaultOpenKeys={["navigate-storage"]}
+        style={{ backgroundColor: "inherit", border: 0 }}
+      />
+    </div>
   );
 };
 
@@ -323,8 +325,8 @@ const RouterUI = () => {
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  height: "95%",
-                  overflowY: "auto",
+                  height: "100%",
+                  paddingBottom: "8px",
                 }}
               >
                 <div style={{ flex: 1 }}>
@@ -359,6 +361,7 @@ const RouterUI = () => {
                       justifyContent: "center",
                       alignItems: "center",
                       padding: "0px 20px 20px 20px",
+                      overflowY: "scroll",
                     }}
                   >
                     <ConnectICPButton />
@@ -444,7 +447,7 @@ const RouterUI = () => {
               open={sidebarVisible}
               width={SIDEBAR_WIDTH}
               footer={
-                <div style={{ padding: "16px 16px" }}>
+                <div style={{ padding: "0px" }}>
                   <OrganizationSwitcher />
                 </div>
               }

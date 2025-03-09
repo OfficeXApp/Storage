@@ -22,7 +22,6 @@ const WebhooksPage = () => {
           WebhooksPage
         </Title>
       </Content>
-      <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>
     </Layout>
   );
 };

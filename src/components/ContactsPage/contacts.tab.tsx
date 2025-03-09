@@ -187,7 +187,10 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
       }}
     >
       <Row justify="space-between" align="middle" style={{ marginTop: 16 }}>
-        <Col>{/* Empty col where Invite & Edit buttons used to be */}</Col>
+        <Col>
+          {/* Empty col where Invite & Edit buttons used to be */}
+          <p></p>
+        </Col>
         <Col>
           <Space>
             {isEditing ? (

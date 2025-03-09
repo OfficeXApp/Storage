@@ -55,6 +55,7 @@ import DrivesPage from "./components/DrivesPage";
 import WebhooksPage from "./components/WebhooksPage";
 import ApiKeysPage from "./components/ApiKeysPage";
 import OrganizationSwitcher from "./components/SwitchOrganization";
+import TemplateCrudPage from "./components/TemplateCrudPage";
 
 const { Sider, Content } = Layout;
 
@@ -250,6 +251,16 @@ const SideMenu = ({
                 }
               },
             },
+            {
+              key: "templates",
+              label: "Templates",
+              onClick: () => {
+                navigate("/resources/templates");
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              },
+            },
           ],
         },
       ],
@@ -407,6 +418,10 @@ const RouterUI = () => {
                 <Route path="/resources/tags" element={<TagsPage />} />
                 <Route path="/resources/disks" element={<DisksPage />} />
                 <Route path="/resources/drives" element={<DrivesPage />} />
+                <Route
+                  path="/resources/templates"
+                  element={<TemplateCrudPage />}
+                />
                 <Route path="/resources/webhooks" element={<WebhooksPage />} />
                 <Route path="/resources/api-keys" element={<ApiKeysPage />} />
 

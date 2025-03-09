@@ -16,6 +16,8 @@ import {
   message,
   Tabs,
   FloatButton,
+  Divider,
+  Popconfirm,
 } from "antd";
 import {
   EditOutlined,
@@ -34,7 +36,7 @@ import {
   UpOutlined,
   CodeOutlined,
 } from "@ant-design/icons";
-import { ContactFE } from "@officexapp/types";
+import { ContactFE, SystemPermissionType } from "@officexapp/types";
 import { shortenAddress } from "../../framework/identity/constants";
 import CodeBlock from "../CodeBlock";
 
@@ -115,7 +117,7 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
   const initialValues = {
     name: contact.name,
     email: contact.email,
-    webhook_url: contact.webhook_url,
+    notifications_url: contact.notifications_url,
     public_note: contact.public_note,
     private_note: contact.private_note || "",
   };
@@ -211,6 +213,11 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                   onClick={toggleEdit}
                   type="primary"
                   ghost
+                  disabled={
+                    !contact.permission_previews.includes(
+                      SystemPermissionType.EDIT
+                    )
+                  }
                 >
                   Edit
                 </Button>
@@ -250,7 +257,7 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                 </Form.Item>
 
                 {/* Advanced section in edit mode */}
-                <Form.Item name="webhook_url" label="Notifications">
+                <Form.Item name="notifications_url" label="Notifications">
                   <Input
                     prefix={<BellOutlined />}
                     placeholder="Notifications"
@@ -259,17 +266,42 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                   />
                 </Form.Item>
 
-                <Form.Item
-                  name="private_note"
-                  label="Private Note"
-                  extra="Only organization owners and editors can view this note"
-                >
-                  <TextArea
-                    rows={3}
-                    placeholder="Private notes (only visible to owners and editors)"
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
-                  />
+                {contact.permission_previews.includes(
+                  SystemPermissionType.EDIT
+                ) && (
+                  <Form.Item
+                    name="private_note"
+                    label="Private Note"
+                    extra="Only organization owners and editors can view this note"
+                  >
+                    <TextArea
+                      rows={3}
+                      placeholder="Private notes (only visible to owners and editors)"
+                      variant="borderless"
+                      style={{ backgroundColor: "#fafafa" }}
+                    />
+                  </Form.Item>
+                )}
+                <Divider />
+                <Form.Item name="delete">
+                  <Popconfirm
+                    title="Are you sure you want to delete this contact?"
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button
+                      disabled={
+                        !contact.permission_previews.includes(
+                          SystemPermissionType.DELETE
+                        )
+                      }
+                      ghost
+                      type="primary"
+                      danger
+                    >
+                      Delete Contact
+                    </Button>
+                  </Popconfirm>
                 </Form.Item>
               </Form>
             ) : (
@@ -368,7 +400,12 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                       ))}
                     </div>
 
-                    <div style={{ marginBottom: 16 }}>
+                    <div
+                      style={{
+                        marginBottom: 16,
+                        marginTop: contact.tags.length > 0 ? 0 : 32,
+                      }}
+                    >
                       <Card size="small" style={{ marginTop: 8 }}>
                         <GlobalOutlined style={{ marginRight: 8 }} />
                         {contact.public_note || "Add a public note"}
@@ -413,10 +450,10 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                           <MailOutlined />
                         )}
 
-                        {contact.webhook_url &&
+                        {contact.notifications_url &&
                           renderReadOnlyField(
                             "Notifications",
-                            contact.webhook_url,
+                            contact.notifications_url,
                             <BellOutlined />
                           )}
 
@@ -434,31 +471,34 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                             <WalletOutlined />
                           )}
 
-                        {contact.private_note && (
-                          <div style={{ marginTop: "16px" }}>
-                            <Space align="center">
-                              <Text strong>Private Note:</Text>
-                              <Popover
-                                content="Only organization owners and editors can view this note"
-                                trigger="hover"
+                        {contact.private_note &&
+                          contact.permission_previews.includes(
+                            SystemPermissionType.EDIT
+                          ) && (
+                            <div style={{ marginTop: "16px" }}>
+                              <Space align="center">
+                                <Text strong>Private Note:</Text>
+                                <Popover
+                                  content="Only organization owners and editors can view this note"
+                                  trigger="hover"
+                                >
+                                  <InfoCircleOutlined
+                                    style={{ color: "#1890ff" }}
+                                  />
+                                </Popover>
+                              </Space>
+                              <Card
+                                size="small"
+                                style={{
+                                  marginTop: 8,
+                                  backgroundColor: "#fafafa",
+                                }}
                               >
-                                <InfoCircleOutlined
-                                  style={{ color: "#1890ff" }}
-                                />
-                              </Popover>
-                            </Space>
-                            <Card
-                              size="small"
-                              style={{
-                                marginTop: 8,
-                                backgroundColor: "#fafafa",
-                              }}
-                            >
-                              <FileTextOutlined style={{ marginRight: 8 }} />
-                              {contact.private_note}
-                            </Card>
-                          </div>
-                        )}
+                                <FileTextOutlined style={{ marginRight: 8 }} />
+                                {contact.private_note}
+                              </Card>
+                            </div>
+                          )}
 
                         <div style={{ marginTop: "16px" }}>
                           <Space align="center">

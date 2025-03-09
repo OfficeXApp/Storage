@@ -52,7 +52,7 @@ interface ContactTabProps {
 const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [showCodeSnippets, setShowCodeSnippets] = useState(false);
+  const [showCodeSnippets, setShowCodeSnippets] = useState(true);
   const [form] = Form.useForm();
 
   const toggleEdit = () => {
@@ -168,9 +168,9 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
               />
             </Space>
           </Tabs.TabPane>
+          <Tabs.TabPane tab="Prompt" key="prompt"></Tabs.TabPane>
           <Tabs.TabPane tab="Python" key="python"></Tabs.TabPane>
           <Tabs.TabPane tab="CURL" key="curl"></Tabs.TabPane>
-          <Tabs.TabPane tab="Prompt" key="curl"></Tabs.TabPane>
         </Tabs>
       </Card>
     );

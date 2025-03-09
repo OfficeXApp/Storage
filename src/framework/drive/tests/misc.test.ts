@@ -2,7 +2,7 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { v4 as uuidv4 } from "uuid";
-import { UserID } from "../../identity/types";
+
 import {
   StorageLocationEnum,
   DriveFullFilePath,
@@ -12,6 +12,7 @@ import {
 } from "../types";
 import DriveDB from "../core";
 import IndexedDBStorage from "../storage/indexdb";
+import { UserID } from "@officexapp/types";
 
 describe("Rename files and folders", () => {
   let driveDB: DriveDB;

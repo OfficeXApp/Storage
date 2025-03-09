@@ -2,7 +2,6 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { v4 as uuidv4 } from "uuid";
-import { UserID } from "../../identity/types";
 import {
   Hashtable_FileUUIDToMetadata,
   Hashtable_FolderUUIDToMetadata,
@@ -15,6 +14,7 @@ import {
 } from "../types";
 import DriveDB from "../core";
 import IndexedDBStorage from "../storage/indexdb";
+import { UserID } from "@officexapp/types";
 
 /**
  * -------- COMPREPHENSIVE TEST CASES --------

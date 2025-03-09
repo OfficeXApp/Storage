@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button, Progress, List, Upload, message, Flex } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { RcFile, UploadProps } from "antd/lib/upload/interface";
-import { DriveDB, IndexedDBStorage, UserID } from "../framework";
+import { DriveDB, IndexedDBStorage } from "../framework";
 import {
   StorageLocationEnum,
   UploadProgress,
@@ -10,6 +10,7 @@ import {
   FileUploadStatusEnum,
 } from "../framework";
 import { green, red, grey } from "@ant-design/colors";
+import { UserID } from "@officexapp/types";
 
 const UploadFiles: React.FC = () => {
   const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);

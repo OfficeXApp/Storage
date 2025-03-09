@@ -2,7 +2,6 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { v4 as uuidv4 } from "uuid";
-import { UserID } from "../../identity/types";
 import {
   StorageLocationEnum,
   UploadFolderPath,
@@ -13,6 +12,7 @@ import {
 import DriveDB from "../core";
 import IndexedDBStorage from "../storage/indexdb";
 import { firstValueFrom, Observable } from "rxjs";
+import { UserID } from "@officexapp/types";
 
 // Mock uuid
 vi.mock("uuid", () => ({

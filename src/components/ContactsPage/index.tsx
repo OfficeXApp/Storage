@@ -34,7 +34,7 @@ type TabItem = {
 const SAMPLE_CONTACTS: ContactFE[] = [
   {
     // Contact 1
-    id: "user_01HGXPT5ABCDEF123456789",
+    id: "UserID_1HGXPT5ABCDEF123456789",
     name: "Alice Johnson",
     avatar: "",
     email: "alice.johnson@example.com",
@@ -69,7 +69,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
   },
   {
     // Contact 2
-    id: "user_01HGXPT6ABCDEF123456789",
+    id: "UserID_1HGXPT6ABCDEF123456789",
     name: "Bob Smith",
     avatar: "",
     email: "bob.smith@example.com",
@@ -98,7 +98,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
   },
   {
     // Contact 3
-    id: "user_01HGXPT7ABCDEF123456789",
+    id: "UserID_1HGXPT7ABCDEF123456789",
     name: "Carol Davis",
     avatar: "",
     email: "carol.davis@example.com",
@@ -137,7 +137,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
   },
   {
     // Contact 4
-    id: "user_01HGXPT8ABCDEF123456789",
+    id: "UserID_1HGXPT8ABCDEF123456789",
     name: "David Wilson",
     avatar: "",
     email: "david.wilson@example.com",
@@ -160,7 +160,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
   },
   {
     // Contact 5
-    id: "user_01HGXPT9ABCDEF123456789",
+    id: "UserID_1HGXPT9ABCDEF123456789",
     name: "Elena Rodriguez",
     avatar: "",
     email: "elena.rodriguez@example.com",
@@ -185,7 +185,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
   },
   {
     // Contact 6
-    id: "user_01HGXPTAABCDEF123456789",
+    id: "UserID_1HGXPTAABCDEF123456789",
     name: "Frank Lee",
     avatar: "",
     email: "frank.lee@example.com",
@@ -212,7 +212,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
   },
   {
     // Contact 7
-    id: "user_01HGXPTBABCDEF123456789",
+    id: "UserID_1HGXPTBABCDEF123456789",
     name: "Grace Kim",
     avatar: "",
     email: "grace.kim@example.com",
@@ -252,7 +252,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
   },
   {
     // Contact 8
-    id: "user_01HGXPTCABCDEF123456789",
+    id: "UserID_1HGXPTCABCDEF123456789",
     name: "Henry Garcia",
     avatar: "",
     email: "henry.garcia@example.com",
@@ -284,7 +284,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
   },
   {
     // Contact 9
-    id: "user_01HGXPTDABCDEF123456789",
+    id: "UserID_1HGXPTDABCDEF123456789",
     name: "Irene Thompson",
     avatar: "",
     email: "irene.thompson@example.com",
@@ -323,7 +323,7 @@ const SAMPLE_CONTACTS: ContactFE[] = [
   },
   {
     // Contact 10
-    id: "user_01HGXPTEABCDEF123456789",
+    id: "UserID_1HGXPTEABCDEF123456789",
     name: "James Miller",
     avatar: "",
     email: "james.miller@example.com",
@@ -467,43 +467,6 @@ const ContactsPage: React.FC = () => {
   // Toggle drawer
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
-  };
-
-  // Add new contact
-  const addNewContact = (newContactName: string) => {
-    // Changed to accept a parameter
-    if (newContactName.trim()) {
-      const newId = (contacts.length + 1).toString();
-      // Create timestamp for now
-      const currentTimestamp = Date.now();
-
-      const newContact: ContactFE = {
-        id: newId,
-        name: newContactName.trim(),
-        avatar: ``,
-        email: `${newContactName.toLowerCase().replace(/\s+/g, ".")}@example.com`,
-        notifications_url: `https://webhook.site/${Math.random().toString(36).substring(2, 8)}-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 14)}`,
-        public_note: "",
-        evm_public_address: `0x${Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`,
-        icp_principal: `${Math.random().toString(36).substring(2, 7)}-${Math.random().toString(36).substring(2, 6)}aaa-aaaaa-aaaaq-cai`,
-        teams: [],
-        tags: [],
-        last_online_at: currentTimestamp,
-        created_at: currentTimestamp,
-        team_previews: [],
-        permission_previews: [],
-      };
-
-      // Update contacts list
-      const updatedContacts = [...contacts, newContact];
-      setContacts(updatedContacts);
-
-      // Close drawer
-      setDrawerOpen(false);
-
-      // Open the new contact tab
-      handleContactTab(newContact);
-    }
   };
 
   // The rest of your component remains the same
@@ -694,7 +657,7 @@ const ContactsPage: React.FC = () => {
       <ContactsAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddContact={addNewContact}
+        onAddContact={() => {}}
       />
 
       <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>

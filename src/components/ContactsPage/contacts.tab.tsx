@@ -111,7 +111,13 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
         style={{ marginBottom: 8, backgroundColor: "#fafafa" }}
         variant="borderless"
         addonBefore={
-          <div style={{ width: 90, display: "flex", alignItems: "center" }}>
+          <div
+            style={{
+              width: screenType.isMobile ? 120 : 90,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             {icon}
             <span style={{ marginLeft: 8 }}>{label}</span>
           </div>
@@ -195,8 +201,9 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
       style={{
         padding: "0",
         height: "100%",
-        width: "100%",
+        width: "auto",
         overflowY: "auto",
+        overflowX: "hidden",
         position: "relative",
       }}
     >
@@ -338,7 +345,10 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                     <Space
                       align="center"
                       size={16}
-                      style={{ width: "100%", justifyContent: "space-between" }}
+                      style={{
+                        width: "100%",
+                        justifyContent: "space-between",
+                      }}
                     >
                       <Space align="center" size={16}>
                         <Avatar
@@ -483,12 +493,7 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                           alignItems: "center",
                         }}
                       >
-                        Advanced{" "}
-                        {isAdvancedOpen ? (
-                          <UpOutlined style={{ marginLeft: "4px" }} />
-                        ) : (
-                          <DownOutlined style={{ marginLeft: "4px" }} />
-                        )}
+                        Advanced
                       </summary>
 
                       <div style={{ padding: "8px 0" }}>

@@ -156,6 +156,7 @@ const ContactsPage: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         backgroundColor: "white",
+        overflowX: "hidden",
       }}
     >
       <Content

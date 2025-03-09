@@ -2,8 +2,7 @@
 
 ## Todo
 
-- [🔵] Factory deploy drive, connect to frontend
-- [ ] Contacts creation routes (create only for now)
+- [🔵] Contacts creation routes (create only for now)
 - [ ] Teams & Team Invite creation routes (create only for now)
 - [ ] Magic login link with redeem placeholders (both for contacts themselves, and via team invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa
 
@@ -23,3 +22,4 @@
 - [x] Setup multi-organizations
 - [x] Setup default profile per organization, UX sugar (can just be most recent)
 - [x] Setup API keys for organization <> profile with /organization/whoami
+- [x] Factory deploy drive, connect to frontend

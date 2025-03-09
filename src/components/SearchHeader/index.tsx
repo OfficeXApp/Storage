@@ -252,7 +252,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
         allowClear
       >
         <Input
-          placeholder="Search files and folders"
+          placeholder="Search Organization"
           prefix={<SearchOutlined />}
           suffix={
             searchValue ? null : (

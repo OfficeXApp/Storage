@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../../store/store";
 import { createDisk, fetchDisks } from "../../store/disks/disks.actions";
 import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
-import ContactsAddDrawer from "./contacts.add";
-import ContactTab, { TemplateItem } from "./contacts.tab";
-import ContactsTableList from "./contacts.table";
+import ContactsAddDrawer from "./templates.add";
+import ContactTab, { TemplateItem } from "./templates.tab";
+import ContactsTableList from "./templates.table";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -323,10 +323,10 @@ const ContactsPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Contacts
+            Templates
           </Title>
           <Button type="primary" icon={<PlusOutlined />} onClick={toggleDrawer}>
-            Add Contact
+            Add Template
           </Button>
         </div>
 

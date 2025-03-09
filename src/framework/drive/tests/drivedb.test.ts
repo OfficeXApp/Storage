@@ -16,9 +16,9 @@ import {
   DeleteObjectsCommand,
   ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
-import { UserID } from "../../identity/types";
 import { S3ClientAuth } from "../storage/storj-web3";
 import IndexedDBStorage from "../storage/indexdb";
+import { UserID } from "@officexapp/types";
 
 dotenv.config();
 

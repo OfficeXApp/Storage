@@ -1,6 +1,6 @@
 // drive/types.ts
 
-import type { UserID } from "../identity/types";
+import { UserID } from "@officexapp/types";
 
 export type FolderUUID = string & { readonly __folderUUID: unique symbol };
 export type FileUUID = string & { readonly __fileUUID: unique symbol };

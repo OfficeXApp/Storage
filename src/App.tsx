@@ -49,7 +49,7 @@ function App() {
 
   return (
     <div style={{ height: "100vh", maxHeight: "100vh", overflow: "hidden" }}>
-      <Alert
+      {/* <Alert
         message={
           <Marquee pauseOnHover gradient={false}>
             <div
@@ -95,7 +95,7 @@ function App() {
         type="info"
         banner
         closable={false}
-      />
+      /> */}
       <RouterUI />
     </div>
   );

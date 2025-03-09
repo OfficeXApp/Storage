@@ -6,7 +6,6 @@ dotenv.config();
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { v4 as uuidv4 } from "uuid";
-import { UserID } from "../../identity/types";
 import {
   Hashtable_FileUUIDToMetadata,
   Hashtable_FolderUUIDToMetadata,
@@ -21,6 +20,7 @@ import DriveDB from "../core";
 import IndexedDBStorage from "../storage/indexdb";
 
 import "fake-indexeddb/auto";
+import { UserID } from "@officexapp/types";
 
 /**
  * -------- SIMPLE TEST CASES --------

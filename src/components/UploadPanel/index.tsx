@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   StorageLocationEnum,
   useDrive,
-  UserID,
   DriveDB,
   getUploadFolderPath,
 } from "../../framework";
@@ -34,6 +33,7 @@ import { v4 as uuidv4 } from "uuid";
 import UploadDropZone from "../UploadDropZone";
 import useScreenType from "react-screentype-hook";
 import mixpanel from "mixpanel-browser";
+import { UserID } from "@officexapp/types";
 
 const { Text } = Typography;
 

@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../../store/store";
 import { createDisk, fetchDisks } from "../../store/disks/disks.actions";
 import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
-import ContactsAddDrawer from "./templates.add";
-import ContactTab, { TemplateItem } from "./templates.tab";
-import ContactsTableList from "./templates.table";
+import TemplatesAddDrawer from "./templates.add";
+import TemplateTab, { TemplateItem } from "./templates.tab";
+import TemplatesTableList from "./templates.table";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -159,7 +159,7 @@ const ContactsPage: React.FC = () => {
       phone: "555-0123",
     },
   ]);
-  const isContactTabOpen = useCallback(
+  const isTemplateTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
         return true;
@@ -192,8 +192,8 @@ const ContactsPage: React.FC = () => {
   }, [tabItems]);
 
   // Function to handle clicking on a contact
-  const handleContactTab = useCallback(
-    (profile: TemplateItem) => {
+  const handleTemplateTab = useCallback(
+    (profile: TemplateItem, focus_tab = false) => {
       setLastClickedId(profile.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
@@ -215,7 +215,7 @@ const ContactsPage: React.FC = () => {
         const newTab: TabItem = {
           key: profile.id,
           label: profile.name,
-          children: <ContactTab contact={profile} />,
+          children: <TemplateTab contact={profile} />,
           closable: true,
         };
 
@@ -227,7 +227,9 @@ const ContactsPage: React.FC = () => {
         });
 
         // Switch to the clicked contact's tab
-        // setActiveKey(profile.id);
+        if (focus_tab) {
+          setActiveKey(profile.id);
+        }
       }
     },
     [] // No dependencies needed since we use the ref
@@ -282,7 +284,7 @@ const ContactsPage: React.FC = () => {
       setDrawerOpen(false);
 
       // Open the new contact tab
-      handleContactTab(newProfile);
+      handleTemplateTab(newProfile);
     }
   };
 
@@ -440,10 +442,10 @@ const ContactsPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <ContactsTableList
+                <TemplatesTableList
                   profiles={profiles}
-                  isContactTabOpen={isContactTabOpen}
-                  handleContactTab={handleContactTab}
+                  isTemplateTabOpen={isTemplateTabOpen}
+                  handleTemplateTab={handleTemplateTab}
                 />
               </div>
 
@@ -471,13 +473,11 @@ const ContactsPage: React.FC = () => {
         </div>
       </Content>
 
-      <ContactsAddDrawer
+      <TemplatesAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
         onAddContact={addNewContact}
       />
-
-      <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>
     </Layout>
   );
 };

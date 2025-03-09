@@ -3,6 +3,7 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Button, Drawer, Layout, Typography, Space, Input, Form } from "antd";
 import type {
+  ContactFE,
   Disk,
   IRequestCreateDisk,
   IRequestListDisks,
@@ -10,14 +11,16 @@ import type {
   IResponseListDisks,
   UserID,
 } from "@officexapp/types";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../../store/store";
 import { createDisk, fetchDisks } from "../../store/disks/disks.actions";
 import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import ContactsAddDrawer from "./contacts.add";
-import ContactTab, { TemplateItem } from "./contacts.tab";
+import ContactTab from "./contacts.tab";
 import ContactsTableList from "./contacts.table";
+import { SAMPLE_CONTACTS } from "./sample";
+import useScreenType from "react-screentype-hook";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -33,132 +36,12 @@ type TabItem = {
 const ContactsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const screenType = useScreenType();
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
-  // Sample profile data - expanded list
-  const [profiles, setProfiles] = useState<TemplateItem[]>([
-    {
-      id: "1",
-      name: "Anna Smith",
-      email: "anna.smith@example.com",
-      phone: "555-1234",
-    },
-    {
-      id: "2",
-      name: "Bob Johnson",
-      email: "bob.johnson@example.com",
-      phone: "555-2345",
-    },
-    {
-      id: "3",
-      name: "Charlie Davis",
-      email: "charlie.davis@example.com",
-      phone: "555-3456",
-    },
-    {
-      id: "4",
-      name: "David Wilson",
-      email: "david.wilson@example.com",
-      phone: "555-4567",
-    },
-    {
-      id: "5",
-      name: "Emma Brown",
-      email: "emma.brown@example.com",
-      phone: "555-5678",
-    },
-    {
-      id: "6",
-      name: "Frank Miller",
-      email: "frank.miller@example.com",
-      phone: "555-6789",
-    },
-    {
-      id: "7",
-      name: "Grace Lee",
-      email: "grace.lee@example.com",
-      phone: "555-7890",
-    },
-    {
-      id: "8",
-      name: "Henry Taylor",
-      email: "henry.taylor@example.com",
-      phone: "555-8901",
-    },
-    {
-      id: "9",
-      name: "Ivy Robinson",
-      email: "ivy.robinson@example.com",
-      phone: "555-9012",
-    },
-    {
-      id: "10",
-      name: "Jack Thompson",
-      email: "jack.thompson@example.com",
-      phone: "555-0123",
-    },
-    {
-      id: "11",
-      name: "Karen Martin",
-      email: "karen.martin@example.com",
-      phone: "555-1234",
-    },
-    {
-      id: "12",
-      name: "Leo Anderson",
-      email: "leo.anderson@example.com",
-      phone: "555-2345",
-    },
-    {
-      id: "13",
-      name: "Maria Garcia",
-      email: "maria.garcia@example.com",
-      phone: "555-3456",
-    },
-    {
-      id: "14",
-      name: "Nathan Kim",
-      email: "nathan.kim@example.com",
-      phone: "555-4567",
-    },
-    {
-      id: "15",
-      name: "Olivia White",
-      email: "olivia.white@example.com",
-      phone: "555-5678",
-    },
-    {
-      id: "16",
-      name: "Patrick Chen",
-      email: "patrick.chen@example.com",
-      phone: "555-6789",
-    },
-    {
-      id: "17",
-      name: "Quinn Harris",
-      email: "quinn.harris@example.com",
-      phone: "555-7890",
-    },
-    {
-      id: "18",
-      name: "Rachel Clark",
-      email: "rachel.clark@example.com",
-      phone: "555-8901",
-    },
-    {
-      id: "19",
-      name: "Sam Rodriguez",
-      email: "sam.rodriguez@example.com",
-      phone: "555-9012",
-    },
-    {
-      id: "20",
-      name: "Tina Patel",
-      email: "tina.patel@example.com",
-      phone: "555-0123",
-    },
-  ]);
+  // Sample contact data - expanded list
+  const [contacts, setContacts] = useState<ContactFE[]>(SAMPLE_CONTACTS);
   const isContactTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
@@ -193,29 +76,29 @@ const ContactsPage: React.FC = () => {
 
   // Function to handle clicking on a contact
   const handleContactTab = useCallback(
-    (profile: TemplateItem) => {
-      setLastClickedId(profile.id);
+    (contact: ContactFE, focus_tab = false) => {
+      setLastClickedId(contact.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
       console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === profile.id
+        (item) => item.key === contact.id
       );
       console.log(`existingTabIndex`, existingTabIndex);
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== profile.id
+          (item) => item.key !== contact.id
         );
         setTabItems(updatedTabs);
       } else {
         // Create new tab
         const newTab: TabItem = {
-          key: profile.id,
-          label: profile.name,
-          children: <ContactTab contact={profile} />,
+          key: contact.id,
+          label: contact.name,
+          children: <ContactTab contact={contact} />,
           closable: true,
         };
 
@@ -227,7 +110,9 @@ const ContactsPage: React.FC = () => {
         });
 
         // Switch to the clicked contact's tab
-        // setActiveKey(profile.id);
+        if (focus_tab) {
+          setActiveKey(contact.id);
+        }
       }
     },
     [] // No dependencies needed since we use the ref
@@ -262,30 +147,6 @@ const ContactsPage: React.FC = () => {
     setDrawerOpen(!drawerOpen);
   };
 
-  // Add new contact
-  const addNewContact = (newContactName: string) => {
-    // Changed to accept a parameter
-    if (newContactName.trim()) {
-      const newId = (profiles.length + 1).toString();
-      const newProfile: TemplateItem = {
-        id: newId,
-        name: newContactName.trim(),
-        email: `${newContactName.toLowerCase().replace(/\s+/g, ".")}@example.com`,
-        phone: `555-${Math.floor(1000 + Math.random() * 9000)}`,
-      };
-
-      // Update profiles list
-      const updatedProfiles = [...profiles, newProfile];
-      setProfiles(updatedProfiles);
-
-      // Close drawer
-      setDrawerOpen(false);
-
-      // Open the new contact tab
-      handleContactTab(newProfile);
-    }
-  };
-
   // The rest of your component remains the same
   return (
     <Layout
@@ -299,7 +160,7 @@ const ContactsPage: React.FC = () => {
     >
       <Content
         style={{
-          padding: "0 16px",
+          padding: screenType.isMobile ? "0px" : "0 16px",
           flex: 1,
           display: "flex",
           flexDirection: "column",
@@ -311,7 +172,9 @@ const ContactsPage: React.FC = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-end",
-            margin: "0px 0px 16px 16px",
+            margin: screenType.isMobile
+              ? "0px 8px 8px 16px"
+              : "0px 0px 16px 16px",
           }}
         >
           <Title
@@ -325,7 +188,17 @@ const ContactsPage: React.FC = () => {
           >
             Contacts
           </Title>
-          <Button type="primary" icon={<PlusOutlined />} onClick={toggleDrawer}>
+          <Button
+            size={screenType.isMobile ? "small" : "middle"}
+            type={
+              screenType.isMobile && activeKey !== "list"
+                ? "default"
+                : "primary"
+            }
+            icon={<PlusOutlined />}
+            onClick={toggleDrawer}
+            style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
+          >
             Add Contact
           </Button>
         </div>
@@ -344,7 +217,7 @@ const ContactsPage: React.FC = () => {
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              minHeight: 0, // Critical fix for flexbox scrolling
+              minHeight: screenType.isMobile ? "70vh" : 0, // Critical fix for flexbox scrolling
             }}
           >
             {/* Custom tab bar with pinned first tab */}
@@ -424,7 +297,7 @@ const ContactsPage: React.FC = () => {
                 flex: 1,
                 overflow: "hidden",
                 display: "flex",
-                minHeight: 0,
+                minHeight: screenType.isMobile ? "70vh" : 0,
                 position: "relative", // Added for absolute positioning of children
               }}
             >
@@ -441,7 +314,7 @@ const ContactsPage: React.FC = () => {
                 }}
               >
                 <ContactsTableList
-                  profiles={profiles}
+                  contacts={contacts}
                   isContactTabOpen={isContactTabOpen}
                   handleContactTab={handleContactTab}
                 />
@@ -474,10 +347,8 @@ const ContactsPage: React.FC = () => {
       <ContactsAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddContact={addNewContact}
+        onAddContact={() => {}}
       />
-
-      <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>
     </Layout>
   );
 };

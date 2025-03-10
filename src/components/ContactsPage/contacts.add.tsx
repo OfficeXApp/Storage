@@ -453,6 +453,10 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
                     >
                       Regenerate
                     </Button>
+                    <Typography.Text
+                      copyable={{ text: seedPhrase }}
+                      style={{ color: "#8c8c8c" }}
+                    />
                   </div>
                 </Form.Item>
 

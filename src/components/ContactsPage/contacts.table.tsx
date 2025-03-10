@@ -84,6 +84,13 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     selectedRowKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => {
       setSelectedRowKeys(newSelectedRowKeys);
+
+      // // Now clicking row just selects the checkbox
+      // const key = record.id;
+      // const newSelectedRowKeys = selectedRowKeys.includes(key)
+      //     ? selectedRowKeys.filter((k) => k !== key)
+      //     : [...selectedRowKeys, key];
+      // setSelectedRowKeys(newSelectedRowKeys);
     },
   };
 
@@ -153,8 +160,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
       width: 150, // Increased width for actions column
       render: (_: any, record: ContactFE) => (
         <Button
-          type={isContactTabOpen(record.id) ? "primary" : "default"}
-          ghost={isContactTabOpen(record.id)}
+          type="default"
           size="middle"
           style={{ width: "100%" }} // Make button take up full column width
           onClick={(e) => {
@@ -423,15 +429,10 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
             pagination={false}
             onRow={(record) => ({
               onClick: () => {
-                // Now clicking row just selects the checkbox
-                const key = record.id;
-                const newSelectedRowKeys = selectedRowKeys.includes(key)
-                  ? selectedRowKeys.filter((k) => k !== key)
-                  : [...selectedRowKeys, key];
-                setSelectedRowKeys(newSelectedRowKeys);
+                handleContactTab(record, false);
               },
               style: {
-                backgroundColor: selectedRowKeys.includes(record.id)
+                backgroundColor: isContactTabOpen(record.id)
                   ? "#e6f7ff"
                   : "transparent",
                 cursor: "pointer",

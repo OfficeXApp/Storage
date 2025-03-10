@@ -5,6 +5,7 @@ import offlineConfig from "@redux-offline/redux-offline/lib/defaults";
 import { rootReducer } from "./reducer";
 import { customNetworkDetector } from "./network-detector";
 import { DISKS_PERSIST_KEY } from "./disks/disks.reducer";
+import localForage from "localforage";
 
 // Custom effect handler using browser fetch API instead of axios
 const effect = (effect: any) => {
@@ -52,6 +53,11 @@ const discard = (error: any) => {
   return status >= 400 && status < 500 && status !== 401;
 };
 
+const orgStorage = localForage.createInstance({
+  name: `officex-localforage-redux-offline`,
+  description: `Storage for OfficeX Redux Offline`,
+});
+
 // Configure offline options
 const offlineOptions = {
   ...offlineConfig,
@@ -60,6 +66,7 @@ const offlineOptions = {
   detectNetwork: customNetworkDetector,
   persistOptions: {
     key: "officex-offline-storage",
+    storage: orgStorage,
     whitelist: ["offline", DISKS_PERSIST_KEY],
   },
   persistCallback: () => {

@@ -120,7 +120,7 @@ interface IdentitySystemContextType {
 
   syncLatestIdentities: () => Promise<void>;
   deriveProfileFromSeed: (seedPhrase: string) => Promise<IndexDB_Profile>;
-  generateSignature: (message: string) => Promise<string | null>;
+  generateSignature: (message?: string) => Promise<string | null>;
 }
 
 // Create the context
@@ -382,7 +382,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   // Generate signature using ICP identity
   const generateSignature = useCallback(
-    async (message: string): Promise<string | null> => {
+    async (message?: string): Promise<string | null> => {
       try {
         if (!currentProfile) {
           console.error("ICP account not initialized");
@@ -408,7 +408,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         // Build the challenge
         const challenge = {
           timestamp_ms: now,
-          message: message,
+          message: message || "",
           self_auth_principal: publicKeyArray,
           canonical_principal: canonicalPrincipal,
         };

@@ -12,7 +12,6 @@
 
 ## Backlog
 
-- [ ] Regenerate REST API docs & types with new routes, `/organization/whoami`, `/organization/superswap_user`
 - [ ] In organization settings, for current user, ability to change the api key
 - [ ] User initiated superswap_userid as a form of account "recovery" when they've lost/compromised their seed phrase. This should be added as a permission with grantee being a user/team etc.
 
@@ -24,3 +23,4 @@
 - [x] Setup API keys for organization <> profile with /organization/whoami
 - [x] Factory deploy drive, connect to frontend
 - [x] Contacts UI pages
+- [x] Regenerate REST API docs & types with new routes, `/organization/whoami`, `/organization/superswap_user`, `/organization/redeem`

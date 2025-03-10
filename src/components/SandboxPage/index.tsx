@@ -11,16 +11,17 @@ import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../../store/store";
 import { createDisk, fetchDisks } from "../../store/disks/disks.actions";
+import { useIdentitySystem } from "../../framework/identity";
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
 const SandboxPage = () => {
   const dispatch = useDispatch();
-  const [apiKey, setApiKey] = React.useState<string>(
-    "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiZGU5NGU1ZjNkMDExN2NjZmE0ZGIxOGY5MGUyMzhkYjAxNWNiMjRmMDhhZjBkZjQ0NGEzOTdjMDM1OTU3MzJiOSJ9"
-  );
+  const [apiKey, setApiKey] = React.useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [sig, setSig] = useState("");
+  const { generateSignature } = useIdentitySystem();
 
   const isOnline = useSelector((state: AppState) => state.offline?.online);
   const disks = useSelector((state: AppState) => state.disks.disks);
@@ -152,9 +153,19 @@ const SandboxPage = () => {
           Sandbox Page
         </Title>
         <br />
+        <Button
+          onClick={async () => {
+            const _sig = await generateSignature();
+            setSig(_sig || "");
+          }}
+        >
+          Generate Signature
+        </Button>
+        <Input value={sig}></Input>
         <label>API Key Token</label>
         <Input
           value={apiKey}
+          placeholder="Enter API key or signature"
           onChange={(e) => setApiKey(e.target.value)}
         ></Input>
         <br />

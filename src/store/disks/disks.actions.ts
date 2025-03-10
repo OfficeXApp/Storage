@@ -3,9 +3,9 @@
 import { DiskTypeEnum } from "@officexapp/types";
 
 // API base URL
-const API_URL = "http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/v1/default";
+const API_URL = "http://bw4dl-smaaa-aaaaa-qaacq-cai.localhost:8000/v1/default";
 const API_KEY =
-  "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiZGU5NGU1ZjNkMDExN2NjZmE0ZGIxOGY5MGUyMzhkYjAxNWNiMjRmMDhhZjBkZjQ0NGEzOTdjMDM1OTU3MzJiOSJ9";
+  "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiNTlhN2I5MmU2N2M3NDVjYTkwYmI3MTc0NWJjMjBiNDZmZWE0NDU3NzY5NDE0NjVjNGY3NGUzMzhlNDc3MDY2MiJ9";
 
 export const FETCH_DISKS = "FETCH_DISKS";
 export const FETCH_DISKS_COMMIT = "FETCH_DISKS_COMMIT";
@@ -49,7 +49,6 @@ export const createDisk = (diskData: {
   external_payload?: string;
 }) => {
   const payload = {
-    action: "CREATE",
     ...diskData,
   };
 
@@ -59,7 +58,7 @@ export const createDisk = (diskData: {
       offline: {
         // Define the effect (the API call to make)
         effect: {
-          url: `${API_URL}/disks/upsert`,
+          url: `${API_URL}/disks/create`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",

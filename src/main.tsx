@@ -2,7 +2,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
-import { ConfigProvider } from "antd";
+import { ConfigProvider as AntDesignConfigProvider } from "antd";
 import { DriveProvider } from "./framework";
 import "./index.css";
 import mixpanel from "mixpanel-browser";
@@ -56,7 +56,7 @@ registerServiceWorker({
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ReduxProvider store={store}>
-      <ConfigProvider>
+      <AntDesignConfigProvider>
         <IdentitySystemProvider>
           <DriveProvider
             onUploadComplete={(fileUUID) => console.log(`Uploaded ${fileUUID}`)}
@@ -64,7 +64,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <App />
           </DriveProvider>
         </IdentitySystemProvider>
-      </ConfigProvider>
+      </AntDesignConfigProvider>
     </ReduxProvider>
   </React.StrictMode>
 );

@@ -676,7 +676,7 @@ const OrganizationSwitcher = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                id: giftCardValue,
+                giftcard_id: giftCardValue,
                 owner_icp_principal: icpPrincipal,
                 organization_name: newOrgNickname,
               }),
@@ -1019,7 +1019,21 @@ const OrganizationSwitcher = () => {
             <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
               {typedCurrentOrg.nickname || "Unnamed Organization"}
             </span>
-            <Tag style={{ flexShrink: 0, marginLeft: "8px" }}>
+            <Tag
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(
+                    `DriveID_${typedCurrentOrg.icpPublicAddress}@${typedCurrentOrg.endpoint}`
+                  )
+                  .then(() => {
+                    message.success("Copied to clipboard!");
+                  })
+                  .catch(() => {
+                    message.error("Failed to copy to clipboard.");
+                  });
+              }}
+              style={{ flexShrink: 0, marginLeft: "8px" }}
+            >
               {shortenAddress(typedCurrentOrg.icpPublicAddress)}
             </Tag>
           </div>

@@ -22,7 +22,7 @@ const SandboxPage = () => {
   const [sig, setSig] = useState("");
   const { generateSignature, currentOrg, currentAPIKey } = useIdentitySystem();
   const [apiKey, setApiKey] = React.useState<string>(
-    currentAPIKey?.value || ""
+    "" // currentAPIKey?.value || ""
   );
 
   const isOnline = useSelector((state: AppState) => state.offline?.online);

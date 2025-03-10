@@ -354,29 +354,29 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         // For EVM address generation
         const evmAccount = mnemonicToAccount(seedPhrase);
         const evmAddress = evmAccount.address;
-        const evmSlug = shortenAddress(evmAddress);
 
-        // For ICP address generation
-        // Convert mnemonic to seed bytes for Ed25519 identity
-        const seedBytes = await mnemonicToSeed(seedPhrase, "");
+        const derivedKey = await deriveEd25519KeyFromSeed(
+          mnemonicToSeedSync(seedPhrase || "")
+        );
+        // Create the identity from the derived key
+        const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
 
-        // Create a consistent slice of the seed to use for the identity
-        const identitySeed = seedBytes.slice(0, 32);
+        // Get the principal using the identity's getPrincipal method
+        const principal = identity.getPrincipal();
+        const principalStr = principal.toString();
 
-        // Create Ed25519 identity using the seed
-        const icpIdentity = Ed25519KeyIdentity.generate(identitySeed);
-        const icpPrincipal = icpIdentity.getPrincipal();
-        const icpAddress = icpPrincipal.toString();
-        const derivedUserID = `UserID_${icpAddress}` as UserID;
+        // Create the profile with the derived information
+        const derivedUserID = `UserID_${principalStr}` as UserID;
         const newProfile = {
           userID: derivedUserID,
           nickname: derivedUserID,
-          icpPublicAddress: icpAddress,
+          icpPublicAddress: principalStr,
           evmPublicAddress: evmAddress,
           seedPhrase: seedPhrase,
           note: "",
           avatar: "",
         };
+
         return newProfile;
       } catch (error) {
         console.error("Failed to generate addresses:", error);
@@ -399,11 +399,14 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           );
           return null;
         }
+        console.log(`currentProfile`, currentProfile);
         const identity = currentProfile.icpAccount.identity;
 
         // Use the raw public key for signature verification
         const rawPublicKey = identity.getPublicKey().toRaw();
         const publicKeyArray = Array.from(new Uint8Array(rawPublicKey));
+
+        console.log(`identity.getPrincipal()`, identity.getPrincipal());
 
         // Get the canonical principal
         const canonicalPrincipal = identity.getPrincipal().toString();
@@ -413,10 +416,11 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         // Build the challenge
         const challenge = {
           timestamp_ms: now,
-          message: message || "",
+          drive_canister_id: currentOrg?.icpPublicAddress,
           self_auth_principal: publicKeyArray,
           canonical_principal: canonicalPrincipal,
         };
+        console.log(`challenge`, challenge);
 
         // Serialize and sign the challenge
         const challengeBytes = new TextEncoder().encode(

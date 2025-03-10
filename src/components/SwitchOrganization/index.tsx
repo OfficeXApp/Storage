@@ -823,7 +823,7 @@ const OrganizationSwitcher = () => {
           driveID: newDriveID as DriveID,
           nickname: newOrgNickname,
           icpPublicAddress: tempProfile.icpPublicAddress,
-          endpoint: "https://api.officex.app",
+          endpoint: "",
           note: `Created on ${new Date().toLocaleDateString()}`,
           defaultProfile: selectedProfileId, // Use the selectedProfileId
         });

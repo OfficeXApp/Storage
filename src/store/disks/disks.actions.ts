@@ -10,28 +10,18 @@ export const CREATE_DISK = "CREATE_DISK";
 export const CREATE_DISK_COMMIT = "CREATE_DISK_COMMIT";
 export const CREATE_DISK_ROLLBACK = "CREATE_DISK_ROLLBACK";
 
-interface TempCreds {
-  endpoint_url: string;
-  drive_id: DriveID;
-  auth_token: string;
-}
-
 // List Disks
-export const fetchDisks = ({
-  endpoint_url,
-  drive_id,
-  auth_token,
-}: TempCreds) => ({
+export const fetchDisks = () => ({
   type: FETCH_DISKS,
   meta: {
     offline: {
       // Define the effect (the API call to make)
       effect: {
-        url: `${endpoint_url}/v1/${drive_id}/disks/list`,
+        url: `/disks/list`,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
+          // Authorization: `Bearer HANDLED_BY_MIDDLEWARE`,
         },
         data: {},
       },
@@ -44,18 +34,15 @@ export const fetchDisks = ({
 });
 
 // Create Disk
-export const createDisk = (
-  diskData: {
-    name: string;
-    disk_type: DiskTypeEnum;
-    public_note?: string;
-    private_note?: string;
-    auth_json?: string;
-    external_id?: string;
-    external_payload?: string;
-  },
-  { endpoint_url, drive_id, auth_token }: TempCreds
-) => {
+export const createDisk = (diskData: {
+  name: string;
+  disk_type: DiskTypeEnum;
+  public_note?: string;
+  private_note?: string;
+  auth_json?: string;
+  external_id?: string;
+  external_payload?: string;
+}) => {
   const payload = {
     ...diskData,
   };
@@ -66,11 +53,11 @@ export const createDisk = (
       offline: {
         // Define the effect (the API call to make)
         effect: {
-          url: `${endpoint_url}/v1/${drive_id}/disks/create`,
+          url: `/disks/create`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
+            // Authorization: `Bearer HANDLED_BY_MIDDLEWARE`,
           },
           data: payload,
         },

@@ -6,15 +6,72 @@ import React, {
   createContext,
 } from "react";
 import { Provider } from "react-redux";
-import { createStore, applyMiddleware, compose, Store } from "redux";
+import {
+  createStore,
+  applyMiddleware,
+  compose,
+  Store,
+  Middleware,
+} from "redux";
 import { createOffline } from "@redux-offline/redux-offline";
 import offlineConfig from "@redux-offline/redux-offline/lib/defaults";
 import { rootReducer } from "./reducer";
 import { customNetworkDetector } from "./network-detector";
 import { DISKS_PERSIST_KEY } from "./disks/disks.reducer";
 import localForage from "localforage";
-import { useIdentitySystem } from "../framework/identity";
+import {
+  AuthProfile,
+  IndexDB_ApiKey,
+  IndexDB_Organization,
+  useIdentitySystem,
+} from "../framework/identity";
 import { DriveID } from "@officexapp/types";
+
+// Auth middleware
+export const createAuthMiddleware = (
+  currentOrg: IndexDB_Organization,
+  currentProfile: AuthProfile,
+  currentAPIKey: IndexDB_ApiKey | null,
+  generateSignature: () => Promise<string | null>
+): Middleware => {
+  return () => (next) => async (action: any) => {
+    // Only process offline actions with an effect
+    if (action.meta && action.meta.offline && action.meta.offline.effect) {
+      if (currentOrg && currentProfile) {
+        // Deep clone the action to avoid mutating the original
+        const enrichedAction = JSON.parse(JSON.stringify(action));
+        const effect = enrichedAction.meta.offline.effect;
+
+        console.log(`Found current api key? ${currentAPIKey?.value}`);
+
+        // Get auth token - generate signature or use public key
+        const authToken = currentAPIKey?.value
+          ? currentAPIKey?.value
+          : await generateSignature();
+
+        // Add endpoint and drive ID if needed
+        if (effect.url && !effect.url.includes("http")) {
+          effect.url = `${currentOrg.endpoint}/v1/${currentOrg.driveID}${
+            effect.url
+          }`;
+        }
+
+        // Ensure headers exist
+        effect.headers = effect.headers || {};
+
+        // Add auth token to headers
+        effect.headers.Authorization = `Bearer ${authToken}`;
+
+        console.log(`enrichedAction`, enrichedAction);
+
+        return next(enrichedAction);
+      }
+    }
+
+    // Pass through any actions that don't match our criteria
+    return next(action);
+  };
+};
 
 // Custom effect handler using browser fetch API instead of axios
 const effect = (effect: any) => {
@@ -102,55 +159,76 @@ export const useReduxOfflineMultiTenant = () => {
 export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { currentOrg } = useIdentitySystem();
+  const { currentOrg, currentProfile, currentAPIKey, generateSignature } =
+    useIdentitySystem();
   const storeRef = useRef<Store | null>(null);
   const storesMapRef = useRef(new Map<string, Store>());
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0); // Simple way to force re-render
 
   // Create or get a store for a specific organization
-  const getOrCreateStore = useCallback((orgId: string): Store => {
-    // Return existing store if we have one
-    if (storesMapRef.current.has(orgId)) {
-      return storesMapRef.current.get(orgId)!;
-    }
+  const getOrCreateStore = useCallback(
+    async (orgId: string): Promise<Store> => {
+      // Return existing store if we have one
+      if (storesMapRef.current.has(orgId)) {
+        return storesMapRef.current.get(orgId)!;
+      }
+      if (!currentOrg || !currentProfile) {
+        throw new Error("Cannot create store without current org and profile");
+      }
 
-    // Create organization-specific storage
-    const orgStorage = localForage.createInstance({
-      name: `OFFICEX-redux-offline-${orgId}`,
-      description: `Storage for organization ${orgId}`,
-      driver: [localForage.INDEXEDDB],
-      storeName: "offline-data",
-    });
+      // Create organization-specific storage
+      const orgStorage = localForage.createInstance({
+        name: `OFFICEX-redux-offline-${orgId}`,
+        description: `Storage for organization ${orgId}`,
+        driver: [localForage.INDEXEDDB],
+        storeName: "offline-data",
+      });
 
-    // Configure offline options specific to this organization
-    const offlineOptions = {
-      ...offlineConfig,
-      effect,
-      discard,
-      detectNetwork: customNetworkDetector,
-      persistOptions: {
-        key: `officex-offline-${orgId}`,
-        storage: orgStorage,
-        whitelist: ["offline", DISKS_PERSIST_KEY],
-      },
-      persistCallback: () => {
-        console.log(`Redux state for org ${orgId} has been rehydrated`);
-      },
-    };
+      // Create auth middleware with getters for identity information
+      const authMiddleware = createAuthMiddleware(
+        currentOrg,
+        currentProfile,
+        currentAPIKey,
+        generateSignature
+      );
 
-    // Create the store with the enhanced reducer and store enhancer
-    const { middleware, enhanceReducer, enhanceStore } =
-      createOffline(offlineOptions);
+      // Configure offline options specific to this organization
+      const offlineOptions = {
+        ...offlineConfig,
+        effect,
+        discard,
+        detectNetwork: customNetworkDetector,
+        persistOptions: {
+          key: `officex-offline-${orgId}`,
+          storage: orgStorage,
+          whitelist: ["offline", DISKS_PERSIST_KEY],
+        },
+        persistCallback: () => {
+          console.log(`Redux state for org ${orgId} has been rehydrated`);
+        },
+      };
 
-    const store = createStore(
-      enhanceReducer(rootReducer),
-      compose(enhanceStore, applyMiddleware(middleware))
-    );
+      // Create the store with the enhanced reducer and store enhancer
+      const {
+        middleware: offlineMiddleware,
+        enhanceReducer,
+        enhanceStore,
+      } = createOffline(offlineOptions);
 
-    // Save it for future use
-    storesMapRef.current.set(orgId, store);
-    return store;
-  }, []);
+      const store = createStore(
+        enhanceReducer(rootReducer),
+        compose(
+          enhanceStore,
+          applyMiddleware(authMiddleware, offlineMiddleware)
+        )
+      );
+
+      // Save it for future use
+      storesMapRef.current.set(orgId, store);
+      return store;
+    },
+    [currentOrg, currentProfile, currentAPIKey]
+  );
 
   // Function to delete a Redux Offline store for a specific organization
   const deleteReduxOfflineStore = useCallback(
@@ -219,23 +297,26 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Update the store when current organization changes
   useEffect(() => {
-    if (currentOrg) {
-      // Get the appropriate store
-      const store = getOrCreateStore(currentOrg.driveID);
+    const updateStore = async () => {
+      if (currentOrg) {
+        // Get the appropriate store
+        const store = await getOrCreateStore(currentOrg.driveID);
 
-      // Only update if the store has changed
-      if (store !== storeRef.current) {
-        storeRef.current = store;
-        forceUpdate(); // Force re-render with new store
+        // Only update if the store has changed
+        if (store !== storeRef.current) {
+          storeRef.current = store;
+          forceUpdate(); // Force re-render with new store
+        }
+      } else {
+        // If no organization is selected, use a default store
+        const defaultStore = await getOrCreateStore("default");
+        if (defaultStore !== storeRef.current) {
+          storeRef.current = defaultStore;
+          forceUpdate();
+        }
       }
-    } else {
-      // If no organization is selected, use a default store
-      const defaultStore = getOrCreateStore("default");
-      if (defaultStore !== storeRef.current) {
-        storeRef.current = defaultStore;
-        forceUpdate();
-      }
-    }
+    };
+    updateStore();
   }, [currentOrg, getOrCreateStore]);
 
   // Context value with the delete function

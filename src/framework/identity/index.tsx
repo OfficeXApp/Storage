@@ -121,7 +121,7 @@ interface IdentitySystemContextType {
 
   syncLatestIdentities: () => Promise<void>;
   deriveProfileFromSeed: (seedPhrase: string) => Promise<IndexDB_Profile>;
-  generateSignature: (message?: string) => Promise<string | null>;
+  generateSignature: () => Promise<string | null>;
 }
 
 // Create the context
@@ -255,7 +255,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
                 driveID: newDriveID,
                 nickname: "Anonymous Org",
                 icpPublicAddress: tempProfile.icpPublicAddress,
-                endpoint: "https://api.officex.app",
+                endpoint: "",
                 note: "",
               });
               setCurrentOrg(newOrg);
@@ -263,6 +263,22 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
                 LOCAL_STORAGE_ORGANIZATION_DRIVE_ID,
                 newOrg.driveID
               );
+            }
+
+            if (currentOrg && currentProfile) {
+              try {
+                const apiKeys = await listApiKeys();
+                const matchingKey = apiKeys.find(
+                  (key) =>
+                    key.userID === currentProfile.userID &&
+                    key.driveID === currentOrg.driveID
+                );
+                if (matchingKey) {
+                  setCurrentAPIKey(matchingKey);
+                }
+              } catch (err) {
+                console.log("Error finding API key:", err);
+              }
             }
 
             // Load initial data
@@ -346,6 +362,36 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     const apiKeys = await listApiKeys();
     setListOfAPIKeys(apiKeys);
   }, [db]);
+  const findApiKeyForProfileAndOrg = async (
+    userID: string,
+    driveID: string
+  ): Promise<IndexDB_ApiKey | null> => {
+    if (!db.current) {
+      throw new Error("INDEXEDDB_NOT_INITIALIZED");
+    }
+    return new Promise((resolve, reject) => {
+      if (!db.current) throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      const transaction = db.current.transaction(
+        [API_KEYS_STORE_NAME],
+        "readonly"
+      );
+      const store = transaction.objectStore(API_KEYS_STORE_NAME);
+      const request = store.getAll();
+
+      request.onerror = () => {
+        reject(new Error("GET_API_KEYS_FAILED"));
+      };
+
+      request.onsuccess = () => {
+        const apiKeys = request.result as IndexDB_ApiKey[];
+        // Find the appropriate API key for this profile and organization
+        const matchingKey = apiKeys.find(
+          (key) => key.userID === userID && key.driveID === driveID
+        );
+        resolve(matchingKey || null);
+      };
+    });
+  };
 
   // Helpers
   const deriveProfileFromSeed = useCallback(
@@ -386,64 +432,61 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     []
   );
   // Generate signature using ICP identity
-  const generateSignature = useCallback(
-    async (message?: string): Promise<string | null> => {
-      try {
-        if (!currentProfile) {
-          console.error("ICP account not initialized");
-          return null;
-        }
-        if (!currentProfile.icpAccount) {
-          console.error(
-            "No ICP Account via private key, this is likely an API user"
-          );
-          return null;
-        }
-        console.log(`currentProfile`, currentProfile);
-        const identity = currentProfile.icpAccount.identity;
-
-        // Use the raw public key for signature verification
-        const rawPublicKey = identity.getPublicKey().toRaw();
-        const publicKeyArray = Array.from(new Uint8Array(rawPublicKey));
-
-        console.log(`identity.getPrincipal()`, identity.getPrincipal());
-
-        // Get the canonical principal
-        const canonicalPrincipal = identity.getPrincipal().toString();
-
-        const now = Date.now();
-
-        // Build the challenge
-        const challenge = {
-          timestamp_ms: now,
-          drive_canister_id: currentOrg?.icpPublicAddress,
-          self_auth_principal: publicKeyArray,
-          canonical_principal: canonicalPrincipal,
-        };
-        console.log(`challenge`, challenge);
-
-        // Serialize and sign the challenge
-        const challengeBytes = new TextEncoder().encode(
-          JSON.stringify(challenge)
-        );
-        const signature = await identity.sign(challengeBytes);
-        const signatureArray = Array.from(new Uint8Array(signature));
-
-        // Build and encode the proof
-        const proof = {
-          auth_type: "SIGNATURE",
-          challenge,
-          signature: signatureArray,
-        };
-
-        return btoa(JSON.stringify(proof));
-      } catch (error) {
-        console.error("Signature generation error:", error);
+  const generateSignature = useCallback(async (): Promise<string | null> => {
+    try {
+      if (!currentProfile) {
+        console.error("ICP account not initialized");
         return null;
       }
-    },
-    [currentProfile?.icpAccount]
-  );
+      if (!currentProfile.icpAccount) {
+        console.error(
+          "No ICP Account via private key, this is likely an API user"
+        );
+        return null;
+      }
+      console.log(`currentProfile`, currentProfile);
+      const identity = currentProfile.icpAccount.identity;
+
+      // Use the raw public key for signature verification
+      const rawPublicKey = identity.getPublicKey().toRaw();
+      const publicKeyArray = Array.from(new Uint8Array(rawPublicKey));
+
+      console.log(`identity.getPrincipal()`, identity.getPrincipal());
+
+      // Get the canonical principal
+      const canonicalPrincipal = identity.getPrincipal().toString();
+
+      const now = Date.now();
+
+      // Build the challenge
+      const challenge = {
+        timestamp_ms: now,
+        drive_canister_id: currentOrg?.icpPublicAddress,
+        self_auth_principal: publicKeyArray,
+        canonical_principal: canonicalPrincipal,
+      };
+      console.log(`challenge`, challenge);
+
+      // Serialize and sign the challenge
+      const challengeBytes = new TextEncoder().encode(
+        JSON.stringify(challenge)
+      );
+      const signature = await identity.sign(challengeBytes);
+      const signatureArray = Array.from(new Uint8Array(signature));
+
+      // Build and encode the proof
+      const proof = {
+        auth_type: "SIGNATURE",
+        challenge,
+        signature: signatureArray,
+      };
+
+      return btoa(JSON.stringify(proof));
+    } catch (error) {
+      console.error("Signature generation error:", error);
+      return null;
+    }
+  }, [currentProfile?.icpAccount]);
 
   // Profiles
   const listProfiles = async (): Promise<IndexDB_Profile[]> => {
@@ -584,6 +627,13 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     );
     localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
     await hydrateFullAuthProfile(profile);
+    if (currentOrg) {
+      const apiKey = await findApiKeyForProfileAndOrg(
+        profile.userID,
+        currentOrg.driveID
+      );
+      setCurrentAPIKey(apiKey);
+    }
     console.log(`after switchProfile, currentProfile`, currentProfile);
   }, []);
 
@@ -733,6 +783,13 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       console.log(`updated org`, updated_org);
       setCurrentOrg(updated_org);
       localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
+      if (currentProfile) {
+        const apiKey = await findApiKeyForProfileAndOrg(
+          currentProfile.userID,
+          org.driveID
+        );
+        setCurrentAPIKey(apiKey);
+      }
     },
     []
   );

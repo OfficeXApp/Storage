@@ -25,6 +25,8 @@ import {
   Tabs,
   Tooltip,
   Typography,
+  Progress,
+  ProgressProps,
 } from "antd";
 import {
   IndexDB_Organization,
@@ -40,6 +42,9 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import { UserID } from "@officexapp/types";
 import { v4 as uuidv4 } from "uuid";
 import { sleep } from "../../api/helpers";
+import EarnProgressOverview from "../EarnProgressOverview";
+import { generateRandomSeed } from "../../api/icp";
+import { useReduxOfflineMultiTenant } from "../../store/ReduxProvider";
 
 const { TabPane } = Tabs;
 
@@ -56,8 +61,9 @@ const OrganizationSwitcher = () => {
     switchProfile,
     createProfile,
     createApiKey,
+    deriveProfileFromSeed,
   } = useIdentitySystem();
-
+  const { deleteReduxOfflineStore } = useReduxOfflineMultiTenant();
   // Modal states
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState("new"); // "new" or "edit-enter"
@@ -696,7 +702,7 @@ const OrganizationSwitcher = () => {
             throw new Error("Invalid response from voucher redemption");
           }
 
-          message.info("Syncing with the blockchain...");
+          message.info("Minting on blockchain...");
 
           // wait 5 seconds
           await sleep(5000);
@@ -808,13 +814,15 @@ const OrganizationSwitcher = () => {
       } else {
         // Original flow for creating organization without gift card
         // Generate a unique drive ID for the new organization
-        const newDriveID = `DriveID_${newOrgNickname.replace(/\s+/g, "_")}_${Date.now()}`;
+        const seedPhrase = generateRandomSeed();
+        const tempProfile = await deriveProfileFromSeed(seedPhrase);
+        const newDriveID = `DriveID_${tempProfile.icpPublicAddress}`;
 
         // Create the new organization
         const newOrg = await createOrganization({
           driveID: newDriveID as DriveID,
           nickname: newOrgNickname,
-          icpPublicAddress: newDriveID,
+          icpPublicAddress: tempProfile.icpPublicAddress,
           endpoint: "https://api.officex.app",
           note: `Created on ${new Date().toLocaleDateString()}`,
           defaultProfile: selectedProfileId, // Use the selectedProfileId
@@ -833,41 +841,6 @@ const OrganizationSwitcher = () => {
       message.error("Failed to create organization. Please try again.");
     } finally {
       setCreateLoading(false);
-    }
-  };
-
-  const handleImportExistingOrg = async () => {
-    if (!isValidUrl(existingOrgEndpoint)) {
-      message.error("Please enter a valid URL for the endpoint");
-      return;
-    }
-
-    try {
-      const normalizedEndpoint = normalizeUrl(existingOrgEndpoint);
-
-      // Generate a unique drive ID for the imported organization
-      const newDriveID = `DriveID_${existingOrgNickname.replace(/\s+/g, "_")}_${Date.now()}`;
-
-      // Create the imported organization
-      const newOrg = await createOrganization({
-        driveID: newDriveID as DriveID,
-        nickname: existingOrgNickname,
-        icpPublicAddress: "", // This would be fetched or derived from the endpoint
-        endpoint: normalizedEndpoint,
-        note: `Imported on ${new Date().toLocaleDateString()}`,
-        defaultProfile: "",
-      });
-
-      // Switch to the imported organization
-      await switchOrganization(newOrg, "");
-
-      message.success(
-        `Organization "${existingOrgNickname}" imported successfully!`
-      );
-      setIsModalVisible(false);
-    } catch (error) {
-      console.error("Error importing organization:", error);
-      message.error("Failed to import organization. Please try again.");
     }
   };
 
@@ -918,6 +891,7 @@ const OrganizationSwitcher = () => {
     try {
       if (selectedOrgId) {
         await deleteOrganization(selectedOrgId);
+        await deleteReduxOfflineStore(selectedOrgId);
         message.success("Organization removed successfully!");
         setIsModalVisible(false);
       }
@@ -1432,6 +1406,7 @@ const OrganizationSwitcher = () => {
         listItemHeight={40}
         listHeight={256}
       />
+      {/* <EarnProgressOverview /> */}
 
       {renderAddOrgModal()}
       {renderEditEnterOrgModal()}

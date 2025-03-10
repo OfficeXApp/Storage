@@ -28,6 +28,7 @@ import { Principal } from "@dfinity/principal";
 import { mnemonicToAccount } from "viem/accounts";
 import { mnemonicToSeed, mnemonicToSeedSync } from "@scure/bip39";
 import { generate } from "random-words";
+import { generateRandomSeed } from "../../api/icp";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -129,7 +130,7 @@ const IdentitySystemContext = createContext<
 >(undefined);
 
 // Constants for IndexedDB
-const DB_NAME = "local-identity-system";
+const DB_NAME = "OFFICEX-local-identity-system";
 const DB_VERSION = 1;
 const ORGS_STORE_NAME = "organizations";
 const PROFILES_STORE_NAME = "profiles";
@@ -246,10 +247,14 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             if (existingOrg) {
               setCurrentOrg(existingOrg);
             } else {
+              const seedPhrase = generateRandomSeed();
+              const tempProfile = await deriveProfileFromSeed(seedPhrase);
+              const newDriveID = `DriveID_${tempProfile.icpPublicAddress}`;
+
               const newOrg = await createOrganization({
-                driveID: `DriveID_${uuidv4()}`,
+                driveID: newDriveID,
                 nickname: "Anonymous Org",
-                icpPublicAddress: uuidv4(),
+                icpPublicAddress: tempProfile.icpPublicAddress,
                 endpoint: "https://api.officex.app",
                 note: "",
               });

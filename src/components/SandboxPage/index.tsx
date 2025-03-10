@@ -9,7 +9,7 @@ import type {
 } from "@officexapp/types";
 import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "../../store/store";
+import { AppState } from "../../store/ReduxProvider";
 import { createDisk, fetchDisks } from "../../store/disks/disks.actions";
 import { useIdentitySystem } from "../../framework/identity";
 const { Content, Footer } = Layout;
@@ -17,35 +17,44 @@ const { Title, Paragraph, Text } = Typography;
 
 const SandboxPage = () => {
   const dispatch = useDispatch();
-  const [apiKey, setApiKey] = React.useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sig, setSig] = useState("");
-  const { generateSignature } = useIdentitySystem();
+  const { generateSignature, currentOrg, currentAPIKey } = useIdentitySystem();
+  const [apiKey, setApiKey] = React.useState<string>(
+    currentAPIKey?.value || ""
+  );
 
   const isOnline = useSelector((state: AppState) => state.offline?.online);
   const disks = useSelector((state: AppState) => state.disks.disks);
 
   const handleCreateDisk = () => {
     dispatch(
-      createDisk({
-        name: "Project Cloud Storage",
-        disk_type: DiskTypeEnum.LocalSSD,
-        public_note: "Storage for team project files",
-        private_note: "Contains sensitive project data",
-        auth_json: JSON.stringify({
-          access_key: "AKIAIOSFODNN7EXAMPLE",
-          secret_key: "redacted",
-          region: "us-west-2",
-          bucket: "my-project-files",
-        }),
-        external_id: "ext-disk-001",
-        external_payload: JSON.stringify({
-          department: "engineering",
-          cost_center: "cc-12345",
-          project_id: "p-987654",
-        }),
-      })
+      createDisk(
+        {
+          name: "Project Cloud Storage",
+          disk_type: DiskTypeEnum.LocalSSD,
+          public_note: "Storage for team project files",
+          private_note: "Contains sensitive project data",
+          auth_json: JSON.stringify({
+            access_key: "AKIAIOSFODNN7EXAMPLE",
+            secret_key: "redacted",
+            region: "us-west-2",
+            bucket: "my-project-files",
+          }),
+          external_id: "ext-disk-001",
+          external_payload: JSON.stringify({
+            department: "engineering",
+            cost_center: "cc-12345",
+            project_id: "p-987654",
+          }),
+        },
+        {
+          endpoint_url: currentOrg?.endpoint || "",
+          drive_id: currentOrg?.driveID || "",
+          auth_token: apiKey,
+        }
+      )
     );
 
     message.success(
@@ -55,7 +64,15 @@ const SandboxPage = () => {
     );
   };
   const handleListDisks = () => {
-    dispatch(fetchDisks());
+    console.log(`currentOrg`, currentOrg);
+    console.log(`apiKey`, apiKey);
+    dispatch(
+      fetchDisks({
+        endpoint_url: currentOrg?.endpoint || "",
+        drive_id: currentOrg?.driveID || "",
+        auth_token: apiKey,
+      })
+    );
   };
 
   // const createDisk = async () => {
@@ -153,6 +170,7 @@ const SandboxPage = () => {
           Sandbox Page
         </Title>
         <br />
+        <p>{`${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/*`}</p>
         <Button
           onClick={async () => {
             const _sig = await generateSignature();

@@ -29,27 +29,10 @@ import { v4 as uuidv4 } from "uuid";
 import { IRequestCreateContact, UserID } from "@officexapp/types";
 import { useIdentitySystem } from "../../framework/identity";
 import { Principal } from "@dfinity/principal";
+import { generateRandomSeed, isValidIcpAddress } from "../../api/icp";
 
 const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
-
-// Helper function to validate ICP address (placeholder implementation)
-const isValidIcpAddress = (address: string): boolean => {
-  try {
-    // Try to create a Principal object
-    // This will throw an error if the format is invalid
-    const principal = Principal.fromText(address);
-    return true;
-  } catch (error) {
-    console.error("Invalid Principal ID:", error);
-    return false;
-  }
-};
-
-// Helper function to generate a random seed phrase
-const generateRandomSeed = (): string => {
-  return (generate(12) as string[]).join(" ");
-};
 
 interface ContactsAddDrawerProps {
   open: boolean;

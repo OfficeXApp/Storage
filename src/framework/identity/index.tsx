@@ -29,6 +29,11 @@ import { mnemonicToAccount } from "viem/accounts";
 import { mnemonicToSeed, mnemonicToSeedSync } from "@scure/bip39";
 import { generate } from "random-words";
 import { generateRandomSeed } from "../../api/icp";
+import {
+  closeDexieDb,
+  deleteDexieDb,
+  getDexieDb,
+} from "../../api/dexie-database";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -213,6 +218,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           const database = (event.target as IDBOpenDBRequest).result;
           db.current = database;
 
+          let initial_org_id = "";
+          let initial_profile_id = "";
+
           // Initialize with initial org and profile if provided
           try {
             // Check if profile exists
@@ -227,6 +235,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             if (localStorageICPPublicAddress && existingProfile) {
               // select profile
               hydrateFullAuthProfile(existingProfile);
+              initial_profile_id = existingProfile.userID;
             } else {
               // Create initial profile
               const seedPhrase = (generate(12) as string[]).join(" ");
@@ -235,6 +244,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
               await createProfile(newProfile);
               hydrateFullAuthProfile(newProfile);
               overwriteLocalStorageProfile(newProfile);
+              initial_profile_id = newProfile.userID;
             }
 
             // Check if organization exists LOCAL_STORAGE_ORGANIZATION_DRIVE_ID
@@ -246,6 +256,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             );
             if (existingOrg) {
               setCurrentOrg(existingOrg);
+              initial_org_id = existingOrg.driveID;
             } else {
               const seedPhrase = generateRandomSeed();
               const tempProfile = await deriveProfileFromSeed(seedPhrase);
@@ -263,15 +274,23 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
                 LOCAL_STORAGE_ORGANIZATION_DRIVE_ID,
                 newOrg.driveID
               );
+              initial_org_id = newOrg.driveID;
             }
+            console.log(`About to do currentOrg and currentProfile`);
+            console.log(`currentOrg`, currentOrg);
+            console.log(`currentProfile`, currentProfile);
 
-            if (currentOrg && currentProfile) {
+            if (initial_profile_id && initial_org_id) {
+              console.log(`Loaded currentOrg and currentProfile`);
+              // load dexie database
+              await getDexieDb(initial_profile_id, initial_org_id);
+              // set api key
               try {
                 const apiKeys = await listApiKeys();
                 const matchingKey = apiKeys.find(
                   (key) =>
-                    key.userID === currentProfile.userID &&
-                    key.driveID === currentOrg.driveID
+                    key.userID === initial_profile_id &&
+                    key.driveID === initial_org_id
                 );
                 if (matchingKey) {
                   setCurrentAPIKey(matchingKey);
@@ -593,6 +612,21 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        if (_currentProfile && _currentProfile.userID === userID) {
+          closeDexieDb();
+        }
+        for (const org of listOfOrgs) {
+          try {
+            await deleteDexieDb(userID as UserID, org.driveID);
+          } catch (error) {
+            // Continue if one deletion fails - just log it
+            console.warn(
+              `Could not delete database for ${userID}@${org.driveID}:`,
+              error
+            );
+          }
+        }
+
         const transaction = db.current.transaction(
           [PROFILES_STORE_NAME],
           "readwrite"
@@ -631,6 +665,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     );
     localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
     await hydrateFullAuthProfile(profile);
+    closeDexieDb();
     if (currentOrg) {
       const apiKey = await findApiKeyForProfileAndOrg(
         profile.userID,
@@ -753,6 +788,21 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        if (currentOrg && currentOrg.driveID === driveID) {
+          closeDexieDb();
+        }
+        for (const profile of listOfProfiles) {
+          try {
+            await deleteDexieDb(profile.userID, driveID as DriveID);
+          } catch (error) {
+            // Continue if one deletion fails - just log it
+            console.warn(
+              `Could not delete database for ${profile.userID}@${driveID}:`,
+              error
+            );
+          }
+        }
+
         const transaction = db.current.transaction(
           [ORGS_STORE_NAME],
           "readwrite"
@@ -787,6 +837,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       console.log(`updated org`, updated_org);
       setCurrentOrg(updated_org);
       localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
+      closeDexieDb();
       if (currentProfile) {
         const apiKey = await findApiKeyForProfileAndOrg(
           currentProfile.userID,

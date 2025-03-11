@@ -12,8 +12,11 @@ import type {
 } from "@officexapp/types";
 import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "../../store/ReduxProvider";
-import { createDisk, fetchDisks } from "../../store/disks/disks.actions";
+import { AppState } from "../../redux-offline/ReduxProvider";
+import {
+  createDisk,
+  fetchDisks,
+} from "../../redux-offline/disks/disks.actions";
 import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import TemplatesAddDrawer from "./templates.add";
 import TemplateTab, { TemplateItem } from "./templates.tab";

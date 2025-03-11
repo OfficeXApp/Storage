@@ -1,6 +1,8 @@
 // store/disks.actions.ts
 
 import { DiskTypeEnum, DriveID } from "@officexapp/types";
+import { v4 as uuidv4 } from "uuid";
+import { createOptimisticID } from "../network-detector";
 
 export const FETCH_DISKS = "FETCH_DISKS";
 export const FETCH_DISKS_COMMIT = "FETCH_DISKS_COMMIT";
@@ -21,7 +23,7 @@ export const fetchDisks = () => ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer HANDLED_BY_MIDDLEWARE`,
+          // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
         },
         data: {},
       },
@@ -46,10 +48,11 @@ export const createDisk = (diskData: {
   const payload = {
     ...diskData,
   };
-
+  const optimisticID = createOptimisticID();
   return {
     type: CREATE_DISK,
     meta: {
+      optimisticID,
       offline: {
         // Define the effect (the API call to make)
         effect: {
@@ -57,14 +60,14 @@ export const createDisk = (diskData: {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer HANDLED_BY_MIDDLEWARE`,
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: payload,
         },
         // Action to dispatch on success
-        commit: { type: CREATE_DISK_COMMIT },
+        commit: { type: CREATE_DISK_COMMIT, meta: { optimisticID } },
         // Action to dispatch on failure
-        rollback: { type: CREATE_DISK_ROLLBACK },
+        rollback: { type: CREATE_DISK_ROLLBACK, meta: { optimisticID } },
       },
     },
   };

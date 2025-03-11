@@ -1,5 +1,6 @@
 // store/network-detector.ts
 import { NetworkCallback } from "@redux-offline/redux-offline/lib/types";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Custom network detector that uses both the browser's online/offline events
@@ -49,4 +50,8 @@ export const customNetworkDetector = (callback: NetworkCallback) => {
     window.removeEventListener("online", () => callback(true));
     window.removeEventListener("offline", () => callback(false));
   };
+};
+
+export const createOptimisticID = () => {
+  return `OptimisticID-${uuidv4()}`;
 };

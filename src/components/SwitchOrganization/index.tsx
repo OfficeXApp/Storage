@@ -44,7 +44,7 @@ import { v4 as uuidv4 } from "uuid";
 import { sleep } from "../../api/helpers";
 import EarnProgressOverview from "../EarnProgressOverview";
 import { generateRandomSeed } from "../../api/icp";
-import { useReduxOfflineMultiTenant } from "../../store/ReduxProvider";
+import { useReduxOfflineMultiTenant } from "../../redux-offline/ReduxProvider";
 
 const { TabPane } = Tabs;
 
@@ -891,7 +891,12 @@ const OrganizationSwitcher = () => {
     try {
       if (selectedOrgId) {
         await deleteOrganization(selectedOrgId);
-        await deleteReduxOfflineStore(selectedOrgId);
+
+        // delete all redux stores with their user ID combo
+        for (const profile of listOfProfiles) {
+          await deleteReduxOfflineStore(selectedOrgId, profile.userID);
+        }
+
         message.success("Organization removed successfully!");
         setIsModalVisible(false);
       }

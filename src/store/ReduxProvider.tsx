@@ -17,7 +17,7 @@ import { createOffline } from "@redux-offline/redux-offline";
 import offlineConfig from "@redux-offline/redux-offline/lib/defaults";
 import { rootReducer } from "./reducer";
 import { customNetworkDetector } from "./network-detector";
-import { DISKS_PERSIST_KEY } from "./disks/disks.reducer";
+import { DISKS_REDUX_KEY } from "./disks/disks.reducer";
 import localForage from "localforage";
 import {
   AuthProfile,
@@ -25,7 +25,7 @@ import {
   IndexDB_Organization,
   useIdentitySystem,
 } from "../framework/identity";
-import { DriveID } from "@officexapp/types";
+import { DriveID, UserID } from "@officexapp/types";
 
 // Auth middleware
 export const createAuthMiddleware = (
@@ -155,6 +155,9 @@ export const useReduxOfflineMultiTenant = () => {
   return context;
 };
 
+const compileReduxStoreKey = (orgId: DriveID, userID: UserID) =>
+  `${userID}@${orgId}`;
+
 // Create the provider component that manages organization-specific stores
 export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -167,10 +170,11 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Create or get a store for a specific organization
   const getOrCreateStore = useCallback(
-    async (orgId: string): Promise<Store> => {
+    async (orgId: DriveID, userID: UserID): Promise<Store> => {
       // Return existing store if we have one
-      if (storesMapRef.current.has(orgId)) {
-        return storesMapRef.current.get(orgId)!;
+      const storeKey = compileReduxStoreKey(orgId, userID);
+      if (storesMapRef.current.has(storeKey)) {
+        return storesMapRef.current.get(storeKey)!;
       }
       if (!currentOrg || !currentProfile) {
         throw new Error("Cannot create store without current org and profile");
@@ -178,8 +182,8 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Create organization-specific storage
       const orgStorage = localForage.createInstance({
-        name: `OFFICEX-redux-offline-${orgId}`,
-        description: `Storage for organization ${orgId}`,
+        name: `OFFICEX-redux-offline-${storeKey}`,
+        description: `Offline buffer for ${storeKey}`,
         driver: [localForage.INDEXEDDB],
         storeName: "offline-data",
       });
@@ -192,19 +196,22 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         generateSignature
       );
 
-      // Configure offline options specific to this organization
+      // Configure offline options specific to this profile+organization pair
       const offlineOptions = {
         ...offlineConfig,
         effect,
         discard,
         detectNetwork: customNetworkDetector,
         persistOptions: {
-          key: `officex-offline-${orgId}`,
+          key: `officex-offline-${storeKey}`,
           storage: orgStorage,
-          whitelist: ["offline", DISKS_PERSIST_KEY],
+          whitelist: [
+            "offline",
+            // DISKS_REDUX_KEY
+          ],
         },
         persistCallback: () => {
-          console.log(`Redux state for org ${orgId} has been rehydrated`);
+          console.log(`Redux state for pair ${storeKey} has been rehydrated`);
         },
       };
 
@@ -224,7 +231,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       );
 
       // Save it for future use
-      storesMapRef.current.set(orgId, store);
+      storesMapRef.current.set(storeKey, store);
       return store;
     },
     [currentOrg, currentProfile, currentAPIKey]
@@ -298,9 +305,12 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
   // Update the store when current organization changes
   useEffect(() => {
     const updateStore = async () => {
-      if (currentOrg) {
+      if (currentOrg && currentProfile) {
         // Get the appropriate store
-        const store = await getOrCreateStore(currentOrg.driveID);
+        const store = await getOrCreateStore(
+          currentOrg.driveID,
+          currentProfile.userID
+        );
 
         // Only update if the store has changed
         if (store !== storeRef.current) {
@@ -308,16 +318,12 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           forceUpdate(); // Force re-render with new store
         }
       } else {
-        // If no organization is selected, use a default store
-        const defaultStore = await getOrCreateStore("default");
-        if (defaultStore !== storeRef.current) {
-          storeRef.current = defaultStore;
-          forceUpdate();
-        }
+        // If org or profile is missing, throw an error
+        throw new Error("Cannot create store without current org and profile");
       }
     };
     updateStore();
-  }, [currentOrg, getOrCreateStore]);
+  }, [currentOrg, currentProfile, getOrCreateStore]);
 
   // Context value with the delete function
   const contextValue = React.useMemo(

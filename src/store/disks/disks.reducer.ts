@@ -9,7 +9,7 @@ import {
   FETCH_DISKS_ROLLBACK,
 } from "./disks.actions";
 
-export const DISKS_PERSIST_KEY = "disks";
+export const DISKS_REDUX_KEY = "disks";
 
 interface DisksState {
   disks: Disk[];

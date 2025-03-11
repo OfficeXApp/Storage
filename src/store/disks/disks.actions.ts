@@ -1,11 +1,6 @@
 // store/disks.actions.ts
 
-import { DiskTypeEnum } from "@officexapp/types";
-
-// API base URL
-const API_URL = "http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000/v1/default";
-const API_KEY =
-  "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiZGU5NGU1ZjNkMDExN2NjZmE0ZGIxOGY5MGUyMzhkYjAxNWNiMjRmMDhhZjBkZjQ0NGEzOTdjMDM1OTU3MzJiOSJ9";
+import { DiskTypeEnum, DriveID } from "@officexapp/types";
 
 export const FETCH_DISKS = "FETCH_DISKS";
 export const FETCH_DISKS_COMMIT = "FETCH_DISKS_COMMIT";
@@ -22,11 +17,11 @@ export const fetchDisks = () => ({
     offline: {
       // Define the effect (the API call to make)
       effect: {
-        url: `${API_URL}/disks/list`,
+        url: `/disks/list`,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
+          // Authorization: `Bearer HANDLED_BY_MIDDLEWARE`,
         },
         data: {},
       },
@@ -49,7 +44,6 @@ export const createDisk = (diskData: {
   external_payload?: string;
 }) => {
   const payload = {
-    action: "CREATE",
     ...diskData,
   };
 
@@ -59,11 +53,11 @@ export const createDisk = (diskData: {
       offline: {
         // Define the effect (the API call to make)
         effect: {
-          url: `${API_URL}/disks/upsert`,
+          url: `/disks/create`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${API_KEY}`,
+            // Authorization: `Bearer HANDLED_BY_MIDDLEWARE`,
           },
           data: payload,
         },

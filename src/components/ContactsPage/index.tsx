@@ -13,7 +13,7 @@ import type {
 } from "@officexapp/types";
 import { DiskTypeEnum, SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "../../store/store";
+import { AppState } from "../../store/ReduxProvider";
 import { createDisk, fetchDisks } from "../../store/disks/disks.actions";
 import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import ContactsAddDrawer from "./contacts.add";

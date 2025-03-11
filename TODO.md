@@ -2,8 +2,9 @@
 
 ## Todo
 
-- [🔵] Contacts creation routes (create only for now)
-- [ ] Teams & Team Invite creation routes (create only for now)
+- [🔵] Hook up redux-offline with a long term ui state storage, maybe on indexdb or redux-cache when offline? its okay to call backend every page load, but when offline need to get the data from somewhere. maybe we get rid of explicit persist cache on disks-et-al and only cache offline. when no internet we query direct from localstorage? thus redux offline only handles mutations (create, update, delete) while queries (get, list) are handled by custom logic searching indexdb. --> seems more sensible to seperate out logic for mutations vs queries
+- [🔵] Contacts crud routes (with redux-offline)
+- [ ] Teams & Team Invite creation routes (with redux-offline)
 - [ ] Magic login link with redeem placeholders (both for contacts themselves, and via team invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa
 
 - [ ] Support multi offline organizations
@@ -12,8 +13,8 @@
 
 ## Backlog
 
-- [ ] Regenerate REST API docs & types with new routes, `/organization/whoami`, `/organization/superswap_user`
 - [ ] In organization settings, for current user, ability to change the api key
+- [ ] In API keys page, a special modal for generating a signature (for developer convinence such as when they want a temp auth token or call the `/api-keys/create` endpoint)
 - [ ] User initiated superswap_userid as a form of account "recovery" when they've lost/compromised their seed phrase. This should be added as a permission with grantee being a user/team etc.
 
 ## Done
@@ -23,3 +24,6 @@
 - [x] Setup default profile per organization, UX sugar (can just be most recent)
 - [x] Setup API keys for organization <> profile with /organization/whoami
 - [x] Factory deploy drive, connect to frontend
+- [x] Contacts UI pages
+- [x] Regenerate REST API docs & types with new routes, `/organization/whoami`, `/organization/superswap_user`, `/organization/redeem`
+- [x] Ensure that offline cached requests work across multiple orgs & profiles

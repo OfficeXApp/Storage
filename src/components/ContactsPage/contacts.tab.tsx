@@ -201,7 +201,7 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
       style={{
         padding: "0",
         height: "100%",
-        width: "auto",
+        width: "100%",
         overflowY: "auto",
         overflowX: "hidden",
         position: "relative",
@@ -493,7 +493,12 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                           alignItems: "center",
                         }}
                       >
-                        Advanced
+                        Advanced &nbsp;
+                        {screenType.isMobile ? null : isAdvancedOpen ? (
+                          <UpOutlined />
+                        ) : (
+                          <DownOutlined />
+                        )}
                       </summary>
 
                       <div style={{ padding: "8px 0" }}>

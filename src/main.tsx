@@ -2,14 +2,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
-import { ConfigProvider } from "antd";
+import { ConfigProvider as AntDesignConfigProvider } from "antd";
 import { DriveProvider } from "./framework";
 import "./index.css";
 import mixpanel from "mixpanel-browser";
 import { Provider as ReduxProvider } from "react-redux";
-import { configureStore } from "./store/store";
 import { registerServiceWorker } from "./registerSW.ts";
 import { IdentitySystemProvider } from "./framework/identity/index.tsx";
+import { ReduxOfflineProvider } from "./store/ReduxProvider.tsx";
 
 mixpanel.init("cae2fd45d17ff2cdf642b1d8afd80aa8", {
   debug: true,
@@ -30,8 +30,6 @@ if (isFileSystemAccessSupported) {
   );
   // Maybe fall back to just using IndexedDB
 }
-
-const store = configureStore();
 
 // Register service worker with UI notifications
 registerServiceWorker({
@@ -55,16 +53,16 @@ registerServiceWorker({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ReduxProvider store={store}>
-      <ConfigProvider>
-        <IdentitySystemProvider>
+    <AntDesignConfigProvider>
+      <IdentitySystemProvider>
+        <ReduxOfflineProvider>
           <DriveProvider
             onUploadComplete={(fileUUID) => console.log(`Uploaded ${fileUUID}`)}
           >
             <App />
           </DriveProvider>
-        </IdentitySystemProvider>
-      </ConfigProvider>
-    </ReduxProvider>
+        </ReduxOfflineProvider>
+      </IdentitySystemProvider>
+    </AntDesignConfigProvider>
   </React.StrictMode>
 );

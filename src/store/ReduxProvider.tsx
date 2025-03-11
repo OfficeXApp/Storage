@@ -27,86 +27,6 @@ import {
 } from "../framework/identity";
 import { DriveID, UserID } from "@officexapp/types";
 
-// Auth middleware
-export const createAuthMiddleware = (
-  currentOrg: IndexDB_Organization,
-  currentProfile: AuthProfile,
-  currentAPIKey: IndexDB_ApiKey | null,
-  generateSignature: () => Promise<string | null>
-): Middleware => {
-  return () => (next) => async (action: any) => {
-    // Only process offline actions with an effect
-    if (action.meta && action.meta.offline && action.meta.offline.effect) {
-      if (currentOrg && currentProfile) {
-        // Deep clone the action to avoid mutating the original
-        const enrichedAction = JSON.parse(JSON.stringify(action));
-        const effect = enrichedAction.meta.offline.effect;
-
-        console.log(`Found current api key? ${currentAPIKey?.value}`);
-
-        // Get auth token - generate signature or use public key
-        const authToken = currentAPIKey?.value
-          ? currentAPIKey?.value
-          : await generateSignature();
-
-        // Add endpoint and drive ID if needed
-        if (effect.url && !effect.url.includes("http")) {
-          effect.url = `${currentOrg.endpoint}/v1/${currentOrg.driveID}${
-            effect.url
-          }`;
-        }
-
-        // Ensure headers exist
-        effect.headers = effect.headers || {};
-
-        // Add auth token to headers
-        effect.headers.Authorization = `Bearer ${authToken}`;
-
-        console.log(`enrichedAction`, enrichedAction);
-
-        return next(enrichedAction);
-      }
-    }
-
-    // Pass through any actions that don't match our criteria
-    return next(action);
-  };
-};
-
-// Custom effect handler using browser fetch API instead of axios
-const effect = (effect: any) => {
-  // Extract request details from the effect
-  const { url, method = "GET", headers = {}, data } = effect;
-
-  // Configure fetch options
-  const fetchOptions: RequestInit = {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
-    // Only include body for non-GET requests
-    ...(method !== "GET" && {
-      body: data ? JSON.stringify(data) : undefined,
-    }),
-  };
-
-  // Return a promise that resolves or rejects based on the response
-  return fetch(url, fetchOptions).then((response) => {
-    // Check if the request was successful
-    if (!response.ok) {
-      // Create an error object with the status
-      const error: any = new Error(`HTTP error! Status: ${response.status}`);
-      error.status = response.status;
-      error.response = response;
-      throw error;
-    }
-
-    // Parse the JSON response
-    return response.json();
-  });
-};
-
 // Custom discard function
 const discard = (error: any) => {
   // If there's no response, it's a network error, so don't discard
@@ -188,18 +108,59 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         storeName: "offline-data",
       });
 
-      // Create auth middleware with getters for identity information
-      const authMiddleware = createAuthMiddleware(
-        currentOrg,
-        currentProfile,
-        currentAPIKey,
-        generateSignature
-      );
+      const effectWithAuth = async (effect: any) => {
+        // Extract request details from the effect
+        const { url, method = "GET", headers = {}, data } = effect;
+
+        // Construct full URL if needed
+        let fullUrl = url;
+        if (!url.includes("http")) {
+          fullUrl = `${currentOrg.endpoint}/v1/${currentOrg.driveID}${url}`;
+        }
+
+        // Get fresh auth token right when executing the request
+        const authToken = currentAPIKey?.value
+          ? currentAPIKey.value
+          : await generateSignature();
+
+        if (!authToken) {
+          throw new Error("Failed to obtain authentication token");
+        }
+
+        console.log(`within effect: `, authToken);
+
+        // Configure fetch options with fresh auth token
+        const fetchOptions: RequestInit = {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+            ...headers,
+          },
+          // Only include body for non-GET requests
+          ...(method !== "GET" && {
+            body: data ? JSON.stringify(data) : undefined,
+          }),
+        };
+
+        // Execute the fetch
+        return fetch(fullUrl, fetchOptions).then(async (response) => {
+          if (!response.ok) {
+            const error: any = new Error(
+              `HTTP error! Status: ${response.status}`
+            );
+            error.status = response.status;
+            error.response = response;
+            throw error;
+          }
+          return response.json();
+        });
+      };
 
       // Configure offline options specific to this profile+organization pair
       const offlineOptions = {
         ...offlineConfig,
-        effect,
+        effect: effectWithAuth,
         discard,
         detectNetwork: customNetworkDetector,
         persistOptions: {
@@ -224,17 +185,14 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const store = createStore(
         enhanceReducer(rootReducer),
-        compose(
-          enhanceStore,
-          applyMiddleware(authMiddleware, offlineMiddleware)
-        )
+        compose(enhanceStore, applyMiddleware(offlineMiddleware))
       );
 
       // Save it for future use
       storesMapRef.current.set(storeKey, store);
       return store;
     },
-    [currentOrg, currentProfile, currentAPIKey]
+    [currentOrg, currentProfile, currentAPIKey, generateSignature]
   );
 
   // Function to delete a Redux Offline store for a specific organization

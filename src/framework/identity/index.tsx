@@ -433,6 +433,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   // Generate signature using ICP identity
   const generateSignature = useCallback(async (): Promise<string | null> => {
+    console.log(`Generating fresh signature...`);
     try {
       if (!currentProfile) {
         console.error("ICP account not initialized");
@@ -457,6 +458,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       const canonicalPrincipal = identity.getPrincipal().toString();
 
       const now = Date.now();
+      console.log(`now`, now);
 
       // Build the challenge
       const challenge = {
@@ -481,7 +483,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         signature: signatureArray,
       };
 
-      return btoa(JSON.stringify(proof));
+      const sig_token = btoa(JSON.stringify(proof));
+      console.log(`sig_token`, sig_token);
+      return sig_token;
     } catch (error) {
       console.error("Signature generation error:", error);
       return null;

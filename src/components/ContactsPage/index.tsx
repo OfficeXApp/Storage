@@ -15,8 +15,8 @@ import { DiskTypeEnum, SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../../redux-offline/ReduxProvider";
 import {
-  createDisk,
-  fetchDisks,
+  createDiskAction,
+  listDisksAction,
 } from "../../redux-offline/disks/disks.actions";
 import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import ContactsAddDrawer from "./contacts.add";

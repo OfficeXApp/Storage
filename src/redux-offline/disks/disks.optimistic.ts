@@ -1,12 +1,21 @@
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
-import { getDexieDb } from "../../api/dexie-database";
+import { getDexieDb, markSyncConflict } from "../../api/dexie-database";
 import {
-  FETCH_DISKS,
-  FETCH_DISKS_COMMIT,
-  FETCH_DISKS_ROLLBACK,
+  LIST_DISKS,
+  LIST_DISKS_COMMIT,
+  LIST_DISKS_ROLLBACK,
   CREATE_DISK,
   CREATE_DISK_COMMIT,
   CREATE_DISK_ROLLBACK,
+  GET_DISK,
+  GET_DISK_COMMIT,
+  GET_DISK_ROLLBACK,
+  UPDATE_DISK,
+  UPDATE_DISK_COMMIT,
+  UPDATE_DISK_ROLLBACK,
+  DELETE_DISK,
+  DELETE_DISK_COMMIT,
+  DELETE_DISK_ROLLBACK,
 } from "../disks/disks.actions";
 import {
   AuthProfile,
@@ -14,7 +23,8 @@ import {
   IndexDB_Organization,
   IndexDB_Profile,
 } from "../../framework/identity";
-import { DISKS_DEXIE_TABLE, DISKS_REDUX_KEY } from "./disks.reducer";
+import { DiskFEO, DISKS_DEXIE_TABLE, DISKS_REDUX_KEY } from "./disks.reducer";
+import _ from "lodash";
 
 /**
  * Middleware for handling optimistic updates for the disks table
@@ -30,19 +40,25 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
     (next: Dispatch<AnyAction>) =>
     async (action: AnyAction) => {
       // Skip actions we don't care about
-      console.log(
-        `Inside disks optimistic middleware for ${action.type}`,
-        action
-      );
+      console.log(`Inside optimistic middleware for ${action.type}`, action);
       // Skip actions we don't care about
       if (
         ![
-          FETCH_DISKS,
-          FETCH_DISKS_COMMIT,
-          FETCH_DISKS_ROLLBACK,
+          GET_DISK,
+          GET_DISK_COMMIT,
+          GET_DISK_ROLLBACK,
+          LIST_DISKS,
+          LIST_DISKS_COMMIT,
+          LIST_DISKS_ROLLBACK,
           CREATE_DISK,
           CREATE_DISK_COMMIT,
           CREATE_DISK_ROLLBACK,
+          UPDATE_DISK,
+          UPDATE_DISK_COMMIT,
+          UPDATE_DISK_ROLLBACK,
+          DELETE_DISK,
+          DELETE_DISK_COMMIT,
+          DELETE_DISK_ROLLBACK,
         ].includes(action.type)
       ) {
         return next(action);
@@ -50,8 +66,6 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
 
       const userID = currentIdentitySet.currentProfile?.userID;
       const orgID = currentIdentitySet.currentOrg?.driveID;
-
-      console.log(`userID: ${userID}, orgID: ${orgID}`);
 
       // Skip if we don't have identity info
       if (!userID || !orgID) {
@@ -64,13 +78,67 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
       // Get db instance for this user+org pair
       // This won't create a new instance if the same one is already open
       const db = getDexieDb(userID, orgID);
-      const table = db.table(DISKS_DEXIE_TABLE);
+      const table = db.table<DiskFEO, string>(DISKS_DEXIE_TABLE);
       let enhancedAction = action;
 
       try {
         // Process action based on type
+
+        // ------------------------------ GET DISKS --------------------------------- //
+
         switch (action.type) {
-          case FETCH_DISKS: {
+          case GET_DISK: {
+            // Get cached data from IndexedDB
+            const optimisticID = action.meta.optimisticID;
+            const cachedDisk = await table.get(optimisticID);
+            if (cachedDisk) {
+              enhancedAction = {
+                ...action,
+                optimistic: {
+                  ...cachedDisk,
+                  _isOptimistic: true,
+                  _optimisticID: optimisticID,
+                  _syncSuccess: false,
+                  _syncConflict: false,
+                  _syncWarning: `Awaiting Sync. This disk was fetched offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be refetched. Anything else depending on it may also be affected.`,
+                },
+              };
+            }
+            break;
+          }
+
+          case GET_DISK_COMMIT: {
+            const realDisk = action.payload?.ok?.data;
+            if (realDisk) {
+              await table.put({
+                ...realDisk,
+                _optimisticID: null,
+                _isOptimistic: false,
+                _syncSuccess: true,
+                _syncConflict: false,
+                _syncWarning: "",
+              });
+            }
+            break;
+          }
+
+          case GET_DISK_ROLLBACK: {
+            const err = await action.payload.response.json();
+            const optimisticID = action.meta?.optimisticID;
+            if (optimisticID) {
+              const error_message = `Failed to get disk - a sync conflict occured between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+              await markSyncConflict(table, optimisticID, error_message);
+              enhancedAction = {
+                ...action,
+                error_message,
+              };
+            }
+            break;
+          }
+
+          // ------------------------------ LIST DISKS --------------------------------- //
+
+          case LIST_DISKS: {
             // Get cached data from IndexedDB
             const cachedDisks = await table.toArray();
 
@@ -78,13 +146,17 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
             if (cachedDisks && cachedDisks.length > 0) {
               enhancedAction = {
                 ...action,
-                cachedData: cachedDisks,
+                optimistic: cachedDisks.map((d) => ({
+                  ...d,
+                  _isOptimistic: true,
+                  _optimisticID: d.id,
+                })),
               };
             }
             break;
           }
 
-          case FETCH_DISKS_COMMIT: {
+          case LIST_DISKS_COMMIT: {
             // Extract disks from the response
             const disks = action.payload?.ok?.data?.items || [];
 
@@ -94,30 +166,47 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
               for (const disk of disks) {
                 await table.put({
                   ...disk,
+                  _optimisticID: disk.id,
                   _isOptimistic: false,
+                  _syncConflict: false,
+                  _syncWarning: "",
+                  _syncSuccess: true,
                 });
               }
             });
             break;
           }
 
+          case LIST_DISKS_ROLLBACK: {
+            const err = await action.payload.response.json();
+            const error_message = `Failed to fetch disks - ${err.err.message}`;
+            enhancedAction = {
+              ...action,
+              error_message,
+            };
+            break;
+          }
+
+          // ------------------------------ CREATE DISK --------------------------------- //
+
           case CREATE_DISK: {
-            console.log(`Inside disk optimistic middleware for CREATE_DISK`);
-            console.log(action);
             // Only handle actions with disk data
             if (action.meta?.offline?.effect?.data) {
               const diskData = action.meta.offline.effect.data;
               const optimisticID = action.meta.optimisticID;
 
               // Create optimistic disk object
-              const optimisticDisk = {
+              const optimisticDisk: DiskFEO = {
                 id: optimisticID,
                 ...diskData,
                 created_at: Date.now(),
                 updated_at: Date.now(),
                 _optimisticID: optimisticID,
+                _syncWarning: `Awaiting Sync. This disk was created offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be recreated. Anything else depending on it may also be affected.`,
+                _syncConflict: false,
+                _syncSuccess: false,
+                _isOptimistic: true,
               };
-              console.log(`Storing an optimistic disk`, optimisticDisk);
 
               // Save to IndexedDB
               await table.put(optimisticDisk);
@@ -139,16 +228,157 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
                 // Remove optimistic version
                 await table.delete(optimisticID);
                 // Add real version
-                await table.put(realDisk);
+                await table.put({
+                  ...realDisk,
+                  _optimisticID: null,
+                  _syncSuccess: true,
+                  _syncConflict: false,
+                  _syncWarning: "",
+                  _isOptimistic: false,
+                });
               });
             }
             break;
           }
 
           case CREATE_DISK_ROLLBACK: {
+            const err = await action.payload.response.json();
             const optimisticID = action.meta?.optimisticID;
             if (optimisticID) {
-              await table.delete(optimisticID);
+              const error_message = `Failed to create disk - a sync conflict occured between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+              await markSyncConflict(table, optimisticID, error_message);
+              enhancedAction = {
+                ...action,
+                error_message,
+              };
+            }
+            break;
+          }
+
+          // ------------------------------ UPDATE DISK --------------------------------- //
+
+          case UPDATE_DISK: {
+            // Only handle actions with disk data
+            if (action.meta?.offline?.effect?.data) {
+              const diskData = action.meta.offline.effect.data;
+              const optimisticID = action.meta.optimisticID;
+
+              const cachedDisk = await table.get(optimisticID);
+
+              // Create optimistic disk object
+              const optimisticDisk: DiskFEO = {
+                id: diskData.id,
+                ...cachedDisk,
+                ...diskData,
+                updated_at: Date.now(),
+                _isOptimistic: true,
+                _optimisticID: optimisticID,
+                _syncWarning: `Awaiting Sync. This disk was edited offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be reverted. Anything else depending on it may also be affected.`,
+                _syncConflict: false,
+                _syncSuccess: false,
+              };
+
+              // Save to IndexedDB
+              await table.put(optimisticDisk);
+
+              // Enhance action with optimisticID
+              enhancedAction = {
+                ...action,
+                optimistic: optimisticDisk,
+              };
+            }
+            break;
+          }
+
+          case UPDATE_DISK_COMMIT: {
+            const optimisticID = action.meta?.optimisticID;
+            const realDisk = action.payload?.ok?.data;
+            if (optimisticID && realDisk) {
+              await db.transaction("rw", table, async () => {
+                // Remove optimistic version
+                await table.delete(optimisticID);
+                // Add real version
+                await table.put({
+                  ...realDisk,
+                  _syncSuccess: true,
+                  _syncConflict: false,
+                  _syncWarning: "",
+                  _isOptimistic: false,
+                  _optimisticID: null,
+                });
+              });
+            }
+            break;
+          }
+
+          case UPDATE_DISK_ROLLBACK: {
+            const err = await action.payload.response.json();
+            const optimisticID = action.meta?.optimisticID;
+            if (optimisticID) {
+              const error_message = `Failed to update disk - a sync conflict occured between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+              await markSyncConflict(table, optimisticID, error_message);
+              enhancedAction = {
+                ...action,
+                error_message,
+              };
+            }
+            break;
+          }
+
+          // ------------------------------ DELETE DISK --------------------------------- //
+
+          case DELETE_DISK: {
+            const optimisticID = action.meta.optimisticID;
+
+            const cachedDisk = await table.get(optimisticID);
+
+            if (cachedDisk) {
+              const optimisticDisk: DiskFEO = {
+                ...cachedDisk,
+                id: optimisticID,
+                _markedForDeletion: true,
+                _syncWarning: `Awaiting Sync. This disk was deleted offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be restored. Anything else depending on it may also be affected.`,
+                _syncConflict: false,
+                _syncSuccess: false,
+                _isOptimistic: true,
+                _optimisticID: optimisticID,
+              };
+
+              // mark for deletion in indexdb
+              // Save to IndexedDB
+              await table.put(optimisticDisk);
+
+              // Enhance action with optimisticID
+              enhancedAction = {
+                ...action,
+                optimistic: optimisticDisk,
+              };
+            }
+
+            break;
+          }
+
+          case DELETE_DISK_COMMIT: {
+            const optimisticID = action.meta?.optimisticID;
+            if (optimisticID) {
+              await db.transaction("rw", table, async () => {
+                // Remove optimistic version
+                await table.delete(optimisticID);
+              });
+            }
+            break;
+          }
+
+          case DELETE_DISK_ROLLBACK: {
+            const err = await action.payload.response.json();
+            const optimisticID = action.meta?.optimisticID;
+            if (optimisticID) {
+              const error_message = `Failed to delete disk - a sync conflict occured between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+              await markSyncConflict(table, optimisticID, error_message);
+              enhancedAction = {
+                ...action,
+                error_message,
+              };
             }
             break;
           }

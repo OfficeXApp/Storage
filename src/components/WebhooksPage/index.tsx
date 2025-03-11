@@ -11,8 +11,8 @@ import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../../redux-offline/ReduxProvider";
 import {
-  createDisk,
-  fetchDisks,
+  createDiskAction,
+  listDisksAction,
 } from "../../redux-offline/disks/disks.actions";
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;

@@ -64,10 +64,11 @@ class DexieManager {
     // Define schema
     db.version(1).stores({
       // [TABLE_NAME]: "id, fieldAForEfficientQuery, fieldBForEfficientQuery",
-      superswap_optimistic_id: "optimisticID, officialID", // this table is for intercepting offline actions going online to server (see reducers where we perform string.replace swap on stringified actions)
+      //
       // Disks table
-      [DISKS_DEXIE_TABLE]: "id",
-      // Other table
+      [DISKS_DEXIE_TABLE]: "id, _syncConflict",
+
+      // Other tables
     });
 
     // Set as current and return
@@ -102,7 +103,6 @@ class DexieManager {
     try {
       // Delete the database
       await Dexie.delete(dbName);
-      console.log(`IndexedDB database ${dbName} successfully deleted`);
     } catch (error) {
       console.error(`Error deleting IndexedDB database ${dbName}:`, error);
       throw error;
@@ -116,9 +116,7 @@ class DexieManager {
  * Get database for current org+profile pair
  */
 export const getDexieDb = (userID: UserID, orgID: DriveID): Dexie => {
-  console.log("getDexieDb");
   const db = DexieManager.getInstance().getDb(userID, orgID);
-  console.log("db", db);
   return db;
 };
 
@@ -137,4 +135,38 @@ export const deleteDexieDb = async (
  */
 export const closeDexieDb = (): void => {
   DexieManager.getInstance().closeCurrentDb();
+};
+
+// mark a record as having a sync conflict
+export const markSyncConflict = async (
+  table: Dexie.Table<any, any>,
+  optimisticID: string,
+  message: string
+): Promise<void> => {
+  try {
+    // Retrieve the record with the given optimistic ID
+    const record = await table.get(optimisticID);
+
+    if (record) {
+      // Update the record with sync conflict information
+      record._syncWarning = message;
+      record._syncConflict = true;
+
+      // Save the updated record back to the table
+      await table.put(record);
+      //   console.log(
+      //     `Record ${optimisticID} marked as sync conflict with message: ${message}`
+      //   );
+    } else {
+      console.warn(
+        `Record with optimisticID ${optimisticID} not found for marking sync conflict`
+      );
+    }
+  } catch (error) {
+    console.error(
+      `Error marking sync conflict for record ${optimisticID}:`,
+      error
+    );
+    throw error;
+  }
 };

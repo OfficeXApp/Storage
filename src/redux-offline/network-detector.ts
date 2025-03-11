@@ -51,7 +51,3 @@ export const customNetworkDetector = (callback: NetworkCallback) => {
     window.removeEventListener("offline", () => callback(false));
   };
 };
-
-export const createOptimisticID = () => {
-  return `OptimisticID-${uuidv4()}`;
-};

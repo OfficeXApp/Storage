@@ -128,8 +128,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           throw new Error("Failed to obtain authentication token");
         }
 
-        console.log(`within effect: `, authToken);
-
         // Configure fetch options with fresh auth token
         const fetchOptions: RequestInit = {
           method,
@@ -173,7 +171,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           ],
         },
         persistCallback: () => {
-          console.log(`Redux state for pair ${storeKey} has been rehydrated`);
+          // console.log(`Redux state for pair ${storeKey} has been rehydrated`);
         },
       };
 
@@ -213,7 +211,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         const storeKey = compileReduxStoreKey(orgId, userID);
         if (storesMapRef.current.has(storeKey)) {
           storesMapRef.current.delete(storeKey);
-          console.log(`Store for organization ${orgId} removed from memory`);
         }
 
         // The database name we need to completely remove
@@ -243,7 +240,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           };
 
           deleteRequest.onsuccess = () => {
-            console.log(`IndexedDB database ${dbName} successfully deleted`);
             resolve();
           };
         });
@@ -251,9 +247,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         // Also delete the persistence key data from localStorage
         const persistKey = `officex-offline-${orgId}`;
         localStorage.removeItem(persistKey);
-        console.log(
-          `Removed persistent data for ${persistKey} from localStorage`
-        );
 
         // If the deleted store was the current one, force a re-render
         if (currentOrg && currentOrg.driveID === orgId && storeRef.current) {

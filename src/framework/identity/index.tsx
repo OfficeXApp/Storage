@@ -230,7 +230,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             const local_storage_profile_id =
               `UserID_${localStorageICPPublicAddress}` as UserID;
 
-            console.log("local_storage_profile_id", local_storage_profile_id);
             const existingProfile = await readProfile(local_storage_profile_id);
             if (localStorageICPPublicAddress && existingProfile) {
               // select profile
@@ -276,12 +275,8 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
               );
               initial_org_id = newOrg.driveID;
             }
-            console.log(`About to do currentOrg and currentProfile`);
-            console.log(`currentOrg`, currentOrg);
-            console.log(`currentProfile`, currentProfile);
 
             if (initial_profile_id && initial_org_id) {
-              console.log(`Loaded currentOrg and currentProfile`);
               // load dexie database
               await getDexieDb(initial_profile_id, initial_org_id);
               // set api key
@@ -452,7 +447,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   // Generate signature using ICP identity
   const generateSignature = useCallback(async (): Promise<string | null> => {
-    console.log(`Generating fresh signature...`);
     try {
       if (!currentProfile) {
         console.error("ICP account not initialized");
@@ -464,20 +458,17 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         );
         return null;
       }
-      console.log(`currentProfile`, currentProfile);
+
       const identity = currentProfile.icpAccount.identity;
 
       // Use the raw public key for signature verification
       const rawPublicKey = identity.getPublicKey().toRaw();
       const publicKeyArray = Array.from(new Uint8Array(rawPublicKey));
 
-      console.log(`identity.getPrincipal()`, identity.getPrincipal());
-
       // Get the canonical principal
       const canonicalPrincipal = identity.getPrincipal().toString();
 
       const now = Date.now();
-      console.log(`now`, now);
 
       // Build the challenge
       const challenge = {
@@ -486,7 +477,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         self_auth_principal: publicKeyArray,
         canonical_principal: canonicalPrincipal,
       };
-      console.log(`challenge`, challenge);
 
       // Serialize and sign the challenge
       const challengeBytes = new TextEncoder().encode(
@@ -503,7 +493,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       };
 
       const sig_token = btoa(JSON.stringify(proof));
-      console.log(`sig_token`, sig_token);
+
       return sig_token;
     } catch (error) {
       console.error("Signature generation error:", error);
@@ -653,7 +643,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     [_currentProfile, db, listOfProfiles, syncLatestIdentities]
   );
   const switchProfile = useCallback(async (profile: IndexDB_Profile) => {
-    console.log(`before switchProfile, currentProfile`, currentProfile);
     localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
     localStorage.setItem(
       LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
@@ -673,7 +662,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       );
       setCurrentAPIKey(apiKey);
     }
-    console.log(`after switchProfile, currentProfile`, currentProfile);
   }, []);
 
   // Organizations
@@ -834,7 +822,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         defaultProfile: defaultProfile || "",
       };
       await updateOrganization(updated_org);
-      console.log(`updated org`, updated_org);
+
       setCurrentOrg(updated_org);
       localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
       closeDexieDb();

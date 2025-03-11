@@ -29,6 +29,11 @@ import { mnemonicToAccount } from "viem/accounts";
 import { mnemonicToSeed, mnemonicToSeedSync } from "@scure/bip39";
 import { generate } from "random-words";
 import { generateRandomSeed } from "../../api/icp";
+import {
+  closeDexieDb,
+  deleteDexieDb,
+  getDexieDb,
+} from "../../api/dexie-database";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -213,6 +218,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           const database = (event.target as IDBOpenDBRequest).result;
           db.current = database;
 
+          let initial_org_id = "";
+          let initial_profile_id = "";
+
           // Initialize with initial org and profile if provided
           try {
             // Check if profile exists
@@ -222,11 +230,11 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             const local_storage_profile_id =
               `UserID_${localStorageICPPublicAddress}` as UserID;
 
-            console.log("local_storage_profile_id", local_storage_profile_id);
             const existingProfile = await readProfile(local_storage_profile_id);
             if (localStorageICPPublicAddress && existingProfile) {
               // select profile
               hydrateFullAuthProfile(existingProfile);
+              initial_profile_id = existingProfile.userID;
             } else {
               // Create initial profile
               const seedPhrase = (generate(12) as string[]).join(" ");
@@ -235,6 +243,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
               await createProfile(newProfile);
               hydrateFullAuthProfile(newProfile);
               overwriteLocalStorageProfile(newProfile);
+              initial_profile_id = newProfile.userID;
             }
 
             // Check if organization exists LOCAL_STORAGE_ORGANIZATION_DRIVE_ID
@@ -246,6 +255,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             );
             if (existingOrg) {
               setCurrentOrg(existingOrg);
+              initial_org_id = existingOrg.driveID;
             } else {
               const seedPhrase = generateRandomSeed();
               const tempProfile = await deriveProfileFromSeed(seedPhrase);
@@ -263,15 +273,19 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
                 LOCAL_STORAGE_ORGANIZATION_DRIVE_ID,
                 newOrg.driveID
               );
+              initial_org_id = newOrg.driveID;
             }
 
-            if (currentOrg && currentProfile) {
+            if (initial_profile_id && initial_org_id) {
+              // load dexie database
+              await getDexieDb(initial_profile_id, initial_org_id);
+              // set api key
               try {
                 const apiKeys = await listApiKeys();
                 const matchingKey = apiKeys.find(
                   (key) =>
-                    key.userID === currentProfile.userID &&
-                    key.driveID === currentOrg.driveID
+                    key.userID === initial_profile_id &&
+                    key.driveID === initial_org_id
                 );
                 if (matchingKey) {
                   setCurrentAPIKey(matchingKey);
@@ -433,7 +447,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   // Generate signature using ICP identity
   const generateSignature = useCallback(async (): Promise<string | null> => {
-    console.log(`Generating fresh signature...`);
     try {
       if (!currentProfile) {
         console.error("ICP account not initialized");
@@ -445,20 +458,17 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         );
         return null;
       }
-      console.log(`currentProfile`, currentProfile);
+
       const identity = currentProfile.icpAccount.identity;
 
       // Use the raw public key for signature verification
       const rawPublicKey = identity.getPublicKey().toRaw();
       const publicKeyArray = Array.from(new Uint8Array(rawPublicKey));
 
-      console.log(`identity.getPrincipal()`, identity.getPrincipal());
-
       // Get the canonical principal
       const canonicalPrincipal = identity.getPrincipal().toString();
 
       const now = Date.now();
-      console.log(`now`, now);
 
       // Build the challenge
       const challenge = {
@@ -467,7 +477,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         self_auth_principal: publicKeyArray,
         canonical_principal: canonicalPrincipal,
       };
-      console.log(`challenge`, challenge);
 
       // Serialize and sign the challenge
       const challengeBytes = new TextEncoder().encode(
@@ -484,7 +493,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       };
 
       const sig_token = btoa(JSON.stringify(proof));
-      console.log(`sig_token`, sig_token);
+
       return sig_token;
     } catch (error) {
       console.error("Signature generation error:", error);
@@ -593,6 +602,21 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        if (_currentProfile && _currentProfile.userID === userID) {
+          closeDexieDb();
+        }
+        for (const org of listOfOrgs) {
+          try {
+            await deleteDexieDb(userID as UserID, org.driveID);
+          } catch (error) {
+            // Continue if one deletion fails - just log it
+            console.warn(
+              `Could not delete database for ${userID}@${org.driveID}:`,
+              error
+            );
+          }
+        }
+
         const transaction = db.current.transaction(
           [PROFILES_STORE_NAME],
           "readwrite"
@@ -619,7 +643,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     [_currentProfile, db, listOfProfiles, syncLatestIdentities]
   );
   const switchProfile = useCallback(async (profile: IndexDB_Profile) => {
-    console.log(`before switchProfile, currentProfile`, currentProfile);
     localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
     localStorage.setItem(
       LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
@@ -631,6 +654,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     );
     localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
     await hydrateFullAuthProfile(profile);
+    closeDexieDb();
     if (currentOrg) {
       const apiKey = await findApiKeyForProfileAndOrg(
         profile.userID,
@@ -638,7 +662,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       );
       setCurrentAPIKey(apiKey);
     }
-    console.log(`after switchProfile, currentProfile`, currentProfile);
   }, []);
 
   // Organizations
@@ -753,6 +776,21 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        if (currentOrg && currentOrg.driveID === driveID) {
+          closeDexieDb();
+        }
+        for (const profile of listOfProfiles) {
+          try {
+            await deleteDexieDb(profile.userID, driveID as DriveID);
+          } catch (error) {
+            // Continue if one deletion fails - just log it
+            console.warn(
+              `Could not delete database for ${profile.userID}@${driveID}:`,
+              error
+            );
+          }
+        }
+
         const transaction = db.current.transaction(
           [ORGS_STORE_NAME],
           "readwrite"
@@ -784,9 +822,10 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         defaultProfile: defaultProfile || "",
       };
       await updateOrganization(updated_org);
-      console.log(`updated org`, updated_org);
+
       setCurrentOrg(updated_org);
       localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
+      closeDexieDb();
       if (currentProfile) {
         const apiKey = await findApiKeyForProfileAndOrg(
           currentProfile.userID,

@@ -9,8 +9,14 @@ import type {
 } from "@officexapp/types";
 import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "../../store/ReduxProvider";
-import { createDisk, fetchDisks } from "../../store/disks/disks.actions";
+import { AppState } from "../../redux-offline/ReduxProvider";
+import {
+  createDiskAction,
+  deleteDiskAction,
+  listDisksAction,
+  getDiskAction,
+  updateDiskAction,
+} from "../../redux-offline/disks/disks.actions";
 import { useIdentitySystem } from "../../framework/identity";
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -21,17 +27,18 @@ const SandboxPage = () => {
   const [error, setError] = useState(null);
   const [sig, setSig] = useState("");
   const { generateSignature, currentOrg, currentAPIKey } = useIdentitySystem();
-  const [apiKey, setApiKey] = React.useState<string>(
-    "" // currentAPIKey?.value || ""
-  );
+  const [diskName, setDiskName] = React.useState<string>("");
+  const [getDiskID, setGetDiskID] = React.useState<string>("");
+  const [updateDiskID, setUpdateDiskID] = React.useState<string>("");
+  const [deleteDiskID, setDeleteDiskID] = React.useState<string>("");
 
   const isOnline = useSelector((state: AppState) => state.offline?.online);
   const disks = useSelector((state: AppState) => state.disks.disks);
 
   const handleCreateDisk = () => {
     dispatch(
-      createDisk({
-        name: "Project Cloud Storage",
+      createDiskAction({
+        name: diskName,
         disk_type: DiskTypeEnum.LocalSSD,
         public_note: "Storage for team project files",
         private_note: "Contains sensitive project data",
@@ -57,9 +64,41 @@ const SandboxPage = () => {
     );
   };
   const handleListDisks = () => {
-    console.log(`currentOrg`, currentOrg);
-    console.log(`apiKey`, apiKey);
-    dispatch(fetchDisks());
+    dispatch(listDisksAction({}));
+    message.success(
+      isOnline
+        ? "Listing disk..."
+        : "Queued disk listing for when you're back online"
+    );
+  };
+  const handleUpdateDisk = () => {
+    dispatch(
+      updateDiskAction({
+        id: updateDiskID,
+        name: `${diskName} Updated`,
+      })
+    );
+    message.success(
+      isOnline
+        ? "Updating disk..."
+        : "Queued disk edit update for when you're back online"
+    );
+  };
+  const handleDeleteDisk = () => {
+    dispatch(deleteDiskAction({ id: deleteDiskID }));
+    message.success(
+      isOnline
+        ? "Deleting disk..."
+        : "Queued disk deletion for when you're back online"
+    );
+  };
+  const handleGetDisk = () => {
+    dispatch(getDiskAction(getDiskID));
+    message.success(
+      isOnline
+        ? "Getting disk..."
+        : "Queued disk read for when you're back online"
+    );
   };
 
   return (
@@ -79,18 +118,65 @@ const SandboxPage = () => {
           Generate Signature
         </Button>
         <Input value={sig}></Input>
-        <label>API Key Token</label>
+        <br />
+        <br />
+        <Button type="primary" block onClick={handleListDisks}>
+          List Disks
+        </Button>
+        <br />
+        <br />
         <Input
-          value={apiKey}
-          placeholder="Enter API key or signature"
-          onChange={(e) => setApiKey(e.target.value)}
+          value={getDiskID}
+          placeholder="DiskID"
+          onChange={(e) => setGetDiskID(e.target.value)}
+          suffix={
+            <Button type="primary" onClick={handleGetDisk}>
+              Get Disk
+            </Button>
+          }
         ></Input>
         <br />
-        <Button onClick={handleCreateDisk}>Create Disk</Button>
-        <Button onClick={handleListDisks}>List Disks</Button>
+        <Input
+          value={diskName}
+          placeholder="Disk Name"
+          onChange={(e) => setDiskName(e.target.value)}
+          suffix={
+            <Button type="primary" onClick={handleCreateDisk}>
+              Create Disk
+            </Button>
+          }
+        ></Input>
+        <br />
+        <Input
+          value={updateDiskID}
+          placeholder="DiskID"
+          onChange={(e) => setUpdateDiskID(e.target.value)}
+          suffix={
+            <Button type="primary" onClick={handleUpdateDisk}>
+              Update Disk
+            </Button>
+          }
+        ></Input>
+        <br />
+        <Input
+          value={deleteDiskID}
+          placeholder="DiskID"
+          onChange={(e) => setDeleteDiskID(e.target.value)}
+          suffix={
+            <Button type="primary" onClick={handleDeleteDisk}>
+              Delete Disk
+            </Button>
+          }
+        ></Input>
+        <br />
 
         <br />
-        {JSON.stringify(disks, null, 2)}
+        {/* JSON print pretty */}
+        {
+          <pre>
+            <code>{JSON.stringify(disks, null, 2)}</code>
+          </pre>
+        }
       </Content>
       <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>
     </Layout>

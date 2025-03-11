@@ -18,11 +18,10 @@ export function truncateMiddlePath(
 }
 
 export function trimToFolderPath(filePath: string) {
-  console.log("Trimming from folder path:", filePath);
   const lastSlashIndex = filePath.lastIndexOf("/");
   const trimmedPath =
     lastSlashIndex !== -1 ? filePath.substring(0, lastSlashIndex) : filePath;
-  console.log("Trimmed path:", trimmedPath);
+
   return trimmedPath;
 }
 
@@ -65,7 +64,7 @@ export function checkShouldAllowWorldComputer(): boolean {
     const showAllow =
       window.location.search.includes("allow_world_computer=1") ||
       alreadyAllowed; // || window.location.origin === "http://localhost:5173";
-    console.log(`Should allow world computer: ${showAllow}`);
+    // console.log(`Should allow world computer: ${showAllow}`);
     if (showAllow) {
       localStorage.setItem("allow_world_computer", "1");
     }

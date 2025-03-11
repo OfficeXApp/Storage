@@ -26,9 +26,8 @@ const LoadSampleFiles = () => {
     const onboardingCheckpoint = localStorage.getItem(
       CONSTANTS.LOCAL_STORAGE_ONBOARDING_CHECKPOINT
     );
-    console.log("Onboarding checkpoint:", onboardingCheckpoint);
+
     if (onboardingCheckpoint === ONBOARDING_CHECKPOINTS.FRESH_USER) {
-      console.log("Uploading default files...");
       const isLocalhost = window.location.hostname === "localhost";
       const filesToUpload = isLocalhost
         ? [

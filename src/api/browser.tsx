@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, List, message } from "antd";
-import IndexedDBStorage from "./indexdb";
+import IndexedDBStorage from "./indexdb-storage";
 import { FileMetadataFragment } from "../framework";
 
 interface FileWithThumbnail extends FileMetadataFragment {

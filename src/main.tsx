@@ -9,7 +9,7 @@ import mixpanel from "mixpanel-browser";
 import { Provider as ReduxProvider } from "react-redux";
 import { registerServiceWorker } from "./registerSW.ts";
 import { IdentitySystemProvider } from "./framework/identity/index.tsx";
-import { ReduxOfflineProvider } from "./store/ReduxProvider.tsx";
+import { ReduxOfflineProvider } from "./redux-offline/ReduxProvider.tsx";
 
 mixpanel.init("cae2fd45d17ff2cdf642b1d8afd80aa8", {
   debug: true,

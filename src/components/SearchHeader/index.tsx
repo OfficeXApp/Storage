@@ -43,6 +43,7 @@ import { IndexDB_Profile } from "../../framework/identity";
 import { shortenAddress } from "../../framework/identity/constants";
 import { UserID } from "@officexapp/types";
 import { debounce } from "lodash";
+import { useReduxOfflineMultiTenant } from "../../redux-offline/ReduxProvider";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -64,7 +65,6 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     currentProfile,
     deriveProfileFromSeed,
     readProfile,
-    listOfOrgs,
     createOrganization,
     createApiKey,
     switchOrganization,
@@ -125,11 +125,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   // Get multi org hook
   const {
     listOfProfiles,
+    listOfOrgs,
     createProfile,
     updateProfile,
     deleteProfile,
     switchProfile,
   } = useIdentitySystem();
+  const { deleteReduxOfflineStore } = useReduxOfflineMultiTenant();
 
   // Search functionality
   const handleSearch = useCallback(
@@ -1264,6 +1266,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                   try {
                     if (selectedProfileId) {
                       await deleteProfile(selectedProfileId);
+                      // call deleteReduxOfflineStore for every profile org combo
+                      for (let org of listOfOrgs) {
+                        await deleteReduxOfflineStore(
+                          org.driveID,
+                          selectedProfileId
+                        );
+                      }
                       message.success("Profile removed successfully!");
                       setIsModalVisible(false);
                     }

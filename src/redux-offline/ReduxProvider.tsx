@@ -26,6 +26,7 @@ import {
   useIdentitySystem,
 } from "../framework/identity";
 import { DriveID, UserID } from "@officexapp/types";
+import { disksOptimisticDexieMiddleware } from "./disks/disks.optimistic";
 
 // Custom discard function
 const discard = (error: any) => {
@@ -57,7 +58,7 @@ export interface AppState extends ReturnType<typeof rootReducer> {
 
 // Create a context to expose store management functions
 interface ReduxOfflineContextValue {
-  deleteReduxOfflineStore: (orgId: DriveID) => Promise<void>;
+  deleteReduxOfflineStore: (orgId: DriveID, userID: UserID) => Promise<void>;
 }
 
 const ReduxOfflineContext = createContext<ReduxOfflineContextValue | null>(
@@ -102,7 +103,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Create organization-specific storage
       const orgStorage = localForage.createInstance({
-        name: `OFFICEX-redux-offline-${storeKey}`,
+        name: `OFFICEX-Redux-Queue-${storeKey}`,
         description: `Offline buffer for ${storeKey}`,
         driver: [localForage.INDEXEDDB],
         storeName: "offline-data",
@@ -126,8 +127,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         if (!authToken) {
           throw new Error("Failed to obtain authentication token");
         }
-
-        console.log(`within effect: `, authToken);
 
         // Configure fetch options with fresh auth token
         const fetchOptions: RequestInit = {
@@ -172,7 +171,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           ],
         },
         persistCallback: () => {
-          console.log(`Redux state for pair ${storeKey} has been rehydrated`);
+          // console.log(`Redux state for pair ${storeKey} has been rehydrated`);
         },
       };
 
@@ -183,9 +182,18 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         enhanceStore,
       } = createOffline(offlineOptions);
 
+      const _idset = { currentOrg, currentProfile, currentAPIKey };
+
+      const middlewares: Middleware[] = [
+        // These optimistic middleware must come before offlineMiddleware
+        disksOptimisticDexieMiddleware(_idset),
+        // This comes after the optimistic middleware
+        offlineMiddleware,
+      ];
+
       const store = createStore(
         enhanceReducer(rootReducer),
-        compose(enhanceStore, applyMiddleware(offlineMiddleware))
+        compose(enhanceStore, applyMiddleware(...middlewares))
       );
 
       // Save it for future use
@@ -197,21 +205,21 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Function to delete a Redux Offline store for a specific organization
   const deleteReduxOfflineStore = useCallback(
-    async (orgId: string): Promise<void> => {
+    async (orgId: DriveID, userID: UserID): Promise<void> => {
       try {
         // Remove the store from our map if it exists
-        if (storesMapRef.current.has(orgId)) {
-          storesMapRef.current.delete(orgId);
-          console.log(`Store for organization ${orgId} removed from memory`);
+        const storeKey = compileReduxStoreKey(orgId, userID);
+        if (storesMapRef.current.has(storeKey)) {
+          storesMapRef.current.delete(storeKey);
         }
 
         // The database name we need to completely remove
-        const dbName = `OFFICEX-redux-offline-${orgId}`;
+        const dbName = `OFFICEX-redux-offline-${storeKey}`;
 
         // First, clear any data using localForage
         const orgStorage = localForage.createInstance({
           name: dbName,
-          description: `Storage for organization ${orgId}`,
+          description: `Storage for organization ${storeKey}`,
           driver: [localForage.INDEXEDDB],
           storeName: "offline-data",
         });
@@ -232,7 +240,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           };
 
           deleteRequest.onsuccess = () => {
-            console.log(`IndexedDB database ${dbName} successfully deleted`);
             resolve();
           };
         });
@@ -240,9 +247,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         // Also delete the persistence key data from localStorage
         const persistKey = `officex-offline-${orgId}`;
         localStorage.removeItem(persistKey);
-        console.log(
-          `Removed persistent data for ${persistKey} from localStorage`
-        );
 
         // If the deleted store was the current one, force a re-render
         if (currentOrg && currentOrg.driveID === orgId && storeRef.current) {
@@ -251,10 +255,10 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       } catch (error) {
         console.error(
-          `Failed to delete Redux Offline store for ${orgId}:`,
+          `Failed to delete Redux Offline store for ${compileReduxStoreKey(orgId, userID)}:`,
           error
         );
-        throw error; // Re-throw to allow caller to handle
+        // throw error; // Re-throw to allow caller to handle
       }
     },
     [currentOrg]

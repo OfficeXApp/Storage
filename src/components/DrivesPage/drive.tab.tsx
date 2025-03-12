@@ -1,3 +1,5 @@
+// src/components/DrivesPage/drive.tab.tsx
+
 import React, { useEffect, useState } from "react";
 import {
   Typography,
@@ -21,13 +23,10 @@ import {
 } from "antd";
 import {
   EditOutlined,
-  MailOutlined,
-  BellOutlined,
-  TeamOutlined,
+  GlobalOutlined,
   TagOutlined,
   ClockCircleOutlined,
-  UserOutlined,
-  GlobalOutlined,
+  DatabaseOutlined,
   FileTextOutlined,
   CopyOutlined,
   WalletOutlined,
@@ -35,42 +34,38 @@ import {
   DownOutlined,
   UpOutlined,
   CodeOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import {
-  ContactFE,
-  IRequestUpdateContact,
+  DriveFE,
+  Drive,
+  IRequestUpdateDrive,
   SystemPermissionType,
-  UserID,
+  DriveID,
 } from "@officexapp/types";
-import {
-  LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
-  shortenAddress,
-} from "../../framework/identity/constants";
+import { LOCAL_STORAGE_TOGGLE_REST_API_DOCS } from "../../framework/identity/constants";
+import { shortenAddress } from "../DrivesPage";
 import CodeBlock from "../CodeBlock";
 import useScreenType from "react-screentype-hook";
-import { getLastOnlineStatus } from "../../api/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
-  deleteContactAction,
-  updateContactAction,
-} from "../../redux-offline/contacts/contacts.actions";
+  deleteDriveAction,
+  updateDriveAction,
+} from "../../redux-offline/drives/drives.actions";
+import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
-// Define the props for the ContactTab component
-interface ContactTabProps {
-  contact: ContactFE;
-  onSave?: (updatedContact: Partial<ContactFE>) => void;
-  onDelete?: (contactID: UserID) => void;
+// Define the props for the DriveTab component
+interface DriveTabProps {
+  drive: DriveFEO;
+  onSave?: (updatedDrive: Partial<DriveFEO>) => void;
+  onDelete?: (driveID: DriveID) => void;
 }
 
-const ContactTab: React.FC<ContactTabProps> = ({
-  contact,
-  onSave,
-  onDelete,
-}) => {
+const DriveTab: React.FC<DriveTabProps> = ({ drive, onSave, onDelete }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
@@ -98,15 +93,16 @@ const ContactTab: React.FC<ContactTabProps> = ({
   const handleSave = () => {
     form.validateFields().then((values) => {
       // Determine which fields have changed
-      const changedFields: IRequestUpdateContact = { id: contact.id as UserID };
+      const changedFields: IRequestUpdateDrive = { id: drive.id as DriveID };
 
       // Define the specific fields we care about
-      const fieldsToCheck: (keyof IRequestUpdateContact)[] = [
+      const fieldsToCheck: (keyof IRequestUpdateDrive)[] = [
         "name",
         "public_note",
         "private_note",
-        "evm_public_address",
-        "email",
+        "endpoint_url",
+        "external_id",
+        "external_payload",
       ];
 
       // Only check the fields we care about
@@ -115,7 +111,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
         if (!(field in values)) return;
 
         const valueFromForm = values[field];
-        const originalValue = contact[field as keyof ContactFE];
+        const originalValue = drive[field as keyof DriveFEO];
 
         // Only include fields that have changed
         if (valueFromForm !== originalValue) {
@@ -133,15 +129,15 @@ const ContactTab: React.FC<ContactTabProps> = ({
         // More than just the ID
         // Dispatch the update action if we're online
         dispatch(
-          updateContactAction({
+          updateDriveAction({
             ...changedFields,
           })
         );
 
         message.success(
           isOnline
-            ? "Updating contact..."
-            : "Queued contact update for when you're back online"
+            ? "Updating drive..."
+            : "Queued drive update for when you're back online"
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -205,23 +201,56 @@ const ContactTab: React.FC<ContactTabProps> = ({
     );
   };
 
-  const lastOnlineStatus = getLastOnlineStatus(contact.last_online_ms);
-
   const initialValues = {
-    name: contact.name,
-    email: contact.email,
-    evm_public_address: contact.evm_public_address || "",
-    notifications_url: contact.notifications_url,
-    public_note: contact.public_note,
-    private_note: contact.private_note || "",
+    name: drive.name,
+    endpoint_url: drive.endpoint_url,
+    icp_principal: drive.icp_principal,
+    public_note: drive.public_note || "",
+    private_note: drive.private_note || "",
+    external_id: drive.external_id || "",
+    external_payload: drive.external_payload || "",
   };
 
   const renderCodeSnippets = () => {
-    const jsCode_GET = `function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_CREATE = `function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_UPDATE = `function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_DELETE = `function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_LIST = `function hello() {\n  console.log("Hello, world!");\n}`;
+    const jsCode_GET = `// Get Drive by ID
+const getDrive = async (driveId) => {
+  const response = await fetch(\`/api/drives/\${driveId}\`);
+  return response.json();
+};`;
+
+    const jsCode_CREATE = `// Create a new Drive
+const createDrive = async (driveData) => {
+  const response = await fetch('/api/drives', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(driveData),
+  });
+  return response.json();
+};`;
+
+    const jsCode_UPDATE = `// Update Drive by ID
+const updateDrive = async (driveId, updateData) => {
+  const response = await fetch(\`/api/drives/\${driveId}\`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updateData),
+  });
+  return response.json();
+};`;
+
+    const jsCode_DELETE = `// Delete Drive by ID
+const deleteDrive = async (driveId) => {
+  const response = await fetch(\`/api/drives/\${driveId}\`, {
+    method: 'DELETE',
+  });
+  return response.json();
+};`;
+
+    const jsCode_LIST = `// List all Drives with pagination
+const listDrives = async (page = 1, limit = 10) => {
+  const response = await fetch(\`/api/drives?page=\${page}&limit=\${limit}\`);
+  return response.json();
+};`;
 
     return (
       <Card
@@ -238,27 +267,27 @@ const ContactTab: React.FC<ContactTabProps> = ({
               <CodeBlock
                 code={jsCode_GET}
                 language="javascript"
-                title="GET Contact"
+                title="GET Drive"
               />
               <CodeBlock
                 code={jsCode_CREATE}
                 language="javascript"
-                title="CREATE Contact"
+                title="CREATE Drive"
               />
               <CodeBlock
                 code={jsCode_UPDATE}
                 language="javascript"
-                title="UPDATE Contact"
+                title="UPDATE Drive"
               />
               <CodeBlock
                 code={jsCode_DELETE}
                 language="javascript"
-                title="DELETE Contact"
+                title="DELETE Drive"
               />
               <CodeBlock
                 code={jsCode_LIST}
                 language="javascript"
-                title="LIST Contacts"
+                title="LIST Drives"
               />
             </Space>
           </Tabs.TabPane>
@@ -314,7 +343,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   size={screenType.isMobile ? "small" : "middle"}
                   ghost
                   disabled={
-                    !contact.permission_previews.includes(
+                    !drive.permission_previews.includes(
                       SystemPermissionType.EDIT
                     )
                   }
@@ -327,7 +356,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   type="primary"
                   size={screenType.isMobile ? "small" : "middle"}
                 >
-                  Invite
+                  Share
                 </Button>
               </>
             )}
@@ -349,35 +378,16 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
-                    placeholder="Contact name"
+                    placeholder="Drive name"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
 
-                <Form.Item name="email" label="Email">
+                <Form.Item name="endpoint_url" label="Endpoint URL">
                   <Input
-                    prefix={<MailOutlined />}
-                    placeholder="Email address"
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
-                  />
-                </Form.Item>
-
-                <Form.Item name="evm_public_address" label="EVM Wallet Address">
-                  <Input
-                    prefix={<WalletOutlined />}
-                    placeholder="EVM wallet address"
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
-                  />
-                </Form.Item>
-
-                {/* Advanced section in edit mode */}
-                <Form.Item name="notifications_url" label="Notifications">
-                  <Input
-                    prefix={<BellOutlined />}
-                    placeholder="Notifications"
+                    prefix={<GlobalOutlined />}
+                    placeholder="https://example.com/endpoint"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -386,13 +396,13 @@ const ContactTab: React.FC<ContactTabProps> = ({
                 <Form.Item name="public_note" label="Public Note">
                   <TextArea
                     rows={2}
-                    placeholder="Public information about this contact"
+                    placeholder="Public information about this drive"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
 
-                {contact.permission_previews.includes(
+                {drive.permission_previews.includes(
                   SystemPermissionType.EDIT
                 ) && (
                   <Form.Item
@@ -408,27 +418,45 @@ const ContactTab: React.FC<ContactTabProps> = ({
                     />
                   </Form.Item>
                 )}
+
+                <Form.Item name="external_id" label="External ID">
+                  <Input
+                    placeholder="External identifier"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+
+                <Form.Item name="external_payload" label="External Payload">
+                  <TextArea
+                    rows={2}
+                    placeholder="Additional data for external systems"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this contact?"
+                    title="Are you sure you want to delete this drive?"
                     okText="Yes"
                     cancelText="No"
                     onConfirm={() => {
-                      dispatch(deleteContactAction({ id: contact.id }));
+                      dispatch(deleteDriveAction({ id: drive.id }));
                       message.success(
                         isOnline
-                          ? "Deleting contact..."
-                          : "Queued contact delete for when you're back online"
+                          ? "Deleting drive..."
+                          : "Queued drive delete for when you're back online"
                       );
                       if (onDelete) {
-                        onDelete(contact.id);
+                        onDelete(drive.id);
                       }
                     }}
                   >
                     <Button
                       disabled={
-                        !contact.permission_previews.includes(
+                        !drive.permission_previews.includes(
                           SystemPermissionType.DELETE
                         )
                       }
@@ -436,7 +464,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                       type="primary"
                       danger
                     >
-                      Delete Contact
+                      Delete Drive
                     </Button>
                   </Popconfirm>
                 </Form.Item>
@@ -456,11 +484,10 @@ const ContactTab: React.FC<ContactTabProps> = ({
                       <Space align="center" size={16}>
                         <Avatar
                           size={64}
-                          icon={<UserOutlined />}
-                          src={contact.avatar || undefined}
+                          icon={<DatabaseOutlined />}
                           style={{ backgroundColor: "#1890ff" }}
                         >
-                          {contact.name.charAt(0).toUpperCase()}
+                          {drive.name.charAt(0).toUpperCase()}
                         </Avatar>
                         <div
                           style={{
@@ -482,14 +509,14 @@ const ContactTab: React.FC<ContactTabProps> = ({
                               level={3}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {contact.name}
+                              {drive.name}
                             </Title>
                             <Tag
                               color="blue"
                               onClick={() => {
-                                const userstring = `${contact.name.replace(" ", "_")}@${contact.id}`;
+                                const drivestring = `${drive.name.replace(" ", "_")}@${drive.id}`;
                                 navigator.clipboard
-                                  .writeText(userstring)
+                                  .writeText(drivestring)
                                   .then(() => {
                                     message.success("Copied to clipboard!");
                                   })
@@ -504,18 +531,18 @@ const ContactTab: React.FC<ContactTabProps> = ({
                                 marginTop: "24px",
                               }}
                             >
-                              {shortenAddress(contact.icp_principal)}
+                              {shortenAddress(drive.icp_principal)}
                             </Tag>
                           </div>
-                          <Space>
-                            <Badge
-                              // @ts-ignore
-                              status={lastOnlineStatus.status}
-                            />
-                            <Text type="secondary">
-                              {lastOnlineStatus.text}
-                            </Text>
-                          </Space>
+                          {drive.last_indexed_ms && (
+                            <Space>
+                              <Badge status="processing" />
+                              <Text type="secondary">
+                                Last Indexed:{" "}
+                                {formatDate(drive.last_indexed_ms)}
+                              </Text>
+                            </Space>
+                          )}
                         </div>
                       </Space>
                     </Space>
@@ -526,61 +553,80 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   <Col span={24}>
                     {/* Always displayed fields */}
 
-                    {!screenType.isMobile && (
-                      <div
-                        style={{
-                          marginTop: 4,
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        {contact.tags.map((tag, index) => (
-                          <Tag
-                            key={index}
-                            style={{ marginBottom: 4, marginLeft: 4 }}
-                          >
-                            {tag}
-                          </Tag>
-                        ))}
-                      </div>
-                    )}
+                    {!screenType.isMobile &&
+                      drive.tags &&
+                      drive.tags.length > 0 && (
+                        <div
+                          style={{
+                            marginTop: 4,
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {drive.tags.map((tag, index) => (
+                            <Tag
+                              key={index}
+                              style={{ marginBottom: 4, marginLeft: 4 }}
+                            >
+                              {tag}
+                            </Tag>
+                          ))}
+                        </div>
+                      )}
 
                     <div
                       style={{
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : contact.tags.length > 0
+                          : drive.tags && drive.tags.length > 0
                             ? 0
                             : 32,
                       }}
                     >
-                      <Card size="small" style={{ marginTop: 8 }}>
-                        <GlobalOutlined style={{ marginRight: 8 }} />
-                        {contact.public_note || "Add a public note"}
-                      </Card>
+                      {drive.endpoint_url && (
+                        <Card size="small" style={{ marginTop: 8 }}>
+                          <GlobalOutlined style={{ marginRight: 8 }} />
+                          <a
+                            href={`${drive.endpoint_url}/v1/${drive.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {`${drive.endpoint_url}/v1/${drive.id}`}
+                          </a>
+                        </Card>
+                      )}
+
+                      {drive.public_note && (
+                        <Card size="small" style={{ marginTop: 8 }}>
+                          <FileTextOutlined style={{ marginRight: 8 }} />
+                          {drive.public_note}
+                        </Card>
+                      )}
                     </div>
 
-                    {screenType.isMobile && (
-                      <div
-                        style={{
-                          marginTop: 4,
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        {contact.tags.map((tag, index) => (
-                          <Tag
-                            key={index}
-                            style={{ marginBottom: 4, marginLeft: 4 }}
-                          >
-                            {tag}
-                          </Tag>
-                        ))}
-                      </div>
-                    )}
+                    {screenType.isMobile &&
+                      drive.tags &&
+                      drive.tags.length > 0 && (
+                        <div
+                          style={{
+                            marginTop: 4,
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {drive.tags.map((tag, index) => (
+                            <Tag
+                              key={index}
+                              style={{ marginBottom: 4, marginLeft: 4 }}
+                            >
+                              {tag}
+                            </Tag>
+                          ))}
+                        </div>
+                      )}
 
                     {/* Advanced section with details */}
                     <details
@@ -609,40 +655,19 @@ const ContactTab: React.FC<ContactTabProps> = ({
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "User ID",
-                          contact.id,
-                          <UserOutlined />
+                          "Drive ID",
+                          drive.id,
+                          <DatabaseOutlined />
                         )}
 
                         {renderReadOnlyField(
-                          "Email",
-                          contact.email,
-                          <MailOutlined />
+                          "ICP Principal",
+                          drive.icp_principal,
+                          <WalletOutlined />
                         )}
 
-                        {contact.notifications_url &&
-                          renderReadOnlyField(
-                            "Notifications",
-                            contact.notifications_url,
-                            <BellOutlined />
-                          )}
-
-                        {contact.evm_public_address &&
-                          renderReadOnlyField(
-                            "EVM Wallet",
-                            contact.evm_public_address,
-                            <WalletOutlined />
-                          )}
-
-                        {contact.icp_principal &&
-                          renderReadOnlyField(
-                            "ICP Wallet",
-                            contact.icp_principal,
-                            <WalletOutlined />
-                          )}
-
-                        {contact.private_note &&
-                          contact.permission_previews.includes(
+                        {drive.private_note &&
+                          drive.permission_previews.includes(
                             SystemPermissionType.EDIT
                           ) && (
                             <div style={{ marginTop: "16px" }}>
@@ -665,7 +690,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                                 }}
                               >
                                 <FileTextOutlined style={{ marginRight: 8 }} />
-                                {contact.private_note}
+                                {drive.private_note}
                               </Card>
                             </div>
                           )}
@@ -674,13 +699,20 @@ const ContactTab: React.FC<ContactTabProps> = ({
                           <Space align="center">
                             <ClockCircleOutlined />
                             <Text type="secondary">
-                              Member since {formatDate(contact.created_at)}
+                              Created on {formatDate(drive.created_at)}
                             </Text>
                           </Space>
-                          {contact.external_id && (
+                          {drive.external_id && (
                             <div style={{ marginTop: 8 }}>
                               <Text type="secondary">
-                                External ID: {contact.external_id}
+                                External ID: {drive.external_id}
+                              </Text>
+                            </div>
+                          )}
+                          {drive.external_payload && (
+                            <div style={{ marginTop: 8 }}>
+                              <Text type="secondary">
+                                External Payload: {drive.external_payload}
                               </Text>
                             </div>
                           )}
@@ -688,29 +720,6 @@ const ContactTab: React.FC<ContactTabProps> = ({
                       </div>
                     </details>
                   </Col>
-
-                  {contact.team_previews.length > 0 && (
-                    <Col span={24}>
-                      <Title level={5}>Teams</Title>
-                      {contact.team_previews.map((team, index) => (
-                        <Card
-                          key={index}
-                          size="small"
-                          style={{ marginBottom: 8 }}
-                        >
-                          <Space>
-                            <Avatar
-                              size="small"
-                              icon={<TeamOutlined />}
-                              src={team.team_avatar || undefined}
-                            />
-                            <Text>{team.team_name}</Text>
-                            {team.is_admin && <Tag color="gold">Admin</Tag>}
-                          </Space>
-                        </Card>
-                      ))}
-                    </Col>
-                  )}
                 </Row>
               </>
             )}
@@ -745,4 +754,4 @@ const ContactTab: React.FC<ContactTabProps> = ({
   );
 };
 
-export default ContactTab;
+export default DriveTab;

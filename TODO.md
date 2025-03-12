@@ -2,8 +2,8 @@
 
 ## Todo
 
-- [🔵] Disks UI and hook up to crud routes
-- [ ] Blitzkreig the rest of the crud routes?
+- [🔵] Blitzkreig the rest of the crud routes?
+- [ ] Blitzkreig the rest of the crud UI?
 - [ ] Teams & Team Invite creation routes (with redux-offline)
 - [ ] Handle folder copy logic where subfiles wont have a known ID, so the type FolderFEO.sync_warning = string should help us warn the user
 - [ ] Magic login link with redeem placeholders (both for contacts themselves, and via team invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa

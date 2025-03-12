@@ -158,7 +158,6 @@ export const contactsReducer = (
     case LIST_CONTACTS_ROLLBACK: {
       return {
         ...state,
-        contacts: [],
         loading: false,
         error: action.error_message || "Failed to fetch contacts",
       };

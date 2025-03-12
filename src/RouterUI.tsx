@@ -56,7 +56,10 @@ import WebhooksPage from "./components/WebhooksPage";
 import ApiKeysPage from "./components/ApiKeysPage";
 import OrganizationSwitcher from "./components/SwitchOrganization";
 import TemplateCrudPage from "./components/TemplateCrudPage";
-import ContactPage from "./components/ContactsPage/contacts.page";
+import ContactPage from "./components/ContactsPage/contact.page";
+import TeamPage from "./components/TeamsPage/team.page";
+import TagPage from "./components/TagsPage/tag.page";
+import DiskPage from "./components/DisksPage/disk.page";
 
 const { Sider, Content } = Layout;
 
@@ -419,12 +422,15 @@ const RouterUI = () => {
                   element={<ContactPage />}
                 />
                 <Route path="/resources/teams" element={<TeamsPage />} />
+                <Route path="/resources/teams/:teamID" element={<TeamPage />} />
                 <Route
                   path="/resources/permissions"
                   element={<PermissionsPage />}
                 />
                 <Route path="/resources/tags" element={<TagsPage />} />
+                <Route path="/resources/tags/:tagID" element={<TagPage />} />
                 <Route path="/resources/disks" element={<DisksPage />} />
+                <Route path="/resources/disks/:diskID" element={<DiskPage />} />
                 <Route path="/resources/drives" element={<DrivesPage />} />
                 <Route
                   path="/resources/templates"

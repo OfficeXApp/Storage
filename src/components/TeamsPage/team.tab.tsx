@@ -21,8 +21,6 @@ import {
 } from "antd";
 import {
   EditOutlined,
-  MailOutlined,
-  BellOutlined,
   TeamOutlined,
   TagOutlined,
   ClockCircleOutlined,
@@ -30,17 +28,17 @@ import {
   GlobalOutlined,
   FileTextOutlined,
   CopyOutlined,
-  WalletOutlined,
   InfoCircleOutlined,
   DownOutlined,
   UpOutlined,
   CodeOutlined,
 } from "@ant-design/icons";
 import {
-  ContactFE,
-  IRequestUpdateContact,
+  TeamFE,
+  TeamMemberPreview,
+  IRequestUpdateTeam,
   SystemPermissionType,
-  UserID,
+  TeamID,
 } from "@officexapp/types";
 import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
@@ -48,29 +46,24 @@ import {
 } from "../../framework/identity/constants";
 import CodeBlock from "../CodeBlock";
 import useScreenType from "react-screentype-hook";
-import { getLastOnlineStatus } from "../../api/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
-  deleteContactAction,
-  updateContactAction,
-} from "../../redux-offline/contacts/contacts.actions";
+  deleteTeamAction,
+  updateTeamAction,
+} from "../../redux-offline/teams/teams.actions";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
-// Define the props for the ContactTab component
-interface ContactTabProps {
-  contact: ContactFE;
-  onSave?: (updatedContact: Partial<ContactFE>) => void;
-  onDelete?: (contactID: UserID) => void;
+// Define the props for the TeamTab component
+interface TeamTabProps {
+  team: TeamFE;
+  onSave?: (updatedTeam: Partial<TeamFE>) => void;
+  onDelete?: (teamID: TeamID) => void;
 }
 
-const ContactTab: React.FC<ContactTabProps> = ({
-  contact,
-  onSave,
-  onDelete,
-}) => {
+const TeamTab: React.FC<TeamTabProps> = ({ team, onSave, onDelete }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
@@ -98,15 +91,16 @@ const ContactTab: React.FC<ContactTabProps> = ({
   const handleSave = () => {
     form.validateFields().then((values) => {
       // Determine which fields have changed
-      const changedFields: IRequestUpdateContact = { id: contact.id as UserID };
+      const changedFields: IRequestUpdateTeam = { id: team.id as TeamID };
 
       // Define the specific fields we care about
-      const fieldsToCheck: (keyof IRequestUpdateContact)[] = [
+      const fieldsToCheck: (keyof IRequestUpdateTeam)[] = [
         "name",
         "public_note",
         "private_note",
-        "evm_public_address",
-        "email",
+        "endpoint_url",
+        "external_id",
+        "external_payload",
       ];
 
       // Only check the fields we care about
@@ -115,7 +109,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
         if (!(field in values)) return;
 
         const valueFromForm = values[field];
-        const originalValue = contact[field as keyof ContactFE];
+        const originalValue = team[field as keyof TeamFE];
 
         // Only include fields that have changed
         if (valueFromForm !== originalValue) {
@@ -133,15 +127,15 @@ const ContactTab: React.FC<ContactTabProps> = ({
         // More than just the ID
         // Dispatch the update action if we're online
         dispatch(
-          updateContactAction({
+          updateTeamAction({
             ...changedFields,
           })
         );
 
         message.success(
           isOnline
-            ? "Updating contact..."
-            : "Queued contact update for when you're back online"
+            ? "Updating team..."
+            : "Queued team update for when you're back online"
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -205,23 +199,87 @@ const ContactTab: React.FC<ContactTabProps> = ({
     );
   };
 
-  const lastOnlineStatus = getLastOnlineStatus(contact.last_online_ms);
-
   const initialValues = {
-    name: contact.name,
-    email: contact.email,
-    evm_public_address: contact.evm_public_address || "",
-    notifications_url: contact.notifications_url,
-    public_note: contact.public_note,
-    private_note: contact.private_note || "",
+    name: team.name,
+    public_note: team.public_note,
+    private_note: team.private_note || "",
+    endpoint_url: team.endpoint_url,
+    external_id: team.external_id || "",
+    external_payload: team.external_payload || "",
   };
 
   const renderCodeSnippets = () => {
-    const jsCode_GET = `function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_CREATE = `function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_UPDATE = `function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_DELETE = `function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_LIST = `function hello() {\n  console.log("Hello, world!");\n}`;
+    const jsCode_GET = `// GET Team
+const response = await fetch(\`/teams/get/\${teamId}\`, {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  }
+});
+const data = await response.json();`;
+
+    const jsCode_CREATE = `// CREATE Team
+const response = await fetch('/teams/create', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  },
+  body: JSON.stringify({
+    name: 'New Team Name',
+    public_note: 'Public information about the team',
+    private_note: 'Private information about the team',
+    endpoint_url: 'https://example.com/api/webhook',
+    external_id: 'external-id-123',
+    external_payload: '{"custom":"data"}'
+  })
+});
+const data = await response.json();`;
+
+    const jsCode_UPDATE = `// UPDATE Team
+const response = await fetch('/teams/update', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  },
+  body: JSON.stringify({
+    id: '${team.id}',
+    name: 'Updated Team Name',
+    public_note: 'Updated public information'
+    // Include only fields you want to update
+  })
+});
+const data = await response.json();`;
+
+    const jsCode_DELETE = `// DELETE Team
+const response = await fetch('/teams/delete', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  },
+  body: JSON.stringify({
+    id: '${team.id}'
+  })
+});
+const data = await response.json();`;
+
+    const jsCode_LIST = `// LIST Teams
+const response = await fetch('/teams/list', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  },
+  body: JSON.stringify({
+    page: 1,
+    limit: 10,
+    search: 'optional search term'
+  })
+});
+const data = await response.json();`;
 
     return (
       <Card
@@ -238,27 +296,27 @@ const ContactTab: React.FC<ContactTabProps> = ({
               <CodeBlock
                 code={jsCode_GET}
                 language="javascript"
-                title="GET Contact"
+                title="GET Team"
               />
               <CodeBlock
                 code={jsCode_CREATE}
                 language="javascript"
-                title="CREATE Contact"
+                title="CREATE Team"
               />
               <CodeBlock
                 code={jsCode_UPDATE}
                 language="javascript"
-                title="UPDATE Contact"
+                title="UPDATE Team"
               />
               <CodeBlock
                 code={jsCode_DELETE}
                 language="javascript"
-                title="DELETE Contact"
+                title="DELETE Team"
               />
               <CodeBlock
                 code={jsCode_LIST}
                 language="javascript"
-                title="LIST Contacts"
+                title="LIST Teams"
               />
             </Space>
           </Tabs.TabPane>
@@ -283,7 +341,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
     >
       <Row justify="space-between" align="middle" style={{ marginTop: 16 }}>
         <Col>
-          {/* Empty col where Invite & Edit buttons used to be */}
+          {/* Empty col where buttons used to be */}
           <p></p>
         </Col>
         <Col>
@@ -314,7 +372,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   size={screenType.isMobile ? "small" : "middle"}
                   ghost
                   disabled={
-                    !contact.permission_previews.includes(
+                    !team.permission_previews?.includes(
                       SystemPermissionType.EDIT
                     )
                   }
@@ -322,12 +380,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   Edit
                 </Button>
                 <Button
-                  icon={<TeamOutlined />}
+                  icon={<UserOutlined />}
                   onClick={() => {}}
                   type="primary"
                   size={screenType.isMobile ? "small" : "middle"}
                 >
-                  Invite
+                  Add Member
                 </Button>
               </>
             )}
@@ -345,39 +403,22 @@ const ContactTab: React.FC<ContactTabProps> = ({
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="name"
-                  label="Name"
-                  rules={[{ required: true, message: "Please enter name" }]}
+                  label="Team Name"
+                  rules={[
+                    { required: true, message: "Please enter team name" },
+                  ]}
                 >
                   <Input
-                    placeholder="Contact name"
+                    placeholder="Team name"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
 
-                <Form.Item name="email" label="Email">
+                <Form.Item name="endpoint_url" label="Endpoint">
                   <Input
-                    prefix={<MailOutlined />}
-                    placeholder="Email address"
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
-                  />
-                </Form.Item>
-
-                <Form.Item name="evm_public_address" label="EVM Wallet Address">
-                  <Input
-                    prefix={<WalletOutlined />}
-                    placeholder="EVM wallet address"
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
-                  />
-                </Form.Item>
-
-                {/* Advanced section in edit mode */}
-                <Form.Item name="notifications_url" label="Notifications">
-                  <Input
-                    prefix={<BellOutlined />}
-                    placeholder="Notifications"
+                    prefix={<GlobalOutlined />}
+                    placeholder="https://example.com/api/webhook"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -386,19 +427,19 @@ const ContactTab: React.FC<ContactTabProps> = ({
                 <Form.Item name="public_note" label="Public Note">
                   <TextArea
                     rows={2}
-                    placeholder="Public information about this contact"
+                    placeholder="Public information about this team"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
 
-                {contact.permission_previews.includes(
+                {team.permission_previews?.includes(
                   SystemPermissionType.EDIT
                 ) && (
                   <Form.Item
                     name="private_note"
                     label="Private Note"
-                    extra="Only organization owners and editors can view this note"
+                    extra="Only team owners and editors can view this note"
                   >
                     <TextArea
                       rows={3}
@@ -408,27 +449,45 @@ const ContactTab: React.FC<ContactTabProps> = ({
                     />
                   </Form.Item>
                 )}
+
+                <Form.Item name="external_id" label="External ID">
+                  <Input
+                    placeholder="External identifier"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+
+                <Form.Item name="external_payload" label="External Payload">
+                  <TextArea
+                    rows={2}
+                    placeholder="JSON or other data format"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this contact?"
+                    title="Are you sure you want to delete this team?"
                     okText="Yes"
                     cancelText="No"
                     onConfirm={() => {
-                      dispatch(deleteContactAction({ id: contact.id }));
+                      dispatch(deleteTeamAction({ id: team.id }));
                       message.success(
                         isOnline
-                          ? "Deleting contact..."
-                          : "Queued contact delete for when you're back online"
+                          ? "Deleting team..."
+                          : "Queued team delete for when you're back online"
                       );
                       if (onDelete) {
-                        onDelete(contact.id);
+                        onDelete(team.id);
                       }
                     }}
                   >
                     <Button
                       disabled={
-                        !contact.permission_previews.includes(
+                        !team.permission_previews?.includes(
                           SystemPermissionType.DELETE
                         )
                       }
@@ -436,7 +495,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                       type="primary"
                       danger
                     >
-                      Delete Contact
+                      Delete Team
                     </Button>
                   </Popconfirm>
                 </Form.Item>
@@ -456,11 +515,11 @@ const ContactTab: React.FC<ContactTabProps> = ({
                       <Space align="center" size={16}>
                         <Avatar
                           size={64}
-                          icon={<UserOutlined />}
-                          src={contact.avatar || undefined}
+                          icon={<TeamOutlined />}
+                          src={team.avatar || undefined}
                           style={{ backgroundColor: "#1890ff" }}
                         >
-                          {contact.name.charAt(0).toUpperCase()}
+                          {team.name.charAt(0).toUpperCase()}
                         </Avatar>
                         <div
                           style={{
@@ -482,14 +541,14 @@ const ContactTab: React.FC<ContactTabProps> = ({
                               level={3}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {contact.name}
+                              {team.name}
                             </Title>
                             <Tag
                               color="blue"
                               onClick={() => {
-                                const userstring = `${contact.name.replace(" ", "_")}@${contact.id}`;
+                                const teamstring = `${team.name.replace(" ", "_")}@${team.id}`;
                                 navigator.clipboard
-                                  .writeText(userstring)
+                                  .writeText(teamstring)
                                   .then(() => {
                                     message.success("Copied to clipboard!");
                                   })
@@ -504,16 +563,13 @@ const ContactTab: React.FC<ContactTabProps> = ({
                                 marginTop: "24px",
                               }}
                             >
-                              {shortenAddress(contact.icp_principal)}
+                              {shortenAddress(team.id.replace("TeamID_", ""))}
                             </Tag>
                           </div>
                           <Space>
-                            <Badge
-                              // @ts-ignore
-                              status={lastOnlineStatus.status}
-                            />
+                            <Badge status="processing" />
                             <Text type="secondary">
-                              {lastOnlineStatus.text}
+                              {team.member_invites.length || 0} Members
                             </Text>
                           </Space>
                         </div>
@@ -526,7 +582,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   <Col span={24}>
                     {/* Always displayed fields */}
 
-                    {!screenType.isMobile && (
+                    {!screenType.isMobile && team.tags && (
                       <div
                         style={{
                           marginTop: 4,
@@ -535,7 +591,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                           flexWrap: "wrap",
                         }}
                       >
-                        {contact.tags.map((tag, index) => (
+                        {team.tags.map((tag, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
@@ -551,18 +607,18 @@ const ContactTab: React.FC<ContactTabProps> = ({
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : contact.tags.length > 0
+                          : team.tags && team.tags.length > 0
                             ? 0
                             : 32,
                       }}
                     >
                       <Card size="small" style={{ marginTop: 8 }}>
                         <GlobalOutlined style={{ marginRight: 8 }} />
-                        {contact.public_note || "Add a public note"}
+                        {team.public_note || "No public note available"}
                       </Card>
                     </div>
 
-                    {screenType.isMobile && (
+                    {screenType.isMobile && team.tags && (
                       <div
                         style={{
                           marginTop: 4,
@@ -571,7 +627,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                           flexWrap: "wrap",
                         }}
                       >
-                        {contact.tags.map((tag, index) => (
+                        {team.tags.map((tag, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
@@ -609,47 +665,27 @@ const ContactTab: React.FC<ContactTabProps> = ({
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "User ID",
-                          contact.id,
-                          <UserOutlined />
+                          "Team ID",
+                          team.id,
+                          <TeamOutlined />
                         )}
 
-                        {renderReadOnlyField(
-                          "Email",
-                          contact.email,
-                          <MailOutlined />
-                        )}
-
-                        {contact.notifications_url &&
+                        {team.endpoint_url &&
                           renderReadOnlyField(
-                            "Notifications",
-                            contact.notifications_url,
-                            <BellOutlined />
+                            "Endpoint",
+                            team.endpoint_url,
+                            <GlobalOutlined />
                           )}
 
-                        {contact.evm_public_address &&
-                          renderReadOnlyField(
-                            "EVM Wallet",
-                            contact.evm_public_address,
-                            <WalletOutlined />
-                          )}
-
-                        {contact.icp_principal &&
-                          renderReadOnlyField(
-                            "ICP Wallet",
-                            contact.icp_principal,
-                            <WalletOutlined />
-                          )}
-
-                        {contact.private_note &&
-                          contact.permission_previews.includes(
+                        {team.private_note &&
+                          team.permission_previews?.includes(
                             SystemPermissionType.EDIT
                           ) && (
                             <div style={{ marginTop: "16px" }}>
                               <Space align="center">
                                 <Text strong>Private Note:</Text>
                                 <Popover
-                                  content="Only organization owners and editors can view this note"
+                                  content="Only team owners and editors can view this note"
                                   trigger="hover"
                                 >
                                   <InfoCircleOutlined
@@ -665,7 +701,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                                 }}
                               >
                                 <FileTextOutlined style={{ marginRight: 8 }} />
-                                {contact.private_note}
+                                {team.private_note}
                               </Card>
                             </div>
                           )}
@@ -674,13 +710,20 @@ const ContactTab: React.FC<ContactTabProps> = ({
                           <Space align="center">
                             <ClockCircleOutlined />
                             <Text type="secondary">
-                              Member since {formatDate(contact.created_at)}
+                              Created on {formatDate(team.created_at)}
                             </Text>
                           </Space>
-                          {contact.external_id && (
+                          {team.external_id && (
                             <div style={{ marginTop: 8 }}>
                               <Text type="secondary">
-                                External ID: {contact.external_id}
+                                External ID: {team.external_id}
+                              </Text>
+                            </div>
+                          )}
+                          {team.external_payload && (
+                            <div style={{ marginTop: 8 }}>
+                              <Text type="secondary">
+                                External Payload: {team.external_payload}
                               </Text>
                             </div>
                           )}
@@ -689,26 +732,32 @@ const ContactTab: React.FC<ContactTabProps> = ({
                     </details>
                   </Col>
 
-                  {contact.team_previews.length > 0 && (
+                  {team.member_previews && team.member_previews.length > 0 && (
                     <Col span={24}>
-                      <Title level={5}>Teams</Title>
-                      {contact.team_previews.map((team, index) => (
-                        <Card
-                          key={index}
-                          size="small"
-                          style={{ marginBottom: 8 }}
-                        >
-                          <Space>
-                            <Avatar
-                              size="small"
-                              icon={<TeamOutlined />}
-                              src={team.team_avatar || undefined}
-                            />
-                            <Text>{team.team_name}</Text>
-                            {team.is_admin && <Tag color="gold">Admin</Tag>}
-                          </Space>
-                        </Card>
-                      ))}
+                      <Title level={5}>Members</Title>
+                      {team.member_previews.map(
+                        (member: TeamMemberPreview, index: number) => (
+                          <Card
+                            key={index}
+                            size="small"
+                            style={{ marginBottom: 8 }}
+                          >
+                            <Space>
+                              <Avatar
+                                size="small"
+                                icon={<UserOutlined />}
+                                src={
+                                  member.avatar
+                                    ? String(member.avatar)
+                                    : undefined
+                                }
+                              />
+                              <Text>{String(member.name)}</Text>
+                              {member.is_admin && <Tag color="gold">Admin</Tag>}
+                            </Space>
+                          </Card>
+                        )
+                      )}
                     </Col>
                   )}
                 </Row>
@@ -745,4 +794,4 @@ const ContactTab: React.FC<ContactTabProps> = ({
   );
 };
 
-export default ContactTab;
+export default TeamTab;

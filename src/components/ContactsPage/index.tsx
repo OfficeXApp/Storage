@@ -269,7 +269,7 @@ const ContactsPage: React.FC = () => {
                   <div
                     key={item.key}
                     className={`scroll-tab ${activeKey === item.key ? "active-tab" : ""}`}
-                    onClick={() => setActiveKey(item.key)}
+                    onClick={() => onTabChange(item.key)}
                     style={{
                       padding: "12px 16px",
                       cursor: "pointer",

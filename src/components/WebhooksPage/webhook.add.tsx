@@ -171,7 +171,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
           alt_index: values.alt_index || uuidv4().substring(0, 8),
           event: values.event,
           signature: values.signature || "",
-          description: values.description || "",
+          note: values.note || "",
           filters: values.filters || "",
           external_id: values.external_id,
           external_payload: values.external_payload,
@@ -253,7 +253,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
           name: "",
           alt_index: "",
           signature: "",
-          description: "",
+          note: "",
           filters: "",
           external_id: "",
           external_payload: "",
@@ -349,7 +349,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
             </Form.Item>
 
             <Form.Item
-              name="description"
+              name="note"
               label={
                 <Tooltip title="Description of this webhook">
                   <Space>
@@ -360,7 +360,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
             >
               <Input
                 prefix={<InfoCircleOutlined />}
-                placeholder="Add a description for this webhook"
+                placeholder="Add a note for this webhook"
                 onChange={() => setFormChanged(true)}
                 variant="borderless"
                 style={{ backgroundColor: "#fafafa" }}

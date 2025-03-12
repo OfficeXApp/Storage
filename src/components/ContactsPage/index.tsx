@@ -19,8 +19,8 @@ import {
   listDisksAction,
 } from "../../redux-offline/disks/disks.actions";
 import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
-import ContactsAddDrawer from "./contacts.add";
-import ContactTab from "./contacts.tab";
+import ContactsAddDrawer from "./contact.add";
+import ContactTab from "./contact.tab";
 import ContactsTableList from "./contacts.table";
 import { SAMPLE_CONTACTS } from "./sample";
 import useScreenType from "react-screentype-hook";
@@ -132,6 +132,13 @@ const ContactsPage: React.FC = () => {
   // Handle tab change
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
+    if (newActiveKey === "list") {
+      const newUrl = `/resources/contacts`;
+      window.history.pushState({}, "", newUrl);
+    } else {
+      const newUrl = `/resources/contacts/${newActiveKey}`;
+      window.history.pushState({}, "", newUrl);
+    }
   };
 
   // Handle tab removal
@@ -243,7 +250,7 @@ const ContactsPage: React.FC = () => {
               {/* Pinned first tab */}
               <div
                 className={`pinned-tab ${activeKey === "list" ? "active-tab" : ""}`}
-                onClick={() => setActiveKey("list")}
+                onClick={() => onTabChange("list")}
                 style={{
                   padding: "12px 16px",
                   cursor: "pointer",

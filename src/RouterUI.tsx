@@ -56,6 +56,7 @@ import WebhooksPage from "./components/WebhooksPage";
 import ApiKeysPage from "./components/ApiKeysPage";
 import OrganizationSwitcher from "./components/SwitchOrganization";
 import TemplateCrudPage from "./components/TemplateCrudPage";
+import ContactPage from "./components/ContactsPage/contacts.page";
 
 const { Sider, Content } = Layout;
 
@@ -413,6 +414,10 @@ const RouterUI = () => {
 
                 {/* Organization Level Routes */}
                 <Route path="/resources/contacts" element={<ContactsPage />} />
+                <Route
+                  path="/resources/contacts/:userID"
+                  element={<ContactPage />}
+                />
                 <Route path="/resources/teams" element={<TeamsPage />} />
                 <Route
                   path="/resources/permissions"

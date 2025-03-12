@@ -1,5 +1,5 @@
 // src/redux-offline/contacts/contacts.reducer.ts
-import { ContactFE } from "@officexapp/types";
+import { ContactFE, UserID } from "@officexapp/types";
 import {
   CREATE_CONTACT,
   CREATE_CONTACT_COMMIT,
@@ -35,12 +35,14 @@ export interface ContactFEO extends ContactFE {
 
 interface ContactsState {
   contacts: ContactFEO[];
+  contactMap: Record<UserID, ContactFEO>;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: ContactsState = {
   contacts: [],
+  contactMap: {},
   loading: false,
   error: null,
 };
@@ -80,6 +82,10 @@ export const contactsReducer = (
       return {
         ...state,
         contacts: updateOrAddContact(state.contacts, action.optimistic),
+        contactMap: {
+          ...state.contactMap,
+          [action.optimistic.id]: action.optimistic,
+        },
         loading: true,
         error: null,
       };
@@ -96,12 +102,18 @@ export const contactsReducer = (
           }
           return contact;
         }),
+        contactMap: {
+          ...state.contactMap,
+          [action.payload.ok.data.id]: action.payload.ok.data,
+        },
         loading: false,
       };
     }
 
     case GET_CONTACT_ROLLBACK: {
       // Update the optimistic contact with the error message
+      const newContactMap = { ...state.contactMap };
+      delete newContactMap[action.meta.optimisticID];
       return {
         ...state,
         contacts: state.contacts.map((contact) => {
@@ -116,6 +128,7 @@ export const contactsReducer = (
           }
           return contact;
         }),
+        contactMap: newContactMap,
         loading: false,
         error: action.payload.message || "Failed to fetch contact",
       };

@@ -216,6 +216,8 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           onClick={(e) => {
             e.stopPropagation();
             handleContactTab(record, true);
+            const newUrl = `/resources/contacts/${record.id}`;
+            window.history.pushState({}, "", newUrl);
           }}
         >
           Open

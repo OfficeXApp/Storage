@@ -1,5 +1,5 @@
 // src/redux-offline/disks/disks.reducer.ts
-import { Disk } from "@officexapp/types";
+import { Disk, DiskID } from "@officexapp/types";
 import {
   CREATE_DISK,
   CREATE_DISK_COMMIT,
@@ -29,12 +29,14 @@ export interface DiskFEO extends Disk {
 
 interface DisksState {
   disks: DiskFEO[];
+  diskMap: Record<DiskID, DiskFEO>;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: DisksState = {
   disks: [],
+  diskMap: {},
   loading: false,
   error: null,
 };
@@ -71,6 +73,10 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
       return {
         ...state,
         disks: updateOrAddDisk(state.disks, action.optimistic),
+        diskMap: {
+          ...state.diskMap,
+          [action.optimistic.id]: action.optimistic,
+        },
         loading: true,
         error: null,
       };
@@ -87,12 +93,18 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
           }
           return disk;
         }),
+        diskMap: {
+          ...state.diskMap,
+          [action.payload.ok.data.id]: action.payload.ok.data,
+        },
         loading: false,
       };
     }
 
     case GET_DISK_ROLLBACK: {
       // Update the optimistic disk with the error message
+      const newDiskMap = { ...state.diskMap };
+      delete newDiskMap[action.meta.optimisticID];
       return {
         ...state,
         disks: state.disks.map((disk) => {
@@ -107,6 +119,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
           }
           return disk;
         }),
+        diskMap: newDiskMap,
         loading: false,
         error: action.payload.message || "Failed to fetch disk",
       };

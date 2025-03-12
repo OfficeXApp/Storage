@@ -1,10 +1,15 @@
 // store/root-reducer.ts
 import { combineReducers } from "redux";
 import { DISKS_REDUX_KEY, disksReducer } from "./disks/disks.reducer";
+import {
+  CONTACTS_REDUX_KEY,
+  contactsReducer,
+} from "./contacts/contacts.reducer";
 import { OfflineAction } from "@redux-offline/redux-offline/lib/types";
 
 export const rootReducer = combineReducers({
   [DISKS_REDUX_KEY]: disksReducer,
+  [CONTACTS_REDUX_KEY]: contactsReducer,
   // Any other reducers would go here
 });
 

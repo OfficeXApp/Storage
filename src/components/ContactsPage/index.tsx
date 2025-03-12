@@ -13,7 +13,7 @@ import type {
 } from "@officexapp/types";
 import { DiskTypeEnum, SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "../../redux-offline/ReduxProvider";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   createDiskAction,
   listDisksAction,
@@ -44,7 +44,6 @@ const ContactsPage: React.FC = () => {
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Sample contact data - expanded list
-  const [contacts, setContacts] = useState<ContactFE[]>(SAMPLE_CONTACTS);
   const isContactTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
@@ -101,7 +100,9 @@ const ContactsPage: React.FC = () => {
         const newTab: TabItem = {
           key: contact.id,
           label: contact.name,
-          children: <ContactTab contact={contact} />,
+          children: (
+            <ContactTab contact={contact} onDelete={handleDeletionCloseTabs} />
+          ),
           closable: true,
         };
 
@@ -120,6 +121,13 @@ const ContactsPage: React.FC = () => {
     },
     [] // No dependencies needed since we use the ref
   );
+
+  const handleDeletionCloseTabs = (userID: UserID) => {
+    const updatedTabs = tabItems.filter((item) => item.key !== userID);
+    setTabItems(updatedTabs);
+    tabItemsRef.current = updatedTabs;
+    setActiveKey("list");
+  };
 
   // Handle tab change
   const onTabChange = (newActiveKey: string) => {
@@ -318,7 +326,6 @@ const ContactsPage: React.FC = () => {
                 }}
               >
                 <ContactsTableList
-                  contacts={contacts}
                   isContactTabOpen={isContactTabOpen}
                   handleContactTab={handleContactTab}
                 />

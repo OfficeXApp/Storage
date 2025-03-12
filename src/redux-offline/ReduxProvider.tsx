@@ -27,6 +27,7 @@ import {
 } from "../framework/identity";
 import { DriveID, UserID } from "@officexapp/types";
 import { disksOptimisticDexieMiddleware } from "./disks/disks.optimistic";
+import { contactsOptimisticDexieMiddleware } from "./contacts/contacts.optimistic";
 
 // Custom discard function
 const discard = (error: any) => {
@@ -36,12 +37,23 @@ const discard = (error: any) => {
   // Get status from the error response
   const status = error.status || (error.response && error.response.status);
 
-  // Discard on client errors (4xx) except 401 Unauthorized
-  return status >= 400 && status < 500 && status !== 401;
+  // Be more selective about which errors to discard
+  // 400 - Bad Request (likely won't succeed on retry)
+  // 403 - Forbidden (authorization issue)
+  // 404 - Not Found (resource doesn't exist)
+  // 409 - Conflict (data conflict)
+  // 422 - Unprocessable Entity (validation error)
+  return [400, 403, 404, 409, 422].includes(status);
+
+  // Keep retrying:
+  // 401 - Unauthorized (token might refresh)
+  // 408 - Request Timeout
+  // 429 - Too Many Requests
+  // 5xx - Server errors
 };
 
 // Define the shape of your state including offline
-export interface AppState extends ReturnType<typeof rootReducer> {
+export interface ReduxAppState extends ReturnType<typeof rootReducer> {
   offline: {
     online: boolean;
     busy: boolean;
@@ -157,6 +169,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       // Configure offline options specific to this profile+organization pair
+      const retrySchedule = [1000, 5000, 15000, 30000, 60000];
       const offlineOptions = {
         ...offlineConfig,
         effect: effectWithAuth,
@@ -169,6 +182,24 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
             "offline",
             // DISKS_REDUX_KEY
           ],
+        },
+        retry: (action: any, retries: number) => {
+          // If we've exceeded our retry schedule, stop retrying
+          if (retries >= retrySchedule.length) {
+            console.log(
+              `Maximum retries (${retrySchedule.length}) reached for action:`,
+              action
+            );
+            return;
+          }
+
+          // Get the appropriate delay from our schedule
+          const delay = retrySchedule[retries];
+          console.log(
+            `Scheduling retry ${retries + 1}/${retrySchedule.length} in ${delay / 1000}s for:`,
+            action
+          );
+          return delay;
         },
         persistCallback: () => {
           // console.log(`Redux state for pair ${storeKey} has been rehydrated`);
@@ -187,6 +218,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       const middlewares: Middleware[] = [
         // These optimistic middleware must come before offlineMiddleware
         disksOptimisticDexieMiddleware(_idset),
+        contactsOptimisticDexieMiddleware(_idset),
         // This comes after the optimistic middleware
         offlineMiddleware,
       ];

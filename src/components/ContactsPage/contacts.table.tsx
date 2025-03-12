@@ -10,6 +10,8 @@ import {
   Badge,
   Menu,
   List,
+  message,
+  Popover,
 } from "antd";
 import {
   BarsOutlined,
@@ -27,18 +29,26 @@ import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
 import { ContactFE } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import { useDispatch, useSelector } from "react-redux";
+import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
+import { formatUserString, getLastOnlineStatus } from "../../api/helpers";
 
 interface ContactsTableListProps {
-  contacts: ContactFE[];
   isContactTabOpen: (id: string) => boolean;
   handleContactTab: (contact: ContactFE, focus_tab?: boolean) => void;
 }
 
 const ContactsTableList: React.FC<ContactsTableListProps> = ({
-  contacts,
   isContactTabOpen,
   handleContactTab,
 }) => {
+  const dispatch = useDispatch();
+  const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
+  const contacts = useSelector(
+    (state: ReduxAppState) => state.contacts.contacts
+  );
+  console.log(`look at contacts`, contacts);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredContacts, setFilteredContacts] = useState(contacts);
@@ -54,6 +64,18 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
 
   // Handle responsive layout
   useEffect(() => {
+    try {
+      dispatch(listContactsAction({}));
+    } catch (e) {
+      console.error(e);
+    }
+
+    message.success(
+      isOnline
+        ? "Fetching contacts..."
+        : "Queued fetch contacts for when you're back online"
+    );
+
     const handleResize = () => {
       const desktopView = document.getElementById("desktop-view");
       const mobileView = document.getElementById("mobile-view");
@@ -122,38 +144,66 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
       title: "Contact",
       dataIndex: "name",
       key: "name",
-      render: (_: any, record: ContactFE) => (
-        <Space
-          onClick={(e) => {
-            e?.stopPropagation();
-            handleContactTab(record);
-          }}
-        >
-          <Avatar
-            size="default"
-            src={
-              record.avatar
-                ? record.avatar
-                : `https://ui-avatars.com/api/?name=${record.name}`
-            }
-          />
-          <span>{record.name}</span>
-          <Badge color="green" dot />
-          <span style={{ fontSize: "12px", color: "rgba(0,0,0,0.45)" }}>
-            <ClockCircleOutlined style={{ marginRight: 4 }} />
-            Active 2h ago
-          </span>
-        </Space>
-      ),
+      render: (_: any, record: ContactFE) => {
+        const lastOnlineStatus = getLastOnlineStatus(record.last_online_ms);
+        return (
+          <Space
+            onClick={(e) => {
+              e?.stopPropagation();
+              handleContactTab(record);
+            }}
+          >
+            <Popover content={lastOnlineStatus.text}>
+              <Badge
+                // @ts-ignore
+                status={lastOnlineStatus.status}
+                dot
+                offset={[-3, 3]}
+              >
+                <Avatar
+                  size="default"
+                  src={
+                    record.avatar
+                      ? record.avatar
+                      : `https://ui-avatars.com/api/?name=${record.name}`
+                  }
+                />
+              </Badge>
+            </Popover>
+            <span style={{ marginLeft: "0px" }}>{record.name}</span>
+            <Tag
+              onClick={() => {
+                // copy to clipboard
+                formatUserString(record.name, record.id);
+                message.success("Copied to clipboard");
+              }}
+              color="default"
+            >
+              {shortenAddress(record.icp_principal)}
+            </Tag>
+          </Space>
+        );
+      },
     },
-    {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      width: 120, // Reduced width for ID column
-      ellipsis: true, // Add ellipsis to handle overflow
-      render: (id: string) => <Tag color="default">{shortenAddress(id)}</Tag>,
-    },
+    // {
+    //   title: "ID",
+    //   dataIndex: "id",
+    //   key: "id",
+    //   width: 120, // Reduced width for ID column
+    //   ellipsis: true, // Add ellipsis to handle overflow
+    //   render: (_: string, record: ContactFE) => (
+    //     <Tag
+    //       onClick={() => {
+    //         // copy to clipboard
+    //         formatUserString(record.name, record.id);
+    //         message.success("Copied to clipboard");
+    //       }}
+    //       color="default"
+    //     >
+    //       {shortenAddress(record.icp_principal)}
+    //     </Tag>
+    //   ),
+    // },
     {
       title: "Actions",
       key: "actions",

@@ -1,10 +1,8 @@
 // db/dexie-manager.ts
 import Dexie from "dexie";
 import { DriveID, UserID } from "@officexapp/types";
-import {
-  DISKS_DEXIE_TABLE,
-  DISKS_REDUX_KEY,
-} from "../redux-offline/disks/disks.reducer";
+import { DISKS_DEXIE_TABLE } from "../redux-offline/disks/disks.reducer";
+import { CONTACTS_DEXIE_TABLE } from "../redux-offline/contacts/contacts.reducer";
 
 /**
  * Singleton class to manage Dexie database connections
@@ -64,9 +62,11 @@ class DexieManager {
     // Define schema
     db.version(1).stores({
       // [TABLE_NAME]: "id, fieldAForEfficientQuery, fieldBForEfficientQuery",
-      //
+      dummy_init: "id",
       // Disks table
       [DISKS_DEXIE_TABLE]: "id, _syncConflict",
+      // Contacts table
+      [CONTACTS_DEXIE_TABLE]: "id, _syncConflict",
 
       // Other tables
     });
@@ -167,6 +167,42 @@ export const markSyncConflict = async (
       `Error marking sync conflict for record ${optimisticID}:`,
       error
     );
+    throw error;
+  }
+};
+
+export const initDexieDb = async (
+  userID: UserID,
+  orgID: DriveID
+): Promise<void> => {
+  try {
+    // Get the database instance
+    const db = getDexieDb(userID, orgID);
+
+    // Check if the dummy_init table exists
+    if (db.tables.some((table) => table.name === "dummy_init")) {
+      // Insert a dummy record if the table is empty
+      const count = await db.table("dummy_init").count();
+
+      if (count === 0) {
+        // Insert an initialization record
+        await db.table("dummy_init").add({
+          id: "init_record",
+          timestamp: new Date().toISOString(),
+          userID: userID,
+          orgID: orgID,
+          status: "initialized",
+        });
+
+        console.log(`Initialized dummy_init table for ${userID}@${orgID}`);
+      } else {
+        console.log(`dummy_init table already has data for ${userID}@${orgID}`);
+      }
+    } else {
+      console.warn("dummy_init table not found in database schema");
+    }
+  } catch (error) {
+    console.error("Error initializing Dexie database:", error);
     throw error;
   }
 };

@@ -685,6 +685,7 @@ const OrganizationSwitcher = () => {
                 giftcard_id: giftCardValue,
                 owner_icp_principal: icpPrincipal,
                 organization_name: newOrgNickname,
+                owner_name: profile.nickname || "Anonymous Owner",
               }),
             }
           );

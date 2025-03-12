@@ -24,12 +24,15 @@ import {
   GlobalOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
 import { generate } from "random-words";
 import { v4 as uuidv4 } from "uuid";
 import { IRequestCreateContact, UserID } from "@officexapp/types";
 import { useIdentitySystem } from "../../framework/identity";
 import { Principal } from "@dfinity/principal";
 import { generateRandomSeed, isValidIcpAddress } from "../../api/icp";
+import { createContactAction } from "../../redux-offline/contacts/contacts.actions";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 
 const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -45,9 +48,13 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
   onClose,
   onAddContact,
 }) => {
+  const dispatch = useDispatch();
+  const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState(generateRandomSeed());
+  const [displayedName, setDisplayedName] = useState("");
   const [isOwned, setIsOwned] = useState(false);
   const [icpAddress, setIcpAddress] = useState("");
   const [evmAddress, setEvmAddress] = useState("");
@@ -65,6 +72,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
       form.resetFields();
       setIsAdvancedOpen(false);
       setSeedPhrase(generateRandomSeed());
+      generateRandomIcpAddress();
       setIsOwned(false);
       setIcpAddress("");
       setEvmAddress("");
@@ -97,6 +105,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
   // Parse user string if present
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    setDisplayedName(value);
     form.setFieldsValue({ name: value });
     setFormChanged(true);
 
@@ -172,30 +181,53 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
   };
 
   const handleAddContact = () => {
+    console.log("Adding contact...");
     form
       .validateFields()
       .then((values) => {
+        console.log("Form values:", values);
+
         // Validate ICP address if not owned
         if (!isOwned && (!icpAddress || icpAddressError)) {
+          console.log(
+            `Invalid ICP address: ${icpAddress}, ${icpAddressError}, isOwned=${isOwned}`
+          );
           setIcpAddressError("Valid ICP address is required");
           return;
         }
 
         const contactData: IRequestCreateContact = {
-          action: "CREATE",
-          nickname: values.name,
+          name: values.name,
           icp_principal: icpAddress || `principal_${uuidv4()}`,
           evm_public_address: evmAddress || undefined,
           public_note: values.publicNote || "",
           external_id: values.externalId || undefined,
         };
 
+        console.log("Contact data:", contactData);
+
+        setLoading(true);
+
+        // Dispatch the create contact action
+        dispatch(createContactAction(contactData));
+
+        message.success(
+          isOnline
+            ? "Creating contact..."
+            : "Queued contact creation for when you're back online"
+        );
+
+        // Call the parent's onAddContact for any additional handling
         onAddContact(contactData);
+
+        // Close the drawer and show success message
         onClose();
-        message.success(`Contact ${values.name} added successfully!`);
+
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Validation failed:", error);
+        setLoading(false);
       });
   };
 
@@ -232,6 +264,56 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
     );
   };
 
+  const generateRandomIcpAddress = async () => {
+    try {
+      // Generate a temporary seed phrase just to get an ICP address
+      const tempSeed = generateRandomSeed();
+      const tempProfile = await deriveProfileFromSeed(tempSeed);
+      setIcpAddress(tempProfile.icpPublicAddress);
+      setIcpAddressError(null);
+      setFormChanged(true);
+    } catch (error) {
+      console.error("Error generating random ICP address:", error);
+      setIcpAddressError("Failed to generate ICP address");
+    }
+  };
+
+  const renderIcpAddressField = () => {
+    return (
+      <Form.Item
+        label={
+          <Tooltip title="ICP wallet address for this contact">
+            <Space>
+              ICP Address <InfoCircleOutlined style={{ color: "#aaa" }} />
+            </Space>
+          </Tooltip>
+        }
+        validateStatus={icpAddressError ? "error" : ""}
+        help={icpAddressError}
+        required
+      >
+        <Input
+          prefix={<WalletOutlined />}
+          placeholder="xyz123..."
+          value={icpAddress}
+          onChange={handleIcpAddressChange}
+          variant="borderless"
+          style={{ backgroundColor: "#fafafa" }}
+          suffix={
+            <Tooltip title="Generate random ICP address">
+              <Button
+                type="text"
+                icon={<ReloadOutlined />}
+                onClick={generateRandomIcpAddress}
+                size="small"
+              />
+            </Tooltip>
+          }
+        />
+      </Form.Item>
+    );
+  };
+
   return (
     <Drawer
       title="Add New Contact"
@@ -249,10 +331,11 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
             onClick={handleAddContact}
             type="primary"
             size="large"
+            loading={loading}
             disabled={
-              !formChanged ||
-              !form.getFieldValue("name") ||
-              (icpAddressError !== null && !isOwned)
+              !displayedName ||
+              (icpAddressError !== null && !isOwned) ||
+              loading
             }
           >
             Add Contact
@@ -458,30 +541,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
                 )}
               </>
             ) : (
-              <>
-                <Form.Item
-                  label={
-                    <Tooltip title="ICP wallet address for this contact">
-                      <Space>
-                        ICP Address{" "}
-                        <InfoCircleOutlined style={{ color: "#aaa" }} />
-                      </Space>
-                    </Tooltip>
-                  }
-                  validateStatus={icpAddressError ? "error" : ""}
-                  help={icpAddressError}
-                  required
-                >
-                  <Input
-                    prefix={<WalletOutlined />}
-                    placeholder="xyz123..."
-                    value={icpAddress}
-                    onChange={handleIcpAddressChange}
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
-                  />
-                </Form.Item>
-              </>
+              renderIcpAddressField()
             )}
 
             <Form.Item

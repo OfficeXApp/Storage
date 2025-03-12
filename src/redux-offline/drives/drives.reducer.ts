@@ -21,7 +21,7 @@ import {
 export const DRIVES_REDUX_KEY = "drives";
 export const DRIVES_DEXIE_TABLE = DRIVES_REDUX_KEY;
 
-export interface DriveFEO extends Drive, DriveFE {
+export interface DriveFEO extends DriveFE {
   _isOptimistic?: boolean; // flag for optimistic updates
   _optimisticID?: string; // unique ID for optimistic updates
   _syncWarning?: string; // tooltip for users

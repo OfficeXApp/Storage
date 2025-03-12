@@ -5,10 +5,8 @@ import {
   Input,
   Space,
   Table,
-  Avatar,
   Tag,
   Badge,
-  Menu,
   List,
   message,
   Popover,
@@ -20,60 +18,58 @@ import {
   SearchOutlined,
   SortAscendingOutlined,
   TeamOutlined,
-  UserAddOutlined,
-  MailOutlined,
+  DatabaseOutlined,
   DeleteOutlined,
   RightOutlined,
+  CloudOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { ContactFE } from "@officexapp/types";
+import { DiskTypeEnum } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
-import { formatUserString, getLastOnlineStatus } from "../../api/helpers";
+import { listDisksAction } from "../../redux-offline/disks/disks.actions";
+import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
 
-interface ContactsTableListProps {
+interface DisksTableListProps {
   isContentTabOpen: (id: string) => boolean;
-  handleClickContentTab: (contact: ContactFE, focus_tab?: boolean) => void;
+  handleClickContentTab: (disk: DiskFEO, focus_tab?: boolean) => void;
 }
 
-const ContactsTableList: React.FC<ContactsTableListProps> = ({
+const DisksTableList: React.FC<DisksTableListProps> = ({
   isContentTabOpen,
   handleClickContentTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const contacts = useSelector(
-    (state: ReduxAppState) => state.contacts.contacts
-  );
-  console.log(`look at contacts`, contacts);
+  const disks = useSelector((state: ReduxAppState) => state.disks.disks);
+  console.log(`look at disks`, disks);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
-  const [filteredContacts, setFilteredContacts] = useState(contacts);
+  const [filteredDisks, setFilteredDisks] = useState(disks);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // Update filtered contacts whenever search text or contacts change
+  // Update filtered disks whenever search text or disks change
   useEffect(() => {
-    const filtered = contacts.filter((contact) =>
-      contact.name.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = disks.filter((disk) =>
+      disk.name.toLowerCase().includes(searchText.toLowerCase())
     );
-    setFilteredContacts(filtered);
-  }, [searchText, contacts]);
+    setFilteredDisks(filtered);
+  }, [searchText, disks]);
 
   // Handle responsive layout
   useEffect(() => {
     try {
-      dispatch(listContactsAction({}));
+      dispatch(listDisksAction({}));
     } catch (e) {
       console.error(e);
     }
 
     // message.success(
     //   isOnline
-    //     ? "Fetching contacts..."
-    //     : "Queued fetch contacts for when you're back online"
+    //     ? "Fetching disks..."
+    //     : "Queued fetch disks for when you're back online"
     // );
 
     const handleResize = () => {
@@ -106,13 +102,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     selectedRowKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => {
       setSelectedRowKeys(newSelectedRowKeys);
-
-      // // Now clicking row just selects the checkbox
-      // const key = record.id;
-      // const newSelectedRowKeys = selectedRowKeys.includes(key)
-      //     ? selectedRowKeys.filter((k) => k !== key)
-      //     : [...selectedRowKeys, key];
-      // setSelectedRowKeys(newSelectedRowKeys);
     },
   };
 
@@ -120,14 +109,14 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   const manageMenuItems = [
     {
       key: "1",
-      icon: <UserAddOutlined />,
-      label: "Add to Team",
+      icon: <TeamOutlined />,
+      label: "Share",
       disabled: true,
     },
     {
       key: "2",
-      icon: <MailOutlined />,
-      label: "Send Invites",
+      icon: <CloudOutlined />,
+      label: "Sync",
       disabled: true,
     },
     {
@@ -138,14 +127,30 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     },
   ];
 
+  const getDiskTypeLabel = (type: DiskTypeEnum) => {
+    switch (type) {
+      case DiskTypeEnum.LocalSSD:
+        return "Physical SSD";
+      case DiskTypeEnum.AwsBucket:
+        return "Amazon Bucket";
+      case DiskTypeEnum.StorjWeb3:
+        return "StorjWeb3 Bucket";
+      case DiskTypeEnum.BrowserCache:
+        return "Offline Browser";
+      case DiskTypeEnum.IcpCanister:
+        return "ICP Canister";
+      default:
+        return "Unknown";
+    }
+  };
+
   // Define table columns
-  const columns: ColumnsType<ContactFE> = [
+  const columns: ColumnsType<DiskFEO> = [
     {
-      title: "Contact",
+      title: "Disk",
       dataIndex: "name",
       key: "name",
-      render: (_: any, record: ContactFE) => {
-        const lastOnlineStatus = getLastOnlineStatus(record.last_online_ms);
+      render: (_: any, record: DiskFEO) => {
         return (
           <Space
             onClick={(e) => {
@@ -153,70 +158,49 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               handleClickContentTab(record);
             }}
           >
-            <Popover content={lastOnlineStatus.text}>
-              <Badge
-                // @ts-ignore
-                status={lastOnlineStatus.status}
-                dot
-                offset={[-3, 3]}
-              >
-                <Avatar
-                  size="default"
-                  src={
-                    record.avatar
-                      ? record.avatar
-                      : `https://ui-avatars.com/api/?name=${record.name}`
-                  }
-                />
-              </Badge>
-            </Popover>
-            <span style={{ marginLeft: "0px" }}>{record.name}</span>
-            <Tag
-              onClick={() => {
-                // copy to clipboard
-                formatUserString(record.name, record.id);
-                message.success("Copied to clipboard");
+            <div
+              style={{
+                width: 30,
+                height: 30,
+                backgroundColor: "#1890ff",
+                borderRadius: "50%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "white",
               }}
-              color="default"
             >
-              {shortenAddress(record.icp_principal)}
-            </Tag>
+              <DatabaseOutlined />
+            </div>
+            <span style={{ marginLeft: "0px" }}>{record.name}</span>
+            <Tag>{shortenAddress(record.id.replace("DiskID_", ""))}</Tag>
+            {record._syncWarning && <Badge status="error" />}
           </Space>
         );
       },
     },
-    // {
-    //   title: "ID",
-    //   dataIndex: "id",
-    //   key: "id",
-    //   width: 120, // Reduced width for ID column
-    //   ellipsis: true, // Add ellipsis to handle overflow
-    //   render: (_: string, record: ContactFE) => (
-    //     <Tag
-    //       onClick={() => {
-    //         // copy to clipboard
-    //         formatUserString(record.name, record.id);
-    //         message.success("Copied to clipboard");
-    //       }}
-    //       color="default"
-    //     >
-    //       {shortenAddress(record.icp_principal)}
-    //     </Tag>
-    //   ),
-    // },
+    {
+      title: "Type",
+      dataIndex: "disk_type",
+      key: "disk_type",
+      width: 200,
+      render: (_: any, record: DiskFEO) => (
+        <span>{getDiskTypeLabel(record.disk_type)}</span>
+      ),
+    },
     {
       title: "Actions",
       key: "actions",
-      width: 150, // Increased width for actions column
-      render: (_: any, record: ContactFE) => (
+      width: 150,
+      render: (_: any, record: DiskFEO) => (
         <Button
           type="default"
           size="middle"
-          style={{ width: "100%" }} // Make button take up full column width
+          style={{ width: "100%" }}
           onClick={(e) => {
             e.stopPropagation();
             handleClickContentTab(record, true);
-            const newUrl = `/resources/contacts/${record.id}`;
+            const newUrl = `/resources/disks/${record.id}`;
             window.history.pushState({}, "", newUrl);
           }}
         >
@@ -237,17 +221,17 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     return (
       <List
         itemLayout="horizontal"
-        dataSource={filteredContacts}
-        renderItem={(contact: ContactFE) => (
+        dataSource={filteredDisks}
+        renderItem={(disk: DiskFEO) => (
           <List.Item
             style={{
               padding: "12px 16px",
               cursor: "pointer",
-              backgroundColor: isContentTabOpen(contact.id)
+              backgroundColor: isContentTabOpen(disk.id)
                 ? "#e6f7ff"
                 : "transparent",
             }}
-            onClick={() => handleClickContentTab(contact, true)}
+            onClick={() => handleClickContentTab(disk, true)}
           >
             <div
               style={{
@@ -260,16 +244,22 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <Avatar
-                  size="default"
-                  src={
-                    contact.avatar
-                      ? contact.avatar
-                      : `https://ui-avatars.com/api/?name=${contact.name}`
-                  }
-                />
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: "#1890ff",
+                    borderRadius: "50%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    color: "white",
+                  }}
+                >
+                  <DatabaseOutlined />
+                </div>
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: "500" }}>{contact.name}</span>
+                  <span style={{ fontWeight: "500" }}>{disk.name}</span>
                   <div
                     style={{
                       display: "flex",
@@ -277,12 +267,11 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                       gap: "8px",
                     }}
                   >
-                    <Badge color="green" dot />
+                    <Tag>{shortenAddress(disk.id.replace("DiskID_", ""))}</Tag>
                     <span
-                      style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}
+                      style={{ fontSize: "12px", color: "rgba(0,0,0,0.65)" }}
                     >
-                      <ClockCircleOutlined style={{ marginRight: 4 }} />
-                      Active 2h ago
+                      {getDiskTypeLabel(disk.disk_type)}
                     </span>
                   </div>
                 </div>
@@ -290,7 +279,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <Tag color="default">{shortenAddress(contact.id)}</Tag>
                 <RightOutlined style={{ color: "rgba(0,0,0,0.4)" }} />
               </div>
             </div>
@@ -325,7 +313,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           >
             {/* Search input */}
             <Input
-              placeholder="Search contacts..."
+              placeholder="Search disks..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -391,7 +379,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           >
             {/* Search input - always on top for mobile */}
             <Input
-              placeholder="Search contacts..."
+              placeholder="Search disks..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -464,7 +452,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
         </div>
       </div>
 
-      {/* Contacts Table */}
+      {/* Disks Table */}
       <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
         {screenType.isMobile ? (
           renderMobileList()
@@ -476,7 +464,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               columnWidth: 50,
             }}
             columns={columns}
-            dataSource={filteredContacts}
+            dataSource={filteredDisks}
             rowKey="id"
             pagination={false}
             onRow={(record) => ({
@@ -500,4 +488,4 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   );
 };
 
-export default ContactsTableList;
+export default DisksTableList;

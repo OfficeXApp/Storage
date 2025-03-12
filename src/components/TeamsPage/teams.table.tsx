@@ -8,7 +8,6 @@ import {
   Avatar,
   Tag,
   Badge,
-  Menu,
   List,
   message,
   Popover,
@@ -24,56 +23,55 @@ import {
   MailOutlined,
   DeleteOutlined,
   RightOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { ContactFE } from "@officexapp/types";
+import { TeamFE } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
-import { formatUserString, getLastOnlineStatus } from "../../api/helpers";
+import { listTeamsAction } from "../../redux-offline/teams/teams.actions";
+import { formatUserString } from "../../api/helpers";
 
-interface ContactsTableListProps {
+interface TeamsTableProps {
   isContentTabOpen: (id: string) => boolean;
-  handleClickContentTab: (contact: ContactFE, focus_tab?: boolean) => void;
+  handleClickContentTab: (team: TeamFE, focus_tab?: boolean) => void;
 }
 
-const ContactsTableList: React.FC<ContactsTableListProps> = ({
+const TeamsTable: React.FC<TeamsTableProps> = ({
   isContentTabOpen,
   handleClickContentTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const contacts = useSelector(
-    (state: ReduxAppState) => state.contacts.contacts
-  );
-  console.log(`look at contacts`, contacts);
+  const teams = useSelector((state: ReduxAppState) => state.teams.teams);
+  console.log(`look at teams`, teams);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
-  const [filteredContacts, setFilteredContacts] = useState(contacts);
+  const [filteredTeams, setFilteredTeams] = useState(teams);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // Update filtered contacts whenever search text or contacts change
+  // Update filtered teams whenever search text or teams change
   useEffect(() => {
-    const filtered = contacts.filter((contact) =>
-      contact.name.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = teams.filter((team) =>
+      team.name.toLowerCase().includes(searchText.toLowerCase())
     );
-    setFilteredContacts(filtered);
-  }, [searchText, contacts]);
+    setFilteredTeams(filtered);
+  }, [searchText, teams]);
 
   // Handle responsive layout
   useEffect(() => {
     try {
-      dispatch(listContactsAction({}));
+      dispatch(listTeamsAction({}));
     } catch (e) {
       console.error(e);
     }
 
     // message.success(
     //   isOnline
-    //     ? "Fetching contacts..."
-    //     : "Queued fetch contacts for when you're back online"
+    //     ? "Fetching teams..."
+    //     : "Queued fetch teams for when you're back online"
     // );
 
     const handleResize = () => {
@@ -106,13 +104,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     selectedRowKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => {
       setSelectedRowKeys(newSelectedRowKeys);
-
-      // // Now clicking row just selects the checkbox
-      // const key = record.id;
-      // const newSelectedRowKeys = selectedRowKeys.includes(key)
-      //     ? selectedRowKeys.filter((k) => k !== key)
-      //     : [...selectedRowKeys, key];
-      // setSelectedRowKeys(newSelectedRowKeys);
     },
   };
 
@@ -121,13 +112,13 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     {
       key: "1",
       icon: <UserAddOutlined />,
-      label: "Add to Team",
+      label: "Add Members",
       disabled: true,
     },
     {
       key: "2",
-      icon: <MailOutlined />,
-      label: "Send Invites",
+      icon: <EditOutlined />,
+      label: "Edit Team",
       disabled: true,
     },
     {
@@ -139,84 +130,59 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   ];
 
   // Define table columns
-  const columns: ColumnsType<ContactFE> = [
+  const columns: ColumnsType<TeamFE> = [
     {
-      title: "Contact",
+      title: "Team",
       dataIndex: "name",
       key: "name",
-      render: (_: any, record: ContactFE) => {
-        const lastOnlineStatus = getLastOnlineStatus(record.last_online_ms);
-        return (
-          <Space
-            onClick={(e) => {
-              e?.stopPropagation();
-              handleClickContentTab(record);
+      render: (_: any, record: TeamFE) => (
+        <Space
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleClickContentTab(record);
+          }}
+        >
+          <Avatar
+            size="default"
+            style={{ backgroundColor: "#87d068" }}
+            icon={<TeamOutlined />}
+          />
+          <span style={{ marginLeft: "0px" }}>{record.name}</span>
+          <Tag
+            onClick={() => {
+              // copy to clipboard
+              formatUserString(record.name, record.id);
+              message.success("Copied to clipboard");
             }}
+            color="default"
           >
-            <Popover content={lastOnlineStatus.text}>
-              <Badge
-                // @ts-ignore
-                status={lastOnlineStatus.status}
-                dot
-                offset={[-3, 3]}
-              >
-                <Avatar
-                  size="default"
-                  src={
-                    record.avatar
-                      ? record.avatar
-                      : `https://ui-avatars.com/api/?name=${record.name}`
-                  }
-                />
-              </Badge>
-            </Popover>
-            <span style={{ marginLeft: "0px" }}>{record.name}</span>
-            <Tag
-              onClick={() => {
-                // copy to clipboard
-                formatUserString(record.name, record.id);
-                message.success("Copied to clipboard");
-              }}
-              color="default"
-            >
-              {shortenAddress(record.icp_principal)}
-            </Tag>
-          </Space>
-        );
-      },
+            {shortenAddress(record.id.replace("TeamID_", ""))}
+          </Tag>
+        </Space>
+      ),
     },
-    // {
-    //   title: "ID",
-    //   dataIndex: "id",
-    //   key: "id",
-    //   width: 120, // Reduced width for ID column
-    //   ellipsis: true, // Add ellipsis to handle overflow
-    //   render: (_: string, record: ContactFE) => (
-    //     <Tag
-    //       onClick={() => {
-    //         // copy to clipboard
-    //         formatUserString(record.name, record.id);
-    //         message.success("Copied to clipboard");
-    //       }}
-    //       color="default"
-    //     >
-    //       {shortenAddress(record.icp_principal)}
-    //     </Tag>
-    //   ),
-    // },
+    {
+      title: "Description",
+      dataIndex: "public_note",
+      key: "public_note",
+      ellipsis: true,
+      render: (text: string) => (
+        <span>{text || "No description provided"}</span>
+      ),
+    },
     {
       title: "Actions",
       key: "actions",
-      width: 150, // Increased width for actions column
-      render: (_: any, record: ContactFE) => (
+      width: 150,
+      render: (_: any, record: TeamFE) => (
         <Button
           type="default"
           size="middle"
-          style={{ width: "100%" }} // Make button take up full column width
+          style={{ width: "100%" }}
           onClick={(e) => {
             e.stopPropagation();
             handleClickContentTab(record, true);
-            const newUrl = `/resources/contacts/${record.id}`;
+            const newUrl = `/resources/teams/${record.id}`;
             window.history.pushState({}, "", newUrl);
           }}
         >
@@ -228,26 +194,26 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Option 1" },
-    { key: "2", label: "Option 2" },
-    { key: "3", label: "Option 3" },
+    { key: "1", label: "Recently Created" },
+    { key: "2", label: "Alphabetical (A-Z)" },
+    { key: "3", label: "Alphabetical (Z-A)" },
   ];
 
   const renderMobileList = () => {
     return (
       <List
         itemLayout="horizontal"
-        dataSource={filteredContacts}
-        renderItem={(contact: ContactFE) => (
+        dataSource={filteredTeams}
+        renderItem={(team: TeamFE) => (
           <List.Item
             style={{
               padding: "12px 16px",
               cursor: "pointer",
-              backgroundColor: isContentTabOpen(contact.id)
+              backgroundColor: isContentTabOpen(team.id)
                 ? "#e6f7ff"
                 : "transparent",
             }}
-            onClick={() => handleClickContentTab(contact, true)}
+            onClick={() => handleClickContentTab(team, true)}
           >
             <div
               style={{
@@ -262,14 +228,11 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               >
                 <Avatar
                   size="default"
-                  src={
-                    contact.avatar
-                      ? contact.avatar
-                      : `https://ui-avatars.com/api/?name=${contact.name}`
-                  }
+                  style={{ backgroundColor: "#87d068" }}
+                  icon={<TeamOutlined />}
                 />
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: "500" }}>{contact.name}</span>
+                  <span style={{ fontWeight: "500" }}>{team.name}</span>
                   <div
                     style={{
                       display: "flex",
@@ -277,12 +240,10 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                       gap: "8px",
                     }}
                   >
-                    <Badge color="green" dot />
                     <span
-                      style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}
+                      style={{ fontSize: "12px", color: "rgba(0,0,0,0.45)" }}
                     >
-                      <ClockCircleOutlined style={{ marginRight: 4 }} />
-                      Active 2h ago
+                      {team.public_note || "No description provided"}
                     </span>
                   </div>
                 </div>
@@ -290,7 +251,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <Tag color="default">{shortenAddress(contact.id)}</Tag>
+                <Tag color="default">{shortenAddress(team.id)}</Tag>
                 <RightOutlined style={{ color: "rgba(0,0,0,0.4)" }} />
               </div>
             </div>
@@ -325,7 +286,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           >
             {/* Search input */}
             <Input
-              placeholder="Search contacts..."
+              placeholder="Search teams..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -354,16 +315,15 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                   </Space>
                 </a>
               </Dropdown>
-              <Dropdown menu={{ items: filterItems, onClick: () => {} }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <TeamOutlined /> Group By <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
+              {/* <Button
+                type="primary"
+                icon={<TeamOutlined />}
+                onClick={() => {
+                  message.info("Create team functionality to be implemented");
+                }}
+              >
+                Create Team
+              </Button> */}
               <Dropdown
                 menu={{ items: manageMenuItems }}
                 disabled={selectedRowKeys.length === 0}
@@ -391,7 +351,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           >
             {/* Search input - always on top for mobile */}
             <Input
-              placeholder="Search contacts..."
+              placeholder="Search teams..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -430,41 +390,23 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                     </Space>
                   </a>
                 </Dropdown>
-
-                {!screenType.isMobile && (
-                  <Dropdown menu={{ items: filterItems, onClick: () => {} }}>
-                    <a
-                      onClick={(e) => e.preventDefault()}
-                      style={{ color: "rgba(0,0,0,0.4)" }}
-                    >
-                      <Space>
-                        <TeamOutlined /> Group By <DownOutlined />
-                      </Space>
-                    </a>
-                  </Dropdown>
-                )}
               </div>
 
-              {!screenType.isMobile && (
-                <Dropdown
-                  menu={{ items: manageMenuItems }}
-                  disabled={selectedRowKeys.length === 0}
-                >
-                  <Button>
-                    Manage{" "}
-                    {selectedRowKeys.length > 0
-                      ? `(${selectedRowKeys.length})`
-                      : ""}
-                    <DownOutlined />
-                  </Button>
-                </Dropdown>
-              )}
+              <Button
+                type="primary"
+                icon={<TeamOutlined />}
+                onClick={() => {
+                  message.info("Create team functionality to be implemented");
+                }}
+              >
+                Create
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Contacts Table */}
+      {/* Teams Table */}
       <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
         {screenType.isMobile ? (
           renderMobileList()
@@ -476,7 +418,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               columnWidth: 50,
             }}
             columns={columns}
-            dataSource={filteredContacts}
+            dataSource={filteredTeams}
             rowKey="id"
             pagination={false}
             onRow={(record) => ({
@@ -500,4 +442,4 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   );
 };
 
-export default ContactsTableList;
+export default TeamsTable;

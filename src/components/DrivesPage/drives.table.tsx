@@ -1,3 +1,5 @@
+// src/components/DrivesPage/drives.table.tsx
+
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -8,7 +10,6 @@ import {
   Avatar,
   Tag,
   Badge,
-  Menu,
   List,
   message,
   Popover,
@@ -21,64 +22,58 @@ import {
   SortAscendingOutlined,
   TeamOutlined,
   UserAddOutlined,
-  MailOutlined,
+  LinkOutlined,
   DeleteOutlined,
   RightOutlined,
+  DatabaseOutlined,
+  GlobalOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { shortenAddress } from "../../framework/identity/constants";
-import { ContactFE } from "@officexapp/types";
+import { shortenAddress } from "../DrivesPage";
+import { DriveFE, Drive } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
-import { formatUserString, getLastOnlineStatus } from "../../api/helpers";
+import { listDrivesAction } from "../../redux-offline/drives/drives.actions";
+import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
 
-interface ContactsTableListProps {
-  isContentTabOpen: (id: string) => boolean;
-  handleClickContentTab: (contact: ContactFE, focus_tab?: boolean) => void;
+interface DrivesTableListProps {
+  isDriveTabOpen: (id: string) => boolean;
+  handleClickDriveTab: (drive: DriveFEO, focus_tab?: boolean) => void;
 }
 
-const ContactsTableList: React.FC<ContactsTableListProps> = ({
-  isContentTabOpen,
-  handleClickContentTab,
+const DrivesTableList: React.FC<DrivesTableListProps> = ({
+  isDriveTabOpen,
+  handleClickDriveTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const contacts = useSelector(
-    (state: ReduxAppState) => state.contacts.contacts
-  );
-  console.log(`look at contacts`, contacts);
+  const drives = useSelector((state: ReduxAppState) => state.drives.drives);
+  console.log(`look at drives`, drives);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
-  const [filteredContacts, setFilteredContacts] = useState(contacts);
+  const [filteredDrives, setFilteredDrives] = useState(drives);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // Update filtered contacts whenever search text or contacts change
+  // Update filtered drives whenever search text or drives change
   useEffect(() => {
-    const filtered = contacts.filter((contact) =>
-      contact.name.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = drives.filter((drive) =>
+      drive.name.toLowerCase().includes(searchText.toLowerCase())
     );
-    setFilteredContacts(filtered);
-  }, [searchText, contacts]);
+    setFilteredDrives(filtered);
+  }, [searchText, drives]);
 
   // Handle responsive layout
   useEffect(() => {
     try {
-      dispatch(listContactsAction({}));
+      dispatch(listDrivesAction({}));
     } catch (e) {
       console.error(e);
     }
 
-    // message.success(
-    //   isOnline
-    //     ? "Fetching contacts..."
-    //     : "Queued fetch contacts for when you're back online"
-    // );
-
     const handleResize = () => {
-      const desktopView = document.getElementById("desktop-view");
-      const mobileView = document.getElementById("mobile-view");
+      const desktopView = document.getElementById("desktop-view-drives");
+      const mobileView = document.getElementById("mobile-view-drives");
 
       if (desktopView && mobileView) {
         if (window.innerWidth <= 768) {
@@ -106,13 +101,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     selectedRowKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => {
       setSelectedRowKeys(newSelectedRowKeys);
-
-      // // Now clicking row just selects the checkbox
-      // const key = record.id;
-      // const newSelectedRowKeys = selectedRowKeys.includes(key)
-      //     ? selectedRowKeys.filter((k) => k !== key)
-      //     : [...selectedRowKeys, key];
-      // setSelectedRowKeys(newSelectedRowKeys);
     },
   };
 
@@ -121,13 +109,13 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     {
       key: "1",
       icon: <UserAddOutlined />,
-      label: "Add to Team",
+      label: "Share Drive",
       disabled: true,
     },
     {
       key: "2",
-      icon: <MailOutlined />,
-      label: "Send Invites",
+      icon: <LinkOutlined />,
+      label: "Copy URL",
       disabled: true,
     },
     {
@@ -138,43 +126,58 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     },
   ];
 
+  // Format last indexed date
+  const formatLastIndexed = (timestamp?: number) => {
+    if (!timestamp) return { status: "default", text: "Never indexed" };
+
+    const now = Date.now();
+    const diff = now - timestamp;
+    const hoursDiff = diff / (1000 * 60 * 60);
+
+    if (hoursDiff < 24) {
+      return { status: "success", text: "Indexed today" };
+    } else if (hoursDiff < 72) {
+      return { status: "processing", text: "Indexed recently" };
+    } else {
+      return {
+        status: "warning",
+        text: `Last indexed ${new Date(timestamp).toLocaleDateString()}`,
+      };
+    }
+  };
+
   // Define table columns
-  const columns: ColumnsType<ContactFE> = [
+  const columns: ColumnsType<DriveFEO> = [
     {
-      title: "Contact",
+      title: "Drive",
       dataIndex: "name",
       key: "name",
-      render: (_: any, record: ContactFE) => {
-        const lastOnlineStatus = getLastOnlineStatus(record.last_online_ms);
+      render: (_: any, record: DriveFEO) => {
+        const indexStatus = formatLastIndexed(record.last_indexed_ms);
         return (
           <Space
             onClick={(e) => {
               e?.stopPropagation();
-              handleClickContentTab(record);
+              handleClickDriveTab(record);
             }}
           >
-            <Popover content={lastOnlineStatus.text}>
-              <Badge
-                // @ts-ignore
-                status={lastOnlineStatus.status}
-                dot
-                offset={[-3, 3]}
-              >
+            <Popover content={indexStatus.text}>
+              <Badge status={indexStatus.status as any} dot offset={[-3, 3]}>
                 <Avatar
                   size="default"
-                  src={
-                    record.avatar
-                      ? record.avatar
-                      : `https://ui-avatars.com/api/?name=${record.name}`
-                  }
-                />
+                  icon={<DatabaseOutlined />}
+                  style={{ backgroundColor: "#1890ff" }}
+                >
+                  {record.name.charAt(0).toUpperCase()}
+                </Avatar>
               </Badge>
             </Popover>
             <span style={{ marginLeft: "0px" }}>{record.name}</span>
             <Tag
               onClick={() => {
                 // copy to clipboard
-                formatUserString(record.name, record.id);
+                const driveString = `${record.name.replace(/ /g, "_")}@${record.id}`;
+                navigator.clipboard.writeText(driveString);
                 message.success("Copied to clipboard");
               }}
               color="default"
@@ -185,38 +188,38 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
         );
       },
     },
-    // {
-    //   title: "ID",
-    //   dataIndex: "id",
-    //   key: "id",
-    //   width: 120, // Reduced width for ID column
-    //   ellipsis: true, // Add ellipsis to handle overflow
-    //   render: (_: string, record: ContactFE) => (
-    //     <Tag
-    //       onClick={() => {
-    //         // copy to clipboard
-    //         formatUserString(record.name, record.id);
-    //         message.success("Copied to clipboard");
-    //       }}
-    //       color="default"
-    //     >
-    //       {shortenAddress(record.icp_principal)}
-    //     </Tag>
-    //   ),
-    // },
+    {
+      title: "Endpoint",
+      dataIndex: "endpoint_url",
+      key: "endpoint_url",
+      render: (_: any, record: DriveFEO) =>
+        record.endpoint_url ? (
+          <a
+            href={`${record.endpoint_url}/v1/${record.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <GlobalOutlined />{" "}
+            {shortenAddress(`${record.endpoint_url}/v1/${record.id}`, 10, 5)}
+          </a>
+        ) : (
+          <span style={{ color: "#999" }}>No endpoint</span>
+        ),
+    },
     {
       title: "Actions",
       key: "actions",
-      width: 150, // Increased width for actions column
-      render: (_: any, record: ContactFE) => (
+      width: 150,
+      render: (_: any, record: DriveFEO) => (
         <Button
           type="default"
           size="middle"
-          style={{ width: "100%" }} // Make button take up full column width
+          style={{ width: "100%" }}
           onClick={(e) => {
             e.stopPropagation();
-            handleClickContentTab(record, true);
-            const newUrl = `/resources/contacts/${record.id}`;
+            handleClickDriveTab(record, true);
+            const newUrl = `/resources/drives/${record.id}`;
             window.history.pushState({}, "", newUrl);
           }}
         >
@@ -237,17 +240,17 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     return (
       <List
         itemLayout="horizontal"
-        dataSource={filteredContacts}
-        renderItem={(contact: ContactFE) => (
+        dataSource={filteredDrives}
+        renderItem={(drive: DriveFEO) => (
           <List.Item
             style={{
               padding: "12px 16px",
               cursor: "pointer",
-              backgroundColor: isContentTabOpen(contact.id)
+              backgroundColor: isDriveTabOpen(drive.id)
                 ? "#e6f7ff"
                 : "transparent",
             }}
-            onClick={() => handleClickContentTab(contact, true)}
+            onClick={() => handleClickDriveTab(drive, true)}
           >
             <div
               style={{
@@ -262,14 +265,13 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               >
                 <Avatar
                   size="default"
-                  src={
-                    contact.avatar
-                      ? contact.avatar
-                      : `https://ui-avatars.com/api/?name=${contact.name}`
-                  }
-                />
+                  icon={<DatabaseOutlined />}
+                  style={{ backgroundColor: "#1890ff" }}
+                >
+                  {drive.name.charAt(0).toUpperCase()}
+                </Avatar>
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: "500" }}>{contact.name}</span>
+                  <span style={{ fontWeight: "500" }}>{drive.name}</span>
                   <div
                     style={{
                       display: "flex",
@@ -277,20 +279,46 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                       gap: "8px",
                     }}
                   >
-                    <Badge color="green" dot />
-                    <span
-                      style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}
-                    >
-                      <ClockCircleOutlined style={{ marginRight: 4 }} />
-                      Active 2h ago
-                    </span>
+                    {drive.last_indexed_ms ? (
+                      <>
+                        <Badge
+                          status={
+                            formatLastIndexed(drive.last_indexed_ms)
+                              .status as any
+                          }
+                          dot
+                        />
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            color: "rgba(0,0,0,0.45)",
+                          }}
+                        >
+                          <ClockCircleOutlined style={{ marginRight: 4 }} />
+                          {formatLastIndexed(drive.last_indexed_ms).text}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Badge status="default" dot />
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            color: "rgba(0,0,0,0.45)",
+                          }}
+                        >
+                          <ClockCircleOutlined style={{ marginRight: 4 }} />
+                          Never indexed
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <Tag color="default">{shortenAddress(contact.id)}</Tag>
+                <Tag color="default">{shortenAddress(drive.icp_principal)}</Tag>
                 <RightOutlined style={{ color: "rgba(0,0,0,0.4)" }} />
               </div>
             </div>
@@ -315,8 +343,8 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
         <div style={{ marginBottom: "16px" }}>
           {/* For larger screens (desktop) */}
           <div
-            className="desktop-view"
-            id="desktop-view"
+            className="desktop-view-drives"
+            id="desktop-view-drives"
             style={{
               display: "flex",
               justifyContent: "space-between",
@@ -325,7 +353,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           >
             {/* Search input */}
             <Input
-              placeholder="Search contacts..."
+              placeholder="Search drives..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -381,8 +409,8 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
 
           {/* For mobile screens */}
           <div
-            className="mobile-view"
-            id="mobile-view"
+            className="mobile-view-drives"
+            id="mobile-view-drives"
             style={{
               display: "none",
               flexDirection: "column",
@@ -391,7 +419,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           >
             {/* Search input - always on top for mobile */}
             <Input
-              placeholder="Search contacts..."
+              placeholder="Search drives..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -464,7 +492,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
         </div>
       </div>
 
-      {/* Contacts Table */}
+      {/* Drives Table */}
       <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
         {screenType.isMobile ? (
           renderMobileList()
@@ -476,15 +504,15 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               columnWidth: 50,
             }}
             columns={columns}
-            dataSource={filteredContacts}
+            dataSource={filteredDrives}
             rowKey="id"
             pagination={false}
             onRow={(record) => ({
               onClick: () => {
-                handleClickContentTab(record, false);
+                handleClickDriveTab(record, false);
               },
               style: {
-                backgroundColor: isContentTabOpen(record.id)
+                backgroundColor: isDriveTabOpen(record.id)
                   ? "#e6f7ff"
                   : "transparent",
                 cursor: "pointer",
@@ -500,4 +528,4 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   );
 };
 
-export default ContactsTableList;
+export default DrivesTableList;

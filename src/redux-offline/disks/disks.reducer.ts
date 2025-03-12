@@ -1,5 +1,5 @@
 // src/redux-offline/disks/disks.reducer.ts
-import { Disk, DiskID } from "@officexapp/types";
+import { Disk, DiskFE, DiskID } from "@officexapp/types";
 import {
   CREATE_DISK,
   CREATE_DISK_COMMIT,
@@ -18,7 +18,7 @@ import {
 export const DISKS_REDUX_KEY = "disks";
 export const DISKS_DEXIE_TABLE = DISKS_REDUX_KEY;
 
-export interface DiskFEO extends Disk {
+export interface DiskFEO extends DiskFE {
   _isOptimistic?: boolean; // flag for optimistic updates
   _optimisticID?: string; // unique ID for optimistic updates
   _syncWarning?: string; // tooltip for users

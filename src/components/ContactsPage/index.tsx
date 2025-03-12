@@ -44,7 +44,7 @@ const ContactsPage: React.FC = () => {
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Sample contact data - expanded list
-  const isContactTabOpen = useCallback(
+  const isContentTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
         return true;
@@ -77,7 +77,7 @@ const ContactsPage: React.FC = () => {
   }, [tabItems]);
 
   // Function to handle clicking on a contact
-  const handleContactTab = useCallback(
+  const handleClickContentTab = useCallback(
     (contact: ContactFE, focus_tab = false) => {
       setLastClickedId(contact.id);
       // Use the ref to access the current state
@@ -333,8 +333,8 @@ const ContactsPage: React.FC = () => {
                 }}
               >
                 <ContactsTableList
-                  isContactTabOpen={isContactTabOpen}
-                  handleContactTab={handleContactTab}
+                  isContentTabOpen={isContentTabOpen}
+                  handleClickContentTab={handleClickContentTab}
                 />
               </div>
 

@@ -1,3 +1,5 @@
+// src/components/TagsPage/tags.table.tsx
+
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -5,9 +7,7 @@ import {
   Input,
   Space,
   Table,
-  Avatar,
-  Tag,
-  Badge,
+  Tag as AntTag,
   Menu,
   List,
   message,
@@ -20,60 +20,56 @@ import {
   SearchOutlined,
   SortAscendingOutlined,
   TeamOutlined,
-  UserAddOutlined,
-  MailOutlined,
+  TagOutlined,
   DeleteOutlined,
   RightOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { ContactFE } from "@officexapp/types";
+import { TagFE } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
-import { formatUserString, getLastOnlineStatus } from "../../api/helpers";
+import { listTagsAction } from "../../redux-offline/tags/tags.actions";
 
-interface ContactsTableListProps {
-  isContentTabOpen: (id: string) => boolean;
-  handleClickContentTab: (contact: ContactFE, focus_tab?: boolean) => void;
+interface TagsTableListProps {
+  isTagTabOpen: (id: string) => boolean;
+  handleClickTagTab: (tag: TagFE, focus_tab?: boolean) => void;
 }
 
-const ContactsTableList: React.FC<ContactsTableListProps> = ({
-  isContentTabOpen,
-  handleClickContentTab,
+const TagsTableList: React.FC<TagsTableListProps> = ({
+  isTagTabOpen,
+  handleClickTagTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const contacts = useSelector(
-    (state: ReduxAppState) => state.contacts.contacts
-  );
-  console.log(`look at contacts`, contacts);
+  const tags = useSelector((state: ReduxAppState) => state.tags.tags);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
-  const [filteredContacts, setFilteredContacts] = useState(contacts);
+  const [filteredTags, setFilteredTags] = useState(tags);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // Update filtered contacts whenever search text or contacts change
+  // Update filtered tags whenever search text or tags change
   useEffect(() => {
-    const filtered = contacts.filter((contact) =>
-      contact.name.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = tags.filter((tag) =>
+      tag.value.toLowerCase().includes(searchText.toLowerCase())
     );
-    setFilteredContacts(filtered);
-  }, [searchText, contacts]);
+    setFilteredTags(filtered);
+  }, [searchText, tags]);
 
   // Handle responsive layout
   useEffect(() => {
     try {
-      dispatch(listContactsAction({}));
+      dispatch(listTagsAction({}));
     } catch (e) {
       console.error(e);
     }
 
     // message.success(
     //   isOnline
-    //     ? "Fetching contacts..."
-    //     : "Queued fetch contacts for when you're back online"
+    //     ? "Fetching tags..."
+    //     : "Queued fetch tags for when you're back online"
     // );
 
     const handleResize = () => {
@@ -106,13 +102,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     selectedRowKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => {
       setSelectedRowKeys(newSelectedRowKeys);
-
-      // // Now clicking row just selects the checkbox
-      // const key = record.id;
-      // const newSelectedRowKeys = selectedRowKeys.includes(key)
-      //     ? selectedRowKeys.filter((k) => k !== key)
-      //     : [...selectedRowKeys, key];
-      // setSelectedRowKeys(newSelectedRowKeys);
     },
   };
 
@@ -120,18 +109,12 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   const manageMenuItems = [
     {
       key: "1",
-      icon: <UserAddOutlined />,
-      label: "Add to Team",
+      icon: <EditOutlined />,
+      label: "Edit Selected",
       disabled: true,
     },
     {
       key: "2",
-      icon: <MailOutlined />,
-      label: "Send Invites",
-      disabled: true,
-    },
-    {
-      key: "3",
       icon: <DeleteOutlined />,
       label: "Delete",
       disabled: true,
@@ -139,84 +122,62 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   ];
 
   // Define table columns
-  const columns: ColumnsType<ContactFE> = [
+  const columns: ColumnsType<TagFE> = [
     {
-      title: "Contact",
-      dataIndex: "name",
-      key: "name",
-      render: (_: any, record: ContactFE) => {
-        const lastOnlineStatus = getLastOnlineStatus(record.last_online_ms);
-        return (
-          <Space
-            onClick={(e) => {
-              e?.stopPropagation();
-              handleClickContentTab(record);
+      title: "Tag",
+      dataIndex: "value",
+      key: "value",
+      render: (_: any, record: TagFE) => (
+        <Space
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleClickTagTab(record);
+          }}
+        >
+          <div
+            style={{
+              width: 16,
+              height: 16,
+              borderRadius: "3px",
+              backgroundColor: record.color || "#1890ff",
+              marginRight: 8,
             }}
+          />
+          <span>{record.value}</span>
+          <AntTag
+            onClick={(e) => {
+              e.stopPropagation();
+              // copy to clipboard
+              navigator.clipboard.writeText(record.id);
+              message.success("Copied to clipboard");
+            }}
+            color="default"
           >
-            <Popover content={lastOnlineStatus.text}>
-              <Badge
-                // @ts-ignore
-                status={lastOnlineStatus.status}
-                dot
-                offset={[-3, 3]}
-              >
-                <Avatar
-                  size="default"
-                  src={
-                    record.avatar
-                      ? record.avatar
-                      : `https://ui-avatars.com/api/?name=${record.name}`
-                  }
-                />
-              </Badge>
-            </Popover>
-            <span style={{ marginLeft: "0px" }}>{record.name}</span>
-            <Tag
-              onClick={() => {
-                // copy to clipboard
-                formatUserString(record.name, record.id);
-                message.success("Copied to clipboard");
-              }}
-              color="default"
-            >
-              {shortenAddress(record.icp_principal)}
-            </Tag>
-          </Space>
-        );
-      },
+            {shortenAddress(record.id.replace("TagID_", ""))}
+          </AntTag>
+        </Space>
+      ),
     },
-    // {
-    //   title: "ID",
-    //   dataIndex: "id",
-    //   key: "id",
-    //   width: 120, // Reduced width for ID column
-    //   ellipsis: true, // Add ellipsis to handle overflow
-    //   render: (_: string, record: ContactFE) => (
-    //     <Tag
-    //       onClick={() => {
-    //         // copy to clipboard
-    //         formatUserString(record.name, record.id);
-    //         message.success("Copied to clipboard");
-    //       }}
-    //       color="default"
-    //     >
-    //       {shortenAddress(record.icp_principal)}
-    //     </Tag>
-    //   ),
-    // },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      ellipsis: true,
+      render: (text: string) => text || "-",
+    },
     {
       title: "Actions",
       key: "actions",
-      width: 150, // Increased width for actions column
-      render: (_: any, record: ContactFE) => (
+      width: 150,
+      render: (_: any, record: TagFE) => (
         <Button
           type="default"
           size="middle"
-          style={{ width: "100%" }} // Make button take up full column width
+          style={{ width: "100%" }}
           onClick={(e) => {
             e.stopPropagation();
-            handleClickContentTab(record, true);
-            const newUrl = `/resources/contacts/${record.id}`;
+            handleClickTagTab(record, true);
+            const newUrl = `/resources/tags/${record.id}`;
             window.history.pushState({}, "", newUrl);
           }}
         >
@@ -237,17 +198,15 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     return (
       <List
         itemLayout="horizontal"
-        dataSource={filteredContacts}
-        renderItem={(contact: ContactFE) => (
+        dataSource={filteredTags}
+        renderItem={(tag: TagFE) => (
           <List.Item
             style={{
               padding: "12px 16px",
               cursor: "pointer",
-              backgroundColor: isContentTabOpen(contact.id)
-                ? "#e6f7ff"
-                : "transparent",
+              backgroundColor: isTagTabOpen(tag.id) ? "#e6f7ff" : "transparent",
             }}
-            onClick={() => handleClickContentTab(contact, true)}
+            onClick={() => handleClickTagTab(tag, true)}
           >
             <div
               style={{
@@ -260,16 +219,21 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <Avatar
-                  size="default"
-                  src={
-                    contact.avatar
-                      ? contact.avatar
-                      : `https://ui-avatars.com/api/?name=${contact.name}`
-                  }
-                />
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
+                    backgroundColor: tag.color || "#1890ff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <TagOutlined style={{ color: "white" }} />
+                </div>
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: "500" }}>{contact.name}</span>
+                  <span style={{ fontWeight: "500" }}>{tag.value}</span>
                   <div
                     style={{
                       display: "flex",
@@ -277,12 +241,11 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                       gap: "8px",
                     }}
                   >
-                    <Badge color="green" dot />
                     <span
                       style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}
                     >
                       <ClockCircleOutlined style={{ marginRight: 4 }} />
-                      Active 2h ago
+                      {new Date(tag.last_updated_at).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -290,7 +253,9 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <Tag color="default">{shortenAddress(contact.id)}</Tag>
+                <AntTag color={tag.color}>
+                  {shortenAddress(tag.id.replace("TagID_", ""))}
+                </AntTag>
                 <RightOutlined style={{ color: "rgba(0,0,0,0.4)" }} />
               </div>
             </div>
@@ -325,7 +290,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           >
             {/* Search input */}
             <Input
-              placeholder="Search contacts..."
+              placeholder="Search tags..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -351,16 +316,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                 >
                   <Space>
                     <BarsOutlined /> Filter By <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-              <Dropdown menu={{ items: filterItems, onClick: () => {} }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <TeamOutlined /> Group By <DownOutlined />
                   </Space>
                 </a>
               </Dropdown>
@@ -391,7 +346,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
           >
             {/* Search input - always on top for mobile */}
             <Input
-              placeholder="Search contacts..."
+              placeholder="Search tags..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -430,19 +385,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
                     </Space>
                   </a>
                 </Dropdown>
-
-                {!screenType.isMobile && (
-                  <Dropdown menu={{ items: filterItems, onClick: () => {} }}>
-                    <a
-                      onClick={(e) => e.preventDefault()}
-                      style={{ color: "rgba(0,0,0,0.4)" }}
-                    >
-                      <Space>
-                        <TeamOutlined /> Group By <DownOutlined />
-                      </Space>
-                    </a>
-                  </Dropdown>
-                )}
               </div>
 
               {!screenType.isMobile && (
@@ -464,7 +406,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
         </div>
       </div>
 
-      {/* Contacts Table */}
+      {/* Tags Table */}
       <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
         {screenType.isMobile ? (
           renderMobileList()
@@ -476,15 +418,15 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               columnWidth: 50,
             }}
             columns={columns}
-            dataSource={filteredContacts}
+            dataSource={filteredTags}
             rowKey="id"
             pagination={false}
             onRow={(record) => ({
               onClick: () => {
-                handleClickContentTab(record, false);
+                handleClickTagTab(record, false);
               },
               style: {
-                backgroundColor: isContentTabOpen(record.id)
+                backgroundColor: isTagTabOpen(record.id)
                   ? "#e6f7ff"
                   : "transparent",
                 cursor: "pointer",
@@ -500,4 +442,4 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   );
 };
 
-export default ContactsTableList;
+export default TagsTableList;

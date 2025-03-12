@@ -52,14 +52,17 @@ import PermissionsPage from "./components/PermissionsPage";
 import TagsPage from "./components/TagsPage";
 import DisksPage from "./components/DisksPage";
 import DrivesPage from "./components/DrivesPage";
-import WebhooksPage from "./components/WebhooksPage";
 import ApiKeysPage from "./components/ApiKeysPage";
+import WebhooksPage from "./components/WebhooksPage";
 import OrganizationSwitcher from "./components/SwitchOrganization";
 import TemplateCrudPage from "./components/TemplateCrudPage";
 import ContactPage from "./components/ContactsPage/contact.page";
 import TeamPage from "./components/TeamsPage/team.page";
 import TagPage from "./components/TagsPage/tag.page";
 import DiskPage from "./components/DisksPage/disk.page";
+import WebhookPage from "./components/WebhooksPage/webhook.page";
+import DrivePage from "./components/DrivesPage/drive.page";
+import ApiKeyPage from "./components/ApiKeysPage/api-key.page";
 
 const { Sider, Content } = Layout;
 
@@ -433,11 +436,23 @@ const RouterUI = () => {
                 <Route path="/resources/disks/:diskID" element={<DiskPage />} />
                 <Route path="/resources/drives" element={<DrivesPage />} />
                 <Route
+                  path="/resources/drives/:driveID"
+                  element={<DrivePage />}
+                />
+                <Route
                   path="/resources/templates"
                   element={<TemplateCrudPage />}
                 />
                 <Route path="/resources/webhooks" element={<WebhooksPage />} />
+                <Route
+                  path="/resources/webhooks/:webhookID"
+                  element={<WebhooksPage />}
+                />
                 <Route path="/resources/api-keys" element={<ApiKeysPage />} />
+                <Route
+                  path="/resources/api-keys/:apiKeyID"
+                  element={<ApiKeyPage />}
+                />
 
                 {/* Add other routes here */}
               </Routes>

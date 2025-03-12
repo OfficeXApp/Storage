@@ -3,6 +3,12 @@ import Dexie from "dexie";
 import { DriveID, UserID } from "@officexapp/types";
 import { DISKS_DEXIE_TABLE } from "../redux-offline/disks/disks.reducer";
 import { CONTACTS_DEXIE_TABLE } from "../redux-offline/contacts/contacts.reducer";
+import { APIKEYS_DEXIE_TABLE } from "../redux-offline/api-keys/api-keys.reducer";
+import { TAGS_DEXIE_TABLE } from "../redux-offline/tags/tags.reducer";
+import { DRIVES_DEXIE_TABLE } from "../redux-offline/drives/drives.reducer";
+import { TEAMS_DEXIE_TABLE } from "../redux-offline/teams/teams.reducer";
+import { TEAM_INVITES_DEXIE_TABLE } from "../redux-offline/team-invites/team-invites.reducer";
+import { WEBHOOKS_DEXIE_TABLE } from "../redux-offline/webhooks/webhooks.reducer";
 
 /**
  * Singleton class to manage Dexie database connections
@@ -63,12 +69,15 @@ class DexieManager {
     db.version(1).stores({
       // [TABLE_NAME]: "id, fieldAForEfficientQuery, fieldBForEfficientQuery",
       dummy_init: "id",
-      // Disks table
+      // Core Tables
       [DISKS_DEXIE_TABLE]: "id, _syncConflict",
-      // Contacts table
+      [DRIVES_DEXIE_TABLE]: "id, _syncConflict",
       [CONTACTS_DEXIE_TABLE]: "id, _syncConflict",
-
-      // Other tables
+      [TEAMS_DEXIE_TABLE]: "id, _syncConflict",
+      [TEAM_INVITES_DEXIE_TABLE]: "id, _syncConflict",
+      [TAGS_DEXIE_TABLE]: "id, _syncConflict",
+      [WEBHOOKS_DEXIE_TABLE]: "id, _syncConflict",
+      [APIKEYS_DEXIE_TABLE]: "id, _syncConflict",
     });
 
     // Set as current and return

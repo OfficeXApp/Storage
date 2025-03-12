@@ -33,6 +33,7 @@ import {
   closeDexieDb,
   deleteDexieDb,
   getDexieDb,
+  initDexieDb,
 } from "../../api/dexie-database";
 
 // Define types for our data structures
@@ -279,6 +280,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             if (initial_profile_id && initial_org_id) {
               // load dexie database
               await getDexieDb(initial_profile_id, initial_org_id);
+              await initDexieDb(initial_profile_id, initial_org_id);
               // set api key
               try {
                 const apiKeys = await listApiKeys();

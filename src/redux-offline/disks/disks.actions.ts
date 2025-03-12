@@ -1,4 +1,4 @@
-// store/disks.actions.ts
+// src/redux-offline/disks/disks.actions.ts
 
 import {
   DiskID,

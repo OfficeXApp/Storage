@@ -36,13 +36,25 @@ import {
   UpOutlined,
   CodeOutlined,
 } from "@ant-design/icons";
-import { ContactFE, SystemPermissionType } from "@officexapp/types";
+import {
+  ContactFE,
+  IRequestUpdateContact,
+  SystemPermissionType,
+  UserID,
+} from "@officexapp/types";
 import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
   shortenAddress,
 } from "../../framework/identity/constants";
 import CodeBlock from "../CodeBlock";
 import useScreenType from "react-screentype-hook";
+import { getLastOnlineStatus } from "../../api/helpers";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import {
+  deleteContactAction,
+  updateContactAction,
+} from "../../redux-offline/contacts/contacts.actions";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -51,9 +63,16 @@ const { TextArea } = Input;
 interface ContactTabProps {
   contact: ContactFE;
   onSave?: (updatedContact: Partial<ContactFE>) => void;
+  onDelete?: (contactID: UserID) => void;
 }
 
-const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
+const ContactTab: React.FC<ContactTabProps> = ({
+  contact,
+  onSave,
+  onDelete,
+}) => {
+  const dispatch = useDispatch();
+  const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [showCodeSnippets, setShowCodeSnippets] = useState(false);
@@ -78,9 +97,61 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
 
   const handleSave = () => {
     form.validateFields().then((values) => {
-      if (onSave) {
-        onSave(values);
+      // Determine which fields have changed
+      const changedFields: IRequestUpdateContact = { id: contact.id as UserID };
+
+      // Define the specific fields we care about
+      const fieldsToCheck: (keyof IRequestUpdateContact)[] = [
+        "nickname",
+        "public_note",
+        "private_note",
+        "evm_public_address",
+        "email",
+      ];
+
+      // Only check the fields we care about
+      fieldsToCheck.forEach((field) => {
+        // Skip if the field isn't in values
+        if (!(field in values)) return;
+
+        const valueFromForm = values[field];
+        const originalValue = contact[field as keyof ContactFE];
+
+        // Only include fields that have changed
+        if (valueFromForm !== originalValue) {
+          // Handle empty strings - don't include them if they're just empty strings replacing undefined/null
+          if (valueFromForm === "" && !originalValue) {
+            return;
+          }
+
+          changedFields[field] = valueFromForm;
+        }
+      });
+
+      // Only proceed if there are actual changes
+      if (Object.keys(changedFields).length > 1 && changedFields.id) {
+        // More than just the ID
+        // Dispatch the update action if we're online
+        dispatch(
+          updateContactAction({
+            ...changedFields,
+          })
+        );
+
+        message.success(
+          isOnline
+            ? "Updating contact..."
+            : "Queued contact update for when you're back online"
+        );
+
+        // Call the onSave prop if provided (for backward compatibility)
+        if (onSave) {
+          onSave(changedFields);
+        }
+      } else {
+        message.info("No changes detected");
       }
+
       setIsEditing(false);
     });
   };
@@ -134,9 +205,12 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
     );
   };
 
+  const lastOnlineStatus = getLastOnlineStatus(contact.last_online_ms);
+
   const initialValues = {
     name: contact.name,
     email: contact.email,
+    evm_public_address: contact.evm_public_address || "",
     notifications_url: contact.notifications_url,
     public_note: contact.public_note,
     private_note: contact.private_note || "",
@@ -281,10 +355,19 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="public_note" label="Public Note">
-                  <TextArea
-                    rows={2}
-                    placeholder="Public information about this contact"
+                <Form.Item name="email" label="Email">
+                  <Input
+                    prefix={<MailOutlined />}
+                    placeholder="Email address"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+
+                <Form.Item name="evm_public_address" label="EVM Wallet Address">
+                  <Input
+                    prefix={<WalletOutlined />}
+                    placeholder="EVM wallet address"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -295,6 +378,15 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                   <Input
                     prefix={<BellOutlined />}
                     placeholder="Notifications"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+
+                <Form.Item name="public_note" label="Public Note">
+                  <TextArea
+                    rows={2}
+                    placeholder="Public information about this contact"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -322,6 +414,17 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                     title="Are you sure you want to delete this contact?"
                     okText="Yes"
                     cancelText="No"
+                    onConfirm={() => {
+                      dispatch(deleteContactAction({ id: contact.id }));
+                      message.success(
+                        isOnline
+                          ? "Deleting contact..."
+                          : "Queued contact delete for when you're back online"
+                      );
+                      if (onDelete) {
+                        onDelete(contact.id);
+                      }
+                    }}
                   >
                     <Button
                       disabled={
@@ -405,9 +508,12 @@ const ContactTab: React.FC<ContactTabProps> = ({ contact, onSave }) => {
                             </Tag>
                           </div>
                           <Space>
-                            <Badge status="success" />
+                            <Badge
+                              // @ts-ignore
+                              status={lastOnlineStatus.status}
+                            />
                             <Text type="secondary">
-                              Last online {formatDate(contact.last_online_at)}
+                              {lastOnlineStatus.text}
                             </Text>
                           </Space>
                         </div>

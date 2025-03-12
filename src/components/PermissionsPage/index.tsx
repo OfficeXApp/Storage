@@ -9,7 +9,7 @@ import type {
 } from "@officexapp/types";
 import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "../../redux-offline/ReduxProvider";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   createDiskAction,
   listDisksAction,

@@ -1,4 +1,4 @@
-// store/disks/reducer.ts
+// src/redux-offline/disks/disks.reducer.ts
 import { Disk } from "@officexapp/types";
 import {
   CREATE_DISK,

@@ -9,7 +9,7 @@ import type {
 } from "@officexapp/types";
 import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "../../redux-offline/ReduxProvider";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   createDiskAction,
   deleteDiskAction,
@@ -18,6 +18,7 @@ import {
   updateDiskAction,
 } from "../../redux-offline/disks/disks.actions";
 import { useIdentitySystem } from "../../framework/identity";
+import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
@@ -32,8 +33,8 @@ const SandboxPage = () => {
   const [updateDiskID, setUpdateDiskID] = React.useState<string>("");
   const [deleteDiskID, setDeleteDiskID] = React.useState<string>("");
 
-  const isOnline = useSelector((state: AppState) => state.offline?.online);
-  const disks = useSelector((state: AppState) => state.disks.disks);
+  const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
+  const disks = useSelector((state: ReduxAppState) => state.disks.disks);
 
   const handleCreateDisk = () => {
     dispatch(
@@ -65,6 +66,7 @@ const SandboxPage = () => {
   };
   const handleListDisks = () => {
     dispatch(listDisksAction({}));
+
     message.success(
       isOnline
         ? "Listing disk..."

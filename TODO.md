@@ -3,7 +3,7 @@
 ## Todo
 
 - [🔵] Disks UI and hook up to crud routes
-- [🔵] Contacts crud routes (with redux-offline)
+- [ ] Blitzkreig the rest of the crud routes?
 - [ ] Teams & Team Invite creation routes (with redux-offline)
 - [ ] Handle folder copy logic where subfiles wont have a known ID, so the type FolderFEO.sync_warning = string should help us warn the user
 - [ ] Magic login link with redeem placeholders (both for contacts themselves, and via team invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa
@@ -31,3 +31,4 @@
 - [x] Ensure that offline cached requests work across multiple orgs & profiles
 - [x] Consider how to build local read replicas of known state (authorized sub-state), in an offline manner --> solution is to use client generated uuid and build state representation in local indexdb ourselves
 - [x] Hook up redux-offline with a long term ui state storage, maybe an indexdb local read replica or redux-cache when offline? its okay to call backend every page load, but when offline need to get the data from somewhere. maybe we get rid of explicit persist cache on disks-et-al and only cache offline. when no internet we query direct from localstorage? thus redux offline only handles mutations (create, update, delete) while queries (get, list) are handled by custom logic searching indexdb. --> seems more sensible to seperate out logic for mutations vs queries
+- [x] Contacts crud routes (with redux-offline)

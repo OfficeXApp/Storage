@@ -45,6 +45,28 @@ const initialState: ContactsState = {
   error: null,
 };
 
+const updateOrAddContact = (
+  contacts: ContactFEO[],
+  newContact: ContactFEO,
+  identifierKey: keyof ContactFEO = "id"
+): ContactFEO[] => {
+  const existingIndex = contacts.findIndex(
+    (contact) => contact[identifierKey] === newContact[identifierKey]
+  );
+
+  if (existingIndex !== -1) {
+    // Replace existing contact
+    return [
+      ...contacts.slice(0, existingIndex),
+      newContact,
+      ...contacts.slice(existingIndex + 1),
+    ];
+  } else {
+    // Add to the front of the array
+    return [newContact, ...contacts];
+  }
+};
+
 export const contactsReducer = (
   state = initialState,
   action: any
@@ -55,12 +77,9 @@ export const contactsReducer = (
 
     // Get Contact
     case GET_CONTACT: {
-      const updatedContacts = state.contacts
-        .filter((contact) => contact.id !== action.optimistic.id)
-        .concat(action.optimistic);
       return {
         ...state,
-        contacts: [action.optimistic].concat(updatedContacts),
+        contacts: updateOrAddContact(state.contacts, action.optimistic),
         loading: true,
         error: null,
       };
@@ -138,7 +157,11 @@ export const contactsReducer = (
       const optimisticContact = action.optimistic;
       return {
         ...state,
-        contacts: [optimisticContact, ...state.contacts],
+        contacts: updateOrAddContact(
+          state.contacts,
+          optimisticContact,
+          "_optimisticID"
+        ),
         loading: true,
         error: null,
       };
@@ -147,20 +170,21 @@ export const contactsReducer = (
     case CREATE_CONTACT_COMMIT: {
       const optimisticID = action.meta?.optimisticID;
       // Remove the optimistic contact from our items array & indexdb
-      const newReduxContacts = state.contacts
-        .filter((contact) => contact._optimisticID !== optimisticID)
-        .concat({
-          ...action.payload.ok.data,
-          _syncSuccess: true,
-          _syncConflict: false,
-          _syncWarning: "",
-          _isOptimistic: false,
-        });
+      const newContact = {
+        ...action.payload.ok.data,
+        _syncSuccess: true,
+        _syncConflict: false,
+        _syncWarning: "",
+        _isOptimistic: false,
+      };
+      const filteredContacts = state.contacts.filter(
+        (contact) => contact._optimisticID !== optimisticID
+      );
       // removal from dexie is already handled in optimistic middleware which can handle async, whereas reducers are pure sync functions
       return {
         ...state,
         // Add the newly created contact to our items array
-        contacts: newReduxContacts,
+        contacts: updateOrAddContact(filteredContacts, newContact),
         loading: false,
       };
     }
@@ -192,12 +216,9 @@ export const contactsReducer = (
 
     case UPDATE_CONTACT: {
       const optimisticContact = action.optimistic;
-      const updatedContacts = state.contacts.filter(
-        (contact) => contact.id !== optimisticContact.id
-      );
       return {
         ...state,
-        contacts: [optimisticContact].concat(updatedContacts),
+        contacts: updateOrAddContact(state.contacts, optimisticContact),
         loading: true,
         error: null,
       };
@@ -250,12 +271,9 @@ export const contactsReducer = (
 
     case DELETE_CONTACT: {
       const optimisticContact = action.optimistic;
-      const updatedContacts = state.contacts.filter(
-        (contact) => contact.id !== optimisticContact.id
-      );
       return {
         ...state,
-        contacts: [optimisticContact].concat(updatedContacts),
+        contacts: updateOrAddContact(state.contacts, optimisticContact),
         loading: true,
         error: null,
       };

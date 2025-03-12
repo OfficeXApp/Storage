@@ -123,10 +123,10 @@ const ContactsPage: React.FC = () => {
   );
 
   const handleDeletionCloseTabs = (userID: UserID) => {
+    setActiveKey("list");
     const updatedTabs = tabItems.filter((item) => item.key !== userID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
-    setActiveKey("list");
   };
 
   // Handle tab change

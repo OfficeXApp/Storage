@@ -39,6 +39,28 @@ const initialState: DisksState = {
   error: null,
 };
 
+const updateOrAddDisk = (
+  disks: DiskFEO[],
+  newDisk: DiskFEO,
+  identifierKey: keyof DiskFEO = "id"
+): DiskFEO[] => {
+  const existingIndex = disks.findIndex(
+    (disk) => disk[identifierKey] === newDisk[identifierKey]
+  );
+
+  if (existingIndex !== -1) {
+    // Replace existing disk
+    return [
+      ...disks.slice(0, existingIndex),
+      newDisk,
+      ...disks.slice(existingIndex + 1),
+    ];
+  } else {
+    // Add to the front of the array
+    return [newDisk, ...disks];
+  }
+};
+
 export const disksReducer = (state = initialState, action: any): DisksState => {
   // console.log(`Now in official reducer`, action, state);
   switch (action.type) {
@@ -46,12 +68,9 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
 
     // Get Disks
     case GET_DISK: {
-      const updatedDisks = state.disks
-        .filter((disk) => disk.id !== action.optimistic.id)
-        .concat(action.optimistic);
       return {
         ...state,
-        disks: [action.optimistic].concat(updatedDisks),
+        disks: updateOrAddDisk(state.disks, action.optimistic),
         loading: true,
         error: null,
       };
@@ -128,7 +147,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
       const optimisticDisk = action.optimistic;
       return {
         ...state,
-        disks: [optimisticDisk, ...state.disks],
+        disks: updateOrAddDisk(state.disks, optimisticDisk, "_optimisticID"),
         loading: true,
         error: null,
       };
@@ -136,21 +155,21 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
 
     case CREATE_DISK_COMMIT: {
       const optimisticID = action.meta?.optimisticID;
-      // Remove the optimistic disk from our items array & indexdb
-      const newReduxDisks = state.disks
-        .filter((disk) => disk._optimisticID !== optimisticID)
-        .concat({
-          ...action.payload.ok.data,
-          _syncSuccess: true,
-          _syncConflict: false,
-          _syncWarning: "",
-          _isOptimistic: false,
-        });
+      const newDisk = {
+        ...action.payload.ok.data,
+        _syncSuccess: true,
+        _syncConflict: false,
+        _syncWarning: "",
+        _isOptimistic: false,
+      };
+      const filteredDisks = state.disks.filter(
+        (disk) => disk._optimisticID !== optimisticID
+      );
       // removal from dexie is already handled in optimistic middleware which can handle async, whereas reducers are pure sync functions
       return {
         ...state,
         // Add the newly created disk to our items array
-        disks: newReduxDisks,
+        disks: updateOrAddDisk(filteredDisks, newDisk),
         loading: false,
       };
     }
@@ -182,12 +201,9 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
 
     case UPDATE_DISK: {
       const optimisticDisk = action.optimistic;
-      const updatedDisks = state.disks.filter(
-        (disk) => disk.id !== optimisticDisk.id
-      );
       return {
         ...state,
-        disks: [optimisticDisk].concat(updatedDisks),
+        disks: updateOrAddDisk(state.disks, optimisticDisk),
         loading: true,
         error: null,
       };
@@ -240,12 +256,9 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
 
     case "DELETE_DISK": {
       const optimisticDisk = action.optimistic;
-      const updatedDisks = state.disks.filter(
-        (disk) => disk.id !== optimisticDisk.id
-      );
       return {
         ...state,
-        disks: [optimisticDisk].concat(updatedDisks),
+        disks: updateOrAddDisk(state.disks, optimisticDisk),
         loading: true,
         error: null,
       };

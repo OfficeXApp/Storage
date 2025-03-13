@@ -18,6 +18,7 @@ import {
   FloatButton,
   Divider,
   Popconfirm,
+  List,
 } from "antd";
 import {
   EditOutlined,
@@ -52,6 +53,9 @@ import {
   deleteTeamAction,
   updateTeamAction,
 } from "../../redux-offline/teams/teams.actions";
+import AddTeamInviteDrawer from "./invite.add";
+import { getLastOnlineStatus } from "../../api/helpers";
+import EditTeamInviteDrawer from "./invite.edit";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -71,6 +75,10 @@ const TeamTab: React.FC<TeamTabProps> = ({ team, onSave, onDelete }) => {
   const [showCodeSnippets, setShowCodeSnippets] = useState(false);
   const [form] = Form.useForm();
   const screenType = useScreenType();
+  const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
+  const [inviteForEdit, setInviteForEdit] = useState<TeamMemberPreview | null>(
+    null
+  );
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -381,11 +389,11 @@ const data = await response.json();`;
                 </Button>
                 <Button
                   icon={<UserOutlined />}
-                  onClick={() => {}}
+                  onClick={() => setInviteDrawerVisible(true)}
                   type="primary"
                   size={screenType.isMobile ? "small" : "middle"}
                 >
-                  Add Member
+                  Invite Member
                 </Button>
               </>
             )}
@@ -569,7 +577,7 @@ const data = await response.json();`;
                           <Space>
                             <Badge status="processing" />
                             <Text type="secondary">
-                              {team.member_invites.length || 0} Members
+                              {team.member_previews.length || 0} Members
                             </Text>
                           </Space>
                         </div>
@@ -734,30 +742,95 @@ const data = await response.json();`;
 
                   {team.member_previews && team.member_previews.length > 0 && (
                     <Col span={24}>
-                      <Title level={5}>Members</Title>
-                      {team.member_previews.map(
-                        (member: TeamMemberPreview, index: number) => (
-                          <Card
-                            key={index}
-                            size="small"
-                            style={{ marginBottom: 8 }}
-                          >
-                            <Space>
-                              <Avatar
-                                size="small"
-                                icon={<UserOutlined />}
-                                src={
-                                  member.avatar
-                                    ? String(member.avatar)
-                                    : undefined
-                                }
-                              />
-                              <Text>{String(member.name)}</Text>
-                              {member.is_admin && <Tag color="gold">Admin</Tag>}
-                            </Space>
-                          </Card>
-                        )
-                      )}
+                      <Title level={5} style={{ marginTop: 16 }}>
+                        Members
+                      </Title>
+                      <List
+                        itemLayout="horizontal"
+                        dataSource={[
+                          // Sort members to show admins first
+                          ...team.member_previews.filter(
+                            (member: TeamMemberPreview) => member.is_admin
+                          ),
+                          ...team.member_previews.filter(
+                            (member: TeamMemberPreview) => !member.is_admin
+                          ),
+                        ]}
+                        renderItem={(member: TeamMemberPreview) => {
+                          const lastOnlineStatus = getLastOnlineStatus(
+                            member.last_online_ms
+                          );
+
+                          return (
+                            <List.Item
+                              key={member.user_id || String(Math.random())}
+                              style={{
+                                padding: "8px 16px",
+                                border: "1px solid #f0f0f0",
+                                borderRadius: "4px",
+                                marginBottom: 8,
+                              }}
+                              actions={[
+                                <div>
+                                  {member.is_admin && (
+                                    <Tag
+                                      color="red"
+                                      style={{ marginRight: "16px" }}
+                                    >
+                                      Admin
+                                    </Tag>
+                                  )}
+                                  <EditOutlined
+                                    key="edit"
+                                    onClick={() => setInviteForEdit(member)}
+                                    style={{ color: "#1890ff" }}
+                                  />
+                                </div>,
+                              ]}
+                            >
+                              <Space>
+                                <Avatar
+                                  icon={<UserOutlined />}
+                                  src={
+                                    member.avatar
+                                      ? String(member.avatar)
+                                      : undefined
+                                  }
+                                />
+                                <Text>{member.name || "Unknown Pending"}</Text>
+                                {member.user_id.startsWith(
+                                  "PlaceholderTeamInviteeID_"
+                                ) && (
+                                  <Popover
+                                    content={member.note || "No notes attached"}
+                                  >
+                                    <InfoCircleOutlined
+                                      style={{ color: "#aaa" }}
+                                    />
+                                  </Popover>
+                                )}
+                                <Tag>
+                                  {member.user_id.startsWith(
+                                    "PlaceholderTeamInviteeID_"
+                                  )
+                                    ? "magic link"
+                                    : shortenAddress(
+                                        member.user_id.replace("UserID_", "")
+                                      )}
+                                </Tag>
+
+                                <Badge
+                                  // @ts-ignore
+                                  status={lastOnlineStatus.status}
+                                />
+                                <Text type="secondary">
+                                  {lastOnlineStatus.text}
+                                </Text>
+                              </Space>
+                            </List.Item>
+                          );
+                        }}
+                      />
                     </Col>
                   )}
                 </Row>
@@ -786,6 +859,18 @@ const data = await response.json();`;
             );
           }}
           style={{ right: 24, bottom: 64 }}
+        />
+      )}
+      <AddTeamInviteDrawer
+        open={inviteDrawerVisible}
+        onClose={() => setInviteDrawerVisible(false)}
+        team={team}
+      />
+      {inviteForEdit && (
+        <EditTeamInviteDrawer
+          open={Boolean(inviteForEdit)}
+          onClose={() => setInviteForEdit(null)}
+          member={inviteForEdit}
         />
       )}
       <br />

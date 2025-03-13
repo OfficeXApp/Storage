@@ -46,9 +46,8 @@ export interface IRequestListTeamInvites {
 export interface IRequestCreateTeamInvite {
   id?: TeamInviteID;
   team_id: TeamID;
-  inviter_id: UserID;
-  invitee_id: UserID;
-  role: TeamRole;
+  invitee_id?: UserID;
+  role?: TeamRole;
   note?: string;
   active_from?: number;
   expires_at?: number;

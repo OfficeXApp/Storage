@@ -259,10 +259,10 @@ const SideMenu = ({
               },
             },
             {
-              key: "templates",
-              label: "Templates",
+              key: "sandbox",
+              label: "Sandbox",
               onClick: () => {
-                navigate("/resources/templates");
+                navigate("/sandbox");
                 if (setSidebarVisible) {
                   setSidebarVisible(false);
                 }

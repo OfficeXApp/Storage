@@ -74,13 +74,13 @@ const TeamsPage: React.FC = () => {
       );
       console.log(`existingTabIndex`, existingTabIndex);
 
-      if (existingTabIndex !== -1) {
+      if (existingTabIndex !== -1 && !focus_tab) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
           (item) => item.key !== team.id
         );
         setTabItems(updatedTabs);
-      } else {
+      } else if (existingTabIndex === -1) {
         // Create new tab
         const newTab: TabItem = {
           key: team.id,
@@ -97,6 +97,10 @@ const TeamsPage: React.FC = () => {
         });
 
         // Switch to the clicked team's tab
+        if (focus_tab) {
+          setActiveKey(team.id);
+        }
+      } else if (focus_tab) {
         if (focus_tab) {
           setActiveKey(team.id);
         }

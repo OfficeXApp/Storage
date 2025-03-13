@@ -327,7 +327,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   type="primary"
                   size={screenType.isMobile ? "small" : "middle"}
                 >
-                  Invite
+                  Copy Link
                 </Button>
               </>
             )}

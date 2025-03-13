@@ -128,9 +128,10 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     // ------------------------------ LIST DISKS --------------------------------- //
 
     case LIST_DISKS: {
+      console.log(`optimistic`, action.optimistic);
       return {
         ...state,
-        disks: action.optimistic,
+        disks: action.optimistic || [],
         loading: true,
         error: null,
       };
@@ -139,9 +140,10 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     case LIST_DISKS_COMMIT: {
       // find & replace optimisticFetchDisk with action.payload.ok.data.items
       // or even replace entire disks
+      console.log(`action.payload.ok.data.items`, action.payload.ok.data.items);
       return {
         ...state,
-        disks: action.payload.ok.data.items,
+        disks: action.payload.ok.data.items || [],
         loading: false,
       };
     }

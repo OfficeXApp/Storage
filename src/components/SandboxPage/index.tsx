@@ -19,6 +19,7 @@ import {
 } from "../../redux-offline/disks/disks.actions";
 import { useIdentitySystem } from "../../framework/identity";
 import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
+import ContactSelector from "../ContactSelector";
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
@@ -180,6 +181,19 @@ const SandboxPage = () => {
           </pre>
         }
       </Content>
+      <ContactSelector />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
       <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>
     </Layout>
   );

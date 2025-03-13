@@ -142,12 +142,21 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
             handleClickContentTab(record);
           }}
         >
-          <Avatar
-            size="default"
-            style={{ backgroundColor: "#87d068" }}
-            icon={<TeamOutlined />}
-          />
-          <span style={{ marginLeft: "0px" }}>{record.name}</span>
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClickContentTab(record, true);
+              const newUrl = `/resources/teams/${record.id}`;
+              window.history.pushState({}, "", newUrl);
+            }}
+          >
+            <Avatar
+              size="default"
+              style={{ backgroundColor: "#87d068" }}
+              icon={<TeamOutlined />}
+            />
+            <span style={{ marginLeft: "8px" }}>{record.name}</span>
+          </div>
           <Tag
             onClick={() => {
               // copy to clipboard
@@ -162,32 +171,34 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
       ),
     },
     {
+      title: "Size",
+      key: "actions",
+      width: 120,
+      render: (_: any, record: TeamFE) => (
+        <span
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleClickContentTab(record);
+          }}
+        >
+          {record.member_previews.length} Members
+        </span>
+      ),
+    },
+    {
       title: "Description",
       dataIndex: "public_note",
       key: "public_note",
       ellipsis: true,
-      render: (text: string) => (
-        <span>{text || "No description provided"}</span>
-      ),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 150,
-      render: (_: any, record: TeamFE) => (
-        <Button
-          type="default"
-          size="middle"
-          style={{ width: "100%" }}
+      render: (text: string, record) => (
+        <span
           onClick={(e) => {
-            e.stopPropagation();
-            handleClickContentTab(record, true);
-            const newUrl = `/resources/teams/${record.id}`;
-            window.history.pushState({}, "", newUrl);
+            e?.stopPropagation();
+            handleClickContentTab(record);
           }}
         >
-          Open
-        </Button>
+          {text || "No description provided"}
+        </span>
       ),
     },
   ];

@@ -165,6 +165,7 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
       setSelectedContact(contact);
       setUserInput(contact.name);
       setValidUserID(contact.id);
+      setFormChanged(true);
     }
   };
 
@@ -444,90 +445,61 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
                   </Tooltip>
                 }
               >
-                <div>
-                  <Input
-                    prefix={<SearchOutlined />}
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    placeholder="Search contacts by name or email"
-                  />
-                  {userInput && searchResults.length > 0 && (
-                    <div
-                      style={{
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                        border: "1px solid #f0f0f0",
-                        borderRadius: "4px",
-                        marginTop: "8px",
-                      }}
-                    >
-                      {searchResults.map((contact) => (
-                        <div
-                          key={contact.id}
-                          onClick={() => handleContactSelect(contact.id)}
-                          style={{
-                            padding: "8px 12px",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
-                            borderBottom: "1px solid #f0f0f0",
-                            backgroundColor:
-                              selectedContact?.id === contact.id
-                                ? "#f0f7ff"
-                                : "transparent",
-                          }}
-                        >
-                          <Avatar
-                            src={contact.avatar}
-                            size="small"
-                            icon={<UserOutlined />}
-                          />
-                          <div style={{ flex: 1 }}>
-                            <div>{contact.name}</div>
-                            <div style={{ color: "#888", fontSize: "12px" }}>
-                              {contact.email}
-                            </div>
-                          </div>
-                          <Tag>
-                            {shortenAddress(contact.id.replace("UserID_", ""))}
-                          </Tag>
-                        </div>
-                      ))}
+                <Select
+                  showSearch
+                  value={selectedContact?.id}
+                  placeholder="Search and select a contact"
+                  style={{ width: "100%" }}
+                  optionFilterProp="label"
+                  onChange={(value) => {
+                    const contact = contacts.find((c) => c.id === value);
+                    if (contact) {
+                      setSelectedContact(contact);
+                      setValidUserID(contact.id);
+                      setFormChanged(true);
+                    } else {
+                      setSelectedContact(null);
+                      setValidUserID(null);
+                    }
+                  }}
+                  filterOption={(input, option) =>
+                    (option?.title || "")
+                      ?.toLowerCase()
+                      .includes(input.toLowerCase()) ||
+                    (option?.value || "").includes(input.toLowerCase())
+                  }
+                  options={contacts.map((contact) => ({
+                    value: contact.id,
+                    title: contact.name,
+                    label: (
+                      <Space align="center">
+                        <Avatar
+                          src={contact.avatar}
+                          size="small"
+                          icon={<UserOutlined />}
+                        />
+                        <span>{contact.name}</span>
+                        <span style={{ color: "#888", fontSize: "12px" }}>
+                          {contact.email}
+                        </span>
+                        <Tag>
+                          {shortenAddress(contact.id.replace("UserID_", ""))}
+                        </Tag>
+                      </Space>
+                    ),
+                    // Include searchable fields for filtering
+                    searchLabels: [contact.name, contact.email, contact.id]
+                      .join(" ")
+                      .toLowerCase(),
+                  }))}
+                  optionRender={(option) => option.label}
+                  notFoundContent={
+                    <div style={{ padding: "8px", textAlign: "center" }}>
+                      No contacts found
                     </div>
-                  )}
-                  {selectedContact && (
-                    <div
-                      style={{
-                        marginTop: "8px",
-                        padding: "8px 12px",
-                        border: "1px solid #d9d9d9",
-                        borderRadius: "4px",
-                        backgroundColor: "#f0f7ff",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <Avatar
-                        src={selectedContact.avatar}
-                        size="small"
-                        icon={<UserOutlined />}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <div>{selectedContact.name}</div>
-                        <div style={{ color: "#888", fontSize: "12px" }}>
-                          {selectedContact.email}
-                        </div>
-                      </div>
-                      <Tag>
-                        {shortenAddress(
-                          selectedContact.id.replace("UserID_", "")
-                        )}
-                      </Tag>
-                    </div>
-                  )}
-                </div>
+                  }
+                  allowClear
+                />
               </Form.Item>
             )}
 

@@ -55,6 +55,7 @@ import {
 } from "../../redux-offline/teams/teams.actions";
 import AddTeamInviteDrawer from "./invite.add";
 import { getLastOnlineStatus } from "../../api/helpers";
+import EditTeamInviteDrawer from "./invite.edit";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -75,6 +76,9 @@ const TeamTab: React.FC<TeamTabProps> = ({ team, onSave, onDelete }) => {
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
+  const [inviteForEdit, setInviteForEdit] = useState<TeamMemberPreview | null>(
+    null
+  );
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -778,6 +782,7 @@ const data = await response.json();`;
                                   )}
                                   <EditOutlined
                                     key="edit"
+                                    onClick={() => setInviteForEdit(member)}
                                     style={{ color: "#1890ff" }}
                                   />
                                 </div>,
@@ -796,7 +801,9 @@ const data = await response.json();`;
                                 {member.user_id.startsWith(
                                   "PlaceholderTeamInviteeID_"
                                 ) && (
-                                  <Popover content={"member.name"}>
+                                  <Popover
+                                    content={member.note || "No notes attached"}
+                                  >
                                     <InfoCircleOutlined
                                       style={{ color: "#aaa" }}
                                     />
@@ -859,6 +866,13 @@ const data = await response.json();`;
         onClose={() => setInviteDrawerVisible(false)}
         team={team}
       />
+      {inviteForEdit && (
+        <EditTeamInviteDrawer
+          open={Boolean(inviteForEdit)}
+          onClose={() => setInviteForEdit(null)}
+          member={inviteForEdit}
+        />
+      )}
       <br />
       <br />
     </div>

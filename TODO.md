@@ -7,7 +7,7 @@
 - [ ] Teams & Team Invite creation routes (with redux-offline)
 - [ ] Handle folder copy logic where subfiles wont have a known ID, so the type FolderFEO.sync_warning = string should help us warn the user
 - [ ] Magic login link with redeem placeholders (both for contacts themselves, and via team invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa
-
+- [ ] Polish all tables to match teams behavior (got rid of OPEN button and clicking name goes into tab directly no untab, clicking rest of row tabs/untabs without navigating to it)
 - [ ] Support multi offline organizations
 - [ ] Investigate & consolidate auth cookies
 - [ ] Investigate & consolidate all indexdb databases

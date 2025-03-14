@@ -47,7 +47,7 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
+  const [labels, setLabels] = useState<string[]>([]);
   const [inputVisible, setInputVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [formChanged, setFormChanged] = useState(false);
@@ -57,17 +57,17 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
     if (open) {
       form.resetFields();
       setIsAdvancedOpen(false);
-      setTags([]);
+      setLabels([]);
       setInputVisible(false);
       setInputValue("");
       setFormChanged(false);
     }
   }, [open, form]);
 
-  // Tags management
-  const handleClose = (removedTag: string) => {
-    const newTags = tags.filter((tag) => tag !== removedTag);
-    setTags(newTags);
+  // Labels management
+  const handleClose = (removedLabel: string) => {
+    const newLabels = labels.filter((label) => label !== removedLabel);
+    setLabels(newLabels);
     setFormChanged(true);
   };
 
@@ -80,8 +80,8 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
   };
 
   const handleInputConfirm = () => {
-    if (inputValue && !tags.includes(inputValue)) {
-      setTags([...tags, inputValue]);
+    if (inputValue && !labels.includes(inputValue)) {
+      setLabels([...labels, inputValue]);
     }
     setInputVisible(false);
     setInputValue("");
@@ -265,22 +265,22 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Tags to categorize this group">
+                <Tooltip title="Labels to categorize this group">
                   <Space>
-                    Tags <InfoCircleOutlined style={{ color: "#aaa" }} />
+                    Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
               }
             >
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {tags.map((tag) => (
+                {labels.map((label) => (
                   <Tag
-                    key={tag}
+                    key={label}
                     closable
-                    onClose={() => handleClose(tag)}
+                    onClose={() => handleClose(label)}
                     style={{ marginRight: 3 }}
                   >
-                    {tag}
+                    {label}
                   </Tag>
                 ))}
                 {inputVisible ? (
@@ -297,7 +297,7 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
                   />
                 ) : (
                   <Tag onClick={showInput} style={{ cursor: "pointer" }}>
-                    <TagOutlined /> New Tag
+                    <TagOutlined /> New Label
                   </Tag>
                 )}
               </div>

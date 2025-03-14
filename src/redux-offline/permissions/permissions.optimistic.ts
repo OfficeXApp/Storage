@@ -246,10 +246,10 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
               const optimisticID = action.meta.optimisticID;
 
               const optimisticPermission: SystemPermissionFEO = {
-                id: optimisticID,
                 ...permissionData,
+                id: optimisticID,
                 permission_previews: permissionData.permission_types || [],
-                tags: [],
+                labels: [],
                 granted_by: userID,
                 created_at: Date.now(),
                 last_modified_at: Date.now(),
@@ -512,7 +512,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
                 ...permissionData,
                 permission_previews: permissionData.permission_types || [],
                 resource_path: permissionData.resource_path || "/",
-                tags: [],
+                labels: [],
                 granted_by: userID,
                 created_at: Date.now(),
                 last_modified_at: Date.now(),

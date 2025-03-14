@@ -52,7 +52,7 @@ export interface IRequestCreateGroupInvite {
   active_from?: number;
   expires_at?: number;
   from_placeholder_invitee?: string;
-  tags?: string[];
+  labels?: string[];
   external_id?: string;
   external_payload?: any;
 }
@@ -63,7 +63,7 @@ export interface IRequestUpdateGroupInvite {
   note?: string;
   active_from?: number;
   expires_at?: number;
-  tags?: string[];
+  labels?: string[];
   external_payload?: any;
 }
 

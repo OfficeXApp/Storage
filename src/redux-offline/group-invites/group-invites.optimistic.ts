@@ -216,7 +216,7 @@ export const groupInvitesOptimisticDexieMiddleware = (currentIdentitySet: {
                 group_name: "", // These would be filled with proper data in a real implementation
                 invitee_name: "",
                 permission_previews: [],
-                tags: [],
+                labels: [],
                 created_at: Date.now(),
                 last_modified_at: Date.now(),
                 _optimisticID: optimisticID,

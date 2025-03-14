@@ -191,30 +191,10 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
   // Check if the whole form is valid
   const checkFormValidity = () => {
     try {
-      debugFormValues(); // For debugging
-
       const step0Valid = isStepValid(0);
       const step1Valid = permissionTypes.length > 0;
-      const step2Valid = isStepValid(2);
-      const step3Valid = isStepValid(3);
 
-      // For debugging
-      console.log("Step validation:", {
-        Who: step0Valid,
-        Can: step1Valid,
-        What: step2Valid,
-        Advanced: step3Valid,
-        PermissionTypes: form.getFieldValue("permissionTypes"),
-      });
-
-      setStepsValidation({
-        step0: step0Valid,
-        step1: step1Valid,
-        step2: step2Valid,
-        step3: step3Valid,
-      });
-
-      setFormIsValid(step0Valid && step1Valid && step2Valid && step3Valid);
+      setFormIsValid(step0Valid && step1Valid);
     } catch (error) {
       console.error("Form validation error:", error);
       setFormIsValid(false);
@@ -307,7 +287,6 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
   // Handle resource type change
   const handleResourceTypeChange = (e: any) => {
     setResourceType(e.target.value);
-    form.resetFields(["resourceId"]);
     checkFormValidity();
   };
 
@@ -462,7 +441,11 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
       });
   };
 
-  // RENDER FUNCTIONS FOR EACH STEP
+  const isValidResourceID = (resourceId: string) => {
+    return resourceId.includes("UserID_")
+      ? resourceId.startsWith("UserID_")
+      : resourceId.includes("_");
+  };
 
   // Step 1: Grantee Selection (Who)
   function renderGranteeSelection() {
@@ -847,9 +830,17 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
           ) : (
             <Input
               placeholder="Enter resource ID"
-              onChange={checkFormValidity}
+              status={isValidResourceID(targetResourceId) ? undefined : "error"}
+              onChange={(e) => {
+                setTargetResourceId(e.target.value);
+                setStepsValidation((prev) => ({
+                  ...prev,
+                  step2: isValidResourceID(e.target.value),
+                }));
+              }}
+              value={targetResourceId}
               suffix={
-                <Tooltip title="Developer note: Minimal validation applied">
+                <Tooltip title="Careful to only paste a valid ID. It should say UserID_... or FileID_..., no prefix or suffix">
                   <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Tooltip>
               }

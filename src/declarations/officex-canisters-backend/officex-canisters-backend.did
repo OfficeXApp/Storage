@@ -9,7 +9,7 @@ type UserID = principal;
 type FolderUUID = text;
 type FileUUID = text;
 type DriveFullFilePath = text;
-type Tag = text;
+type Label = text;
 
 type StorageLocationEnum = variant {
     BrowserCache;
@@ -24,7 +24,7 @@ type FolderMetadata = record {
     subfolder_uuids : vec FolderUUID;
     file_uuids : vec FileUUID;
     full_folder_path : DriveFullFilePath;
-    tags : vec Tag;
+    labels : vec Label;
     owner : UserID;
     created_date : nat64;  // Changed from text to nat64
     storage_location : StorageLocationEnum;
@@ -41,7 +41,7 @@ type FileMetadata = record {
     next_version : opt FileUUID;
     extension : text;
     full_file_path : DriveFullFilePath;
-    tags : vec Tag;
+    labels : vec Label;
     owner : UserID;
     created_date : nat64;  // Changed from text to nat64
     storage_location : StorageLocationEnum;

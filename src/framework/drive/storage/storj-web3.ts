@@ -182,7 +182,7 @@ export class StorjClient {
             Body: chunk,
           };
           const result = await StorjClient.s3!.uploadPart(params);
-          return { PartNumber: partNumber, ETag: result.ETag };
+          return { PartNumber: partNumber, ELabel: result.ETag };
         };
 
         const completeMultipartUpload = async () => {

@@ -1,4 +1,4 @@
-// src/components/TagsPage/tags.table.tsx
+// src/components/LabelsPage/labels.table.tsx
 
 import React, { useEffect, useState } from "react";
 import {
@@ -27,49 +27,49 @@ import {
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { TagFE } from "@officexapp/types";
+import { LabelFE } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listTagsAction } from "../../redux-offline/tags/tags.actions";
+import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
 
-interface TagsTableListProps {
-  isTagTabOpen: (id: string) => boolean;
-  handleClickTagTab: (tag: TagFE, focus_tab?: boolean) => void;
+interface LabelsTableListProps {
+  isLabelTabOpen: (id: string) => boolean;
+  handleClickLabelTab: (label: LabelFE, focus_tab?: boolean) => void;
 }
 
-const TagsTableList: React.FC<TagsTableListProps> = ({
-  isTagTabOpen,
-  handleClickTagTab,
+const LabelsTableList: React.FC<LabelsTableListProps> = ({
+  isLabelTabOpen,
+  handleClickLabelTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const tags = useSelector((state: ReduxAppState) => state.tags.tags);
+  const labels = useSelector((state: ReduxAppState) => state.labels.labels);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
-  const [filteredTags, setFilteredTags] = useState(tags);
+  const [filteredLabels, setFilteredLabels] = useState(labels);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // Update filtered tags whenever search text or tags change
+  // Update filtered labels whenever search text or labels change
   useEffect(() => {
-    const filtered = tags.filter((tag) =>
-      tag.value.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = labels.filter((label) =>
+      label.value.toLowerCase().includes(searchText.toLowerCase())
     );
-    setFilteredTags(filtered);
-  }, [searchText, tags]);
+    setFilteredLabels(filtered);
+  }, [searchText, labels]);
 
   // Handle responsive layout
   useEffect(() => {
     try {
-      dispatch(listTagsAction({}));
+      dispatch(listLabelsAction({}));
     } catch (e) {
       console.error(e);
     }
 
     // message.success(
     //   isOnline
-    //     ? "Fetching tags..."
-    //     : "Queued fetch tags for when you're back online"
+    //     ? "Fetching labels..."
+    //     : "Queued fetch labels for when you're back online"
     // );
 
     const handleResize = () => {
@@ -122,16 +122,16 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
   ];
 
   // Define table columns
-  const columns: ColumnsType<TagFE> = [
+  const columns: ColumnsType<LabelFE> = [
     {
-      title: "Tag",
+      title: "Label",
       dataIndex: "value",
       key: "value",
-      render: (_: any, record: TagFE) => (
+      render: (_: any, record: LabelFE) => (
         <Space
           onClick={(e) => {
             e?.stopPropagation();
-            handleClickTagTab(record);
+            handleClickLabelTab(record);
           }}
         >
           <div
@@ -153,7 +153,7 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
             }}
             color="default"
           >
-            {shortenAddress(record.id.replace("TagID_", ""))}
+            {shortenAddress(record.id.replace("LabelID_", ""))}
           </AntTag>
         </Space>
       ),
@@ -169,15 +169,15 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
       title: "Actions",
       key: "actions",
       width: 150,
-      render: (_: any, record: TagFE) => (
+      render: (_: any, record: LabelFE) => (
         <Button
           type="default"
           size="middle"
           style={{ width: "100%" }}
           onClick={(e) => {
             e.stopPropagation();
-            handleClickTagTab(record, true);
-            const newUrl = `/resources/tags/${record.id}`;
+            handleClickLabelTab(record, true);
+            const newUrl = `/resources/labels/${record.id}`;
             window.history.pushState({}, "", newUrl);
           }}
         >
@@ -198,15 +198,17 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
     return (
       <List
         itemLayout="horizontal"
-        dataSource={filteredTags}
-        renderItem={(tag: TagFE) => (
+        dataSource={filteredLabels}
+        renderItem={(label: LabelFE) => (
           <List.Item
             style={{
               padding: "12px 16px",
               cursor: "pointer",
-              backgroundColor: isTagTabOpen(tag.id) ? "#e6f7ff" : "transparent",
+              backgroundColor: isLabelTabOpen(label.id)
+                ? "#e6f7ff"
+                : "transparent",
             }}
-            onClick={() => handleClickTagTab(tag, true)}
+            onClick={() => handleClickLabelTab(label, true)}
           >
             <div
               style={{
@@ -224,7 +226,7 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
                     width: 32,
                     height: 32,
                     borderRadius: "50%",
-                    backgroundColor: tag.color || "#1890ff",
+                    backgroundColor: label.color || "#1890ff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -233,7 +235,7 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
                   <TagOutlined style={{ color: "white" }} />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: "500" }}>{tag.value}</span>
+                  <span style={{ fontWeight: "500" }}>{label.value}</span>
                   <div
                     style={{
                       display: "flex",
@@ -245,7 +247,7 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
                       style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}
                     >
                       <ClockCircleOutlined style={{ marginRight: 4 }} />
-                      {new Date(tag.last_updated_at).toLocaleDateString()}
+                      {new Date(label.last_updated_at).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -253,8 +255,8 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <AntTag color={tag.color}>
-                  {shortenAddress(tag.id.replace("TagID_", ""))}
+                <AntTag color={label.color}>
+                  {shortenAddress(label.id.replace("LabelID_", ""))}
                 </AntTag>
                 <RightOutlined style={{ color: "rgba(0,0,0,0.4)" }} />
               </div>
@@ -290,7 +292,7 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
           >
             {/* Search input */}
             <Input
-              placeholder="Search tags..."
+              placeholder="Search labels..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -346,7 +348,7 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
           >
             {/* Search input - always on top for mobile */}
             <Input
-              placeholder="Search tags..."
+              placeholder="Search labels..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -406,7 +408,7 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
         </div>
       </div>
 
-      {/* Tags Table */}
+      {/* Labels Table */}
       <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
         {screenType.isMobile ? (
           renderMobileList()
@@ -418,15 +420,15 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
               columnWidth: 50,
             }}
             columns={columns}
-            dataSource={filteredTags}
+            dataSource={filteredLabels}
             rowKey="id"
             pagination={false}
             onRow={(record) => ({
               onClick: () => {
-                handleClickTagTab(record, false);
+                handleClickLabelTab(record, false);
               },
               style: {
-                backgroundColor: isTagTabOpen(record.id)
+                backgroundColor: isLabelTabOpen(record.id)
                   ? "#e6f7ff"
                   : "transparent",
                 cursor: "pointer",
@@ -442,4 +444,4 @@ const TagsTableList: React.FC<TagsTableListProps> = ({
   );
 };
 
-export default TagsTableList;
+export default LabelsTableList;

@@ -97,7 +97,7 @@ const PermissionsPage: React.FC = () => {
         // Get label based on permission type
         const label =
           type === "system"
-            ? `📦 ${(permission as SystemPermissionFE).resource_name || "Unknown"}`
+            ? `📦 ${(permission as SystemPermissionFE).resource_name || permission.resource_id.slice(0, 12)}...`
             : `📂 ${(permission as DirectoryPermissionFE).resource_path || "Unknown"}`;
 
         // Create new tab
@@ -146,7 +146,7 @@ const PermissionsPage: React.FC = () => {
       const newUrl = `/resources/permissions`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/permissions/${newActiveKey}`;
+      const newUrl = `/resources/permissions/${newActiveKey.includes("System") ? "system" : "directory"}/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };

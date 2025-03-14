@@ -54,7 +54,7 @@ interface AddGroupInviteDrawerProps {
 enum InviteType {
   PUBLIC = "PUBLIC",
   SELECT_CONTACT = "SELECT_CONTACT",
-  ENTER_USERTAG = "ENTER_USERTAG",
+  ENTER_USERLABEL = "ENTER_USERLABEL",
   MAGIC_LINK = "MAGIC_LINK",
 }
 
@@ -126,7 +126,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
 
   // Process user input for contact search and validation
   useEffect(() => {
-    if (inviteType !== InviteType.ENTER_USERTAG || !userInput) {
+    if (inviteType !== InviteType.ENTER_USERLABEL || !userInput) {
       setValidUserID(null);
       return;
     }
@@ -225,7 +225,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             }
             inviteeId = selectedContact.id;
             break;
-          case InviteType.ENTER_USERTAG:
+          case InviteType.ENTER_USERLABEL:
             if (!validUserID) {
               message.error("Please enter a valid user ID");
               return;
@@ -417,10 +417,10 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
                     Select from Contacts
                   </Space>
                 </Option>
-                <Option value={InviteType.ENTER_USERTAG}>
+                <Option value={InviteType.ENTER_USERLABEL}>
                   <Space>
                     <FormOutlined />
-                    Enter Usertag
+                    Enter Userlabel
                   </Space>
                 </Option>
                 <Option value={InviteType.MAGIC_LINK}>
@@ -503,9 +503,9 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
               </Form.Item>
             )}
 
-            {inviteType === InviteType.ENTER_USERTAG && (
+            {inviteType === InviteType.ENTER_USERLABEL && (
               <Form.Item
-                name="usertag"
+                name="userlabel"
                 label={
                   <Tooltip title="Enter a user ID to invite">
                     <Space>
@@ -515,7 +515,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
                 }
               >
                 <Input
-                  placeholder="Enter Usertag (e.g., UserID_abc123 or username@UserID_abc123)"
+                  placeholder="Enter Userlabel (e.g., UserID_abc123 or username@UserID_abc123)"
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                 />

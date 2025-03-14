@@ -4,7 +4,7 @@ import { DriveID, UserID } from "@officexapp/types";
 import { DISKS_DEXIE_TABLE } from "../redux-offline/disks/disks.reducer";
 import { CONTACTS_DEXIE_TABLE } from "../redux-offline/contacts/contacts.reducer";
 import { APIKEYS_DEXIE_TABLE } from "../redux-offline/api-keys/api-keys.reducer";
-import { TAGS_DEXIE_TABLE } from "../redux-offline/tags/tags.reducer";
+import { LABELS_DEXIE_TABLE } from "../redux-offline/labels/labels.reducer";
 import { DRIVES_DEXIE_TABLE } from "../redux-offline/drives/drives.reducer";
 import { GROUPS_DEXIE_TABLE } from "../redux-offline/groups/groups.reducer";
 import { GROUP_INVITES_DEXIE_TABLE } from "../redux-offline/group-invites/group-invites.reducer";
@@ -79,7 +79,7 @@ class DexieManager {
       [CONTACTS_DEXIE_TABLE]: "id, _syncConflict",
       [GROUPS_DEXIE_TABLE]: "id, _syncConflict",
       [GROUP_INVITES_DEXIE_TABLE]: "id, _syncConflict",
-      [TAGS_DEXIE_TABLE]: "id, _syncConflict",
+      [LABELS_DEXIE_TABLE]: "id, _syncConflict",
       [WEBHOOKS_DEXIE_TABLE]: "id, _syncConflict",
       [APIKEYS_DEXIE_TABLE]: "id, _syncConflict",
       [DIRECTORY_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",

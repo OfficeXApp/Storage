@@ -220,7 +220,7 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
               const optimisticGroup: GroupFEO = {
                 id: optimisticID,
                 ...groupData,
-                tags: [],
+                labels: [],
                 member_previews: [],
                 permission_previews: [],
                 created_at: Date.now(),

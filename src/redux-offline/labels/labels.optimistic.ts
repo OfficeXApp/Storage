@@ -1,37 +1,41 @@
-// src/redux-offline/tags/tags.optimistic.ts
+// src/redux-offline/labels/labels.optimistic.ts
 
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
 import { getDexieDb, markSyncConflict } from "../../api/dexie-database";
 import {
-  LIST_TAGS,
-  LIST_TAGS_COMMIT,
-  LIST_TAGS_ROLLBACK,
-  CREATE_TAG,
-  CREATE_TAG_COMMIT,
-  CREATE_TAG_ROLLBACK,
-  GET_TAG,
-  GET_TAG_COMMIT,
-  GET_TAG_ROLLBACK,
-  UPDATE_TAG,
-  UPDATE_TAG_COMMIT,
-  UPDATE_TAG_ROLLBACK,
-  DELETE_TAG,
-  DELETE_TAG_COMMIT,
-  DELETE_TAG_ROLLBACK,
-} from "./tags.actions";
+  LIST_LABELS,
+  LIST_LABELS_COMMIT,
+  LIST_LABELS_ROLLBACK,
+  CREATE_LABEL,
+  CREATE_LABEL_COMMIT,
+  CREATE_LABEL_ROLLBACK,
+  GET_LABEL,
+  GET_LABEL_COMMIT,
+  GET_LABEL_ROLLBACK,
+  UPDATE_LABEL,
+  UPDATE_LABEL_COMMIT,
+  UPDATE_LABEL_ROLLBACK,
+  DELETE_LABEL,
+  DELETE_LABEL_COMMIT,
+  DELETE_LABEL_ROLLBACK,
+} from "./labels.actions";
 import {
   AuthProfile,
   IndexDB_ApiKey,
   IndexDB_Organization,
   IndexDB_Profile,
 } from "../../framework/identity";
-import { TagFEO, TAGS_DEXIE_TABLE, TAGS_REDUX_KEY } from "./tags.reducer";
+import {
+  LabelFEO,
+  LABELS_DEXIE_TABLE,
+  LABELS_REDUX_KEY,
+} from "./labels.reducer";
 import _ from "lodash";
 
 /**
- * Middleware for handling optimistic updates for the tags table
+ * Middleware for handling optimistic updates for the labels table
  */
-export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
+export const labelsOptimisticDexieMiddleware = (currentIdentitySet: {
   currentOrg: IndexDB_Organization;
   currentProfile: AuthProfile;
   currentAPIKey: IndexDB_ApiKey | null;
@@ -43,28 +47,28 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
     async (action: AnyAction) => {
       // Log action
       console.log(
-        `Inside tags optimistic middleware for ${action.type}`,
+        `Inside labels optimistic middleware for ${action.type}`,
         action
       );
 
       // Skip actions we don't care about
       if (
         ![
-          GET_TAG,
-          GET_TAG_COMMIT,
-          GET_TAG_ROLLBACK,
-          LIST_TAGS,
-          LIST_TAGS_COMMIT,
-          LIST_TAGS_ROLLBACK,
-          CREATE_TAG,
-          CREATE_TAG_COMMIT,
-          CREATE_TAG_ROLLBACK,
-          UPDATE_TAG,
-          UPDATE_TAG_COMMIT,
-          UPDATE_TAG_ROLLBACK,
-          DELETE_TAG,
-          DELETE_TAG_COMMIT,
-          DELETE_TAG_ROLLBACK,
+          GET_LABEL,
+          GET_LABEL_COMMIT,
+          GET_LABEL_ROLLBACK,
+          LIST_LABELS,
+          LIST_LABELS_COMMIT,
+          LIST_LABELS_ROLLBACK,
+          CREATE_LABEL,
+          CREATE_LABEL_COMMIT,
+          CREATE_LABEL_ROLLBACK,
+          UPDATE_LABEL,
+          UPDATE_LABEL_COMMIT,
+          UPDATE_LABEL_ROLLBACK,
+          DELETE_LABEL,
+          DELETE_LABEL_COMMIT,
+          DELETE_LABEL_ROLLBACK,
         ].includes(action.type)
       ) {
         return next(action);
@@ -83,39 +87,39 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
 
       // Get db instance for this user+org pair
       const db = getDexieDb(userID, orgID);
-      const table = db.table<TagFEO, string>(TAGS_DEXIE_TABLE);
+      const table = db.table<LabelFEO, string>(LABELS_DEXIE_TABLE);
       let enhancedAction = action;
 
       try {
         // Process action based on type
         switch (action.type) {
-          // ------------------------------ GET TAG --------------------------------- //
+          // ------------------------------ GET LABEL --------------------------------- //
 
-          case GET_TAG: {
+          case GET_LABEL: {
             // Get cached data from IndexedDB
             const optimisticID = action.meta.optimisticID;
-            const cachedTag = await table.get(optimisticID);
-            if (cachedTag) {
+            const cachedLabel = await table.get(optimisticID);
+            if (cachedLabel) {
               enhancedAction = {
                 ...action,
                 optimistic: {
-                  ...cachedTag,
+                  ...cachedLabel,
                   _isOptimistic: true,
                   _optimisticID: optimisticID,
                   _syncSuccess: false,
                   _syncConflict: false,
-                  _syncWarning: `Awaiting Sync. This tag was fetched offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be refetched. Anything else depending on it may also be affected.`,
+                  _syncWarning: `Awaiting Sync. This label was fetched offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be refetched. Anything else depending on it may also be affected.`,
                 },
               };
             }
             break;
           }
 
-          case GET_TAG_COMMIT: {
-            const realTag = action.payload?.ok?.data;
-            if (realTag) {
+          case GET_LABEL_COMMIT: {
+            const realLabel = action.payload?.ok?.data;
+            if (realLabel) {
               await table.put({
-                ...realTag,
+                ...realLabel,
                 _optimisticID: null,
                 _isOptimistic: false,
                 _syncSuccess: true,
@@ -126,12 +130,12 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case GET_TAG_ROLLBACK: {
+          case GET_LABEL_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
-                const error_message = `Failed to get tag - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to get label - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,
@@ -144,17 +148,17 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          // ------------------------------ LIST TAGS --------------------------------- //
+          // ------------------------------ LIST LABELS --------------------------------- //
 
-          case LIST_TAGS: {
+          case LIST_LABELS: {
             // Get cached data from IndexedDB
-            const cachedTags = await table.toArray();
+            const cachedLabels = await table.toArray();
 
             // Enhance action with cached data if available
-            if (cachedTags && cachedTags.length > 0) {
+            if (cachedLabels && cachedLabels.length > 0) {
               enhancedAction = {
                 ...action,
-                optimistic: cachedTags.map((t) => ({
+                optimistic: cachedLabels.map((t) => ({
                   ...t,
                   _isOptimistic: true,
                   _optimisticID: t.id,
@@ -164,17 +168,17 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case LIST_TAGS_COMMIT: {
-            // Extract tags from the response
-            const tags = action.payload?.ok?.data?.items || [];
+          case LIST_LABELS_COMMIT: {
+            // Extract labels from the response
+            const labels = action.payload?.ok?.data?.items || [];
 
             // Update IndexedDB with fresh data
             await db.transaction("rw", table, async () => {
-              // Update or add each tag
-              for (const tag of tags) {
+              // Update or add each label
+              for (const label of labels) {
                 await table.put({
-                  ...tag,
-                  _optimisticID: tag.id,
+                  ...label,
+                  _optimisticID: label.id,
                   _isOptimistic: false,
                   _syncConflict: false,
                   _syncWarning: "",
@@ -185,10 +189,10 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case LIST_TAGS_ROLLBACK: {
+          case LIST_LABELS_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
-              const error_message = `Failed to fetch tags - ${err.err.message}`;
+              const error_message = `Failed to fetch labels - ${err.err.message}`;
               enhancedAction = {
                 ...action,
                 error_message,
@@ -199,55 +203,55 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          // ------------------------------ CREATE TAG --------------------------------- //
+          // ------------------------------ CREATE LABEL --------------------------------- //
 
-          case CREATE_TAG: {
-            // Only handle actions with tag data
+          case CREATE_LABEL: {
+            // Only handle actions with label data
             if (action.meta?.offline?.effect?.data) {
-              const tagData = action.meta.offline.effect.data;
+              const labelData = action.meta.offline.effect.data;
               const optimisticID = action.meta.optimisticID;
 
-              // Create optimistic tag object with defaults
-              const optimisticTag: TagFEO = {
+              // Create optimistic label object with defaults
+              const optimisticLabel: LabelFEO = {
                 id: optimisticID,
-                ...tagData,
-                value: tagData.value,
-                color: tagData.color || "#808080", // Default color if not provided
+                ...labelData,
+                value: labelData.value,
+                color: labelData.color || "#808080", // Default color if not provided
                 created_by: userID,
                 created_at: Date.now(),
                 last_updated_at: Date.now(),
                 resources: [],
-                tags: [],
+                labels: [],
                 permission_previews: [],
                 _optimisticID: optimisticID,
-                _syncWarning: `Awaiting Sync. This tag was created offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be recreated. Anything else depending on it may also be affected.`,
+                _syncWarning: `Awaiting Sync. This label was created offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be recreated. Anything else depending on it may also be affected.`,
                 _syncConflict: false,
                 _syncSuccess: false,
                 _isOptimistic: true,
               };
 
               // Save to IndexedDB
-              await table.put(optimisticTag);
+              await table.put(optimisticLabel);
 
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
-                optimistic: optimisticTag,
+                optimistic: optimisticLabel,
               };
             }
             break;
           }
 
-          case CREATE_TAG_COMMIT: {
+          case CREATE_LABEL_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            const realTag = action.payload?.ok?.data;
-            if (optimisticID && realTag) {
+            const realLabel = action.payload?.ok?.data;
+            if (optimisticID && realLabel) {
               await db.transaction("rw", table, async () => {
                 // Remove optimistic version
                 await table.delete(optimisticID);
                 // Add real version
                 await table.put({
-                  ...realTag,
+                  ...realLabel,
                   _optimisticID: null,
                   _syncSuccess: true,
                   _syncConflict: false,
@@ -259,12 +263,12 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case CREATE_TAG_ROLLBACK: {
+          case CREATE_LABEL_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
-                const error_message = `Failed to create tag - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to create label - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,
@@ -277,51 +281,51 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          // ------------------------------ UPDATE TAG --------------------------------- //
+          // ------------------------------ UPDATE LABEL --------------------------------- //
 
-          case UPDATE_TAG: {
-            // Only handle actions with tag data
+          case UPDATE_LABEL: {
+            // Only handle actions with label data
             if (action.meta?.offline?.effect?.data) {
-              const tagData = action.meta.offline.effect.data;
+              const labelData = action.meta.offline.effect.data;
               const optimisticID = action.meta.optimisticID;
 
-              const cachedTag = await table.get(optimisticID);
+              const cachedLabel = await table.get(optimisticID);
 
-              // Create optimistic tag object by merging with cached data
-              const optimisticTag: TagFEO = {
-                id: tagData.id,
-                ...cachedTag,
-                ...tagData,
+              // Create optimistic label object by merging with cached data
+              const optimisticLabel: LabelFEO = {
+                id: labelData.id,
+                ...cachedLabel,
+                ...labelData,
                 last_updated_at: Date.now(),
                 _isOptimistic: true,
                 _optimisticID: optimisticID,
-                _syncWarning: `Awaiting Sync. This tag was edited offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be reverted. Anything else depending on it may also be affected.`,
+                _syncWarning: `Awaiting Sync. This label was edited offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be reverted. Anything else depending on it may also be affected.`,
                 _syncConflict: false,
                 _syncSuccess: false,
               };
 
               // Save to IndexedDB
-              await table.put(optimisticTag);
+              await table.put(optimisticLabel);
 
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
-                optimistic: optimisticTag,
+                optimistic: optimisticLabel,
               };
             }
             break;
           }
 
-          case UPDATE_TAG_COMMIT: {
+          case UPDATE_LABEL_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            const realTag = action.payload?.ok?.data;
-            if (optimisticID && realTag) {
+            const realLabel = action.payload?.ok?.data;
+            if (optimisticID && realLabel) {
               await db.transaction("rw", table, async () => {
                 // Remove optimistic version
                 await table.delete(optimisticID);
                 // Add real version
                 await table.put({
-                  ...realTag,
+                  ...realLabel,
                   _syncSuccess: true,
                   _syncConflict: false,
                   _syncWarning: "",
@@ -333,12 +337,12 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case UPDATE_TAG_ROLLBACK: {
+          case UPDATE_LABEL_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
-                const error_message = `Failed to update tag - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to update label - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,
@@ -351,19 +355,19 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          // ------------------------------ DELETE TAG --------------------------------- //
+          // ------------------------------ DELETE LABEL --------------------------------- //
 
-          case DELETE_TAG: {
+          case DELETE_LABEL: {
             const optimisticID = action.meta.optimisticID;
 
-            const cachedTag = await table.get(optimisticID);
+            const cachedLabel = await table.get(optimisticID);
 
-            if (cachedTag) {
-              const optimisticTag: TagFEO = {
-                ...cachedTag,
+            if (cachedLabel) {
+              const optimisticLabel: LabelFEO = {
+                ...cachedLabel,
                 id: optimisticID,
                 _markedForDeletion: true,
-                _syncWarning: `Awaiting Sync. This tag was deleted offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be restored. Anything else depending on it may also be affected.`,
+                _syncWarning: `Awaiting Sync. This label was deleted offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be restored. Anything else depending on it may also be affected.`,
                 _syncConflict: false,
                 _syncSuccess: false,
                 _isOptimistic: true,
@@ -371,41 +375,41 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
               };
 
               // mark for deletion in indexdb
-              await table.put(optimisticTag);
+              await table.put(optimisticLabel);
 
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
-                optimistic: optimisticTag,
+                optimistic: optimisticLabel,
               };
             }
 
             break;
           }
 
-          case DELETE_TAG_COMMIT: {
+          case DELETE_LABEL_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
             if (optimisticID) {
               await db.transaction("rw", table, async () => {
-                // Remove tag completely after successful deletion
+                // Remove label completely after successful deletion
                 await table.delete(optimisticID);
               });
             }
             break;
           }
 
-          case DELETE_TAG_ROLLBACK: {
+          case DELETE_LABEL_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
-                const error_message = `Failed to delete tag - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to delete label - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
 
-                // Update the tag to remove deletion mark and add conflict warning
-                const cachedTag = await table.get(optimisticID);
-                if (cachedTag) {
+                // Update the label to remove deletion mark and add conflict warning
+                const cachedLabel = await table.get(optimisticID);
+                if (cachedLabel) {
                   await table.put({
-                    ...cachedTag,
+                    ...cachedLabel,
                     _markedForDeletion: false,
                     _syncWarning: error_message,
                     _syncSuccess: false,
@@ -429,7 +433,7 @@ export const tagsOptimisticDexieMiddleware = (currentIdentitySet: {
         // Pass the (potentially enhanced) action to the next middleware
         return next(enhancedAction);
       } catch (error) {
-        console.error(`Error in tags middleware for ${action.type}:`, error);
+        console.error(`Error in labels middleware for ${action.type}:`, error);
         // Continue with the original action if there's an error
         return next(action);
       }

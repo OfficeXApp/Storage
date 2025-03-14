@@ -72,6 +72,7 @@ import {
   DirectoryPermissionFEO,
   SystemPermissionFEO,
 } from "../../redux-offline/permissions/permissions.reducer";
+import TagCopy from "../TagCopy";
 
 dayjs.extend(relativeTime);
 const { Title, Paragraph, Text } = Typography;
@@ -101,8 +102,6 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   const [form] = Form.useForm();
   const screenType = useScreenType();
 
-  console.log(">>> permission", permission);
-
   // Check if permission is optimistic
   const isOptimistic = Boolean(permission._isOptimistic);
   const syncWarning = permission._syncWarning || "";
@@ -116,6 +115,76 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
       setShowCodeSnippets(true);
     }
   }, []);
+
+  const getPermissionTitle = (
+    permission: SystemPermissionFEO | DirectoryPermissionFEO,
+    permissionType: "system" | "directory"
+  ) => {
+    if (permissionType === "system") {
+      const sysPermission = permission;
+      let resourceId = "";
+
+      // Handle if resource_id is an object or string
+      if (typeof sysPermission.resource_id === "object") {
+        resourceId = String(sysPermission.resource_id);
+      } else {
+        resourceId = String(sysPermission.resource_id);
+      }
+
+      // Check if it's a TABLE resource
+      if (resourceId.startsWith("TABLE_")) {
+        const tableName = resourceId.split("TABLE_")[1];
+
+        // Map table names to titles
+        switch (tableName) {
+          case "DRIVES":
+            return "All Drives Permit";
+          case "DISKS":
+            return "All Disks Permit";
+          case "CONTACTS":
+            return "All Contacts Permit";
+          case "GROUPS":
+            return "All Groups Permit";
+          case "WEBHOOKS":
+            return "All Webhooks Permit";
+          case "API_KEYS":
+            return "All API Keys Permit";
+          case "PERMISSIONS":
+            return "All Permissions Permit";
+          case "LABELS":
+            return "All Labels Permit";
+          default:
+            return "System Permit";
+        }
+      }
+      // Handle specific resource types
+      else if (resourceId.startsWith("DriveID_")) {
+        return "Drive Permit";
+      } else if (resourceId.startsWith("DiskID_")) {
+        return "Disk Permit";
+      } else if (resourceId.startsWith("UserID_")) {
+        return "User Permit";
+      } else if (resourceId.startsWith("GroupID_")) {
+        return "Group Permit";
+      } else if (resourceId.startsWith("ApiKeyID_")) {
+        return "API Key Permit";
+      } else if (resourceId.startsWith("WebhookID_")) {
+        return "Webhook Permit";
+      } else if (resourceId.startsWith("LabelID_")) {
+        return "Label Permit";
+      } else if (
+        resourceId.startsWith("SystemPermissionID_") ||
+        resourceId.startsWith("DirectoryPermissionID_")
+      ) {
+        return "Permission Permit";
+      } else {
+        return "System Permit";
+      }
+    } else {
+      // For directory permissions
+      return "Directory Permit";
+    }
+  };
 
   const toggleEdit = () => {
     if (isEditing) {
@@ -332,28 +401,16 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
     }
   };
 
-  // Get grantee name
-  const getGranteeName = () => {
-    if (permissionType === "system") {
-      return (
-        (permission as SystemPermissionFEO).grantee_name ||
-        permission.granted_to
-      );
-    } else {
-      return permission.granted_to;
-    }
-  };
-
-  // Render permission type tags
-  const renderPermissionTypeTags = (
+  // Render permission type labels
+  const renderPermissionTypeLabels = (
     types: SystemPermissionType[] | DirectoryPermissionType[]
   ) => {
     const colorMap: Record<string, string> = {
-      VIEW: "blue",
-      EDIT: "green",
+      VIEW: "green",
+      EDIT: "orange",
       DELETE: "red",
-      CREATE: "purple",
-      UPLOAD: "orange",
+      CREATE: "orange",
+      UPLOAD: "purple",
       INVITE: "cyan",
       MANAGE: "magenta",
     };
@@ -525,14 +582,16 @@ const deletePermission = async (permissionId) => {
                 >
                   Edit
                 </Button>
-                <Button
-                  icon={<CopyOutlined />}
-                  onClick={() => copyToClipboard(permission.id)}
-                  type="primary"
-                  size={screenType.isMobile ? "small" : "middle"}
-                >
-                  Copy ID
-                </Button>
+                <Popover content="Coming soon">
+                  <Button
+                    icon={<CopyOutlined />}
+                    type="primary"
+                    size={screenType.isMobile ? "small" : "middle"}
+                    disabled
+                  >
+                    Duplicate
+                  </Button>
+                </Popover>
               </>
             )}
           </Space>
@@ -677,71 +736,37 @@ const deletePermission = async (permissionId) => {
                     >
                       <Space align="center" size={16}>
                         {permissionType === "system" ? (
-                          <Badge
-                            count={
-                              <LockOutlined style={{ color: "#1890ff" }} />
-                            }
+                          <div
                             style={{
-                              backgroundColor: "#e6f7ff",
-                              color: "#1890ff",
-                              border: "1px solid #1890ff",
+                              width: 56,
+                              height: 56,
+                              background: "#f0f5ff",
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                             }}
                           >
-                            <div
-                              style={{
-                                width: 56,
-                                height: 56,
-                                background: "#f0f5ff",
-                                borderRadius: "50%",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              <TeamOutlined
-                                style={{ fontSize: 24, color: "#1890ff" }}
-                              />
-                            </div>
-                          </Badge>
+                            <LockOutlined
+                              style={{ fontSize: 24, color: "#1890ff" }}
+                            />
+                          </div>
                         ) : (
-                          <Badge
-                            count={
-                              (permission as DirectoryPermissionFEO)
-                                .inheritable ? (
-                                <UnlockOutlined style={{ color: "#52c41a" }} />
-                              ) : (
-                                <LockOutlined style={{ color: "#faad14" }} />
-                              )
-                            }
+                          <div
                             style={{
-                              backgroundColor: (
-                                permission as DirectoryPermissionFEO
-                              ).inheritable
-                                ? "#f6ffed"
-                                : "#fffbe6",
-                              color: (permission as DirectoryPermissionFEO)
-                                .inheritable
-                                ? "#52c41a"
-                                : "#faad14",
-                              border: `1px solid ${(permission as DirectoryPermissionFEO).inheritable ? "#52c41a" : "#faad14"}`,
+                              width: 56,
+                              height: 56,
+                              background: "#f6ffed",
+                              borderRadius: "50%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                             }}
                           >
-                            <div
-                              style={{
-                                width: 56,
-                                height: 56,
-                                background: "#f6ffed",
-                                borderRadius: "50%",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              <FolderOutlined
-                                style={{ fontSize: 24, color: "#52c41a" }}
-                              />
-                            </div>
-                          </Badge>
+                            <FolderOutlined
+                              style={{ fontSize: 24, color: "#52c41a" }}
+                            />
+                          </div>
                         )}
                         <div
                           style={{
@@ -763,19 +788,9 @@ const deletePermission = async (permissionId) => {
                               level={4}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {permissionType === "system"
-                                ? "System Permission"
-                                : "Directory Permission"}
+                              {getPermissionTitle(permission, permissionType)}
                             </Title>
-                            <Tag
-                              color={isPermissionActive() ? "green" : "orange"}
-                              style={{
-                                cursor: "default",
-                                marginTop: "4px",
-                              }}
-                            >
-                              {isPermissionActive() ? "Active" : "Inactive"}
-                            </Tag>
+                            <TagCopy id={permission.id} />
                           </div>
                           <Space>
                             <Badge
@@ -808,13 +823,13 @@ const deletePermission = async (permissionId) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {permission.tags &&
-                          permission.tags.map((tag, index) => (
+                        {permission.labels &&
+                          permission.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
                             >
-                              {tag}
+                              {label}
                             </Tag>
                           ))}
                       </div>
@@ -825,16 +840,12 @@ const deletePermission = async (permissionId) => {
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : permission.tags && permission.tags.length > 0
+                          : permission.labels && permission.labels.length > 0
                             ? 0
                             : 32,
                       }}
                     >
-                      <Card
-                        title="Resource Information"
-                        size="small"
-                        style={{ marginTop: 8 }}
-                      >
+                      <Card size="small" style={{ marginTop: 8 }}>
                         <Row gutter={[16, 16]}>
                           <Col span={24}>
                             <Space
@@ -842,27 +853,43 @@ const deletePermission = async (permissionId) => {
                               style={{ width: "100%" }}
                             >
                               <div>
-                                <Text type="secondary">Resource:</Text>
+                                <Text type="secondary">Who:</Text>
                                 <div style={{ marginTop: 4 }}>
-                                  <Tag color="blue">{getResourceName()}</Tag>
+                                  <UserOutlined />
+                                  &nbsp; &nbsp;
+                                  {
+                                    (permission as SystemPermissionFEO)
+                                      .grantee_name
+                                  }
+                                  &nbsp; &nbsp;
+                                  <TagCopy
+                                    id={permission.granted_to}
+                                    style={{ fontSize: "0.7rem" }}
+                                  />
                                 </div>
                               </div>
 
                               <div>
-                                <Text type="secondary">Granted To:</Text>
+                                <Text type="secondary">Can:</Text>
                                 <div style={{ marginTop: 4 }}>
-                                  <Tag icon={<UserOutlined />} color="green">
-                                    {getGranteeName()}
-                                  </Tag>
-                                </div>
-                              </div>
-
-                              <div>
-                                <Text type="secondary">Permission Types:</Text>
-                                <div style={{ marginTop: 4 }}>
-                                  {renderPermissionTypeTags(
+                                  {renderPermissionTypeLabels(
                                     permission.permission_types
                                   )}
+                                </div>
+                              </div>
+
+                              <div>
+                                <Text type="secondary">What:</Text>
+                                <div style={{ marginTop: 4 }}>
+                                  <GlobalOutlined />
+                                  &nbsp; &nbsp;
+                                  {(permission as any).resource_name ||
+                                    permission.resource_id.slice(0, 20)}
+                                  &nbsp; &nbsp;
+                                  <TagCopy
+                                    id={permission.resource_id}
+                                    style={{ fontSize: "0.7rem" }}
+                                  />
                                 </div>
                               </div>
 
@@ -870,14 +897,7 @@ const deletePermission = async (permissionId) => {
                                 <div>
                                   <Text type="secondary">Inheritable:</Text>
                                   <div style={{ marginTop: 4 }}>
-                                    <Tag
-                                      color={
-                                        (permission as DirectoryPermissionFEO)
-                                          .inheritable
-                                          ? "green"
-                                          : "default"
-                                      }
-                                    >
+                                    <Tag>
                                       {(permission as DirectoryPermissionFEO)
                                         .inheritable
                                         ? "Yes"
@@ -927,7 +947,7 @@ const deletePermission = async (permissionId) => {
                       )}
                     </div>
 
-                    {screenType.isMobile && permission.tags && (
+                    {screenType.isMobile && permission.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -936,12 +956,12 @@ const deletePermission = async (permissionId) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {permission.tags.map((tag, index) => (
+                        {permission.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
                           >
-                            {tag}
+                            {label}
                           </Tag>
                         ))}
                       </div>

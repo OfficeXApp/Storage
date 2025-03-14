@@ -213,7 +213,7 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
     external_payload: apiKey.external_payload || "",
   };
 
-  const getStatusTag = () => {
+  const getStatusLabel = () => {
     if (apiKey.is_revoked) {
       return <Tag color="red">Revoked</Tag>;
     }
@@ -616,7 +616,7 @@ const data = await response.json();`;
                                 apiKey.id.replace("ApiKeyID_", "")
                               )}
                             </Tag>
-                            {getStatusTag()}
+                            {getStatusLabel()}
                           </div>
                           <Space style={{ marginTop: "4px" }}>
                             {apiKey.user_name && (
@@ -648,13 +648,13 @@ const data = await response.json();`;
                           flexWrap: "wrap",
                         }}
                       >
-                        {apiKey.tags &&
-                          apiKey.tags.map((tag, index) => (
+                        {apiKey.labels &&
+                          apiKey.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
                             >
-                              {tag}
+                              {label}
                             </Tag>
                           ))}
                       </div>
@@ -665,7 +665,7 @@ const data = await response.json();`;
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : apiKey.tags && apiKey.tags.length > 0
+                          : apiKey.labels && apiKey.labels.length > 0
                             ? 0
                             : 32,
                       }}
@@ -690,7 +690,7 @@ const data = await response.json();`;
                       </Card>
                     </div>
 
-                    {screenType.isMobile && apiKey.tags && (
+                    {screenType.isMobile && apiKey.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -699,12 +699,12 @@ const data = await response.json();`;
                           flexWrap: "wrap",
                         }}
                       >
-                        {apiKey.tags.map((tag, index) => (
+                        {apiKey.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
                           >
-                            {tag}
+                            {label}
                           </Tag>
                         ))}
                       </div>

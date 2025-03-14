@@ -633,8 +633,8 @@ async function listWebhooks(page = 1, limit = 10) {
                     {/* Always displayed fields */}
 
                     {!screenType.isMobile &&
-                      webhook.tags &&
-                      webhook.tags.length > 0 && (
+                      webhook.labels &&
+                      webhook.labels.length > 0 && (
                         <div
                           style={{
                             marginTop: 4,
@@ -643,12 +643,12 @@ async function listWebhooks(page = 1, limit = 10) {
                             flexWrap: "wrap",
                           }}
                         >
-                          {webhook.tags.map((tag, index) => (
+                          {webhook.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
                             >
-                              {tag}
+                              {label}
                             </Tag>
                           ))}
                         </div>
@@ -659,7 +659,7 @@ async function listWebhooks(page = 1, limit = 10) {
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : webhook.tags && webhook.tags.length > 0
+                          : webhook.labels && webhook.labels.length > 0
                             ? 0
                             : 32,
                       }}
@@ -671,8 +671,8 @@ async function listWebhooks(page = 1, limit = 10) {
                     </div>
 
                     {screenType.isMobile &&
-                      webhook.tags &&
-                      webhook.tags.length > 0 && (
+                      webhook.labels &&
+                      webhook.labels.length > 0 && (
                         <div
                           style={{
                             marginTop: 4,
@@ -681,12 +681,12 @@ async function listWebhooks(page = 1, limit = 10) {
                             flexWrap: "wrap",
                           }}
                         >
-                          {webhook.tags.map((tag, index) => (
+                          {webhook.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
                             >
-                              {tag}
+                              {label}
                             </Tag>
                           ))}
                         </div>

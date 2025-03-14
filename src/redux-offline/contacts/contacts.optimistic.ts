@@ -219,7 +219,7 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
               const optimisticContact: ContactFEO = {
                 id: optimisticID,
                 ...contactData,
-                tags: [],
+                labels: [],
                 group_previews: [],
                 permission_previews: [],
                 created_at: Date.now(),

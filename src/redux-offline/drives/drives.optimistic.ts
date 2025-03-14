@@ -213,7 +213,7 @@ export const drivesOptimisticDexieMiddleware = (currentIdentitySet: {
               const optimisticDrive: DriveFEO = {
                 id: optimisticID,
                 ...driveData,
-                tags: driveData.tags || [],
+                labels: driveData.labels || [],
                 permission_previews: [],
                 created_at: Date.now(),
                 updated_at: Date.now(),

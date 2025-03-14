@@ -123,8 +123,8 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
     },
   ];
 
-  // Function to get a status tag for an API key
-  const getStatusTag = (apiKey: ApiKeyFE) => {
+  // Function to get a status label for an API key
+  const getStatusLabel = (apiKey: ApiKeyFE) => {
     if (apiKey.is_revoked) {
       return <Tag color="red">Revoked</Tag>;
     }
@@ -208,7 +208,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
           >
             {shortenKey(record.value)}
           </Tag>
-          {getStatusTag(record)}
+          {getStatusLabel(record)}
         </Space>
       ),
     },
@@ -257,7 +257,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
     { key: "5", label: "Expiring soon" },
   ];
 
-  // Updated mobile list to include ID, value tag, and status inline with the name
+  // Updated mobile list to include ID, value label, and status inline with the name
   const renderMobileList = () => {
     return (
       <List
@@ -299,7 +299,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
                     }}
                   >
                     <span style={{ fontWeight: "500" }}>{apiKey.name}</span>
-                    {getStatusTag(apiKey)}
+                    {getStatusLabel(apiKey)}
                   </div>
                   <div
                     style={{

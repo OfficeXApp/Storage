@@ -31,7 +31,7 @@ import {
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { SystemPermissionFE, DirectoryPermissionFE } from "@officexapp/types";
+import { DirectoryPermissionFE } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,6 +44,7 @@ import {
 } from "../../redux-offline/permissions/permissions.reducer";
 import DirectoryPermissionAddDrawer from "./directory-permission.add";
 import SystemPermissionAddDrawer from "./system-permission.add";
+import TagCopy from "../TagCopy";
 
 dayjs.extend(relativeTime);
 
@@ -158,6 +159,9 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   const isPermissionActive = (
     permission: SystemPermissionFEO | DirectoryPermissionFEO
   ) => {
+    if (permission.expiry_date_ms === -1) {
+      return true;
+    }
     const now = Date.now();
     const hasBegun =
       !permission.begin_date_ms || permission.begin_date_ms <= now;
@@ -216,7 +220,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       title: "Resource",
       dataIndex: "resource_id",
       key: "resource_id",
-      render: (_: any, record: SystemPermissionFE) => {
+      render: (_: any, record: SystemPermissionFEO) => {
         const status = getPermissionStatus(record);
         const resourceType = record.resource_id.split("_")[0];
 
@@ -246,21 +250,14 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
                     color: "white",
                   }}
                 >
-                  <GlobalOutlined />
+                  <LockOutlined />
                 </div>
               </Badge>
             </Popover>
-            <span style={{ marginLeft: "8px" }}>{resourceType}</span>
-            <Tag
-              onClick={() => {
-                // copy to clipboard
-                navigator.clipboard.writeText(record.resource_id);
-                message.success("Resource ID copied to clipboard");
-              }}
-              color="default"
-            >
-              {shortenAddress(record.resource_id)}
-            </Tag>
+            <span style={{ marginLeft: "8px" }}>
+              {getPermissionTitle(record, "system")}
+            </span>
+            <TagCopy id={record.resource_id} />
           </Space>
         );
       },
@@ -269,10 +266,11 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       title: "Granted To",
       dataIndex: "granted_to",
       key: "granted_to",
-      render: (_: any, record: SystemPermissionFE) => (
+      render: (_: any, record: SystemPermissionFEO) => (
         <Space>
           <UserOutlined />
-          <span>{shortenAddress(record.granted_to)}</span>
+          <span>{record.grantee_name || "Unnamed"}</span>
+          <TagCopy id={record.granted_to} />
         </Space>
       ),
     },
@@ -280,25 +278,23 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       title: "Permissions",
       dataIndex: "permission_previews",
       key: "permission_previews",
-      render: (_: any, record: SystemPermissionFE) => (
-        <Space wrap>
+      render: (_: any, record: SystemPermissionFEO) => (
+        <div>
           {record.permission_previews.map((permission) => (
-            <Tag key={permission} color="blue">
-              {permission}
-            </Tag>
+            <Tag key={permission}>{permission}</Tag>
           ))}
-        </Space>
+        </div>
       ),
     },
     {
       title: "Expiry",
       dataIndex: "expiry_date_ms",
       key: "expiry_date_ms",
-      render: (_: any, record: SystemPermissionFE) => (
+      render: (_: any, record: SystemPermissionFEO) => (
         <Space>
           <CalendarOutlined />
           <span>
-            {record.expiry_date_ms
+            {record.expiry_date_ms && record.expiry_date_ms !== -1
               ? dayjs(record.expiry_date_ms).format("MMM D, YYYY")
               : "Never"}
           </span>
@@ -309,7 +305,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       title: "Actions",
       key: "actions",
       width: 150,
-      render: (_: any, record: SystemPermissionFE) => (
+      render: (_: any, record: SystemPermissionFEO) => (
         <Button
           type="default"
           size="middle"
@@ -452,7 +448,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       <List
         itemLayout="horizontal"
         dataSource={filteredSystemPermissions}
-        renderItem={(permission: SystemPermissionFE) => {
+        renderItem={(permission: SystemPermissionFEO) => {
           const status = getPermissionStatus(permission);
           const resourceType = permission.resource_id.split("_")[0];
 
@@ -620,6 +616,76 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         }}
       />
     );
+  };
+
+  const getPermissionTitle = (
+    permission: SystemPermissionFEO | DirectoryPermissionFEO,
+    permissionType: "system" | "directory"
+  ) => {
+    if (permissionType === "system") {
+      const sysPermission = permission;
+      let resourceId = "";
+
+      // Handle if resource_id is an object or string
+      if (typeof sysPermission.resource_id === "object") {
+        resourceId = String(sysPermission.resource_id);
+      } else {
+        resourceId = String(sysPermission.resource_id);
+      }
+
+      // Check if it's a TABLE resource
+      if (resourceId.startsWith("TABLE_")) {
+        const tableName = resourceId.split("TABLE_")[1];
+
+        // Map table names to titles
+        switch (tableName) {
+          case "DRIVES":
+            return "All Drives";
+          case "DISKS":
+            return "All Disks";
+          case "CONTACTS":
+            return "All Contacts";
+          case "GROUPS":
+            return "All Groups";
+          case "WEBHOOKS":
+            return "All Webhooks";
+          case "API_KEYS":
+            return "All API Keys";
+          case "PERMISSIONS":
+            return "All Permissions";
+          case "LABELS":
+            return "All Labels";
+          default:
+            return "System";
+        }
+      }
+      // Handle specific resource types
+      else if (resourceId.startsWith("DriveID_")) {
+        return "Single Drive";
+      } else if (resourceId.startsWith("DiskID_")) {
+        return "Single Disk";
+      } else if (resourceId.startsWith("UserID_")) {
+        return "Single User";
+      } else if (resourceId.startsWith("GroupID_")) {
+        return "Single Group";
+      } else if (resourceId.startsWith("ApiKeyID_")) {
+        return "Single API Key";
+      } else if (resourceId.startsWith("WebhookID_")) {
+        return "Single Webhook";
+      } else if (resourceId.startsWith("LabelID_")) {
+        return "Single Label";
+      } else if (
+        resourceId.startsWith("SystemPermissionID_") ||
+        resourceId.startsWith("DirectoryPermissionID_")
+      ) {
+        return "System Permit";
+      } else {
+        return "Permission";
+      }
+    } else {
+      // For directory permissions
+      return "Directory Permit";
+    }
   };
 
   return (

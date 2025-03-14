@@ -192,7 +192,7 @@ class DriveDB {
       nextVersion: null,
       extension: fileExtension,
       fullFilePath,
-      tags: [],
+      labels: [],
       owner: userId,
       createdDate: now,
       storageLocation,
@@ -275,7 +275,7 @@ class DriveDB {
         subfolderUUIDs: [],
         fileUUIDs: [],
         fullFolderPath: currentPath,
-        tags: [],
+        labels: [],
         owner: userId,
         createdDate: new Date(),
         storageLocation,
@@ -306,7 +306,7 @@ class DriveDB {
           subfolderUUIDs: [],
           fileUUIDs: [],
           fullFolderPath: currentPath as DriveFullFilePath,
-          tags: [],
+          labels: [],
           owner: userId,
           createdDate: new Date(),
           storageLocation,
@@ -367,7 +367,7 @@ class DriveDB {
         subfolderUUIDs: [],
         fileUUIDs: [],
         fullFolderPath: currentPath,
-        tags: [],
+        labels: [],
         owner: userId,
         createdDate: new Date(),
         storageLocation,
@@ -412,7 +412,7 @@ class DriveDB {
           subfolderUUIDs: [],
           fileUUIDs: [],
           fullFolderPath: currentPath as DriveFullFilePath,
-          tags: [],
+          labels: [],
           owner: userId,
           createdDate: new Date(),
           storageLocation,
@@ -1268,7 +1268,7 @@ class DriveDB {
       priorVersion: null,
       extension: "",
       fullFilePath: "" as DriveFullFilePath,
-      tags: [],
+      labels: [],
       owner: "" as UserID,
       createdDate: new Date(),
       storageLocation: StorageLocationEnum.BrowserCache,
@@ -1292,8 +1292,8 @@ class DriveDB {
     newFile.nextVersion = fileMetadata.nextVersion || null;
     newFile.extension = newFileName.split(".").pop() || "";
     newFile.fullFilePath = newPath;
-    newFile.tags =
-      fileMetadata.tags || existingFile?.tags || defaultMetdata.tags;
+    newFile.labels =
+      fileMetadata.labels || existingFile?.labels || defaultMetdata.labels;
     newFile.owner =
       fileMetadata.owner || existingFile?.owner || defaultMetdata.owner;
     newFile.createdDate =
@@ -1385,7 +1385,7 @@ class DriveDB {
         subfolderUUIDs: folderMetadata.subfolderUUIDs || [],
         fileUUIDs: folderMetadata.fileUUIDs || [],
         fullFolderPath: newFullFolderPath as DriveFullFilePath,
-        tags: folderMetadata.tags || [],
+        labels: folderMetadata.labels || [],
         owner: folderMetadata.owner || ("" as UserID),
         createdDate:
           new Date(folderMetadata.createdDate?.toString() || 0) || new Date(),
@@ -1412,7 +1412,7 @@ class DriveDB {
       folderMetadata.subfolderUUIDs || folder.subfolderUUIDs;
     folder.fileUUIDs = folderMetadata.fileUUIDs || folder.fileUUIDs;
     folder.fullFolderPath = newPath;
-    folder.tags = folderMetadata.tags || folder.tags;
+    folder.labels = folderMetadata.labels || folder.labels;
     folder.owner = folderMetadata.owner || folder.owner;
     folder.createdDate = folderMetadata.createdDate || folder.createdDate;
     // @ts-ignore
@@ -1446,8 +1446,8 @@ class DriveDB {
   downloadFiles() {}
   downloadFolders() {}
 
-  // TODO: Add/Remove Tags
-  addRemoveTags() {} // including mark trash
+  // TODO: Add/Remove Labels
+  addRemoveLabels() {} // including mark trash
 
   // primitive gets
   getFolderByID(folderUUID: FolderUUID): FolderMetadata | undefined {

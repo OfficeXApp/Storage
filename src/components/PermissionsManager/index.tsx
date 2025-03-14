@@ -11,7 +11,7 @@ interface SystemPermissionType {
   description: string;
 }
 
-interface TagStringValue {
+interface LabelStringValue {
   value: string;
 }
 
@@ -39,7 +39,7 @@ interface SystemPermission {
   created_at: number;
   last_modified_at: number;
   from_placeholder_grantee?: string;
-  tags: TagStringValue[];
+  labels: LabelStringValue[];
   metadata?: PermissionMetadata;
   external_id?: ExternalID;
   external_payload?: ExternalPayload;
@@ -107,7 +107,7 @@ const SystemPermissionsManager: React.FC<SystemPermissionsManagerProps> = ({
           note: `Permission note ${i + 1}`,
           created_at: now - Math.floor(Math.random() * 86400000 * 30),
           last_modified_at: now - Math.floor(Math.random() * 86400000),
-          tags: [{ value: "system" }, { value: `tag-${i}` }],
+          labels: [{ value: "system" }, { value: `label-${i}` }],
         },
         resource_name: `Resource ${Math.floor(Math.random() * 5) + 1}`,
         grantee_name: `User ${Math.floor(Math.random() * 10) + 1}`,

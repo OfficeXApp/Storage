@@ -211,7 +211,7 @@ export const webhooksOptimisticDexieMiddleware = (currentIdentitySet: {
               const optimisticWebhook: WebhookFEO = {
                 id: optimisticID,
                 ...webhookData,
-                tags: webhookData.tags || [],
+                labels: webhookData.labels || [],
                 permission_previews: [],
                 created_at: Date.now(),
                 updated_at: Date.now(),

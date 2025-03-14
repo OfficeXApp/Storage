@@ -299,6 +299,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                     });
                 }
               }}
+              style={{ cursor: "pointer" }}
             >
               {shortenAddress(currentProfile.icpPublicKey)}
             </Tag>

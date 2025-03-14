@@ -217,7 +217,7 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
                 user_id: apiKeyData.user_id || userID,
                 value: "temp_" + optimisticID, // Temporary placeholder value
                 name: apiKeyData.name,
-                tags: [],
+                labels: [],
                 permission_previews: [],
                 created_at: Date.now(),
                 expires_at: apiKeyData.expires_at || -1,

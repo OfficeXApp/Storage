@@ -31,7 +31,7 @@ import { contactsOptimisticDexieMiddleware } from "./contacts/contacts.optimisti
 import { drivesOptimisticDexieMiddleware } from "./drives/drives.optimistic";
 import { groupsOptimisticDexieMiddleware } from "./groups/groups.optimistic";
 import { groupInvitesOptimisticDexieMiddleware } from "./group-invites/group-invites.optimistic";
-import { tagsOptimisticDexieMiddleware } from "./tags/tags.optimistic";
+import { labelsOptimisticDexieMiddleware } from "./labels/labels.optimistic";
 import { webhooksOptimisticDexieMiddleware } from "./webhooks/webhooks.optimistic";
 import { apiKeysOptimisticDexieMiddleware } from "./api-keys/api-keys.optimistic";
 import { permissionsOptimisticDexieMiddleware } from "./permissions/permissions.optimistic";
@@ -229,7 +229,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         drivesOptimisticDexieMiddleware(_idset),
         groupsOptimisticDexieMiddleware(_idset),
         groupInvitesOptimisticDexieMiddleware(_idset),
-        tagsOptimisticDexieMiddleware(_idset),
+        labelsOptimisticDexieMiddleware(_idset),
         webhooksOptimisticDexieMiddleware(_idset),
         apiKeysOptimisticDexieMiddleware(_idset),
         permissionsOptimisticDexieMiddleware(_idset),

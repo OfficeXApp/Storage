@@ -1012,7 +1012,7 @@ const OrganizationSwitcher = () => {
                     message.error("Failed to copy to clipboard.");
                   });
               }}
-              style={{ flexShrink: 0, marginLeft: "8px" }}
+              style={{ flexShrink: 0, marginLeft: "8px", cursor: "pointer" }}
             >
               {shortenAddress(typedCurrentOrg.icpPublicAddress)}
             </Tag>

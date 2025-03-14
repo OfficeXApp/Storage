@@ -546,8 +546,8 @@ const listDrives = async (page = 1, limit = 10) => {
                     {/* Always displayed fields */}
 
                     {!screenType.isMobile &&
-                      drive.tags &&
-                      drive.tags.length > 0 && (
+                      drive.labels &&
+                      drive.labels.length > 0 && (
                         <div
                           style={{
                             marginTop: 4,
@@ -556,12 +556,12 @@ const listDrives = async (page = 1, limit = 10) => {
                             flexWrap: "wrap",
                           }}
                         >
-                          {drive.tags.map((tag, index) => (
+                          {drive.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
                             >
-                              {tag}
+                              {label}
                             </Tag>
                           ))}
                         </div>
@@ -572,7 +572,7 @@ const listDrives = async (page = 1, limit = 10) => {
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : drive.tags && drive.tags.length > 0
+                          : drive.labels && drive.labels.length > 0
                             ? 0
                             : 32,
                       }}
@@ -599,8 +599,8 @@ const listDrives = async (page = 1, limit = 10) => {
                     </div>
 
                     {screenType.isMobile &&
-                      drive.tags &&
-                      drive.tags.length > 0 && (
+                      drive.labels &&
+                      drive.labels.length > 0 && (
                         <div
                           style={{
                             marginTop: 4,
@@ -609,12 +609,12 @@ const listDrives = async (page = 1, limit = 10) => {
                             flexWrap: "wrap",
                           }}
                         >
-                          {drive.tags.map((tag, index) => (
+                          {drive.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
                             >
-                              {tag}
+                              {label}
                             </Tag>
                           ))}
                         </div>

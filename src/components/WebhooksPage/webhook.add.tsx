@@ -76,9 +76,9 @@ const LOCKED_ALT_INDEX_EVENTS = [
   WebhookEventLabel.GROUP_INVITE_UPDATED,
 ];
 
-const TAG_OPERATIONS = [
-  WebhookEventLabel.TAG_ADDED,
-  WebhookEventLabel.TAG_REMOVED,
+const LABEL_OPERATIONS = [
+  WebhookEventLabel.LABEL_ADDED,
+  WebhookEventLabel.LABEL_REMOVED,
 ];
 
 interface WebhooksAddDrawerProps {
@@ -98,7 +98,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
   const [form] = Form.useForm();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const [tags, setTags] = useState<string[]>([]);
+  const [labels, setLabels] = useState<string[]>([]);
   const [inputVisible, setInputVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
@@ -112,7 +112,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
       form.resetFields();
       setIsAdvancedOpen(false);
       setIsActive(true);
-      setTags([]);
+      setLabels([]);
       setInputVisible(false);
       setInputValue("");
       setUrlError(null);
@@ -149,7 +149,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
       eventType === WebhookEventLabel.GROUP_INVITE_UPDATED
     ) {
       defaultAltIndex = "SUPERSWAP_USER";
-    } else if (TAG_OPERATIONS.includes(eventType)) {
+    } else if (LABEL_OPERATIONS.includes(eventType)) {
       defaultAltIndex = uuidv4().substring(0, 8);
     } else {
       defaultAltIndex = uuidv4().substring(0, 8);
@@ -194,10 +194,10 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
     }
   };
 
-  // Tags management
-  const handleClose = (removedTag: string) => {
-    const newTags = tags.filter((tag) => tag !== removedTag);
-    setTags(newTags);
+  // Labels management
+  const handleClose = (removedLabel: string) => {
+    const newLabels = labels.filter((label) => label !== removedLabel);
+    setLabels(newLabels);
     setFormChanged(true);
   };
 
@@ -210,8 +210,8 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
   };
 
   const handleInputConfirm = () => {
-    if (inputValue && !tags.includes(inputValue)) {
-      setTags([...tags, inputValue]);
+    if (inputValue && !labels.includes(inputValue)) {
+      setLabels([...labels, inputValue]);
     }
     setInputVisible(false);
     setInputValue("");
@@ -374,7 +374,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
         </Form.Item>
       );
     } else {
-      // For TAG_OPERATIONS and any other event types
+      // For LABEL_OPERATIONS and any other event types
       return (
         <Form.Item
           name="alt_index"
@@ -598,22 +598,22 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Tags to categorize this webhook">
+                <Tooltip title="Labels to categorize this webhook">
                   <Space>
-                    Tags <InfoCircleOutlined style={{ color: "#aaa" }} />
+                    Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
               }
             >
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {tags.map((tag) => (
+                {labels.map((label) => (
                   <Tag
-                    key={tag}
+                    key={label}
                     closable
-                    onClose={() => handleClose(tag)}
+                    onClose={() => handleClose(label)}
                     style={{ marginRight: 3 }}
                   >
-                    {tag}
+                    {label}
                   </Tag>
                 ))}
                 {inputVisible ? (
@@ -630,7 +630,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   />
                 ) : (
                   <Tag onClick={showInput} style={{ cursor: "pointer" }}>
-                    <TagOutlined /> New Tag
+                    <TagOutlined /> New Label
                   </Tag>
                 )}
               </div>

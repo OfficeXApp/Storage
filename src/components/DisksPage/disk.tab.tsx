@@ -6,7 +6,7 @@ import {
   Form,
   Input,
   Space,
-  Tag,
+  Label,
   Row,
   Col,
   Tooltip,
@@ -565,13 +565,13 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {disk.tags &&
-                          disk.tags.map((tag, index) => (
+                        {disk.labels &&
+                          disk.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
                             >
-                              {tag}
+                              {label}
                             </Tag>
                           ))}
                       </div>
@@ -582,7 +582,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : disk.tags && disk.tags.length > 0
+                          : disk.labels && disk.labels.length > 0
                             ? 0
                             : 32,
                       }}
@@ -593,7 +593,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                       </Card>
                     </div>
 
-                    {screenType.isMobile && disk.tags && (
+                    {screenType.isMobile && disk.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -602,12 +602,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {disk.tags.map((tag, index) => (
+                        {disk.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
                           >
-                            {tag}
+                            {label}
                           </Tag>
                         ))}
                       </div>

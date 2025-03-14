@@ -12,7 +12,7 @@
 //   idlFactory as idlFactory_Drive,
 //   _SERVICE as DriveSERVICE,
 //   StorageLocationEnum,
-//   Tag,
+//   Label,
 // } from "../declarations/officex-canisters-backend/officex-canisters-backend.did.js";
 // import { useState } from "react";
 // import { message, notification, Spin } from "antd";
@@ -140,7 +140,7 @@
 //           fullFolderPath: cloudFolderLayer0[0]
 //             .full_folder_path as DriveFullFilePath,
 //           // @ts-ignore
-//           tags: cloudFolderLayer0[0].tags as Tag[],
+//           labels: cloudFolderLayer0[0].labels as Label[],
 //           owner: cloudFolderLayer0[0].owner.toString() as UserID,
 //           createdDate: new Date(Number(cloudFolderLayer0[0].created_date)),
 //           storageLocation: storageLocation as StorageLocationEnumFE,
@@ -181,7 +181,7 @@
 //             subfolderUUIDs: localFolderLayer0.subfolderUUIDs,
 //             fileUUIDs: localFolderLayer0.fileUUIDs,
 //             fullFolderPath: localFolderLayer0.fullFolderPath,
-//             tags: localFolderLayer0.tags,
+//             labels: localFolderLayer0.labels,
 //             owner: icpAccount.principal.toString() as UserID,
 //             createdDate: localFolderLayer0.createdDate,
 //             storageLocation: localFolderLayer0.storageLocation,
@@ -242,7 +242,7 @@
 //             subfolderUUIDs: localFolder.subfolderUUIDs,
 //             fileUUIDs: localFolder.fileUUIDs,
 //             fullFolderPath: localFolder.fullFolderPath,
-//             tags: localFolder.tags,
+//             labels: localFolder.labels,
 //             owner: icpAccount.principal.toString() as UserID,
 //             createdDate: localFolder.createdDate,
 //             storageLocation: localFolder.storageLocation,
@@ -274,7 +274,7 @@
 //           fileUUIDs: cloudFolder.file_uuids as FileUUID[],
 //           fullFolderPath: cloudFolder.full_folder_path as DriveFullFilePath,
 //           // @ts-ignore
-//           tags: cloudFolder.tags as Tag[],
+//           labels: cloudFolder.labels as Label[],
 //           owner: cloudFolder.owner.toString() as UserID,
 //           createdDate: new Date(Number(cloudFolder.created_date)),
 //           storageLocation:
@@ -304,7 +304,7 @@
 //           subfolder_uuids: localFolder.subfolderUUIDs,
 //           file_uuids: localFolder.fileUUIDs,
 //           full_folder_path: localFolder.fullFolderPath,
-//           tags: localFolder.tags,
+//           labels: localFolder.labels,
 //           owner: icpAccount.principal,
 //           created_date: timestampToBigInt(localFolder.createdDate),
 //           storage_location: { [`${localFolder.storageLocation}`]: null },
@@ -360,7 +360,7 @@
 //           fileUUIDs: cloudFolder.file_uuids as FileUUID[],
 //           fullFolderPath: properPath,
 //           // @ts-ignore
-//           tags: cloudFolder.tags as Tag[],
+//           labels: cloudFolder.labels as Label[],
 //           owner: cloudFolder.owner.toString() as UserID,
 //           createdDate: new Date(Number(cloudFolder.created_date)),
 //           storageLocation: storageLocation as StorageLocationEnumFE,
@@ -413,7 +413,7 @@
 //           next_version: localFile.nextVersion ? [localFile.nextVersion] : [],
 //           extension: localFile.extension,
 //           full_file_path: localFile.fullFilePath,
-//           tags: localFile.tags,
+//           labels: localFile.labels,
 //           owner: icpAccount.principal,
 //           created_date: timestampToBigInt(localFile.createdDate),
 //           storage_location: { [localFile.storageLocation]: null },
@@ -455,7 +455,7 @@
 //           next_version: localFile.nextVersion ? [localFile.nextVersion] : [],
 //           extension: localFile.extension,
 //           full_file_path: localFile.fullFilePath,
-//           tags: localFile.tags,
+//           labels: localFile.labels,
 //           owner: icpAccount.principal,
 //           created_date: timestampToBigInt(localFile.createdDate),
 //           storage_location: { [localFile.storageLocation]: null },
@@ -516,7 +516,7 @@
 //               : undefined,
 //           extension: cloudFile.extension,
 //           fullFilePath: cloudFile.full_file_path as DriveFullFilePath,
-//           tags: cloudFile.tags,
+//           labels: cloudFile.labels,
 //           owner: cloudFile.owner,
 //           createdDate: new Date(Number(cloudFile.created_date)),
 //           storageLocation: `${Object.keys(cloudFile.storage_location)[0]}`,
@@ -566,7 +566,7 @@
 //               : undefined,
 //           extension: cloudFile.extension,
 //           fullFilePath: cloudFile.full_file_path as DriveFullFilePath,
-//           tags: cloudFile.tags,
+//           labels: cloudFile.labels,
 //           owner: cloudFile.owner,
 //           createdDate: new Date(Number(cloudFile.created_date)),
 //           storageLocation: `${Object.keys(cloudFile.storage_location)[0]}`,

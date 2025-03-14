@@ -1,14 +1,14 @@
-// src/components/TagsPage/index.tsx
+// src/components/LabelsPage/index.tsx
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Button, Layout, Typography } from "antd";
-import type { TagFE, TagID } from "@officexapp/types";
+import type { LabelFE, LabelID } from "@officexapp/types";
 import { useDispatch } from "react-redux";
-import { listTagsAction } from "../../redux-offline/tags/tags.actions";
+import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import TagsAddDrawer from "./tag.add";
-import TagTab from "./tag.tab";
-import TagsTableList from "./tags.table";
+import LabelsAddDrawer from "./label.add";
+import LabelTab from "./label.tab";
+import LabelsTableList from "./labels.table";
 import useScreenType from "react-screentype-hook";
 
 const { Content } = Layout;
@@ -22,7 +22,7 @@ type TabItem = {
   closable?: boolean;
 };
 
-const TagsPage: React.FC = () => {
+const LabelsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
@@ -30,8 +30,8 @@ const TagsPage: React.FC = () => {
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
-  // Check if a tag tab is already open
-  const isTagTabOpen = useCallback(
+  // Check if a label tab is already open
+  const isLabelTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
         return true;
@@ -46,7 +46,7 @@ const TagsPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Tags List",
+      label: "Labels List",
       children: null,
       closable: false,
     },
@@ -63,34 +63,36 @@ const TagsPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Load tags on component mount
+  // Load labels on component mount
   useEffect(() => {
-    dispatch(listTagsAction({}));
+    dispatch(listLabelsAction({}));
   }, [dispatch]);
 
-  // Function to handle clicking on a tag
-  const handleClickTagTab = useCallback(
-    (tag: TagFE, focus_tab = false) => {
-      setLastClickedId(tag.id);
+  // Function to handle clicking on a label
+  const handleClickLabelTab = useCallback(
+    (label: LabelFE, focus_tab = false) => {
+      setLastClickedId(label.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === tag.id
+        (item) => item.key === label.id
       );
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== tag.id
+          (item) => item.key !== label.id
         );
         setTabItems(updatedTabs);
       } else {
         // Create new tab
         const newTab: TabItem = {
-          key: tag.id,
-          label: tag.value,
-          children: <TagTab tag={tag} onDelete={handleDeletionCloseTabs} />,
+          key: label.id,
+          label: label.value,
+          children: (
+            <LabelTab label={label} onDelete={handleDeletionCloseTabs} />
+          ),
           closable: true,
         };
 
@@ -101,18 +103,18 @@ const TagsPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked tag's tab
+        // Switch to the clicked label's tab
         if (focus_tab) {
-          setActiveKey(tag.id);
+          setActiveKey(label.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (tagID: TagID) => {
+  const handleDeletionCloseTabs = (labelID: LabelID) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== tagID);
+    const updatedTabs = tabItems.filter((item) => item.key !== labelID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -121,10 +123,10 @@ const TagsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/tags`;
+      const newUrl = `/resources/labels`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/tags/${newActiveKey}`;
+      const newUrl = `/resources/labels/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -192,7 +194,7 @@ const TagsPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Tags
+            Labels
           </Title>
           <Button
             size={screenType.isMobile ? "small" : "middle"}
@@ -205,7 +207,7 @@ const TagsPage: React.FC = () => {
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
           >
-            Add Tag
+            Add Label
           </Button>
         </div>
 
@@ -319,9 +321,9 @@ const TagsPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <TagsTableList
-                  isTagTabOpen={isTagTabOpen}
-                  handleClickTagTab={handleClickTagTab}
+                <LabelsTableList
+                  isLabelTabOpen={isLabelTabOpen}
+                  handleClickLabelTab={handleClickLabelTab}
                 />
               </div>
 
@@ -349,13 +351,13 @@ const TagsPage: React.FC = () => {
         </div>
       </Content>
 
-      <TagsAddDrawer
+      <LabelsAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddTag={() => {}}
+        onAddLabel={() => {}}
       />
     </Layout>
   );
 };
 
-export default TagsPage;
+export default LabelsPage;

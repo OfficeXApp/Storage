@@ -535,12 +535,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
                           flexWrap: "wrap",
                         }}
                       >
-                        {contact.tags.map((tag, index) => (
+                        {contact.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
                           >
-                            {tag}
+                            {label}
                           </Tag>
                         ))}
                       </div>
@@ -551,7 +551,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : contact.tags.length > 0
+                          : contact.labels.length > 0
                             ? 0
                             : 32,
                       }}
@@ -571,12 +571,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
                           flexWrap: "wrap",
                         }}
                       >
-                        {contact.tags.map((tag, index) => (
+                        {contact.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
                           >
-                            {tag}
+                            {label}
                           </Tag>
                         ))}
                       </div>

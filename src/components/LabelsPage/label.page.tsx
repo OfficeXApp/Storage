@@ -1,29 +1,29 @@
 import { useNavigate, useParams } from "react-router-dom";
-import TagTab from "./tag.tab";
+import LabelTab from "./label.tab";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useEffect } from "react";
-import { getTagAction } from "../../redux-offline/tags/tags.actions";
+import { getLabelAction } from "../../redux-offline/labels/labels.actions";
 import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
 
-const TagPage = () => {
+const LabelPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const screenType = useScreenType();
   const params = useParams();
-  const tagID = params.tagID;
-  const tag = useSelector(
-    (state: ReduxAppState) => state.tags.tagMap[tagID || ""]
+  const labelID = params.labelID;
+  const label = useSelector(
+    (state: ReduxAppState) => state.labels.labelMap[labelID || ""]
   );
   useEffect(() => {
-    if (tagID) {
-      dispatch(getTagAction(tagID));
+    if (labelID) {
+      dispatch(getLabelAction(labelID));
     }
   }, []);
-  if (!tag) {
+  if (!label) {
     return null;
   }
   return (
@@ -48,14 +48,14 @@ const TagPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/tags")}
+          onClick={() => navigate("/resources/labels")}
           style={{
             display: "flex",
             alignItems: "center",
             fontSize: "14px",
           }}
         >
-          Search Tags
+          Search Labels
         </Button>
       </div>
       <Content
@@ -67,10 +67,10 @@ const TagPage = () => {
           overflow: "hidden",
         }}
       >
-        <TagTab
-          tag={tag}
+        <LabelTab
+          label={label}
           onDelete={() => {
-            navigate(`/resources/tags`);
+            navigate(`/resources/labels`);
           }}
         />
       </Content>
@@ -78,4 +78,4 @@ const TagPage = () => {
   );
 };
 
-export default TagPage;
+export default LabelPage;

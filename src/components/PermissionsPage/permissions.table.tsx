@@ -653,8 +653,8 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
             return "All API Keys";
           case "PERMISSIONS":
             return "All Permissions";
-          case "TAGS":
-            return "All Tags";
+          case "LABELS":
+            return "All Labels";
           default:
             return "System";
         }
@@ -672,8 +672,8 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         return "Single API Key";
       } else if (resourceId.startsWith("WebhookID_")) {
         return "Single Webhook";
-      } else if (resourceId.startsWith("TagID_")) {
-        return "Single Tag";
+      } else if (resourceId.startsWith("LabelID_")) {
+        return "Single Label";
       } else if (
         resourceId.startsWith("SystemPermissionID_") ||
         resourceId.startsWith("DirectoryPermissionID_")

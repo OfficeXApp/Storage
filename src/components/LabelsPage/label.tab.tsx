@@ -1,4 +1,4 @@
-// src/components/TagsPage/tag.tab.tsx
+// src/components/LabelsPage/label.tab.tsx
 
 import React, { useEffect, useState } from "react";
 import {
@@ -34,10 +34,10 @@ import {
   AppstoreOutlined,
 } from "@ant-design/icons";
 import {
-  TagFE,
-  IRequestUpdateTag,
+  LabelFE,
+  IRequestUpdateLabel,
   SystemPermissionType,
-  TagID,
+  LabelID,
 } from "@officexapp/types";
 import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
@@ -48,22 +48,22 @@ import useScreenType from "react-screentype-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
-  deleteTagAction,
-  updateTagAction,
-} from "../../redux-offline/tags/tags.actions";
+  deleteLabelAction,
+  updateLabelAction,
+} from "../../redux-offline/labels/labels.actions";
 import TagCopy from "../TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
-// Define the props for the TagTab component
-interface TagTabProps {
-  tag: TagFE;
-  onSave?: (updatedTag: Partial<TagFE>) => void;
-  onDelete?: (tagID: TagID) => void;
+// Define the props for the LabelTab component
+interface LabelTabProps {
+  label: LabelFE;
+  onSave?: (updatedLabel: Partial<LabelFE>) => void;
+  onDelete?: (labelID: LabelID) => void;
 }
 
-const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
+const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
@@ -91,10 +91,10 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
   const handleSave = () => {
     form.validateFields().then((values) => {
       // Determine which fields have changed
-      const changedFields: IRequestUpdateTag = { id: tag.id as TagID };
+      const changedFields: IRequestUpdateLabel = { id: label.id as LabelID };
 
       // Define the specific fields we care about
-      const fieldsToCheck: (keyof IRequestUpdateTag)[] = [
+      const fieldsToCheck: (keyof IRequestUpdateLabel)[] = [
         "value",
         "description",
         "color",
@@ -115,7 +115,7 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
             : valueFromForm;
         }
 
-        const originalValue = tag[field as keyof TagFE];
+        const originalValue = label[field as keyof LabelFE];
 
         // Only include fields that have changed
         if (valueFromForm !== originalValue) {
@@ -133,15 +133,15 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
         // More than just the ID
         // Dispatch the update action if we're online
         dispatch(
-          updateTagAction({
+          updateLabelAction({
             ...changedFields,
           })
         );
 
         message.success(
           isOnline
-            ? "Updating tag..."
-            : "Queued tag update for when you're back online"
+            ? "Updating label..."
+            : "Queued label update for when you're back online"
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -206,19 +206,19 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
   };
 
   const initialValues = {
-    value: tag.value,
-    description: tag.description || "",
-    color: tag.color,
-    external_id: tag.external_id || "",
-    external_payload: tag.external_payload || "",
+    value: label.value,
+    description: label.description || "",
+    color: label.color,
+    external_id: label.external_id || "",
+    external_payload: label.external_payload || "",
   };
 
   const renderCodeSnippets = () => {
-    const jsCode_GET = `function getTag(id) {\n  return fetch(\`/tags/get/\${id}\`, {\n    method: 'GET',\n    headers: { 'Content-Type': 'application/json' }\n  });\n}`;
-    const jsCode_CREATE = `function createTag(tagData) {\n  return fetch('/tags/create', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(tagData)\n  });\n}`;
-    const jsCode_UPDATE = `function updateTag(tagData) {\n  return fetch('/tags/update', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(tagData)\n  });\n}`;
-    const jsCode_DELETE = `function deleteTag(id) {\n  return fetch('/tags/delete', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ id })\n  });\n}`;
-    const jsCode_LIST = `function listTags(filters = {}) {\n  return fetch('/tags/list', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(filters)\n  });\n}`;
+    const jsCode_GET = `function getLabel(id) {\n  return fetch(\`/labels/get/\${id}\`, {\n    method: 'GET',\n    headers: { 'Content-Type': 'application/json' }\n  });\n}`;
+    const jsCode_CREATE = `function createLabel(labelData) {\n  return fetch('/labels/create', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(labelData)\n  });\n}`;
+    const jsCode_UPDATE = `function updateLabel(labelData) {\n  return fetch('/labels/update', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(labelData)\n  });\n}`;
+    const jsCode_DELETE = `function deleteLabel(id) {\n  return fetch('/labels/delete', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ id })\n  });\n}`;
+    const jsCode_LIST = `function listLabels(filters = {}) {\n  return fetch('/labels/list', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(filters)\n  });\n}`;
 
     return (
       <Card
@@ -235,27 +235,27 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
               <CodeBlock
                 code={jsCode_GET}
                 language="javascript"
-                title="GET Tag"
+                title="GET Label"
               />
               <CodeBlock
                 code={jsCode_CREATE}
                 language="javascript"
-                title="CREATE Tag"
+                title="CREATE Label"
               />
               <CodeBlock
                 code={jsCode_UPDATE}
                 language="javascript"
-                title="UPDATE Tag"
+                title="UPDATE Label"
               />
               <CodeBlock
                 code={jsCode_DELETE}
                 language="javascript"
-                title="DELETE Tag"
+                title="DELETE Label"
               />
               <CodeBlock
                 code={jsCode_LIST}
                 language="javascript"
-                title="LIST Tags"
+                title="LIST Labels"
               />
             </Space>
           </Tabs.TabPane>
@@ -311,7 +311,9 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                   size={screenType.isMobile ? "small" : "middle"}
                   ghost
                   disabled={
-                    !tag.permission_previews.includes(SystemPermissionType.EDIT)
+                    !label.permission_previews.includes(
+                      SystemPermissionType.EDIT
+                    )
                   }
                 >
                   Edit
@@ -332,11 +334,13 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="value"
-                  label="Tag Name"
-                  rules={[{ required: true, message: "Please enter tag name" }]}
+                  label="Label Name"
+                  rules={[
+                    { required: true, message: "Please enter label name" },
+                  ]}
                 >
                   <Input
-                    placeholder="Tag name"
+                    placeholder="Label name"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -345,7 +349,7 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                 <Form.Item name="description" label="Description">
                   <TextArea
                     rows={3}
-                    placeholder="Description of this tag"
+                    placeholder="Description of this label"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -375,24 +379,24 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this tag?"
+                    title="Are you sure you want to delete this label?"
                     okText="Yes"
                     cancelText="No"
                     onConfirm={() => {
-                      dispatch(deleteTagAction({ id: tag.id }));
+                      dispatch(deleteLabelAction({ id: label.id }));
                       message.success(
                         isOnline
-                          ? "Deleting tag..."
-                          : "Queued tag delete for when you're back online"
+                          ? "Deleting label..."
+                          : "Queued label delete for when you're back online"
                       );
                       if (onDelete) {
-                        onDelete(tag.id);
+                        onDelete(label.id);
                       }
                     }}
                   >
                     <Button
                       disabled={
-                        !tag.permission_previews.includes(
+                        !label.permission_previews.includes(
                           SystemPermissionType.DELETE
                         )
                       }
@@ -400,7 +404,7 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                       type="primary"
                       danger
                     >
-                      Delete Tag
+                      Delete Label
                     </Button>
                   </Popconfirm>
                 </Form.Item>
@@ -423,7 +427,7 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                             width: 64,
                             height: 64,
                             borderRadius: "50%",
-                            backgroundColor: tag.color || "#1890ff",
+                            backgroundColor: label.color || "#1890ff",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -453,14 +457,14 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                               level={3}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {tag.value}
+                              {label.value}
                             </Title>
-                            <TagCopy id={tag.id} />
+                            <TagCopy id={label.id} />
                           </div>
                           <Space>
                             <Text type="secondary">
-                              {tag.resources
-                                ? `Used in ${tag.resources.length} resources`
+                              {label.resources
+                                ? `Used in ${label.resources.length} resources`
                                 : "Not used in any resources"}
                             </Text>
                           </Space>
@@ -480,7 +484,7 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                     >
                       <Card size="small" style={{ marginTop: 8 }}>
                         <GlobalOutlined style={{ marginRight: 8 }} />
-                        {tag.description || "No description provided"}
+                        {label.description || "No description provided"}
                       </Card>
                     </div>
 
@@ -510,32 +514,36 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                       </summary>
 
                       <div style={{ padding: "8px 0" }}>
-                        {renderReadOnlyField("Tag ID", tag.id, <TagOutlined />)}
+                        {renderReadOnlyField(
+                          "Label ID",
+                          label.id,
+                          <TagOutlined />
+                        )}
 
                         {renderReadOnlyField(
                           "Color",
-                          tag.color || "",
+                          label.color || "",
                           <div
                             style={{
                               width: 16,
                               height: 16,
-                              backgroundColor: tag.color || "#1890ff",
+                              backgroundColor: label.color || "#1890ff",
                               borderRadius: "4px",
                             }}
                           />
                         )}
 
-                        {tag.external_id &&
+                        {label.external_id &&
                           renderReadOnlyField(
                             "External ID",
-                            tag.external_id,
+                            label.external_id,
                             <InfoCircleOutlined />
                           )}
 
-                        {tag.external_payload &&
+                        {label.external_payload &&
                           renderReadOnlyField(
                             "Ext. Payload",
-                            tag.external_payload,
+                            label.external_payload,
                             <InfoCircleOutlined />
                           )}
 
@@ -543,14 +551,14 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                           <Space align="center">
                             <ClockCircleOutlined />
                             <Text type="secondary">
-                              Created {formatDate(tag.created_at)}
+                              Created {formatDate(label.created_at)}
                             </Text>
                           </Space>
                           <div style={{ marginTop: 8 }}>
                             <Space align="center">
                               <ClockCircleOutlined />
                               <Text type="secondary">
-                                Last updated {formatDate(tag.last_updated_at)}
+                                Last updated {formatDate(label.last_updated_at)}
                               </Text>
                             </Space>
                           </div>
@@ -558,7 +566,7 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                             <Space align="center">
                               <UserOutlined />
                               <Text type="secondary">
-                                Created by {tag.created_by}
+                                Created by {label.created_by}
                               </Text>
                             </Space>
                           </div>
@@ -567,10 +575,10 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                     </details>
                   </Col>
 
-                  {tag.resources && tag.resources.length > 0 && (
+                  {label.resources && label.resources.length > 0 && (
                     <Col span={24}>
                       <Title level={5}>Resources</Title>
-                      {tag.resources.map((resource, index) => (
+                      {label.resources.map((resource, index) => (
                         <Card
                           key={index}
                           size="small"
@@ -619,4 +627,4 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
   );
 };
 
-export default TagTab;
+export default LabelTab;

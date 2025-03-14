@@ -151,8 +151,8 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
             return "All API Keys Permit";
           case "PERMISSIONS":
             return "All Permissions Permit";
-          case "TAGS":
-            return "All Tags Permit";
+          case "LABELS":
+            return "All Labels Permit";
           default:
             return "System Permit";
         }
@@ -170,8 +170,8 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
         return "API Key Permit";
       } else if (resourceId.startsWith("WebhookID_")) {
         return "Webhook Permit";
-      } else if (resourceId.startsWith("TagID_")) {
-        return "Tag Permit";
+      } else if (resourceId.startsWith("LabelID_")) {
+        return "Label Permit";
       } else if (
         resourceId.startsWith("SystemPermissionID_") ||
         resourceId.startsWith("DirectoryPermissionID_")
@@ -401,8 +401,8 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
     }
   };
 
-  // Render permission type tags
-  const renderPermissionTypeTags = (
+  // Render permission type labels
+  const renderPermissionTypeLabels = (
     types: SystemPermissionType[] | DirectoryPermissionType[]
   ) => {
     const colorMap: Record<string, string> = {
@@ -823,13 +823,13 @@ const deletePermission = async (permissionId) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {permission.tags &&
-                          permission.tags.map((tag, index) => (
+                        {permission.labels &&
+                          permission.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
                             >
-                              {tag}
+                              {label}
                             </Tag>
                           ))}
                       </div>
@@ -840,7 +840,7 @@ const deletePermission = async (permissionId) => {
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : permission.tags && permission.tags.length > 0
+                          : permission.labels && permission.labels.length > 0
                             ? 0
                             : 32,
                       }}
@@ -872,7 +872,7 @@ const deletePermission = async (permissionId) => {
                               <div>
                                 <Text type="secondary">Can:</Text>
                                 <div style={{ marginTop: 4 }}>
-                                  {renderPermissionTypeTags(
+                                  {renderPermissionTypeLabels(
                                     permission.permission_types
                                   )}
                                 </div>
@@ -947,7 +947,7 @@ const deletePermission = async (permissionId) => {
                       )}
                     </div>
 
-                    {screenType.isMobile && permission.tags && (
+                    {screenType.isMobile && permission.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -956,12 +956,12 @@ const deletePermission = async (permissionId) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {permission.tags.map((tag, index) => (
+                        {permission.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
                           >
-                            {tag}
+                            {label}
                           </Tag>
                         ))}
                       </div>

@@ -49,7 +49,7 @@ import SandboxPage from "./components/SandboxPage";
 import ContactsPage from "./components/ContactsPage";
 import GroupsPage from "./components/GroupsPage";
 import PermissionsPage from "./components/PermissionsPage";
-import TagsPage from "./components/TagsPage";
+import LabelsPage from "./components/LabelsPage";
 import DisksPage from "./components/DisksPage";
 import DrivesPage from "./components/DrivesPage";
 import ApiKeysPage from "./components/ApiKeysPage";
@@ -58,7 +58,7 @@ import OrganizationSwitcher from "./components/SwitchOrganization";
 import TemplateCrudPage from "./components/TemplateCrudPage";
 import ContactPage from "./components/ContactsPage/contact.page";
 import GroupPage from "./components/GroupsPage/group.page";
-import TagPage from "./components/TagsPage/tag.page";
+import LabelPage from "./components/LabelsPage/label.page";
 import DiskPage from "./components/DisksPage/disk.page";
 import WebhookPage from "./components/WebhooksPage/webhook.page";
 import DrivePage from "./components/DrivesPage/drive.page";
@@ -143,7 +143,7 @@ const SideMenu = ({
         },
         {
           key: "starred",
-          label: "Tagged",
+          label: "Labeled",
           type: "item",
           // icon: <StarOutlined />,
         },
@@ -196,10 +196,10 @@ const SideMenu = ({
               },
             },
             {
-              key: "tags",
-              label: "Tags",
+              key: "labels",
+              label: "Labels",
               onClick: () => {
-                navigate("/resources/tags");
+                navigate("/resources/labels");
                 if (setSidebarVisible) {
                   setSidebarVisible(false);
                 }
@@ -438,8 +438,11 @@ const RouterUI = () => {
                   path="/resources/permissions/:permissionVariant/:permissionID"
                   element={<PermissionPage />}
                 />
-                <Route path="/resources/tags" element={<TagsPage />} />
-                <Route path="/resources/tags/:tagID" element={<TagPage />} />
+                <Route path="/resources/labels" element={<LabelsPage />} />
+                <Route
+                  path="/resources/labels/:labelID"
+                  element={<LabelPage />}
+                />
                 <Route path="/resources/disks" element={<DisksPage />} />
                 <Route path="/resources/disks/:diskID" element={<DiskPage />} />
                 <Route path="/resources/drives" element={<DrivesPage />} />

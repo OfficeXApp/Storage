@@ -644,7 +644,7 @@ const data = await response.json();`;
                   <Col span={24}>
                     {/* Always displayed fields */}
 
-                    {!screenType.isMobile && group.tags && (
+                    {!screenType.isMobile && group.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -653,12 +653,12 @@ const data = await response.json();`;
                           flexWrap: "wrap",
                         }}
                       >
-                        {group.tags.map((tag, index) => (
+                        {group.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
                           >
-                            {tag}
+                            {label}
                           </Tag>
                         ))}
                       </div>
@@ -669,7 +669,7 @@ const data = await response.json();`;
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : group.tags && group.tags.length > 0
+                          : group.labels && group.labels.length > 0
                             ? 0
                             : 32,
                       }}
@@ -680,7 +680,7 @@ const data = await response.json();`;
                       </Card>
                     </div>
 
-                    {screenType.isMobile && group.tags && (
+                    {screenType.isMobile && group.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -689,12 +689,12 @@ const data = await response.json();`;
                           flexWrap: "wrap",
                         }}
                       >
-                        {group.tags.map((tag, index) => (
+                        {group.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
                           >
-                            {tag}
+                            {label}
                           </Tag>
                         ))}
                       </div>

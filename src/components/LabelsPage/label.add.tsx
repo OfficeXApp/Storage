@@ -1,4 +1,4 @@
-// src/components/TagsPage/tag.add.tsx
+// src/components/LabelsPage/label.add.tsx
 
 import React, { useState } from "react";
 import {
@@ -10,25 +10,25 @@ import {
   Space,
   Typography,
 } from "antd";
-import { TagFE, IRequestCreateTag } from "@officexapp/types";
+import { LabelFE, IRequestCreateLabel } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
-import { createTagAction } from "../../redux-offline/tags/tags.actions";
+import { createLabelAction } from "../../redux-offline/labels/labels.actions";
 import useScreenType from "react-screentype-hook";
 import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 
 const { Text } = Typography;
 
-interface TagsAddDrawerProps {
+interface LabelsAddDrawerProps {
   open: boolean;
   onClose: () => void;
-  onAddTag: (tag: TagFE) => void;
+  onAddLabel: (label: LabelFE) => void;
 }
 
-const TagsAddDrawer: React.FC<TagsAddDrawerProps> = ({
+const LabelsAddDrawer: React.FC<LabelsAddDrawerProps> = ({
   open,
   onClose,
-  onAddTag,
+  onAddLabel,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
@@ -36,13 +36,13 @@ const TagsAddDrawer: React.FC<TagsAddDrawerProps> = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  const [tagValue, setTagValue] = useState("");
+  const [labelValue, setLabelValue] = useState("");
 
   const handleSubmit = () => {
     form.validateFields().then((values) => {
       setLoading(true);
 
-      const tagData: IRequestCreateTag = {
+      const labelData: IRequestCreateLabel = {
         value: values.value,
         description: values.description || undefined,
         color: values.color || "#1890ff", // Default to blue if no color selected
@@ -50,38 +50,38 @@ const TagsAddDrawer: React.FC<TagsAddDrawerProps> = ({
         external_payload: values.external_payload || undefined,
       };
 
-      dispatch(createTagAction(tagData));
+      dispatch(createLabelAction(labelData));
 
-      // Call onAddTag with the created tag data
-      if (onAddTag) {
-        const newTag = {
-          ...tagData,
+      // Call onAddLabel with the created label data
+      if (onAddLabel) {
+        const newLabel = {
+          ...labelData,
           id: "", // This will be filled by the server
           created_at: Date.now(),
           last_updated_at: Date.now(),
           created_by: "",
           resources: [],
-          tags: [],
+          labels: [],
           permission_previews: [],
-        } as TagFE;
-        onAddTag(newTag);
+        } as LabelFE;
+        onAddLabel(newLabel);
       }
 
       // Reset form and close drawer
       form.resetFields();
-      setTagValue("");
+      setLabelValue("");
       setLoading(false);
       onClose();
     });
   };
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTagValue(e.target.value);
+    setLabelValue(e.target.value);
   };
 
   return (
     <Drawer
-      title="Add New Tag"
+      title="Add New Label"
       placement="right"
       closable={true}
       onClose={onClose}
@@ -95,9 +95,9 @@ const TagsAddDrawer: React.FC<TagsAddDrawerProps> = ({
               type="primary"
               onClick={handleSubmit}
               loading={loading}
-              disabled={!tagValue.trim()}
+              disabled={!labelValue.trim()}
             >
-              Create Tag
+              Create Label
             </Button>
           </Space>
         </div>
@@ -105,17 +105,17 @@ const TagsAddDrawer: React.FC<TagsAddDrawerProps> = ({
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item
-          label="Tag"
+          label="Label"
           name="value"
           rules={[
-            { required: true, message: "Please enter a tag text" },
-            { max: 50, message: "Tag text cannot exceed 50 characters" },
+            { required: true, message: "Please enter a label text" },
+            { max: 50, message: "Label text cannot exceed 50 characters" },
           ]}
         >
-          <Input placeholder="Enter tag text" onChange={handleValueChange} />
+          <Input placeholder="Enter label text" onChange={handleValueChange} />
         </Form.Item>
 
-        {/* Advanced section with details tag */}
+        {/* Advanced section with details label */}
         <details
           style={{ marginTop: "16px" }}
           open={isAdvancedOpen}
@@ -167,4 +167,4 @@ const TagsAddDrawer: React.FC<TagsAddDrawerProps> = ({
   );
 };
 
-export default TagsAddDrawer;
+export default LabelsAddDrawer;

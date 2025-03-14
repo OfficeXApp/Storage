@@ -4,7 +4,7 @@ import { UserID } from "@officexapp/types";
 
 export type FolderUUID = string & { readonly __folderUUID: unique symbol };
 export type FileUUID = string & { readonly __fileUUID: unique symbol };
-export type Tag = string & { readonly __tag: unique symbol };
+export type Label = string & { readonly __label: unique symbol };
 export type DriveSnapshotID = string & { readonly __snapshotID: unique symbol };
 
 export enum StorageLocationEnum {
@@ -31,7 +31,7 @@ export interface FolderMetadata {
   subfolderUUIDs: FolderUUID[];
   fileUUIDs: FileUUID[];
   fullFolderPath: DriveFullFilePath;
-  tags: Tag[];
+  labels: Label[];
   owner: UserID;
   createdDate: Date; // ISO 8601 format
   storageLocation: StorageLocationEnum;
@@ -49,7 +49,7 @@ export interface FileMetadata {
   nextVersion: FileUUID | null;
   extension: string;
   fullFilePath: DriveFullFilePath;
-  tags: Tag[];
+  labels: Label[];
   owner: UserID;
   createdDate: Date; // ISO 8601 format
   storageLocation: StorageLocationEnum;
@@ -68,9 +68,9 @@ export type Hashtable_FullFolderPathToUUID = Record<
 // Type for Full File Path to UUID Hashtable (Optional)
 export type Hashtable_FullFilePathToUUID = Record<DriveFullFilePath, FileUUID>;
 
-// Type for Tags to UUIDs Mapping (Optional)
-export interface Hashtable_TagsToUUIDsMap {
-  [tag: string]: {
+// Type for Labels to UUIDs Mapping (Optional)
+export interface Hashtable_LabelsToUUIDsMap {
+  [label: string]: {
     folderUUIDs: FolderUUID[];
     fileUUIDs: FileUUID[];
   };

@@ -52,7 +52,7 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [displayedName, setDisplayedName] = useState("");
   const [diskType, setDiskType] = useState<DiskTypeEnum>(DiskTypeEnum.LocalSSD);
-  const [tags, setTags] = useState<string[]>([]);
+  const [labels, setLabels] = useState<string[]>([]);
   const [inputVisible, setInputVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [formChanged, setFormChanged] = useState(false);
@@ -64,7 +64,7 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
       setIsAdvancedOpen(false);
       setDisplayedName("");
       setDiskType(DiskTypeEnum.LocalSSD);
-      setTags([]);
+      setLabels([]);
       setInputVisible(false);
       setInputValue("");
       setFormChanged(false);
@@ -92,10 +92,10 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
     );
   };
 
-  // Tags management
-  const handleClose = (removedTag: string) => {
-    const newTags = tags.filter((tag) => tag !== removedTag);
-    setTags(newTags);
+  // Labels management
+  const handleClose = (removedLabel: string) => {
+    const newLabels = labels.filter((label) => label !== removedLabel);
+    setLabels(newLabels);
     setFormChanged(true);
   };
 
@@ -108,8 +108,8 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
   };
 
   const handleInputConfirm = () => {
-    if (inputValue && !tags.includes(inputValue)) {
-      setTags([...tags, inputValue]);
+    if (inputValue && !labels.includes(inputValue)) {
+      setLabels([...labels, inputValue]);
     }
     setInputVisible(false);
     setInputValue("");
@@ -320,22 +320,22 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Tags to categorize this disk">
+                <Tooltip title="Labels to categorize this disk">
                   <Space>
-                    Tags <InfoCircleOutlined style={{ color: "#aaa" }} />
+                    Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
               }
             >
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {tags.map((tag) => (
+                {labels.map((label) => (
                   <Tag
-                    key={tag}
+                    key={label}
                     closable
-                    onClose={() => handleClose(tag)}
+                    onClose={() => handleClose(label)}
                     style={{ marginRight: 3 }}
                   >
-                    {tag}
+                    {label}
                   </Tag>
                 ))}
                 {inputVisible ? (
@@ -352,7 +352,7 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
                   />
                 ) : (
                   <Tag onClick={showInput} style={{ cursor: "pointer" }}>
-                    <TagOutlined /> New Tag
+                    <TagOutlined /> New Label
                   </Tag>
                 )}
               </div>

@@ -51,7 +51,7 @@ const GiftPage: React.FC = () => {
             nextVersion: null,
             extension: gift.title.split(".").pop(),
             fullFilePath: `${StorageLocationEnum.BrowserCache}::${gift.title}`,
-            tags: [],
+            labels: [],
             owner: "",
             createdDate: new Date(),
             modifiedDate: new Date(),

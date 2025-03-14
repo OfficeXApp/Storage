@@ -6,7 +6,7 @@ import {
   contactsReducer,
 } from "./contacts/contacts.reducer";
 import { OfflineAction } from "@redux-offline/redux-offline/lib/types";
-import { TAGS_REDUX_KEY, tagsReducer } from "./tags/tags.reducer";
+import { LABELS_REDUX_KEY, labelsReducer } from "./labels/labels.reducer";
 import { DRIVES_REDUX_KEY, drivesReducer } from "./drives/drives.reducer";
 import { GROUPS_REDUX_KEY, groupsReducer } from "./groups/groups.reducer";
 import {
@@ -28,7 +28,7 @@ import {
 export const rootReducer = combineReducers({
   [DISKS_REDUX_KEY]: disksReducer,
   [CONTACTS_REDUX_KEY]: contactsReducer,
-  [TAGS_REDUX_KEY]: tagsReducer,
+  [LABELS_REDUX_KEY]: labelsReducer,
   [DRIVES_REDUX_KEY]: drivesReducer,
   [GROUPS_REDUX_KEY]: groupsReducer,
   [GROUP_INVITES_REDUX_KEY]: groupInvitesReducer,

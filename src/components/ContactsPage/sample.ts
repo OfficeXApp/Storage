@@ -14,7 +14,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x1234567890123456789012345678901234567890",
     icp_principal: "rrkah-fqaaa-aaaaa-aaaaq-cai",
     groups: ["group_01HX7ZP5ABCDEF123456789", "group_01HX7ZP6ABCDEF123456789"],
-    tags: ["customer", "enterprise", "priority"],
+    labels: ["customer", "enterprise", "priority"],
     last_online_ms: 1709911245000, // March 8, 2025
     created_at: 1677861645000, // March 3, 2023
     external_id: "CRM-12345",
@@ -50,7 +50,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x2345678901234567890123456789012345678901",
     icp_principal: "k4qsa-4aaaa-aaaaa-aaaaq-cai",
     groups: ["group_01HX7ZP7ABCDEF123456789"],
-    tags: ["developer", "beta-tester"],
+    labels: ["developer", "beta-tester"],
     last_online_ms: 1709824845000, // March 7, 2025
     created_at: 1693470845000, // August 31, 2023
     external_id: "DEV-78901",
@@ -78,7 +78,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x3456789012345678901234567890123456789012",
     icp_principal: "nw4gu-4iaaa-aaaaa-aaaaq-cai",
     groups: ["group_01HX7ZP8ABCDEF123456789", "group_01HX7ZP9ABCDEF123456789"],
-    tags: ["finance", "enterprise", "decision-maker"],
+    labels: ["finance", "enterprise", "decision-maker"],
     last_online_ms: 1709738445000, // March 6, 2025
     created_at: 1688286845000, // July 2, 2023
     external_id: "FIN-23456",
@@ -117,7 +117,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x4567890123456789012345678901234567890123",
     icp_principal: "oazcs-eqaaa-aaaaa-aaaaq-cai",
     groups: [],
-    tags: [],
+    labels: [],
     last_online_ms: 1709652045000, // March 5, 2025
     created_at: 1672603245000, // January 1, 2023
     group_previews: [],
@@ -141,7 +141,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x5678901234567890123456789012345678901234",
     icp_principal: "pfouk-5yaaa-aaaaa-aaaaq-cai",
     groups: [],
-    tags: [],
+    labels: [],
     last_online_ms: 1709565645000, // March 4, 2025
     created_at: 1683125445000, // May 3, 2023
     external_id: "TECH-34567",
@@ -165,7 +165,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x6789012345678901234567890123456789012345",
     icp_principal: "qnpeu-2yaaa-aaaaa-aaaaq-cai",
     groups: ["group_01HX7ZQE1BCDEF123456789"],
-    tags: ["marketing", "partnership", "content"],
+    labels: ["marketing", "partnership", "content"],
     last_online_ms: 1709479245000, // March 3, 2025
     created_at: 1704225645000, // January 2, 2024
     external_id: "MKT-45678",
@@ -193,7 +193,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x7890123456789012345678901234567890123456",
     icp_principal: "rffb6-tiaaa-aaaaa-aaaaq-cai",
     groups: ["group_01HX7ZQF1BCDEF123456789", "group_01HX7ZQG1BCDEF123456789"],
-    tags: ["support", "advocate", "reference"],
+    labels: ["support", "advocate", "reference"],
     last_online_ms: 1709392845000, // March 2, 2025
     created_at: 1675281645000, // February 1, 2023
     external_id: "SUP-56789",
@@ -232,7 +232,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x8901234567890123456789012345678901234567",
     icp_principal: "ske6q-saaaa-aaaaa-aaaaq-cai",
     groups: ["group_01HX7ZQH1BCDEF123456789"],
-    tags: [],
+    labels: [],
     last_online_ms: 1709306445000, // March 1, 2025
     created_at: 1696149245000, // October 1, 2023
     external_id: "SALES-67890",
@@ -265,7 +265,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x9012345678901234567890123456789012345678",
     icp_principal: "tqpzl-3qaaa-aaaaa-aaaaq-cai",
     groups: ["group_01HX7ZQI1BCDEF123456789", "group_01HX7ZQJ1BCDEF123456789"],
-    tags: ["hr", "mid-market", "implementation"],
+    labels: ["hr", "mid-market", "implementation"],
     last_online_ms: 1709220045000, // February 29, 2025
     created_at: 1704139245000, // January 1, 2024
     external_id: "HR-78901",
@@ -304,7 +304,7 @@ export const SAMPLE_CONTACTS: ContactFE[] = [
     evm_public_address: "0x0123456789012345678901234567890123456789",
     icp_principal: "uuafj-uyaaa-aaaaa-aaaaq-cai",
     groups: ["group_01HX7ZQK1BCDEF123456789"],
-    tags: ["security", "compliance", "consultant"],
+    labels: ["security", "compliance", "consultant"],
     last_online_ms: 1709133645000, // February 28, 2025
     created_at: 1680410045000, // April 2, 2023
     external_id: "SEC-89012",

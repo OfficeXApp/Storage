@@ -6,9 +6,13 @@ import { CONTACTS_DEXIE_TABLE } from "../redux-offline/contacts/contacts.reducer
 import { APIKEYS_DEXIE_TABLE } from "../redux-offline/api-keys/api-keys.reducer";
 import { TAGS_DEXIE_TABLE } from "../redux-offline/tags/tags.reducer";
 import { DRIVES_DEXIE_TABLE } from "../redux-offline/drives/drives.reducer";
-import { TEAMS_DEXIE_TABLE } from "../redux-offline/teams/teams.reducer";
-import { TEAM_INVITES_DEXIE_TABLE } from "../redux-offline/team-invites/team-invites.reducer";
+import { GROUPS_DEXIE_TABLE } from "../redux-offline/groups/groups.reducer";
+import { GROUP_INVITES_DEXIE_TABLE } from "../redux-offline/group-invites/group-invites.reducer";
 import { WEBHOOKS_DEXIE_TABLE } from "../redux-offline/webhooks/webhooks.reducer";
+import {
+  DIRECTORY_PERMISSIONS_DEXIE_TABLE,
+  SYSTEM_PERMISSIONS_DEXIE_TABLE,
+} from "../redux-offline/permissions/permissions.reducer";
 
 /**
  * Singleton class to manage Dexie database connections
@@ -73,11 +77,13 @@ class DexieManager {
       [DISKS_DEXIE_TABLE]: "id, _syncConflict",
       [DRIVES_DEXIE_TABLE]: "id, _syncConflict",
       [CONTACTS_DEXIE_TABLE]: "id, _syncConflict",
-      [TEAMS_DEXIE_TABLE]: "id, _syncConflict",
-      [TEAM_INVITES_DEXIE_TABLE]: "id, _syncConflict",
+      [GROUPS_DEXIE_TABLE]: "id, _syncConflict",
+      [GROUP_INVITES_DEXIE_TABLE]: "id, _syncConflict",
       [TAGS_DEXIE_TABLE]: "id, _syncConflict",
       [WEBHOOKS_DEXIE_TABLE]: "id, _syncConflict",
       [APIKEYS_DEXIE_TABLE]: "id, _syncConflict",
+      [DIRECTORY_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
+      [SYSTEM_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
     });
 
     // Set as current and return

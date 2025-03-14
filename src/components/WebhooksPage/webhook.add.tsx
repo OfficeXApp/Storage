@@ -103,7 +103,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
         break;
       // Add SUPERSWAP_USER for a specific event type
       // You may need to add the corresponding enum value if it exists
-      case "team.invite.created": // Assuming this matches with a SUPERSWAP_USER case
+      case "group.invite.created": // Assuming this matches with a SUPERSWAP_USER case
         defaultAltIndex = "SUPERSWAP_USER";
         break;
       default:

@@ -1,14 +1,14 @@
-// src/components/TeamsPage/index.tsx
+// src/components/GroupsPage/index.tsx
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Button, Layout, Typography } from "antd";
-import type { TeamFE, TeamID, IRequestCreateTeam } from "@officexapp/types";
+import type { GroupFE, GroupID, IRequestCreateGroup } from "@officexapp/types";
 import { useDispatch } from "react-redux";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import TeamsAddDrawer from "./team.add";
-import TeamTab from "./team.tab";
-import TeamsTableList from "./teams.table";
 import useScreenType from "react-screentype-hook";
+import GroupsAddDrawer from "./group.add";
+import GroupTab from "./group.tab";
+import GroupsTableList from "./groups.table";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -21,14 +21,14 @@ type TabItem = {
   closable?: boolean;
 };
 
-const TeamsPage: React.FC = () => {
+const GroupsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
-  // Check if a team's tab is open
+  // Check if a group's tab is open
   const isContentTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
@@ -44,7 +44,7 @@ const TeamsPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Teams List",
+      label: "Groups List",
       children: null,
       closable: false,
     },
@@ -61,31 +61,33 @@ const TeamsPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Function to handle clicking on a team
+  // Function to handle clicking on a group
   const handleClickContentTab = useCallback(
-    (team: TeamFE, focus_tab = false) => {
-      setLastClickedId(team.id);
+    (group: GroupFE, focus_tab = false) => {
+      setLastClickedId(group.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
       console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === team.id
+        (item) => item.key === group.id
       );
       console.log(`existingTabIndex`, existingTabIndex);
 
       if (existingTabIndex !== -1 && !focus_tab) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== team.id
+          (item) => item.key !== group.id
         );
         setTabItems(updatedTabs);
       } else if (existingTabIndex === -1) {
         // Create new tab
         const newTab: TabItem = {
-          key: team.id,
-          label: team.name,
-          children: <TeamTab team={team} onDelete={handleDeletionCloseTabs} />,
+          key: group.id,
+          label: group.name,
+          children: (
+            <GroupTab group={group} onDelete={handleDeletionCloseTabs} />
+          ),
           closable: true,
         };
 
@@ -96,22 +98,22 @@ const TeamsPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked team's tab
+        // Switch to the clicked group's tab
         if (focus_tab) {
-          setActiveKey(team.id);
+          setActiveKey(group.id);
         }
       } else if (focus_tab) {
         if (focus_tab) {
-          setActiveKey(team.id);
+          setActiveKey(group.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (teamID: TeamID) => {
+  const handleDeletionCloseTabs = (groupID: GroupID) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== teamID);
+    const updatedTabs = tabItems.filter((item) => item.key !== groupID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -120,10 +122,10 @@ const TeamsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/teams`;
+      const newUrl = `/resources/groups`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/teams/${newActiveKey}`;
+      const newUrl = `/resources/groups/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -152,10 +154,10 @@ const TeamsPage: React.FC = () => {
     setDrawerOpen(!drawerOpen);
   };
 
-  // Handle adding a new team
-  const handleAddTeam = (teamData: IRequestCreateTeam) => {
+  // Handle adding a new group
+  const handleAddGroup = (groupData: IRequestCreateGroup) => {
     // This function can be expanded later if additional logic is needed
-    console.log("Team added:", teamData);
+    console.log("Group added:", groupData);
   };
 
   return (
@@ -197,21 +199,23 @@ const TeamsPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Teams
+            Groups
           </Title>
-          <Button
-            size={screenType.isMobile ? "small" : "middle"}
-            type={
-              screenType.isMobile && activeKey !== "list"
-                ? "default"
-                : "primary"
-            }
-            icon={<PlusOutlined />}
-            onClick={toggleDrawer}
-            style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
-          >
-            Add Team
-          </Button>
+          {activeKey === "list" && (
+            <Button
+              size={screenType.isMobile ? "small" : "middle"}
+              type={
+                screenType.isMobile && activeKey !== "list"
+                  ? "default"
+                  : "primary"
+              }
+              icon={<PlusOutlined />}
+              onClick={toggleDrawer}
+              style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
+            >
+              Add Group
+            </Button>
+          )}
         </div>
 
         <div
@@ -324,7 +328,7 @@ const TeamsPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <TeamsTableList
+                <GroupsTableList
                   isContentTabOpen={isContentTabOpen}
                   handleClickContentTab={handleClickContentTab}
                 />
@@ -354,13 +358,13 @@ const TeamsPage: React.FC = () => {
         </div>
       </Content>
 
-      <TeamsAddDrawer
+      <GroupsAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddTeam={handleAddTeam}
+        onAddGroup={handleAddGroup}
       />
     </Layout>
   );
 };
 
-export default TeamsPage;
+export default GroupsPage;

@@ -3,31 +3,31 @@ import { Tabs, Input, List, Checkbox, Avatar, Tag, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { ContactFE, TeamFE } from "@officexapp/types";
+import { ContactFE, GroupFE } from "@officexapp/types";
 import { shortenAddress } from "../../framework/identity/constants";
 
 const { TabPane } = Tabs;
 
 const ContactSelector: React.FC = () => {
-  // Get contacts and teams from Redux store
+  // Get contacts and groups from Redux store
   const contacts = useSelector(
     (state: ReduxAppState) => state.contacts.contacts
   );
 
-  const teams = useSelector((state: ReduxAppState) => state.teams.teams);
+  const groups = useSelector((state: ReduxAppState) => state.groups.groups);
 
-  // State for selected contacts and teams
+  // State for selected contacts and groups
   const [selectedContactIds, setSelectedContactIds] = useState<string[]>([]);
-  const [selectedTeamIds, setSelectedTeamIds] = useState<string[]>([]);
+  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
 
   // State for search queries
   const [contactSearchQuery, setContactSearchQuery] = useState<string>("");
-  const [teamSearchQuery, setTeamSearchQuery] = useState<string>("");
+  const [groupSearchQuery, setGroupSearchQuery] = useState<string>("");
 
-  // Filtered contacts and teams based on search
+  // Filtered contacts and groups based on search
   const [filteredContacts, setFilteredContacts] =
     useState<ContactFE[]>(contacts);
-  const [filteredTeams, setFilteredTeams] = useState<TeamFE[]>(teams);
+  const [filteredGroups, setFilteredGroups] = useState<GroupFE[]>(groups);
 
   // Update filtered contacts when contacts or search query changes
   useEffect(() => {
@@ -46,21 +46,21 @@ const ContactSelector: React.FC = () => {
     }
   }, [contacts, contactSearchQuery]);
 
-  // Update filtered teams when teams or search query changes
+  // Update filtered groups when groups or search query changes
   useEffect(() => {
-    if (!teamSearchQuery.trim()) {
-      setFilteredTeams(teams);
+    if (!groupSearchQuery.trim()) {
+      setFilteredGroups(groups);
     } else {
-      const lowerCaseQuery = teamSearchQuery.toLowerCase();
-      setFilteredTeams(
-        teams.filter(
-          (team) =>
-            team.name.toLowerCase().includes(lowerCaseQuery) ||
-            team.id.toLowerCase().includes(lowerCaseQuery)
+      const lowerCaseQuery = groupSearchQuery.toLowerCase();
+      setFilteredGroups(
+        groups.filter(
+          (group) =>
+            group.name.toLowerCase().includes(lowerCaseQuery) ||
+            group.id.toLowerCase().includes(lowerCaseQuery)
         )
       );
     }
-  }, [teams, teamSearchQuery]);
+  }, [groups, groupSearchQuery]);
 
   // Handle contact selection
   const handleContactSelect = (contactId: string) => {
@@ -73,13 +73,13 @@ const ContactSelector: React.FC = () => {
     });
   };
 
-  // Handle team selection
-  const handleTeamSelect = (teamId: string) => {
-    setSelectedTeamIds((prevSelected) => {
-      if (prevSelected.includes(teamId)) {
-        return prevSelected.filter((id) => id !== teamId);
+  // Handle group selection
+  const handleGroupSelect = (groupId: string) => {
+    setSelectedGroupIds((prevSelected) => {
+      if (prevSelected.includes(groupId)) {
+        return prevSelected.filter((id) => id !== groupId);
       } else {
-        return [...prevSelected, teamId];
+        return [...prevSelected, groupId];
       }
     });
   };
@@ -95,14 +95,14 @@ const ContactSelector: React.FC = () => {
     }
   };
 
-  // Handle team checkbox change
-  const handleTeamCheckboxChange = (teamId: string, checked: boolean) => {
+  // Handle group checkbox change
+  const handleGroupCheckboxChange = (groupId: string, checked: boolean) => {
     if (checked) {
-      setSelectedTeamIds((prev) =>
-        prev.includes(teamId) ? prev : [...prev, teamId]
+      setSelectedGroupIds((prev) =>
+        prev.includes(groupId) ? prev : [...prev, groupId]
       );
     } else {
-      setSelectedTeamIds((prev) => prev.filter((id) => id !== teamId));
+      setSelectedGroupIds((prev) => prev.filter((id) => id !== groupId));
     }
   };
 
@@ -112,10 +112,10 @@ const ContactSelector: React.FC = () => {
     return count > 0 ? `${count} contacts selected` : "Search contacts";
   };
 
-  // Format placeholder text for teams
-  const getTeamPlaceholderText = () => {
-    const count = selectedTeamIds.length;
-    return count > 0 ? `${count} teams selected` : "Search teams";
+  // Format placeholder text for groups
+  const getGroupPlaceholderText = () => {
+    const count = selectedGroupIds.length;
+    return count > 0 ? `${count} groups selected` : "Search groups";
   };
 
   return (
@@ -185,26 +185,26 @@ const ContactSelector: React.FC = () => {
             />
           </div>
         </TabPane>
-        <TabPane tab="Teams" key="teams">
-          <div className="teams-container">
+        <TabPane tab="Groups" key="groups">
+          <div className="groups-container">
             <Input
-              placeholder={getTeamPlaceholderText()}
+              placeholder={getGroupPlaceholderText()}
               prefix={<SearchOutlined />}
-              value={teamSearchQuery}
-              onChange={(e) => setTeamSearchQuery(e.target.value)}
+              value={groupSearchQuery}
+              onChange={(e) => setGroupSearchQuery(e.target.value)}
               style={{ marginBottom: 16 }}
             />
 
             <List
-              dataSource={filteredTeams}
-              renderItem={(team) => {
-                const isSelected = selectedTeamIds.includes(team.id);
+              dataSource={filteredGroups}
+              renderItem={(group) => {
+                const isSelected = selectedGroupIds.includes(group.id);
 
                 return (
                   <List.Item
-                    key={team.id}
-                    onClick={() => handleTeamSelect(team.id)}
-                    className={isSelected ? "selected-team" : ""}
+                    key={group.id}
+                    onClick={() => handleGroupSelect(group.id)}
+                    className={isSelected ? "selected-group" : ""}
                     style={{
                       cursor: "pointer",
                       padding: "8px 16px",
@@ -219,19 +219,19 @@ const ContactSelector: React.FC = () => {
                       <Checkbox
                         checked={isSelected}
                         onChange={(e) =>
-                          handleTeamCheckboxChange(team.id, e.target.checked)
+                          handleGroupCheckboxChange(group.id, e.target.checked)
                         }
                         onClick={(e) => e.stopPropagation()}
                       />
-                      <Avatar src={team.avatar} />
+                      <Avatar src={group.avatar} />
                       <div style={{ flex: 1 }}>
-                        <div>{team.name}</div>
+                        <div>{group.name}</div>
                         <div style={{ color: "#888", fontSize: "12px" }}>
-                          {team.member_previews?.length || 0} members
+                          {group.member_previews?.length || 0} members
                         </div>
                       </div>
                       <Tag>
-                        {shortenAddress(team.id.replace("TeamID_", ""))}
+                        {shortenAddress(group.id.replace("GroupID_", ""))}
                       </Tag>
                     </Space>
                   </List.Item>

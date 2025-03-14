@@ -2,12 +2,13 @@
 
 ## Todo
 
+- [🔵] Implement permissions on frontend (redux, reuseable ui pickers, crud)
 - [🔵] Blitzkreig the rest of the crud routes?
 - [ ] Blitzkreig the rest of the crud UI?
-- [ ] Teams & Team Invite creation routes (with redux-offline)
+- [ ] Groups & Group Invite creation routes (with redux-offline)
 - [ ] Handle folder copy logic where subfiles wont have a known ID, so the type FolderFEO.sync_warning = string should help us warn the user
-- [ ] Magic login link with redeem placeholders (both for contacts themselves, and via team invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa
-- [ ] Polish all tables to match teams behavior (got rid of OPEN button and clicking name goes into tab directly no untab, clicking rest of row tabs/untabs without navigating to it)
+- [ ] Magic login link with redeem placeholders (both for contacts themselves, and via group invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa
+- [ ] Polish all tables to match groups behavior (got rid of OPEN button and clicking name goes into tab directly no untab, clicking rest of row tabs/untabs without navigating to it)
 - [ ] Support multi offline organizations
 - [ ] Investigate & consolidate auth cookies
 - [ ] Investigate & consolidate all indexdb databases
@@ -17,7 +18,7 @@
 - [ ] Add onEnter to submit forms
 - [ ] In organization settings, for current user, ability to change the api key
 - [ ] In API keys page, a special modal for generating a signature (for developer convinence such as when they want a temp auth token or call the `/api-keys/create` endpoint)
-- [ ] User initiated superswap_userid as a form of account "recovery" when they've lost/compromised their seed phrase. This should be added as a permission with grantee being a user/team etc.
+- [ ] User initiated superswap_userid as a form of account "recovery" when they've lost/compromised their seed phrase. This should be added as a permission with grantee being a user/group etc.
 
 ## Done
 

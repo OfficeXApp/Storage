@@ -1,37 +1,41 @@
-// src/redux-offline/teams/teams.optimistic.ts
+// src/redux-offline/group-invites/group-invites.optimistic.ts
 
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
 import { getDexieDb, markSyncConflict } from "../../api/dexie-database";
 import {
-  LIST_TEAMS,
-  LIST_TEAMS_COMMIT,
-  LIST_TEAMS_ROLLBACK,
-  CREATE_TEAM,
-  CREATE_TEAM_COMMIT,
-  CREATE_TEAM_ROLLBACK,
-  GET_TEAM,
-  GET_TEAM_COMMIT,
-  GET_TEAM_ROLLBACK,
-  UPDATE_TEAM,
-  UPDATE_TEAM_COMMIT,
-  UPDATE_TEAM_ROLLBACK,
-  DELETE_TEAM,
-  DELETE_TEAM_COMMIT,
-  DELETE_TEAM_ROLLBACK,
-} from "./teams.actions";
+  LIST_GROUP_INVITES,
+  LIST_GROUP_INVITES_COMMIT,
+  LIST_GROUP_INVITES_ROLLBACK,
+  CREATE_GROUP_INVITE,
+  CREATE_GROUP_INVITE_COMMIT,
+  CREATE_GROUP_INVITE_ROLLBACK,
+  GET_GROUP_INVITE,
+  GET_GROUP_INVITE_COMMIT,
+  GET_GROUP_INVITE_ROLLBACK,
+  UPDATE_GROUP_INVITE,
+  UPDATE_GROUP_INVITE_COMMIT,
+  UPDATE_GROUP_INVITE_ROLLBACK,
+  DELETE_GROUP_INVITE,
+  DELETE_GROUP_INVITE_COMMIT,
+  DELETE_GROUP_INVITE_ROLLBACK,
+} from "./group-invites.actions";
 import {
   AuthProfile,
   IndexDB_ApiKey,
   IndexDB_Organization,
   IndexDB_Profile,
 } from "../../framework/identity";
-import { TeamFEO, TEAMS_DEXIE_TABLE, TEAMS_REDUX_KEY } from "./teams.reducer";
+import {
+  GroupInviteFEO,
+  GROUP_INVITES_DEXIE_TABLE,
+  GROUP_INVITES_REDUX_KEY,
+} from "./group-invites.reducer";
 import _ from "lodash";
 
 /**
- * Middleware for handling optimistic updates for the teams table
+ * Middleware for handling optimistic updates for the group invites table
  */
-export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
+export const groupInvitesOptimisticDexieMiddleware = (currentIdentitySet: {
   currentOrg: IndexDB_Organization;
   currentProfile: AuthProfile;
   currentAPIKey: IndexDB_ApiKey | null;
@@ -41,30 +45,26 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
   return (store: MiddlewareAPI<Dispatch, any>) =>
     (next: Dispatch<AnyAction>) =>
     async (action: AnyAction) => {
-      // Log action for debugging
-      console.log(
-        `Inside teams optimistic middleware for ${action.type}`,
-        action
-      );
-
+      // Skip actions we don't care about
+      console.log(`Inside optimistic middleware for ${action.type}`, action);
       // Skip actions we don't care about
       if (
         ![
-          GET_TEAM,
-          GET_TEAM_COMMIT,
-          GET_TEAM_ROLLBACK,
-          LIST_TEAMS,
-          LIST_TEAMS_COMMIT,
-          LIST_TEAMS_ROLLBACK,
-          CREATE_TEAM,
-          CREATE_TEAM_COMMIT,
-          CREATE_TEAM_ROLLBACK,
-          UPDATE_TEAM,
-          UPDATE_TEAM_COMMIT,
-          UPDATE_TEAM_ROLLBACK,
-          DELETE_TEAM,
-          DELETE_TEAM_COMMIT,
-          DELETE_TEAM_ROLLBACK,
+          GET_GROUP_INVITE,
+          GET_GROUP_INVITE_COMMIT,
+          GET_GROUP_INVITE_ROLLBACK,
+          LIST_GROUP_INVITES,
+          LIST_GROUP_INVITES_COMMIT,
+          LIST_GROUP_INVITES_ROLLBACK,
+          CREATE_GROUP_INVITE,
+          CREATE_GROUP_INVITE_COMMIT,
+          CREATE_GROUP_INVITE_ROLLBACK,
+          UPDATE_GROUP_INVITE,
+          UPDATE_GROUP_INVITE_COMMIT,
+          UPDATE_GROUP_INVITE_ROLLBACK,
+          DELETE_GROUP_INVITE,
+          DELETE_GROUP_INVITE_COMMIT,
+          DELETE_GROUP_INVITE_ROLLBACK,
         ].includes(action.type)
       ) {
         return next(action);
@@ -82,42 +82,42 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
       }
 
       // Get db instance for this user+org pair
+      // This won't create a new instance if the same one is already open
       const db = getDexieDb(userID, orgID);
-      const table = db.table<TeamFEO, string>(TEAMS_DEXIE_TABLE);
+      const table = db.table<GroupInviteFEO, string>(GROUP_INVITES_DEXIE_TABLE);
       let enhancedAction = action;
 
       try {
         // Process action based on type
-        switch (action.type) {
-          // ------------------------------ GET TEAM --------------------------------- //
 
-          case GET_TEAM: {
+        // ------------------------------ GET GROUP INVITE --------------------------------- //
+
+        switch (action.type) {
+          case GET_GROUP_INVITE: {
             // Get cached data from IndexedDB
             const optimisticID = action.meta.optimisticID;
-            const cachedTeam = await table.get(optimisticID);
-
-            if (cachedTeam) {
+            const cachedInvite = await table.get(optimisticID);
+            if (cachedInvite) {
               enhancedAction = {
                 ...action,
                 optimistic: {
-                  ...cachedTeam,
+                  ...cachedInvite,
                   _isOptimistic: true,
                   _optimisticID: optimisticID,
                   _syncSuccess: false,
                   _syncConflict: false,
-                  _syncWarning: `Awaiting Sync. This team was fetched offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be refetched. Anything else depending on it may also be affected.`,
+                  _syncWarning: `Awaiting Sync. This group invite was fetched offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be refetched. Anything else depending on it may also be affected.`,
                 },
               };
             }
             break;
           }
 
-          case GET_TEAM_COMMIT: {
-            const realTeam = action.payload?.ok?.data;
-
-            if (realTeam) {
+          case GET_GROUP_INVITE_COMMIT: {
+            const realInvite = action.payload?.ok?.data;
+            if (realInvite) {
               await table.put({
-                ...realTeam,
+                ...realInvite,
                 _optimisticID: null,
                 _isOptimistic: false,
                 _syncSuccess: true,
@@ -128,15 +128,13 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case GET_TEAM_ROLLBACK: {
+          case GET_GROUP_INVITE_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
-
               if (optimisticID) {
-                const error_message = `Failed to get team - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to get group invite - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
-
                 enhancedAction = {
                   ...action,
                   error_message,
@@ -148,37 +146,37 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          // ------------------------------ LIST TEAMS --------------------------------- //
+          // ------------------------------ LIST GROUP INVITES --------------------------------- //
 
-          case LIST_TEAMS: {
+          case LIST_GROUP_INVITES: {
             // Get cached data from IndexedDB
-            const cachedTeams = await table.toArray();
+            const cachedInvites = await table.toArray();
 
             // Enhance action with cached data if available
-            if (cachedTeams && cachedTeams.length > 0) {
+            if (cachedInvites && cachedInvites.length > 0) {
               enhancedAction = {
                 ...action,
-                optimistic: cachedTeams.map((t) => ({
-                  ...t,
+                optimistic: cachedInvites.map((invite) => ({
+                  ...invite,
                   _isOptimistic: true,
-                  _optimisticID: t.id,
+                  _optimisticID: invite.id,
                 })),
               };
             }
             break;
           }
 
-          case LIST_TEAMS_COMMIT: {
-            // Extract teams from the response
-            const teams = action.payload?.ok?.data?.items || [];
+          case LIST_GROUP_INVITES_COMMIT: {
+            // Extract invites from the response
+            const invites = action.payload?.ok?.data?.items || [];
 
             // Update IndexedDB with fresh data
             await db.transaction("rw", table, async () => {
-              // Update or add each team
-              for (const team of teams) {
+              // Update or add each invite
+              for (const invite of invites) {
                 await table.put({
-                  ...team,
-                  _optimisticID: team.id,
+                  ...invite,
+                  _optimisticID: invite.id,
                   _isOptimistic: false,
                   _syncConflict: false,
                   _syncWarning: "",
@@ -189,11 +187,10 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case LIST_TEAMS_ROLLBACK: {
+          case LIST_GROUP_INVITES_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
-              const error_message = `Failed to fetch teams - ${err.err.message}`;
-
+              const error_message = `Failed to fetch group invites - ${err.err.message}`;
               enhancedAction = {
                 ...action,
                 error_message,
@@ -204,54 +201,53 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          // ------------------------------ CREATE TEAM --------------------------------- //
+          // ------------------------------ CREATE GROUP INVITE --------------------------------- //
 
-          case CREATE_TEAM: {
-            // Only handle actions with team data
+          case CREATE_GROUP_INVITE: {
+            // Only handle actions with invite data
             if (action.meta?.offline?.effect?.data) {
-              const teamData = action.meta.offline.effect.data;
+              const inviteData = action.meta.offline.effect.data;
               const optimisticID = action.meta.optimisticID;
 
-              // Create optimistic team object
-              const optimisticTeam: TeamFEO = {
+              // Create optimistic invite object
+              const optimisticInvite: GroupInviteFEO = {
                 id: optimisticID,
-                ...teamData,
-                tags: [],
-                member_previews: [],
+                ...inviteData,
+                group_name: "", // These would be filled with proper data in a real implementation
+                invitee_name: "",
                 permission_previews: [],
+                tags: [],
                 created_at: Date.now(),
                 last_modified_at: Date.now(),
                 _optimisticID: optimisticID,
-                _syncWarning: `Awaiting Sync. This team was created offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be recreated. Anything else depending on it may also be affected.`,
+                _syncWarning: `Awaiting Sync. This group invite was created offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be recreated. Anything else depending on it may also be affected.`,
                 _syncConflict: false,
                 _syncSuccess: false,
                 _isOptimistic: true,
               };
 
               // Save to IndexedDB
-              await table.put(optimisticTeam);
+              await table.put(optimisticInvite);
 
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
-                optimistic: optimisticTeam,
+                optimistic: optimisticInvite,
               };
             }
             break;
           }
 
-          case CREATE_TEAM_COMMIT: {
+          case CREATE_GROUP_INVITE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            const realTeam = action.payload?.ok?.data;
-
-            if (optimisticID && realTeam) {
+            const realInvite = action.payload?.ok?.data;
+            if (optimisticID && realInvite) {
               await db.transaction("rw", table, async () => {
                 // Remove optimistic version
                 await table.delete(optimisticID);
-
                 // Add real version
                 await table.put({
-                  ...realTeam,
+                  ...realInvite,
                   _optimisticID: null,
                   _syncSuccess: true,
                   _syncConflict: false,
@@ -263,15 +259,13 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case CREATE_TEAM_ROLLBACK: {
+          case CREATE_GROUP_INVITE_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
-
               if (optimisticID) {
-                const error_message = `Failed to create team - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to create group invite - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
-
                 enhancedAction = {
                   ...action,
                   error_message,
@@ -283,53 +277,51 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          // ------------------------------ UPDATE TEAM --------------------------------- //
+          // ------------------------------ UPDATE GROUP INVITE --------------------------------- //
 
-          case UPDATE_TEAM: {
-            // Only handle actions with team data
+          case UPDATE_GROUP_INVITE: {
+            // Only handle actions with invite data
             if (action.meta?.offline?.effect?.data) {
-              const teamData = action.meta.offline.effect.data;
+              const inviteData = action.meta.offline.effect.data;
               const optimisticID = action.meta.optimisticID;
 
-              const cachedTeam = await table.get(optimisticID);
+              const cachedInvite = await table.get(optimisticID);
 
-              // Create optimistic team object
-              const optimisticTeam: TeamFEO = {
-                id: teamData.id,
-                ...cachedTeam,
-                ...teamData,
+              // Create optimistic invite object
+              const optimisticInvite: GroupInviteFEO = {
+                id: inviteData.id,
+                ...cachedInvite,
+                ...inviteData,
                 last_modified_at: Date.now(),
                 _isOptimistic: true,
                 _optimisticID: optimisticID,
-                _syncWarning: `Awaiting Sync. This team was edited offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be reverted. Anything else depending on it may also be affected.`,
+                _syncWarning: `Awaiting Sync. This group invite was edited offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be reverted. Anything else depending on it may also be affected.`,
                 _syncConflict: false,
                 _syncSuccess: false,
               };
 
               // Save to IndexedDB
-              await table.put(optimisticTeam);
+              await table.put(optimisticInvite);
 
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
-                optimistic: optimisticTeam,
+                optimistic: optimisticInvite,
               };
             }
             break;
           }
 
-          case UPDATE_TEAM_COMMIT: {
+          case UPDATE_GROUP_INVITE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            const realTeam = action.payload?.ok?.data;
-
-            if (optimisticID && realTeam) {
+            const realInvite = action.payload?.ok?.data;
+            if (optimisticID && realInvite) {
               await db.transaction("rw", table, async () => {
                 // Remove optimistic version
                 await table.delete(optimisticID);
-
                 // Add real version
                 await table.put({
-                  ...realTeam,
+                  ...realInvite,
                   _syncSuccess: true,
                   _syncConflict: false,
                   _syncWarning: "",
@@ -341,15 +333,13 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case UPDATE_TEAM_ROLLBACK: {
+          case UPDATE_GROUP_INVITE_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
-
               if (optimisticID) {
-                const error_message = `Failed to update team - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to update group invite - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
-
                 enhancedAction = {
                   ...action,
                   error_message,
@@ -361,39 +351,41 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          // ------------------------------ DELETE TEAM --------------------------------- //
+          // ------------------------------ DELETE GROUP INVITE --------------------------------- //
 
-          case DELETE_TEAM: {
+          case DELETE_GROUP_INVITE: {
             const optimisticID = action.meta.optimisticID;
-            const cachedTeam = await table.get(optimisticID);
 
-            if (cachedTeam) {
-              const optimisticTeam: TeamFEO = {
-                ...cachedTeam,
+            const cachedInvite = await table.get(optimisticID);
+
+            if (cachedInvite) {
+              const optimisticInvite: GroupInviteFEO = {
+                ...cachedInvite,
                 id: optimisticID,
                 _markedForDeletion: true,
-                _syncWarning: `Awaiting Sync. This team was deleted offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be restored. Anything else depending on it may also be affected.`,
+                _syncWarning: `Awaiting Sync. This group invite was deleted offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be restored. Anything else depending on it may also be affected.`,
                 _syncConflict: false,
                 _syncSuccess: false,
                 _isOptimistic: true,
                 _optimisticID: optimisticID,
               };
 
-              // Mark for deletion in indexdb
-              await table.put(optimisticTeam);
+              // mark for deletion in indexdb
+              // Save to IndexedDB
+              await table.put(optimisticInvite);
 
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
-                optimistic: optimisticTeam,
+                optimistic: optimisticInvite,
               };
             }
+
             break;
           }
 
-          case DELETE_TEAM_COMMIT: {
+          case DELETE_GROUP_INVITE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-
             if (optimisticID) {
               await db.transaction("rw", table, async () => {
                 // Remove optimistic version
@@ -403,15 +395,13 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case DELETE_TEAM_ROLLBACK: {
+          case DELETE_GROUP_INVITE_ROLLBACK: {
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
-
               if (optimisticID) {
-                const error_message = `Failed to delete team - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to delete group invite - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
-
                 enhancedAction = {
                   ...action,
                   error_message,
@@ -427,7 +417,10 @@ export const teamsOptimisticDexieMiddleware = (currentIdentitySet: {
         // Pass the (potentially enhanced) action to the next middleware
         return next(enhancedAction);
       } catch (error) {
-        console.error(`Error in teams middleware for ${action.type}:`, error);
+        console.error(
+          `Error in group invites middleware for ${action.type}:`,
+          error
+        );
         // Continue with the original action if there's an error
         return next(action);
       }

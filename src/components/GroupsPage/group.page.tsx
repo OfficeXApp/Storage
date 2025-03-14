@@ -1,31 +1,31 @@
 import { useNavigate, useParams } from "react-router-dom";
-import TeamTab from "./team.tab";
+import GroupTab from "./group.tab";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useEffect } from "react";
-import { getTeamAction } from "../../redux-offline/teams/teams.actions";
+import { getGroupAction } from "../../redux-offline/groups/groups.actions";
 import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
 
-const TeamPage = () => {
+const GroupPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const screenType = useScreenType();
   const params = useParams();
-  const teamID = params.teamID;
-  const team = useSelector(
-    (state: ReduxAppState) => state.teams.teamMap[teamID || ""]
+  const groupID = params.groupID;
+  const group = useSelector(
+    (state: ReduxAppState) => state.groups.groupMap[groupID || ""]
   );
 
   useEffect(() => {
-    if (teamID) {
-      dispatch(getTeamAction(teamID));
+    if (groupID) {
+      dispatch(getGroupAction(groupID));
     }
-  }, [teamID, dispatch]);
+  }, [groupID, dispatch]);
 
-  if (!team) {
+  if (!group) {
     return null;
   }
 
@@ -51,14 +51,14 @@ const TeamPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/teams")}
+          onClick={() => navigate("/resources/groups")}
           style={{
             display: "flex",
             alignItems: "center",
             fontSize: "14px",
           }}
         >
-          Back to Teams
+          Back to Groups
         </Button>
       </div>
       <Content
@@ -70,10 +70,10 @@ const TeamPage = () => {
           overflow: "hidden",
         }}
       >
-        <TeamTab
-          team={team}
+        <GroupTab
+          group={group}
           onDelete={() => {
-            navigate(`/resources/teams`);
+            navigate(`/resources/groups`);
           }}
         />
       </Content>
@@ -81,4 +81,4 @@ const TeamPage = () => {
   );
 };
 
-export default TeamPage;
+export default GroupPage;

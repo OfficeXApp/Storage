@@ -26,20 +26,20 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
 import {
-  TeamMemberPreview,
-  TeamID,
-  TeamRole,
-  TeamInviteID,
-  TeamInviteFE,
-  IRequestUpdateTeamInvite,
-  IRequestDeleteTeamInvite,
+  GroupMemberPreview,
+  GroupID,
+  GroupRole,
+  GroupInviteID,
+  GroupInviteFE,
+  IRequestUpdateGroupInvite,
+  IRequestDeleteGroupInvite,
   SystemPermissionType,
 } from "@officexapp/types";
 import {
-  updateTeamInviteAction,
-  deleteTeamInviteAction,
-  getTeamInviteAction,
-} from "../../redux-offline/team-invites/team-invites.actions";
+  updateGroupInviteAction,
+  deleteGroupInviteAction,
+  getGroupInviteAction,
+} from "../../redux-offline/group-invites/group-invites.actions";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { shortenAddress } from "../../framework/identity/constants";
 
@@ -47,26 +47,30 @@ const { Text, Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-interface EditTeamInviteDrawerProps {
+interface EditGroupInviteDrawerProps {
   open: boolean;
   onClose: () => void;
-  member: TeamMemberPreview;
+  member: GroupMemberPreview;
+  group_name: string;
 }
 
-const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
+const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
   open,
   onClose,
   member,
+  group_name,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const teamInvites = useSelector(
-    (state: ReduxAppState) => state.teamInvites.invites
+  const groupInvites = useSelector(
+    (state: ReduxAppState) => state.groupInvites.invites
   );
 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(true);
-  const [currentInvite, setCurrentInvite] = useState<TeamInviteFE | null>(null);
+  const [currentInvite, setCurrentInvite] = useState<GroupInviteFE | null>(
+    null
+  );
   const [formChanged, setFormChanged] = useState(false);
 
   // Fetch the full invite details when the drawer opens
@@ -75,7 +79,7 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
       setLoading(true);
 
       // Check if we already have the invite in our Redux store
-      const existingInvite = teamInvites.find(
+      const existingInvite = groupInvites.find(
         (invite) => invite.id === member.invite_id
       );
 
@@ -84,22 +88,22 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
         setLoading(false);
       } else {
         // Fetch the invite if not in store
-        dispatch(getTeamInviteAction(member.invite_id));
+        dispatch(getGroupInviteAction(member.invite_id));
         // This will update the Redux store, and the next useEffect will catch it
       }
     }
-  }, [open, member.invite_id, dispatch, teamInvites]);
+  }, [open, member.invite_id, dispatch, groupInvites]);
 
-  // Watch for changes in the teamInvites Redux store
+  // Watch for changes in the groupInvites Redux store
   useEffect(() => {
     if (member.invite_id) {
-      const invite = teamInvites.find((inv) => inv.id === member.invite_id);
+      const invite = groupInvites.find((inv) => inv.id === member.invite_id);
       if (invite) {
         setCurrentInvite(invite);
         setLoading(false);
       }
     }
-  }, [teamInvites, member.invite_id]);
+  }, [groupInvites, member.invite_id]);
 
   // Set form values when invite data is available
   useEffect(() => {
@@ -135,16 +139,16 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
   const handleDeleteInvite = () => {
     if (!currentInvite) return;
 
-    const deletePayload: IRequestDeleteTeamInvite = {
+    const deletePayload: IRequestDeleteGroupInvite = {
       id: currentInvite.id,
     };
 
-    dispatch(deleteTeamInviteAction(deletePayload));
+    dispatch(deleteGroupInviteAction(deletePayload));
 
     message.success(
       isOnline
-        ? "Deleting team invite..."
-        : "Queued team invite deletion for when you're back online"
+        ? "Deleting group invite..."
+        : "Queued group invite deletion for when you're back online"
     );
 
     onClose();
@@ -155,10 +159,10 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
 
     form.validateFields().then((values) => {
       // Determine which fields have changed
-      const changedFields: IRequestUpdateTeamInvite = { id: currentInvite.id };
+      const changedFields: IRequestUpdateGroupInvite = { id: currentInvite.id };
 
       // Define the specific fields we care about
-      const fieldsToCheck: (keyof IRequestUpdateTeamInvite)[] = [
+      const fieldsToCheck: (keyof IRequestUpdateGroupInvite)[] = [
         "role",
         "note",
         "active_from",
@@ -173,7 +177,7 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
         if (!(field in values)) return;
 
         let valueFromForm = values[field];
-        const originalValue = currentInvite[field as keyof TeamInviteFE];
+        const originalValue = currentInvite[field as keyof GroupInviteFE];
 
         // Convert dates to timestamps
         if (field === "active_from" && valueFromForm) {
@@ -199,15 +203,15 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
         // More than just the ID
         // Dispatch the update action
         dispatch(
-          updateTeamInviteAction({
+          updateGroupInviteAction({
             ...changedFields,
           })
         );
 
         message.success(
           isOnline
-            ? "Updating team invite..."
-            : "Queued team invite update for when you're back online"
+            ? "Updating group invite..."
+            : "Queued group invite update for when you're back online"
         );
 
         onClose();
@@ -230,9 +234,9 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
       title={
         <div>
           <Title level={4} style={{ margin: 0 }}>
-            Edit Team Invite
+            Edit Group Invite
           </Title>
-          <Text type="secondary">{member.name}</Text>
+          <Text type="secondary">{group_name}</Text>
         </div>
       }
       placement="right"
@@ -320,11 +324,19 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
               />
               <div>
                 <Text strong style={{ fontSize: 16 }}>
-                  {member.name}
+                  {member.name
+                    ? member.name
+                    : member.user_id.startsWith("PlaceholderGroupInviteeID_")
+                      ? "Awaiting Anon"
+                      : "Unnamed Contact"}
                 </Text>
                 <div>
                   <Tag>
-                    {shortenAddress(member.user_id.replace("UserID_", ""))}
+                    {shortenAddress(
+                      member.user_id
+                        .replace("UserID_", "")
+                        .replace("PlaceholderGroupInviteeID_", "")
+                    )}
                   </Tag>
                   <Tag color={member.is_admin ? "red" : "blue"}>
                     {member.is_admin ? "Admin" : "Member"}
@@ -360,8 +372,8 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
                 )
               }
             >
-              <Option value={TeamRole.MEMBER}>Regular Member</Option>
-              <Option value={TeamRole.ADMIN}>Admin</Option>
+              <Option value={GroupRole.MEMBER}>Regular Member</Option>
+              <Option value={GroupRole.ADMIN}>Admin</Option>
             </Select>
           </Form.Item>
 
@@ -477,4 +489,4 @@ const EditTeamInviteDrawer: React.FC<EditTeamInviteDrawerProps> = ({
   );
 };
 
-export default EditTeamInviteDrawer;
+export default EditGroupInviteDrawer;

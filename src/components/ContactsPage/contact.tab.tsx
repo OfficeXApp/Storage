@@ -689,10 +689,10 @@ const ContactTab: React.FC<ContactTabProps> = ({
                     </details>
                   </Col>
 
-                  {contact.team_previews.length > 0 && (
+                  {contact.group_previews.length > 0 && (
                     <Col span={24}>
-                      <Title level={5}>Teams</Title>
-                      {contact.team_previews.map((team, index) => (
+                      <Title level={5}>Groups</Title>
+                      {contact.group_previews.map((group, index) => (
                         <Card
                           key={index}
                           size="small"
@@ -702,10 +702,10 @@ const ContactTab: React.FC<ContactTabProps> = ({
                             <Avatar
                               size="small"
                               icon={<TeamOutlined />}
-                              src={team.team_avatar || undefined}
+                              src={group.group_avatar || undefined}
                             />
-                            <Text>{team.team_name}</Text>
-                            {team.is_admin && <Tag color="gold">Admin</Tag>}
+                            <Text>{group.group_name}</Text>
+                            {group.is_admin && <Tag color="gold">Admin</Tag>}
                           </Space>
                         </Card>
                       ))}

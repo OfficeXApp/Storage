@@ -88,7 +88,7 @@ const TemplatesTableList: React.FC<TemplatesTableListProps> = ({
     {
       key: "1",
       icon: <UserAddOutlined />,
-      label: "Add to Team",
+      label: "Add to Group",
       disabled: true,
     },
     {

@@ -1,4 +1,4 @@
-// src/components/TeamsPage/team.add.tsx
+// src/components/GroupsPage/group.add.tsx
 
 import React, { useState, useEffect } from "react";
 import {
@@ -24,23 +24,23 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
-import { IRequestCreateTeam, TeamID } from "@officexapp/types";
-import { createTeamAction } from "../../redux-offline/teams/teams.actions";
+import { IRequestCreateGroup, GroupID } from "@officexapp/types";
+import { createGroupAction } from "../../redux-offline/groups/groups.actions";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 
 const { Text } = Typography;
 const { TextArea } = Input;
 
-interface TeamsAddDrawerProps {
+interface GroupsAddDrawerProps {
   open: boolean;
   onClose: () => void;
-  onAddTeam: (teamData: IRequestCreateTeam) => void;
+  onAddGroup: (groupData: IRequestCreateGroup) => void;
 }
 
-const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
+const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
   open,
   onClose,
-  onAddTeam,
+  onAddGroup,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
@@ -88,14 +88,14 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
     setFormChanged(true);
   };
 
-  const handleAddTeam = () => {
-    console.log("Adding team...");
+  const handleAddGroup = () => {
+    console.log("Adding group...");
     form
       .validateFields()
       .then((values) => {
         console.log("Form values:", values);
 
-        const teamData: IRequestCreateTeam = {
+        const groupData: IRequestCreateGroup = {
           name: values.name,
           public_note: values.publicNote || "",
           private_note: values.privateNote || "",
@@ -104,21 +104,21 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
           external_payload: values.externalPayload || undefined,
         };
 
-        console.log("Team data:", teamData);
+        console.log("Group data:", groupData);
 
         setLoading(true);
 
-        // Dispatch the create team action
-        dispatch(createTeamAction(teamData));
+        // Dispatch the create group action
+        dispatch(createGroupAction(groupData));
 
         message.success(
           isOnline
-            ? "Creating team..."
-            : "Queued team creation for when you're back online"
+            ? "Creating group..."
+            : "Queued group creation for when you're back online"
         );
 
-        // Call the parent's onAddTeam for any additional handling
-        onAddTeam(teamData);
+        // Call the parent's onAddGroup for any additional handling
+        onAddGroup(groupData);
 
         // Close the drawer and show success message
         onClose();
@@ -133,7 +133,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
 
   return (
     <Drawer
-      title="Add New Team"
+      title="Add New Group"
       placement="right"
       onClose={onClose}
       open={open}
@@ -145,13 +145,13 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
             Cancel
           </Button>
           <Button
-            onClick={handleAddTeam}
+            onClick={handleAddGroup}
             type="primary"
             size="large"
             loading={loading}
             disabled={!form.getFieldValue("name") || loading}
           >
-            Add Team
+            Add Group
           </Button>
         </div>
       }
@@ -171,7 +171,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
         <Form.Item
           name="name"
           label={
-            <Tooltip title="Team name">
+            <Tooltip title="Group name">
               <Space>
                 Name <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -182,7 +182,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
           <Input
             prefix={<UserOutlined />}
             size="large"
-            placeholder="Enter team name"
+            placeholder="Enter group name"
             onChange={() => setFormChanged(true)}
             variant="borderless"
             style={{ backgroundColor: "#fafafa" }}
@@ -211,7 +211,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
             <Form.Item
               name="publicNote"
               label={
-                <Tooltip title="Public information about this team">
+                <Tooltip title="Public information about this group">
                   <Space>
                     Public Note <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -219,7 +219,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
               }
             >
               <TextArea
-                placeholder="Public information about this team"
+                placeholder="Public information about this group"
                 rows={2}
                 onChange={() => setFormChanged(true)}
               />
@@ -228,7 +228,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
             <Form.Item
               name="privateNote"
               label={
-                <Tooltip title="Private information about this team (only visible to you)">
+                <Tooltip title="Private information about this group (only visible to you)">
                   <Space>
                     Private Note{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -237,7 +237,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
               }
             >
               <TextArea
-                placeholder="Private information about this team"
+                placeholder="Private information about this group"
                 rows={2}
                 onChange={() => setFormChanged(true)}
               />
@@ -246,7 +246,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
             <Form.Item
               name="endpointUrl"
               label={
-                <Tooltip title="URL endpoint for this team">
+                <Tooltip title="URL endpoint for this group">
                   <Space>
                     Endpoint URL{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -256,7 +256,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
             >
               <Input
                 prefix={<GlobalOutlined />}
-                placeholder="https://example.com/api/teams"
+                placeholder="https://example.com/api/groups"
                 onChange={() => setFormChanged(true)}
                 variant="borderless"
                 style={{ backgroundColor: "#fafafa" }}
@@ -265,7 +265,7 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Tags to categorize this team">
+                <Tooltip title="Tags to categorize this group">
                   <Space>
                     Tags <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -345,4 +345,4 @@ const TeamsAddDrawer: React.FC<TeamsAddDrawerProps> = ({
   );
 };
 
-export default TeamsAddDrawer;
+export default GroupsAddDrawer;

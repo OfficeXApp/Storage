@@ -24,54 +24,56 @@ import {
   DeleteOutlined,
   RightOutlined,
   EditOutlined,
+  LockOutlined,
+  SisternodeOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { TeamFE } from "@officexapp/types";
+import { GroupFE } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listTeamsAction } from "../../redux-offline/teams/teams.actions";
+import { listGroupsAction } from "../../redux-offline/groups/groups.actions";
 import { formatUserString } from "../../api/helpers";
 
-interface TeamsTableProps {
+interface GroupsTableProps {
   isContentTabOpen: (id: string) => boolean;
-  handleClickContentTab: (team: TeamFE, focus_tab?: boolean) => void;
+  handleClickContentTab: (group: GroupFE, focus_tab?: boolean) => void;
 }
 
-const TeamsTable: React.FC<TeamsTableProps> = ({
+const GroupsTable: React.FC<GroupsTableProps> = ({
   isContentTabOpen,
   handleClickContentTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const teams = useSelector((state: ReduxAppState) => state.teams.teams);
-  console.log(`look at teams`, teams);
+  const groups = useSelector((state: ReduxAppState) => state.groups.groups);
+  console.log(`look at groups`, groups);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
-  const [filteredTeams, setFilteredTeams] = useState(teams);
+  const [filteredGroups, setFilteredGroups] = useState(groups);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // Update filtered teams whenever search text or teams change
+  // Update filtered groups whenever search text or groups change
   useEffect(() => {
-    const filtered = teams.filter((team) =>
-      team.name.toLowerCase().includes(searchText.toLowerCase())
+    const filtered = groups.filter((group) =>
+      group.name.toLowerCase().includes(searchText.toLowerCase())
     );
-    setFilteredTeams(filtered);
-  }, [searchText, teams]);
+    setFilteredGroups(filtered);
+  }, [searchText, groups]);
 
   // Handle responsive layout
   useEffect(() => {
     try {
-      dispatch(listTeamsAction({}));
+      dispatch(listGroupsAction({}));
     } catch (e) {
       console.error(e);
     }
 
     // message.success(
     //   isOnline
-    //     ? "Fetching teams..."
-    //     : "Queued fetch teams for when you're back online"
+    //     ? "Fetching groups..."
+    //     : "Queued fetch groups for when you're back online"
     // );
 
     const handleResize = () => {
@@ -108,34 +110,53 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
   };
 
   // Dropdown menu items for the Manage button
-  const manageMenuItems = [
-    {
-      key: "1",
-      icon: <UserAddOutlined />,
-      label: "Add Members",
-      disabled: true,
-    },
-    {
-      key: "2",
-      icon: <EditOutlined />,
-      label: "Edit Team",
-      disabled: true,
-    },
-    {
-      key: "3",
-      icon: <DeleteOutlined />,
-      label: "Delete",
-      disabled: true,
-    },
-  ];
+  const manageMenuItems =
+    selectedRowKeys.length === 0
+      ? [
+          {
+            key: "add-group",
+            icon: <UserAddOutlined />,
+            label: "Add Group",
+          },
+          {
+            key: "manage-permissions",
+            icon: <LockOutlined />,
+            label: "Permissions",
+          },
+          {
+            key: "manage-webhooks",
+            icon: <SisternodeOutlined />,
+            label: "Webhooks",
+          },
+        ]
+      : [
+          {
+            key: "add-members",
+            icon: <UserAddOutlined />,
+            label: "Add Members",
+            disabled: true,
+          },
+          {
+            key: "edit-group",
+            icon: <EditOutlined />,
+            label: "Edit Group",
+            disabled: true,
+          },
+          {
+            key: "delete-group",
+            icon: <DeleteOutlined />,
+            label: "Delete",
+            disabled: true,
+          },
+        ];
 
   // Define table columns
-  const columns: ColumnsType<TeamFE> = [
+  const columns: ColumnsType<GroupFE> = [
     {
-      title: "Team",
+      title: "Group",
       dataIndex: "name",
       key: "name",
-      render: (_: any, record: TeamFE) => (
+      render: (_: any, record: GroupFE) => (
         <Space
           onClick={(e) => {
             e?.stopPropagation();
@@ -146,7 +167,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               handleClickContentTab(record, true);
-              const newUrl = `/resources/teams/${record.id}`;
+              const newUrl = `/resources/groups/${record.id}`;
               window.history.pushState({}, "", newUrl);
             }}
           >
@@ -165,7 +186,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
             }}
             color="default"
           >
-            {shortenAddress(record.id.replace("TeamID_", ""))}
+            {shortenAddress(record.id.replace("GroupID_", ""))}
           </Tag>
         </Space>
       ),
@@ -174,7 +195,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
       title: "Size",
       key: "actions",
       width: 120,
-      render: (_: any, record: TeamFE) => (
+      render: (_: any, record: GroupFE) => (
         <span
           onClick={(e) => {
             e?.stopPropagation();
@@ -214,17 +235,17 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
     return (
       <List
         itemLayout="horizontal"
-        dataSource={filteredTeams}
-        renderItem={(team: TeamFE) => (
+        dataSource={filteredGroups}
+        renderItem={(group: GroupFE) => (
           <List.Item
             style={{
               padding: "12px 16px",
               cursor: "pointer",
-              backgroundColor: isContentTabOpen(team.id)
+              backgroundColor: isContentTabOpen(group.id)
                 ? "#e6f7ff"
                 : "transparent",
             }}
-            onClick={() => handleClickContentTab(team, true)}
+            onClick={() => handleClickContentTab(group, true)}
           >
             <div
               style={{
@@ -243,7 +264,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
                   icon={<TeamOutlined />}
                 />
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: "500" }}>{team.name}</span>
+                  <span style={{ fontWeight: "500" }}>{group.name}</span>
                   <div
                     style={{
                       display: "flex",
@@ -254,7 +275,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
                     <span
                       style={{ fontSize: "12px", color: "rgba(0,0,0,0.45)" }}
                     >
-                      {team.public_note || "No description provided"}
+                      {group.public_note || "No description provided"}
                     </span>
                   </div>
                 </div>
@@ -262,7 +283,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <Tag color="default">{shortenAddress(team.id)}</Tag>
+                <Tag color="default">{shortenAddress(group.id)}</Tag>
                 <RightOutlined style={{ color: "rgba(0,0,0,0.4)" }} />
               </div>
             </div>
@@ -297,7 +318,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
           >
             {/* Search input */}
             <Input
-              placeholder="Search teams..."
+              placeholder="Search groups..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -330,15 +351,12 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
                 type="primary"
                 icon={<TeamOutlined />}
                 onClick={() => {
-                  message.info("Create team functionality to be implemented");
+                  message.info("Create group functionality to be implemented");
                 }}
               >
-                Create Team
+                Create Group
               </Button> */}
-              <Dropdown
-                menu={{ items: manageMenuItems }}
-                disabled={selectedRowKeys.length === 0}
-              >
+              <Dropdown menu={{ items: manageMenuItems }}>
                 <Button>
                   Manage{" "}
                   {selectedRowKeys.length > 0
@@ -362,7 +380,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
           >
             {/* Search input - always on top for mobile */}
             <Input
-              placeholder="Search teams..."
+              placeholder="Search groups..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -407,7 +425,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
                 type="primary"
                 icon={<TeamOutlined />}
                 onClick={() => {
-                  message.info("Create team functionality to be implemented");
+                  message.info("Create group functionality to be implemented");
                 }}
               >
                 Create
@@ -417,7 +435,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
         </div>
       </div>
 
-      {/* Teams Table */}
+      {/* Groups Table */}
       <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
         {screenType.isMobile ? (
           renderMobileList()
@@ -429,7 +447,7 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
               columnWidth: 50,
             }}
             columns={columns}
-            dataSource={filteredTeams}
+            dataSource={filteredGroups}
             rowKey="id"
             pagination={false}
             onRow={(record) => ({
@@ -453,4 +471,4 @@ const TeamsTable: React.FC<TeamsTableProps> = ({
   );
 };
 
-export default TeamsTable;
+export default GroupsTable;

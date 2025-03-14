@@ -29,11 +29,12 @@ import { DriveID, UserID } from "@officexapp/types";
 import { disksOptimisticDexieMiddleware } from "./disks/disks.optimistic";
 import { contactsOptimisticDexieMiddleware } from "./contacts/contacts.optimistic";
 import { drivesOptimisticDexieMiddleware } from "./drives/drives.optimistic";
-import { teamsOptimisticDexieMiddleware } from "./teams/teams.optimistic";
-import { teamInvitesOptimisticDexieMiddleware } from "./team-invites/team-invites.optimistic";
+import { groupsOptimisticDexieMiddleware } from "./groups/groups.optimistic";
+import { groupInvitesOptimisticDexieMiddleware } from "./group-invites/group-invites.optimistic";
 import { tagsOptimisticDexieMiddleware } from "./tags/tags.optimistic";
 import { webhooksOptimisticDexieMiddleware } from "./webhooks/webhooks.optimistic";
 import { apiKeysOptimisticDexieMiddleware } from "./api-keys/api-keys.optimistic";
+import { permissionsOptimisticDexieMiddleware } from "./permissions/permissions.optimistic";
 
 // Custom discard function
 const discard = (error: any) => {
@@ -226,11 +227,12 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         disksOptimisticDexieMiddleware(_idset),
         contactsOptimisticDexieMiddleware(_idset),
         drivesOptimisticDexieMiddleware(_idset),
-        teamsOptimisticDexieMiddleware(_idset),
-        teamInvitesOptimisticDexieMiddleware(_idset),
+        groupsOptimisticDexieMiddleware(_idset),
+        groupInvitesOptimisticDexieMiddleware(_idset),
         tagsOptimisticDexieMiddleware(_idset),
         webhooksOptimisticDexieMiddleware(_idset),
         apiKeysOptimisticDexieMiddleware(_idset),
+        permissionsOptimisticDexieMiddleware(_idset),
         // This comes after the optimistic middleware
         offlineMiddleware,
       ];

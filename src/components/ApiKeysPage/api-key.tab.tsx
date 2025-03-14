@@ -611,12 +611,22 @@ const data = await response.json();`;
                             >
                               {apiKey.name}
                             </Title>
+                            <Tag>
+                              {shortenAddress(
+                                apiKey.id.replace("ApiKeyID_", "")
+                              )}
+                            </Tag>
                             {getStatusTag()}
                           </div>
-                          <Space>
+                          <Space style={{ marginTop: "4px" }}>
                             {apiKey.user_name && (
                               <Text type="secondary">
-                                Owner: {apiKey.user_name}
+                                Owned by {apiKey.user_name}{" "}
+                                <code style={{ fontSize: "0.6rem" }}>
+                                  {shortenAddress(
+                                    apiKey.user_id.replace("UserID_", "")
+                                  )}
+                                </code>
                               </Text>
                             )}
                           </Space>
@@ -663,13 +673,11 @@ const data = await response.json();`;
                       {/* Key value display */}
                       <Card size="small" style={{ marginTop: 8 }}>
                         <Space>
-                          <KeyOutlined style={{ marginRight: 8 }} />
-                          <Tag
-                            color="blue"
-                            onClick={() => copyToClipboard(apiKey.value)}
-                          >
-                            {shortenKey(apiKey.value)}
-                          </Tag>
+                          <Input.Password
+                            readOnly
+                            value={apiKey.value}
+                            style={{ width: 300 }}
+                          />
                           <Button
                             type="text"
                             icon={<CopyOutlined />}

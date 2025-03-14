@@ -62,7 +62,7 @@ export const listApiKeysAction = (user_id: UserID) => ({
       // Define the effect (the API call to make)
       effect: {
         url: `/api_keys/list/${user_id}`,
-        method: "GET",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,

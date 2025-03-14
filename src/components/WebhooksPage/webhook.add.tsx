@@ -42,6 +42,45 @@ const WEBHOOK_EVENT_OPTIONS = Object.entries(WebhookEventLabel).map(
   })
 );
 
+// Group event types for better organization in the search dropdown
+const FILE_OPERATIONS = [
+  WebhookEventLabel.FILE_VIEWED,
+  WebhookEventLabel.FILE_CREATED,
+  WebhookEventLabel.FILE_UPDATED,
+  WebhookEventLabel.FILE_DELETED,
+  WebhookEventLabel.FILE_SHARED,
+  WebhookEventLabel.SUBFILE_VIEWED,
+  WebhookEventLabel.SUBFILE_CREATED,
+  WebhookEventLabel.SUBFILE_UPDATED,
+  WebhookEventLabel.SUBFILE_DELETED,
+  WebhookEventLabel.SUBFILE_SHARED,
+];
+
+const FOLDER_OPERATIONS = [
+  WebhookEventLabel.FOLDER_VIEWED,
+  WebhookEventLabel.FOLDER_CREATED,
+  WebhookEventLabel.FOLDER_UPDATED,
+  WebhookEventLabel.FOLDER_DELETED,
+  WebhookEventLabel.FOLDER_SHARED,
+  WebhookEventLabel.SUBFOLDER_VIEWED,
+  WebhookEventLabel.SUBFOLDER_CREATED,
+  WebhookEventLabel.SUBFOLDER_UPDATED,
+  WebhookEventLabel.SUBFOLDER_DELETED,
+  WebhookEventLabel.SUBFOLDER_SHARED,
+];
+
+const LOCKED_ALT_INDEX_EVENTS = [
+  WebhookEventLabel.DRIVE_RESTORE_TRASH,
+  WebhookEventLabel.DRIVE_STATE_DIFFS,
+  WebhookEventLabel.GROUP_INVITE_CREATED,
+  WebhookEventLabel.GROUP_INVITE_UPDATED,
+];
+
+const TAG_OPERATIONS = [
+  WebhookEventLabel.TAG_ADDED,
+  WebhookEventLabel.TAG_REMOVED,
+];
+
 interface WebhooksAddDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -64,6 +103,8 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
   const [inputValue, setInputValue] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
   const [formChanged, setFormChanged] = useState(false);
+  const [useAnyFile, setUseAnyFile] = useState(false);
+  const [useAnyFolder, setUseAnyFolder] = useState(false);
 
   // Reset form when drawer opens
   useEffect(() => {
@@ -76,41 +117,67 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
       setInputValue("");
       setUrlError(null);
       setFormChanged(false);
+      setUseAnyFile(false);
+      setUseAnyFolder(false);
 
       // Set default alt_index based on initial event type selection
       const initialEvent = form.getFieldValue("event");
-      setDefaultAltIndex(initialEvent);
+      handleEventTypeChange(initialEvent);
     }
   }, [open, form]);
 
   // Set default alt_index based on event type
-  const setDefaultAltIndex = (eventType: string) => {
+  const handleEventTypeChange = (eventType: WebhookEventLabel) => {
     let defaultAltIndex = "";
+    setFormChanged(true);
+
+    // Reset the switches
+    setUseAnyFile(false);
+    setUseAnyFolder(false);
 
     // Map event types to default alt_index values
-    switch (eventType) {
-      case WebhookEventLabel.FILE_CREATED:
-        defaultAltIndex = "FILE_CREATED";
-        break;
-      case WebhookEventLabel.FOLDER_CREATED:
-        defaultAltIndex = "FOLDER_CREATED";
-        break;
-      case WebhookEventLabel.DRIVE_RESTORE_TRASH:
-        defaultAltIndex = "RESTORE_TRASH";
-        break;
-      case WebhookEventLabel.DRIVE_STATE_DIFFS:
-        defaultAltIndex = "STATE_DIFFS";
-        break;
-      // Add SUPERSWAP_USER for a specific event type
-      // You may need to add the corresponding enum value if it exists
-      case "group.invite.created": // Assuming this matches with a SUPERSWAP_USER case
-        defaultAltIndex = "SUPERSWAP_USER";
-        break;
-      default:
-        defaultAltIndex = uuidv4().substring(0, 8);
+    if (FILE_OPERATIONS.includes(eventType)) {
+      defaultAltIndex = uuidv4().substring(0, 8);
+    } else if (FOLDER_OPERATIONS.includes(eventType)) {
+      defaultAltIndex = uuidv4().substring(0, 8);
+    } else if (eventType === WebhookEventLabel.DRIVE_RESTORE_TRASH) {
+      defaultAltIndex = "RESTORE_TRASH";
+    } else if (eventType === WebhookEventLabel.DRIVE_STATE_DIFFS) {
+      defaultAltIndex = "STATE_DIFFS";
+    } else if (
+      eventType === WebhookEventLabel.GROUP_INVITE_CREATED ||
+      eventType === WebhookEventLabel.GROUP_INVITE_UPDATED
+    ) {
+      defaultAltIndex = "SUPERSWAP_USER";
+    } else if (TAG_OPERATIONS.includes(eventType)) {
+      defaultAltIndex = uuidv4().substring(0, 8);
+    } else {
+      defaultAltIndex = uuidv4().substring(0, 8);
     }
 
     form.setFieldsValue({ alt_index: defaultAltIndex });
+  };
+
+  // Handle Alt Index switch for file operations
+  const handleAnyFileSwitch = (checked: boolean) => {
+    setUseAnyFile(checked);
+    if (checked) {
+      form.setFieldsValue({ alt_index: "ANY_FILE" });
+    } else {
+      form.setFieldsValue({ alt_index: uuidv4().substring(0, 8) });
+    }
+    setFormChanged(true);
+  };
+
+  // Handle Alt Index switch for folder operations
+  const handleAnyFolderSwitch = (checked: boolean) => {
+    setUseAnyFolder(checked);
+    if (checked) {
+      form.setFieldsValue({ alt_index: "ANY_FOLDER" });
+    } else {
+      form.setFieldsValue({ alt_index: uuidv4().substring(0, 8) });
+    }
+    setFormChanged(true);
   };
 
   // Handle URL validation
@@ -214,6 +281,124 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
     }
   };
 
+  // Render the appropriate Alt Index field based on the selected event type
+  const renderAltIndexField = () => {
+    const currentEvent = form.getFieldValue("event");
+
+    if (FILE_OPERATIONS.includes(currentEvent)) {
+      return (
+        <Form.Item
+          name="alt_index"
+          label={
+            <Tooltip title="Alternative index for the webhook">
+              <Space>
+                Alternative Index{" "}
+                <InfoCircleOutlined style={{ color: "#aaa" }} />
+              </Space>
+            </Tooltip>
+          }
+        >
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Space align="center">
+              <Switch checked={useAnyFile} onChange={handleAnyFileSwitch} />
+              <Text>{useAnyFile ? "All" : "One"}</Text>
+            </Space>
+            <Input
+              prefix={<CodeOutlined />}
+              placeholder="File identifier"
+              value={form.getFieldValue("alt_index")}
+              onChange={(e) => {
+                form.setFieldsValue({ alt_index: e.target.value });
+                setFormChanged(true);
+              }}
+              disabled={useAnyFile}
+              variant="borderless"
+              style={{ backgroundColor: "#fafafa" }}
+            />
+          </Space>
+        </Form.Item>
+      );
+    } else if (FOLDER_OPERATIONS.includes(currentEvent)) {
+      return (
+        <Form.Item
+          name="alt_index"
+          label={
+            <Tooltip title="Alternative index for the webhook">
+              <Space>
+                Alternative Index{" "}
+                <InfoCircleOutlined style={{ color: "#aaa" }} />
+              </Space>
+            </Tooltip>
+          }
+        >
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Space align="center">
+              <Switch checked={useAnyFolder} onChange={handleAnyFolderSwitch} />
+              <Text>{useAnyFolder ? "All" : "One"}</Text>
+            </Space>
+            <Input
+              prefix={<CodeOutlined />}
+              placeholder="Folder identifier"
+              value={form.getFieldValue("alt_index")}
+              onChange={(e) => {
+                form.setFieldsValue({ alt_index: e.target.value });
+                setFormChanged(true);
+              }}
+              disabled={useAnyFolder}
+              variant="borderless"
+              style={{ backgroundColor: "#fafafa" }}
+            />
+          </Space>
+        </Form.Item>
+      );
+    } else if (LOCKED_ALT_INDEX_EVENTS.includes(currentEvent)) {
+      return (
+        <Form.Item
+          name="alt_index"
+          label={
+            <Tooltip title="Alternative index for the webhook (fixed for this event type)">
+              <Space>
+                Alternative Index{" "}
+                <InfoCircleOutlined style={{ color: "#aaa" }} />
+              </Space>
+            </Tooltip>
+          }
+        >
+          <Input
+            prefix={<CodeOutlined />}
+            placeholder="Alternative index"
+            disabled={true}
+            variant="borderless"
+            style={{ backgroundColor: "#fafafa" }}
+          />
+        </Form.Item>
+      );
+    } else {
+      // For TAG_OPERATIONS and any other event types
+      return (
+        <Form.Item
+          name="alt_index"
+          label={
+            <Tooltip title="Alternative index for the webhook">
+              <Space>
+                Alternative Index{" "}
+                <InfoCircleOutlined style={{ color: "#aaa" }} />
+              </Space>
+            </Tooltip>
+          }
+        >
+          <Input
+            prefix={<CodeOutlined />}
+            placeholder="Custom identifier"
+            onChange={() => setFormChanged(true)}
+            variant="borderless"
+            style={{ backgroundColor: "#fafafa" }}
+          />
+        </Form.Item>
+      );
+    }
+  };
+
   return (
     <Drawer
       title="Add New Webhook"
@@ -273,15 +458,19 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
           <Select
             placeholder="Select event type"
             size="large"
-            onChange={(value) => {
-              setFormChanged(true);
-              setDefaultAltIndex(value);
-            }}
+            onChange={handleEventTypeChange}
             variant="borderless"
             style={{ backgroundColor: "#fafafa" }}
+            showSearch
+            filterOption={(input, option) =>
+              (((option?.label as string) || "").toLowerCase() ?? "").includes(
+                input.toLowerCase()
+              )
+            }
+            optionFilterProp="label"
           >
             {WEBHOOK_EVENT_OPTIONS.map((event) => (
-              <Option key={event.value} value={event.value}>
+              <Option key={event.value} value={event.value} label={event.label}>
                 {event.label}
               </Option>
             ))}
@@ -367,25 +556,8 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
               />
             </Form.Item>
 
-            <Form.Item
-              name="alt_index"
-              label={
-                <Tooltip title="Alternative index for the webhook (auto-generated if empty)">
-                  <Space>
-                    Alternative Index{" "}
-                    <InfoCircleOutlined style={{ color: "#aaa" }} />
-                  </Space>
-                </Tooltip>
-              }
-            >
-              <Input
-                prefix={<CodeOutlined />}
-                placeholder="custom-index-123"
-                onChange={() => setFormChanged(true)}
-                variant="borderless"
-                style={{ backgroundColor: "#fafafa" }}
-              />
-            </Form.Item>
+            {/* Dynamic Alt Index field that changes based on event type */}
+            {renderAltIndexField()}
 
             <Form.Item
               name="signature"
@@ -421,23 +593,6 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   setIsActive(checked);
                   setFormChanged(true);
                 }}
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="filters"
-              label={
-                <Tooltip title="Filter string for events (JSON format)">
-                  <Space>
-                    Filters <InfoCircleOutlined style={{ color: "#aaa" }} />
-                  </Space>
-                </Tooltip>
-              }
-            >
-              <TextArea
-                placeholder='{"key": "value"}'
-                rows={2}
-                onChange={() => setFormChanged(true)}
               />
             </Form.Item>
 

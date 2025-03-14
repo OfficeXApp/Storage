@@ -42,7 +42,7 @@ const SandboxPage = () => {
       createDiskAction({
         name: diskName,
         disk_type: DiskTypeEnum.LocalSSD,
-        public_note: "Storage for team project files",
+        public_note: "Storage for group project files",
         private_note: "Contains sensitive project data",
         auth_json: JSON.stringify({
           access_key: "AKIAIOSFODNN7EXAMPLE",

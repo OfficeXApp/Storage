@@ -84,7 +84,7 @@ export const getLastOnlineStatus = (lastOnlineMs: number) => {
   if (!lastOnlineMs) {
     return {
       status: "default",
-      text: "Not Yet Onboarded",
+      text: "Not Seen Yet",
     };
   }
 

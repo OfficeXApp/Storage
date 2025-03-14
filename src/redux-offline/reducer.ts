@@ -8,26 +8,34 @@ import {
 import { OfflineAction } from "@redux-offline/redux-offline/lib/types";
 import { TAGS_REDUX_KEY, tagsReducer } from "./tags/tags.reducer";
 import { DRIVES_REDUX_KEY, drivesReducer } from "./drives/drives.reducer";
-import { TEAMS_REDUX_KEY, teamsReducer } from "./teams/teams.reducer";
+import { GROUPS_REDUX_KEY, groupsReducer } from "./groups/groups.reducer";
 import {
-  TEAM_INVITES_REDUX_KEY,
-  teamInvitesReducer,
-} from "./team-invites/team-invites.reducer";
+  GROUP_INVITES_REDUX_KEY,
+  groupInvitesReducer,
+} from "./group-invites/group-invites.reducer";
 import {
   WEBHOOKS_REDUX_KEY,
   webhooksReducer,
 } from "./webhooks/webhooks.reducer";
 import { APIKEYS_REDUX_KEY, apiKeysReducer } from "./api-keys/api-keys.reducer";
+import {
+  DIRECTORY_PERMISSIONS_REDUX_KEY,
+  directoryPermissionsReducer,
+  SYSTEM_PERMISSIONS_REDUX_KEY,
+  systemPermissionsReducer,
+} from "./permissions/permissions.reducer";
 
 export const rootReducer = combineReducers({
   [DISKS_REDUX_KEY]: disksReducer,
   [CONTACTS_REDUX_KEY]: contactsReducer,
   [TAGS_REDUX_KEY]: tagsReducer,
   [DRIVES_REDUX_KEY]: drivesReducer,
-  [TEAMS_REDUX_KEY]: teamsReducer,
-  [TEAM_INVITES_REDUX_KEY]: teamInvitesReducer,
+  [GROUPS_REDUX_KEY]: groupsReducer,
+  [GROUP_INVITES_REDUX_KEY]: groupInvitesReducer,
   [WEBHOOKS_REDUX_KEY]: webhooksReducer,
   [APIKEYS_REDUX_KEY]: apiKeysReducer,
+  [SYSTEM_PERMISSIONS_REDUX_KEY]: systemPermissionsReducer,
+  [DIRECTORY_PERMISSIONS_REDUX_KEY]: directoryPermissionsReducer,
   // Any other reducers would go here
 });
 

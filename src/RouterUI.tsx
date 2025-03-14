@@ -47,7 +47,7 @@ import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
 import SandboxPage from "./components/SandboxPage";
 import ContactsPage from "./components/ContactsPage";
-import TeamsPage from "./components/TeamsPage";
+import GroupsPage from "./components/GroupsPage";
 import PermissionsPage from "./components/PermissionsPage";
 import TagsPage from "./components/TagsPage";
 import DisksPage from "./components/DisksPage";
@@ -57,12 +57,13 @@ import WebhooksPage from "./components/WebhooksPage";
 import OrganizationSwitcher from "./components/SwitchOrganization";
 import TemplateCrudPage from "./components/TemplateCrudPage";
 import ContactPage from "./components/ContactsPage/contact.page";
-import TeamPage from "./components/TeamsPage/team.page";
+import GroupPage from "./components/GroupsPage/group.page";
 import TagPage from "./components/TagsPage/tag.page";
 import DiskPage from "./components/DisksPage/disk.page";
 import WebhookPage from "./components/WebhooksPage/webhook.page";
 import DrivePage from "./components/DrivesPage/drive.page";
 import ApiKeyPage from "./components/ApiKeysPage/api-key.page";
+import PermissionPage from "./components/PermissionsPage/permission.page";
 
 const { Sider, Content } = Layout;
 
@@ -161,7 +162,7 @@ const SideMenu = ({
       children: [
         {
           key: "people",
-          label: "Teams",
+          label: "Groups",
           type: "group",
           children: [
             {
@@ -175,10 +176,10 @@ const SideMenu = ({
               },
             },
             {
-              key: "teams",
-              label: "Teams",
+              key: "groups",
+              label: "Groups",
               onClick: () => {
-                navigate("/resources/teams");
+                navigate("/resources/groups");
                 if (setSidebarVisible) {
                   setSidebarVisible(false);
                 }
@@ -424,11 +425,18 @@ const RouterUI = () => {
                   path="/resources/contacts/:userID"
                   element={<ContactPage />}
                 />
-                <Route path="/resources/teams" element={<TeamsPage />} />
-                <Route path="/resources/teams/:teamID" element={<TeamPage />} />
+                <Route path="/resources/groups" element={<GroupsPage />} />
+                <Route
+                  path="/resources/groups/:groupID"
+                  element={<GroupPage />}
+                />
                 <Route
                   path="/resources/permissions"
                   element={<PermissionsPage />}
+                />
+                <Route
+                  path="/resources/permissions/:permissionVariant/:permissionID"
+                  element={<PermissionPage />}
                 />
                 <Route path="/resources/tags" element={<TagsPage />} />
                 <Route path="/resources/tags/:tagID" element={<TagPage />} />

@@ -1,27 +1,27 @@
-// src/redux-offline/team-invites/team-invites.reducer.ts
-import { TeamInviteFE, TeamInviteID } from "@officexapp/types";
+// src/redux-offline/group-invites/group-invites.reducer.ts
+import { GroupInviteFE, GroupInviteID } from "@officexapp/types";
 import {
-  CREATE_TEAM_INVITE,
-  CREATE_TEAM_INVITE_COMMIT,
-  CREATE_TEAM_INVITE_ROLLBACK,
-  LIST_TEAM_INVITES,
-  LIST_TEAM_INVITES_COMMIT,
-  LIST_TEAM_INVITES_ROLLBACK,
-  GET_TEAM_INVITE,
-  GET_TEAM_INVITE_COMMIT,
-  GET_TEAM_INVITE_ROLLBACK,
-  UPDATE_TEAM_INVITE,
-  UPDATE_TEAM_INVITE_COMMIT,
-  UPDATE_TEAM_INVITE_ROLLBACK,
-  DELETE_TEAM_INVITE,
-  DELETE_TEAM_INVITE_COMMIT,
-  DELETE_TEAM_INVITE_ROLLBACK,
-} from "./team-invites.actions";
+  CREATE_GROUP_INVITE,
+  CREATE_GROUP_INVITE_COMMIT,
+  CREATE_GROUP_INVITE_ROLLBACK,
+  LIST_GROUP_INVITES,
+  LIST_GROUP_INVITES_COMMIT,
+  LIST_GROUP_INVITES_ROLLBACK,
+  GET_GROUP_INVITE,
+  GET_GROUP_INVITE_COMMIT,
+  GET_GROUP_INVITE_ROLLBACK,
+  UPDATE_GROUP_INVITE,
+  UPDATE_GROUP_INVITE_COMMIT,
+  UPDATE_GROUP_INVITE_ROLLBACK,
+  DELETE_GROUP_INVITE,
+  DELETE_GROUP_INVITE_COMMIT,
+  DELETE_GROUP_INVITE_ROLLBACK,
+} from "./group-invites.actions";
 
-export const TEAM_INVITES_REDUX_KEY = "teamInvites";
-export const TEAM_INVITES_DEXIE_TABLE = TEAM_INVITES_REDUX_KEY;
+export const GROUP_INVITES_REDUX_KEY = "groupInvites";
+export const GROUP_INVITES_DEXIE_TABLE = GROUP_INVITES_REDUX_KEY;
 
-export interface TeamInviteFEO extends TeamInviteFE {
+export interface GroupInviteFEO extends GroupInviteFE {
   _isOptimistic?: boolean; // flag for optimistic updates
   _optimisticID?: string; // unique ID for optimistic updates
   _syncWarning?: string; // tooltip for users
@@ -30,14 +30,14 @@ export interface TeamInviteFEO extends TeamInviteFE {
   _markedForDeletion?: boolean; // flag for deletion
 }
 
-interface TeamInvitesState {
-  invites: TeamInviteFEO[];
-  inviteMap: Record<TeamInviteID, TeamInviteFEO>;
+interface GroupInvitesState {
+  invites: GroupInviteFEO[];
+  inviteMap: Record<GroupInviteID, GroupInviteFEO>;
   loading: boolean;
   error: string | null;
 }
 
-const initialState: TeamInvitesState = {
+const initialState: GroupInvitesState = {
   invites: [],
   inviteMap: {},
   loading: false,
@@ -45,10 +45,10 @@ const initialState: TeamInvitesState = {
 };
 
 const updateOrAddInvite = (
-  invites: TeamInviteFEO[],
-  newInvite: TeamInviteFEO,
-  identifierKey: keyof TeamInviteFEO = "id"
-): TeamInviteFEO[] => {
+  invites: GroupInviteFEO[],
+  newInvite: GroupInviteFEO,
+  identifierKey: keyof GroupInviteFEO = "id"
+): GroupInviteFEO[] => {
   const existingIndex = invites.findIndex(
     (invite) => invite[identifierKey] === newInvite[identifierKey]
   );
@@ -66,15 +66,15 @@ const updateOrAddInvite = (
   }
 };
 
-export const teamInvitesReducer = (
+export const groupInvitesReducer = (
   state = initialState,
   action: any
-): TeamInvitesState => {
+): GroupInvitesState => {
   switch (action.type) {
-    // ------------------------------ GET TEAM INVITE --------------------------------- //
+    // ------------------------------ GET GROUP INVITE --------------------------------- //
 
-    // Get Team Invite
-    case GET_TEAM_INVITE: {
+    // Get Group Invite
+    case GET_GROUP_INVITE: {
       if (!action.optimistic) return { ...state, loading: true, error: null };
 
       return {
@@ -89,7 +89,7 @@ export const teamInvitesReducer = (
       };
     }
 
-    case GET_TEAM_INVITE_COMMIT: {
+    case GET_GROUP_INVITE_COMMIT: {
       const optimisticID = action.meta?.optimisticID;
       // Update the optimistic invite with the real data
       return {
@@ -108,7 +108,7 @@ export const teamInvitesReducer = (
       };
     }
 
-    case GET_TEAM_INVITE_ROLLBACK: {
+    case GET_GROUP_INVITE_ROLLBACK: {
       // Update the optimistic invite with the error message
       const newInviteMap = { ...state.inviteMap };
       delete newInviteMap[action.meta.optimisticID];
@@ -128,13 +128,13 @@ export const teamInvitesReducer = (
         }),
         inviteMap: newInviteMap,
         loading: false,
-        error: action.payload.message || "Failed to fetch team invite",
+        error: action.payload.message || "Failed to fetch group invite",
       };
     }
 
-    // ------------------------------ LIST TEAM INVITES --------------------------------- //
+    // ------------------------------ LIST GROUP INVITES --------------------------------- //
 
-    case LIST_TEAM_INVITES: {
+    case LIST_GROUP_INVITES: {
       return {
         ...state,
         invites: action.optimistic || [],
@@ -143,7 +143,7 @@ export const teamInvitesReducer = (
       };
     }
 
-    case LIST_TEAM_INVITES_COMMIT: {
+    case LIST_GROUP_INVITES_COMMIT: {
       // find & replace optimistic invites with action.payload.ok.data.items
       // or even replace entire invites
       return {
@@ -153,18 +153,18 @@ export const teamInvitesReducer = (
       };
     }
 
-    case LIST_TEAM_INVITES_ROLLBACK: {
+    case LIST_GROUP_INVITES_ROLLBACK: {
       return {
         ...state,
         invites: [],
         loading: false,
-        error: action.error_message || "Failed to fetch team invites",
+        error: action.error_message || "Failed to fetch group invites",
       };
     }
 
-    // ------------------------------ CREATE TEAM INVITE --------------------------------- //
+    // ------------------------------ CREATE GROUP INVITE --------------------------------- //
 
-    case CREATE_TEAM_INVITE: {
+    case CREATE_GROUP_INVITE: {
       const optimisticInvite = action.optimistic;
       if (!optimisticInvite) return { ...state, loading: true, error: null };
 
@@ -180,7 +180,7 @@ export const teamInvitesReducer = (
       };
     }
 
-    case CREATE_TEAM_INVITE_COMMIT: {
+    case CREATE_GROUP_INVITE_COMMIT: {
       const optimisticID = action.meta?.optimisticID;
       // Remove the optimistic invite from our items array & indexdb
       const newInvite = {
@@ -202,7 +202,7 @@ export const teamInvitesReducer = (
       };
     }
 
-    case CREATE_TEAM_INVITE_ROLLBACK: {
+    case CREATE_GROUP_INVITE_ROLLBACK: {
       // Add a sync warning to the optimistic invite
       const newReduxInvites = state.invites.map((invite) => {
         if (invite._optimisticID === action.meta.optimisticID) {
@@ -221,13 +221,13 @@ export const teamInvitesReducer = (
         ...state,
         invites: newReduxInvites,
         loading: false,
-        error: action.payload.message || "Failed to create team invite",
+        error: action.payload.message || "Failed to create group invite",
       };
     }
 
-    // ------------------------------ UPDATE TEAM INVITE --------------------------------- //
+    // ------------------------------ UPDATE GROUP INVITE --------------------------------- //
 
-    case UPDATE_TEAM_INVITE: {
+    case UPDATE_GROUP_INVITE: {
       const optimisticInvite = action.optimistic;
       if (!optimisticInvite) return { ...state, loading: true, error: null };
 
@@ -239,7 +239,7 @@ export const teamInvitesReducer = (
       };
     }
 
-    case UPDATE_TEAM_INVITE_COMMIT: {
+    case UPDATE_GROUP_INVITE_COMMIT: {
       const optimisticID = action.meta?.optimisticID;
       // Update the optimistic invite with the real data
       return {
@@ -261,7 +261,7 @@ export const teamInvitesReducer = (
       };
     }
 
-    case UPDATE_TEAM_INVITE_ROLLBACK: {
+    case UPDATE_GROUP_INVITE_ROLLBACK: {
       // Update the optimistic invite with the error message
       return {
         ...state,
@@ -278,13 +278,13 @@ export const teamInvitesReducer = (
           return invite;
         }),
         loading: false,
-        error: action.payload.message || "Failed to update team invite",
+        error: action.payload.message || "Failed to update group invite",
       };
     }
 
-    // ------------------------------ DELETE TEAM INVITE --------------------------------- //
+    // ------------------------------ DELETE GROUP INVITE --------------------------------- //
 
-    case DELETE_TEAM_INVITE: {
+    case DELETE_GROUP_INVITE: {
       const optimisticInvite = action.optimistic;
       if (!optimisticInvite) return { ...state, loading: true, error: null };
 
@@ -296,7 +296,7 @@ export const teamInvitesReducer = (
       };
     }
 
-    case DELETE_TEAM_INVITE_COMMIT: {
+    case DELETE_GROUP_INVITE_COMMIT: {
       const optimisticID = action.meta?.optimisticID;
       // Update the optimistic invite with the real data
       return {
@@ -308,7 +308,7 @@ export const teamInvitesReducer = (
       };
     }
 
-    case DELETE_TEAM_INVITE_ROLLBACK: {
+    case DELETE_GROUP_INVITE_ROLLBACK: {
       // Update the optimistic invite with the error message
       return {
         ...state,
@@ -325,7 +325,7 @@ export const teamInvitesReducer = (
           return invite;
         }),
         loading: false,
-        error: action.payload.message || "Failed to delete team invite",
+        error: action.payload.message || "Failed to delete group invite",
       };
     }
 

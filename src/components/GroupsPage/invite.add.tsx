@@ -28,27 +28,27 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import {
-  IRequestCreateTeamInvite,
-  TeamID,
-  TeamRole,
+  IRequestCreateGroupInvite,
+  GroupID,
+  GroupRole,
   ContactFE,
   UserID,
   GenerateID,
 } from "@officexapp/types";
-import { createTeamInviteAction } from "../../redux-offline/team-invites/team-invites.actions";
+import { createGroupInviteAction } from "../../redux-offline/group-invites/group-invites.actions";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { shortenAddress } from "../../framework/identity/constants";
 import { useIdentitySystem } from "../../framework/identity";
-import { TeamFEO } from "../../redux-offline/teams/teams.reducer";
+import { GroupFEO } from "../../redux-offline/groups/groups.reducer";
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-interface AddTeamInviteDrawerProps {
+interface AddGroupInviteDrawerProps {
   open: boolean;
   onClose: () => void;
-  team: TeamFEO;
+  group: GroupFEO;
 }
 
 enum InviteType {
@@ -81,10 +81,10 @@ const extractUserID = (input: string): string | null => {
   return null;
 };
 
-const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
+const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
   open,
   onClose,
-  team,
+  group,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
@@ -172,11 +172,11 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
   const generateMagicLink = () => {
     setGeneratingLink(true);
 
-    // Create a team invite with blank invitee_id
-    const teamInviteData: IRequestCreateTeamInvite = {
-      id: GenerateID.TeamInvite(),
-      team_id: team.id,
-      role: TeamRole.MEMBER,
+    // Create a group invite with blank invitee_id
+    const groupInviteData: IRequestCreateGroupInvite = {
+      id: GenerateID.GroupInvite(),
+      group_id: group.id,
+      role: GroupRole.MEMBER,
       active_from: Date.now(),
       expires_at: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days from now
     };
@@ -184,13 +184,13 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
     // Simulate API call
     setTimeout(() => {
       // Generate a mock invite link
-      const mockInviteLink = `https://officex.app/invite/${teamInviteData.id}`;
+      const mockInviteLink = `https://officex.app/invite/${groupInviteData.id}`;
       setInviteLink(mockInviteLink);
       setLinkGenerated(true);
       setGeneratingLink(false);
 
-      // Dispatch createTeamInviteAction
-      dispatch(createTeamInviteAction(teamInviteData));
+      // Dispatch createGroupInviteAction
+      dispatch(createGroupInviteAction(groupInviteData));
 
       message.success(
         isOnline
@@ -211,7 +211,7 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
     form
       .validateFields()
       .then((values) => {
-        const role = values.role || TeamRole.MEMBER;
+        const role = values.role || GroupRole.MEMBER;
         let inviteeId: string | undefined;
 
         switch (inviteType) {
@@ -239,9 +239,9 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
             return;
         }
 
-        const teamInviteData: IRequestCreateTeamInvite = {
-          id: GenerateID.TeamInvite(),
-          team_id: team.id,
+        const groupInviteData: IRequestCreateGroupInvite = {
+          id: GenerateID.GroupInvite(),
+          group_id: group.id,
           invitee_id: inviteeId,
           role: role,
           active_from: values.activeFrom
@@ -251,13 +251,13 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
           note: values.note,
         };
 
-        // Dispatch action to create team invite
-        dispatch(createTeamInviteAction(teamInviteData));
+        // Dispatch action to create group invite
+        dispatch(createGroupInviteAction(groupInviteData));
 
         message.success(
           isOnline
-            ? `Creating ${inviteType === InviteType.PUBLIC ? "public" : ""} team invite...`
-            : `Queued ${inviteType === InviteType.PUBLIC ? "public" : ""} team invite creation for when you're back online`
+            ? `Creating ${inviteType === InviteType.PUBLIC ? "public" : ""} group invite...`
+            : `Queued ${inviteType === InviteType.PUBLIC ? "public" : ""} group invite creation for when you're back online`
         );
 
         // Close the drawer
@@ -298,9 +298,9 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
       title={
         <div>
           <Title level={4} style={{ margin: 0 }}>
-            Invite to Team
+            Invite to Group
           </Title>
-          <Text type="secondary">{team.name}</Text>
+          <Text type="secondary">{group.name}</Text>
         </div>
       }
       placement="right"
@@ -332,7 +332,7 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
         form={form}
         layout="vertical"
         initialValues={{
-          role: TeamRole.MEMBER,
+          role: GroupRole.MEMBER,
           inviteType: InviteType.MAGIC_LINK,
         }}
       >
@@ -366,7 +366,7 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
           {linkGenerated && (
             <Text type="success" style={{ display: "block", marginTop: "8px" }}>
               Success! Share this link with anyone you want to invite to the
-              team.
+              group.
             </Text>
           )}
         </Form.Item>
@@ -393,7 +393,7 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
             <Form.Item
               name="inviteType"
               label={
-                <Tooltip title="Choose how to invite people to this team">
+                <Tooltip title="Choose how to invite people to this group">
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> Invite Type
                   </Space>
@@ -543,7 +543,7 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
                 <Text type="success">
                   <GlobalOutlined style={{ marginRight: "8px" }} />
                   This will create a public invite that anyone can use to join
-                  the team.
+                  the group.
                 </Text>
               </div>
             )}
@@ -553,7 +553,7 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
                 <Text style={{ color: "gray" }}>
                   <LinkOutlined style={{ marginRight: "8px" }} />
                   Configure settings for the magic invite link. Anyone with this
-                  link can join the team, and it can only be used once.
+                  link can join the group, and it can only be used once.
                 </Text>
               </div>
             )}
@@ -568,9 +568,9 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
                 </Tooltip>
               }
             >
-              <Select defaultValue={TeamRole.MEMBER}>
-                <Option value={TeamRole.MEMBER}>Regular Member</Option>
-                <Option value={TeamRole.ADMIN}>Admin</Option>
+              <Select defaultValue={GroupRole.MEMBER}>
+                <Option value={GroupRole.MEMBER}>Regular Member</Option>
+                <Option value={GroupRole.ADMIN}>Admin</Option>
               </Select>
             </Form.Item>
 
@@ -630,4 +630,4 @@ const AddTeamInviteDrawer: React.FC<AddTeamInviteDrawerProps> = ({
   );
 };
 
-export default AddTeamInviteDrawer;
+export default AddGroupInviteDrawer;

@@ -102,8 +102,6 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   const [form] = Form.useForm();
   const screenType = useScreenType();
 
-  console.log(">>> permission", permission);
-
   // Check if permission is optimistic
   const isOptimistic = Boolean(permission._isOptimistic);
   const syncWarning = permission._syncWarning || "";
@@ -885,7 +883,8 @@ const deletePermission = async (permissionId) => {
                                 <div style={{ marginTop: 4 }}>
                                   <GlobalOutlined />
                                   &nbsp; &nbsp;
-                                  {(permission as any).resource_name}
+                                  {(permission as any).resource_name ||
+                                    permission.resource_id.slice(0, 20)}
                                   &nbsp; &nbsp;
                                   <TagCopy
                                     id={permission.resource_id}

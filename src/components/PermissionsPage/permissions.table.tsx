@@ -159,6 +159,9 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   const isPermissionActive = (
     permission: SystemPermissionFEO | DirectoryPermissionFEO
   ) => {
+    if (permission.expiry_date_ms === -1) {
+      return true;
+    }
     const now = Date.now();
     const hasBegun =
       !permission.begin_date_ms || permission.begin_date_ms <= now;
@@ -291,7 +294,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         <Space>
           <CalendarOutlined />
           <span>
-            {record.expiry_date_ms
+            {record.expiry_date_ms && record.expiry_date_ms !== -1
               ? dayjs(record.expiry_date_ms).format("MMM D, YYYY")
               : "Never"}
           </span>

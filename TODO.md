@@ -1,11 +1,23 @@
 # Developer To Do
 
+## Overview
+
+The large sprints of work are:
+
+3. Cleaning & testing all the crud routes together (2-3 days)
+
+1. Directory navigation & interaction (1-2 days)
+1. Invite system with smooth onboarding & sharing (1-2 days)
+1. Offline JS functionality replica (1-2 days)
+1. UI polish before prod (1-2 days)
+
 ## Todo
 
+- [🔵] Figure out a unified tag framework
 - [🔵] Implement permissions on frontend (redux, reuseable ui pickers, crud)
 - [🔵] Blitzkreig the rest of the crud routes?
-- [ ] Blitzkreig the rest of the crud UI?
-- [ ] Groups & Group Invite creation routes (with redux-offline)
+- [🔵] Blitzkreig the rest of the crud UI?
+- [🔵] Groups & Group Invite creation routes (with redux-offline)
 - [ ] Handle folder copy logic where subfiles wont have a known ID, so the type FolderFEO.sync_warning = string should help us warn the user
 - [ ] Magic login link with redeem placeholders (both for contacts themselves, and via group invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa
 - [ ] Polish all tables to match groups behavior (got rid of OPEN button and clicking name goes into tab directly no untab, clicking rest of row tabs/untabs without navigating to it)

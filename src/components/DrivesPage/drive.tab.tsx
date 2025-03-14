@@ -350,14 +350,6 @@ const listDrives = async (page = 1, limit = 10) => {
                 >
                   Edit
                 </Button>
-                <Button
-                  icon={<TeamOutlined />}
-                  onClick={() => {}}
-                  type="primary"
-                  size={screenType.isMobile ? "small" : "middle"}
-                >
-                  Share
-                </Button>
               </>
             )}
           </Space>

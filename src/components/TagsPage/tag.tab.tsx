@@ -51,6 +51,7 @@ import {
   deleteTagAction,
   updateTagAction,
 } from "../../redux-offline/tags/tags.actions";
+import TagCopy from "../TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -428,7 +429,9 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                             justifyContent: "center",
                           }}
                         >
-                          <TagOutlined style={{ fontSize: 32 }} />
+                          <TagOutlined
+                            style={{ fontSize: 32, color: "white" }}
+                          />
                         </div>
                         <div
                           style={{
@@ -452,16 +455,7 @@ const TagTab: React.FC<TagTabProps> = ({ tag, onSave, onDelete }) => {
                             >
                               {tag.value}
                             </Title>
-                            <AntTag
-                              color={tag.color}
-                              onClick={() => copyToClipboard(tag.id)}
-                              style={{
-                                cursor: "pointer",
-                                marginTop: "24px",
-                              }}
-                            >
-                              {shortenAddress(tag.id.replace("TagID_", ""))}
-                            </AntTag>
+                            <TagCopy id={tag.id} />
                           </div>
                           <Space>
                             <Text type="secondary">

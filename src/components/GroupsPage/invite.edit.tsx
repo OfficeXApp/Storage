@@ -42,6 +42,7 @@ import {
 } from "../../redux-offline/group-invites/group-invites.actions";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { shortenAddress } from "../../framework/identity/constants";
+import TagCopy from "../TagCopy";
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -234,8 +235,15 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
       title={
         <div>
           <Title level={4} style={{ margin: 0 }}>
-            Edit Group Invite
+            Edit Group Invite &nbsp;{" "}
+            {currentInvite && (
+              <TagCopy
+                id={currentInvite.id}
+                style={{ fontSize: "0.7rem", color: "gray" }}
+              />
+            )}
           </Title>
+
           <Text type="secondary">{group_name}</Text>
         </div>
       }
@@ -330,18 +338,14 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
                       ? "Awaiting Anon"
                       : "Unnamed Contact"}
                 </Text>
-                <div>
-                  <Tag>
-                    {shortenAddress(
-                      member.user_id
-                        .replace("UserID_", "")
-                        .replace("PlaceholderGroupInviteeID_", "")
-                    )}
-                  </Tag>
-                  <Tag color={member.is_admin ? "red" : "blue"}>
-                    {member.is_admin ? "Admin" : "Member"}
-                  </Tag>
-                </div>
+                &nbsp; &nbsp;
+                <Tag>
+                  {shortenAddress(
+                    member.user_id
+                      .replace("UserID_", "")
+                      .replace("PlaceholderGroupInviteeID_", "")
+                  )}
+                </Tag>
               </div>
             </Space>
           </div>

@@ -4,7 +4,6 @@ import {
   Drawer,
   Typography,
   Input,
-  Form,
   Space,
   Tag,
   Tooltip,
@@ -16,10 +15,7 @@ import {
   LinkOutlined,
   TagOutlined,
   InfoCircleOutlined,
-  BellOutlined,
   ApiOutlined,
-  GlobalOutlined,
-  CodeOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
@@ -27,7 +23,6 @@ import { IRequestCreateWebhook, WebhookEventLabel } from "@officexapp/types";
 import { createWebhookAction } from "../../redux-offline/webhooks/webhooks.actions";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 
-const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -42,43 +37,40 @@ const WEBHOOK_EVENT_OPTIONS = Object.entries(WebhookEventLabel).map(
   })
 );
 
-// Group event types for better organization in the search dropdown
-const FILE_OPERATIONS = [
+const ALL_OR_ONLY_ALTINDEX_OPERATIONS = [
   WebhookEventLabel.FILE_VIEWED,
   WebhookEventLabel.FILE_CREATED,
   WebhookEventLabel.FILE_UPDATED,
   WebhookEventLabel.FILE_DELETED,
   WebhookEventLabel.FILE_SHARED,
-  WebhookEventLabel.SUBFILE_VIEWED,
-  WebhookEventLabel.SUBFILE_CREATED,
-  WebhookEventLabel.SUBFILE_UPDATED,
-  WebhookEventLabel.SUBFILE_DELETED,
-  WebhookEventLabel.SUBFILE_SHARED,
-];
-
-const FOLDER_OPERATIONS = [
   WebhookEventLabel.FOLDER_VIEWED,
   WebhookEventLabel.FOLDER_CREATED,
   WebhookEventLabel.FOLDER_UPDATED,
   WebhookEventLabel.FOLDER_DELETED,
   WebhookEventLabel.FOLDER_SHARED,
+];
+
+const MANDATORY_ONLY_ALTINDEX_OPERATIONS = [
+  WebhookEventLabel.SUBFILE_VIEWED,
+  WebhookEventLabel.SUBFILE_CREATED,
+  WebhookEventLabel.SUBFILE_UPDATED,
+  WebhookEventLabel.SUBFILE_DELETED,
+  WebhookEventLabel.SUBFILE_SHARED,
   WebhookEventLabel.SUBFOLDER_VIEWED,
   WebhookEventLabel.SUBFOLDER_CREATED,
   WebhookEventLabel.SUBFOLDER_UPDATED,
   WebhookEventLabel.SUBFOLDER_DELETED,
   WebhookEventLabel.SUBFOLDER_SHARED,
-];
-
-const LOCKED_ALT_INDEX_EVENTS = [
-  WebhookEventLabel.DRIVE_RESTORE_TRASH,
-  WebhookEventLabel.DRIVE_STATE_DIFFS,
+  WebhookEventLabel.LABEL_ADDED,
+  WebhookEventLabel.LABEL_REMOVED,
   WebhookEventLabel.GROUP_INVITE_CREATED,
   WebhookEventLabel.GROUP_INVITE_UPDATED,
 ];
 
-const LABEL_OPERATIONS = [
-  WebhookEventLabel.LABEL_ADDED,
-  WebhookEventLabel.LABEL_REMOVED,
+const MANDATORY_ALL_ALTINDEX_OPERATIONS = [
+  WebhookEventLabel.DRIVE_RESTORE_TRASH,
+  WebhookEventLabel.DRIVE_STATE_DIFFS,
+  WebhookEventLabel.ORG_SUPERSWAP_USER,
 ];
 
 interface WebhooksAddDrawerProps {
@@ -94,8 +86,22 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
+
+  // Form field states
+  const [url, setUrl] = useState("");
+  const [name, setName] = useState("");
+  const [eventType, setEventType] = useState<WebhookEventLabel>(
+    WebhookEventLabel.FILE_CREATED
+  );
+  const [altIndex, setAltIndex] = useState("");
+  const [signature, setSignature] = useState("");
+  const [note, setNote] = useState("");
+  const [filters, setFilters] = useState("");
+  const [externalId, setExternalId] = useState("");
+  const [externalPayload, setExternalPayload] = useState("");
+
+  // UI states
   const [loading, setLoading] = useState(false);
-  const [form] = Form.useForm();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [labels, setLabels] = useState<string[]>([]);
@@ -103,13 +109,24 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
   const [inputValue, setInputValue] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
   const [formChanged, setFormChanged] = useState(false);
-  const [useAnyFile, setUseAnyFile] = useState(false);
-  const [useAnyFolder, setUseAnyFolder] = useState(false);
+  const [toggleSpecificResourceId, setToggleSpecificResourceId] =
+    useState(false);
 
   // Reset form when drawer opens
   useEffect(() => {
     if (open) {
-      form.resetFields();
+      // Reset all form fields
+      setUrl("");
+      setName("");
+      setEventType(WebhookEventLabel.FILE_CREATED);
+      setAltIndex("");
+      setSignature("");
+      setNote("");
+      setFilters("");
+      setExternalId("");
+      setExternalPayload("");
+
+      // Reset UI states
       setIsAdvancedOpen(false);
       setIsActive(true);
       setLabels([]);
@@ -117,73 +134,87 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
       setInputValue("");
       setUrlError(null);
       setFormChanged(false);
-      setUseAnyFile(false);
-      setUseAnyFolder(false);
+      setToggleSpecificResourceId(false);
 
-      // Set default alt_index based on initial event type selection
-      const initialEvent = form.getFieldValue("event");
-      handleEventTypeChange(initialEvent);
+      // Set default event type and handle its change
+      handleEventTypeChange(WebhookEventLabel.FILE_CREATED);
     }
-  }, [open, form]);
+  }, [open]);
+
+  // Handle hardcoded alt_index based on event type
+  const getHardcodedAltIndex = (
+    eventType: WebhookEventLabel,
+    isAll: boolean
+  ): string => {
+    // For ALL mode with specific event types
+    if (isAll) {
+      // File operations use ALL_FILES
+      if (
+        eventType === WebhookEventLabel.FILE_CREATED ||
+        eventType === WebhookEventLabel.FILE_VIEWED ||
+        eventType === WebhookEventLabel.FILE_UPDATED ||
+        eventType === WebhookEventLabel.FILE_DELETED ||
+        eventType === WebhookEventLabel.FILE_SHARED
+      ) {
+        return "ALL_FILES";
+      }
+
+      // Folder operations use ALL_FOLDERS
+      if (
+        eventType === WebhookEventLabel.FOLDER_CREATED ||
+        eventType === WebhookEventLabel.FOLDER_VIEWED ||
+        eventType === WebhookEventLabel.FOLDER_UPDATED ||
+        eventType === WebhookEventLabel.FOLDER_DELETED ||
+        eventType === WebhookEventLabel.FOLDER_SHARED
+      ) {
+        return "ALL_FOLDERS";
+      }
+
+      if (eventType === WebhookEventLabel.ORG_SUPERSWAP_USER) {
+        return "ALL_USERS";
+      }
+    }
+
+    // For mandatory specific alt_index types regardless of ALL/ONLY switch
+    if (eventType === WebhookEventLabel.DRIVE_RESTORE_TRASH)
+      return "RESTORE_TRASH";
+    if (eventType === WebhookEventLabel.DRIVE_STATE_DIFFS) return "STATE_DIFFS";
+    if (eventType === WebhookEventLabel.ORG_SUPERSWAP_USER)
+      return "SUPERSWAP_USER";
+
+    // Default case for ONLY mode
+    return "";
+  };
 
   // Set default alt_index based on event type
-  const handleEventTypeChange = (eventType: WebhookEventLabel) => {
-    let defaultAltIndex = "";
+  const handleEventTypeChange = (newEventType: WebhookEventLabel) => {
+    setEventType(newEventType);
     setFormChanged(true);
 
-    // Reset the switches
-    setUseAnyFile(false);
-    setUseAnyFolder(false);
+    // Set toggle state based on event type category
+    let newToggleState = false;
 
-    // Map event types to default alt_index values
-    if (FILE_OPERATIONS.includes(eventType)) {
-      defaultAltIndex = uuidv4().substring(0, 8);
-    } else if (FOLDER_OPERATIONS.includes(eventType)) {
-      defaultAltIndex = uuidv4().substring(0, 8);
-    } else if (eventType === WebhookEventLabel.DRIVE_RESTORE_TRASH) {
-      defaultAltIndex = "RESTORE_TRASH";
-    } else if (eventType === WebhookEventLabel.DRIVE_STATE_DIFFS) {
-      defaultAltIndex = "STATE_DIFFS";
-    } else if (
-      eventType === WebhookEventLabel.GROUP_INVITE_CREATED ||
-      eventType === WebhookEventLabel.GROUP_INVITE_UPDATED
-    ) {
-      defaultAltIndex = "SUPERSWAP_USER";
-    } else if (LABEL_OPERATIONS.includes(eventType)) {
-      defaultAltIndex = uuidv4().substring(0, 8);
+    if (MANDATORY_ALL_ALTINDEX_OPERATIONS.includes(newEventType)) {
+      // These operations are locked to ALL
+      newToggleState = true;
+    } else if (MANDATORY_ONLY_ALTINDEX_OPERATIONS.includes(newEventType)) {
+      // These operations are locked to ONLY
+      newToggleState = false;
     } else {
-      defaultAltIndex = uuidv4().substring(0, 8);
+      // These operations can be either ALL or ONLY, default to ONLY
+      newToggleState = false;
     }
 
-    form.setFieldsValue({ alt_index: defaultAltIndex });
-  };
+    setToggleSpecificResourceId(newToggleState);
 
-  // Handle Alt Index switch for file operations
-  const handleAnyFileSwitch = (checked: boolean) => {
-    setUseAnyFile(checked);
-    if (checked) {
-      form.setFieldsValue({ alt_index: "ANY_FILE" });
-    } else {
-      form.setFieldsValue({ alt_index: uuidv4().substring(0, 8) });
-    }
-    setFormChanged(true);
-  };
-
-  // Handle Alt Index switch for folder operations
-  const handleAnyFolderSwitch = (checked: boolean) => {
-    setUseAnyFolder(checked);
-    if (checked) {
-      form.setFieldsValue({ alt_index: "ANY_FOLDER" });
-    } else {
-      form.setFieldsValue({ alt_index: uuidv4().substring(0, 8) });
-    }
-    setFormChanged(true);
+    // Set the appropriate alt_index based on the event type and toggle state
+    setAltIndex(getHardcodedAltIndex(newEventType, newToggleState));
   };
 
   // Handle URL validation
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    form.setFieldsValue({ url: value });
+    setUrl(value);
     setFormChanged(true);
 
     try {
@@ -220,183 +251,131 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
 
   const handleAddWebhook = () => {
     console.log("Adding webhook...");
-    form
-      .validateFields()
-      .then((values) => {
-        console.log("Form values:", values);
 
-        // Validate URL
-        if (!values.url || urlError) {
-          console.log(`Invalid URL: ${values.url}, ${urlError}`);
-          setUrlError("Valid URL is required");
-          return;
-        }
+    // Validate required fields
+    if (!url) {
+      setUrlError("URL is required");
+      return;
+    }
 
-        const webhookData: IRequestCreateWebhook = {
-          url: values.url,
-          name: values.name || "",
-          alt_index: values.alt_index || uuidv4().substring(0, 8),
-          event: values.event,
-          signature: values.signature || "",
-          note: values.note || "",
-          filters: values.filters || "",
-          external_id: values.external_id,
-          external_payload: values.external_payload,
-        };
+    if (urlError) {
+      return;
+    }
 
-        console.log("Webhook data:", webhookData);
+    const webhookData: IRequestCreateWebhook = {
+      url,
+      name,
+      alt_index: altIndex || uuidv4().substring(0, 8),
+      event: eventType,
+      signature,
+      note,
+      filters,
+      external_id: externalId,
+      external_payload: externalPayload,
+    };
 
-        setLoading(true);
+    console.log("Webhook data:", webhookData);
 
-        // Dispatch the create webhook action
-        dispatch(createWebhookAction(webhookData));
+    setLoading(true);
 
-        message.success(
-          isOnline
-            ? "Creating webhook..."
-            : "Queued webhook creation for when you're back online"
-        );
+    // Dispatch the create webhook action
+    dispatch(createWebhookAction(webhookData));
 
-        // Call the parent's onAddWebhook for any additional handling
-        onAddWebhook(webhookData);
+    message.success(
+      isOnline
+        ? "Creating webhook..."
+        : "Queued webhook creation for when you're back online"
+    );
 
-        // Close the drawer and show success message
-        onClose();
+    // Call the parent's onAddWebhook for any additional handling
+    onAddWebhook(webhookData);
 
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Validation failed:", error);
-        setLoading(false);
-      });
+    // Close the drawer and show success message
+    onClose();
+
+    setLoading(false);
   };
 
-  // Function to shorten URLs for display
-  const shortenUrl = (url: string) => {
-    try {
-      const parsed = new URL(url);
-      return `${parsed.hostname}${parsed.pathname.length > 15 ? parsed.pathname.substring(0, 15) + "..." : parsed.pathname}`;
-    } catch (e) {
-      return url;
+  const handleSwitchToggle = (checked: boolean) => {
+    // Don't allow toggle for operations that have mandatory ALL or ONLY settings
+    if (
+      MANDATORY_ALL_ALTINDEX_OPERATIONS.includes(eventType) ||
+      MANDATORY_ONLY_ALTINDEX_OPERATIONS.includes(eventType)
+    ) {
+      return;
     }
+
+    setToggleSpecificResourceId(checked);
+
+    // Update alt_index based on the new toggle state and event type
+    setAltIndex(getHardcodedAltIndex(eventType, checked));
+    setFormChanged(true);
   };
 
   // Render the appropriate Alt Index field based on the selected event type
   const renderAltIndexField = () => {
-    const currentEvent = form.getFieldValue("event");
+    // Determine if the switch is disabled and in which state it should be locked
+    const isSwitchDisabled =
+      MANDATORY_ALL_ALTINDEX_OPERATIONS.includes(eventType) ||
+      MANDATORY_ONLY_ALTINDEX_OPERATIONS.includes(eventType);
 
-    if (FILE_OPERATIONS.includes(currentEvent)) {
-      return (
-        <Form.Item
-          name="alt_index"
-          label={
-            <Tooltip title="Alternative index for the webhook">
-              <Space>
-                Alternative Index{" "}
-                <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Space>
-            </Tooltip>
-          }
+    // Determine if the input field should be read-only
+    const isInputReadOnly =
+      toggleSpecificResourceId ||
+      MANDATORY_ALL_ALTINDEX_OPERATIONS.includes(eventType);
+
+    // Determine if the input field should be disabled entirely
+    const isInputDisabled =
+      MANDATORY_ALL_ALTINDEX_OPERATIONS.includes(eventType);
+
+    return (
+      <div style={{ marginBottom: 24 }}>
+        <label
+          style={{
+            display: "block",
+            marginBottom: 8,
+            color: "rgba(0, 0, 0, 0.88)",
+            fontSize: "14px",
+          }}
         >
-          <Space direction="vertical" style={{ width: "100%" }}>
-            <Space align="center">
-              <Switch checked={useAnyFile} onChange={handleAnyFileSwitch} />
-              <Text>{useAnyFile ? "All" : "One"}</Text>
+          <Tooltip title="Alternative index for the webhook">
+            <Space>
+              Listen To <InfoCircleOutlined style={{ color: "#aaa" }} />
             </Space>
-            <Input
-              prefix={<CodeOutlined />}
-              placeholder="File identifier"
-              value={form.getFieldValue("alt_index")}
-              onChange={(e) => {
-                form.setFieldsValue({ alt_index: e.target.value });
-                setFormChanged(true);
-              }}
-              disabled={useAnyFile}
-              variant="borderless"
-              style={{ backgroundColor: "#fafafa" }}
-            />
-          </Space>
-        </Form.Item>
-      );
-    } else if (FOLDER_OPERATIONS.includes(currentEvent)) {
-      return (
-        <Form.Item
-          name="alt_index"
-          label={
-            <Tooltip title="Alternative index for the webhook">
-              <Space>
-                Alternative Index{" "}
-                <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Space>
-            </Tooltip>
-          }
-        >
-          <Space direction="vertical" style={{ width: "100%" }}>
-            <Space align="center">
-              <Switch checked={useAnyFolder} onChange={handleAnyFolderSwitch} />
-              <Text>{useAnyFolder ? "All" : "One"}</Text>
-            </Space>
-            <Input
-              prefix={<CodeOutlined />}
-              placeholder="Folder identifier"
-              value={form.getFieldValue("alt_index")}
-              onChange={(e) => {
-                form.setFieldsValue({ alt_index: e.target.value });
-                setFormChanged(true);
-              }}
-              disabled={useAnyFolder}
-              variant="borderless"
-              style={{ backgroundColor: "#fafafa" }}
-            />
-          </Space>
-        </Form.Item>
-      );
-    } else if (LOCKED_ALT_INDEX_EVENTS.includes(currentEvent)) {
-      return (
-        <Form.Item
-          name="alt_index"
-          label={
-            <Tooltip title="Alternative index for the webhook (fixed for this event type)">
-              <Space>
-                Alternative Index{" "}
-                <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Space>
-            </Tooltip>
-          }
-        >
+          </Tooltip>
+        </label>
+        <Space direction="vertical" style={{ width: "100%" }}>
           <Input
-            prefix={<CodeOutlined />}
-            placeholder="Alternative index"
-            disabled={true}
+            prefix={
+              <Switch
+                checkedChildren="ALL"
+                unCheckedChildren="ONLY"
+                checked={toggleSpecificResourceId}
+                disabled={isSwitchDisabled}
+                onChange={handleSwitchToggle}
+                style={{ marginRight: 8 }}
+              />
+            }
+            placeholder="Resource ID"
+            value={altIndex}
+            onChange={(e) => {
+              // Only allow changes if not in ALL mode
+              if (
+                !toggleSpecificResourceId &&
+                !MANDATORY_ALL_ALTINDEX_OPERATIONS.includes(eventType)
+              ) {
+                setAltIndex(e.target.value);
+                setFormChanged(true);
+              }
+            }}
+            disabled={isInputDisabled}
+            readOnly={isInputReadOnly}
             variant="borderless"
             style={{ backgroundColor: "#fafafa" }}
           />
-        </Form.Item>
-      );
-    } else {
-      // For LABEL_OPERATIONS and any other event types
-      return (
-        <Form.Item
-          name="alt_index"
-          label={
-            <Tooltip title="Alternative index for the webhook">
-              <Space>
-                Alternative Index{" "}
-                <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Space>
-            </Tooltip>
-          }
-        >
-          <Input
-            prefix={<CodeOutlined />}
-            placeholder="Custom identifier"
-            onChange={() => setFormChanged(true)}
-            variant="borderless"
-            style={{ backgroundColor: "#fafafa" }}
-          />
-        </Form.Item>
-      );
-    }
+        </Space>
+      </div>
+    );
   };
 
   return (
@@ -417,50 +396,72 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
             type="primary"
             size="large"
             loading={loading}
-            disabled={
-              !form.getFieldValue("event") ||
-              !form.getFieldValue("url") ||
-              urlError !== null ||
-              loading
-            }
+            disabled={!eventType || !url || urlError !== null || loading}
           >
             Add Webhook
           </Button>
         </div>
       }
     >
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={{
-          event: WebhookEventLabel.FILE_CREATED,
-          url: "",
-          name: "",
-          alt_index: "",
-          signature: "",
-          note: "",
-          filters: "",
-          external_id: "",
-          external_payload: "",
-        }}
-      >
-        <Form.Item
-          name="event"
-          label={
-            <Tooltip title="Event type to trigger the webhook">
+      <div>
+        <div style={{ marginBottom: 24 }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: 8,
+              color: "rgba(0, 0, 0, 0.88)",
+              fontSize: "14px",
+            }}
+          >
+            <Tooltip title="URL to send webhook events to">
               <Space>
-                Event Type <InfoCircleOutlined style={{ color: "#aaa" }} />
+                Endpoint URL <InfoCircleOutlined style={{ color: "#aaa" }} />{" "}
+                <span style={{ color: "#ff4d4f" }}>*</span>
               </Space>
             </Tooltip>
-          }
-          required
-        >
+          </label>
+          <Input
+            prefix={<LinkOutlined />}
+            size="large"
+            placeholder="https://example.com/webhook"
+            value={url}
+            onChange={handleUrlChange}
+            variant="borderless"
+            style={{ backgroundColor: "#fafafa" }}
+            status={urlError ? "error" : ""}
+          />
+          {urlError && (
+            <div
+              style={{ color: "#ff4d4f", fontSize: "14px", marginTop: "4px" }}
+            >
+              {urlError}
+            </div>
+          )}
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: 8,
+              color: "rgba(0, 0, 0, 0.88)",
+              fontSize: "14px",
+            }}
+          >
+            <Tooltip title="Event type to trigger the webhook">
+              <Space>
+                Event Type <InfoCircleOutlined style={{ color: "#aaa" }} />{" "}
+                <span style={{ color: "#ff4d4f" }}>*</span>
+              </Space>
+            </Tooltip>
+          </label>
           <Select
             placeholder="Select event type"
             size="large"
+            value={eventType}
             onChange={handleEventTypeChange}
             variant="borderless"
-            style={{ backgroundColor: "#fafafa" }}
+            style={{ backgroundColor: "#fafafa", width: "100%" }}
             showSearch
             filterOption={(input, option) =>
               (((option?.label as string) || "").toLowerCase() ?? "").includes(
@@ -475,30 +476,10 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
               </Option>
             ))}
           </Select>
-        </Form.Item>
+        </div>
 
-        <Form.Item
-          name="url"
-          label={
-            <Tooltip title="URL to send webhook events to">
-              <Space>
-                Endpoint URL <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Space>
-            </Tooltip>
-          }
-          required
-          validateStatus={urlError ? "error" : ""}
-          help={urlError}
-        >
-          <Input
-            prefix={<LinkOutlined />}
-            size="large"
-            placeholder="https://example.com/webhook"
-            onChange={handleUrlChange}
-            variant="borderless"
-            style={{ backgroundColor: "#fafafa" }}
-          />
-        </Form.Item>
+        {/* Dynamic Alt Index field that changes based on event type */}
+        {renderAltIndexField()}
 
         {/* Advanced Section */}
         <details
@@ -519,74 +500,104 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
           </summary>
 
           <div style={{ padding: "12px 0" }}>
-            <Form.Item
-              name="name"
-              label={
+            <div style={{ marginBottom: 24 }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 8,
+                  color: "rgba(0, 0, 0, 0.88)",
+                  fontSize: "14px",
+                }}
+              >
                 <Tooltip title="Name of this webhook">
                   <Space>
                     Name <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
-              }
-            >
+              </label>
               <Input
                 placeholder="Give this webhook a name"
-                onChange={() => setFormChanged(true)}
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setFormChanged(true);
+                }}
                 variant="borderless"
                 style={{ backgroundColor: "#fafafa" }}
               />
-            </Form.Item>
+            </div>
 
-            <Form.Item
-              name="note"
-              label={
+            <div style={{ marginBottom: 24 }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 8,
+                  color: "rgba(0, 0, 0, 0.88)",
+                  fontSize: "14px",
+                }}
+              >
                 <Tooltip title="Description of this webhook">
                   <Space>
                     Description <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
-              }
-            >
+              </label>
               <Input
                 prefix={<InfoCircleOutlined />}
                 placeholder="Add a note for this webhook"
-                onChange={() => setFormChanged(true)}
+                value={note}
+                onChange={(e) => {
+                  setNote(e.target.value);
+                  setFormChanged(true);
+                }}
                 variant="borderless"
                 style={{ backgroundColor: "#fafafa" }}
               />
-            </Form.Item>
+            </div>
 
-            {/* Dynamic Alt Index field that changes based on event type */}
-            {renderAltIndexField()}
-
-            <Form.Item
-              name="signature"
-              label={
+            <div style={{ marginBottom: 24 }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 8,
+                  color: "rgba(0, 0, 0, 0.88)",
+                  fontSize: "14px",
+                }}
+              >
                 <Tooltip title="Signature for webhook verification">
                   <Space>
                     Signature <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
-              }
-            >
+              </label>
               <Input
                 prefix={<ApiOutlined />}
                 placeholder="Webhook signature for verification"
-                onChange={() => setFormChanged(true)}
+                value={signature}
+                onChange={(e) => {
+                  setSignature(e.target.value);
+                  setFormChanged(true);
+                }}
                 variant="borderless"
                 style={{ backgroundColor: "#fafafa" }}
               />
-            </Form.Item>
+            </div>
 
-            <Form.Item
-              label={
+            <div style={{ marginBottom: 24 }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 8,
+                  color: "rgba(0, 0, 0, 0.88)",
+                  fontSize: "14px",
+                }}
+              >
                 <Tooltip title="Whether the webhook is active">
                   <Space>
                     Active <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
-              }
-            >
+              </label>
               <Switch
                 checked={isActive}
                 onChange={(checked) => {
@@ -594,17 +605,23 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   setFormChanged(true);
                 }}
               />
-            </Form.Item>
+            </div>
 
-            <Form.Item
-              label={
+            <div style={{ marginBottom: 24 }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 8,
+                  color: "rgba(0, 0, 0, 0.88)",
+                  fontSize: "14px",
+                }}
+              >
                 <Tooltip title="Labels to categorize this webhook">
                   <Space>
                     Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
-              }
-            >
+              </label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                 {labels.map((label) => (
                   <Tag
@@ -634,46 +651,64 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   </Tag>
                 )}
               </div>
-            </Form.Item>
+            </div>
 
-            <Form.Item
-              name="external_id"
-              label={
+            <div style={{ marginBottom: 24 }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 8,
+                  color: "rgba(0, 0, 0, 0.88)",
+                  fontSize: "14px",
+                }}
+              >
                 <Tooltip title="External identifier for integration with other systems">
                   <Space>
                     External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
-              }
-            >
+              </label>
               <Input
                 placeholder="External identifier"
-                onChange={() => setFormChanged(true)}
+                value={externalId}
+                onChange={(e) => {
+                  setExternalId(e.target.value);
+                  setFormChanged(true);
+                }}
                 variant="borderless"
                 style={{ backgroundColor: "#fafafa" }}
               />
-            </Form.Item>
+            </div>
 
-            <Form.Item
-              name="external_payload"
-              label={
+            <div style={{ marginBottom: 24 }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 8,
+                  color: "rgba(0, 0, 0, 0.88)",
+                  fontSize: "14px",
+                }}
+              >
                 <Tooltip title="Additional data for external integrations (JSON format)">
                   <Space>
                     External Payload{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
                 </Tooltip>
-              }
-            >
+              </label>
               <TextArea
                 placeholder='{"key": "value"}'
                 rows={2}
-                onChange={() => setFormChanged(true)}
+                value={externalPayload}
+                onChange={(e) => {
+                  setExternalPayload(e.target.value);
+                  setFormChanged(true);
+                }}
               />
-            </Form.Item>
+            </div>
           </div>
         </details>
-      </Form>
+      </div>
     </Drawer>
   );
 };

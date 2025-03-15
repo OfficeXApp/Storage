@@ -457,7 +457,7 @@ const RouterUI = () => {
                 <Route path="/resources/webhooks" element={<WebhooksPage />} />
                 <Route
                   path="/resources/webhooks/:webhookID"
-                  element={<WebhooksPage />}
+                  element={<WebhookPage />}
                 />
                 <Route path="/resources/api-keys" element={<ApiKeysPage />} />
                 <Route

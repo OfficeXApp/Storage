@@ -37,6 +37,7 @@ import {
   CodeOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  AimOutlined,
 } from "@ant-design/icons";
 import {
   WebhookFE,
@@ -54,6 +55,7 @@ import {
   deleteWebhookAction,
   updateWebhookAction,
 } from "../../redux-offline/webhooks/webhooks.actions";
+import TagCopy from "../TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -113,6 +115,7 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
       // Define the specific fields we care about
       const fieldsToCheck: (keyof IRequestUpdateWebhook)[] = [
         "url",
+        "name",
         "description",
         "signature",
         "active",
@@ -230,7 +233,7 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
 
   const initialValues = {
     url: webhook.url,
-    event: webhook.event,
+    name: webhook.name,
     description: webhook.description,
     signature: webhook.signature,
     active: webhook.active,
@@ -406,17 +409,19 @@ async function listWebhooks(page = 1, limit = 10) {
                 >
                   Edit
                 </Button>
-                <Button
-                  icon={<ApiOutlined />}
-                  onClick={() => {
-                    // Trigger a test webhook event
-                    message.info("Test webhook feature coming soon");
-                  }}
-                  type="primary"
-                  size={screenType.isMobile ? "small" : "middle"}
+                <a
+                  href="https://webhook.cool/?ref=officexapp"
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
-                  Test Webhook
-                </Button>
+                  <Button
+                    icon={<ApiOutlined />}
+                    type="primary"
+                    size={screenType.isMobile ? "small" : "middle"}
+                  >
+                    Test Webhook
+                  </Button>
+                </a>
               </>
             )}
           </Space>
@@ -450,24 +455,13 @@ async function listWebhooks(page = 1, limit = 10) {
                   />
                 </Form.Item>
 
-                <Form.Item
-                  name="event"
-                  label="Event Type"
-                  rules={[
-                    { required: true, message: "Please select an event type" },
-                  ]}
-                >
-                  <Select
-                    placeholder="Select event type"
+                <Form.Item name="name" label="Name">
+                  <Input
+                    prefix={<InfoCircleOutlined />}
+                    placeholder="Name"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
-                  >
-                    {WEBHOOK_EVENT_TYPES.map((event) => (
-                      <Option key={event.value} value={event.value}>
-                        {event.label}
-                      </Option>
-                    ))}
-                  </Select>
+                  />
                 </Form.Item>
 
                 <Form.Item name="description" label="Description">
@@ -600,18 +594,9 @@ async function listWebhooks(page = 1, limit = 10) {
                               level={3}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {shortenUrl(webhook.url)}
+                              {webhook.name || shortenUrl(webhook.url)}
                             </Title>
-                            <Tag
-                              color="blue"
-                              onClick={() => copyToClipboard(webhook.url)}
-                              style={{
-                                cursor: "pointer",
-                                marginTop: "24px",
-                              }}
-                            >
-                              {webhook.alt_index}
-                            </Tag>
+                            <TagCopy id={webhook.id} />
                           </div>
                           <Space>
                             <Badge
@@ -719,15 +704,21 @@ async function listWebhooks(page = 1, limit = 10) {
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Webhook ID",
-                          webhook.id,
-                          <CodeOutlined />
+                          "Resource",
+                          webhook.alt_index,
+                          <AimOutlined />
                         )}
 
                         {renderReadOnlyField(
                           "Full URL",
                           webhook.url,
                           <LinkOutlined />
+                        )}
+
+                        {renderReadOnlyField(
+                          "Webhook ID",
+                          webhook.id,
+                          <CodeOutlined />
                         )}
 
                         {webhook.signature &&

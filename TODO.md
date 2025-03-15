@@ -4,16 +4,16 @@
 
 The large sprints of work are:
 
-3. Cleaning & testing all the crud routes together (2-3 days)
-
 - fix add webhooks component
-- api key tab, change edit to manage and put inside edit & revoke. the current place where revoke it, change to "Login As"
-- hyperlink resources on UI for ease of navigation
 
 1. Directory navigation & interaction (1-2 days)
+
 1. Invite system with smooth onboarding & sharing (1-2 days)
 1. Offline JS functionality replica (1-2 days)
+1. Cleaning & testing all the crud routes together (2-3 days)
 1. UI polish before prod (1-2 days)
+   - api key tab, change edit to manage and put inside edit & revoke. the current place where revoke it, change to "Login As"
+   - hyperlink resources on UI for ease of navigation
 
 ## Todo
 

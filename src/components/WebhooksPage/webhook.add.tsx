@@ -71,6 +71,7 @@ const MANDATORY_ALL_ALTINDEX_OPERATIONS = [
   WebhookEventLabel.DRIVE_RESTORE_TRASH,
   WebhookEventLabel.DRIVE_STATE_DIFFS,
   WebhookEventLabel.ORG_SUPERSWAP_USER,
+  WebhookEventLabel.ORG_INBOX_NEW_NOTIF,
 ];
 
 interface WebhooksAddDrawerProps {
@@ -172,6 +173,10 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
 
       if (eventType === WebhookEventLabel.ORG_SUPERSWAP_USER) {
         return "ALL_USERS";
+      }
+
+      if (eventType === WebhookEventLabel.ORG_INBOX_NEW_NOTIF) {
+        return "INBOX_NEW_NOTIF";
       }
     }
 

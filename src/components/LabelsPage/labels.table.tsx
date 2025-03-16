@@ -35,12 +35,12 @@ import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
 
 interface LabelsTableListProps {
   isLabelTabOpen: (id: string) => boolean;
-  handleClickLabelTab: (label: LabelFE, focus_tab?: boolean) => void;
+  handleClickContentTab: (label: LabelFE, focus_tab?: boolean) => void;
 }
 
 const LabelsTableList: React.FC<LabelsTableListProps> = ({
   isLabelTabOpen,
-  handleClickLabelTab,
+  handleClickContentTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
@@ -131,7 +131,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
         <Space
           onClick={(e) => {
             e?.stopPropagation();
-            handleClickLabelTab(record);
+            handleClickContentTab(record);
           }}
         >
           <div
@@ -143,7 +143,16 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
               marginRight: 8,
             }}
           />
-          <span>{record.value}</span>
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClickContentTab(record, true);
+              const newUrl = `/resources/labels/${record.id}`;
+              window.history.pushState({}, "", newUrl);
+            }}
+          >
+            <span>{record.value}</span>
+          </div>
           <AntTag
             onClick={(e) => {
               e.stopPropagation();
@@ -164,26 +173,6 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
       key: "description",
       ellipsis: true,
       render: (text: string) => text || "-",
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 150,
-      render: (_: any, record: LabelFE) => (
-        <Button
-          type="default"
-          size="middle"
-          style={{ width: "100%" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleClickLabelTab(record, true);
-            const newUrl = `/resources/labels/${record.id}`;
-            window.history.pushState({}, "", newUrl);
-          }}
-        >
-          Open
-        </Button>
-      ),
     },
   ];
 
@@ -208,7 +197,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
                 ? "#e6f7ff"
                 : "transparent",
             }}
-            onClick={() => handleClickLabelTab(label, true)}
+            onClick={() => handleClickContentTab(label, true)}
           >
             <div
               style={{
@@ -425,7 +414,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
             pagination={false}
             onRow={(record) => ({
               onClick: () => {
-                handleClickLabelTab(record, false);
+                handleClickContentTab(record, false);
               },
               style: {
                 backgroundColor: isLabelTabOpen(record.id)

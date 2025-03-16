@@ -231,32 +231,41 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
               handleClickContentTab(record, "system");
             }}
           >
-            <Popover content={status.text}>
-              <Badge
-                // @ts-ignore
-                status={status.status}
-                dot
-                offset={[-3, 3]}
-              >
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    background: "#1890ff",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                  }}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClickContentTab(record, "system", true);
+                const newUrl = `/resources/permissions/system/${record.id}`;
+                window.history.pushState({}, "", newUrl);
+              }}
+            >
+              <Popover content={status.text}>
+                <Badge
+                  // @ts-ignore
+                  status={status.status}
+                  dot
+                  offset={[-3, 3]}
                 >
-                  <LockOutlined />
-                </div>
-              </Badge>
-            </Popover>
-            <span style={{ marginLeft: "8px" }}>
-              {getPermissionTitle(record, "system")}
-            </span>
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      background: "#1890ff",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "white",
+                    }}
+                  >
+                    <LockOutlined />
+                  </div>
+                </Badge>
+              </Popover>
+              <span style={{ marginLeft: "8px" }}>
+                {getPermissionTitle(record, "system")}
+              </span>
+            </div>
             <TagCopy id={record.resource_id} />
           </Space>
         );
@@ -267,7 +276,12 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       dataIndex: "granted_to",
       key: "granted_to",
       render: (_: any, record: SystemPermissionFEO) => (
-        <Space>
+        <Space
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleClickContentTab(record, "system");
+          }}
+        >
           <UserOutlined />
           <span>{record.grantee_name || "Unnamed"}</span>
           <TagCopy id={record.granted_to} />
@@ -279,7 +293,12 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       dataIndex: "permission_previews",
       key: "permission_previews",
       render: (_: any, record: SystemPermissionFEO) => (
-        <div>
+        <div
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleClickContentTab(record, "system");
+          }}
+        >
           {record.permission_previews.map((permission) => (
             <Tag key={permission}>{permission}</Tag>
           ))}
@@ -291,7 +310,12 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       dataIndex: "expiry_date_ms",
       key: "expiry_date_ms",
       render: (_: any, record: SystemPermissionFEO) => (
-        <Space>
+        <Space
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleClickContentTab(record, "system");
+          }}
+        >
           <CalendarOutlined />
           <span>
             {record.expiry_date_ms && record.expiry_date_ms !== -1
@@ -299,26 +323,6 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
               : "Never"}
           </span>
         </Space>
-      ),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 150,
-      render: (_: any, record: SystemPermissionFEO) => (
-        <Button
-          type="default"
-          size="middle"
-          style={{ width: "100%" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleClickContentTab(record, "system", true);
-            const newUrl = `/resources/permissions/system/${record.id}`;
-            window.history.pushState({}, "", newUrl);
-          }}
-        >
-          Open
-        </Button>
       ),
     },
   ];
@@ -340,30 +344,39 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
               handleClickContentTab(record, "directory");
             }}
           >
-            <Popover content={status.text}>
-              <Badge
-                // @ts-ignore
-                status={status.status}
-                dot
-                offset={[-3, 3]}
-              >
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    background: "#52c41a",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                  }}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClickContentTab(record, "directory", true);
+                const newUrl = `/resources/permissions/directory/${record.id}`;
+                window.history.pushState({}, "", newUrl);
+              }}
+            >
+              <Popover content={status.text}>
+                <Badge
+                  // @ts-ignore
+                  status={status.status}
+                  dot
+                  offset={[-3, 3]}
                 >
-                  <FolderOutlined />
-                </div>
-              </Badge>
-            </Popover>
-            <span style={{ marginLeft: "8px" }}>{resourceType}</span>
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      background: "#52c41a",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "white",
+                    }}
+                  >
+                    <FolderOutlined />
+                  </div>
+                </Badge>
+              </Popover>
+              <span style={{ marginLeft: "8px" }}>{resourceType}</span>
+            </div>
             <Tag
               onClick={() => {
                 // copy to clipboard
@@ -383,7 +396,12 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       dataIndex: "granted_to",
       key: "granted_to",
       render: (_: any, record: DirectoryPermissionFE) => (
-        <Space>
+        <Space
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleClickContentTab(record, "directory");
+          }}
+        >
           <UserOutlined />
           <span>{shortenAddress(record.granted_to)}</span>
         </Space>
@@ -394,7 +412,13 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       dataIndex: "permission_previews",
       key: "permission_previews",
       render: (_: any, record: DirectoryPermissionFE) => (
-        <Space wrap>
+        <Space
+          onClick={(e) => {
+            e?.stopPropagation();
+            handleClickContentTab(record, "directory");
+          }}
+          wrap
+        >
           {record.permission_previews.map((permission) => (
             <Tag key={permission} color="green">
               {permission}
@@ -411,26 +435,6 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         <Tag color={record.inheritable ? "success" : "default"}>
           {record.inheritable ? "Yes" : "No"}
         </Tag>
-      ),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 150,
-      render: (_: any, record: DirectoryPermissionFE) => (
-        <Button
-          type="default"
-          size="middle"
-          style={{ width: "100%" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleClickContentTab(record, "directory", true);
-            const newUrl = `/resources/permissions/directory/${record.id}`;
-            window.history.pushState({}, "", newUrl);
-          }}
-        >
-          Open
-        </Button>
       ),
     },
   ];

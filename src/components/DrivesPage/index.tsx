@@ -77,7 +77,7 @@ const DrivesPage: React.FC = () => {
   }, [tabItems]);
 
   // Function to handle clicking on a drive
-  const handleClickDriveTab = useCallback(
+  const handleClickContentTab = useCallback(
     (drive: DriveFE & { id: string; name: string }, focus_tab = false) => {
       setLastClickedId(drive.id);
       // Use the ref to access the current state
@@ -333,7 +333,7 @@ const DrivesPage: React.FC = () => {
               >
                 <DrivesTableList
                   isDriveTabOpen={isDriveTabOpen}
-                  handleClickDriveTab={handleClickDriveTab}
+                  handleClickContentTab={handleClickContentTab}
                 />
               </div>
 

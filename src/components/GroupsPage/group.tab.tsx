@@ -61,6 +61,7 @@ import { getLastOnlineStatus } from "../../api/helpers";
 import EditGroupInviteDrawer from "./invite.edit";
 import PermissionsManager from "../PermissionsManager";
 import WebhookManager from "../WebhookManager";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -78,6 +79,7 @@ const GroupTab: React.FC<GroupTabProps> = ({ group, onSave, onDelete }) => {
   const [viewMode, setViewMode] = useState<
     "view" | "edit" | "permissions" | "webhooks"
   >("view");
+  const navigate = useNavigate();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [showCodeSnippets, setShowCodeSnippets] = useState(false);
   const [form] = Form.useForm();
@@ -185,14 +187,34 @@ const GroupTab: React.FC<GroupTabProps> = ({ group, onSave, onDelete }) => {
   const renderReadOnlyField = (
     label: string,
     value: string,
-    icon: React.ReactNode
+    icon: React.ReactNode,
+    navigationRoute?: string
   ) => {
+    const handleClick = (e: React.MouseEvent) => {
+      if (navigationRoute) {
+        if (e.ctrlKey || e.metaKey) {
+          // Open in a new tab with the full URL
+          const url = `${window.location.origin}${navigationRoute}`;
+          window.open(url, "_blank");
+        } else {
+          // Navigate using React Router
+          navigate(navigationRoute);
+        }
+      } else {
+        // Default behavior if no navigation route is provided
+        copyToClipboard(value);
+      }
+    };
     return (
       <Input
         readOnly
-        onClick={() => copyToClipboard(value)}
+        onClick={handleClick}
         value={value}
-        style={{ marginBottom: 8, backgroundColor: "#fafafa" }}
+        style={{
+          marginBottom: 8,
+          backgroundColor: "#fafafa",
+          cursor: "pointer",
+        }}
         variant="borderless"
         addonBefore={
           <div

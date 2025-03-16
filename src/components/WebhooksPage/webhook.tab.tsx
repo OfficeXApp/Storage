@@ -56,6 +56,7 @@ import {
   updateWebhookAction,
 } from "../../redux-offline/webhooks/webhooks.actions";
 import TagCopy from "../TagCopy";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -90,6 +91,7 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
   const [showCodeSnippets, setShowCodeSnippets] = useState(false);
   const [form] = Form.useForm();
   const screenType = useScreenType();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -198,14 +200,34 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
   const renderReadOnlyField = (
     label: string,
     value: string,
-    icon: React.ReactNode
+    icon: React.ReactNode,
+    navigationRoute?: string
   ) => {
+    const handleClick = (e: React.MouseEvent) => {
+      if (navigationRoute) {
+        if (e.ctrlKey || e.metaKey) {
+          // Open in a new tab with the full URL
+          const url = `${window.location.origin}${navigationRoute}`;
+          window.open(url, "_blank");
+        } else {
+          // Navigate using React Router
+          navigate(navigationRoute);
+        }
+      } else {
+        // Default behavior if no navigation route is provided
+        copyToClipboard(value);
+      }
+    };
     return (
       <Input
         readOnly
-        onClick={() => copyToClipboard(value)}
+        onClick={handleClick}
         value={value}
-        style={{ marginBottom: 8, backgroundColor: "#fafafa" }}
+        style={{
+          marginBottom: 8,
+          backgroundColor: "#fafafa",
+          cursor: "pointer",
+        }}
         variant="borderless"
         addonBefore={
           <div
@@ -356,6 +378,30 @@ async function listWebhooks(page = 1, limit = 10) {
         </Tabs>
       </Card>
     );
+  };
+
+  const determineLinkForResource = (resource_id: string) => {
+    if (resource_id.startsWith("UserID_")) {
+      return `/resources/contacts/${resource_id}`;
+    } else if (resource_id.startsWith("GroupID_")) {
+      return `/resources/groups/${resource_id}`;
+    } else if (resource_id.startsWith("SystemPermissionID_")) {
+      return `/resources/permissions/system/${resource_id}`;
+    } else if (resource_id.startsWith("DirectoryPermissionID_")) {
+      return `/resources/permissions/directory/${resource_id}`;
+    } else if (resource_id.startsWith("Disk_ID_")) {
+      return `/resources/disks/${resource_id}`;
+    } else if (resource_id.startsWith("DriveID_")) {
+      return `/resources/drives/${resource_id}`;
+    } else if (resource_id.startsWith("LabelID_")) {
+      return `/resources/labels/${resource_id}`;
+    } else if (resource_id.startsWith("WebhookID_")) {
+      return `/resources/webhooks/${resource_id}`;
+    } else if (resource_id.startsWith("ApiKeyID_")) {
+      return `/resources/api-keys/${resource_id}`;
+    } else {
+      return undefined;
+    }
   };
 
   return (
@@ -706,7 +752,8 @@ async function listWebhooks(page = 1, limit = 10) {
                         {renderReadOnlyField(
                           "Resource",
                           webhook.alt_index,
-                          <AimOutlined />
+                          <AimOutlined />,
+                          determineLinkForResource(webhook.alt_index)
                         )}
 
                         {renderReadOnlyField(

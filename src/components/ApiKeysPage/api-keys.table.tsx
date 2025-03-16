@@ -192,12 +192,21 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
             handleClickContentTab(record);
           }}
         >
-          <Avatar
-            size="default"
-            icon={<KeyOutlined />}
-            style={{ backgroundColor: "#1890ff" }}
-          />
-          <span style={{ marginLeft: "0px" }}>{record.name}</span>
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClickContentTab(record, true);
+              const newUrl = `/resources/api-keys/${record.id}`;
+              window.history.pushState({}, "", newUrl);
+            }}
+          >
+            <Avatar
+              size="default"
+              icon={<KeyOutlined />}
+              style={{ backgroundColor: "#1890ff" }}
+            />
+            <span style={{ marginLeft: "8px" }}>{record.name}</span>
+          </div>
           <Tag
             color="blue"
             onClick={() => {
@@ -217,26 +226,15 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
       dataIndex: "expires_at",
       key: "expires_at",
       width: 150,
-      render: (expiresAt: number) => <span>{formatExpiryDate(expiresAt)}</span>,
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 150,
-      render: (_: any, record: ApiKeyFE) => (
-        <Button
-          type="default"
-          size="middle"
-          style={{ width: "100%" }}
+      render: (expiresAt: number, record: ApiKeyFE) => (
+        <span
           onClick={(e) => {
-            e.stopPropagation();
-            handleClickContentTab(record, true);
-            const newUrl = `/resources/api-keys/${record.id}`;
-            window.history.pushState({}, "", newUrl);
+            e?.stopPropagation();
+            handleClickContentTab(record);
           }}
         >
-          Open
-        </Button>
+          {formatExpiryDate(expiresAt)}
+        </span>
       ),
     },
   ];

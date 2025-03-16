@@ -67,7 +67,7 @@ const WebhooksPage: React.FC = () => {
   }, [tabItems]);
 
   // Function to handle clicking on a webhook
-  const handleClickWebhookTab = useCallback(
+  const handleClickContentTab = useCallback(
     (webhook: WebhookFE, focus_tab = false) => {
       setLastClickedId(webhook.id);
       // Use the ref to access the current state
@@ -334,7 +334,7 @@ const WebhooksPage: React.FC = () => {
               >
                 <WebhooksTableList
                   isWebhookTabOpen={isWebhookTabOpen}
-                  handleClickWebhookTab={handleClickWebhookTab}
+                  handleClickContentTab={handleClickContentTab}
                 />
               </div>
 

@@ -48,7 +48,6 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const groups = useSelector((state: ReduxAppState) => state.groups.groups);
-  console.log(`look at groups`, groups);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredGroups, setFilteredGroups] = useState(groups);

@@ -69,7 +69,7 @@ const LabelsPage: React.FC = () => {
   }, [dispatch]);
 
   // Function to handle clicking on a label
-  const handleClickLabelTab = useCallback(
+  const handleClickContentTab = useCallback(
     (label: LabelFE, focus_tab = false) => {
       setLastClickedId(label.id);
       // Use the ref to access the current state
@@ -323,7 +323,7 @@ const LabelsPage: React.FC = () => {
               >
                 <LabelsTableList
                   isLabelTabOpen={isLabelTabOpen}
-                  handleClickLabelTab={handleClickLabelTab}
+                  handleClickContentTab={handleClickContentTab}
                 />
               </div>
 

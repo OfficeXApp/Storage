@@ -32,15 +32,16 @@ import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { listWebhooksAction } from "../../redux-offline/webhooks/webhooks.actions";
+import TagCopy from "../TagCopy";
 
 interface WebhooksTableListProps {
   isWebhookTabOpen: (id: string) => boolean;
-  handleClickWebhookTab: (webhook: WebhookFE, focus_tab?: boolean) => void;
+  handleClickContentTab: (webhook: WebhookFE, focus_tab?: boolean) => void;
 }
 
 const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
   isWebhookTabOpen,
-  handleClickWebhookTab,
+  handleClickContentTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
@@ -142,42 +143,44 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
           <Space
             onClick={(e) => {
               e?.stopPropagation();
-              handleClickWebhookTab(record);
+              handleClickContentTab(record);
             }}
           >
-            <Popover content={record.active ? "Active" : "Inactive"}>
-              <Badge
-                status={record.active ? "success" : "error"}
-                dot
-                offset={[-3, 3]}
-              >
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#1890ff",
-                    borderRadius: "50%",
-                    color: "white",
-                  }}
-                >
-                  <ApiOutlined />
-                </div>
-              </Badge>
-            </Popover>
-            <span style={{ marginLeft: "0px" }}>{shortenUrl(record.url)}</span>
-            <Tag
-              onClick={() => {
-                // copy to clipboard
-                navigator.clipboard.writeText(record.url);
-                message.success("URL copied to clipboard");
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClickContentTab(record, true);
+                const newUrl = `/resources/webhooks/${record.id}`;
+                window.history.pushState({}, "", newUrl);
               }}
-              color="default"
             >
-              {record.alt_index}
-            </Tag>
+              <Popover content={record.active ? "Active" : "Inactive"}>
+                <Badge
+                  status={record.active ? "success" : "error"}
+                  dot
+                  offset={[-3, 3]}
+                >
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#1890ff",
+                      borderRadius: "50%",
+                      color: "white",
+                    }}
+                  >
+                    <ApiOutlined />
+                  </div>
+                </Badge>
+              </Popover>
+              <span style={{ marginLeft: "8px" }}>
+                {shortenUrl(record.url)}
+              </span>
+            </div>
+            <TagCopy id={record.id} />
           </Space>
         );
       },
@@ -207,26 +210,6 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
         </Space>
       ),
     },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 150,
-      render: (_: any, record: WebhookFE) => (
-        <Button
-          type="default"
-          size="middle"
-          style={{ width: "100%" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleClickWebhookTab(record, true);
-            const newUrl = `/resources/webhooks/${record.id}`;
-            window.history.pushState({}, "", newUrl);
-          }}
-        >
-          Open
-        </Button>
-      ),
-    },
   ];
 
   // Example items for filter dropdowns
@@ -250,7 +233,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
                 ? "#e6f7ff"
                 : "transparent",
             }}
-            onClick={() => handleClickWebhookTab(webhook, true)}
+            onClick={() => handleClickContentTab(webhook, true)}
           >
             <div
               style={{
@@ -470,7 +453,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
             pagination={false}
             onRow={(record) => ({
               onClick: () => {
-                handleClickWebhookTab(record, false);
+                handleClickContentTab(record, false);
               },
               style: {
                 backgroundColor: isWebhookTabOpen(record.id)

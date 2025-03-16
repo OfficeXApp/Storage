@@ -77,41 +77,6 @@ const SideMenu = ({
 }) => {
   const navigate = useNavigate();
   const menuItems = [
-    // {
-    //   key: "drive",
-    //   icon: <FolderOutlined />,
-    //   label: "My Drive",
-    //   onClick: () => {
-    //     navigate("/drive");
-    //     if (setSidebarVisible) {
-    //       setSidebarVisible(false);
-    //     }
-    //   },
-    // },
-    // {
-    //   key: "shared",
-    //   icon: <UserOutlined />,
-    //   label: "Shared with me",
-    //   disabled: true,
-    // },
-    // {
-    //   key: "recent",
-    //   icon: <ClockCircleOutlined />,
-    //   label: "Recent",
-    //   disabled: true,
-    // },
-    // {
-    //   key: "starred",
-    //   icon: <StarOutlined />,
-    //   label: "Starred",
-    //   disabled: true,
-    // },
-    // {
-    //   key: "trash",
-    //   icon: <DeleteOutlined />,
-    //   label: "Trash",
-    //   disabled: true,
-    // },
     {
       key: "navigate-storage",
       label: "Storage",
@@ -119,15 +84,7 @@ const SideMenu = ({
       children: [
         {
           key: "drive",
-          label: "My Drive",
-          type: "item",
-          // icon: <FolderOutlined />,
-          onClick: () => {
-            navigate("/drive");
-            if (setSidebarVisible) {
-              setSidebarVisible(false);
-            }
-          },
+          label: <Link to="/drive">My Drive</Link>,
         },
         {
           key: "shared",
@@ -167,43 +124,19 @@ const SideMenu = ({
           children: [
             {
               key: "contacts",
-              label: "Contacts",
-              onClick: () => {
-                navigate("/resources/contacts");
-                if (setSidebarVisible) {
-                  setSidebarVisible(false);
-                }
-              },
+              label: <Link to="/resources/contacts">Contacts</Link>,
             },
             {
               key: "groups",
-              label: "Groups",
-              onClick: () => {
-                navigate("/resources/groups");
-                if (setSidebarVisible) {
-                  setSidebarVisible(false);
-                }
-              },
+              label: <Link to="/resources/groups">Groups</Link>,
             },
             {
               key: "permissions",
-              label: "Permissions",
-              onClick: () => {
-                navigate("/resources/permissions");
-                if (setSidebarVisible) {
-                  setSidebarVisible(false);
-                }
-              },
+              label: <Link to="/resources/permissions">Permissions</Link>,
             },
             {
               key: "labels",
-              label: "Labels",
-              onClick: () => {
-                navigate("/resources/labels");
-                if (setSidebarVisible) {
-                  setSidebarVisible(false);
-                }
-              },
+              label: <Link to="/resources/labels">Labels</Link>,
             },
           ],
         },
@@ -214,23 +147,11 @@ const SideMenu = ({
           children: [
             {
               key: "disks",
-              label: "Disks",
-              onClick: () => {
-                navigate("/resources/disks");
-                if (setSidebarVisible) {
-                  setSidebarVisible(false);
-                }
-              },
+              label: <Link to="/resources/disks">Disks</Link>,
             },
             {
               key: "drives",
-              label: "Drives",
-              onClick: () => {
-                navigate("/resources/drives");
-                if (setSidebarVisible) {
-                  setSidebarVisible(false);
-                }
-              },
+              label: <Link to="/resources/drives">Drives</Link>,
             },
           ],
         },
@@ -241,23 +162,11 @@ const SideMenu = ({
           children: [
             {
               key: "webhooks",
-              label: "Webhooks",
-              onClick: () => {
-                navigate("/resources/webhooks");
-                if (setSidebarVisible) {
-                  setSidebarVisible(false);
-                }
-              },
+              label: <Link to="/resources/webhooks">Webhooks</Link>,
             },
             {
               key: "api-keys",
-              label: "API Keys",
-              onClick: () => {
-                navigate("/resources/api-keys");
-                if (setSidebarVisible) {
-                  setSidebarVisible(false);
-                }
-              },
+              label: <Link to="/resources/api-keys">API Keys</Link>,
             },
             {
               key: "sandbox",

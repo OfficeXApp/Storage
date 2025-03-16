@@ -39,12 +39,12 @@ import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
 
 interface DrivesTableListProps {
   isDriveTabOpen: (id: string) => boolean;
-  handleClickDriveTab: (drive: DriveFEO, focus_tab?: boolean) => void;
+  handleClickContentTab: (drive: DriveFEO, focus_tab?: boolean) => void;
 }
 
 const DrivesTableList: React.FC<DrivesTableListProps> = ({
   isDriveTabOpen,
-  handleClickDriveTab,
+  handleClickContentTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
@@ -158,21 +158,30 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
           <Space
             onClick={(e) => {
               e?.stopPropagation();
-              handleClickDriveTab(record);
+              handleClickContentTab(record);
             }}
           >
-            <Popover content={indexStatus.text}>
-              <Badge status={indexStatus.status as any} dot offset={[-3, 3]}>
-                <Avatar
-                  size="default"
-                  icon={<DatabaseOutlined />}
-                  style={{ backgroundColor: "#1890ff" }}
-                >
-                  {record.name.charAt(0).toUpperCase()}
-                </Avatar>
-              </Badge>
-            </Popover>
-            <span style={{ marginLeft: "0px" }}>{record.name}</span>
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClickContentTab(record, true);
+                const newUrl = `/resources/drives/${record.id}`;
+                window.history.pushState({}, "", newUrl);
+              }}
+            >
+              <Popover content={indexStatus.text}>
+                <Badge status={indexStatus.status as any} dot offset={[-3, 3]}>
+                  <Avatar
+                    size="default"
+                    icon={<DatabaseOutlined />}
+                    style={{ backgroundColor: "#1890ff" }}
+                  >
+                    {record.name.charAt(0).toUpperCase()}
+                  </Avatar>
+                </Badge>
+              </Popover>
+              <span style={{ marginLeft: "8px" }}>{record.name}</span>
+            </div>
             <Tag
               onClick={() => {
                 // copy to clipboard
@@ -187,45 +196,6 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
           </Space>
         );
       },
-    },
-    {
-      title: "Endpoint",
-      dataIndex: "endpoint_url",
-      key: "endpoint_url",
-      render: (_: any, record: DriveFEO) =>
-        record.endpoint_url ? (
-          <a
-            href={`${record.endpoint_url}/v1/${record.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <GlobalOutlined />{" "}
-            {shortenAddress(`${record.endpoint_url}/v1/${record.id}`, 10, 5)}
-          </a>
-        ) : (
-          <span style={{ color: "#999" }}>No endpoint</span>
-        ),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 150,
-      render: (_: any, record: DriveFEO) => (
-        <Button
-          type="default"
-          size="middle"
-          style={{ width: "100%" }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleClickDriveTab(record, true);
-            const newUrl = `/resources/drives/${record.id}`;
-            window.history.pushState({}, "", newUrl);
-          }}
-        >
-          Open
-        </Button>
-      ),
     },
   ];
 
@@ -250,7 +220,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
                 ? "#e6f7ff"
                 : "transparent",
             }}
-            onClick={() => handleClickDriveTab(drive, true)}
+            onClick={() => handleClickContentTab(drive, true)}
           >
             <div
               style={{
@@ -509,7 +479,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
             pagination={false}
             onRow={(record) => ({
               onClick: () => {
-                handleClickDriveTab(record, false);
+                handleClickContentTab(record, false);
               },
               style: {
                 backgroundColor: isDriveTabOpen(record.id)

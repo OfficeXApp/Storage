@@ -153,24 +153,33 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               handleClickContentTab(record);
             }}
           >
-            <Popover content={lastOnlineStatus.text}>
-              <Badge
-                // @ts-ignore
-                status={lastOnlineStatus.status}
-                dot
-                offset={[-3, 3]}
-              >
-                <Avatar
-                  size="default"
-                  src={
-                    record.avatar
-                      ? record.avatar
-                      : `https://ui-avatars.com/api/?name=${record.name}`
-                  }
-                />
-              </Badge>
-            </Popover>
-            <span style={{ marginLeft: "0px" }}>{record.name}</span>
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClickContentTab(record, true);
+                const newUrl = `/resources/groups/${record.id}`;
+                window.history.pushState({}, "", newUrl);
+              }}
+            >
+              <Popover content={lastOnlineStatus.text}>
+                <Badge
+                  // @ts-ignore
+                  status={lastOnlineStatus.status}
+                  dot
+                  offset={[-3, 3]}
+                >
+                  <Avatar
+                    size="default"
+                    src={
+                      record.avatar
+                        ? record.avatar
+                        : `https://ui-avatars.com/api/?name=${record.name}`
+                    }
+                  />
+                </Badge>
+              </Popover>
+              <span style={{ marginLeft: "8px" }}>{record.name}</span>
+            </div>
             <Tag
               onClick={() => {
                 // copy to clipboard
@@ -204,26 +213,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     //     </Tag>
     //   ),
     // },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 150, // Increased width for actions column
-      render: (_: any, record: ContactFE) => (
-        <Button
-          type="default"
-          size="middle"
-          style={{ width: "100%" }} // Make button take up full column width
-          onClick={(e) => {
-            e.stopPropagation();
-            handleClickContentTab(record, true);
-            const newUrl = `/resources/contacts/${record.id}`;
-            window.history.pushState({}, "", newUrl);
-          }}
-        >
-          Open
-        </Button>
-      ),
-    },
   ];
 
   // Example items for filter dropdowns

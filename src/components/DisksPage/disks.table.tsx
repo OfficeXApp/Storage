@@ -172,7 +172,16 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
             >
               <DatabaseOutlined />
             </div>
-            <span style={{ marginLeft: "0px" }}>{record.name}</span>
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClickContentTab(record, true);
+                const newUrl = `/resources/disks/${record.id}`;
+                window.history.pushState({}, "", newUrl);
+              }}
+            >
+              <span style={{ marginLeft: "0px" }}>{record.name}</span>
+            </div>
             <Tag>{shortenAddress(record.id.replace("DiskID_", ""))}</Tag>
             {record._syncWarning && <Badge status="error" />}
           </Space>
@@ -185,27 +194,14 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
       key: "disk_type",
       width: 200,
       render: (_: any, record: DiskFEO) => (
-        <span>{getDiskTypeLabel(record.disk_type)}</span>
-      ),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 150,
-      render: (_: any, record: DiskFEO) => (
-        <Button
-          type="default"
-          size="middle"
-          style={{ width: "100%" }}
+        <span
           onClick={(e) => {
-            e.stopPropagation();
-            handleClickContentTab(record, true);
-            const newUrl = `/resources/disks/${record.id}`;
-            window.history.pushState({}, "", newUrl);
+            e?.stopPropagation();
+            handleClickContentTab(record);
           }}
         >
-          Open
-        </Button>
+          {getDiskTypeLabel(record.disk_type)}
+        </span>
       ),
     },
   ];

@@ -52,6 +52,7 @@ import {
   updateLabelAction,
 } from "../../redux-offline/labels/labels.actions";
 import TagCopy from "../TagCopy";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -71,6 +72,7 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
   const [showCodeSnippets, setShowCodeSnippets] = useState(false);
   const [form] = Form.useForm();
   const screenType = useScreenType();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -172,14 +174,34 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
   const renderReadOnlyField = (
     label: string,
     value: string,
-    icon: React.ReactNode
+    icon: React.ReactNode,
+    navigationRoute?: string
   ) => {
+    const handleClick = (e: React.MouseEvent) => {
+      if (navigationRoute) {
+        if (e.ctrlKey || e.metaKey) {
+          // Open in a new tab with the full URL
+          const url = `${window.location.origin}${navigationRoute}`;
+          window.open(url, "_blank");
+        } else {
+          // Navigate using React Router
+          navigate(navigationRoute);
+        }
+      } else {
+        // Default behavior if no navigation route is provided
+        copyToClipboard(value);
+      }
+    };
     return (
       <Input
         readOnly
-        onClick={() => copyToClipboard(value)}
+        onClick={handleClick}
         value={value}
-        style={{ marginBottom: 8, backgroundColor: "#fafafa" }}
+        style={{
+          marginBottom: 8,
+          backgroundColor: "#fafafa",
+          cursor: "pointer",
+        }}
         variant="borderless"
         addonBefore={
           <div
@@ -565,7 +587,20 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
                           <div style={{ marginTop: 8 }}>
                             <Space align="center">
                               <UserOutlined />
-                              <Text type="secondary">
+                              <Text
+                                type="secondary"
+                                onClick={(e) => {
+                                  if (e.ctrlKey || e.metaKey) {
+                                    const url = `${window.location.origin}/resources/contacts/${label.created_by}`;
+                                    window.open(url, "_blank");
+                                  } else {
+                                    // Navigate using React Router
+                                    navigate(
+                                      `/resources/contacts/${label.created_by}`
+                                    );
+                                  }
+                                }}
+                              >
                                 Created by {label.created_by}
                               </Text>
                             </Space>

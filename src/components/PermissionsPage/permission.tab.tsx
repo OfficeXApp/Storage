@@ -73,6 +73,7 @@ import {
   SystemPermissionFEO,
 } from "../../redux-offline/permissions/permissions.reducer";
 import TagCopy from "../TagCopy";
+import { useNavigate } from "react-router-dom";
 
 dayjs.extend(relativeTime);
 const { Title, Paragraph, Text } = Typography;
@@ -101,6 +102,7 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   const [showCodeSnippets, setShowCodeSnippets] = useState(false);
   const [form] = Form.useForm();
   const screenType = useScreenType();
+  const navigate = useNavigate();
 
   // Check if permission is optimistic
   const isOptimistic = Boolean(permission._isOptimistic);
@@ -426,17 +428,55 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
     );
   };
 
+  const determineLinkForResource = (resource_id: string) => {
+    if (resource_id.startsWith("UserID_")) {
+      return `/resources/contacts/${resource_id}`;
+    } else if (resource_id.startsWith("GroupID_")) {
+      return `/resources/groups/${resource_id}`;
+    } else if (resource_id.startsWith("SystemPermissionID_")) {
+      return `/resources/permissions/system/${resource_id}`;
+    } else if (resource_id.startsWith("DirectoryPermissionID_")) {
+      return `/resources/permissions/directory/${resource_id}`;
+    } else if (resource_id.startsWith("Disk_ID_")) {
+      return `/resources/disks/${resource_id}`;
+    } else if (resource_id.startsWith("DriveID_")) {
+      return `/resources/drives/${resource_id}`;
+    } else if (resource_id.startsWith("LabelID_")) {
+      return `/resources/labels/${resource_id}`;
+    } else if (resource_id.startsWith("WebhookID_")) {
+      return `/resources/webhooks/${resource_id}`;
+    } else if (resource_id.startsWith("ApiKeyID_")) {
+      return `/resources/api-keys/${resource_id}`;
+    } else {
+      return undefined;
+    }
+  };
+
   const renderReadOnlyField = (
     label: string,
     value: string,
-    icon: React.ReactNode
+    icon: React.ReactNode,
+    navigationRoute?: string
   ) => {
+    const handleClick = (e: React.MouseEvent) => {
+      if (navigationRoute) {
+        const url = `${window.location.origin}${navigationRoute}`;
+        window.open(url, "_blank");
+      } else {
+        // Default behavior if no navigation route is provided
+        copyToClipboard(value);
+      }
+    };
     return (
       <Input
         readOnly
-        onClick={() => copyToClipboard(value)}
+        onClick={handleClick}
         value={value}
-        style={{ marginBottom: 8, backgroundColor: "#fafafa" }}
+        style={{
+          marginBottom: 8,
+          backgroundColor: "#fafafa",
+          cursor: "pointer",
+        }}
         variant="borderless"
         addonBefore={
           <div
@@ -854,7 +894,23 @@ const deletePermission = async (permissionId) => {
                             >
                               <div>
                                 <Text type="secondary">Who:</Text>
-                                <div style={{ marginTop: 4 }}>
+                                <div
+                                  onClick={() => {
+                                    const url = `${window.location.origin}/resources/${
+                                      permission.granted_to.startsWith(
+                                        "UserID_"
+                                      )
+                                        ? `contacts/${permission.granted_to}`
+                                        : permission.granted_to.startsWith(
+                                              "GroupID_"
+                                            )
+                                          ? `groups/${permission.granted_to}`
+                                          : `contacts`
+                                    }`;
+                                    window.open(url, "_blank");
+                                  }}
+                                  style={{ marginTop: 4 }}
+                                >
                                   <UserOutlined />
                                   &nbsp; &nbsp;
                                   {
@@ -880,7 +936,14 @@ const deletePermission = async (permissionId) => {
 
                               <div>
                                 <Text type="secondary">What:</Text>
-                                <div style={{ marginTop: 4 }}>
+                                <div
+                                  onClick={() => {
+                                    determineLinkForResource(
+                                      permission.resource_id
+                                    );
+                                  }}
+                                  style={{ marginTop: 4 }}
+                                >
                                   <GlobalOutlined />
                                   &nbsp; &nbsp;
                                   {(permission as any).resource_name ||
@@ -1002,7 +1065,8 @@ const deletePermission = async (permissionId) => {
                         {renderReadOnlyField(
                           "Granted By",
                           permission.granted_by,
-                          <UserOutlined />
+                          <UserOutlined />,
+                          `/resources/contacts/${permission.granted_by}`
                         )}
 
                         {permission.external_id &&

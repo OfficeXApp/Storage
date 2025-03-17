@@ -48,7 +48,7 @@ import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
   shortenAddress,
 } from "../../framework/identity/constants";
-import CodeBlock from "../CodeBlock";
+import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
@@ -59,8 +59,8 @@ import {
 import AddGroupInviteDrawer from "./invite.add";
 import { getLastOnlineStatus } from "../../api/helpers";
 import EditGroupInviteDrawer from "./invite.edit";
-import PermissionsManager from "../PermissionsManager";
-import WebhookManager from "../WebhookManager";
+import PermissionsManager from "../../components/PermissionsManager";
+import WebhookManager from "../../components/WebhookManager";
 import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph, Text } = Typography;

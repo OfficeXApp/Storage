@@ -1,32 +1,22 @@
-// src/components/ContactsPage/index.tsx
-
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { Button, Drawer, Layout, Typography, Space, Input, Form } from "antd";
+import { Button, Layout, Typography } from "antd";
 import type {
-  ContactFE,
-  Disk,
-  IRequestCreateDisk,
-  IRequestListDisks,
-  IResponseCreateDisk,
-  IResponseListDisks,
-  UserID,
+  SystemPermissionFE,
+  DirectoryPermissionFE,
+  GranteeID,
+  SystemPermissionID,
+  DirectoryPermissionID,
 } from "@officexapp/types";
-import { DiskTypeEnum, SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import {
-  createDiskAction,
-  listDisksAction,
-} from "../../redux-offline/disks/disks.actions";
-import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
-import ContactsAddDrawer from "./contact.add";
-import ContactTab from "./contact.tab";
-import ContactsTableList from "./contacts.table";
-import { SAMPLE_CONTACTS } from "./sample";
+import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
+import PermissionsAddDrawer from "./system-permission.add";
+import PermissionTab from "./permission.tab";
+import PermissionsTableList from "./permissions.table";
 import useScreenType from "react-screentype-hook";
 
-const { Content, Footer } = Layout;
-const { Title, Paragraph, Text } = Typography;
+const { Content } = Layout;
+const { Title } = Typography;
 
 // Define tab item type for TypeScript
 type TabItem = {
@@ -36,14 +26,17 @@ type TabItem = {
   closable?: boolean;
 };
 
-const ContactsPage: React.FC = () => {
+const PermissionsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
+  const [permissionType, setPermissionType] = useState<"system" | "directory">(
+    "system"
+  );
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
-  // Sample contact data - expanded list
+  // Check if content tab is open
   const isContentTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
@@ -59,7 +52,7 @@ const ContactsPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Contacts List",
+      label: "Permissions List",
       children: null,
       closable: false,
     },
@@ -76,32 +69,52 @@ const ContactsPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Function to handle clicking on a contact
+  // Function to handle clicking on a permission
   const handleClickContentTab = useCallback(
-    (contact: ContactFE, focus_tab = false) => {
-      setLastClickedId(contact.id);
+    (
+      permission: SystemPermissionFE | DirectoryPermissionFE,
+      type: "system" | "directory",
+      focus_tab = false
+    ) => {
+      setLastClickedId(permission.id);
+      setPermissionType(type);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
       console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === contact.id
+        (item) => item.key === permission.id
       );
       console.log(`existingTabIndex`, existingTabIndex);
+
+      if (existingTabIndex !== -1 && focus_tab == true) {
+        setActiveKey(permission.id);
+        return;
+      }
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== contact.id
+          (item) => item.key !== permission.id
         );
         setTabItems(updatedTabs);
       } else {
+        // Get label based on permission type
+        const label =
+          type === "system"
+            ? `📦 ${(permission as SystemPermissionFE).resource_name || permission.resource_id.slice(0, 12)}...`
+            : `📂 ${(permission as DirectoryPermissionFE).resource_path || "Unknown"}`;
+
         // Create new tab
         const newTab: TabItem = {
-          key: contact.id,
-          label: contact.name,
+          key: permission.id,
+          label: label,
           children: (
-            <ContactTab contact={contact} onDelete={handleDeletionCloseTabs} />
+            <PermissionTab
+              permission={permission}
+              permissionType={type}
+              onDelete={handleDeletionCloseTabs}
+            />
           ),
           closable: true,
         };
@@ -113,18 +126,20 @@ const ContactsPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked contact's tab
+        // Switch to the clicked permission's tab
         if (focus_tab) {
-          setActiveKey(contact.id);
+          setActiveKey(permission.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (userID: UserID) => {
+  const handleDeletionCloseTabs = (
+    permissionID: SystemPermissionID | DirectoryPermissionID
+  ) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== userID);
+    const updatedTabs = tabItems.filter((item) => item.key !== permissionID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -133,10 +148,10 @@ const ContactsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/contacts`;
+      const newUrl = `/resources/permissions`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/contacts/${newActiveKey}`;
+      const newUrl = `/resources/permissions/${newActiveKey.includes("System") ? "system" : "directory"}/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -165,7 +180,6 @@ const ContactsPage: React.FC = () => {
     setDrawerOpen(!drawerOpen);
   };
 
-  // The rest of your component remains the same
   return (
     <Layout
       style={{
@@ -205,21 +219,8 @@ const ContactsPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Contacts
+            Permissions
           </Title>
-          <Button
-            size={screenType.isMobile ? "small" : "middle"}
-            type={
-              screenType.isMobile && activeKey !== "list"
-                ? "default"
-                : "primary"
-            }
-            icon={<PlusOutlined />}
-            onClick={toggleDrawer}
-            style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
-          >
-            Add Contact
-          </Button>
         </div>
 
         <div
@@ -332,7 +333,7 @@ const ContactsPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <ContactsTableList
+                <PermissionsTableList
                   isContentTabOpen={isContentTabOpen}
                   handleClickContentTab={handleClickContentTab}
                 />
@@ -362,13 +363,13 @@ const ContactsPage: React.FC = () => {
         </div>
       </Content>
 
-      <ContactsAddDrawer
+      <PermissionsAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddContact={() => {}}
+        onAddPermission={() => {}}
       />
     </Layout>
   );
 };
 
-export default ContactsPage;
+export default PermissionsPage;

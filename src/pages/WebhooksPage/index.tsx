@@ -1,28 +1,18 @@
-// src/components/DrivesPage/index.tsx
+// src/components/WebhooksPage/index.tsx
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { Button, Layout, Typography } from "antd";
+import { Button, Layout, Typography, Space } from "antd";
 import type {
-  DriveFE,
-  DriveID,
-  IRequestCreateDrive,
-  IRequestListDrives,
+  WebhookFE,
+  IRequestCreateWebhook,
+  WebhookID,
 } from "@officexapp/types";
-import { SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import {
-  createDriveAction,
-  listDrivesAction,
-} from "../../redux-offline/drives/drives.actions";
-import {
-  CloseOutlined,
-  PlusOutlined,
-  DatabaseOutlined,
-} from "@ant-design/icons";
-import DrivesAddDrawer from "./drive.add";
-import DriveTab from "./drive.tab";
-import DrivesTableList from "./drives.table";
+import { CloseOutlined, PlusOutlined, ApiOutlined } from "@ant-design/icons";
+import WebhooksAddDrawer from "./webhook.add";
+import WebhookTab from "./webhook.tab";
+import WebhooksTableList from "./webhooks.table";
 import useScreenType from "react-screentype-hook";
 
 const { Content } = Layout;
@@ -36,15 +26,15 @@ type TabItem = {
   closable?: boolean;
 };
 
-const DrivesPage: React.FC = () => {
+const WebhooksPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
-  // Check if content tab is open
-  const isDriveTabOpen = useCallback(
+  // Check if a webhook tab is open
+  const isWebhookTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
         return true;
@@ -59,7 +49,7 @@ const DrivesPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Drives List",
+      label: "Webhooks List",
       children: null,
       closable: false,
     },
@@ -76,32 +66,37 @@ const DrivesPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Function to handle clicking on a drive
+  // Function to handle clicking on a webhook
   const handleClickContentTab = useCallback(
-    (drive: DriveFE & { id: string; name: string }, focus_tab = false) => {
-      setLastClickedId(drive.id);
+    (webhook: WebhookFE, focus_tab = false) => {
+      setLastClickedId(webhook.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
       console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === drive.id
+        (item) => item.key === webhook.id
       );
       console.log(`existingTabIndex`, existingTabIndex);
+
+      if (existingTabIndex !== -1 && focus_tab == true) {
+        setActiveKey(webhook.id);
+        return;
+      }
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== drive.id
+          (item) => item.key !== webhook.id
         );
         setTabItems(updatedTabs);
       } else {
         // Create new tab
         const newTab: TabItem = {
-          key: drive.id,
-          label: drive.name,
+          key: webhook.id,
+          label: shortenUrl(webhook.url),
           children: (
-            <DriveTab drive={drive} onDelete={handleDeletionCloseTabs} />
+            <WebhookTab webhook={webhook} onDelete={handleDeletionCloseTabs} />
           ),
           closable: true,
         };
@@ -113,18 +108,28 @@ const DrivesPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked drive's tab
+        // Switch to the clicked webhook's tab
         if (focus_tab) {
-          setActiveKey(drive.id);
+          setActiveKey(webhook.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (driveID: DriveID) => {
+  // Function to shorten URLs for display
+  const shortenUrl = (url: string) => {
+    try {
+      const parsed = new URL(url);
+      return `${parsed.hostname}${parsed.pathname.length > 15 ? parsed.pathname.substring(0, 15) + "..." : parsed.pathname}`;
+    } catch (e) {
+      return url;
+    }
+  };
+
+  const handleDeletionCloseTabs = (webhookID: WebhookID) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== driveID);
+    const updatedTabs = tabItems.filter((item) => item.key !== webhookID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -133,10 +138,10 @@ const DrivesPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/drives`;
+      const newUrl = `/resources/webhooks`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/drives/${newActiveKey}`;
+      const newUrl = `/resources/webhooks/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -204,7 +209,7 @@ const DrivesPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Drives
+            Webhooks
           </Title>
           <Button
             size={screenType.isMobile ? "small" : "middle"}
@@ -217,7 +222,7 @@ const DrivesPage: React.FC = () => {
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
           >
-            Add Drive
+            Add Webhook
           </Button>
         </div>
 
@@ -303,6 +308,7 @@ const DrivesPage: React.FC = () => {
                         }}
                       />
                     )}
+                    <ApiOutlined style={{ marginRight: "8px" }} />
                     {item.label}
                   </div>
                 ))}
@@ -331,8 +337,8 @@ const DrivesPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <DrivesTableList
-                  isDriveTabOpen={isDriveTabOpen}
+                <WebhooksTableList
+                  isWebhookTabOpen={isWebhookTabOpen}
                   handleClickContentTab={handleClickContentTab}
                 />
               </div>
@@ -361,29 +367,13 @@ const DrivesPage: React.FC = () => {
         </div>
       </Content>
 
-      <DrivesAddDrawer
+      <WebhooksAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddDrive={(driveData: IRequestCreateDrive) => {
-          // This callback can be implemented if you need additional handling after adding a drive
-          console.log("Drive added:", driveData);
-        }}
+        onAddWebhook={() => {}}
       />
     </Layout>
   );
 };
 
-// Add a utility function for shortening addresses
-export const shortenAddress = (
-  address: string,
-  startChars = 6,
-  endChars = 4
-): string => {
-  if (!address) return "";
-  if (address.length <= startChars + endChars) return address;
-  return `${address.substring(0, startChars)}...${address.substring(
-    address.length - endChars
-  )}`;
-};
-
-export default DrivesPage;
+export default WebhooksPage;

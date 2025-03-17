@@ -44,7 +44,7 @@ import {
 } from "../../redux-offline/permissions/permissions.reducer";
 import DirectoryPermissionAddDrawer from "./directory-permission.add";
 import SystemPermissionAddDrawer from "./system-permission.add";
-import TagCopy from "../TagCopy";
+import TagCopy from "../../components/TagCopy";
 
 dayjs.extend(relativeTime);
 

@@ -1,19 +1,25 @@
+// src/components/DisksPage/index.tsx
+
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { Button, Layout, Typography } from "antd";
+import { Button, Layout, Typography, Space } from "antd";
 import type {
-  SystemPermissionFE,
-  DirectoryPermissionFE,
-  GranteeID,
-  SystemPermissionID,
-  DirectoryPermissionID,
+  DiskID,
+  IRequestCreateDisk,
+  IRequestListDisks,
 } from "@officexapp/types";
+import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import {
+  createDiskAction,
+  listDisksAction,
+} from "../../redux-offline/disks/disks.actions";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import PermissionsAddDrawer from "./system-permission.add";
-import PermissionTab from "./permission.tab";
-import PermissionsTableList from "./permissions.table";
+import DisksAddDrawer from "./disk.add";
+import DiskTab from "./disk.tab";
+import DisksTableList from "./disks.table";
 import useScreenType from "react-screentype-hook";
+import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -26,17 +32,14 @@ type TabItem = {
   closable?: boolean;
 };
 
-const PermissionsPage: React.FC = () => {
+const DisksPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const [permissionType, setPermissionType] = useState<"system" | "directory">(
-    "system"
-  );
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
-  // Check if content tab is open
+  // Check if a specific disk tab is open
   const isContentTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
@@ -52,7 +55,7 @@ const PermissionsPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Permissions List",
+      label: "Disks List",
       children: null,
       closable: false,
     },
@@ -69,48 +72,34 @@ const PermissionsPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Function to handle clicking on a permission
+  // Function to handle clicking on a disk
   const handleClickContentTab = useCallback(
-    (
-      permission: SystemPermissionFE | DirectoryPermissionFE,
-      type: "system" | "directory",
-      focus_tab = false
-    ) => {
-      setLastClickedId(permission.id);
-      setPermissionType(type);
+    (disk: DiskFEO, focus_tab = false) => {
+      setLastClickedId(disk.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
-      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === permission.id
+        (item) => item.key === disk.id
       );
-      console.log(`existingTabIndex`, existingTabIndex);
+
+      if (existingTabIndex !== -1 && focus_tab == true) {
+        setActiveKey(disk.id);
+        return;
+      }
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== permission.id
+          (item) => item.key !== disk.id
         );
         setTabItems(updatedTabs);
       } else {
-        // Get label based on permission type
-        const label =
-          type === "system"
-            ? `📦 ${(permission as SystemPermissionFE).resource_name || permission.resource_id.slice(0, 12)}...`
-            : `📂 ${(permission as DirectoryPermissionFE).resource_path || "Unknown"}`;
-
         // Create new tab
         const newTab: TabItem = {
-          key: permission.id,
-          label: label,
-          children: (
-            <PermissionTab
-              permission={permission}
-              permissionType={type}
-              onDelete={handleDeletionCloseTabs}
-            />
-          ),
+          key: disk.id,
+          label: disk.name,
+          children: <DiskTab disk={disk} onDelete={handleDeletionCloseTabs} />,
           closable: true,
         };
 
@@ -121,20 +110,18 @@ const PermissionsPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked permission's tab
+        // Switch to the clicked disk's tab
         if (focus_tab) {
-          setActiveKey(permission.id);
+          setActiveKey(disk.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (
-    permissionID: SystemPermissionID | DirectoryPermissionID
-  ) => {
+  const handleDeletionCloseTabs = (diskID: DiskID) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== permissionID);
+    const updatedTabs = tabItems.filter((item) => item.key !== diskID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -143,10 +130,10 @@ const PermissionsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/permissions`;
+      const newUrl = `/resources/disks`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/permissions/${newActiveKey.includes("System") ? "system" : "directory"}/${newActiveKey}`;
+      const newUrl = `/resources/disks/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -175,6 +162,15 @@ const PermissionsPage: React.FC = () => {
     setDrawerOpen(!drawerOpen);
   };
 
+  // Dispatch to load disks when component mounts
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const listParams: IRequestListDisks = {};
+    dispatch(listDisksAction(listParams));
+  }, [dispatch]);
+
+  // The main component render
   return (
     <Layout
       style={{
@@ -214,8 +210,21 @@ const PermissionsPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Permissions
+            Disks
           </Title>
+          <Button
+            size={screenType.isMobile ? "small" : "middle"}
+            type={
+              screenType.isMobile && activeKey !== "list"
+                ? "default"
+                : "primary"
+            }
+            icon={<PlusOutlined />}
+            onClick={toggleDrawer}
+            style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
+          >
+            Add Disk
+          </Button>
         </div>
 
         <div
@@ -328,7 +337,7 @@ const PermissionsPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <PermissionsTableList
+                <DisksTableList
                   isContentTabOpen={isContentTabOpen}
                   handleClickContentTab={handleClickContentTab}
                 />
@@ -358,13 +367,13 @@ const PermissionsPage: React.FC = () => {
         </div>
       </Content>
 
-      <PermissionsAddDrawer
+      <DisksAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddPermission={() => {}}
+        onAddDisk={() => {}}
       />
     </Layout>
   );
 };
 
-export default PermissionsPage;
+export default DisksPage;

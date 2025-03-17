@@ -1,7 +1,10 @@
 // db/dexie-manager.ts
 import Dexie from "dexie";
-import { DriveID, UserID } from "@officexapp/types";
-import { DISKS_DEXIE_TABLE } from "../redux-offline/disks/disks.reducer";
+import { DiskTypeEnum, DriveID, UserID } from "@officexapp/types";
+import {
+  DiskFEO,
+  DISKS_DEXIE_TABLE,
+} from "../redux-offline/disks/disks.reducer";
 import { CONTACTS_DEXIE_TABLE } from "../redux-offline/contacts/contacts.reducer";
 import { APIKEYS_DEXIE_TABLE } from "../redux-offline/api-keys/api-keys.reducer";
 import { LABELS_DEXIE_TABLE } from "../redux-offline/labels/labels.reducer";
@@ -216,8 +219,80 @@ export const initDexieDb = async (
     } else {
       console.warn("dummy_init table not found in database schema");
     }
+
+    // Initialize default disks
+    if (db.tables.some((table) => table.name === DISKS_DEXIE_TABLE)) {
+      // 1. Check and initialize Browser Cache disk
+      const existingBrowserCacheDisk = await db
+        .table(DISKS_DEXIE_TABLE)
+        .get(defaultBrowserCacheDiskID);
+
+      if (!existingBrowserCacheDisk) {
+        // Create the default Browser Cache disk
+        const browserCacheDisk: DiskFEO = {
+          id: defaultBrowserCacheDiskID,
+          name: "Browser Cache",
+          public_note:
+            "Local browser cache for offline access. Files get deleted if you clear browser history for this site.",
+          disk_type: DiskTypeEnum.BrowserCache,
+          labels: [],
+          created_at: Date.now(),
+          permission_previews: [],
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+        };
+
+        await db.table(DISKS_DEXIE_TABLE).add(browserCacheDisk);
+        console.log(
+          `Initialized default Browser Cache disk for ${userID}@${orgID}`
+        );
+      } else {
+        console.log(
+          `Default Browser Cache disk already exists for ${userID}@${orgID}`
+        );
+      }
+
+      // 2. Check and initialize Free Cloud Sharing disk
+      const existingCloudSharingDisk = await db
+        .table(DISKS_DEXIE_TABLE)
+        .get(defaultTempCloudSharingDiskID);
+
+      if (!existingCloudSharingDisk) {
+        // Create the Free Cloud Sharing disk
+        const cloudSharingDisk: DiskFEO = {
+          id: defaultTempCloudSharingDiskID,
+          name: "Free Cloud Sharing",
+          disk_type: DiskTypeEnum.StorjWeb3,
+          public_note:
+            "Free public filesharing. Files expire within 24 hours, UTC midnight daily.",
+          labels: [],
+          created_at: Date.now(),
+          permission_previews: [],
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+        };
+
+        await db.table(DISKS_DEXIE_TABLE).add(cloudSharingDisk);
+        console.log(
+          `Initialized default Free Cloud Sharing disk for ${userID}@${orgID}`
+        );
+      } else {
+        console.log(
+          `Default Free Cloud Sharing disk already exists for ${userID}@${orgID}`
+        );
+      }
+    } else {
+      console.warn(`${DISKS_DEXIE_TABLE} table not found in database schema`);
+    }
   } catch (error) {
     console.error("Error initializing Dexie database:", error);
     throw error;
   }
 };
+
+export const defaultBrowserCacheDiskID = "DiskID_offline_local_browser_cache";
+export const defaultTempCloudSharingDiskID = "DiskID_free_temp_cloud_sharing";

@@ -14,6 +14,10 @@ import {
   UPDATE_DISK_COMMIT,
   UPDATE_DISK_ROLLBACK,
 } from "./disks.actions";
+import {
+  defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDiskID,
+} from "../../api/dexie-database";
 
 export const DISKS_REDUX_KEY = "disks";
 export const DISKS_DEXIE_TABLE = DISKS_REDUX_KEY;
@@ -138,12 +142,40 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case LIST_DISKS_COMMIT: {
-      // find & replace optimisticFetchDisk with action.payload.ok.data.items
-      // or even replace entire disks
-      console.log(`action.payload.ok.data.items`, action.payload.ok.data.items);
+      // Get items from the API response
+      const serverDisks = action.payload.ok.data.items || [];
+
+      // Find both default disks in the current state
+      const defaultBrowserDisk = state.disks.find(
+        (disk) => disk.id === defaultBrowserCacheDiskID
+      );
+
+      const defaultCloudSharingDisk = state.disks.find(
+        (disk) => disk.id === defaultTempCloudSharingDiskID
+      );
+
+      // Filter out any server disk that has the same ID as our default disks
+      const filteredServerDisks = serverDisks.filter(
+        (disk: DiskFEO) =>
+          disk.id !== defaultBrowserCacheDiskID &&
+          disk.id !== defaultTempCloudSharingDiskID
+      );
+
+      // Create the new disks array - include the default disks if they exist
+      let newDisks = [...filteredServerDisks];
+
+      // Add the default disks at the beginning of the array
+      if (defaultCloudSharingDisk) {
+        newDisks.unshift(defaultCloudSharingDisk);
+      }
+
+      if (defaultBrowserDisk) {
+        newDisks.unshift(defaultBrowserDisk);
+      }
+
       return {
         ...state,
-        disks: action.payload.ok.data.items || [],
+        disks: newDisks,
         loading: false,
       };
     }

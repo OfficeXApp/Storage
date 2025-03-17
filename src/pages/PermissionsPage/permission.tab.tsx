@@ -56,7 +56,7 @@ import {
   SystemPermissionType,
 } from "@officexapp/types";
 import { shortenAddress } from "../../framework/identity/constants";
-import CodeBlock from "../CodeBlock";
+import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
@@ -72,7 +72,7 @@ import {
   DirectoryPermissionFEO,
   SystemPermissionFEO,
 } from "../../redux-offline/permissions/permissions.reducer";
-import TagCopy from "../TagCopy";
+import TagCopy from "../../components/TagCopy";
 import { useNavigate } from "react-router-dom";
 
 dayjs.extend(relativeTime);

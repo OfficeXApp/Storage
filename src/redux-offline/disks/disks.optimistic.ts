@@ -1,7 +1,12 @@
 // src/redux-offline/disks/disks.optimistic.ts
 
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
-import { getDexieDb, markSyncConflict } from "../../api/dexie-database";
+import {
+  defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDiskID,
+  getDexieDb,
+  markSyncConflict,
+} from "../../api/dexie-database";
 import {
   LIST_DISKS,
   LIST_DISKS_COMMIT,
@@ -27,6 +32,7 @@ import {
 } from "../../framework/identity";
 import { DiskFEO, DISKS_DEXIE_TABLE, DISKS_REDUX_KEY } from "./disks.reducer";
 import _ from "lodash";
+import { DiskTypeEnum } from "@officexapp/types";
 
 /**
  * Middleware for handling optimistic updates for the disks table
@@ -168,11 +174,47 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
 
             // Update IndexedDB with fresh data
             await db.transaction("rw", table, async () => {
-              // Update or add each disk
-              for (const disk of disks) {
+              // Get both default disks if they exist
+              const defaultBrowserDisk = await table.get(
+                defaultBrowserCacheDiskID
+              );
+              const defaultCloudSharingDisk = await table.get(
+                defaultTempCloudSharingDiskID
+              );
+
+              // Filter out the default disks from the server response
+              const nonDefaultDisks = disks.filter(
+                (d: DiskFEO) =>
+                  d.id !== defaultBrowserCacheDiskID &&
+                  d.id !== defaultTempCloudSharingDiskID
+              );
+
+              // Update or add each disk from API response
+              for (const disk of nonDefaultDisks) {
                 await table.put({
                   ...disk,
                   _optimisticID: disk.id,
+                  _isOptimistic: false,
+                  _syncConflict: false,
+                  _syncWarning: "",
+                  _syncSuccess: true,
+                });
+              }
+
+              // Make sure our default disks stay in the database
+              if (defaultBrowserDisk) {
+                await table.put({
+                  ...defaultBrowserDisk,
+                  _isOptimistic: false,
+                  _syncConflict: false,
+                  _syncWarning: "",
+                  _syncSuccess: true,
+                });
+              }
+
+              if (defaultCloudSharingDisk) {
+                await table.put({
+                  ...defaultCloudSharingDisk,
                   _isOptimistic: false,
                   _syncConflict: false,
                   _syncWarning: "",

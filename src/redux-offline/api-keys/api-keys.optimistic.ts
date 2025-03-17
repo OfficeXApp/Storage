@@ -44,12 +44,6 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
     (next: Dispatch<AnyAction>) =>
     async (action: AnyAction) => {
       // Skip actions we don't care about
-      console.log(
-        `Inside apikeys optimistic middleware for ${action.type}`,
-        action
-      );
-
-      // Skip actions we don't care about
       if (
         ![
           GET_APIKEY,

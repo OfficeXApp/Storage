@@ -16,6 +16,10 @@ import {
   DIRECTORY_PERMISSIONS_DEXIE_TABLE,
   SYSTEM_PERMISSIONS_DEXIE_TABLE,
 } from "../redux-offline/permissions/permissions.reducer";
+import {
+  FILES_DEXIE_TABLE,
+  FOLDERS_DEXIE_TABLE,
+} from "../redux-offline/directory/directory.reducer";
 
 /**
  * Singleton class to manage Dexie database connections
@@ -87,6 +91,8 @@ class DexieManager {
       [APIKEYS_DEXIE_TABLE]: "id, _syncConflict",
       [DIRECTORY_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
       [SYSTEM_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
+      [FILES_DEXIE_TABLE]: "id, folder_uuid, _syncConflict",
+      [FOLDERS_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
     });
 
     // Set as current and return

@@ -24,6 +24,10 @@ import {
   SYSTEM_PERMISSIONS_REDUX_KEY,
   systemPermissionsReducer,
 } from "./permissions/permissions.reducer";
+import {
+  DIRECTORY_REDUX_KEY,
+  directoryReducer,
+} from "./directory/directory.reducer";
 
 export const rootReducer = combineReducers({
   [DISKS_REDUX_KEY]: disksReducer,
@@ -36,6 +40,7 @@ export const rootReducer = combineReducers({
   [APIKEYS_REDUX_KEY]: apiKeysReducer,
   [SYSTEM_PERMISSIONS_REDUX_KEY]: systemPermissionsReducer,
   [DIRECTORY_PERMISSIONS_REDUX_KEY]: directoryPermissionsReducer,
+  [DIRECTORY_REDUX_KEY]: directoryReducer,
   // Any other reducers would go here
 });
 

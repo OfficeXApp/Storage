@@ -41,7 +41,7 @@ import SearchHeader from "./components/SearchHeader";
 import ActionMenuButton from "./components/ActionMenuButton";
 import PreseedOffer from "./components/PreseedOffer";
 import useScreenType from "react-screentype-hook";
-import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
+// import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
 import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
@@ -223,7 +223,7 @@ const RouterUI = () => {
 
   return (
     <BrowserRouter>
-      <LoadSampleFiles />
+      {/* <LoadSampleFiles /> */}
       <UploadPanel
         uploadPanelVisible={uploadPanelVisible}
         setUploadPanelVisible={setUploadPanelVisible}

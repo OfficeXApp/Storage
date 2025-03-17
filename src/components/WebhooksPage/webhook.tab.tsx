@@ -539,6 +539,7 @@ async function listWebhooks(page = 1, limit = 10) {
                     placeholder='{"key": "value"}'
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
+                    disabled
                   />
                 </Form.Item>
 

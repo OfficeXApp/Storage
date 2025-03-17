@@ -48,6 +48,7 @@ const ALL_OR_ONLY_ALTINDEX_OPERATIONS = [
   WebhookEventLabel.FOLDER_UPDATED,
   WebhookEventLabel.FOLDER_DELETED,
   WebhookEventLabel.FOLDER_SHARED,
+  WebhookEventLabel.ORG_INBOX_NEW_MAIL,
 ];
 
 const MANDATORY_ONLY_ALTINDEX_OPERATIONS = [
@@ -71,7 +72,6 @@ const MANDATORY_ALL_ALTINDEX_OPERATIONS = [
   WebhookEventLabel.DRIVE_RESTORE_TRASH,
   WebhookEventLabel.DRIVE_STATE_DIFFS,
   WebhookEventLabel.ORG_SUPERSWAP_USER,
-  WebhookEventLabel.ORG_INBOX_NEW_MAIL,
 ];
 
 interface WebhooksAddDrawerProps {
@@ -87,6 +87,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
+  const [topicValue, setTopicValue] = useState("");
 
   // Form field states
   const [url, setUrl] = useState("");
@@ -147,6 +148,9 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
     eventType: WebhookEventLabel,
     isAll: boolean
   ): string => {
+    console.log(
+      `Setting alt_index for ${eventType} (${isAll ? "ALL" : "ONLY"})`
+    );
     // For ALL mode with specific event types
     if (isAll) {
       // File operations use ALL_FILES
@@ -174,10 +178,6 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
       if (eventType === WebhookEventLabel.ORG_SUPERSWAP_USER) {
         return "ALL_USERS";
       }
-
-      if (eventType === WebhookEventLabel.ORG_INBOX_NEW_MAIL) {
-        return "INBOX_NEW_MAIL";
-      }
     }
 
     // For mandatory specific alt_index types regardless of ALL/ONLY switch
@@ -187,6 +187,9 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
     if (eventType === WebhookEventLabel.ORG_SUPERSWAP_USER)
       return "SUPERSWAP_USER";
 
+    if (eventType === WebhookEventLabel.ORG_INBOX_NEW_MAIL) {
+      return "INBOX_NEW_MAIL";
+    }
     // Default case for ONLY mode
     return "";
   };
@@ -270,7 +273,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
     const webhookData: IRequestCreateWebhook = {
       url,
       name,
-      alt_index: altIndex || uuidv4().substring(0, 8),
+      alt_index: altIndex,
       event: eventType,
       signature,
       note,
@@ -314,6 +317,11 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
 
     // Update alt_index based on the new toggle state and event type
     setAltIndex(getHardcodedAltIndex(eventType, checked));
+
+    if (eventType === WebhookEventLabel.ORG_INBOX_NEW_MAIL && checked) {
+      setFilters("");
+    }
+
     setFormChanged(true);
   };
 
@@ -333,6 +341,63 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
     const isInputDisabled =
       MANDATORY_ALL_ALTINDEX_OPERATIONS.includes(eventType);
 
+    const isInboxEvent = eventType === WebhookEventLabel.ORG_INBOX_NEW_MAIL;
+
+    if (isInboxEvent) {
+      return (
+        <div style={{ marginBottom: 24 }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: 8,
+              color: "rgba(0, 0, 0, 0.88)",
+              fontSize: "14px",
+            }}
+          >
+            <Tooltip title="Filter inbox notifications by topic">
+              <Space>
+                Topic Filter <InfoCircleOutlined style={{ color: "#aaa" }} />
+              </Space>
+            </Tooltip>
+          </label>
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Input
+              prefix={
+                <Switch
+                  checkedChildren="ALL"
+                  unCheckedChildren="TOPIC"
+                  checked={toggleSpecificResourceId}
+                  disabled={isSwitchDisabled}
+                  onChange={handleSwitchToggle}
+                  style={{ marginRight: 8 }}
+                />
+              }
+              placeholder="Enter topic name"
+              value={
+                toggleSpecificResourceId
+                  ? ""
+                  : filters.length > 0
+                    ? JSON.parse(filters).topic || ""
+                    : ""
+              }
+              onChange={(e) => {
+                // Only allow changes if in TOPIC mode (not ALL)
+                if (!toggleSpecificResourceId) {
+                  // Store the topic in filters as JSON
+                  setFilters(JSON.stringify({ topic: e.target.value }));
+                  setFormChanged(true);
+                }
+              }}
+              disabled={toggleSpecificResourceId}
+              readOnly={toggleSpecificResourceId}
+              variant="borderless"
+              style={{ backgroundColor: "#fafafa" }}
+            />
+          </Space>
+        </div>
+      );
+    }
+
     return (
       <div style={{ marginBottom: 24 }}>
         <label
@@ -343,9 +408,10 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
             fontSize: "14px",
           }}
         >
-          <Tooltip title="Alternative index for the webhook">
+          <Tooltip title={"Alternative index for the webhook"}>
             <Space>
-              Listen To <InfoCircleOutlined style={{ color: "#aaa" }} />
+              Listen To
+              <InfoCircleOutlined style={{ color: "#aaa" }} />
             </Space>
           </Tooltip>
         </label>

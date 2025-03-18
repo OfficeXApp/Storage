@@ -20,9 +20,15 @@ import {
   FolderID,
   DirectoryResourceID,
   GenerateID,
+  IRequestListDirectory,
 } from "@officexapp/types";
 
 // Action Types
+
+export const LIST_DIRECTORY = "LIST_DIRECTORY";
+export const LIST_DIRECTORY_COMMIT = "LIST_DIRECTORY_COMMIT";
+export const LIST_DIRECTORY_ROLLBACK = "LIST_DIRECTORY_ROLLBACK";
+
 export const GET_FILE = "GET_FILE";
 export const GET_FILE_COMMIT = "GET_FILE_COMMIT";
 export const GET_FILE_ROLLBACK = "GET_FILE_ROLLBACK";
@@ -75,7 +81,58 @@ export const RESTORE_TRASH = "RESTORE_TRASH";
 export const RESTORE_TRASH_COMMIT = "RESTORE_TRASH_COMMIT";
 export const RESTORE_TRASH_ROLLBACK = "RESTORE_TRASH_ROLLBACK";
 
+export const generateListQueryString = (
+  params: IRequestListDirectory
+): string => {
+  const normalizedParams = {
+    folder_id: params.folder_id || "",
+    path: params.path || "",
+    disk_id: params.disk_id || "",
+    filters: params.filters || "",
+    page_size: params.page_size || 50,
+    direction: params.direction || "ASC",
+    cursor: params.cursor || "",
+  };
+
+  return JSON.stringify(normalizedParams);
+};
+
 // Action Creators
+
+// list directory files & folders
+export const listDirectoryAction = (payload: IRequestListDirectory) => {
+  // Generate a unique ID for this request
+  const requestId = `list_dir_${Date.now()}`;
+  const listQueryString = generateListQueryString(payload);
+
+  return {
+    type: LIST_DIRECTORY,
+    payload,
+    meta: {
+      requestId,
+      listQueryString,
+      offline: {
+        effect: {
+          url: `/directory/list`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        commit: {
+          type: LIST_DIRECTORY_COMMIT,
+          meta: { requestId },
+        },
+        rollback: {
+          type: LIST_DIRECTORY_ROLLBACK,
+          meta: { requestId },
+        },
+      },
+    },
+  };
+};
 
 // Get File
 export const getFileAction = (action: GetFileAction) => {

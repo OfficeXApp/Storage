@@ -64,11 +64,14 @@ import mixpanel from "mixpanel-browser";
 import {
   DirectoryResourceID,
   DiskID,
+  DiskTypeEnum,
   DriveFullFilePath,
+  DriveID,
   FileID,
   FileRecord,
   FolderID,
   FolderRecord,
+  ICPPrincipalString,
   IRequestListDisks,
   UserID,
 } from "@officexapp/types";
@@ -105,17 +108,156 @@ interface DriveUIProps {
   toggleUploadPanel: (bool: boolean) => void; // Callback to toggle UploadPanel visibility
 }
 
-const mockFetchFilesAtFolderPath = (
-  folderPath: string,
+// Mock data generator for folders and files
+const mockFetchFilesAtFolderID = (
+  folderID: FolderID,
   limit: number,
   offset: number
 ) => {
+  // Generate a consistent set of mock files and folders based on the folderID
+  // This ensures the same content is returned when visiting the same folder
+  const folderIdNumber = parseInt(folderID.replace("FolderID_", "")) || 0;
+
+  // Create mock folders
+  const mockFolders: FolderRecord[] = Array.from({ length: 3 }, (_, i) => ({
+    id: `FolderID_${folderIdNumber}${i + 1}` as FolderID,
+    name: `Folder ${i + 1} in ${folderID}`,
+    parent_folder_uuid: folderID as FolderID,
+    subfolder_uuids: [] as FolderID[],
+    file_uuids: [] as FileID[],
+    full_directory_path:
+      `mock::/${folderID}/${folderIdNumber}${i + 1}/` as DriveFullFilePath,
+    labels: [`mock-${i}`, `level-${folderIdNumber}`],
+    created_by: "User123" as UserID,
+    created_at: Date.now() - 86400000 * (i + 1), // Different days
+    last_updated_date_ms: Date.now() - 3600000 * (i + 1), // Different hours
+    last_updated_by: "User123" as UserID,
+    disk_id: `DiskID_${Math.floor(folderIdNumber / 100)}` as DiskID,
+    deleted: false,
+    expires_at: 0,
+    drive_id: "DriveID_1" as DriveID,
+    has_sovereign_permissions: false,
+    clipped_directory_path: `mock::/${folderID}/${folderIdNumber}${i + 1}/`,
+    permission_previews: [],
+  }));
+
+  // File types to use for mock data
+  const fileTypes = [
+    { ext: "pdf", type: "document", diskType: "document" },
+    { ext: "docx", type: "document", diskType: "document" },
+    { ext: "xlsx", type: "spreadsheet", diskType: "spreadsheet" },
+    { ext: "pptx", type: "presentation", diskType: "presentation" },
+    { ext: "txt", type: "text", diskType: "document" },
+    { ext: "jpg", type: "image", diskType: "media" },
+    { ext: "png", type: "image", diskType: "media" },
+    { ext: "mp4", type: "video", diskType: "media" },
+  ];
+
+  // Create mock files
+  const mockFiles: FileRecord[] = Array.from({ length: 5 }, (_, i) => {
+    const fileTypeIndex = Math.floor(Math.random() * fileTypes.length);
+    const fileType = fileTypes[fileTypeIndex];
+    const fileSize = Math.floor(Math.random() * 1024 * 1024 * 10); // Random size up to 10MB
+
+    return {
+      id: `FileID_${folderIdNumber}${i + 1}` as FileID,
+      name: `Sample ${fileType.ext.toUpperCase()} File ${i + 1}`,
+      folder_uuid: folderID as FolderID,
+      file_version: 1,
+      extension: fileType.ext,
+      full_directory_path:
+        `${fileType.type}::/${folderID}/${folderIdNumber}${i + 1}.${fileType.ext}` as DriveFullFilePath,
+      labels: [`mock-${i}`, `type-${fileType.ext}`],
+      created_by: "User123" as UserID,
+      created_at: Date.now() - 86400000 * (i + 1), // Different days
+      disk_id: `DiskID_${Math.floor(folderIdNumber / 100)}` as DiskID,
+      disk_type: fileType.diskType as DiskTypeEnum,
+      file_size: fileSize,
+      raw_url: `https://example.com/files/${folderIdNumber}${i + 1}.${fileType.ext}`,
+      last_updated_date_ms: Date.now() - 3600000 * (i + 1), // Different hours
+      last_updated_by: "User123" as UserID,
+      deleted: false,
+      expires_at: 0,
+      drive_id: "DriveID_1" as ICPPrincipalString,
+      has_sovereign_permissions: false,
+      clipped_directory_path: `mock::/${folderID}/${folderIdNumber}${i + 1}.${fileType.ext}`,
+      permission_previews: [],
+    };
+  });
+
+  // Special case for root folder - add more folders with names that make sense as disks
+  if (folderID === "FolderID_root" || folderID === "root") {
+    mockFolders.push(
+      {
+        id: "FolderID_personal" as FolderID,
+        name: "Personal Files",
+        parent_folder_uuid: folderID as FolderID,
+        subfolder_uuids: [] as FolderID[],
+        file_uuids: [] as FileID[],
+        full_directory_path: "mock::/personal/" as DriveFullFilePath,
+        labels: ["personal"],
+        created_by: "User123" as UserID,
+        created_at: Date.now() - 86400000,
+        last_updated_date_ms: Date.now() - 3600000,
+        last_updated_by: "User123" as UserID,
+        disk_id: "DiskID_personal" as DiskID,
+        deleted: false,
+        expires_at: 0,
+        drive_id: "DriveID_1" as DriveID,
+        has_sovereign_permissions: false,
+      },
+      {
+        id: "FolderID_shared" as FolderID,
+        name: "Shared With Me",
+        parent_folder_uuid: folderID as FolderID,
+        subfolder_uuids: [] as FolderID[],
+        file_uuids: [] as FileID[],
+        full_directory_path: "mock::/shared/" as DriveFullFilePath,
+        labels: ["shared"],
+        created_by: "User123" as UserID,
+        created_at: Date.now() - 86400000 * 2,
+        last_updated_date_ms: Date.now() - 3600000 * 2,
+        last_updated_by: "User123" as UserID,
+        disk_id: "DiskID_shared" as DiskID,
+        deleted: false,
+        expires_at: 0,
+        drive_id: "DriveID_1" as DriveID,
+        has_sovereign_permissions: false,
+      },
+      {
+        id: "FolderID_team" as FolderID,
+        name: "Team Drive",
+        parent_folder_uuid: folderID as FolderID,
+        subfolder_uuids: [] as FolderID[],
+        file_uuids: [] as FileID[],
+        full_directory_path: "mock::/team/" as DriveFullFilePath,
+        labels: ["team"],
+        created_by: "User123" as UserID,
+        created_at: Date.now() - 86400000 * 3,
+        last_updated_date_ms: Date.now() - 3600000 * 3,
+        last_updated_by: "User123" as UserID,
+        disk_id: "DiskID_team" as DiskID,
+        deleted: false,
+        expires_at: 0,
+        drive_id: "DriveID_1" as DriveID,
+        has_sovereign_permissions: false,
+      }
+    );
+  }
+
+  // Apply pagination
+  const paginatedFolders = mockFolders.slice(offset, offset + limit);
+  const paginatedFiles = mockFiles.slice(offset, offset + limit);
+
   return {
-    folders: [] as FolderRecord[],
-    files: [] as FileRecord[],
-    total_files: 0,
-    total_folders: 0,
-    cursor: undefined,
+    folders: paginatedFolders,
+    files: paginatedFiles,
+    total_files: mockFiles.length,
+    total_folders: mockFolders.length,
+    cursor:
+      offset + limit < mockFolders.length + mockFiles.length
+        ? String(offset + limit)
+        : undefined,
   };
 };
 
@@ -136,7 +278,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     (state: ReduxAppState) => state.directory.folders
   );
 
-  const [currentPath, setCurrentPath] = useState<string[]>([]);
+  const [currentDiskId, setCurrentDiskId] = useState<DiskID | null>(null);
+  const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
+  const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
+
+  const [pathSegments, setPathSegments] = useState<string[]>([]);
+
   const [content, setContent] = useState<{
     folders: FolderRecord[];
     files: FileRecord[];
@@ -195,57 +342,70 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   }, [window.location.pathname]);
 
   // REFACTORED: Handle path changes to work with the new URL format
+  // Parse the URL to set current IDs and update breadcrumb
   useEffect(() => {
     setIs404NotFound(false);
     setSingleFile(null);
 
+    // Reset states
+    setCurrentDiskId(null);
+    setCurrentFolderId(null);
+    setCurrentFileId(null);
+
     const path = encodedPath ? decodeURIComponent(encodedPath) : "";
     const pathParts = path.split("/").filter(Boolean);
 
-    setCurrentPath(pathParts);
+    console.log(`pathParts`, pathParts);
 
-    // Check if this is a file request
-    // In the new format, if last path segment contains "FileID_" it's a file
+    // Parse the path parts
     if (pathParts.length > 0) {
-      const lastSegment = pathParts[pathParts.length - 1];
-      if (lastSegment.includes("FileID_")) {
-        // Extract the FileID
-        const fileId = lastSegment;
-        fetchFileById(fileId);
-      } else {
-        // This is a folder request
-        fetchContent(pathParts);
+      // First part should be a DiskID
+      if (pathParts[0].startsWith("DiskID_")) {
+        const diskId = pathParts[0] as DiskID;
+        setCurrentDiskId(diskId);
+
+        // Second part (if exists) should be a FolderID
+        if (pathParts.length > 1 && pathParts[1].startsWith("FolderID_")) {
+          const folderId = pathParts[1] as FolderID;
+          setCurrentFolderId(folderId);
+
+          // Fetch folder contents
+          fetchContent(folderId);
+
+          // Third part (if exists) might be a FileID
+          if (pathParts.length > 2 && pathParts[2].startsWith("FileID_")) {
+            const fileId = pathParts[2] as FileID;
+            setCurrentFileId(fileId);
+
+            // We're viewing a file, fetch it
+            fetchFileById(fileId);
+          }
+        } else {
+          // Only disk ID, show contents of disk root
+          fetchContent(null);
+        }
       }
     } else {
-      // Root path - show disks
-      fetchContent(pathParts);
+      // Root path - just show disks
+      fetchContent(null);
     }
 
     // Check if we're in the Web3Storj route and Storj settings are not set
-    if (
-      pathParts[0]?.startsWith("DiskID_") &&
-      pathParts[0].includes("Web3Storj") &&
-      !areStorjSettingsSet()
-    ) {
+    if (currentDiskId?.includes("Web3Storj") && !areStorjSettingsSet()) {
       setIsStorjModalVisible(true);
     }
-  }, [encodedPath, location.search]);
+  }, [encodedPath, location.search, disks]);
 
-  // Listen for changes in the Redux store for files
   useEffect(() => {
     // If we're looking for a specific file and the filesFromRedux has updated
-    if (currentPath.length > 0) {
-      const lastSegment = currentPath[currentPath.length - 1];
-      if (lastSegment.includes("FileID_")) {
-        const fileId = lastSegment;
-        const file = filesFromRedux.find((f) => f.id === fileId);
-        if (file) {
-          setSingleFile(file);
-          setIs404NotFound(false);
-        }
+    if (currentFileId) {
+      const file = filesFromRedux.find((f) => f.id === currentFileId);
+      if (file) {
+        setSingleFile(file);
+        setIs404NotFound(false);
       }
     }
-  }, [filesFromRedux, currentPath]);
+  }, [filesFromRedux, currentFileId]);
 
   // ADDED: New function to fetch file by ID using Redux action
   const fetchFileById = (fileId: string) => {
@@ -296,16 +456,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const handleStorjSettingsSave = () => {
     setIsStorjModalVisible(false);
-    fetchContent(currentPath);
+    fetchContent(currentFolderId);
   };
 
-  // REFACTORED: Fetch content based on the new path format
+  // Fetch content based on folder ID
   const fetchContent = useCallback(
-    async (currentParts?: string[]) => {
-      const pathParts = currentParts || currentPath;
-
-      if (pathParts.length === 0) {
+    async (folderId?: FolderID | null) => {
+      console.log(`fetching content for folder ID`, folderId);
+      if (!folderId && !currentFolderId) {
         // Root level showing disks from Redux
+        console.log(`disks`, disks);
         setContent({
           folders: disks.map((disk) => ({
             id: disk.id as FolderID,
@@ -313,7 +473,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             parent_folder_uuid: "",
             subfolder_uuids: [],
             file_uuids: [],
-            full_folder_path: `${disk.disk_type}::` as DriveFullFilePath,
+            full_directory_path: `${disk.disk_type}::` as DriveFullFilePath,
             labels: [],
             created_by: "Owner" as UserID,
             created_at: Date.now(),
@@ -328,39 +488,15 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           files: [],
         });
       } else {
-        // Handle the folder/file structure based on the new format
-        const diskId = pathParts[0]; // Now it's DiskID_abc123
+        const targetFolderId = folderId || currentFolderId;
+        if (!targetFolderId) return;
 
-        // For folders, maintain using the mock function for now
-        // Assuming we want to continue to use the mockFetchFilesAtFolderPath
-        // but adapt it to work with our new URL structure
-
-        let fullPathString = "";
-
-        // Determine storage location based on disk ID
-        let storageLocation = "Local"; // Default
-        if (diskId.includes("Web3Storj")) {
-          storageLocation = "Web3Storj";
-        }
-
-        // Construct a path compatible with the mock function
-        fullPathString = `${storageLocation}::${pathParts.slice(1).join("/")}`;
-
-        if (!fullPathString.endsWith("/") && !fullPathString.endsWith(":")) {
-          fullPathString += "/";
-        }
-
-        console.log("fetching content for", fullPathString);
-
-        // Use mock function for fetching folder contents (keeping as requested)
         try {
-          const result = await mockFetchFilesAtFolderPath(
-            fullPathString as DriveFullFilePath,
-            100,
-            0
-          );
+          console.log(`mockFetchFilesAtFolderID`, targetFolderId);
+          // Use mock function for fetching folder contents
+          const result = await mockFetchFilesAtFolderID(targetFolderId, 100, 0);
 
-          console.log(`>>>> result from ${fullPathString}`, result);
+          console.log(`>>>> result for folder ID ${targetFolderId}`, result);
 
           // Convert folders to expected format
           const convertedFolders = result.folders
@@ -371,23 +507,24 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               parent_folder_uuid: folder.parent_folder_uuid as FolderID,
               subfolder_uuids: folder.subfolder_uuids as FolderID[],
               file_uuids: folder.file_uuids as FileID[],
-              full_folder_path: folder.full_folder_path as DriveFullFilePath,
+              full_directory_path:
+                folder.full_directory_path as DriveFullFilePath,
               labels: folder.labels || [],
               created_by: folder.created_by as UserID,
               created_at: folder.created_at || Date.now(),
               last_updated_date_ms: folder.last_updated_date_ms || 0,
               last_updated_by: folder.last_updated_by as UserID,
-              disk_id: folder.id.split("-")[0] as DiskID,
+              disk_id: currentDiskId || folder.disk_id || "",
               deleted: false,
               expires_at: 0,
               drive_id: currentOrg?.driveID || "",
               has_sovereign_permissions: false,
             }));
 
-          // Set content with empty files for now
+          // Set content
           setContent({
             folders: convertedFolders,
-            files: [],
+            files: result.files || [],
           });
         } catch (error) {
           console.error("Error fetching folder contents:", error);
@@ -395,31 +532,79 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         }
       }
     },
-    [currentPath, disks, currentOrg]
+    [currentFolderId, currentDiskId, disks, currentOrg]
   );
 
-  const handleBack = () => {
-    if (currentPath.length > 0) {
-      navigate(
-        `/drive/${encodeURIComponent(currentPath.slice(0, -1).join("/"))}`
+  // Listen for changes in the Redux store for files and folders
+  useEffect(() => {
+    // Update file information if we're viewing a file
+    if (currentFileId) {
+      const file = filesFromRedux.find((f) => f.id === currentFileId);
+      if (file) {
+        setSingleFile(file);
+        setIs404NotFound(false);
+      }
+    }
+
+    // If we have folders in Redux that match our current path, update the content
+    if (currentFolderId) {
+      const childFolders = foldersFromRedux.filter(
+        (f) => f.parent_folder_uuid === currentFolderId && !f.deleted
       );
+
+      const childFiles = filesFromRedux.filter(
+        (f) => f.folder_uuid === currentFolderId && !f.deleted
+      );
+
+      if (childFolders.length > 0 || childFiles.length > 0) {
+        setContent({
+          folders: childFolders,
+          files: childFiles,
+        });
+      }
+    }
+  }, [filesFromRedux, foldersFromRedux, currentFolderId, currentFileId]);
+
+  const handleBack = () => {
+    if (currentFileId) {
+      // If viewing a file, go back to its folder
+      navigate(`/drive/${currentDiskId}/${currentFolderId}`);
+    } else if (currentFolderId) {
+      // If in a folder, find its parent folder
+      const currentFolder = foldersFromRedux.find(
+        (f) => f.id === currentFolderId
+      );
+      if (currentFolder && currentFolder.parent_folder_uuid) {
+        // If parent folder exists, navigate to it
+        navigate(`/drive/${currentDiskId}/${currentFolder.parent_folder_uuid}`);
+      } else {
+        // If no parent folder (top-level folder), go back to disk
+        navigate(`/drive/${currentDiskId}`);
+      }
+    } else if (currentDiskId) {
+      // If at a disk, go back to root
+      navigate("/drive");
     } else {
+      // Already at root
       navigate("/drive");
     }
   };
 
-  // REFACTORED: Handle click based on new path structure
+  // Handle click based on ID structure
   const handleFileFolderClick = (item: DriveItemRow) => {
     if (item.isDisabled) return;
 
-    // For the new format, we navigate based on IDs
     if (item.isFolder) {
-      // If it's already a folder, just append the folder ID to the path
-      navigate(`/drive/${currentPath.join("/")}/${item.id}`);
+      if (currentDiskId) {
+        // We're in a disk, navigate to the folder
+        navigate(`/drive/${currentDiskId}/${item.id}`);
+      } else {
+        // Clicked on a disk from the root
+        navigate(`/drive/${item.id}`);
+      }
     } else {
-      // If it's a file, we need to handle it differently
-      // Since the file is in the current folder, we navigate to it
-      navigate(`/drive/${currentPath.join("/")}/${item.id}`);
+      // Clicked on a file, navigate to it
+      navigate(`/drive/${currentDiskId}/${currentFolderId}/${item.id}`);
     }
   };
 
@@ -611,39 +796,74 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     message.info(`Click on item ${key}`);
   };
 
-  // REFACTORED: Update breadcrumb to reflect new path structure
-  const breadcrumbItems = [
-    { title: <Link to="/drive">Drive</Link> },
-    ...currentPath.map((part, index) => ({
-      title: (
-        <Link
-          to={`/drive/${encodeURIComponent(currentPath.slice(0, index + 1).join("/"))}/`}
-          onClick={() => setIs404NotFound(false)}
-        >
-          {part}
-        </Link>
-      ),
-    })),
-  ];
+  // Generate breadcrumb items
+  const generateBreadcrumbItems = () => {
+    const items = [{ title: <Link to="/drive">Drive</Link> }];
+
+    // Add disk if present
+    if (currentDiskId) {
+      const disk = disks.find((d) => d.id === currentDiskId);
+      const diskName = disk ? disk.name : currentDiskId.replace("DiskID_", "");
+
+      items.push({
+        title: <Link to={`/drive/${currentDiskId}`}>{diskName}</Link>,
+      });
+
+      // If we have a folder, add it
+      if (currentFolderId) {
+        const folder = foldersFromRedux.find((f) => f.id === currentFolderId);
+        const folderName = folder
+          ? folder.name
+          : currentFolderId.replace("FolderID_", "");
+
+        items.push({
+          title: (
+            <Link to={`/drive/${currentDiskId}/${currentFolderId}`}>
+              {folderName}
+            </Link>
+          ),
+        });
+
+        // If we have a file, add it
+        if (currentFileId) {
+          const file = filesFromRedux.find((f) => f.id === currentFileId);
+          const fileName = file
+            ? file.name
+            : currentFileId.replace("FileID_", "");
+
+          items.push({
+            title: <span>{fileName}</span>, // Not a link when viewing the file
+          });
+        }
+      }
+    }
+
+    return items;
+  };
+
+  const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
-    if (currentPath.length === 0) {
+    if (!currentDiskId && !currentFolderId) {
+      // At root, showing disks
       return content.folders.map((f) => ({
         id: f.id,
         title: f.name,
         owner: f.created_by,
         isFolder: true,
-        fullPath: f.full_folder_path,
+        fullPath: f.full_directory_path,
         isDisabled: false,
       }));
     }
+
+    // In a folder, showing folders and files
     return [
       ...content.folders.map((f) => ({
         id: f.id,
         title: f.name,
         owner: f.created_by,
         isFolder: true,
-        fullPath: f.full_folder_path,
+        fullPath: f.full_directory_path,
         isDisabled: false,
       })),
       ...content.files.map((f) => ({
@@ -651,11 +871,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         title: f.name,
         owner: f.created_by,
         isFolder: false,
-        fullPath: f.full_file_path,
+        fullPath: f.full_directory_path,
         isDisabled: false,
       })),
     ];
-  }, [content, currentPath]);
+  }, [content, currentDiskId, currentFolderId]);
 
   const handleRenameChange = (id: string, newName: string) => {
     setRenamingItems((prev) => ({ ...prev, [id]: newName }));

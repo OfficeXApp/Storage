@@ -132,7 +132,6 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     // ------------------------------ LIST DISKS --------------------------------- //
 
     case LIST_DISKS: {
-      console.log(`optimistic`, action.optimistic);
       return {
         ...state,
         disks: action.optimistic || [],

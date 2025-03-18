@@ -1,5 +1,12 @@
 // src/redux-offline/directory/directory.reducer.ts
-import { FileRecord, FolderRecord, FileID, FolderID } from "@officexapp/types";
+import {
+  FileRecord,
+  FolderRecord,
+  FileID,
+  FolderID,
+  FileRecordFE,
+  FolderRecordFE,
+} from "@officexapp/types";
 import {
   GET_FILE,
   GET_FILE_COMMIT,
@@ -40,14 +47,20 @@ import {
   RESTORE_TRASH,
   RESTORE_TRASH_COMMIT,
   RESTORE_TRASH_ROLLBACK,
+  LIST_DIRECTORY_ROLLBACK,
+  LIST_DIRECTORY_COMMIT,
+  LIST_DIRECTORY,
 } from "./directory.actions";
+import { DirectoryListQueryString } from "../../api/dexie-database";
 
 export const DIRECTORY_REDUX_KEY = "directory";
 
+export const DIRECTORY_LIST_QUERY_RESULTS_TABLE =
+  "directory-list-query-results";
 export const FILES_DEXIE_TABLE = "files";
 export const FOLDERS_DEXIE_TABLE = "folders";
 
-export interface FileFEO extends FileRecord {
+export interface FileFEO extends FileRecordFE {
   _isOptimistic?: boolean; // flag for optimistic updates
   _optimisticID?: string; // unique ID for optimistic updates
   _syncWarning?: string; // tooltip for users
@@ -56,7 +69,7 @@ export interface FileFEO extends FileRecord {
   _markedForDeletion?: boolean; // flag for deletion
 }
 
-export interface FolderFEO extends FolderRecord {
+export interface FolderFEO extends FolderRecordFE {
   _isOptimistic?: boolean; // flag for optimistic updates
   _optimisticID?: string; // unique ID for optimistic updates
   _syncWarning?: string; // tooltip for users
@@ -72,6 +85,19 @@ interface DirectoryState {
   folderMap: Record<FolderID, FolderFEO>;
   loading: boolean;
   error: string | null;
+  listingDataMap: Record<
+    DirectoryListQueryString,
+    {
+      folders: FolderFEO[];
+      files: FileFEO[];
+      totalFiles: number;
+      totalFolders: number;
+      cursor: string | null;
+      isLoading: boolean;
+      error: string | null;
+      lastUpdated: number;
+    }
+  >;
 }
 
 const initialState: DirectoryState = {
@@ -81,6 +107,7 @@ const initialState: DirectoryState = {
   folderMap: {},
   loading: false,
   error: null,
+  listingDataMap: {},
 };
 
 // Helper functions
@@ -133,6 +160,175 @@ export const directoryReducer = (
   action: any
 ): DirectoryState => {
   switch (action.type) {
+    // ------------------------------ LIST DIRECTORY --------------------------------- //
+    case LIST_DIRECTORY: {
+      const listQueryString = action.meta.listQueryString;
+
+      if (action.optimistic) {
+        const { files, folders, totalFiles, totalFolders, cursor } =
+          action.optimistic;
+
+        const updatedFileMap = { ...state.fileMap };
+        files.forEach((file: FileFEO) => {
+          updatedFileMap[file.id] = file;
+        });
+
+        const updatedFolderMap = { ...state.folderMap };
+        folders.forEach((folder: FolderFEO) => {
+          updatedFolderMap[folder.id] = folder;
+        });
+
+        return {
+          ...state,
+          listingDataMap: {
+            ...state.listingDataMap,
+            [listQueryString]: {
+              folders,
+              files,
+              totalFiles,
+              totalFolders,
+              cursor,
+              isLoading: true,
+              error: null,
+              lastUpdated: Date.now(),
+            },
+          },
+          fileMap: updatedFileMap,
+          folderMap: updatedFolderMap,
+        };
+      }
+
+      return {
+        ...state,
+        listingDataMap: {
+          ...state.listingDataMap,
+          [listQueryString]: {
+            ...(state.listingDataMap[listQueryString] || {
+              folders: [],
+              files: [],
+              totalFiles: 0,
+              totalFolders: 0,
+              cursor: null,
+              lastUpdated: 0,
+            }),
+            isLoading: true,
+            error: null,
+          },
+        },
+      };
+    }
+
+    case LIST_DIRECTORY_COMMIT: {
+      const listQueryString = action.meta?.listQueryString;
+      const response = action.payload?.ok?.data;
+
+      if (!response || !listQueryString) {
+        return state;
+      }
+
+      const processedFiles = response.files.map((file: FileRecordFE) => ({
+        ...file,
+        _syncSuccess: true,
+        _syncConflict: false,
+        _syncWarning: "",
+        _isOptimistic: false,
+      }));
+
+      const processedFolders = response.folders.map(
+        (folder: FolderRecordFE) => ({
+          ...folder,
+          _syncSuccess: true,
+          _syncConflict: false,
+          _syncWarning: "",
+          _isOptimistic: false,
+        })
+      );
+
+      const updatedFileMap = { ...state.fileMap };
+      processedFiles.forEach((file: FileFEO) => {
+        updatedFileMap[file.id] = file;
+      });
+
+      const updatedFolderMap = { ...state.folderMap };
+      processedFolders.forEach((folder: FolderFEO) => {
+        updatedFolderMap[folder.id] = folder;
+      });
+
+      return {
+        ...state,
+        listingDataMap: {
+          ...state.listingDataMap,
+          [listQueryString]: {
+            folders: processedFolders,
+            files: processedFiles,
+            totalFiles: response.total_files,
+            totalFolders: response.total_folders,
+            cursor: response.cursor || null,
+            isLoading: false,
+            error: null,
+            lastUpdated: Date.now(),
+          },
+        },
+        files: [
+          ...state.files.filter(
+            (file) =>
+              !processedFiles.some(
+                (newFile: FileRecordFE) => newFile.id === file.id
+              )
+          ),
+          ...processedFiles,
+        ],
+        folders: [
+          ...state.folders.filter(
+            (folder) =>
+              !processedFolders.some(
+                (newFolder: FolderRecordFE) => newFolder.id === folder.id
+              )
+          ),
+          ...processedFolders,
+        ],
+        fileMap: updatedFileMap,
+        folderMap: updatedFolderMap,
+      };
+    }
+
+    case LIST_DIRECTORY_ROLLBACK: {
+      const listQueryString = action.meta?.listQueryString;
+      let errorMessage = "Failed to list directory contents";
+
+      try {
+        if (action.payload?.response) {
+          const err = action.payload.response.json();
+          errorMessage = err.err?.message || errorMessage;
+        }
+      } catch (e) {
+        console.error("Error parsing error response:", e);
+      }
+
+      if (listQueryString) {
+        return {
+          ...state,
+          listingDataMap: {
+            ...state.listingDataMap,
+            [listQueryString]: {
+              ...(state.listingDataMap[listQueryString] || {
+                folders: [],
+                files: [],
+                totalFiles: 0,
+                totalFolders: 0,
+                cursor: null,
+                lastUpdated: 0,
+              }),
+              isLoading: false,
+              error: errorMessage,
+            },
+          },
+        };
+      }
+
+      return state;
+    }
+
     // ------------------------------ GET FILE --------------------------------- //
     case GET_FILE: {
       return {

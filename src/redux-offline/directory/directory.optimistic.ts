@@ -42,6 +42,9 @@ import {
   RESTORE_TRASH,
   RESTORE_TRASH_COMMIT,
   RESTORE_TRASH_ROLLBACK,
+  LIST_DIRECTORY,
+  LIST_DIRECTORY_COMMIT,
+  LIST_DIRECTORY_ROLLBACK,
 } from "./directory.actions";
 import {
   AuthProfile,
@@ -54,6 +57,7 @@ import {
   FolderFEO,
   FILES_DEXIE_TABLE,
   FOLDERS_DEXIE_TABLE,
+  DIRECTORY_LIST_QUERY_RESULTS_TABLE,
 } from "./directory.reducer";
 import _ from "lodash";
 import {
@@ -63,7 +67,19 @@ import {
   DirectoryActionOutcome,
   FileRecord,
   FolderRecord,
+  FileRecordFE,
+  FolderRecordFE,
 } from "@officexapp/types";
+
+export interface DirectoryListCacheEntry {
+  listQueryString: string;
+  folders: FolderFEO[];
+  files: FileFEO[];
+  totalFiles: number;
+  totalFolders: number;
+  cursor: string | null;
+  last_updated_date_ms: number;
+}
 
 /**
  * Middleware for handling optimistic updates for the directory tables (files and folders)
@@ -80,6 +96,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
       // Skip actions we don't care about
 
       const directoryActions = [
+        LIST_DIRECTORY,
+        LIST_DIRECTORY_COMMIT,
+        LIST_DIRECTORY_ROLLBACK,
         GET_FILE,
         GET_FILE_COMMIT,
         GET_FILE_ROLLBACK,
@@ -145,6 +164,118 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
       try {
         // Process action based on type
         switch (action.type) {
+          // ------------------------------ LIST DIRECTORY --------------------------------- //
+          case LIST_DIRECTORY: {
+            const listQueryString = action.meta.listQueryString;
+
+            try {
+              const listCacheTable = db.table<DirectoryListCacheEntry, string>(
+                DIRECTORY_LIST_QUERY_RESULTS_TABLE
+              );
+              const cachedResult = await listCacheTable.get(listQueryString);
+
+              if (cachedResult) {
+                console.log("Using cached directory listing", listQueryString);
+
+                enhancedAction = {
+                  ...action,
+                  optimistic: {
+                    files: cachedResult.files.map((file) => ({
+                      ...file,
+                      _isOptimistic: true,
+                      _syncWarning:
+                        "Cached directory listing. This data might be slightly out of date.",
+                    })),
+                    folders: cachedResult.folders.map((folder) => ({
+                      ...folder,
+                      _isOptimistic: true,
+                      _syncWarning:
+                        "Cached directory listing. This data might be slightly out of date.",
+                    })),
+                    totalFiles: cachedResult.totalFiles,
+                    totalFolders: cachedResult.totalFolders,
+                    cursor: cachedResult.cursor,
+                  },
+                };
+              }
+            } catch (error) {
+              console.error("Error checking directory listing cache:", error);
+            }
+
+            break;
+          }
+
+          case LIST_DIRECTORY_COMMIT: {
+            const listQueryString = action.meta?.listQueryString;
+            const response = action.payload?.ok?.data;
+
+            if (response && listQueryString) {
+              const files = response.files || [];
+              const folders = response.folders || [];
+
+              try {
+                await db.transaction(
+                  "rw",
+                  [
+                    filesTable,
+                    foldersTable,
+                    db.table(DIRECTORY_LIST_QUERY_RESULTS_TABLE),
+                  ],
+                  async () => {
+                    // Update files in IndexedDB
+                    for (const file of files) {
+                      await filesTable.put({
+                        ...file,
+                        _syncSuccess: true,
+                        _syncConflict: false,
+                        _syncWarning: "",
+                        _isOptimistic: false,
+                      });
+                    }
+
+                    // Update folders in IndexedDB
+                    for (const folder of folders) {
+                      await foldersTable.put({
+                        ...folder,
+                        _syncSuccess: true,
+                        _syncConflict: false,
+                        _syncWarning: "",
+                        _isOptimistic: false,
+                      });
+                    }
+
+                    // Cache the directory listing results
+                    const cacheEntry: DirectoryListCacheEntry = {
+                      listQueryString,
+                      folders: response.folders,
+                      files: response.files,
+                      totalFiles: response.total_files,
+                      totalFolders: response.total_folders,
+                      cursor: response.cursor || null,
+                      last_updated_date_ms: Date.now(),
+                    };
+
+                    await db
+                      .table(DIRECTORY_LIST_QUERY_RESULTS_TABLE)
+                      .put(cacheEntry);
+                  }
+                );
+              } catch (error) {
+                console.error(
+                  "Error caching directory listing results:",
+                  error
+                );
+              }
+            }
+
+            break;
+          }
+
+          case LIST_DIRECTORY_ROLLBACK: {
+            // No local IndexedDB state to roll back for the cache
+            break;
+          }
+
           // ------------------------------ GET FILE --------------------------------- //
           case GET_FILE: {
             // Get cached data from IndexedDB
@@ -168,7 +299,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case GET_FILE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            let realFile: FileRecord | undefined;
+            let realFile: FileRecordFE | undefined;
 
             // Extract the file from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.file) {
@@ -237,7 +368,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case GET_FOLDER_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            let realFolder: FolderRecord | undefined;
+            let realFolder: FolderRecordFE | undefined;
 
             // Extract the folder from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.folder) {
@@ -308,8 +439,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 folder_uuid: parentFolderId,
                 disk_type: fileData.payload.disk_type || "local",
                 file_version: 1,
-                full_file_path: parentFolder
-                  ? `${parentFolder.full_folder_path}/${fileData.payload.name}`
+                full_directory_path: parentFolder
+                  ? `${parentFolder.full_directory_path}/${fileData.payload.name}`
                   : `/${fileData.payload.name}`,
                 labels: fileData.payload.labels || [],
                 created_by: userID,
@@ -324,6 +455,10 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 expires_at: fileData.payload.expires_at || 0,
                 has_sovereign_permissions:
                   fileData.payload.has_sovereign_permissions || false,
+                clipped_directory_path: parentFolder
+                  ? `${parentFolder.clipped_directory_path}/${fileData.payload.name}`
+                  : `/${fileData.payload.name}`,
+                permission_previews: [],
                 external_id: fileData.payload.external_id,
                 external_payload: fileData.payload.external_payload,
                 _optimisticID: optimisticID,
@@ -347,7 +482,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case CREATE_FILE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            let realFile: FileRecord | undefined;
+            let realFile: FileRecordFE | undefined;
 
             // Extract the file from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.file) {
@@ -416,8 +551,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   parentFolderId === "root" ? undefined : parentFolderId,
                 subfolder_uuids: [],
                 file_uuids: [],
-                full_folder_path: parentFolder
-                  ? `${parentFolder.full_folder_path}/${folderData.payload.name}`
+                full_directory_path: parentFolder
+                  ? `${parentFolder.full_directory_path}/${folderData.payload.name}`
                   : `/${folderData.payload.name}`,
                 labels: folderData.payload.labels || [],
                 created_by: userID,
@@ -430,6 +565,10 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 drive_id: orgID,
                 has_sovereign_permissions:
                   folderData.payload.has_sovereign_permissions || false,
+                clipped_directory_path: parentFolder
+                  ? `${parentFolder.clipped_directory_path}/${folderData.payload.name}`
+                  : `/${folderData.payload.name}`,
+                permission_previews: [],
                 external_id: folderData.payload.external_id,
                 external_payload: folderData.payload.external_payload,
                 _optimisticID: optimisticID,
@@ -467,7 +606,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case CREATE_FOLDER_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            let realFolder: FolderRecord | undefined;
+            let realFolder: FolderRecordFE | undefined;
 
             // Extract the folder from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.folder) {
@@ -601,7 +740,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case UPDATE_FILE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            let realFile: FileRecord | undefined;
+            let realFile: FileRecordFE | undefined;
 
             // Extract the file from the response
             if (action.payload?.ok?.data?.result?.file) {
@@ -687,7 +826,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case UPDATE_FOLDER_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            let realFolder: FolderRecord | undefined;
+            let realFolder: FolderRecordFE | undefined;
 
             // Extract the folder from the response
             if (action.payload?.ok?.data?.result?.folder) {
@@ -912,16 +1051,17 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 await foldersTable.get(destinationFolderId);
 
               // Create the updated path for the file
-              let newFilePath = cachedFile.full_file_path;
+              let newFilePath = cachedFile.full_directory_path;
               if (destinationFolder) {
-                newFilePath = `${destinationFolder.full_folder_path}/${cachedFile.name}`;
+                newFilePath = `${destinationFolder.full_directory_path}/${cachedFile.name}`;
               }
 
               // Create optimistic file object with updates
               const optimisticFile: FileFEO = {
                 ...cachedFile,
                 folder_uuid: destinationFolderId,
-                full_file_path: newFilePath,
+                full_directory_path: newFilePath,
+                clipped_directory_path: newFilePath,
                 last_updated_date_ms: Date.now(),
                 last_updated_by: userID,
                 _isOptimistic: true,
@@ -967,7 +1107,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case MOVE_FILE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            let realFile: FileRecord | undefined;
+            let realFile: FileRecordFE | undefined;
 
             // Extract the file from the response
             if (action.payload?.ok?.data?.result?.file) {
@@ -1077,16 +1217,17 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 await foldersTable.get(destinationFolderId);
 
               // Create the updated path for the folder
-              let newFolderPath = cachedFolder.full_folder_path;
+              let newFolderPath = cachedFolder.full_directory_path;
               if (destinationFolder) {
-                newFolderPath = `${destinationFolder.full_folder_path}/${cachedFolder.name}`;
+                newFolderPath = `${destinationFolder.full_directory_path}/${cachedFolder.name}`;
               }
 
               // Create optimistic folder object with updates
               const optimisticFolder: FolderFEO = {
                 ...cachedFolder,
                 parent_folder_uuid: destinationFolderId,
-                full_folder_path: newFolderPath,
+                full_directory_path: newFolderPath,
+                clipped_directory_path: newFolderPath,
                 last_updated_date_ms: Date.now(),
                 last_updated_by: userID,
                 _isOptimistic: true,
@@ -1135,7 +1276,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case MOVE_FOLDER_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            let realFolder: FolderRecord | undefined;
+            let realFolder: FolderRecordFE | undefined;
 
             // Extract the folder from the response
             if (action.payload?.ok?.data?.result?.folder) {
@@ -1242,9 +1383,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 await foldersTable.get(destinationFolderId);
 
               // Create the new path for the copied file
-              let newFilePath = sourceFile.full_file_path;
+              let newFilePath = sourceFile.full_directory_path;
               if (destinationFolder) {
-                newFilePath = `${destinationFolder.full_folder_path}/${sourceFile.name}`;
+                newFilePath = `${destinationFolder.full_directory_path}/${sourceFile.name}`;
               }
 
               // Create optimistic file object for the copy
@@ -1252,7 +1393,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 ...sourceFile,
                 id: destinationId,
                 folder_uuid: destinationFolderId,
-                full_file_path: newFilePath,
+                full_directory_path: newFilePath,
+                clipped_directory_path: newFilePath,
                 created_at: Date.now(),
                 created_by: userID,
                 last_updated_date_ms: Date.now(),
@@ -1289,7 +1431,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           case COPY_FILE_COMMIT: {
             const sourceId = action.meta?.optimisticID;
             const destinationId = action.meta?.destinationID;
-            let realFile: FileRecord | undefined;
+            let realFile: FileRecordFE | undefined;
 
             // Extract the file from the response
             if (action.payload?.ok?.data?.result?.file) {
@@ -1375,9 +1517,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 await foldersTable.get(destinationParentId);
 
               // Create the new path for the copied folder
-              let newFolderPath = sourceFolder.full_folder_path;
+              let newFolderPath = sourceFolder.full_directory_path;
               if (destinationParent) {
-                newFolderPath = `${destinationParent.full_folder_path}/${sourceFolder.name}`;
+                newFolderPath = `${destinationParent.full_directory_path}/${sourceFolder.name}`;
               }
 
               // Create optimistic folder object for the copy
@@ -1385,7 +1527,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 ...sourceFolder,
                 id: destinationId,
                 parent_folder_uuid: destinationParentId,
-                full_folder_path: newFolderPath,
+                full_directory_path: newFolderPath,
+                clipped_directory_path: newFolderPath,
                 // For a copy, we start with empty child arrays that will be populated as children are copied
                 subfolder_uuids: [],
                 file_uuids: [],
@@ -1428,7 +1571,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           case COPY_FOLDER_COMMIT: {
             const sourceId = action.meta?.optimisticID;
             const destinationId = action.meta?.destinationID;
-            let realFolder: FolderRecord | undefined;
+            let realFolder: FolderRecordFE | undefined;
             let copiedItems: any = {};
 
             // Extract the folder and potentially copied items from the response

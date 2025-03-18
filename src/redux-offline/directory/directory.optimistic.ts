@@ -167,34 +167,44 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           // ------------------------------ LIST DIRECTORY --------------------------------- //
           case LIST_DIRECTORY: {
             const listQueryString = action.meta.listQueryString;
-
+            console.log(`listQueryString`, listQueryString);
             try {
               const listCacheTable = db.table<DirectoryListCacheEntry, string>(
                 DIRECTORY_LIST_QUERY_RESULTS_TABLE
               );
               const cachedResult = await listCacheTable.get(listQueryString);
 
-              if (cachedResult) {
+              console.log(`cachedResult`, cachedResult);
+
+              let resultsToRender = cachedResult || {
+                files: [],
+                folders: [],
+                totalFiles: 0,
+                totalFolders: 0,
+                cursor: null,
+              };
+
+              if (resultsToRender) {
                 console.log("Using cached directory listing", listQueryString);
 
                 enhancedAction = {
                   ...action,
                   optimistic: {
-                    files: cachedResult.files.map((file) => ({
+                    files: resultsToRender.files.map((file) => ({
                       ...file,
                       _isOptimistic: true,
                       _syncWarning:
                         "Cached directory listing. This data might be slightly out of date.",
                     })),
-                    folders: cachedResult.folders.map((folder) => ({
+                    folders: resultsToRender.folders.map((folder) => ({
                       ...folder,
                       _isOptimistic: true,
                       _syncWarning:
                         "Cached directory listing. This data might be slightly out of date.",
                     })),
-                    totalFiles: cachedResult.totalFiles,
-                    totalFolders: cachedResult.totalFolders,
-                    cursor: cachedResult.cursor,
+                    totalFiles: resultsToRender.totalFiles,
+                    totalFolders: resultsToRender.totalFolders,
+                    cursor: resultsToRender.cursor,
                   },
                 };
               }

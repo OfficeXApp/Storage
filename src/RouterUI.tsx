@@ -64,6 +64,7 @@ import WebhookPage from "./pages/WebhooksPage/webhook.page";
 import DrivePage from "./pages/DrivesPage/drive.page";
 import ApiKeyPage from "./pages/ApiKeysPage/api-key.page";
 import PermissionPage from "./pages/PermissionsPage/permission.page";
+import { defaultTempCloudSharingRootFolderID } from "./api/dexie-database";
 
 const { Sider, Content } = Layout;
 
@@ -303,7 +304,14 @@ const RouterUI = () => {
               }}
             >
               <Routes>
-                <Route path="/" element={<Navigate to="/drive/Web3Storj/" />} />
+                <Route
+                  path="/"
+                  element={
+                    <Navigate
+                      to={`/drive/${defaultTempCloudSharingRootFolderID}/`}
+                    />
+                  }
+                />
                 <Route
                   path="/drive/*"
                   element={

@@ -21,6 +21,7 @@ import {
 
 export const DISKS_REDUX_KEY = "disks";
 export const DISKS_DEXIE_TABLE = DISKS_REDUX_KEY;
+export const LOCALSTORAGE_DEFAULT_DISK_ID = "LOCALSTORAGE_DEFAULT_DISK_ID";
 
 export interface DiskFEO extends DiskFE {
   _isOptimistic?: boolean; // flag for optimistic updates

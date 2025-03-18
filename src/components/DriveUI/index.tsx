@@ -158,17 +158,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     const path = encodedPath ? decodeURIComponent(encodedPath) : "";
     const pathParts = path.split("/").filter(Boolean);
 
-    console.log(`location.pathname`, location.pathname);
-
     if (location.pathname === "/drive" || pathParts.length === 0) {
-      console.log(`fetching at base route`);
       setListDirectoryQueryString("");
       const listParams: IRequestListDisks = {};
       dispatch(listDisksAction(listParams));
     } else if (
       location.pathname === `/drive/${defaultTempCloudSharingRootFolderID}/`
     ) {
-      console.log(`fetching content for temp cloud sharing folder`);
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
         freeTrialStorjCreds.access_key;
@@ -238,10 +234,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       // Create the get file action
       const getAction = {
         action: GET_FILE as "GET_FILE",
-        target: {
-          resource_id: fileId as DirectoryResourceID,
+        payload: {
+          id: fileId,
         },
-        payload: {},
       };
 
       // Dispatch the action
@@ -290,10 +285,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       targetFolderId?: FolderID;
       targetFileId?: FileID;
     }) => {
-      console.log(`fetching content for folder ID`, targetFolderId);
       if (!targetFolderId) {
         // Root level showing disks from Redux
-        console.log(`disks`, disks);
+
         setContent({
           folders: disks.map((disk) => ({
             id: disk.root_folder as FolderID,
@@ -344,33 +338,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const handleBack = () => {
     navigate(-1);
-    // if (currentFileId) {
-    //   // If viewing a file, go back to its folder
-    //   navigate(`/drive/${currentDiskId}/${currentFolderId}`);
-    // } else if (currentFolderId) {
-    //   // If in a folder, find its parent folder
-    //   const currentFolder = foldersFromRedux.find(
-    //     (f) => f.id === currentFolderId
-    //   );
-    //   if (currentFolder && currentFolder.parent_folder_uuid) {
-    //     // If parent folder exists, navigate to it
-    //     navigate(`/drive/${currentDiskId}/${currentFolder.parent_folder_uuid}`);
-    //   } else {
-    //     // If no parent folder (top-level folder), go back to disk
-    //     navigate(`/drive/${currentDiskId}`);
-    //   }
-    // } else if (currentDiskId) {
-    //   // If at a disk, go back to root
-    //   navigate("/drive");
-    // } else {
-    //   // Already at root
-    //   navigate("/drive");
-    // }
   };
 
   const handleFileFolderClick = (item: DriveItemRow) => {
     if (item.isDisabled) return;
-    console.log(`Clcked on item`, item);
     if (item.isFolder) {
       navigate(`/drive/${item.id}/`);
     } else {
@@ -478,7 +449,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       key: "rename",
       label: "Rename",
       onClick: () => {
-        console.log("rename", record.title);
         setRenamingItems((prev) => ({ ...prev, [record.id]: record.title }));
       },
     },
@@ -511,10 +481,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         // Create the delete folder action
         const deleteAction = {
           action: DELETE_FOLDER as "DELETE_FOLDER",
-          target: {
-            resource_id: record.id as DirectoryResourceID,
-          },
           payload: {
+            id: record.id,
             permanent: true,
           },
         };
@@ -524,10 +492,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         // Create the delete file action
         const deleteAction = {
           action: DELETE_FILE as "DELETE_FILE",
-          target: {
-            resource_id: record.id as DirectoryResourceID,
-          },
           payload: {
+            id: record.id,
             permanent: true,
           },
         };
@@ -660,10 +626,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           // Create update folder action
           const updateAction = {
             action: UPDATE_FOLDER as "UPDATE_FOLDER",
-            target: {
-              resource_id: record.id as DirectoryResourceID,
-            },
             payload: {
+              id: record.id,
               name: newName,
             },
           };
@@ -673,10 +637,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           // Create update file action
           const updateAction = {
             action: UPDATE_FILE as "UPDATE_FILE",
-            target: {
-              resource_id: record.id as DirectoryResourceID,
-            },
             payload: {
+              id: record.id,
               name: newName,
             },
           };

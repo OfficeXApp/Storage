@@ -136,7 +136,7 @@ export const listDirectoryAction = (payload: IRequestListDirectory) => {
 
 // Get File
 export const getFileAction = (action: GetFileAction) => {
-  const resourceId = action.target.resource_id as FileID;
+  const resourceId = action.payload.id as FileID;
   return {
     type: GET_FILE,
     meta: {
@@ -165,7 +165,7 @@ export const getFileAction = (action: GetFileAction) => {
 
 // Get Folder
 export const getFolderAction = (action: GetFolderAction) => {
-  const resourceId = action.target.resource_id as FolderID;
+  const resourceId = action.payload.id as FolderID;
   return {
     type: GET_FOLDER,
     meta: {
@@ -196,8 +196,8 @@ export const getFolderAction = (action: GetFolderAction) => {
 export const createFileAction = (action: CreateFileAction) => {
   const id = GenerateID.File();
   // Assign the generated ID to the resource_id if not provided
-  if (!action.target.resource_id) {
-    action.target.resource_id = id as DirectoryResourceID;
+  if (!action.payload.id) {
+    action.payload.id = id as DirectoryResourceID;
   }
 
   return {
@@ -225,12 +225,7 @@ export const createFileAction = (action: CreateFileAction) => {
 
 // Create Folder
 export const createFolderAction = (action: CreateFolderAction) => {
-  const id = GenerateID.Folder();
-  // Assign the generated ID to the resource_id if not provided
-  if (!action.target.resource_id) {
-    action.target.resource_id = id as DirectoryResourceID;
-  }
-
+  const id = action.payload.id || GenerateID.Folder();
   return {
     type: CREATE_FOLDER,
     meta: {
@@ -256,7 +251,7 @@ export const createFolderAction = (action: CreateFolderAction) => {
 
 // Update File
 export const updateFileAction = (action: UpdateFileAction) => {
-  const resourceId = action.target.resource_id as FileID;
+  const resourceId = action.payload.id as FileID;
   return {
     type: UPDATE_FILE,
     meta: {
@@ -288,7 +283,7 @@ export const updateFileAction = (action: UpdateFileAction) => {
 
 // Update Folder
 export const updateFolderAction = (action: UpdateFolderAction) => {
-  const resourceId = action.target.resource_id as FolderID;
+  const resourceId = action.payload.id as FolderID;
   return {
     type: UPDATE_FOLDER,
     meta: {
@@ -320,7 +315,7 @@ export const updateFolderAction = (action: UpdateFolderAction) => {
 
 // Delete File
 export const deleteFileAction = (action: DeleteFileAction) => {
-  const resourceId = action.target.resource_id as FileID;
+  const resourceId = action.payload.id as FileID;
   return {
     type: DELETE_FILE,
     meta: {
@@ -352,7 +347,7 @@ export const deleteFileAction = (action: DeleteFileAction) => {
 
 // Delete Folder
 export const deleteFolderAction = (action: DeleteFolderAction) => {
-  const resourceId = action.target.resource_id as FolderID;
+  const resourceId = action.payload.id as FolderID;
   return {
     type: DELETE_FOLDER,
     meta: {
@@ -384,7 +379,7 @@ export const deleteFolderAction = (action: DeleteFolderAction) => {
 
 // Copy File
 export const copyFileAction = (action: CopyFileAction) => {
-  const sourceId = action.target.resource_id as FileID;
+  const sourceId = action.payload.id as FileID;
   const destinationId = GenerateID.File();
 
   return {
@@ -425,7 +420,7 @@ export const copyFileAction = (action: CopyFileAction) => {
 
 // Copy Folder
 export const copyFolderAction = (action: CopyFolderAction) => {
-  const sourceId = action.target.resource_id as FolderID;
+  const sourceId = action.payload.id as FolderID;
   const destinationId = GenerateID.Folder();
 
   return {
@@ -466,7 +461,7 @@ export const copyFolderAction = (action: CopyFolderAction) => {
 
 // Move File
 export const moveFileAction = (action: MoveFileAction) => {
-  const resourceId = action.target.resource_id as FileID;
+  const resourceId = action.payload.id as FileID;
 
   return {
     type: MOVE_FILE,
@@ -496,7 +491,7 @@ export const moveFileAction = (action: MoveFileAction) => {
 
 // Move Folder
 export const moveFolderAction = (action: MoveFolderAction) => {
-  const resourceId = action.target.resource_id as FolderID;
+  const resourceId = action.payload.id as FolderID;
 
   return {
     type: MOVE_FOLDER,
@@ -529,7 +524,7 @@ export const moveFolderAction = (action: MoveFolderAction) => {
 
 // Restore Trash
 export const restoreTrashAction = (action: RestoreTrashAction) => {
-  const resourceId = action.target.resource_id as DirectoryResourceID;
+  const resourceId = action.payload.id as DirectoryResourceID;
 
   return {
     type: RESTORE_TRASH,
@@ -563,8 +558,8 @@ export const restoreTrashAction = (action: RestoreTrashAction) => {
 // Batch Action
 export const directoryBatchAction = (directoryActions: DirectoryAction[]) => {
   const actionIds = directoryActions.map((action) => {
-    if (action.target.resource_id) {
-      return action.target.resource_id;
+    if (action.payload.id) {
+      return action.payload.id;
     } else {
       // Generate ID based on action type
       if (action.action.includes("FILE")) {

@@ -547,8 +547,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             if (action.meta?.offline?.effect?.data) {
               const folderData = action.meta.offline.effect.data.actions[0];
               const optimisticID = action.meta.optimisticID;
-              const parentFolderId =
-                folderData.payload.parent_folder_id || "root";
+              const parentFolderId = folderData.payload.parent_folder_id;
 
               // Get parent folder for path construction
               const parentFolder = await foldersTable.get(parentFolderId);

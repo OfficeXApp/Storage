@@ -133,7 +133,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
 
   const handleCreateFolder = async () => {
     mixpanel.track("Create Folder");
-    if (newFolderName.trim() && currentDiskId && currentFolderId) {
+    if (newFolderName.trim() && currentDisk && currentFolderId) {
       try {
         // Create the folder action
         const createAction = {
@@ -142,7 +142,8 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
             id: GenerateID.Folder(),
             name: newFolderName,
             labels: [],
-            disk_id: currentDiskId,
+            disk_id: currentDisk.id,
+            disk_type: currentDisk.disk_type,
             parent_folder_uuid: currentFolderId,
           },
         };

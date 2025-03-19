@@ -47,6 +47,7 @@ import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
 import SandboxPage from "./components/SandboxPage";
 import SandboxUploader from "./components/SandboxPage/SandboxUploader.tsx";
+import SandboxCanisterUploader from "./components/SandboxPage/SandboxCanisterUploader.tsx";
 import ContactsPage from "./pages/ContactsPage";
 import GroupsPage from "./pages/GroupsPage";
 import PermissionsPage from "./pages/PermissionsPage";
@@ -334,6 +335,11 @@ const RouterUI = () => {
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/sandbox" element={<SandboxPage />} />
                 <Route path="/sandbox_uploader" element={<SandboxUploader />} />
+                <Route
+                  path="/sandbox_canister_uploader"
+                  element={<SandboxCanisterUploader />}
+                />
+
                 <Route path="/presale" element={<PreseedOffer />} />
                 <Route path="/preseed" element={<Navigate to="/presale" />} />
                 <Route

@@ -317,6 +317,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             last_updated_date_ms: disk.created_at || 0,
             last_updated_by: "Owner" as UserID,
             disk_id: disk.id,
+            disk_type: disk.disk_type,
             deleted: false,
             expires_at: 0,
             drive_id: currentOrg?.driveID || "",

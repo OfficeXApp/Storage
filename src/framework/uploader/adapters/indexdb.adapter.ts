@@ -55,11 +55,11 @@ export class IndexedDBAdapter implements IUploadAdapter {
     }
 
     console.log(`Initializing IndexedDB adapter with:
-      - Database: ${this.DB_NAME}
-      - Files store: ${this.FILES_STORE_NAME}
-      - Chunks store: ${this.CHUNKS_STORE_NAME}
-      - Metadata store: ${this.METADATA_STORE_NAME}
-    `);
+        - Database: ${this.DB_NAME}
+        - Files store: ${this.FILES_STORE_NAME}
+        - Chunks store: ${this.CHUNKS_STORE_NAME}
+        - Metadata store: ${this.METADATA_STORE_NAME}
+      `);
 
     return new Promise((resolve, reject) => {
       try {
@@ -282,10 +282,18 @@ export class IndexedDBAdapter implements IUploadAdapter {
     };
 
     // Save initial metadata
-    this.saveMetadata(metadata);
+    this.saveMetadata(metadata)
+      .then(() => {
+        // Start processing chunks only after metadata is saved
+        processNextChunk(0);
+      })
+      .catch((error) => {
+        console.error("Error saving metadata:", error);
+        progressSubject.error(error);
+      });
 
     // Function to read and store a chunk
-    const processChunk = async (chunkIndex: number) => {
+    const processNextChunk = async (chunkIndex: number) => {
       if (signal.aborted) {
         progressSubject.error(new Error("Upload cancelled"));
         return;
@@ -297,16 +305,16 @@ export class IndexedDBAdapter implements IUploadAdapter {
       const chunk = file.slice(start, end);
 
       try {
-        // Store the chunk
+        // Store the chunk - wait for it to complete
         await this.storeChunk(uploadId, chunkIndex, chunk);
 
         // Update progress
         chunksUploaded++;
         bytesUploaded += end - start;
-        metadata.uploadedChunks.push(chunkIndex);
-        metadata.lastUpdateTime = Date.now();
 
         // Update metadata for resume capability
+        metadata.uploadedChunks.push(chunkIndex);
+        metadata.lastUpdateTime = Date.now();
         await this.saveMetadata(metadata);
 
         // Emit progress
@@ -333,16 +341,13 @@ export class IndexedDBAdapter implements IUploadAdapter {
           progressSubject.complete();
         } else {
           // Process next chunk
-          processChunk(chunkIndex + 1);
+          processNextChunk(chunkIndex + 1);
         }
       } catch (error) {
         console.error("Error uploading chunk:", error);
         progressSubject.error(error);
       }
     };
-
-    // Start with first chunk
-    processChunk(0);
   }
 
   /**
@@ -359,17 +364,21 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return;
       }
 
-      const transaction = this.db.transaction(
-        [this.CHUNKS_STORE_NAME],
-        "readwrite"
-      );
-      const store = transaction.objectStore(this.CHUNKS_STORE_NAME);
-
-      // Convert blob to array buffer
+      // First, read the blob into an array buffer
       const reader = new FileReader();
+
       reader.onload = (e) => {
         try {
           const chunkData = e.target?.result as ArrayBuffer;
+
+          // Create a new transaction AFTER the file is read
+          const transaction = this.db!.transaction(
+            [this.CHUNKS_STORE_NAME],
+            "readwrite"
+          );
+
+          const store = transaction.objectStore(this.CHUNKS_STORE_NAME);
+
           const request = store.put({
             id: `${uploadId}_chunk_${chunkIndex}`,
             uploadId,
@@ -379,13 +388,39 @@ export class IndexedDBAdapter implements IUploadAdapter {
           });
 
           request.onsuccess = () => resolve();
-          request.onerror = () => reject(new Error("Failed to store chunk"));
+
+          request.onerror = (event) => {
+            console.error(
+              "Error storing chunk:",
+              (event.target as IDBRequest).error
+            );
+            reject(new Error("Failed to store chunk"));
+          };
+
+          // Listen for transaction completion or abort
+          transaction.oncomplete = () => {
+            resolve();
+          };
+
+          transaction.onerror = (event) => {
+            console.error(
+              "Transaction error:",
+              (event.target as IDBTransaction).error
+            );
+            reject((event.target as IDBTransaction).error);
+          };
         } catch (error) {
+          console.error("Error in handling file data:", error);
           reject(error);
         }
       };
 
-      reader.onerror = () => reject(new Error("Failed to read chunk"));
+      reader.onerror = () => {
+        console.error("Failed to read chunk data:", reader.error);
+        reject(new Error("Failed to read chunk"));
+      };
+
+      // Start reading the blob
       reader.readAsArrayBuffer(chunkBlob);
     });
   }
@@ -404,6 +439,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         [this.METADATA_STORE_NAME],
         "readwrite"
       );
+
       const store = transaction.objectStore(this.METADATA_STORE_NAME);
 
       const request = store.put({
@@ -413,7 +449,26 @@ export class IndexedDBAdapter implements IUploadAdapter {
       });
 
       request.onsuccess = () => resolve();
-      request.onerror = () => reject(new Error("Failed to save metadata"));
+
+      request.onerror = (event) => {
+        console.error(
+          "Failed to save metadata:",
+          (event.target as IDBRequest).error
+        );
+        reject(new Error("Failed to save metadata"));
+      };
+
+      transaction.oncomplete = () => {
+        resolve();
+      };
+
+      transaction.onerror = (event) => {
+        console.error(
+          "Transaction error saving metadata:",
+          (event.target as IDBTransaction).error
+        );
+        reject((event.target as IDBTransaction).error);
+      };
     });
   }
 
@@ -435,6 +490,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         [this.FILES_STORE_NAME],
         "readwrite"
       );
+
       const store = transaction.objectStore(this.FILES_STORE_NAME);
 
       const fileData = {
@@ -462,7 +518,21 @@ export class IndexedDBAdapter implements IUploadAdapter {
         }
       };
 
-      request.onerror = () => reject(new Error("Failed to save file metadata"));
+      request.onerror = (event) => {
+        console.error(
+          "Failed to save file metadata:",
+          (event.target as IDBRequest).error
+        );
+        reject(new Error("Failed to save file metadata"));
+      };
+
+      transaction.onerror = (event) => {
+        console.error(
+          "Transaction error finalizing upload:",
+          (event.target as IDBTransaction).error
+        );
+        reject((event.target as IDBTransaction).error);
+      };
     });
   }
 
@@ -481,6 +551,11 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Could not get canvas context"));
+        return;
+      }
+
       const img = new Image();
 
       canvas.width = 256;
@@ -507,40 +582,138 @@ export class IndexedDBAdapter implements IUploadAdapter {
           }
 
           // Draw image
-          ctx?.drawImage(img, -startX, -startY, drawWidth, drawHeight);
+          ctx.drawImage(img, -startX, -startY, drawWidth, drawHeight);
 
           // Get thumbnail data
-          canvas.toBlob((blob) => {
-            if (!blob) {
-              reject(new Error("Failed to create thumbnail blob"));
-              return;
-            }
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error("Failed to create thumbnail blob"));
+                return;
+              }
 
-            // Save thumbnail
-            const transaction = this.db!.transaction(
-              [this.FILES_STORE_NAME],
-              "readwrite"
-            );
-            const store = transaction.objectStore(this.FILES_STORE_NAME);
+              // Create a new transaction for thumbnail
+              const transaction = this.db!.transaction(
+                [this.FILES_STORE_NAME],
+                "readwrite"
+              );
 
-            const request = store.put({
-              id: `${uploadId}_thumbnail`,
-              uploadId,
-              thumbnail: blob,
-              timestamp: Date.now(),
-            });
+              const store = transaction.objectStore(this.FILES_STORE_NAME);
 
-            request.onsuccess = () => resolve();
-            request.onerror = () =>
-              reject(new Error("Failed to save thumbnail"));
-          });
+              const request = store.put({
+                id: `${uploadId}_thumbnail`,
+                uploadId,
+                thumbnail: blob,
+                timestamp: Date.now(),
+              });
+
+              request.onsuccess = () => resolve();
+
+              request.onerror = (event) => {
+                console.error(
+                  "Failed to save thumbnail:",
+                  (event.target as IDBRequest).error
+                );
+                reject(new Error("Failed to save thumbnail"));
+              };
+
+              transaction.oncomplete = () => {
+                resolve();
+              };
+
+              transaction.onerror = (event) => {
+                console.error(
+                  "Transaction error saving thumbnail:",
+                  (event.target as IDBTransaction).error
+                );
+                reject((event.target as IDBTransaction).error);
+              };
+            },
+            "image/jpeg",
+            0.8
+          );
         } catch (error) {
           reject(error);
         }
       };
 
-      img.onerror = () => reject(new Error("Failed to load image"));
-      img.src = URL.createObjectURL(file);
+      img.onerror = () => {
+        URL.revokeObjectURL(img.src);
+        reject(new Error("Failed to load image"));
+      };
+
+      // Create and use object URL
+      const objectUrl = URL.createObjectURL(file);
+      img.src = objectUrl;
+
+      // Cleanup function to revoke object URL when done
+      img.onload = () => {
+        try {
+          // Calculate aspect ratio
+          const aspectRatio = img.width / img.height;
+          let drawWidth, drawHeight, startX, startY;
+
+          if (aspectRatio > 1) {
+            // Landscape
+            drawHeight = 256;
+            drawWidth = drawHeight * aspectRatio;
+            startX = (drawWidth - 256) / 2;
+            startY = 0;
+          } else {
+            // Portrait
+            drawWidth = 256;
+            drawHeight = drawWidth / aspectRatio;
+            startX = 0;
+            startY = (drawHeight - 256) / 2;
+          }
+
+          // Draw image
+          ctx.drawImage(img, -startX, -startY, drawWidth, drawHeight);
+
+          // Get thumbnail data and cleanup object URL
+          canvas.toBlob(
+            (blob) => {
+              // Clean up object URL
+              URL.revokeObjectURL(objectUrl);
+
+              if (!blob) {
+                reject(new Error("Failed to create thumbnail blob"));
+                return;
+              }
+
+              // Create a new transaction for thumbnail
+              const transaction = this.db!.transaction(
+                [this.FILES_STORE_NAME],
+                "readwrite"
+              );
+
+              const store = transaction.objectStore(this.FILES_STORE_NAME);
+
+              const request = store.put({
+                id: `${uploadId}_thumbnail`,
+                uploadId,
+                thumbnail: blob,
+                timestamp: Date.now(),
+              });
+
+              request.onsuccess = () => resolve();
+
+              request.onerror = (event) => {
+                console.error(
+                  "Failed to save thumbnail:",
+                  (event.target as IDBRequest).error
+                );
+                reject(new Error("Failed to save thumbnail"));
+              };
+            },
+            "image/jpeg",
+            0.8
+          );
+        } catch (error) {
+          URL.revokeObjectURL(objectUrl);
+          reject(error);
+        }
+      };
     });
   }
 

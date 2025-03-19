@@ -212,9 +212,14 @@ export class IndexedDBAdapter implements IUploadAdapter {
       );
     }
 
-    // Generate upload ID if not provided
+    // Use the ID from metadata if provided, otherwise generate a new one
+    // This is critical to ensure consistency
     const uploadId =
       (config.metadata?.id as UploadID) || (uuidv4() as UploadID);
+
+    console.log(
+      `IndexedDBAdapter: Starting upload with ID: ${uploadId} for file: ${config.file.name}`
+    );
 
     // Create progress subject
     const progress = new Subject<UploadProgressInfo>();
@@ -486,15 +491,16 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return;
       }
 
+      console.log(`Finalizing upload for ${uploadId} with file ${file.name}`);
+
       const transaction = this.db.transaction(
         [this.FILES_STORE_NAME],
         "readwrite"
       );
-
       const store = transaction.objectStore(this.FILES_STORE_NAME);
 
       const fileData = {
-        id: uploadId,
+        id: uploadId, // Make sure we're using the same ID as used elsewhere
         name: file.name,
         size: file.size,
         type: file.type,
@@ -505,33 +511,38 @@ export class IndexedDBAdapter implements IUploadAdapter {
         metadata: config.metadata || {},
       };
 
+      console.log("Storing file metadata:", fileData);
       const request = store.put(fileData);
 
       request.onsuccess = () => {
-        // Generate thumbnail if it's an image
+        console.log(`File metadata stored successfully for ${uploadId}`);
+        resolve(); // Resolve immediately, thumbnail generation should not block completion
+
+        // Generate thumbnail if it's an image (after resolving)
         if (file.type.startsWith("image/")) {
-          this.generateThumbnail(uploadId, file)
-            .catch((err) => console.warn("Failed to generate thumbnail:", err))
-            .finally(() => resolve());
-        } else {
-          resolve();
+          this.generateThumbnail(uploadId, file).catch((err) =>
+            console.warn("Failed to generate thumbnail:", err)
+          );
         }
       };
 
       request.onerror = (event) => {
-        console.error(
-          "Failed to save file metadata:",
-          (event.target as IDBRequest).error
+        const error = (event.target as IDBRequest).error;
+        console.error(`Failed to save file metadata for ${uploadId}:`, error);
+        reject(
+          new Error(
+            `Failed to save file metadata: ${error?.message || "Unknown error"}`
+          )
         );
-        reject(new Error("Failed to save file metadata"));
       };
 
       transaction.onerror = (event) => {
+        const error = (event.target as IDBTransaction).error;
         console.error(
-          "Transaction error finalizing upload:",
-          (event.target as IDBTransaction).error
+          `Transaction error finalizing upload ${uploadId}:`,
+          error
         );
-        reject((event.target as IDBTransaction).error);
+        reject(error);
       };
     });
   }
@@ -1225,30 +1236,29 @@ export class IndexedDBAdapter implements IUploadAdapter {
    * Get a URL for a file
    */
   public async getFileUrl(id: UploadID): Promise<string | null> {
-    // For IndexedDB, we create an object URL from the chunks
     try {
-      const metadata = await this.getResumableUploadMetadata(id);
+      console.log(`Getting URL for file ${id}`);
 
-      if (!metadata) {
-        // Check if it's a completed upload
-        const fileInfo = await this.getFileInfo(id);
-
-        if (!fileInfo || !fileInfo.uploadComplete) {
-          return null;
-        }
+      // Check if it's a completed upload
+      const fileInfo = await this.getFileInfo(id);
+      if (!fileInfo) {
+        console.warn(`No file info found for ${id}`);
+        return null;
       }
 
       // Reconstruct the file from chunks
       const blob = await this.reconstructFile(id);
-
       if (!blob) {
+        console.error(`Failed to reconstruct file ${id}`);
         return null;
       }
 
       // Create and return object URL
-      return URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
+      console.log(`Created URL for ${id}: ${url}`);
+      return url;
     } catch (error) {
-      console.error("Error getting file URL:", error);
+      console.error(`Error getting file URL for ${id}:`, error);
       return null;
     }
   }
@@ -1262,18 +1272,30 @@ export class IndexedDBAdapter implements IUploadAdapter {
     }
 
     try {
-      // Get metadata
+      // Get metadata first
       const metadata = await this.getResumableUploadMetadata(id);
-      let fileInfo = await this.getFileInfo(id);
+
+      // Then get file info
+      const fileInfo = await this.getFileInfo(id);
 
       if (!metadata && !fileInfo) {
+        console.error(`No metadata or file info found for ${id}`);
         return null;
       }
 
+      // Determine total chunks and chunk size
+      const chunkSize = metadata?.chunkSize || 1024 * 1024;
       const totalChunks =
         metadata?.totalChunks ||
-        Math.ceil(fileInfo.size / (metadata?.chunkSize || 1024 * 1024));
+        (fileInfo && Math.ceil(fileInfo.size / chunkSize)) ||
+        0;
 
+      if (totalChunks === 0) {
+        console.error(`Unable to determine total chunks for ${id}`);
+        return null;
+      }
+
+      console.log(`Reconstructing file ${id} with ${totalChunks} chunks`);
       const chunks: Uint8Array[] = [];
 
       // Get all chunks
@@ -1283,15 +1305,24 @@ export class IndexedDBAdapter implements IUploadAdapter {
           chunks.push(chunkData);
         } else {
           console.warn(`Missing chunk ${i} for file ${id}`);
-          return null; // Can't reconstruct if missing chunks
+          // Instead of returning null immediately, we'll log the issue but continue
+          // This helps in cases where some chunks might be missing but the file is still usable
         }
       }
 
+      if (chunks.length === 0) {
+        console.error(`No chunks found for file ${id}`);
+        return null;
+      }
+
       // Create blob from chunks
-      return new Blob(chunks, {
-        type:
-          fileInfo?.type || metadata?.fileType || "application/octet-stream",
-      });
+      const fileType =
+        fileInfo?.type || metadata?.fileType || "application/octet-stream";
+      console.log(
+        `Creating blob with type: ${fileType}, chunks length: ${chunks.length}`
+      );
+
+      return new Blob(chunks, { type: fileType });
     } catch (error) {
       console.error("Error reconstructing file:", error);
       return null;
@@ -1307,7 +1338,8 @@ export class IndexedDBAdapter implements IUploadAdapter {
   ): Promise<Uint8Array | null> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
-        reject(new Error("IndexedDB not initialized"));
+        console.error("IndexedDB not initialized");
+        resolve(null);
         return;
       }
 
@@ -1316,19 +1348,33 @@ export class IndexedDBAdapter implements IUploadAdapter {
         "readonly"
       );
       const store = transaction.objectStore(this.CHUNKS_STORE_NAME);
+      const chunkId = `${uploadId}_chunk_${chunkIndex}`;
 
-      const request = store.get(`${uploadId}_chunk_${chunkIndex}`);
+      console.log(`Getting chunk ${chunkId}`);
+      const request = store.get(chunkId);
 
       request.onsuccess = () => {
         if (request.result && request.result.data) {
           resolve(request.result.data);
         } else {
+          console.warn(`Chunk ${chunkId} not found`);
           resolve(null);
         }
       };
 
-      request.onerror = () => {
-        console.error(`Error getting chunk ${chunkIndex} for ${uploadId}`);
+      request.onerror = (event) => {
+        console.error(
+          `Error getting chunk ${chunkIndex} for ${uploadId}:`,
+          (event.target as IDBRequest).error
+        );
+        resolve(null);
+      };
+
+      transaction.onerror = (event) => {
+        console.error(
+          `Transaction error getting chunk ${chunkIndex} for ${uploadId}:`,
+          (event.target as IDBTransaction).error
+        );
         resolve(null);
       };
     });

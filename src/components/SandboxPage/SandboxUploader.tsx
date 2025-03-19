@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Button,
   Card,
@@ -9,6 +9,8 @@ import {
   message,
   Divider,
   Typography,
+  Popover,
+  Image,
 } from "antd";
 import {
   UploadOutlined,
@@ -20,6 +22,8 @@ import {
   FileZipOutlined,
   FilePdfOutlined,
   FileUnknownOutlined,
+  EyeOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import {
@@ -57,6 +61,9 @@ const SandboxUploader: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [initializationStatus, setInitializationStatus] =
     useState("Initializing...");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
 
   // Check initialization status
   useEffect(() => {
@@ -78,9 +85,14 @@ const SandboxUploader: React.FC = () => {
       for (const upload of currentUploads) {
         if (upload.state === UploadState.COMPLETED && !urls[upload.id]) {
           try {
+            console.log(`Fetching URL for completed upload ${upload.id}`);
             const url = await getFileUrl(upload.id);
+
             if (url) {
+              console.log(`Got URL for ${upload.id}: ${url}`);
               setUrls((prev) => ({ ...prev, [upload.id]: url }));
+            } else {
+              console.warn(`No URL returned for ${upload.id}`);
             }
           } catch (error) {
             console.error(`Error getting URL for ${upload.id}:`, error);
@@ -108,6 +120,9 @@ const SandboxUploader: React.FC = () => {
     }
 
     try {
+      // Store mapping of file name to upload ID for easier tracking
+      const fileToIdMap = new Map();
+
       // Upload all files in the fileList
       const uploadIds = uploadFiles(
         fileList,
@@ -115,8 +130,23 @@ const SandboxUploader: React.FC = () => {
         DiskTypeEnum.BrowserCache,
         {
           onFileComplete: (id) => {
-            message.success(`File uploaded successfully: ${id}`);
-            fetchFileUrl(id);
+            // Find the file this ID corresponds to
+            const matchingFile = fileList.find((file) => {
+              return fileToIdMap.get(file.name) === id;
+            });
+
+            if (matchingFile) {
+              message.success(
+                `File ${matchingFile.name} uploaded successfully`
+              );
+              console.log(
+                `Upload complete for ${matchingFile.name} with ID: ${id}`
+              );
+              fetchFileUrl(id);
+            } else {
+              console.warn(`Completed upload ID ${id} doesn't match any file`);
+              fetchFileUrl(id); // Try anyway
+            }
           },
           onAllComplete: () => {
             message.success("All files uploaded successfully");
@@ -124,6 +154,16 @@ const SandboxUploader: React.FC = () => {
           },
         }
       );
+
+      // Store the mapping between files and their upload IDs
+      fileList.forEach((file, index) => {
+        if (index < uploadIds.length) {
+          fileToIdMap.set(file.name, uploadIds[index]);
+          console.log(
+            `Mapped file ${file.name} to upload ID: ${uploadIds[index]}`
+          );
+        }
+      });
 
       console.log("Started uploads with IDs:", uploadIds);
     } catch (error) {
@@ -134,10 +174,38 @@ const SandboxUploader: React.FC = () => {
 
   // Get file URL after upload is complete
   const fetchFileUrl = async (id: UploadID) => {
+    console.log(`Fetching URL for ${id}`);
     try {
+      // Log all available uploads first to help with debugging
+      console.log("Current uploads:", currentUploads);
+
+      // Check if this ID exists in our upload list
+      const uploadItem = currentUploads.find((upload) => upload.id === id);
+      if (!uploadItem) {
+        console.warn(`No upload found with ID ${id} in currentUploads`);
+        // Try to get the URL anyway, since the ID might be correct in IndexedDB
+      } else {
+        console.log(`Found upload for ID ${id}: ${uploadItem.file.name}`);
+      }
+
       const url = await getFileUrl(id);
+      console.log(`URL for ${id}:`, url);
+
       if (url) {
         setUrls((prev) => ({ ...prev, [id]: url }));
+      } else {
+        console.warn(`No URL returned for ${id}`);
+
+        // Let's try once more after a short delay
+        setTimeout(async () => {
+          const retryUrl = await getFileUrl(id);
+          if (retryUrl) {
+            console.log(`Succeeded getting URL for ${id} after retry`);
+            setUrls((prev) => ({ ...prev, [id]: retryUrl }));
+          } else {
+            console.error(`Failed to get URL for ${id} after retry`);
+          }
+        }, 1000);
       }
     } catch (error) {
       console.error(`Error getting URL for ${id}:`, error);
@@ -179,6 +247,7 @@ const SandboxUploader: React.FC = () => {
     try {
       const cancelled = await cancelUpload(id);
       if (cancelled) {
+        revokeObjectURL(id);
         message.info(`Upload cancelled: ${id}`);
       } else {
         message.error(`Failed to cancel upload: ${id}`);
@@ -186,6 +255,26 @@ const SandboxUploader: React.FC = () => {
     } catch (error) {
       console.error(`Error cancelling upload ${id}:`, error);
       message.error("Failed to cancel upload. Check console for details.");
+    }
+  };
+
+  // Handle file download
+  const handleDownloadFile = (url: string, fileName: string) => {
+    try {
+      console.log(`Downloading ${fileName} from ${url}`);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up after download starts
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      message.error("Failed to download file. Please try again.");
     }
   };
 
@@ -244,18 +333,59 @@ const SandboxUploader: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   };
 
+  // Check if a file is an image based on its type
+  const isImageFile = (file: File) => {
+    return file.type.startsWith("image/");
+  };
+
+  // Image preview content for Popover
+  const renderImagePreview = (url: string) => {
+    return (
+      <div style={{ width: "250px" }}>
+        <Image src={url} alt="Preview" style={{ width: "100%" }} />
+      </div>
+    );
+  };
+
   // Table columns
   const columns = [
     {
       title: "File",
       dataIndex: "file",
       key: "file",
-      render: (file: File) => (
-        <Space>
-          {getFileIcon(file)}
-          <span>{file.name}</span>
-        </Space>
-      ),
+      render: (file: File, record: QueuedUploadItem) => {
+        const isCompleted = record.state === UploadState.COMPLETED;
+        const isImage = isImageFile(file);
+        console.log("urls", urls);
+        const fileUrl = urls[record.id];
+        console.log(
+          `isCompleted: ${isCompleted}, isImage: ${isImage}, fileUrl: ${fileUrl}`
+        );
+        if (isCompleted && isImage && fileUrl) {
+          return (
+            <Popover
+              content={renderImagePreview(fileUrl)}
+              title={file.name}
+              trigger="hover"
+              placement="right"
+            >
+              <Space>
+                {getFileIcon(file)}
+                <span style={{ cursor: "pointer", color: "#1890ff" }}>
+                  {file.name}
+                </span>
+              </Space>
+            </Popover>
+          );
+        }
+
+        return (
+          <Space>
+            {getFileIcon(file)}
+            <span>{file.name}</span>
+          </Space>
+        );
+      },
     },
     {
       title: "Size",
@@ -297,6 +427,8 @@ const SandboxUploader: React.FC = () => {
           record.state === UploadState.ACTIVE ||
           record.state === UploadState.PAUSED;
         const isCompleted = record.state === UploadState.COMPLETED;
+        const fileUrl = urls[record.id];
+        const isImage = isImageFile(record.file);
 
         return (
           <Space size="small">
@@ -325,21 +457,44 @@ const SandboxUploader: React.FC = () => {
                 type="text"
               />
             )}
-            {isCompleted && urls[record.id] && (
-              <Button
-                href={urls[record.id]}
-                target="_blank"
-                size="small"
-                type="link"
-              >
-                View
-              </Button>
+            {isCompleted && fileUrl && (
+              <>
+                {isImage && (
+                  <Button
+                    icon={<EyeOutlined />}
+                    onClick={() => window.open(fileUrl, "_blank")}
+                    size="small"
+                    type="text"
+                  />
+                )}
+                <Button
+                  icon={<DownloadOutlined />}
+                  onClick={() => handleDownloadFile(fileUrl, record.file.name)}
+                  size="small"
+                  type="text"
+                />
+              </>
             )}
           </Space>
         );
       },
     },
   ];
+
+  const revokeObjectURL = useCallback(
+    (id: UploadID) => {
+      const url = urls[id];
+      if (url) {
+        URL.revokeObjectURL(url);
+        setUrls((prev) => {
+          const newUrls = { ...prev };
+          delete newUrls[id];
+          return newUrls;
+        });
+      }
+    },
+    [urls]
+  );
 
   return (
     <Card

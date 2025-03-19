@@ -140,7 +140,10 @@ export class UploadManager {
     diskType: DiskTypeEnum,
     options: Partial<UploadConfig> = {}
   ): UploadID {
-    const id = uuidv4() as UploadID;
+    // Generate a unique ID for this upload
+    const id = (options.metadata?.id as UploadID) || (uuidv4() as UploadID);
+
+    console.log(`Creating upload with ID: ${id} for file: ${file.name}`);
 
     const config: UploadConfig = {
       file,
@@ -148,7 +151,11 @@ export class UploadManager {
       diskType: diskType,
       chunkSize: options.chunkSize,
       priority: options.priority || 0,
-      metadata: options.metadata,
+      // Make sure the ID is passed through the metadata
+      metadata: {
+        ...options.metadata,
+        id: id,
+      },
       onComplete: options.onComplete,
       retryLimit: options.retryLimit || 3,
       retryDelay: options.retryDelay || 1000,

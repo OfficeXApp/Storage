@@ -46,6 +46,7 @@ import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
 import SandboxPage from "./components/SandboxPage";
+import SandboxUploader from "./components/SandboxPage/SandboxUploader.tsx";
 import ContactsPage from "./pages/ContactsPage";
 import GroupsPage from "./pages/GroupsPage";
 import PermissionsPage from "./pages/PermissionsPage";
@@ -64,7 +65,10 @@ import WebhookPage from "./pages/WebhooksPage/webhook.page";
 import DrivePage from "./pages/DrivesPage/drive.page";
 import ApiKeyPage from "./pages/ApiKeysPage/api-key.page";
 import PermissionPage from "./pages/PermissionsPage/permission.page";
-import { defaultTempCloudSharingRootFolderID } from "./api/dexie-database";
+import {
+  defaultTempCloudSharingDiskID,
+  defaultTempCloudSharingRootFolderID,
+} from "./api/dexie-database";
 import { useSelector } from "react-redux";
 import { ReduxAppState } from "./redux-offline/ReduxProvider";
 
@@ -311,7 +315,7 @@ const RouterUI = () => {
                   path="/"
                   element={
                     <Navigate
-                      to={`/drive/${defaultTempCloudSharingRootFolderID}/`}
+                      to={`/drive/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingRootFolderID}/`}
                     />
                   }
                 />
@@ -329,6 +333,7 @@ const RouterUI = () => {
                 />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/sandbox" element={<SandboxPage />} />
+                <Route path="/sandbox_uploader" element={<SandboxUploader />} />
                 <Route path="/presale" element={<PreseedOffer />} />
                 <Route path="/preseed" element={<Navigate to="/presale" />} />
                 <Route

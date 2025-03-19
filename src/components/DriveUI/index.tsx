@@ -65,6 +65,7 @@ import {
   DirectoryResourceID,
   DiskID,
   DiskTypeEnum,
+  DriveClippedFilePath,
   DriveFullFilePath,
   DriveID,
   FileID,
@@ -96,9 +97,13 @@ import {
   getFolderAction,
   GET_FILE,
   listDirectoryAction,
-  generateListQueryString,
+  generateListDirectoryKey,
 } from "../../redux-offline/directory/directory.actions";
 import { defaultTempCloudSharingRootFolderID } from "../../api/dexie-database";
+import {
+  FileFEO,
+  FolderFEO,
+} from "../../redux-offline/directory/directory.reducer";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -106,6 +111,7 @@ interface DriveItemRow {
   owner: string;
   isFolder: boolean;
   fullPath: DriveFullFilePath;
+  diskID: DiskID;
   isDisabled: boolean;
 }
 
@@ -122,21 +128,25 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const { currentOrg } = useIdentitySystem();
 
-  const [listDirectoryQueryString, setListDirectoryQueryString] = useState("");
+  const [listDirectoryKey, setListDirectoryKey] = useState("");
 
-  const disks = useSelector((state: ReduxAppState) => state.disks.disks);
+  const { disks, defaultDisk } = useSelector((state: ReduxAppState) => ({
+    defaultDisk: state.disks.defaultDisk,
+    disks: state.disks.disks,
+  }));
   const listDirectoryResults = useSelector(
-    (state: ReduxAppState) =>
-      state.directory.listingDataMap[listDirectoryQueryString]
+    (state: ReduxAppState) => state.directory.listingDataMap[listDirectoryKey]
   );
 
-  // const [currentDiskId, setCurrentDiskId] = useState<DiskID | null>(null);
+  const [currentDiskId, setCurrentDiskId] = useState<DiskID | null>(null);
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
 
+  const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
+
   const [content, setContent] = useState<{
-    folders: FolderRecord[];
-    files: FileRecord[];
+    folders: FolderFEO[];
+    files: FileFEO[];
   }>({ folders: [], files: [] });
   const [renamingItems, setRenamingItems] = useState<{ [key: string]: string }>(
     {}
@@ -158,13 +168,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     const path = encodedPath ? decodeURIComponent(encodedPath) : "";
     const pathParts = path.split("/").filter(Boolean);
 
+    console.log("Path parts:", pathParts);
+    const diskID = pathParts[0];
+    const folderFileID = pathParts[1];
+
+    setCurrentDiskId(diskID);
+
     if (location.pathname === "/drive" || pathParts.length === 0) {
-      setListDirectoryQueryString("");
+      setListDirectoryKey("");
       const listParams: IRequestListDisks = {};
       dispatch(listDisksAction(listParams));
-    } else if (
-      location.pathname === `/drive/${defaultTempCloudSharingRootFolderID}/`
-    ) {
+    } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
         freeTrialStorjCreds.access_key;
@@ -198,21 +212,21 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           ),
         });
       }
-      let folderId = pathParts[0];
+      let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
       fetchContent({
         targetFolderId: folderId,
       });
-    } else if (pathParts[0].startsWith("FolderID_")) {
-      let folderId = pathParts[0];
+    } else if (folderFileID.startsWith("FolderID_")) {
+      let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
       fetchContent({
         targetFolderId: folderId,
       });
-    } else if (pathParts[0].startsWith("FileID_")) {
-      let fileId = pathParts[0];
+    } else if (folderFileID.startsWith("FileID_")) {
+      let fileId = folderFileID;
       setCurrentFolderId(null);
       setCurrentFileId(fileId);
       fetchFileById(fileId);
@@ -306,6 +320,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             expires_at: 0,
             drive_id: currentOrg?.driveID || "",
             has_sovereign_permissions: false,
+            clipped_directory_path:
+              `${disk.disk_type}::` as DriveClippedFilePath,
+            permission_previews: [],
           })),
           files: [],
         });
@@ -319,8 +336,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           page_size: 100,
           direction: SortDirection.ASC,
         };
-        const _listDirectoryQueryString = generateListQueryString(listParams);
-        setListDirectoryQueryString(_listDirectoryQueryString);
+        const _listDirectoryKey = generateListDirectoryKey(listParams);
+        setListDirectoryKey(_listDirectoryKey);
 
         // Dispatch the action to fetch the directory listing
         dispatch(listDirectoryAction(listParams));
@@ -343,9 +360,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const handleFileFolderClick = (item: DriveItemRow) => {
     if (item.isDisabled) return;
     if (item.isFolder) {
-      navigate(`/drive/${item.id}/`);
+      navigate(`/drive/${item.diskID}/${item.id}/`);
     } else {
-      navigate(`/drive/${item.id}`);
+      navigate(`/drive/${item.diskID}/${item.id}`);
     }
   };
 
@@ -588,6 +605,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         owner: f.created_by,
         isFolder: true,
         fullPath: f.full_directory_path,
+        diskID: f.disk_id,
         isDisabled: false,
       }));
     }
@@ -600,6 +618,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         owner: f.created_by,
         isFolder: true,
         fullPath: f.full_directory_path,
+        diskID: f.disk_id,
         isDisabled: false,
       })),
       ...content.files.map((f) => ({
@@ -608,6 +627,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         owner: f.created_by,
         isFolder: false,
         fullPath: f.full_directory_path,
+        diskID: f.disk_id,
         isDisabled: false,
       })),
     ];
@@ -702,6 +722,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           <ActionMenuButton
             isBigButton={false}
             toggleUploadPanel={toggleUploadPanel}
+            optimisticListDirectoryKey={listDirectoryKey}
           />
         </div>
       </div>
@@ -866,7 +887,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       <ActionMenuButton
                         isBigButton={false}
                         toggleUploadPanel={toggleUploadPanel}
-                        key="upload"
                       />
                     }
                     style={{

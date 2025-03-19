@@ -162,7 +162,7 @@ export const directoryReducer = (
   switch (action.type) {
     // ------------------------------ LIST DIRECTORY --------------------------------- //
     case LIST_DIRECTORY: {
-      const listQueryString = action.meta.listQueryString;
+      const listDirectoryKey = action.meta.listDirectoryKey;
 
       if (action.optimistic) {
         const { files, folders, totalFiles, totalFolders, cursor } =
@@ -182,7 +182,7 @@ export const directoryReducer = (
           ...state,
           listingDataMap: {
             ...state.listingDataMap,
-            [listQueryString]: {
+            [listDirectoryKey]: {
               folders,
               files,
               totalFiles,
@@ -202,8 +202,8 @@ export const directoryReducer = (
         ...state,
         listingDataMap: {
           ...state.listingDataMap,
-          [listQueryString]: {
-            ...(state.listingDataMap[listQueryString] || {
+          [listDirectoryKey]: {
+            ...(state.listingDataMap[listDirectoryKey] || {
               folders: [],
               files: [],
               totalFiles: 0,
@@ -219,10 +219,10 @@ export const directoryReducer = (
     }
 
     case LIST_DIRECTORY_COMMIT: {
-      const listQueryString = action.meta?.listQueryString;
+      const listDirectoryKey = action.meta?.listDirectoryKey;
       const response = action.payload?.ok?.data;
 
-      if (!response || !listQueryString) {
+      if (!response || !listDirectoryKey) {
         return state;
       }
 
@@ -258,7 +258,7 @@ export const directoryReducer = (
         ...state,
         listingDataMap: {
           ...state.listingDataMap,
-          [listQueryString]: {
+          [listDirectoryKey]: {
             folders: processedFolders,
             files: processedFiles,
             totalFiles: response.total_files,
@@ -293,7 +293,7 @@ export const directoryReducer = (
     }
 
     case LIST_DIRECTORY_ROLLBACK: {
-      const listQueryString = action.meta?.listQueryString;
+      const listDirectoryKey = action.meta?.listDirectoryKey;
       let errorMessage = "Failed to list directory contents";
 
       try {
@@ -305,13 +305,13 @@ export const directoryReducer = (
         console.error("Error parsing error response:", e);
       }
 
-      if (listQueryString) {
+      if (listDirectoryKey) {
         return {
           ...state,
           listingDataMap: {
             ...state.listingDataMap,
-            [listQueryString]: {
-              ...(state.listingDataMap[listQueryString] || {
+            [listDirectoryKey]: {
+              ...(state.listingDataMap[listDirectoryKey] || {
                 folders: [],
                 files: [],
                 totalFiles: 0,
@@ -565,7 +565,9 @@ export const directoryReducer = (
     // ------------------------------ CREATE FOLDER --------------------------------- //
     case CREATE_FOLDER: {
       const optimisticFolder = action.optimistic;
-      return {
+      const listDirectoryKey = action.meta?.listDirectoryKey;
+
+      let updatedState = {
         ...state,
         folders: optimisticFolder
           ? updateOrAddFolder(state.folders, optimisticFolder, "_optimisticID")
@@ -573,10 +575,37 @@ export const directoryReducer = (
         loading: true,
         error: null,
       };
+
+      // If we have a listDirectoryKey and the optimistic folder, update that view too
+      if (listDirectoryKey && optimisticFolder) {
+        const currentListing = state.listingDataMap[listDirectoryKey];
+
+        if (currentListing) {
+          updatedState = {
+            ...updatedState,
+            listingDataMap: {
+              ...state.listingDataMap,
+              [listDirectoryKey]: {
+                ...currentListing,
+                // Add the optimistic folder to the listing
+                folders: updateOrAddFolder(
+                  currentListing.folders,
+                  optimisticFolder,
+                  "_optimisticID"
+                ),
+                totalFolders: currentListing.totalFolders + 1,
+              },
+            },
+          };
+        }
+      }
+
+      return updatedState;
     }
 
     case CREATE_FOLDER_COMMIT: {
       const optimisticID = action.meta?.optimisticID;
+      const listDirectoryKey = action.meta?.listDirectoryKey;
       let realFolder;
 
       // Extract folder from payload - handle different response structures
@@ -609,7 +638,7 @@ export const directoryReducer = (
         (folder) => folder._optimisticID !== optimisticID
       );
 
-      return {
+      let updatedState = {
         ...state,
         folders: updateOrAddFolder(filteredFolders, newFolder),
         folderMap: {
@@ -618,11 +647,38 @@ export const directoryReducer = (
         },
         loading: false,
       };
+
+      // Update the corresponding listDirectory view if we have a listDirectoryKey
+      if (listDirectoryKey) {
+        const currentListing = state.listingDataMap[listDirectoryKey];
+
+        if (currentListing) {
+          const filteredListingFolders = currentListing.folders.filter(
+            (folder) => folder._optimisticID !== optimisticID
+          );
+
+          updatedState = {
+            ...updatedState,
+            listingDataMap: {
+              ...state.listingDataMap,
+              [listDirectoryKey]: {
+                ...currentListing,
+                // Replace the optimistic folder with the real one
+                folders: updateOrAddFolder(filteredListingFolders, newFolder),
+              },
+            },
+          };
+        }
+      }
+
+      return updatedState;
     }
 
     case CREATE_FOLDER_ROLLBACK: {
       const optimisticID = action.meta?.optimisticID;
-      return {
+      const listDirectoryKey = action.meta?.listDirectoryKey;
+
+      let updatedState = {
         ...state,
         folders: state.folders.map((folder) => {
           if (folder._optimisticID === optimisticID) {
@@ -639,6 +695,38 @@ export const directoryReducer = (
         loading: false,
         error: action.error_message || "Failed to create folder",
       };
+
+      // Update the corresponding listDirectory view if we have a listDirectoryKey
+      if (listDirectoryKey) {
+        const currentListing = state.listingDataMap[listDirectoryKey];
+
+        if (currentListing) {
+          updatedState = {
+            ...updatedState,
+            listingDataMap: {
+              ...state.listingDataMap,
+              [listDirectoryKey]: {
+                ...currentListing,
+                // Update the folder in the listing to show the sync conflict
+                folders: currentListing.folders.map((folder) => {
+                  if (folder._optimisticID === optimisticID) {
+                    return {
+                      ...folder,
+                      _syncWarning: action.error_message,
+                      _syncSuccess: false,
+                      _syncConflict: true,
+                      _isOptimistic: false,
+                    };
+                  }
+                  return folder;
+                }),
+              },
+            },
+          };
+        }
+      }
+
+      return updatedState;
     }
 
     // ------------------------------ UPDATE FILE --------------------------------- //

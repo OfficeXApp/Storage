@@ -21,6 +21,7 @@ import {
   DirectoryResourceID,
   GenerateID,
   IRequestListDirectory,
+  DriveID,
 } from "@officexapp/types";
 
 // Action Types
@@ -81,7 +82,7 @@ export const RESTORE_TRASH = "RESTORE_TRASH";
 export const RESTORE_TRASH_COMMIT = "RESTORE_TRASH_COMMIT";
 export const RESTORE_TRASH_ROLLBACK = "RESTORE_TRASH_ROLLBACK";
 
-export const generateListQueryString = (
+export const generateListDirectoryKey = (
   params: IRequestListDirectory
 ): string => {
   const normalizedParams = {
@@ -102,15 +103,13 @@ export const generateListQueryString = (
 // list directory files & folders
 export const listDirectoryAction = (payload: IRequestListDirectory) => {
   // Generate a unique ID for this request
-  const requestId = `list_dir_${Date.now()}`;
-  const listQueryString = generateListQueryString(payload);
+  const listDirectoryKey = generateListDirectoryKey(payload);
 
   return {
     type: LIST_DIRECTORY,
     payload,
     meta: {
-      requestId,
-      listQueryString,
+      listDirectoryKey,
       offline: {
         effect: {
           url: `/directory/list`,
@@ -123,11 +122,11 @@ export const listDirectoryAction = (payload: IRequestListDirectory) => {
         },
         commit: {
           type: LIST_DIRECTORY_COMMIT,
-          meta: { requestId },
+          meta: { listDirectoryKey },
         },
         rollback: {
           type: LIST_DIRECTORY_ROLLBACK,
-          meta: { requestId },
+          meta: { listDirectoryKey },
         },
       },
     },
@@ -193,7 +192,11 @@ export const getFolderAction = (action: GetFolderAction) => {
 };
 
 // Create File
-export const createFileAction = (action: CreateFileAction) => {
+export const createFileAction = (
+  action: CreateFileAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const id = GenerateID.File();
   // Assign the generated ID to the resource_id if not provided
   if (!action.payload.id) {
@@ -224,12 +227,18 @@ export const createFileAction = (action: CreateFileAction) => {
 };
 
 // Create Folder
-export const createFolderAction = (action: CreateFolderAction) => {
+export const createFolderAction = (
+  action: CreateFolderAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const id = action.payload.id || GenerateID.Folder();
   return {
     type: CREATE_FOLDER,
     meta: {
       optimisticID: id,
+      listDirectoryKey,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -242,15 +251,25 @@ export const createFolderAction = (action: CreateFolderAction) => {
             actions: [action],
           },
         },
-        commit: { type: CREATE_FOLDER_COMMIT, meta: { optimisticID: id } },
-        rollback: { type: CREATE_FOLDER_ROLLBACK, meta: { optimisticID: id } },
+        commit: {
+          type: CREATE_FOLDER_COMMIT,
+          meta: { listDirectoryKey, optimisticID: id },
+        },
+        rollback: {
+          type: CREATE_FOLDER_ROLLBACK,
+          meta: { listDirectoryKey, optimisticID: id },
+        },
       },
     },
   };
 };
 
 // Update File
-export const updateFileAction = (action: UpdateFileAction) => {
+export const updateFileAction = (
+  action: UpdateFileAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const resourceId = action.payload.id as FileID;
   return {
     type: UPDATE_FILE,
@@ -282,7 +301,11 @@ export const updateFileAction = (action: UpdateFileAction) => {
 };
 
 // Update Folder
-export const updateFolderAction = (action: UpdateFolderAction) => {
+export const updateFolderAction = (
+  action: UpdateFolderAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const resourceId = action.payload.id as FolderID;
   return {
     type: UPDATE_FOLDER,
@@ -314,7 +337,11 @@ export const updateFolderAction = (action: UpdateFolderAction) => {
 };
 
 // Delete File
-export const deleteFileAction = (action: DeleteFileAction) => {
+export const deleteFileAction = (
+  action: DeleteFileAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const resourceId = action.payload.id as FileID;
   return {
     type: DELETE_FILE,
@@ -346,7 +373,11 @@ export const deleteFileAction = (action: DeleteFileAction) => {
 };
 
 // Delete Folder
-export const deleteFolderAction = (action: DeleteFolderAction) => {
+export const deleteFolderAction = (
+  action: DeleteFolderAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const resourceId = action.payload.id as FolderID;
   return {
     type: DELETE_FOLDER,

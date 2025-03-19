@@ -65,6 +65,8 @@ import DrivePage from "./pages/DrivesPage/drive.page";
 import ApiKeyPage from "./pages/ApiKeysPage/api-key.page";
 import PermissionPage from "./pages/PermissionsPage/permission.page";
 import { defaultTempCloudSharingRootFolderID } from "./api/dexie-database";
+import { useSelector } from "react-redux";
+import { ReduxAppState } from "./redux-offline/ReduxProvider";
 
 const { Sider, Content } = Layout;
 
@@ -283,6 +285,7 @@ const RouterUI = () => {
                     }}
                   >
                     <ConnectICPButton />
+
                     <ActionMenuButton
                       isBigButton={true}
                       toggleUploadPanel={setUploadPanelVisible}

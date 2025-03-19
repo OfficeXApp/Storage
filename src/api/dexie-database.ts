@@ -101,7 +101,7 @@ class DexieManager {
       [FILES_DEXIE_TABLE]: "id, folder_uuid, _syncConflict",
       [FOLDERS_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
       [DIRECTORY_LIST_QUERY_RESULTS_TABLE]:
-        "listQueryString, last_updated_date_ms",
+        "listDirectoryKey, last_updated_date_ms",
     });
 
     // Set as current and return

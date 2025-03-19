@@ -69,10 +69,12 @@ import {
   FolderRecord,
   FileRecordFE,
   FolderRecordFE,
+  CreateFolderPayload,
+  CreateFolderAction,
 } from "@officexapp/types";
 
 export interface DirectoryListCacheEntry {
-  listQueryString: string;
+  listDirectoryKey: string;
   folders: FolderFEO[];
   files: FileFEO[];
   totalFiles: number;
@@ -166,15 +168,26 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
         switch (action.type) {
           // ------------------------------ LIST DIRECTORY --------------------------------- //
           case LIST_DIRECTORY: {
-            const listQueryString = action.meta.listQueryString;
-            console.log(`listQueryString`, listQueryString);
+            const listDirectoryKey = action.meta.listDirectoryKey;
+            console.log(`action >>>>> ${listDirectoryKey}`, action);
             try {
               const listCacheTable = db.table<DirectoryListCacheEntry, string>(
                 DIRECTORY_LIST_QUERY_RESULTS_TABLE
               );
-              const cachedResult = await listCacheTable.get(listQueryString);
+              const cachedResult = await listCacheTable.get(listDirectoryKey);
 
-              console.log(`cachedResult`, cachedResult);
+              if (!cachedResult) {
+                const cacheEntry: DirectoryListCacheEntry = {
+                  listDirectoryKey,
+                  folders: [],
+                  files: [],
+                  totalFiles: 0,
+                  totalFolders: 0,
+                  cursor: null,
+                  last_updated_date_ms: Date.now(),
+                };
+                await listCacheTable.put(cacheEntry);
+              }
 
               let resultsToRender = cachedResult || {
                 files: [],
@@ -185,8 +198,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               };
 
               if (resultsToRender) {
-                console.log("Using cached directory listing", listQueryString);
-
                 enhancedAction = {
                   ...action,
                   optimistic: {
@@ -216,10 +227,10 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_COMMIT: {
-            const listQueryString = action.meta?.listQueryString;
+            const listDirectoryKey = action.meta?.listDirectoryKey;
             const response = action.payload?.ok?.data;
 
-            if (response && listQueryString) {
+            if (response && listDirectoryKey) {
               const files = response.files || [];
               const folders = response.folders || [];
 
@@ -256,7 +267,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                     // Cache the directory listing results
                     const cacheEntry: DirectoryListCacheEntry = {
-                      listQueryString,
+                      listDirectoryKey,
                       folders: response.folders,
                       files: response.files,
                       totalFiles: response.total_files,
@@ -544,25 +555,26 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           // ------------------------------ CREATE FOLDER --------------------------------- //
           case CREATE_FOLDER: {
             // Only handle actions with folder data
+            let listDirectoryKey = action.meta?.listDirectoryKey;
+            console.log(`action >>>>> ${listDirectoryKey}`, action);
             if (action.meta?.offline?.effect?.data) {
-              const folderData = action.meta.offline.effect.data.actions[0];
+              const folderData: CreateFolderAction =
+                action.meta.offline.effect.data.actions[0];
               const optimisticID = action.meta.optimisticID;
-              const parentFolderId = folderData.payload.parent_folder_id;
+              const parentFolderId = folderData.payload.parent_folder_uuid;
 
-              // Get parent folder for path construction
               const parentFolder = await foldersTable.get(parentFolderId);
+
+              console.log(`parentFolder`, parentFolder);
 
               // Create optimistic folder object
               const optimisticFolder: FolderFEO = {
                 id: optimisticID,
                 name: folderData.payload.name,
-                parent_folder_uuid:
-                  parentFolderId === "root" ? undefined : parentFolderId,
+                parent_folder_uuid: parentFolderId,
                 subfolder_uuids: [],
                 file_uuids: [],
-                full_directory_path: parentFolder
-                  ? `${parentFolder.full_directory_path}/${folderData.payload.name}`
-                  : `/${folderData.payload.name}`,
+                full_directory_path: `${folderData.payload.disk_id}::../${folderData.payload.name}/`,
                 labels: folderData.payload.labels || [],
                 created_by: userID,
                 created_at: Date.now(),
@@ -574,9 +586,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 drive_id: orgID,
                 has_sovereign_permissions:
                   folderData.payload.has_sovereign_permissions || false,
-                clipped_directory_path: parentFolder
-                  ? `${parentFolder.clipped_directory_path}/${folderData.payload.name}`
-                  : `/${folderData.payload.name}`,
+                clipped_directory_path: `${folderData.payload.disk_id}::../${folderData.payload.name}/`,
                 permission_previews: [],
                 external_id: folderData.payload.external_id,
                 external_payload: folderData.payload.external_payload,
@@ -604,17 +614,58 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 await foldersTable.put(updatedParentFolder);
               }
 
+              // Add to relevant view
+              if (listDirectoryKey) {
+                try {
+                  const listCacheTable = db.table<
+                    DirectoryListCacheEntry,
+                    string
+                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
+                  const cachedResult =
+                    await listCacheTable.get(listDirectoryKey);
+
+                  if (cachedResult) {
+                    // Check if the folder belongs in this view based on parent folder
+                    const requestParams = JSON.parse(listDirectoryKey);
+                    const folderBelongsInView =
+                      (!requestParams.folder_id && !parentFolderId) || // Both are root
+                      requestParams.folder_id === parentFolderId; // Parent folder matches requested folder
+
+                    if (folderBelongsInView) {
+                      // Add the new folder to the cached listing
+                      const updatedCachedResult = {
+                        ...cachedResult,
+                        folders: [optimisticFolder, ...cachedResult.folders],
+                        totalFolders: cachedResult.totalFolders + 1,
+                        last_updated_date_ms: Date.now(),
+                      };
+
+                      await listCacheTable.put(updatedCachedResult);
+                    }
+                  }
+                } catch (error) {
+                  console.error(
+                    "Error updating directory listing cache with new folder:",
+                    error
+                  );
+                }
+              }
+
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
                 optimistic: optimisticFolder,
               };
             }
+            if (action.meta?.isOfflineDrive) {
+              return;
+            }
             break;
           }
 
           case CREATE_FOLDER_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
+            const listDirectoryKey = action.meta?.listDirectoryKey;
             let realFolder: FolderRecordFE | undefined;
 
             // Extract the folder from the response - handle different response structures
@@ -639,13 +690,56 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 await foldersTable.delete(optimisticID);
 
                 // Add real version
-                await foldersTable.put({
+                const realFolderEnhanced = {
                   ...realFolder,
                   _syncSuccess: true,
                   _syncConflict: false,
                   _syncWarning: "",
                   _isOptimistic: false,
-                });
+                };
+
+                await foldersTable.put(realFolderEnhanced);
+
+                if (listDirectoryKey) {
+                  const listCacheTable = db.table<
+                    DirectoryListCacheEntry,
+                    string
+                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
+                  const cachedResult =
+                    await listCacheTable.get(listDirectoryKey);
+
+                  if (cachedResult) {
+                    // Update the folder in the cache (replace optimistic version with real version)
+                    const updatedFolders = cachedResult.folders.map((folder) =>
+                      folder._optimisticID === optimisticID ||
+                      folder.id === optimisticID
+                        ? realFolderEnhanced
+                        : folder
+                    );
+
+                    // If folder wasn't in the list but should be, add it
+                    if (!updatedFolders.some((f) => f.id === realFolder.id)) {
+                      const requestParams = JSON.parse(listDirectoryKey);
+                      const folderBelongsInView =
+                        (!requestParams.folder_id &&
+                          !realFolder.parent_folder_uuid) || // Both are root
+                        requestParams.folder_id ===
+                          realFolder.parent_folder_uuid; // Parent folder matches requested folder
+
+                      if (folderBelongsInView) {
+                        updatedFolders.push(realFolderEnhanced);
+                      }
+                    }
+
+                    const updatedCachedResult = {
+                      ...cachedResult,
+                      folders: updatedFolders,
+                      last_updated_date_ms: Date.now(),
+                    };
+
+                    await listCacheTable.put(updatedCachedResult);
+                  }
+                }
 
                 // Update parent folder references if needed
                 if (
@@ -693,6 +787,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
+              const listDirectoryKey = action.meta?.listDirectoryKey;
               if (optimisticID) {
                 const error_message = `Failed to create folder - a sync conflict occurred between your offline local copy & the official cloud record. Error message: ${err.err.message}`;
                 await markSyncConflict(
@@ -700,6 +795,50 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   optimisticID,
                   error_message
                 );
+                if (listDirectoryKey) {
+                  try {
+                    const listCacheTable = db.table<
+                      DirectoryListCacheEntry,
+                      string
+                    >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
+                    const cachedResult =
+                      await listCacheTable.get(listDirectoryKey);
+
+                    if (cachedResult) {
+                      // Mark the folder as having a sync conflict instead of removing it
+                      const updatedFolders = cachedResult.folders.map(
+                        (folder) => {
+                          if (
+                            folder._optimisticID === optimisticID ||
+                            folder.id === optimisticID
+                          ) {
+                            return {
+                              ...folder,
+                              _syncWarning: error_message,
+                              _syncSuccess: false,
+                              _syncConflict: true,
+                              _isOptimistic: false,
+                            };
+                          }
+                          return folder;
+                        }
+                      );
+
+                      const updatedCachedResult = {
+                        ...cachedResult,
+                        folders: updatedFolders,
+                        last_updated_date_ms: Date.now(),
+                      };
+
+                      await listCacheTable.put(updatedCachedResult);
+                    }
+                  } catch (error) {
+                    console.error(
+                      "Error updating directory listing cache on folder creation rollback:",
+                      error
+                    );
+                  }
+                }
                 enhancedAction = {
                   ...action,
                   error_message,

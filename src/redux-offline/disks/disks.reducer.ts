@@ -33,6 +33,7 @@ export interface DiskFEO extends DiskFE {
 }
 
 interface DisksState {
+  defaultDisk: DiskFEO | null;
   disks: DiskFEO[];
   diskMap: Record<DiskID, DiskFEO>;
   loading: boolean;
@@ -40,6 +41,7 @@ interface DisksState {
 }
 
 const initialState: DisksState = {
+  defaultDisk: null,
   disks: [],
   diskMap: {},
   loading: false,
@@ -133,8 +135,15 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     // ------------------------------ LIST DISKS --------------------------------- //
 
     case LIST_DISKS: {
+      const DEFAULT_DISK_ID = localStorage.getItem(
+        LOCALSTORAGE_DEFAULT_DISK_ID
+      );
+      const defaultDisk = action.optimistic.find(
+        (disk: DiskFEO) => disk.id === DEFAULT_DISK_ID
+      );
       return {
         ...state,
+        defaultDisk: defaultDisk || null,
         disks: action.optimistic || [],
         loading: true,
         error: null,
@@ -173,8 +182,14 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
         newDisks.unshift(defaultBrowserDisk);
       }
 
+      const DEFAULT_DISK_ID = localStorage.getItem(
+        LOCALSTORAGE_DEFAULT_DISK_ID
+      );
+      const defaultDisk = newDisks.find((disk) => disk.id === DEFAULT_DISK_ID);
+
       return {
         ...state,
+        defaultDisk: defaultDisk || null,
         disks: newDisks,
         loading: false,
       };

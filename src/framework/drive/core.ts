@@ -1514,7 +1514,6 @@ class DriveDB {
     for (const [fullFolderPath, folderUUID] of Object.entries(
       this.fullFolderPathToUUID
     )) {
-      console.log(fullFolderPath);
       const folderMetadata = this.folderUUIDToMetadata[folderUUID];
       if (folderMetadata) {
         this.fuseIndex.add({

@@ -14,6 +14,7 @@ import {
   Modal,
   notification,
 } from "antd";
+import { v4 as uuidv4 } from "uuid";
 import {
   FolderOutlined,
   SortAscendingOutlined,
@@ -337,6 +338,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           direction: SortDirection.ASC,
         };
         const _listDirectoryKey = generateListDirectoryKey(listParams);
+        console.log(`setting _listDirectoryKey`, _listDirectoryKey);
         setListDirectoryKey(_listDirectoryKey);
 
         // Dispatch the action to fetch the directory listing
@@ -355,6 +357,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const appendRefreshParam = () => {
+    const params = new URLSearchParams(location.search);
+    params.set("refresh", uuidv4());
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
   };
 
   const handleFileFolderClick = (item: DriveItemRow) => {
@@ -458,7 +466,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         ),
       },
     ],
-    [renamingItems]
+    [renamingItems, listDirectoryKey]
   );
 
   const getRowMenuItems = (record: DriveItemRow): MenuProps["items"] => [
@@ -503,8 +511,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             permanent: true,
           },
         };
-
-        dispatch(deleteFolderAction(deleteAction));
+        console.log(`====listDirectoryKey`, listDirectoryKey);
+        dispatch(deleteFolderAction(deleteAction, listDirectoryKey));
       } else {
         // Create the delete file action
         const deleteAction = {
@@ -515,7 +523,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           },
         };
 
-        dispatch(deleteFileAction(deleteAction));
+        dispatch(deleteFileAction(deleteAction, listDirectoryKey));
       }
 
       message.success(

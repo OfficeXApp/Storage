@@ -72,6 +72,7 @@ import {
   CreateFolderPayload,
   CreateFolderAction,
 } from "@officexapp/types";
+import { DISKS_DEXIE_TABLE } from "../disks/disks.reducer";
 
 export interface DirectoryListCacheEntry {
   listDirectoryKey: string;
@@ -315,6 +316,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 },
               };
             }
+            if (action.meta?.isOfflineDrive) {
+              return;
+            }
             break;
           }
 
@@ -384,6 +388,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 },
               };
             }
+            if (action.meta?.isOfflineDrive) {
+              return;
+            }
             break;
           }
 
@@ -442,6 +449,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ CREATE FILE --------------------------------- //
           case CREATE_FILE: {
+            const listDirectoryKey = action.meta?.listDirectoryKey;
             // Only handle actions with file data
             if (action.meta?.offline?.effect?.data) {
               const fileData = action.meta.offline.effect.data.actions[0];
@@ -492,11 +500,50 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               // Save to IndexedDB
               await filesTable.put(optimisticFile);
 
+              if (listDirectoryKey) {
+                try {
+                  const listCacheTable = db.table<
+                    DirectoryListCacheEntry,
+                    string
+                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
+                  const cachedResult =
+                    await listCacheTable.get(listDirectoryKey);
+
+                  if (cachedResult) {
+                    // Check if the file belongs in this view based on parent folder
+                    const requestParams = JSON.parse(listDirectoryKey);
+                    const fileBelongsInView =
+                      (!requestParams.folder_id && !parentFolderId) || // Both are root
+                      requestParams.folder_id === parentFolderId; // Parent folder matches requested folder
+
+                    if (fileBelongsInView) {
+                      // Add the new file to the cached listing
+                      const updatedCachedResult = {
+                        ...cachedResult,
+                        files: [optimisticFile, ...cachedResult.files],
+                        totalFiles: cachedResult.totalFiles + 1,
+                        last_updated_date_ms: Date.now(),
+                      };
+
+                      await listCacheTable.put(updatedCachedResult);
+                    }
+                  }
+                } catch (error) {
+                  console.error(
+                    "Error updating directory listing cache with new file:",
+                    error
+                  );
+                }
+              }
+
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
                 optimistic: optimisticFile,
               };
+            }
+            if (action.meta?.isOfflineDrive) {
+              return;
             }
             break;
           }
@@ -656,9 +703,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 ...action,
                 optimistic: optimisticFolder,
               };
-            }
-            if (action.meta?.isOfflineDrive) {
-              return;
             }
             break;
           }
@@ -853,6 +897,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           // ------------------------------ UPDATE FILE --------------------------------- //
           case UPDATE_FILE: {
             // Only handle actions with file data
+            const listDirectoryKey = action.meta?.listDirectoryKey;
+
             if (action.meta?.offline?.effect?.data) {
               const fileData = action.meta.offline.effect.data.actions[0];
               const optimisticID = action.meta.optimisticID;
@@ -876,12 +922,49 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 // Save to IndexedDB
                 await filesTable.put(optimisticFile);
 
+                if (listDirectoryKey) {
+                  try {
+                    const listCacheTable = db.table<
+                      DirectoryListCacheEntry,
+                      string
+                    >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
+                    const cachedResult =
+                      await listCacheTable.get(listDirectoryKey);
+
+                    if (cachedResult) {
+                      // Update the file in the cached listing
+                      const updatedFiles = cachedResult.files.map((file) => {
+                        if (file.id === optimisticID) {
+                          return optimisticFile;
+                        }
+                        return file;
+                      });
+
+                      const updatedCachedResult = {
+                        ...cachedResult,
+                        files: updatedFiles,
+                        last_updated_date_ms: Date.now(),
+                      };
+
+                      await listCacheTable.put(updatedCachedResult);
+                    }
+                  } catch (error) {
+                    console.error(
+                      "Error updating directory listing cache for file update:",
+                      error
+                    );
+                  }
+                }
+
                 // Enhance action with optimisticID
                 enhancedAction = {
                   ...action,
                   optimistic: optimisticFile,
                 };
               }
+            }
+            if (action.meta?.isOfflineDrive) {
+              return;
             }
             break;
           }
@@ -938,6 +1021,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ UPDATE FOLDER --------------------------------- //
           case UPDATE_FOLDER: {
+            const listDirectoryKey = action.meta?.listDirectoryKey;
             // Only handle actions with folder data
             if (action.meta?.offline?.effect?.data) {
               const folderData = action.meta.offline.effect.data.actions[0];
@@ -962,12 +1046,51 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 // Save to IndexedDB
                 await foldersTable.put(optimisticFolder);
 
+                if (listDirectoryKey) {
+                  try {
+                    const listCacheTable = db.table<
+                      DirectoryListCacheEntry,
+                      string
+                    >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
+                    const cachedResult =
+                      await listCacheTable.get(listDirectoryKey);
+
+                    if (cachedResult) {
+                      // Update the folder in the cached listing
+                      const updatedFolders = cachedResult.folders.map(
+                        (folder) => {
+                          if (folder.id === optimisticID) {
+                            return optimisticFolder;
+                          }
+                          return folder;
+                        }
+                      );
+
+                      const updatedCachedResult = {
+                        ...cachedResult,
+                        folders: updatedFolders,
+                        last_updated_date_ms: Date.now(),
+                      };
+
+                      await listCacheTable.put(updatedCachedResult);
+                    }
+                  } catch (error) {
+                    console.error(
+                      "Error updating directory listing cache for folder update:",
+                      error
+                    );
+                  }
+                }
+
                 // Enhance action with optimisticID
                 enhancedAction = {
                   ...action,
                   optimistic: optimisticFolder,
                 };
               }
+            }
+            if (action.meta?.isOfflineDrive) {
+              return;
             }
             break;
           }
@@ -1031,6 +1154,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           case DELETE_FILE: {
             const optimisticID = action.meta.optimisticID;
             const cachedFile = await filesTable.get(optimisticID);
+            const listDirectoryKey = action.meta?.listDirectoryKey;
 
             if (cachedFile) {
               const optimisticFile: FileFEO = {
@@ -1065,11 +1189,46 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 }
               }
 
+              if (listDirectoryKey) {
+                try {
+                  const listCacheTable = db.table<
+                    DirectoryListCacheEntry,
+                    string
+                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
+                  const cachedResult =
+                    await listCacheTable.get(listDirectoryKey);
+
+                  if (cachedResult) {
+                    // Update the cached listing by removing the file
+                    const updatedFiles = cachedResult.files.filter(
+                      (file) => file.id !== optimisticID
+                    );
+
+                    const updatedCachedResult = {
+                      ...cachedResult,
+                      files: updatedFiles,
+                      totalFiles: Math.max(0, cachedResult.totalFiles - 1),
+                      last_updated_date_ms: Date.now(),
+                    };
+
+                    await listCacheTable.put(updatedCachedResult);
+                  }
+                } catch (error) {
+                  console.error(
+                    "Error updating directory listing cache for file deletion:",
+                    error
+                  );
+                }
+              }
+
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
                 optimistic: optimisticFile,
               };
+            }
+            if (action.meta?.isOfflineDrive) {
+              return;
             }
             break;
           }
@@ -1104,48 +1263,174 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           // ------------------------------ DELETE FOLDER --------------------------------- //
+          // ------------------------------ DELETE FOLDER --------------------------------- //
           case DELETE_FOLDER: {
+            console.log("DELETE_FOLDER", action);
+
             const optimisticID = action.meta.optimisticID;
             const cachedFolder = await foldersTable.get(optimisticID);
+            let listDirectoryKey = action.meta?.listDirectoryKey;
+
+            // Get the action data to check if this is a permanent deletion
+            const folderData = action.meta.offline.effect.data.actions[0];
+            const isPermanentDelete = folderData.payload.permanent === true;
 
             if (cachedFolder) {
-              const optimisticFolder: FolderFEO = {
-                ...cachedFolder,
-                id: optimisticID,
-                deleted: true,
-                _markedForDeletion: true,
-                _syncWarning: `Awaiting Sync. This folder was deleted offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be restored.`,
-                _syncConflict: false,
-                _syncSuccess: false,
-                _isOptimistic: true,
-                _optimisticID: optimisticID,
-              };
+              console.log(`cachedFolder`, cachedFolder);
 
-              // Mark for deletion in indexdb
-              await foldersTable.put(optimisticFolder);
-
-              // Update parent folder reference if it exists
-              if (cachedFolder.parent_folder_uuid) {
-                const parentFolder = await foldersTable.get(
-                  cachedFolder.parent_folder_uuid
-                );
-                if (parentFolder) {
-                  await foldersTable.put({
-                    ...parentFolder,
-                    subfolder_uuids: parentFolder.subfolder_uuids.filter(
-                      (id) => id !== optimisticID
-                    ),
-                    last_updated_date_ms: Date.now(),
-                    last_updated_by: userID,
-                  });
+              if (isPermanentDelete) {
+                // Handle permanent deletion - actually remove the folder from IndexedDB
+                // First, update parent folder reference if it exists
+                if (cachedFolder.parent_folder_uuid) {
+                  const parentFolder = await foldersTable.get(
+                    cachedFolder.parent_folder_uuid
+                  );
+                  if (parentFolder) {
+                    await foldersTable.put({
+                      ...parentFolder,
+                      subfolder_uuids: parentFolder.subfolder_uuids.filter(
+                        (id) => id !== optimisticID
+                      ),
+                      last_updated_date_ms: Date.now(),
+                      last_updated_by: userID,
+                    });
+                  }
                 }
+
+                // Then delete the folder from IndexedDB
+                await foldersTable.delete(optimisticID);
+
+                // For the Redux store, we still need an optimistic object to track the deletion
+                enhancedAction = {
+                  ...action,
+                  optimistic: {
+                    id: optimisticID,
+                    _isOptimistic: true,
+                    _optimisticID: optimisticID,
+                    _permanent: true,
+                  },
+                };
+              } else {
+                // Handle trash deletion - move to the trash folder
+                // Get disk information to find the trash folder
+                const disksTable = db.table(DISKS_DEXIE_TABLE);
+                const disk = await disksTable.get(cachedFolder.disk_id);
+
+                if (!disk || !disk.trash_folder) {
+                  console.error(
+                    `Could not find disk ${cachedFolder.disk_id} or trash folder`
+                  );
+                  return next(action);
+                }
+
+                // Get the trash folder
+                const trashFolder = await foldersTable.get(disk.trash_folder);
+
+                if (!trashFolder) {
+                  console.error(
+                    `Could not find trash folder ${disk.trash_folder}`
+                  );
+                  return next(action);
+                }
+
+                // Create new paths for the deleted folder
+                const folderName = cachedFolder.name;
+                const trashPath = `${cachedFolder.disk_id}::.trash/${folderName}/`;
+                const trashClippedPath = `${cachedFolder.disk_id}::.trash/${folderName}/`;
+
+                // Store the original path for potential restoration later
+                const optimisticFolder: FolderFEO = {
+                  ...cachedFolder,
+                  id: optimisticID,
+                  deleted: true,
+                  parent_folder_uuid: disk.trash_folder, // Set parent to trash folder
+                  restore_trash_prior_folder_uuid:
+                    cachedFolder.parent_folder_uuid, // Store original parent UUID using the correct type
+                  full_directory_path: trashPath,
+                  clipped_directory_path: trashClippedPath,
+                  _markedForDeletion: true,
+                  _syncWarning: `Awaiting Sync. This folder was moved to trash offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be restored.`,
+                  _syncConflict: false,
+                  _syncSuccess: false,
+                  _isOptimistic: true,
+                  _optimisticID: optimisticID,
+                };
+
+                // Mark for deletion in indexdb
+                await foldersTable.put(optimisticFolder);
+
+                // Update original parent folder reference if it exists
+                if (cachedFolder.parent_folder_uuid) {
+                  const parentFolder = await foldersTable.get(
+                    cachedFolder.parent_folder_uuid
+                  );
+                  if (parentFolder) {
+                    await foldersTable.put({
+                      ...parentFolder,
+                      subfolder_uuids: parentFolder.subfolder_uuids.filter(
+                        (id) => id !== optimisticID
+                      ),
+                      last_updated_date_ms: Date.now(),
+                      last_updated_by: userID,
+                    });
+                  }
+                }
+
+                // Update trash folder to include this deleted folder
+                await foldersTable.put({
+                  ...trashFolder,
+                  subfolder_uuids: [
+                    ...trashFolder.subfolder_uuids,
+                    optimisticID,
+                  ],
+                  last_updated_date_ms: Date.now(),
+                  last_updated_by: userID,
+                });
+
+                // Enhance action with optimisticID
+                enhancedAction = {
+                  ...action,
+                  optimistic: optimisticFolder,
+                };
               }
 
-              // Enhance action with optimisticID
-              enhancedAction = {
-                ...action,
-                optimistic: optimisticFolder,
-              };
+              // Update directory listing cache (same for both permanent and trash)
+              console.log(`listDirectoryKey`, listDirectoryKey);
+              if (listDirectoryKey) {
+                try {
+                  const listCacheTable = db.table<
+                    DirectoryListCacheEntry,
+                    string
+                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
+                  const cachedResult =
+                    await listCacheTable.get(listDirectoryKey);
+
+                  console.log(`cachedResult`, cachedResult);
+
+                  if (cachedResult) {
+                    // Update the cached listing by removing the folder from the cached folders array
+                    const updatedFolders = cachedResult.folders.filter(
+                      (folder) => folder.id !== optimisticID
+                    );
+
+                    const updatedCachedResult = {
+                      ...cachedResult,
+                      folders: updatedFolders,
+                      totalFolders: Math.max(0, cachedResult.totalFolders - 1),
+                      last_updated_date_ms: Date.now(),
+                    };
+
+                    console.log(`updatedCachedResult`, updatedCachedResult);
+
+                    await listCacheTable.put(updatedCachedResult);
+                  }
+                } catch (error) {
+                  console.error(
+                    "Error updating directory listing cache for folder deletion:",
+                    error
+                  );
+                }
+              }
             }
             break;
           }
@@ -1249,6 +1534,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 ...action,
                 optimistic: optimisticFile,
               };
+            }
+            if (action.meta?.isOfflineDrive) {
+              return;
             }
             break;
           }
@@ -1419,6 +1707,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 optimistic: optimisticFolder,
               };
             }
+            if (action.meta?.isOfflineDrive) {
+              return;
+            }
             break;
           }
 
@@ -1573,6 +1864,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 optimistic: optimisticFile,
               };
             }
+            if (action.meta?.isOfflineDrive) {
+              return;
+            }
             break;
           }
 
@@ -1713,6 +2007,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 optimistic: optimisticFolder,
               };
             }
+            if (action.meta?.isOfflineDrive) {
+              return;
+            }
             break;
           }
 
@@ -1852,22 +2149,68 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             const resourceAction = action.meta.offline.effect.data.actions[0];
 
             // Determine if we're restoring a file or folder
-            const isFile =
-              resourceAction.target.resource_id?.startsWith("file_");
+            const isFile = resourceId.startsWith("FileID_");
+
+            // Get disk info to verify trash folder
+            const disksTable = db.table(DISKS_DEXIE_TABLE);
 
             if (isFile) {
               // Handle file restoration
               const file = await filesTable.get(resourceId);
               if (file) {
-                // Path to restore to
-                const restorePath =
-                  resourceAction.payload.restore_to_folder_path ||
-                  file.restore_trash_prior_folder_path;
+                // Get the current parent folder
+                const currentFolder = await foldersTable.get(file.folder_uuid);
+                const disk = await disksTable.get(file.disk_id);
 
-                // Create optimistic file object
-                const optimisticFile: FileFEO = {
+                // Verify the file is in trash
+                if (
+                  !disk ||
+                  !currentFolder ||
+                  disk.trash_folder !== currentFolder.id
+                ) {
+                  console.warn(
+                    "Attempted to restore file that is not in trash folder"
+                  );
+                  return next(action);
+                }
+
+                // Get original parent folder
+                const originalParentId = file.restore_trash_prior_folder_uuid;
+                let originalParent = null;
+
+                if (originalParentId) {
+                  originalParent = await foldersTable.get(originalParentId);
+                }
+
+                // If original parent not found, use disk root folder
+                if (!originalParent && disk) {
+                  originalParent = await foldersTable.get(disk.root_folder);
+                }
+
+                // Create the new path for the restored file
+                let newFilePath = file.full_directory_path;
+                let newClippedPath = file.clipped_directory_path;
+
+                if (originalParent) {
+                  const fileNameWithExt = file.extension
+                    ? `${file.name}.${file.extension}`
+                    : file.name;
+                  // Since full_directory_path already includes trailing slash, don't add another
+                  newFilePath = `${originalParent.full_directory_path}${fileNameWithExt}`;
+                  newClippedPath = `${originalParent.clipped_directory_path}${fileNameWithExt}`;
+                }
+
+                // Create optimistic file object with updates
+                const optimisticFile = {
                   ...file,
+                  folder_uuid: originalParent
+                    ? originalParent.id
+                    : file.restore_trash_prior_folder_uuid ||
+                      disk?.root_folder ||
+                      "root",
                   deleted: false,
+                  full_directory_path: newFilePath,
+                  clipped_directory_path: newClippedPath,
                   _markedForDeletion: false,
                   _syncWarning: `Awaiting Sync. This file was restored from trash offline and will auto-sync with cloud when you are online again.`,
                   _syncConflict: false,
@@ -1877,6 +2220,28 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                 // Save to IndexedDB
                 await filesTable.put(optimisticFile);
+
+                // Update trash folder (remove file reference)
+                if (currentFolder) {
+                  await foldersTable.put({
+                    ...currentFolder,
+                    file_uuids: currentFolder.file_uuids.filter(
+                      (id) => id !== resourceId
+                    ),
+                    last_updated_date_ms: Date.now(),
+                    last_updated_by: userID,
+                  });
+                }
+
+                // Update target folder (add file reference)
+                if (originalParent) {
+                  await foldersTable.put({
+                    ...originalParent,
+                    file_uuids: [...originalParent.file_uuids, resourceId],
+                    last_updated_date_ms: Date.now(),
+                    last_updated_by: userID,
+                  });
+                }
 
                 // Enhance action with optimistic file
                 enhancedAction = {
@@ -1888,15 +2253,60 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               // Handle folder restoration
               const folder = await foldersTable.get(resourceId);
               if (folder) {
-                // Path to restore to
-                const restorePath =
-                  resourceAction.payload.restore_to_folder_path ||
-                  folder.restore_trash_prior_folder_path;
+                // Get the current parent folder
+                const currentFolder = await foldersTable.get(
+                  folder.parent_folder_uuid || ""
+                );
+                const disk = await disksTable.get(folder.disk_id);
 
-                // Create optimistic folder object
-                const optimisticFolder: FolderFEO = {
+                // Verify the folder is in trash
+                if (
+                  !disk ||
+                  !currentFolder ||
+                  disk.trash_folder !== currentFolder.id
+                ) {
+                  console.warn(
+                    "Attempted to restore folder that is not in trash folder"
+                  );
+                  return next(action);
+                }
+
+                // Get original parent folder
+                const originalParentId = folder.restore_trash_prior_folder_uuid;
+                let originalParent = null;
+
+                if (originalParentId) {
+                  originalParent = await foldersTable.get(originalParentId);
+                }
+
+                // If original parent not found, use disk root folder
+                if (!originalParent && disk) {
+                  originalParent = await foldersTable.get(disk.root_folder);
+                }
+
+                // Create the new path for the restored folder
+                let newFolderPath = folder.full_directory_path;
+                let newClippedPath = folder.clipped_directory_path;
+
+                if (originalParent) {
+                  // Since full_directory_path already includes trailing slash, don't add another after folder name
+                  newFolderPath = `${originalParent.full_directory_path}${folder.name}/`;
+                  newClippedPath = `${originalParent.clipped_directory_path}${folder.name}/`;
+                } else {
+                  // If no original parent, put in disk root
+                  newFolderPath = `${folder.disk_id}::/${folder.name}/`;
+                  newClippedPath = `${folder.disk_id}::/${folder.name}/`;
+                }
+
+                // Create optimistic folder object with updates
+                const optimisticFolder = {
                   ...folder,
+                  parent_folder_uuid: originalParent
+                    ? originalParent.id
+                    : disk?.root_folder || null,
                   deleted: false,
+                  full_directory_path: newFolderPath,
+                  clipped_directory_path: newClippedPath,
                   _markedForDeletion: false,
                   _syncWarning: `Awaiting Sync. This folder was restored from trash offline and will auto-sync with cloud when you are online again.`,
                   _syncConflict: false,
@@ -1907,12 +2317,40 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 // Save to IndexedDB
                 await foldersTable.put(optimisticFolder);
 
+                // Update trash folder (remove folder reference)
+                if (currentFolder) {
+                  await foldersTable.put({
+                    ...currentFolder,
+                    subfolder_uuids: currentFolder.subfolder_uuids.filter(
+                      (id) => id !== resourceId
+                    ),
+                    last_updated_date_ms: Date.now(),
+                    last_updated_by: userID,
+                  });
+                }
+
+                // Update target folder (add folder reference)
+                if (originalParent) {
+                  await foldersTable.put({
+                    ...originalParent,
+                    subfolder_uuids: [
+                      ...originalParent.subfolder_uuids,
+                      resourceId,
+                    ],
+                    last_updated_date_ms: Date.now(),
+                    last_updated_by: userID,
+                  });
+                }
+
                 // Enhance action with optimistic folder
                 enhancedAction = {
                   ...action,
                   optimistic: optimisticFolder,
                 };
               }
+            }
+            if (action.meta?.isOfflineDrive) {
+              return;
             }
             break;
           }

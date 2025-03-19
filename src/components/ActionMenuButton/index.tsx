@@ -159,7 +159,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         message.success(`Folder "${newFolderName}" created successfully`);
         setNewFolderName("");
         setIsModalVisible(false);
-        appendRefreshParam();
       } catch (error) {
         message.error(`Failed to create folder: ${error}`);
       }

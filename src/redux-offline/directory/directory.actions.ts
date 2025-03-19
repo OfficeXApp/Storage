@@ -101,7 +101,10 @@ export const generateListDirectoryKey = (
 // Action Creators
 
 // list directory files & folders
-export const listDirectoryAction = (payload: IRequestListDirectory) => {
+export const listDirectoryAction = (
+  payload: IRequestListDirectory,
+  isOfflineDrive = true
+) => {
   // Generate a unique ID for this request
   const listDirectoryKey = generateListDirectoryKey(payload);
 
@@ -134,12 +137,13 @@ export const listDirectoryAction = (payload: IRequestListDirectory) => {
 };
 
 // Get File
-export const getFileAction = (action: GetFileAction) => {
+export const getFileAction = (action: GetFileAction, isOfflineDrive = true) => {
   const resourceId = action.payload.id as FileID;
   return {
     type: GET_FILE,
     meta: {
       optimisticID: resourceId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -163,12 +167,16 @@ export const getFileAction = (action: GetFileAction) => {
 };
 
 // Get Folder
-export const getFolderAction = (action: GetFolderAction) => {
+export const getFolderAction = (
+  action: GetFolderAction,
+  isOfflineDrive = true
+) => {
   const resourceId = action.payload.id as FolderID;
   return {
     type: GET_FOLDER,
     meta: {
       optimisticID: resourceId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -207,6 +215,7 @@ export const createFileAction = (
     type: CREATE_FILE,
     meta: {
       optimisticID: id,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -275,6 +284,7 @@ export const updateFileAction = (
     type: UPDATE_FILE,
     meta: {
       optimisticID: resourceId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -311,6 +321,7 @@ export const updateFolderAction = (
     type: UPDATE_FOLDER,
     meta: {
       optimisticID: resourceId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -347,6 +358,7 @@ export const deleteFileAction = (
     type: DELETE_FILE,
     meta: {
       optimisticID: resourceId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -383,6 +395,8 @@ export const deleteFolderAction = (
     type: DELETE_FOLDER,
     meta: {
       optimisticID: resourceId,
+      listDirectoryKey,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -409,7 +423,11 @@ export const deleteFolderAction = (
 };
 
 // Copy File
-export const copyFileAction = (action: CopyFileAction) => {
+export const copyFileAction = (
+  action: CopyFileAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const sourceId = action.payload.id as FileID;
   const destinationId = GenerateID.File();
 
@@ -418,6 +436,7 @@ export const copyFileAction = (action: CopyFileAction) => {
     meta: {
       optimisticID: sourceId,
       destinationID: destinationId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -450,7 +469,11 @@ export const copyFileAction = (action: CopyFileAction) => {
 };
 
 // Copy Folder
-export const copyFolderAction = (action: CopyFolderAction) => {
+export const copyFolderAction = (
+  action: CopyFolderAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const sourceId = action.payload.id as FolderID;
   const destinationId = GenerateID.Folder();
 
@@ -459,6 +482,7 @@ export const copyFolderAction = (action: CopyFolderAction) => {
     meta: {
       optimisticID: sourceId,
       destinationID: destinationId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -491,13 +515,18 @@ export const copyFolderAction = (action: CopyFolderAction) => {
 };
 
 // Move File
-export const moveFileAction = (action: MoveFileAction) => {
+export const moveFileAction = (
+  action: MoveFileAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const resourceId = action.payload.id as FileID;
 
   return {
     type: MOVE_FILE,
     meta: {
       optimisticID: resourceId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -521,13 +550,18 @@ export const moveFileAction = (action: MoveFileAction) => {
 };
 
 // Move Folder
-export const moveFolderAction = (action: MoveFolderAction) => {
+export const moveFolderAction = (
+  action: MoveFolderAction,
+  listDirectoryKey?: string,
+  isOfflineDrive = true
+) => {
   const resourceId = action.payload.id as FolderID;
 
   return {
     type: MOVE_FOLDER,
     meta: {
       optimisticID: resourceId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -554,13 +588,17 @@ export const moveFolderAction = (action: MoveFolderAction) => {
 };
 
 // Restore Trash
-export const restoreTrashAction = (action: RestoreTrashAction) => {
+export const restoreTrashAction = (
+  action: RestoreTrashAction,
+  isOfflineDrive = true
+) => {
   const resourceId = action.payload.id as DirectoryResourceID;
 
   return {
     type: RESTORE_TRASH,
     meta: {
       optimisticID: resourceId,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -587,7 +625,10 @@ export const restoreTrashAction = (action: RestoreTrashAction) => {
 };
 
 // Batch Action
-export const directoryBatchAction = (directoryActions: DirectoryAction[]) => {
+export const directoryBatchAction = (
+  directoryActions: DirectoryAction[],
+  isOfflineDrive = true
+) => {
   const actionIds = directoryActions.map((action) => {
     if (action.payload.id) {
       return action.payload.id;
@@ -609,6 +650,7 @@ export const directoryBatchAction = (directoryActions: DirectoryAction[]) => {
     meta: {
       optimisticID: batchId,
       actionIds: actionIds,
+      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,

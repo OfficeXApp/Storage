@@ -29,7 +29,7 @@ import {
   GlobalOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { shortenAddress } from "../DrivesPage";
+import { shortenAddress } from ".";
 import { DriveFE, Drive } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";

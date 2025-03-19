@@ -46,10 +46,6 @@ export const labelsOptimisticDexieMiddleware = (currentIdentitySet: {
     (next: Dispatch<AnyAction>) =>
     async (action: AnyAction) => {
       // Log action
-      console.log(
-        `Inside labels optimistic middleware for ${action.type}`,
-        action
-      );
 
       // Skip actions we don't care about
       if (

@@ -42,7 +42,7 @@ import {
 } from "../../redux-offline/group-invites/group-invites.actions";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { shortenAddress } from "../../framework/identity/constants";
-import TagCopy from "../TagCopy";
+import TagCopy from "../../components/TagCopy";
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;

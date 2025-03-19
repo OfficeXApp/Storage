@@ -1,18 +1,14 @@
-// src/components/WebhooksPage/index.tsx
+// src/components/LabelsPage/index.tsx
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { Button, Layout, Typography, Space } from "antd";
-import type {
-  WebhookFE,
-  IRequestCreateWebhook,
-  WebhookID,
-} from "@officexapp/types";
-import { useDispatch, useSelector } from "react-redux";
-import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { CloseOutlined, PlusOutlined, ApiOutlined } from "@ant-design/icons";
-import WebhooksAddDrawer from "./webhook.add";
-import WebhookTab from "./webhook.tab";
-import WebhooksTableList from "./webhooks.table";
+import { Button, Layout, Typography } from "antd";
+import type { LabelFE, LabelID } from "@officexapp/types";
+import { useDispatch } from "react-redux";
+import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
+import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
+import LabelsAddDrawer from "./label.add";
+import LabelTab from "./label.tab";
+import LabelsTableList from "./labels.table";
 import useScreenType from "react-screentype-hook";
 
 const { Content } = Layout;
@@ -26,15 +22,16 @@ type TabItem = {
   closable?: boolean;
 };
 
-const WebhooksPage: React.FC = () => {
+const LabelsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
+  const dispatch = useDispatch();
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
-  // Check if a webhook tab is open
-  const isWebhookTabOpen = useCallback(
+  // Check if a label tab is already open
+  const isLabelTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
         return true;
@@ -49,7 +46,7 @@ const WebhooksPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Webhooks List",
+      label: "Labels List",
       children: null,
       closable: false,
     },
@@ -66,32 +63,40 @@ const WebhooksPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Function to handle clicking on a webhook
+  // Load labels on component mount
+  useEffect(() => {
+    dispatch(listLabelsAction({}));
+  }, [dispatch]);
+
+  // Function to handle clicking on a label
   const handleClickContentTab = useCallback(
-    (webhook: WebhookFE, focus_tab = false) => {
-      setLastClickedId(webhook.id);
+    (label: LabelFE, focus_tab = false) => {
+      setLastClickedId(label.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
-      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === webhook.id
+        (item) => item.key === label.id
       );
-      console.log(`existingTabIndex`, existingTabIndex);
+
+      if (existingTabIndex !== -1 && focus_tab == true) {
+        setActiveKey(label.id);
+        return;
+      }
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== webhook.id
+          (item) => item.key !== label.id
         );
         setTabItems(updatedTabs);
       } else {
         // Create new tab
         const newTab: TabItem = {
-          key: webhook.id,
-          label: shortenUrl(webhook.url),
+          key: label.id,
+          label: label.value,
           children: (
-            <WebhookTab webhook={webhook} onDelete={handleDeletionCloseTabs} />
+            <LabelTab label={label} onDelete={handleDeletionCloseTabs} />
           ),
           closable: true,
         };
@@ -103,28 +108,18 @@ const WebhooksPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked webhook's tab
+        // Switch to the clicked label's tab
         if (focus_tab) {
-          setActiveKey(webhook.id);
+          setActiveKey(label.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  // Function to shorten URLs for display
-  const shortenUrl = (url: string) => {
-    try {
-      const parsed = new URL(url);
-      return `${parsed.hostname}${parsed.pathname.length > 15 ? parsed.pathname.substring(0, 15) + "..." : parsed.pathname}`;
-    } catch (e) {
-      return url;
-    }
-  };
-
-  const handleDeletionCloseTabs = (webhookID: WebhookID) => {
+  const handleDeletionCloseTabs = (labelID: LabelID) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== webhookID);
+    const updatedTabs = tabItems.filter((item) => item.key !== labelID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -133,10 +128,10 @@ const WebhooksPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/webhooks`;
+      const newUrl = `/resources/labels`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/webhooks/${newActiveKey}`;
+      const newUrl = `/resources/labels/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -204,7 +199,7 @@ const WebhooksPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Webhooks
+            Labels
           </Title>
           <Button
             size={screenType.isMobile ? "small" : "middle"}
@@ -217,7 +212,7 @@ const WebhooksPage: React.FC = () => {
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
           >
-            Add Webhook
+            Add Label
           </Button>
         </div>
 
@@ -235,7 +230,7 @@ const WebhooksPage: React.FC = () => {
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              minHeight: screenType.isMobile ? "70vh" : 0, // Critical fix for flexbox scrolling
+              minHeight: screenType.isMobile ? "70vh" : 0,
             }}
           >
             {/* Custom tab bar with pinned first tab */}
@@ -303,7 +298,6 @@ const WebhooksPage: React.FC = () => {
                         }}
                       />
                     )}
-                    <ApiOutlined style={{ marginRight: "8px" }} />
                     {item.label}
                   </div>
                 ))}
@@ -317,7 +311,7 @@ const WebhooksPage: React.FC = () => {
                 overflow: "hidden",
                 display: "flex",
                 minHeight: screenType.isMobile ? "70vh" : 0,
-                position: "relative", // Added for absolute positioning of children
+                position: "relative",
               }}
             >
               {/* Render all tab content but only show the active one */}
@@ -332,8 +326,8 @@ const WebhooksPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <WebhooksTableList
-                  isWebhookTabOpen={isWebhookTabOpen}
+                <LabelsTableList
+                  isLabelTabOpen={isLabelTabOpen}
                   handleClickContentTab={handleClickContentTab}
                 />
               </div>
@@ -362,13 +356,13 @@ const WebhooksPage: React.FC = () => {
         </div>
       </Content>
 
-      <WebhooksAddDrawer
+      <LabelsAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddWebhook={() => {}}
+        onAddLabel={() => {}}
       />
     </Layout>
   );
 };
 
-export default WebhooksPage;
+export default LabelsPage;

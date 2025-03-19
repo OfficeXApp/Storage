@@ -7,6 +7,7 @@ import {
   Input,
   Space,
   Tag,
+  Avatar,
   Row,
   Col,
   Tooltip,
@@ -17,55 +18,60 @@ import {
   FloatButton,
   Divider,
   Popconfirm,
-  Select,
 } from "antd";
 import {
   EditOutlined,
+  MailOutlined,
+  BellOutlined,
+  TeamOutlined,
   TagOutlined,
   ClockCircleOutlined,
-  DatabaseOutlined,
+  UserOutlined,
   GlobalOutlined,
   FileTextOutlined,
   CopyOutlined,
+  WalletOutlined,
   InfoCircleOutlined,
   DownOutlined,
   UpOutlined,
   CodeOutlined,
-  KeyOutlined,
 } from "@ant-design/icons";
 import {
-  IRequestUpdateDisk,
+  ContactFE,
+  IRequestUpdateContact,
   SystemPermissionType,
-  DiskID,
-  DiskTypeEnum,
+  UserID,
 } from "@officexapp/types";
 import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
   shortenAddress,
 } from "../../framework/identity/constants";
-import CodeBlock from "../CodeBlock";
+import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
+import { getLastOnlineStatus } from "../../api/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
-  deleteDiskAction,
-  updateDiskAction,
-} from "../../redux-offline/disks/disks.actions";
-import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
+  deleteContactAction,
+  updateContactAction,
+} from "../../redux-offline/contacts/contacts.actions";
 import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
-const { Option } = Select;
 
-// Define the props for the DiskTab component
-interface DiskTabProps {
-  disk: DiskFEO;
-  onSave?: (updatedDisk: Partial<DiskFEO>) => void;
-  onDelete?: (diskID: DiskID) => void;
+// Define the props for the ContactTab component
+interface ContactTabProps {
+  contact: ContactFE;
+  onSave?: (updatedContact: Partial<ContactFE>) => void;
+  onDelete?: (contactID: UserID) => void;
 }
 
-const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
+const ContactTab: React.FC<ContactTabProps> = ({
+  contact,
+  onSave,
+  onDelete,
+}) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
@@ -94,16 +100,15 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
   const handleSave = () => {
     form.validateFields().then((values) => {
       // Determine which fields have changed
-      const changedFields: IRequestUpdateDisk = { id: disk.id as DiskID };
+      const changedFields: IRequestUpdateContact = { id: contact.id as UserID };
 
       // Define the specific fields we care about
-      const fieldsToCheck: (keyof IRequestUpdateDisk)[] = [
+      const fieldsToCheck: (keyof IRequestUpdateContact)[] = [
         "name",
         "public_note",
         "private_note",
-        "auth_json",
-        "external_id",
-        "external_payload",
+        "evm_public_address",
+        "email",
       ];
 
       // Only check the fields we care about
@@ -112,7 +117,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
         if (!(field in values)) return;
 
         const valueFromForm = values[field];
-        const originalValue = disk[field as keyof DiskFEO];
+        const originalValue = contact[field as keyof ContactFE];
 
         // Only include fields that have changed
         if (valueFromForm !== originalValue) {
@@ -130,15 +135,15 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
         // More than just the ID
         // Dispatch the update action if we're online
         dispatch(
-          updateDiskAction({
+          updateContactAction({
             ...changedFields,
           })
         );
 
         message.success(
           isOnline
-            ? "Updating disk..."
-            : "Queued disk update for when you're back online"
+            ? "Updating contact..."
+            : "Queued contact update for when you're back online"
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -222,39 +227,23 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
     );
   };
 
-  const getDiskTypeLabel = (type: DiskTypeEnum) => {
-    switch (type) {
-      case DiskTypeEnum.LocalSSD:
-        return "Physical SSD";
-      case DiskTypeEnum.AwsBucket:
-        return "Amazon Bucket";
-      case DiskTypeEnum.StorjWeb3:
-        return "StorjWeb3 Bucket";
-      case DiskTypeEnum.BrowserCache:
-        return "Offline Browser";
-      case DiskTypeEnum.IcpCanister:
-        return "ICP Canister";
-      default:
-        return "Unknown";
-    }
-  };
+  const lastOnlineStatus = getLastOnlineStatus(contact.last_online_ms);
 
   const initialValues = {
-    name: disk.name,
-    disk_type: disk.disk_type,
-    auth_json: disk.auth_json || "",
-    public_note: disk.public_note || "",
-    private_note: disk.private_note || "",
-    external_id: disk.external_id || "",
-    external_payload: disk.external_payload || "",
+    name: contact.name,
+    email: contact.email,
+    evm_public_address: contact.evm_public_address || "",
+    notifications_url: contact.notifications_url,
+    public_note: contact.public_note,
+    private_note: contact.private_note || "",
   };
 
   const renderCodeSnippets = () => {
-    const jsCode_GET = `function getDisk(id) {\n  return fetch(\`/disks/get/\${id}\`, {\n    method: 'GET',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n  }).then(response => response.json());\n}`;
-    const jsCode_CREATE = `function createDisk(diskData) {\n  return fetch('/disks/create', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(diskData),\n  }).then(response => response.json());\n}`;
-    const jsCode_UPDATE = `function updateDisk(diskData) {\n  return fetch('/disks/update', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(diskData),\n  }).then(response => response.json());\n}`;
-    const jsCode_DELETE = `function deleteDisk(id) {\n  return fetch('/disks/delete', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify({ id }),\n  }).then(response => response.json());\n}`;
-    const jsCode_LIST = `function listDisks(params) {\n  return fetch('/disks/list', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(params),\n  }).then(response => response.json());\n}`;
+    const jsCode_GET = `function hello() {\n  console.log("Hello, world!");\n}`;
+    const jsCode_CREATE = `function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n}`;
+    const jsCode_UPDATE = `function hello() {\n  console.log("Hello, world!");\n}`;
+    const jsCode_DELETE = `function hello() {\n  console.log("Hello, world!");\n}`;
+    const jsCode_LIST = `function hello() {\n  console.log("Hello, world!");\n}`;
 
     return (
       <Card
@@ -271,27 +260,27 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
               <CodeBlock
                 code={jsCode_GET}
                 language="javascript"
-                title="GET Disk"
+                title="GET Contact"
               />
               <CodeBlock
                 code={jsCode_CREATE}
                 language="javascript"
-                title="CREATE Disk"
+                title="CREATE Contact"
               />
               <CodeBlock
                 code={jsCode_UPDATE}
                 language="javascript"
-                title="UPDATE Disk"
+                title="UPDATE Contact"
               />
               <CodeBlock
                 code={jsCode_DELETE}
                 language="javascript"
-                title="DELETE Disk"
+                title="DELETE Contact"
               />
               <CodeBlock
                 code={jsCode_LIST}
                 language="javascript"
-                title="LIST Disks"
+                title="LIST Contacts"
               />
             </Space>
           </Tabs.TabPane>
@@ -316,7 +305,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
     >
       <Row justify="space-between" align="middle" style={{ marginTop: 16 }}>
         <Col>
-          {/* Empty col for spacing */}
+          {/* Empty col where Invite & Edit buttons used to be */}
           <p></p>
         </Col>
         <Col>
@@ -347,12 +336,20 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                   size={screenType.isMobile ? "small" : "middle"}
                   ghost
                   disabled={
-                    !disk.permission_previews.includes(
+                    !contact.permission_previews.includes(
                       SystemPermissionType.EDIT
                     )
                   }
                 >
                   Edit
+                </Button>
+                <Button
+                  icon={<TeamOutlined />}
+                  onClick={() => {}}
+                  type="primary"
+                  size={screenType.isMobile ? "small" : "middle"}
+                >
+                  Copy Link
                 </Button>
               </>
             )}
@@ -374,119 +371,86 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
-                    placeholder="Disk name"
+                    placeholder="Contact name"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
 
-                <Form.Item
-                  name="disk_type"
-                  label="Disk Type"
-                  rules={[
-                    { required: true, message: "Please select disk type" },
-                  ]}
-                >
-                  <Select
-                    disabled
+                <Form.Item name="email" label="Email">
+                  <Input
+                    prefix={<MailOutlined />}
+                    placeholder="Email address"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
-                  >
-                    <Option value={DiskTypeEnum.BrowserCache}>
-                      Offline Browser
-                    </Option>
-                    <Option value={DiskTypeEnum.AwsBucket}>Amazon S3</Option>
-                    <Option value={DiskTypeEnum.LocalSSD}>Physical SSD</Option>
-                    <Option value={DiskTypeEnum.AwsBucket}>
-                      Amazon Bucket
-                    </Option>
-                    <Option value={DiskTypeEnum.StorjWeb3}>
-                      StorjWeb3 Bucket
-                    </Option>
-                  </Select>
+                  />
+                </Form.Item>
+
+                <Form.Item name="evm_public_address" label="EVM Wallet Address">
+                  <Input
+                    prefix={<WalletOutlined />}
+                    placeholder="EVM wallet address"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+
+                {/* Advanced section in edit mode */}
+                <Form.Item name="notifications_url" label="Notifications">
+                  <Input
+                    prefix={<BellOutlined />}
+                    placeholder="Notifications"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
                 </Form.Item>
 
                 <Form.Item name="public_note" label="Public Note">
                   <TextArea
                     rows={2}
-                    placeholder="Public information about this disk"
+                    placeholder="Public information about this contact"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
 
-                {disk.permission_previews.includes(
+                {contact.permission_previews.includes(
                   SystemPermissionType.EDIT
                 ) && (
-                  <>
-                    <Form.Item
-                      name="private_note"
-                      label="Private Note"
-                      extra="Only organization owners and editors can view this note"
-                    >
-                      <TextArea
-                        rows={3}
-                        placeholder="Private notes (only visible to owners and editors)"
-                        variant="borderless"
-                        style={{ backgroundColor: "#fafafa" }}
-                      />
-                    </Form.Item>
-
-                    {disk.disk_type !== DiskTypeEnum.BrowserCache && (
-                      <Form.Item
-                        name="auth_json"
-                        label="Authentication JSON"
-                        extra="Authentication information for cloud storage"
-                      >
-                        <TextArea
-                          rows={4}
-                          placeholder='{"key": "value", ...}'
-                          variant="borderless"
-                          style={{ backgroundColor: "#fafafa" }}
-                        />
-                      </Form.Item>
-                    )}
-
-                    <Form.Item name="external_id" label="External ID">
-                      <Input
-                        placeholder="External identifier"
-                        variant="borderless"
-                        style={{ backgroundColor: "#fafafa" }}
-                      />
-                    </Form.Item>
-
-                    <Form.Item name="external_payload" label="External Payload">
-                      <TextArea
-                        rows={2}
-                        placeholder="Additional data for external systems"
-                        variant="borderless"
-                        style={{ backgroundColor: "#fafafa" }}
-                      />
-                    </Form.Item>
-                  </>
+                  <Form.Item
+                    name="private_note"
+                    label="Private Note"
+                    extra="Only organization owners and editors can view this note"
+                  >
+                    <TextArea
+                      rows={3}
+                      placeholder="Private notes (only visible to owners and editors)"
+                      variant="borderless"
+                      style={{ backgroundColor: "#fafafa" }}
+                    />
+                  </Form.Item>
                 )}
-
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this disk?"
+                    title="Are you sure you want to delete this contact?"
                     okText="Yes"
                     cancelText="No"
                     onConfirm={() => {
-                      dispatch(deleteDiskAction({ id: disk.id }));
+                      dispatch(deleteContactAction({ id: contact.id }));
                       message.success(
                         isOnline
-                          ? "Deleting disk..."
-                          : "Queued disk delete for when you're back online"
+                          ? "Deleting contact..."
+                          : "Queued contact delete for when you're back online"
                       );
                       if (onDelete) {
-                        onDelete(disk.id);
+                        onDelete(contact.id);
                       }
                     }}
                   >
                     <Button
                       disabled={
-                        !disk.permission_previews.includes(
+                        !contact.permission_previews.includes(
                           SystemPermissionType.DELETE
                         )
                       }
@@ -494,7 +458,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                       type="primary"
                       danger
                     >
-                      Delete Disk
+                      Delete Contact
                     </Button>
                   </Popconfirm>
                 </Form.Item>
@@ -512,21 +476,14 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                       }}
                     >
                       <Space align="center" size={16}>
-                        <div
-                          style={{
-                            width: 64,
-                            height: 64,
-                            backgroundColor: "#1890ff",
-                            borderRadius: "50%",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            color: "white",
-                            fontSize: "28px",
-                          }}
+                        <Avatar
+                          size={64}
+                          icon={<UserOutlined />}
+                          src={contact.avatar || undefined}
+                          style={{ backgroundColor: "#1890ff" }}
                         >
-                          <DatabaseOutlined />
-                        </div>
+                          {contact.name.charAt(0).toUpperCase()}
+                        </Avatar>
                         <div
                           style={{
                             display: "flex",
@@ -547,25 +504,38 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                               level={3}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {disk.name}
+                              {contact.name}
                             </Title>
                             <Tag
                               color="blue"
+                              onClick={() => {
+                                const userstring = `${contact.name.replace(" ", "_")}@${contact.id}`;
+                                navigator.clipboard
+                                  .writeText(userstring)
+                                  .then(() => {
+                                    message.success("Copied to clipboard!");
+                                  })
+                                  .catch(() => {
+                                    message.error(
+                                      "Failed to copy to clipboard."
+                                    );
+                                  });
+                              }}
                               style={{
+                                cursor: "pointer",
                                 marginTop: "24px",
                               }}
-                              onClick={() =>
-                                copyToClipboard(
-                                  `${disk.name.replace(/ /g, "_")}@${disk.id}`
-                                )
-                              }
                             >
-                              {shortenAddress(disk.id.replace("DiskID_", ""))}
+                              {shortenAddress(contact.icp_principal)}
                             </Tag>
                           </div>
                           <Space>
+                            <Badge
+                              // @ts-ignore
+                              status={lastOnlineStatus.status}
+                            />
                             <Text type="secondary">
-                              {getDiskTypeLabel(disk.disk_type)}
+                              {lastOnlineStatus.text}
                             </Text>
                           </Space>
                         </div>
@@ -587,15 +557,14 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {disk.labels &&
-                          disk.labels.map((label, index) => (
-                            <Tag
-                              key={index}
-                              style={{ marginBottom: 4, marginLeft: 4 }}
-                            >
-                              {label}
-                            </Tag>
-                          ))}
+                        {contact.labels.map((label, index) => (
+                          <Tag
+                            key={index}
+                            style={{ marginBottom: 4, marginLeft: 4 }}
+                          >
+                            {label}
+                          </Tag>
+                        ))}
                       </div>
                     )}
 
@@ -604,18 +573,18 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : disk.labels && disk.labels.length > 0
+                          : contact.labels.length > 0
                             ? 0
                             : 32,
                       }}
                     >
                       <Card size="small" style={{ marginTop: 8 }}>
                         <GlobalOutlined style={{ marginRight: 8 }} />
-                        {disk.public_note || "No public note available"}
+                        {contact.public_note || "Add a public note"}
                       </Card>
                     </div>
 
-                    {screenType.isMobile && disk.labels && (
+                    {screenType.isMobile && (
                       <div
                         style={{
                           marginTop: 4,
@@ -624,7 +593,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {disk.labels.map((label, index) => (
+                        {contact.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
@@ -662,23 +631,40 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Disk ID",
-                          disk.id,
-                          <DatabaseOutlined />
+                          "User ID",
+                          contact.id,
+                          <UserOutlined />
                         )}
 
-                        {disk.auth_json &&
-                          disk.permission_previews.includes(
-                            SystemPermissionType.EDIT
-                          ) &&
+                        {renderReadOnlyField(
+                          "Email",
+                          contact.email,
+                          <MailOutlined />
+                        )}
+
+                        {contact.notifications_url &&
                           renderReadOnlyField(
-                            "Auth JSON",
-                            disk.auth_json,
-                            <KeyOutlined />
+                            "Notifications",
+                            contact.notifications_url,
+                            <BellOutlined />
                           )}
 
-                        {disk.private_note &&
-                          disk.permission_previews.includes(
+                        {contact.evm_public_address &&
+                          renderReadOnlyField(
+                            "EVM Wallet",
+                            contact.evm_public_address,
+                            <WalletOutlined />
+                          )}
+
+                        {contact.icp_principal &&
+                          renderReadOnlyField(
+                            "ICP Wallet",
+                            contact.icp_principal,
+                            <WalletOutlined />
+                          )}
+
+                        {contact.private_note &&
+                          contact.permission_previews.includes(
                             SystemPermissionType.EDIT
                           ) && (
                             <div style={{ marginTop: "16px" }}>
@@ -701,7 +687,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                                 }}
                               >
                                 <FileTextOutlined style={{ marginRight: 8 }} />
-                                {disk.private_note}
+                                {contact.private_note}
                               </Card>
                             </div>
                           )}
@@ -710,20 +696,13 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                           <Space align="center">
                             <ClockCircleOutlined />
                             <Text type="secondary">
-                              Created on {formatDate(disk.created_at)}
+                              Member since {formatDate(contact.created_at)}
                             </Text>
                           </Space>
-                          {disk.external_id && (
+                          {contact.external_id && (
                             <div style={{ marginTop: 8 }}>
                               <Text type="secondary">
-                                External ID: {disk.external_id}
-                              </Text>
-                            </div>
-                          )}
-                          {disk.external_payload && (
-                            <div style={{ marginTop: 8 }}>
-                              <Text type="secondary">
-                                External Payload: {disk.external_payload}
+                                External ID: {contact.external_id}
                               </Text>
                             </div>
                           )}
@@ -731,6 +710,29 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                       </div>
                     </details>
                   </Col>
+
+                  {contact.group_previews.length > 0 && (
+                    <Col span={24}>
+                      <Title level={5}>Groups</Title>
+                      {contact.group_previews.map((group, index) => (
+                        <Card
+                          key={index}
+                          size="small"
+                          style={{ marginBottom: 8 }}
+                        >
+                          <Space>
+                            <Avatar
+                              size="small"
+                              icon={<TeamOutlined />}
+                              src={group.group_avatar || undefined}
+                            />
+                            <Text>{group.group_name}</Text>
+                            {group.is_admin && <Tag color="gold">Admin</Tag>}
+                          </Space>
+                        </Card>
+                      ))}
+                    </Col>
+                  )}
                 </Row>
               </>
             )}
@@ -744,16 +746,16 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
       </Row>
 
       {/* FloatButton for View Code at bottom right corner */}
-      {!screenType.isMobile && !showCodeSnippets && (
+      {!screenType.isMobile && (
         <FloatButton
           icon={<CodeOutlined />}
-          type="default"
-          tooltip="View Code"
+          type={showCodeSnippets ? "primary" : "default"}
+          tooltip={showCodeSnippets ? "Hide Code" : "View Code"}
           onClick={() => {
-            setShowCodeSnippets(true);
+            setShowCodeSnippets(!showCodeSnippets);
             localStorage.setItem(
               LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
-              JSON.stringify(true)
+              JSON.stringify(!showCodeSnippets)
             );
           }}
           style={{ right: 24, bottom: 64 }}
@@ -765,4 +767,4 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
   );
 };
 
-export default DiskTab;
+export default ContactTab;

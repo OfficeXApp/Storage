@@ -35,6 +35,7 @@ import { labelsOptimisticDexieMiddleware } from "./labels/labels.optimistic";
 import { webhooksOptimisticDexieMiddleware } from "./webhooks/webhooks.optimistic";
 import { apiKeysOptimisticDexieMiddleware } from "./api-keys/api-keys.optimistic";
 import { permissionsOptimisticDexieMiddleware } from "./permissions/permissions.optimistic";
+import { directoryOptimisticDexieMiddleware } from "./directory/directory.optimistic";
 
 // Custom discard function
 const discard = (error: any) => {
@@ -233,6 +234,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         webhooksOptimisticDexieMiddleware(_idset),
         apiKeysOptimisticDexieMiddleware(_idset),
         permissionsOptimisticDexieMiddleware(_idset),
+        directoryOptimisticDexieMiddleware(_idset),
         // This comes after the optimistic middleware
         offlineMiddleware,
       ];

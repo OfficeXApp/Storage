@@ -13,8 +13,8 @@ import {
   Breakpoint,
   Modal,
   notification,
-  Spin,
 } from "antd";
+import { v4 as uuidv4 } from "uuid";
 import {
   FolderOutlined,
   SortAscendingOutlined,
@@ -46,13 +46,9 @@ import {
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
-  DriveFullFilePath,
-  FileMetadata,
   FileUUID,
-  FolderMetadata,
   FolderUUID,
   StorageLocationEnum,
-  useDrive,
   LOCAL_STORAGE_STORJ_ACCESS_KEY,
   LOCAL_STORAGE_STORJ_SECRET_KEY,
   LOCAL_STORAGE_STORJ_ENDPOINT,
@@ -66,15 +62,57 @@ import { isMobile } from "react-device-detect";
 import { getFileType } from "../../api/helpers";
 import { freeTrialStorjCreds } from "../../api/storj";
 import mixpanel from "mixpanel-browser";
-import { UserID } from "@officexapp/types";
-// import useCloudSync from "../../api/cloud-sync";
+import {
+  DirectoryResourceID,
+  DiskID,
+  DiskTypeEnum,
+  DriveClippedFilePath,
+  DriveFullFilePath,
+  DriveID,
+  FileID,
+  FileRecord,
+  FolderID,
+  FolderRecord,
+  ICPPrincipalString,
+  IRequestListDirectory,
+  IRequestListDisks,
+  SortDirection,
+  UserID,
+} from "@officexapp/types";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import { listDisksAction } from "../../redux-offline/disks/disks.actions";
+import { useIdentitySystem } from "../../framework/identity";
+import {
+  createFileAction,
+  createFolderAction,
+  DELETE_FILE,
+  DELETE_FOLDER,
+  deleteFileAction,
+  deleteFolderAction,
+  UPDATE_FILE,
+  UPDATE_FOLDER,
+  updateFileAction,
+  updateFolderAction,
+  getFileAction,
+  getFolderAction,
+  GET_FILE,
+  listDirectoryAction,
+  generateListDirectoryKey,
+} from "../../redux-offline/directory/directory.actions";
+import { defaultTempCloudSharingRootFolderID } from "../../api/dexie-database";
+import {
+  FileFEO,
+  FolderFEO,
+} from "../../redux-offline/directory/directory.reducer";
 
 interface DriveItemRow {
-  id: FolderUUID | FileUUID;
+  id: FolderID | FileID;
   title: string;
   owner: string;
   isFolder: boolean;
   fullPath: DriveFullFilePath;
+  diskID: DiskID;
   isDisabled: boolean;
 }
 
@@ -82,40 +120,66 @@ interface DriveUIProps {
   toggleUploadPanel: (bool: boolean) => void; // Callback to toggle UploadPanel visibility
 }
 
-interface FolderMetadataUI extends FolderMetadata {
-  isDisabled?: boolean;
-}
 const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const { "*": encodedPath } = useParams<{ "*": string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const screenType = useScreenType();
+  const dispatch = useDispatch();
 
-  // const { syncOfflineWithCloud, exportSnapshots, isSyncing } = useCloudSync();
-  const [currentPath, setCurrentPath] = useState<string[]>([]);
+  const { currentOrg } = useIdentitySystem();
+
+  const [listDirectoryKey, setListDirectoryKey] = useState("");
+
+  const { disks, defaultDisk } = useSelector((state: ReduxAppState) => ({
+    defaultDisk: state.disks.defaultDisk,
+    disks: state.disks.disks,
+  }));
+  const listDirectoryResults = useSelector(
+    (state: ReduxAppState) => state.directory.listingDataMap[listDirectoryKey]
+  );
+
+  const [currentDiskId, setCurrentDiskId] = useState<DiskID | null>(null);
+  const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
+  const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
+
+  const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
+
   const [content, setContent] = useState<{
-    folders: FolderMetadataUI[];
-    files: FileMetadata[];
+    folders: FolderFEO[];
+    files: FileFEO[];
   }>({ folders: [], files: [] });
-  const {
-    isInitialized,
-    getFileByFullPath,
-    fetchFilesAtFolderPath,
-    renameFilePath,
-    renameFolderPath,
-    deleteFolder,
-    deleteFile,
-  } = useDrive();
   const [renamingItems, setRenamingItems] = useState<{ [key: string]: string }>(
     {}
   );
   const [isStorjModalVisible, setIsStorjModalVisible] = useState(false);
-  const [singleFile, setSingleFile] = useState<FileMetadata>();
+  const [singleFile, setSingleFile] = useState<FileRecord | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
 
   useEffect(() => {
-    if (window.location.pathname === "/drive/Web3Storj/") {
+    if (listDirectoryResults) {
+      const { folders, files } = listDirectoryResults;
+      setContent({ folders, files });
+    }
+  }, [listDirectoryResults]);
+
+  // Show notification for Web3Storj free trial
+  useEffect(() => {
+    const path = encodedPath ? decodeURIComponent(encodedPath) : "";
+    const pathParts = path.split("/").filter(Boolean);
+
+    console.log("Path parts:", pathParts);
+    const diskID = pathParts[0];
+    const folderFileID = pathParts[1];
+
+    setCurrentDiskId(diskID);
+
+    if (location.pathname === "/drive" || pathParts.length === 0) {
+      setListDirectoryKey("");
+      const listParams: IRequestListDisks = {};
+      dispatch(listDisksAction(listParams));
+    } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
         freeTrialStorjCreds.access_key;
@@ -149,22 +213,64 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           ),
         });
       }
+      let folderId = folderFileID;
+      setCurrentFolderId(folderId);
+      setCurrentFileId(null);
+      fetchContent({
+        targetFolderId: folderId,
+      });
+    } else if (folderFileID.startsWith("FolderID_")) {
+      let folderId = folderFileID;
+      setCurrentFolderId(folderId);
+      setCurrentFileId(null);
+      fetchContent({
+        targetFolderId: folderId,
+      });
+    } else if (folderFileID.startsWith("FileID_")) {
+      let fileId = folderFileID;
+      setCurrentFolderId(null);
+      setCurrentFileId(fileId);
+      fetchFileById(fileId);
     }
-  }, [window.location.pathname]);
+
+    // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
+    //   setIsStorjModalVisible(true);
+    // }
+  }, [location, encodedPath]);
 
   useEffect(() => {
-    const path = encodedPath ? decodeURIComponent(encodedPath) : "";
-    const pathParts = path.split("/").filter(Boolean);
-
-    setCurrentPath(pathParts);
-    fetchContent(pathParts); // Ensure this triggers the content fetch
-    setSingleFile(undefined); // Reset singleFile state
-
-    // Check if we're in the Web3Storj route and Storj settings are not set
-    if (pathParts[0] === "Web3Storj" && !areStorjSettingsSet()) {
-      setIsStorjModalVisible(true);
+    if (disks && disks.length > 0 && location.pathname === "/drive") {
+      fetchContent({});
     }
-  }, [encodedPath, fetchFilesAtFolderPath, location.search, isInitialized]); // Only listen to encodedPath and fetchFilesAtFolderPath
+  }, [disks]);
+
+  const fetchFileById = (fileId: FileID) => {
+    try {
+      // Create the get file action
+      const getAction = {
+        action: GET_FILE as "GET_FILE",
+        payload: {
+          id: fileId,
+        },
+      };
+
+      // Dispatch the action
+      dispatch(getFileAction(getAction));
+
+      // We'll rely on the useEffect that watches filesFromRedux to set the file
+      // when it arrives from the Redux store after the action completes
+
+      // Set a timeout to show 404 if the file isn't found after a delay
+      setTimeout(() => {
+        if (!singleFile) {
+          setIs404NotFound(true);
+        }
+      }, 3000);
+    } catch (error) {
+      console.error("Error fetching file by ID:", error);
+      setIs404NotFound(true);
+    }
+  };
 
   const areStorjSettingsSet = () => {
     const isSet =
@@ -177,166 +283,100 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   };
 
   const handleStorjSettingsSave = () => {
-    // Save settings to localStorage (this is already done in the StorjSettingsCard)
     setIsStorjModalVisible(false);
-    // Optionally, you can refresh the content here if needed
-    fetchContent(currentPath);
-  };
-
-  const fetchContent = useCallback(
-    async (currentParts?: string[]) => {
-      const pathParts = currentParts || currentPath;
-      if (pathParts.length === 0) {
-        // At root, show BrowserCache and HardDrive as folders
-        setContent({
-          folders: [
-            {
-              id: "Web3Storj" as FolderUUID,
-              originalFolderName: "Cloud Storage",
-              parentFolderUUID: null,
-              subfolderUUIDs: [],
-              fileUUIDs: [],
-              fullFolderPath: "Web3Storj::",
-              labels: [],
-              owner: "userID" as UserID,
-              createdDate: new Date(),
-              storageLocation: StorageLocationEnum.Web3Storj,
-              isDisabled: false,
-              lastChangedUnixMs: 0,
-            },
-            {
-              id: "BrowserCache" as FolderUUID,
-              originalFolderName: "Browser Storage",
-              parentFolderUUID: null,
-              subfolderUUIDs: [],
-              fileUUIDs: [],
-              fullFolderPath: "BrowserCache::",
-              labels: [],
-              owner: "userID" as UserID,
-              createdDate: new Date(),
-              storageLocation: StorageLocationEnum.BrowserCache,
-              isDisabled: false,
-              lastChangedUnixMs: 0,
-            },
-            {
-              id: "HardDrive" as FolderUUID,
-              originalFolderName: "Hard Drive | Coming Soon",
-              parentFolderUUID: null,
-              subfolderUUIDs: [],
-              fileUUIDs: [],
-              fullFolderPath: "HardDrive::",
-              labels: [],
-              owner: "userID" as UserID,
-              createdDate: new Date(),
-              storageLocation: StorageLocationEnum.HardDrive,
-              isDisabled: true,
-              lastChangedUnixMs: 0,
-            },
-            {
-              id: "AWS" as FolderUUID,
-              originalFolderName: "AWS Bucket | Coming Soon",
-              parentFolderUUID: null,
-              subfolderUUIDs: [],
-              fileUUIDs: [],
-              fullFolderPath: "HardDrive::",
-              labels: [],
-              owner: "userID" as UserID,
-              createdDate: new Date(),
-              storageLocation: StorageLocationEnum.HardDrive,
-              isDisabled: true,
-              lastChangedUnixMs: 0,
-            },
-          ],
-          files: [],
-        });
-      } else {
-        const storageLocation = pathParts[0] as StorageLocationEnum;
-        const fullPath =
-          `${storageLocation}::${pathParts.slice(1).join("/")}` as DriveFullFilePath;
-        let fullPathString = fullPath;
-        if (
-          fullPath[fullPath.length - 1] != "/" &&
-          fullPath[fullPath.length - 1] != ":"
-        ) {
-          fullPathString += "/";
-        }
-        console.log("fetching content for", fullPathString);
-        const result = await fetchFilesAtFolderPath(
-          fullPathString as DriveFullFilePath,
-          100,
-          0
-        );
-        console.log(`>>>> result from ${fullPathString}`, result);
-        const filteredDeleted = {
-          ...result,
-          folders: result.folders.filter((f) => !f.deleted),
-          files: result.files.filter((f) => !f.deleted),
-        };
-        setContent(filteredDeleted);
-        // this might be a file not a folder, so lets attempt to retrieve the file
-        if (
-          filteredDeleted.files.length === 0 &&
-          filteredDeleted.folders.length === 0
-        ) {
-          // getFileByFullPath
-          console.log("fetching file", fullPathString);
-          let filePathString = fullPathString;
-
-          // Check if the last character is a "/"
-          if (filePathString.endsWith("/")) {
-            filePathString = filePathString.slice(0, -1); // Remove the last character
-          } else if (filePathString.endsWith("%2F")) {
-            filePathString = filePathString.slice(0, -3); // Remove the last 3 characters
-          }
-          const file = await getFileByFullPath(
-            filePathString as DriveFullFilePath
-          );
-
-          if (file) {
-            setSingleFile(file);
-          } else {
-            if (
-              window.location.pathname !== "/drive" &&
-              !window.location.pathname.endsWith("/") &&
-              !window.location.pathname.endsWith("%2F")
-            ) {
-              setIs404NotFound(true);
-            }
-          }
-        }
-      }
-    },
-    [fetchFilesAtFolderPath, currentPath]
-  );
-
-  const handleBack = () => {
-    if (currentPath.length > 0) {
-      navigate(
-        `/drive/${encodeURIComponent(currentPath.slice(0, -1).join("/"))}`
-      );
-    } else {
-      navigate("/drive");
+    if (currentFolderId) {
+      fetchContent({
+        targetFolderId: currentFolderId,
+      });
     }
   };
 
-  const handleFileFolderClick = (fullPath: DriveFullFilePath) => {
-    const [storageLocation, ...pathParts] = fullPath.split("::");
-    navigate(
-      `/drive/${encodeURIComponent(storageLocation)}/${encodeURIComponent(pathParts.join("/"))}`
-    );
+  // Fetch content based on folder ID
+  const fetchContent = useCallback(
+    async ({
+      targetFolderId,
+      targetFileId,
+    }: {
+      targetFolderId?: FolderID;
+      targetFileId?: FileID;
+    }) => {
+      if (!targetFolderId) {
+        // Root level showing disks from Redux
+
+        setContent({
+          folders: disks.map((disk) => ({
+            id: disk.root_folder as FolderID,
+            name: disk.name,
+            parent_folder_uuid: "",
+            subfolder_uuids: [],
+            file_uuids: [],
+            full_directory_path: `${disk.disk_type}::` as DriveFullFilePath,
+            labels: [],
+            created_by: "Owner" as UserID,
+            created_at: Date.now(),
+            last_updated_date_ms: disk.created_at || 0,
+            last_updated_by: "Owner" as UserID,
+            disk_id: disk.id,
+            deleted: false,
+            expires_at: 0,
+            drive_id: currentOrg?.driveID || "",
+            has_sovereign_permissions: false,
+            clipped_directory_path:
+              `${disk.disk_type}::` as DriveClippedFilePath,
+            permission_previews: [],
+          })),
+          files: [],
+        });
+        return;
+      }
+
+      // We're inside a folder, so we need to fetch its contents
+      if (targetFolderId) {
+        const listParams: IRequestListDirectory = {
+          folder_id: targetFolderId,
+          page_size: 100,
+          direction: SortDirection.ASC,
+        };
+        const _listDirectoryKey = generateListDirectoryKey(listParams);
+        console.log(`setting _listDirectoryKey`, _listDirectoryKey);
+        setListDirectoryKey(_listDirectoryKey);
+
+        // Dispatch the action to fetch the directory listing
+        dispatch(listDirectoryAction(listParams));
+        // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
+        return;
+      }
+
+      if (targetFileId) {
+        // Fetch the file
+        fetchFileById(targetFileId);
+      }
+    },
+    [currentFolderId, disks, currentOrg]
+  );
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const appendRefreshParam = () => {
+    const params = new URLSearchParams(location.search);
+    params.set("refresh", uuidv4());
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
+  const handleFileFolderClick = (item: DriveItemRow) => {
+    if (item.isDisabled) return;
+    if (item.isFolder) {
+      navigate(`/drive/${item.diskID}/${item.id}/`);
+    } else {
+      navigate(`/drive/${item.diskID}/${item.id}`);
+    }
   };
 
   const renderIconForFile = (fullPath: DriveFullFilePath) => {
     const fileType = getFileType(fullPath);
     switch (fileType) {
-      // case "image":
-      //   return <PictureOutlined />;
-      // case "video":
-      //   return <VideoCameraOutlined />;
-      // case "audio":
-      //   return <AudioOutlined />;
-      // case "pdf":
-      //   return <FilePdfOutlined />;
       default:
         return <FileOutlined />;
     }
@@ -354,14 +394,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               if (record.isDisabled) {
                 return;
               } else {
-                handleFileFolderClick(record.fullPath);
+                handleFileFolderClick(record);
               }
             }}
             style={{
               cursor: record.isDisabled ? "not-allowed" : "pointer",
               width: "100%",
               color: record.isDisabled ? "gray" : "black",
-              padding: "8px 0", // Add some padding for a larger clickable area
+              padding: "8px 0",
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -402,7 +442,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         title: "Owner",
         dataIndex: "owner",
         key: "owner",
-        render: () => "me", // Mock data, replace with actual owner info when available
+        render: () => "me",
         responsive: ["md"] as Breakpoint[],
       },
       {
@@ -426,15 +466,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         ),
       },
     ],
-    [renamingItems]
+    [renamingItems, listDirectoryKey]
   );
 
   const getRowMenuItems = (record: DriveItemRow): MenuProps["items"] => [
     {
       key: "rename",
       label: "Rename",
-      onClick: (e) => {
-        console.log("rename", record.title);
+      onClick: () => {
         setRenamingItems((prev) => ({ ...prev, [record.id]: record.title }));
       },
     },
@@ -460,16 +499,38 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     },
   ];
 
+  // Handle delete using Redux actions
   const handleDelete = async (record: DriveItemRow) => {
     try {
       if (record.isFolder) {
-        await deleteFolder(record.id as FolderUUID);
+        // Create the delete folder action
+        const deleteAction = {
+          action: DELETE_FOLDER as "DELETE_FOLDER",
+          payload: {
+            id: record.id,
+            permanent: true,
+          },
+        };
+        console.log(`====listDirectoryKey`, listDirectoryKey);
+        dispatch(deleteFolderAction(deleteAction, listDirectoryKey));
       } else {
-        await deleteFile(record.id as FileUUID);
+        // Create the delete file action
+        const deleteAction = {
+          action: DELETE_FILE as "DELETE_FILE",
+          payload: {
+            id: record.id,
+            permanent: true,
+          },
+        };
+
+        dispatch(deleteFileAction(deleteAction, listDirectoryKey));
       }
+
       message.success(
         `${record.isFolder ? "Folder" : "File"} deleted successfully`
       );
+
+      // Update the local state to remove the item
       setContent((prev) => ({
         folders: prev.folders.filter((f) => f.id !== record.id),
         files: prev.files.filter((f) => f.id !== record.id),
@@ -496,68 +557,129 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     message.info(`Click on item ${key}`);
   };
 
-  const breadcrumbItems = [
-    { title: <Link to="/drive">Drive</Link> },
-    ...currentPath.map((part, index) => ({
-      title: (
-        <Link
-          to={`/drive/${encodeURIComponent(currentPath.slice(0, index + 1).join("/"))}/`}
-          onClick={() => setIs404NotFound(false)}
-        >
-          {part}
-        </Link>
-      ),
-    })),
-  ];
+  // Generate breadcrumb items
+  const generateBreadcrumbItems = () => {
+    const items = [{ title: <Link to="/drive">Drive</Link> }];
+
+    // // Add disk if present
+    // if (currentDiskId) {
+    //   const disk = disks.find((d) => d.id === currentDiskId);
+    //   const diskName = disk ? disk.name : currentDiskId.replace("DiskID_", "");
+
+    //   items.push({
+    //     title: <Link to={`/drive/${currentDiskId}`}>{diskName}</Link>,
+    //   });
+
+    //   // If we have a folder, add it
+    //   if (currentFolderId) {
+    //     const folder = foldersFromRedux.find((f) => f.id === currentFolderId);
+    //     const folderName = folder
+    //       ? folder.name
+    //       : currentFolderId.replace("FolderID_", "");
+
+    //     items.push({
+    //       title: (
+    //         <Link to={`/drive/${currentDiskId}/${currentFolderId}`}>
+    //           {folderName}
+    //         </Link>
+    //       ),
+    //     });
+
+    //     // If we have a file, add it
+    //     if (currentFileId) {
+    //       const file = filesFromRedux.find((f) => f.id === currentFileId);
+    //       const fileName = file
+    //         ? file.name
+    //         : currentFileId.replace("FileID_", "");
+
+    //       items.push({
+    //         title: <span>{fileName}</span>, // Not a link when viewing the file
+    //       });
+    //     }
+    //   }
+    // }
+
+    return items;
+  };
+
+  const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
-    if (currentPath.length === 0) {
+    if (!currentFolderId) {
+      // At root, showing disks
       return content.folders.map((f) => ({
         id: f.id,
-        title: f.originalFolderName,
-        owner: "System",
+        title: f.name,
+        owner: f.created_by,
         isFolder: true,
-        fullPath: f.fullFolderPath,
-        isDisabled: f.isDisabled || false,
+        fullPath: f.full_directory_path,
+        diskID: f.disk_id,
+        isDisabled: false,
       }));
     }
+
+    // In a folder, showing folders and files
     return [
       ...content.folders.map((f) => ({
         id: f.id,
-        title: f.originalFolderName,
-        owner: f.owner,
+        title: f.name,
+        owner: f.created_by,
         isFolder: true,
-        fullPath: f.fullFolderPath,
+        fullPath: f.full_directory_path,
+        diskID: f.disk_id,
         isDisabled: false,
       })),
       ...content.files.map((f) => ({
         id: f.id,
-        title: f.originalFileName,
-        owner: f.owner,
+        title: f.name,
+        owner: f.created_by,
         isFolder: false,
-        fullPath: f.fullFilePath,
+        fullPath: f.full_directory_path,
+        diskID: f.disk_id,
         isDisabled: false,
       })),
     ];
-  }, [content, currentPath]);
+  }, [content, currentFolderId]);
 
   const handleRenameChange = (id: string, newName: string) => {
     setRenamingItems((prev) => ({ ...prev, [id]: newName }));
   };
 
+  // Handle rename using Redux actions
   const handleRenameSubmit = async (record: DriveItemRow) => {
     const newName = renamingItems[record.id];
     if (newName && newName !== record.title) {
       try {
         if (record.isFolder) {
-          await renameFolderPath(record.id as FolderUUID, newName);
+          // Create update folder action
+          const updateAction = {
+            action: UPDATE_FOLDER as "UPDATE_FOLDER",
+            payload: {
+              id: record.id,
+              name: newName,
+            },
+          };
+
+          dispatch(updateFolderAction(updateAction));
         } else {
-          await renameFilePath(record.id as FileUUID, newName);
+          // Create update file action
+          const updateAction = {
+            action: UPDATE_FILE as "UPDATE_FILE",
+            payload: {
+              id: record.id,
+              name: newName,
+            },
+          };
+
+          dispatch(updateFileAction(updateAction));
         }
+
         message.success(
           `${record.isFolder ? "Folder" : "File"} renamed successfully`
         );
-        fetchContent();
+
+        // Refresh content to show the update
+        fetchContent({});
       } catch (error) {
         console.log(error);
         message.error(
@@ -565,6 +687,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         );
       }
     }
+
+    // Clear the renaming state
     setRenamingItems((prev) => {
       const { [record.id]: _, ...rest } = prev;
       return rest;
@@ -577,20 +701,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     }
     setIsStorjModalVisible(false);
   };
-
-  // const handleCloudSync = async () => {
-  //   if (isSyncing) return;
-  //   if (window.location.pathname.includes("Web3Storj")) {
-  //     apiNotifs.open({
-  //       message: "Syncing Cloud...",
-  //       description:
-  //         "Please wait while we sync your offline changes with the cloud",
-  //       icon: <ReloadOutlined spin size={16} />,
-  //     });
-  //     await syncOfflineWithCloud({});
-  //     await fetchContent();
-  //   }
-  // };
 
   return (
     <div
@@ -617,36 +727,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       >
         <Breadcrumb items={breadcrumbItems} />
         <div style={{ display: "flex", flexDirection: "row" }}>
-          {/* {icpCanisterId && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                alignItems: "center",
-              }}
-            >
-              <span style={{ color: "gray", marginRight: "10px" }}>
-                {isSyncing ? "Syncing..." : ""}
-              </span>
-              <ReloadOutlined
-                onClick={handleCloudSync}
-                size={32}
-                style={{
-                  color: "gray",
-                  marginRight: "12px",
-                  cursor: isSyncing ? "not-allowed" : "pointer",
-                }}
-                spin={isSyncing}
-              />
-            </div>
-          )} */}
-
-          {/* <p onClick={exportSnapshots}>Snapshot</p> */}
-
           <ActionMenuButton
             isBigButton={false}
             toggleUploadPanel={toggleUploadPanel}
+            optimisticListDirectoryKey={listDirectoryKey}
           />
         </div>
       </div>
@@ -758,7 +842,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               <br />
             </div>
           ) : singleFile ? (
-            <FilePage file={singleFile} />
+            <div style={{ padding: "20px" }}>
+              {/* <FilePage file={singleFile} /> */}
+            </div>
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>
               {tableRows.length === 0 ? (
@@ -780,7 +866,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       <CloudUploadOutlined
                         style={{ fontSize: "64px", color: "#8c8c8c" }}
                       />
-                    } // Larger icon in gray
+                    }
                     title={
                       <span
                         style={{
@@ -809,14 +895,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       <ActionMenuButton
                         isBigButton={false}
                         toggleUploadPanel={toggleUploadPanel}
-                        key="upload"
                       />
                     }
                     style={{
-                      padding: "48px", // Add more padding for better spacing
-                      borderRadius: "12px", // Slightly round the corners
-                      textAlign: "center", // Center the text
-                      // width: "80%", // Take up more horizontal space
+                      padding: "48px",
+                      borderRadius: "12px",
+                      textAlign: "center",
                       maxWidth: "100%",
                       height: "100%",
                       display: "flex",
@@ -833,7 +917,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   rowKey="id"
                   locale={{ emptyText: "This folder is empty" }}
                   pagination={false}
-                  scroll={{ y: "calc(80vh - 150px)", x: "scroll" }} // Adjust this value as needed
+                  scroll={{ y: "calc(80vh - 150px)", x: "scroll" }}
                   sticky={true}
                   style={{ width: "100%" }}
                 />

@@ -14,9 +14,14 @@ import {
   UPDATE_DISK_COMMIT,
   UPDATE_DISK_ROLLBACK,
 } from "./disks.actions";
+import {
+  defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDiskID,
+} from "../../api/dexie-database";
 
 export const DISKS_REDUX_KEY = "disks";
 export const DISKS_DEXIE_TABLE = DISKS_REDUX_KEY;
+export const LOCALSTORAGE_DEFAULT_DISK_ID = "LOCALSTORAGE_DEFAULT_DISK_ID";
 
 export interface DiskFEO extends DiskFE {
   _isOptimistic?: boolean; // flag for optimistic updates
@@ -28,6 +33,7 @@ export interface DiskFEO extends DiskFE {
 }
 
 interface DisksState {
+  defaultDisk: DiskFEO | null;
   disks: DiskFEO[];
   diskMap: Record<DiskID, DiskFEO>;
   loading: boolean;
@@ -35,6 +41,7 @@ interface DisksState {
 }
 
 const initialState: DisksState = {
+  defaultDisk: null,
   disks: [],
   diskMap: {},
   loading: false,
@@ -128,9 +135,15 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     // ------------------------------ LIST DISKS --------------------------------- //
 
     case LIST_DISKS: {
-      console.log(`optimistic`, action.optimistic);
+      const DEFAULT_DISK_ID = localStorage.getItem(
+        LOCALSTORAGE_DEFAULT_DISK_ID
+      );
+      const defaultDisk = action.optimistic.find(
+        (disk: DiskFEO) => disk.id === DEFAULT_DISK_ID
+      );
       return {
         ...state,
+        defaultDisk: defaultDisk || null,
         disks: action.optimistic || [],
         loading: true,
         error: null,
@@ -138,12 +151,46 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case LIST_DISKS_COMMIT: {
-      // find & replace optimisticFetchDisk with action.payload.ok.data.items
-      // or even replace entire disks
-      console.log(`action.payload.ok.data.items`, action.payload.ok.data.items);
+      // Get items from the API response
+      const serverDisks = action.payload.ok.data.items || [];
+
+      // Find both default disks in the current state
+      const defaultBrowserDisk = state.disks.find(
+        (disk) => disk.id === defaultBrowserCacheDiskID
+      );
+
+      const defaultCloudSharingDisk = state.disks.find(
+        (disk) => disk.id === defaultTempCloudSharingDiskID
+      );
+
+      // Filter out any server disk that has the same ID as our default disks
+      const filteredServerDisks = serverDisks.filter(
+        (disk: DiskFEO) =>
+          disk.id !== defaultBrowserCacheDiskID &&
+          disk.id !== defaultTempCloudSharingDiskID
+      );
+
+      // Create the new disks array - include the default disks if they exist
+      let newDisks = [...filteredServerDisks];
+
+      // Add the default disks at the beginning of the array
+      if (defaultCloudSharingDisk) {
+        newDisks.unshift(defaultCloudSharingDisk);
+      }
+
+      if (defaultBrowserDisk) {
+        newDisks.unshift(defaultBrowserDisk);
+      }
+
+      const DEFAULT_DISK_ID = localStorage.getItem(
+        LOCALSTORAGE_DEFAULT_DISK_ID
+      );
+      const defaultDisk = newDisks.find((disk) => disk.id === DEFAULT_DISK_ID);
+
       return {
         ...state,
-        disks: action.payload.ok.data.items || [],
+        defaultDisk: defaultDisk || null,
+        disks: newDisks,
         loading: false,
       };
     }

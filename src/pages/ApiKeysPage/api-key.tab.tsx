@@ -11,72 +11,67 @@ import {
   Row,
   Col,
   Tooltip,
-  Badge,
-  Popover,
+  DatePicker,
   message,
   Tabs,
   FloatButton,
   Divider,
   Popconfirm,
+  Switch,
 } from "antd";
 import {
   EditOutlined,
-  MailOutlined,
-  BellOutlined,
-  TeamOutlined,
+  KeyOutlined,
   TagOutlined,
   ClockCircleOutlined,
   UserOutlined,
   GlobalOutlined,
   FileTextOutlined,
   CopyOutlined,
-  WalletOutlined,
   InfoCircleOutlined,
   DownOutlined,
   UpOutlined,
   CodeOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import {
-  ContactFE,
-  IRequestUpdateContact,
+  ApiKeyFE,
+  ApiKeyID,
+  IRequestUpdateApiKey,
   SystemPermissionType,
-  UserID,
 } from "@officexapp/types";
 import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
   shortenAddress,
 } from "../../framework/identity/constants";
-import CodeBlock from "../CodeBlock";
+import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
-import { getLastOnlineStatus } from "../../api/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
-  deleteContactAction,
-  updateContactAction,
-} from "../../redux-offline/contacts/contacts.actions";
+  deleteApiKeyAction,
+  updateApiKeyAction,
+} from "../../redux-offline/api-keys/api-keys.actions";
+import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
-// Define the props for the ContactTab component
-interface ContactTabProps {
-  contact: ContactFE;
-  onSave?: (updatedContact: Partial<ContactFE>) => void;
-  onDelete?: (contactID: UserID) => void;
+// Define the props for the ApiKeyTab component
+interface ApiKeyTabProps {
+  apiKey: ApiKeyFE;
+  onSave?: (updatedApiKey: Partial<ApiKeyFE>) => void;
+  onDelete?: (apiKeyID: ApiKeyID) => void;
 }
 
-const ContactTab: React.FC<ContactTabProps> = ({
-  contact,
-  onSave,
-  onDelete,
-}) => {
+const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [showCodeSnippets, setShowCodeSnippets] = useState(false);
+  const [neverExpires, setNeverExpires] = useState(apiKey.expires_at === -1);
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
@@ -100,53 +95,50 @@ const ContactTab: React.FC<ContactTabProps> = ({
   const handleSave = () => {
     form.validateFields().then((values) => {
       // Determine which fields have changed
-      const changedFields: IRequestUpdateContact = { id: contact.id as UserID };
+      const changedFields: IRequestUpdateApiKey = { id: apiKey.id };
 
-      // Define the specific fields we care about
-      const fieldsToCheck: (keyof IRequestUpdateContact)[] = [
-        "name",
-        "public_note",
-        "private_note",
-        "evm_public_address",
-        "email",
-      ];
+      // Calculate expiration
+      let expiresAt: number | undefined = undefined;
+      if (neverExpires) {
+        expiresAt = -1;
+      } else if (values.expires_at) {
+        expiresAt = values.expires_at.valueOf();
+      }
 
-      // Only check the fields we care about
-      fieldsToCheck.forEach((field) => {
-        // Skip if the field isn't in values
-        if (!(field in values)) return;
+      // Only include fields that have changed
+      if (values.name !== apiKey.name) {
+        changedFields.name = values.name;
+      }
 
-        const valueFromForm = values[field];
-        const originalValue = contact[field as keyof ContactFE];
+      if (expiresAt !== apiKey.expires_at) {
+        changedFields.expires_at = expiresAt;
+      }
 
-        // Only include fields that have changed
-        if (valueFromForm !== originalValue) {
-          // Handle empty strings - don't include them if they're just empty strings replacing undefined/null
-          if (valueFromForm === "" && !originalValue) {
-            return;
-          }
+      if (values.is_revoked !== apiKey.is_revoked) {
+        changedFields.is_revoked = values.is_revoked;
+      }
 
-          changedFields[field] = valueFromForm;
-        }
-      });
+      if (values.external_id !== (apiKey.external_id || "")) {
+        changedFields.external_id = values.external_id || undefined;
+      }
+
+      if (values.external_payload !== (apiKey.external_payload || "")) {
+        changedFields.external_payload = values.external_payload || undefined;
+      }
 
       // Only proceed if there are actual changes
       if (Object.keys(changedFields).length > 1 && changedFields.id) {
         // More than just the ID
         // Dispatch the update action if we're online
-        dispatch(
-          updateContactAction({
-            ...changedFields,
-          })
-        );
+        dispatch(updateApiKeyAction(changedFields));
 
         message.success(
           isOnline
-            ? "Updating contact..."
-            : "Queued contact update for when you're back online"
+            ? "Updating API key..."
+            : "Queued API key update for when you're back online"
         );
 
-        // Call the onSave prop if provided (for backward compatibility)
+        // Call the onSave prop if provided
         if (onSave) {
           onSave(changedFields);
         }
@@ -159,10 +151,13 @@ const ContactTab: React.FC<ContactTabProps> = ({
   };
 
   const formatDate = (timestamp: number) => {
+    if (timestamp === -1) return "Never expires";
     return new Date(timestamp).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -206,7 +201,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
         addonBefore={
           <div
             style={{
-              width: screenType.isMobile ? 120 : 90,
+              width: screenType.isMobile ? 120 : 100,
               display: "flex",
               alignItems: "center",
             }}
@@ -227,23 +222,103 @@ const ContactTab: React.FC<ContactTabProps> = ({
     );
   };
 
-  const lastOnlineStatus = getLastOnlineStatus(contact.last_online_ms);
+  const shortenKey = (key: string) => {
+    if (!key || key.length < 10) return key;
+    return `${key.slice(0, 6)}...${key.slice(-4)}`;
+  };
 
   const initialValues = {
-    name: contact.name,
-    email: contact.email,
-    evm_public_address: contact.evm_public_address || "",
-    notifications_url: contact.notifications_url,
-    public_note: contact.public_note,
-    private_note: contact.private_note || "",
+    name: apiKey.name,
+    is_revoked: apiKey.is_revoked,
+    expires_at: apiKey.expires_at === -1 ? null : dayjs(apiKey.expires_at),
+    external_id: apiKey.external_id || "",
+    external_payload: apiKey.external_payload || "",
+  };
+
+  const getStatusLabel = () => {
+    if (apiKey.is_revoked) {
+      return <Tag color="red">Revoked</Tag>;
+    }
+
+    if (apiKey.expires_at === -1) {
+      return <Tag color="green">Active</Tag>;
+    }
+
+    const now = Date.now();
+    if (apiKey.expires_at < now) {
+      return <Tag color="orange">Expired</Tag>;
+    }
+
+    return <Tag color="green">Active</Tag>;
   };
 
   const renderCodeSnippets = () => {
-    const jsCode_GET = `function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_CREATE = `function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n} function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_UPDATE = `function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_DELETE = `function hello() {\n  console.log("Hello, world!");\n}`;
-    const jsCode_LIST = `function hello() {\n  console.log("Hello, world!");\n}`;
+    const jsCode_GET = `// Get API Key
+const response = await fetch(\`/api_keys/get/\${apiKeyId}\`, {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  }
+});
+const data = await response.json();`;
+
+    const jsCode_CREATE = `// Create API Key
+const response = await fetch('/api_keys/create', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  },
+  body: JSON.stringify({
+    name: 'My API Key',
+    expires_at: -1, // Never expires, or timestamp
+    external_id: 'external-identifier', // Optional
+    external_payload: '{"custom":"data"}' // Optional
+  })
+});
+const data = await response.json();`;
+
+    const jsCode_UPDATE = `// Update API Key
+const response = await fetch('/api_keys/update', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  },
+  body: JSON.stringify({
+    id: '${apiKey.id}',
+    name: 'Updated Name', // Optional
+    expires_at: ${apiKey.expires_at}, // Optional
+    is_revoked: false, // Optional
+    external_id: '${apiKey.external_id || "external-id"}', // Optional
+    external_payload: '${apiKey.external_payload || "{}"}' // Optional
+  })
+});
+const data = await response.json();`;
+
+    const jsCode_DELETE = `// Delete API Key
+const response = await fetch('/api_keys/delete', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  },
+  body: JSON.stringify({
+    id: '${apiKey.id}'
+  })
+});
+const data = await response.json();`;
+
+    const jsCode_LIST = `// List API Keys
+const response = await fetch(\`/api_keys/list/\${userId}\`, {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  }
+});
+const data = await response.json();`;
 
     return (
       <Card
@@ -260,27 +335,27 @@ const ContactTab: React.FC<ContactTabProps> = ({
               <CodeBlock
                 code={jsCode_GET}
                 language="javascript"
-                title="GET Contact"
+                title="GET API Key"
               />
               <CodeBlock
                 code={jsCode_CREATE}
                 language="javascript"
-                title="CREATE Contact"
+                title="CREATE API Key"
               />
               <CodeBlock
                 code={jsCode_UPDATE}
                 language="javascript"
-                title="UPDATE Contact"
+                title="UPDATE API Key"
               />
               <CodeBlock
                 code={jsCode_DELETE}
                 language="javascript"
-                title="DELETE Contact"
+                title="DELETE API Key"
               />
               <CodeBlock
                 code={jsCode_LIST}
                 language="javascript"
-                title="LIST Contacts"
+                title="LIST API Keys"
               />
             </Space>
           </Tabs.TabPane>
@@ -305,7 +380,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
     >
       <Row justify="space-between" align="middle" style={{ marginTop: 16 }}>
         <Col>
-          {/* Empty col where Invite & Edit buttons used to be */}
+          {/* Empty col where buttons used to be */}
           <p></p>
         </Col>
         <Col>
@@ -336,21 +411,43 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   size={screenType.isMobile ? "small" : "middle"}
                   ghost
                   disabled={
-                    !contact.permission_previews.includes(
+                    !apiKey.permission_previews.includes(
                       SystemPermissionType.EDIT
                     )
                   }
                 >
                   Edit
                 </Button>
-                <Button
-                  icon={<TeamOutlined />}
-                  onClick={() => {}}
-                  type="primary"
-                  size={screenType.isMobile ? "small" : "middle"}
+                <Popconfirm
+                  title="Do you want to revoke this API key?"
+                  description="This will immediately prevent this key from being used."
+                  onConfirm={() => {
+                    dispatch(
+                      updateApiKeyAction({
+                        id: apiKey.id,
+                        is_revoked: true,
+                      })
+                    );
+                    message.success("API key revoked");
+                  }}
+                  okText="Yes"
+                  cancelText="No"
+                  disabled={apiKey.is_revoked}
                 >
-                  Copy Link
-                </Button>
+                  <Button
+                    icon={<LockOutlined />}
+                    size={screenType.isMobile ? "small" : "middle"}
+                    danger
+                    disabled={
+                      apiKey.is_revoked ||
+                      !apiKey.permission_previews.includes(
+                        SystemPermissionType.EDIT
+                      )
+                    }
+                  >
+                    Revoke
+                  </Button>
+                </Popconfirm>
               </>
             )}
           </Space>
@@ -371,86 +468,119 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
-                    placeholder="Contact name"
+                    placeholder="API key name"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
 
-                <Form.Item name="email" label="Email">
-                  <Input
-                    prefix={<MailOutlined />}
-                    placeholder="Email address"
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
+                <Form.Item name="is_revoked" label="Status">
+                  <Switch
+                    checked={!form.getFieldValue("is_revoked")}
+                    onChange={(checked) => {
+                      form.setFieldsValue({ is_revoked: !checked });
+                    }}
+                    checkedChildren="Active"
+                    unCheckedChildren="Revoked"
                   />
                 </Form.Item>
 
-                <Form.Item name="evm_public_address" label="EVM Wallet Address">
-                  <Input
-                    prefix={<WalletOutlined />}
-                    placeholder="EVM wallet address"
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
-                  />
+                <Form.Item label="Expiration">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 16,
+                    }}
+                  >
+                    <Switch
+                      checked={neverExpires}
+                      onChange={(checked) => {
+                        setNeverExpires(checked);
+                        if (checked) {
+                          form.setFieldsValue({ expires_at: null });
+                        }
+                      }}
+                    />
+                    <span style={{ marginLeft: 8 }}>Never Expires</span>
+                  </div>
+
+                  {!neverExpires && (
+                    <Form.Item name="expires_at" noStyle>
+                      <DatePicker
+                        showTime
+                        placeholder="Select expiry date and time"
+                        style={{ width: "100%" }}
+                      />
+                    </Form.Item>
+                  )}
                 </Form.Item>
 
                 {/* Advanced section in edit mode */}
-                <Form.Item name="notifications_url" label="Notifications">
-                  <Input
-                    prefix={<BellOutlined />}
-                    placeholder="Notifications"
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
-                  />
-                </Form.Item>
-
-                <Form.Item name="public_note" label="Public Note">
-                  <TextArea
-                    rows={2}
-                    placeholder="Public information about this contact"
-                    variant="borderless"
-                    style={{ backgroundColor: "#fafafa" }}
-                  />
-                </Form.Item>
-
-                {contact.permission_previews.includes(
-                  SystemPermissionType.EDIT
-                ) && (
-                  <Form.Item
-                    name="private_note"
-                    label="Private Note"
-                    extra="Only organization owners and editors can view this note"
+                <div style={{ marginTop: "16px" }}>
+                  <details
+                    style={{ marginTop: "16px" }}
+                    open={isAdvancedOpen}
+                    onToggle={(e) => setIsAdvancedOpen(e.currentTarget.open)}
                   >
-                    <TextArea
-                      rows={3}
-                      placeholder="Private notes (only visible to owners and editors)"
-                      variant="borderless"
-                      style={{ backgroundColor: "#fafafa" }}
-                    />
-                  </Form.Item>
-                )}
+                    <summary
+                      style={{
+                        cursor: "pointer",
+                        color: "#595959",
+                        fontSize: "14px",
+                        marginBottom: "8px",
+                        userSelect: "none",
+                      }}
+                    >
+                      Advanced Details
+                    </summary>
+
+                    <div style={{ padding: "12px 0" }}>
+                      <Form.Item name="external_id" label="External ID">
+                        <Input
+                          prefix={<GlobalOutlined />}
+                          placeholder="External identifier"
+                          variant="borderless"
+                          style={{ backgroundColor: "#fafafa" }}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        name="external_payload"
+                        label="External Payload"
+                      >
+                        <TextArea
+                          rows={3}
+                          placeholder="Additional data for external systems (JSON, etc.)"
+                          variant="borderless"
+                          style={{ backgroundColor: "#fafafa" }}
+                        />
+                      </Form.Item>
+                    </div>
+                  </details>
+                </div>
+
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this contact?"
+                    title="Are you sure you want to delete this API key?"
                     okText="Yes"
                     cancelText="No"
                     onConfirm={() => {
-                      dispatch(deleteContactAction({ id: contact.id }));
+                      dispatch(deleteApiKeyAction({ id: apiKey.id }));
                       message.success(
                         isOnline
-                          ? "Deleting contact..."
-                          : "Queued contact delete for when you're back online"
+                          ? "Deleting API key..."
+                          : "Queued API key delete for when you're back online"
                       );
                       if (onDelete) {
-                        onDelete(contact.id);
+                        onDelete(apiKey.id);
                       }
                     }}
                   >
                     <Button
                       disabled={
-                        !contact.permission_previews.includes(
+                        !apiKey.permission_previews.includes(
                           SystemPermissionType.DELETE
                         )
                       }
@@ -458,7 +588,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                       type="primary"
                       danger
                     >
-                      Delete Contact
+                      Delete API Key
                     </Button>
                   </Popconfirm>
                 </Form.Item>
@@ -478,12 +608,9 @@ const ContactTab: React.FC<ContactTabProps> = ({
                       <Space align="center" size={16}>
                         <Avatar
                           size={64}
-                          icon={<UserOutlined />}
-                          src={contact.avatar || undefined}
+                          icon={<KeyOutlined />}
                           style={{ backgroundColor: "#1890ff" }}
-                        >
-                          {contact.name.charAt(0).toUpperCase()}
-                        </Avatar>
+                        />
                         <div
                           style={{
                             display: "flex",
@@ -504,39 +631,26 @@ const ContactTab: React.FC<ContactTabProps> = ({
                               level={3}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {contact.name}
+                              {apiKey.name}
                             </Title>
-                            <Tag
-                              color="blue"
-                              onClick={() => {
-                                const userstring = `${contact.name.replace(" ", "_")}@${contact.id}`;
-                                navigator.clipboard
-                                  .writeText(userstring)
-                                  .then(() => {
-                                    message.success("Copied to clipboard!");
-                                  })
-                                  .catch(() => {
-                                    message.error(
-                                      "Failed to copy to clipboard."
-                                    );
-                                  });
-                              }}
-                              style={{
-                                cursor: "pointer",
-                                marginTop: "24px",
-                              }}
-                            >
-                              {shortenAddress(contact.icp_principal)}
+                            <Tag>
+                              {shortenAddress(
+                                apiKey.id.replace("ApiKeyID_", "")
+                              )}
                             </Tag>
+                            {getStatusLabel()}
                           </div>
-                          <Space>
-                            <Badge
-                              // @ts-ignore
-                              status={lastOnlineStatus.status}
-                            />
-                            <Text type="secondary">
-                              {lastOnlineStatus.text}
-                            </Text>
+                          <Space style={{ marginTop: "4px" }}>
+                            {apiKey.user_name && (
+                              <Text type="secondary">
+                                Owned by {apiKey.user_name}{" "}
+                                <code style={{ fontSize: "0.6rem" }}>
+                                  {shortenAddress(
+                                    apiKey.user_id.replace("UserID_", "")
+                                  )}
+                                </code>
+                              </Text>
+                            )}
                           </Space>
                         </div>
                       </Space>
@@ -547,7 +661,6 @@ const ContactTab: React.FC<ContactTabProps> = ({
                 <Row gutter={[16, 16]}>
                   <Col span={24}>
                     {/* Always displayed fields */}
-
                     {!screenType.isMobile && (
                       <div
                         style={{
@@ -557,14 +670,15 @@ const ContactTab: React.FC<ContactTabProps> = ({
                           flexWrap: "wrap",
                         }}
                       >
-                        {contact.labels.map((label, index) => (
-                          <Tag
-                            key={index}
-                            style={{ marginBottom: 4, marginLeft: 4 }}
-                          >
-                            {label}
-                          </Tag>
-                        ))}
+                        {apiKey.labels &&
+                          apiKey.labels.map((label, index) => (
+                            <Tag
+                              key={index}
+                              style={{ marginBottom: 4, marginLeft: 4 }}
+                            >
+                              {label}
+                            </Tag>
+                          ))}
                       </div>
                     )}
 
@@ -573,18 +687,32 @@ const ContactTab: React.FC<ContactTabProps> = ({
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : contact.labels.length > 0
+                          : apiKey.labels && apiKey.labels.length > 0
                             ? 0
                             : 32,
                       }}
                     >
+                      {/* Key value display */}
                       <Card size="small" style={{ marginTop: 8 }}>
-                        <GlobalOutlined style={{ marginRight: 8 }} />
-                        {contact.public_note || "Add a public note"}
+                        <Space>
+                          <Input.Password
+                            readOnly
+                            value={apiKey.value}
+                            style={{ width: 300 }}
+                          />
+                          <Button
+                            type="text"
+                            icon={<CopyOutlined />}
+                            onClick={() => copyToClipboard(apiKey.value)}
+                            size="small"
+                          >
+                            Copy
+                          </Button>
+                        </Space>
                       </Card>
                     </div>
 
-                    {screenType.isMobile && (
+                    {screenType.isMobile && apiKey.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -593,7 +721,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                           flexWrap: "wrap",
                         }}
                       >
-                        {contact.labels.map((label, index) => (
+                        {apiKey.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
@@ -631,108 +759,64 @@ const ContactTab: React.FC<ContactTabProps> = ({
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "User ID",
-                          contact.id,
-                          <UserOutlined />
+                          "API Key ID",
+                          apiKey.id,
+                          <KeyOutlined />
                         )}
 
-                        {renderReadOnlyField(
-                          "Email",
-                          contact.email,
-                          <MailOutlined />
+                        {apiKey.user_id &&
+                          renderReadOnlyField(
+                            "User ID",
+                            apiKey.user_id,
+                            <UserOutlined />,
+                            `/resources/contacts/${apiKey.user_id}`
+                          )}
+
+                        {apiKey.external_id &&
+                          renderReadOnlyField(
+                            "External ID",
+                            apiKey.external_id,
+                            <GlobalOutlined />
+                          )}
+
+                        {apiKey.external_payload && (
+                          <div style={{ marginTop: "16px" }}>
+                            <Space align="center">
+                              <Text strong>External Payload:</Text>
+                            </Space>
+                            <Card
+                              size="small"
+                              style={{
+                                marginTop: 8,
+                                backgroundColor: "#fafafa",
+                              }}
+                            >
+                              <FileTextOutlined style={{ marginRight: 8 }} />
+                              {apiKey.external_payload}
+                            </Card>
+                          </div>
                         )}
-
-                        {contact.notifications_url &&
-                          renderReadOnlyField(
-                            "Notifications",
-                            contact.notifications_url,
-                            <BellOutlined />
-                          )}
-
-                        {contact.evm_public_address &&
-                          renderReadOnlyField(
-                            "EVM Wallet",
-                            contact.evm_public_address,
-                            <WalletOutlined />
-                          )}
-
-                        {contact.icp_principal &&
-                          renderReadOnlyField(
-                            "ICP Wallet",
-                            contact.icp_principal,
-                            <WalletOutlined />
-                          )}
-
-                        {contact.private_note &&
-                          contact.permission_previews.includes(
-                            SystemPermissionType.EDIT
-                          ) && (
-                            <div style={{ marginTop: "16px" }}>
-                              <Space align="center">
-                                <Text strong>Private Note:</Text>
-                                <Popover
-                                  content="Only organization owners and editors can view this note"
-                                  trigger="hover"
-                                >
-                                  <InfoCircleOutlined
-                                    style={{ color: "#1890ff" }}
-                                  />
-                                </Popover>
-                              </Space>
-                              <Card
-                                size="small"
-                                style={{
-                                  marginTop: 8,
-                                  backgroundColor: "#fafafa",
-                                }}
-                              >
-                                <FileTextOutlined style={{ marginRight: 8 }} />
-                                {contact.private_note}
-                              </Card>
-                            </div>
-                          )}
 
                         <div style={{ marginTop: "16px" }}>
                           <Space align="center">
                             <ClockCircleOutlined />
                             <Text type="secondary">
-                              Member since {formatDate(contact.created_at)}
+                              Created on {formatDate(apiKey.created_at)}
                             </Text>
                           </Space>
-                          {contact.external_id && (
-                            <div style={{ marginTop: 8 }}>
-                              <Text type="secondary">
-                                External ID: {contact.external_id}
-                              </Text>
-                            </div>
-                          )}
+                        </div>
+
+                        <div style={{ marginTop: "8px" }}>
+                          <Space align="center">
+                            <ClockCircleOutlined />
+                            <Text type="secondary">
+                              Expires on {formatDate(apiKey.expires_at)}
+                            </Text>
+                          </Space>
                         </div>
                       </div>
                     </details>
                   </Col>
-
-                  {contact.group_previews.length > 0 && (
-                    <Col span={24}>
-                      <Title level={5}>Groups</Title>
-                      {contact.group_previews.map((group, index) => (
-                        <Card
-                          key={index}
-                          size="small"
-                          style={{ marginBottom: 8 }}
-                        >
-                          <Space>
-                            <Avatar
-                              size="small"
-                              icon={<TeamOutlined />}
-                              src={group.group_avatar || undefined}
-                            />
-                            <Text>{group.group_name}</Text>
-                            {group.is_admin && <Tag color="gold">Admin</Tag>}
-                          </Space>
-                        </Card>
-                      ))}
-                    </Col>
-                  )}
                 </Row>
               </>
             )}
@@ -767,4 +851,4 @@ const ContactTab: React.FC<ContactTabProps> = ({
   );
 };
 
-export default ContactTab;
+export default ApiKeyTab;

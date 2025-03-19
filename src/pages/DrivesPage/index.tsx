@@ -1,14 +1,28 @@
+// src/components/DrivesPage/index.tsx
+
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { Button, Layout, Typography, Space } from "antd";
-import type { ApiKeyFE, ApiKeyID, UserID } from "@officexapp/types";
+import { Button, Layout, Typography } from "antd";
+import type {
+  DriveFE,
+  DriveID,
+  IRequestCreateDrive,
+  IRequestListDrives,
+} from "@officexapp/types";
 import { SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { listApiKeysAction } from "../../redux-offline/api-keys/api-keys.actions";
-import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import ApiKeyAddDrawer from "./api-key.add";
-import ApiKeyTab from "./api-key.tab";
-import ApiKeysTableList from "./api-keys.table";
+import {
+  createDriveAction,
+  listDrivesAction,
+} from "../../redux-offline/drives/drives.actions";
+import {
+  CloseOutlined,
+  PlusOutlined,
+  DatabaseOutlined,
+} from "@ant-design/icons";
+import DrivesAddDrawer from "./drive.add";
+import DriveTab from "./drive.tab";
+import DrivesTableList from "./drives.table";
 import useScreenType from "react-screentype-hook";
 
 const { Content } = Layout;
@@ -22,7 +36,7 @@ type TabItem = {
   closable?: boolean;
 };
 
-const ApiKeysPage: React.FC = () => {
+const DrivesPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
@@ -30,7 +44,7 @@ const ApiKeysPage: React.FC = () => {
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Check if content tab is open
-  const isContentTabOpen = useCallback(
+  const isDriveTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
         return true;
@@ -45,7 +59,7 @@ const ApiKeysPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "API Keys List",
+      label: "Drives List",
       children: null,
       closable: false,
     },
@@ -62,30 +76,37 @@ const ApiKeysPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Function to handle clicking on an API key
+  // Function to handle clicking on a drive
   const handleClickContentTab = useCallback(
-    (apiKey: ApiKeyFE, focus_tab = false) => {
-      setLastClickedId(apiKey.id);
+    (drive: DriveFE & { id: string; name: string }, focus_tab = false) => {
+      setLastClickedId(drive.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
+      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === apiKey.id
+        (item) => item.key === drive.id
       );
+      console.log(`existingTabIndex`, existingTabIndex);
+
+      if (existingTabIndex !== -1 && focus_tab == true) {
+        setActiveKey(drive.id);
+        return;
+      }
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== apiKey.id
+          (item) => item.key !== drive.id
         );
         setTabItems(updatedTabs);
       } else {
         // Create new tab
         const newTab: TabItem = {
-          key: apiKey.id,
-          label: apiKey.name,
+          key: drive.id,
+          label: drive.name,
           children: (
-            <ApiKeyTab apiKey={apiKey} onDelete={handleDeletionCloseTabs} />
+            <DriveTab drive={drive} onDelete={handleDeletionCloseTabs} />
           ),
           closable: true,
         };
@@ -97,18 +118,18 @@ const ApiKeysPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked API key's tab
+        // Switch to the clicked drive's tab
         if (focus_tab) {
-          setActiveKey(apiKey.id);
+          setActiveKey(drive.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (apiKeyID: ApiKeyID) => {
+  const handleDeletionCloseTabs = (driveID: DriveID) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== apiKeyID);
+    const updatedTabs = tabItems.filter((item) => item.key !== driveID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -117,10 +138,10 @@ const ApiKeysPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/api-keys`;
+      const newUrl = `/resources/drives`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/api-keys/${newActiveKey}`;
+      const newUrl = `/resources/drives/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -188,7 +209,7 @@ const ApiKeysPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            API Keys
+            Drives
           </Title>
           <Button
             size={screenType.isMobile ? "small" : "middle"}
@@ -201,7 +222,7 @@ const ApiKeysPage: React.FC = () => {
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
           >
-            Create API Key
+            Add Drive
           </Button>
         </div>
 
@@ -315,8 +336,8 @@ const ApiKeysPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <ApiKeysTableList
-                  isContentTabOpen={isContentTabOpen}
+                <DrivesTableList
+                  isDriveTabOpen={isDriveTabOpen}
                   handleClickContentTab={handleClickContentTab}
                 />
               </div>
@@ -345,13 +366,29 @@ const ApiKeysPage: React.FC = () => {
         </div>
       </Content>
 
-      <ApiKeyAddDrawer
+      <DrivesAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddApiKey={() => {}}
+        onAddDrive={(driveData: IRequestCreateDrive) => {
+          // This callback can be implemented if you need additional handling after adding a drive
+          console.log("Drive added:", driveData);
+        }}
       />
     </Layout>
   );
 };
 
-export default ApiKeysPage;
+// Add a utility function for shortening addresses
+export const shortenAddress = (
+  address: string,
+  startChars = 6,
+  endChars = 4
+): string => {
+  if (!address) return "";
+  if (address.length <= startChars + endChars) return address;
+  return `${address.substring(0, startChars)}...${address.substring(
+    address.length - endChars
+  )}`;
+};
+
+export default DrivesPage;

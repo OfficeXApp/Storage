@@ -41,29 +41,32 @@ import SearchHeader from "./components/SearchHeader";
 import ActionMenuButton from "./components/ActionMenuButton";
 import PreseedOffer from "./components/PreseedOffer";
 import useScreenType from "react-screentype-hook";
-import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
+// import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
 import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
 import SandboxPage from "./components/SandboxPage";
-import ContactsPage from "./components/ContactsPage";
-import GroupsPage from "./components/GroupsPage";
-import PermissionsPage from "./components/PermissionsPage";
-import LabelsPage from "./components/LabelsPage";
-import DisksPage from "./components/DisksPage";
-import DrivesPage from "./components/DrivesPage";
-import ApiKeysPage from "./components/ApiKeysPage";
-import WebhooksPage from "./components/WebhooksPage";
+import ContactsPage from "./pages/ContactsPage";
+import GroupsPage from "./pages/GroupsPage";
+import PermissionsPage from "./pages/PermissionsPage";
+import LabelsPage from "./pages/LabelsPage";
+import DisksPage from "./pages/DisksPage";
+import DrivesPage from "./pages/DrivesPage";
+import ApiKeysPage from "./pages/ApiKeysPage";
+import WebhooksPage from "./pages/WebhooksPage";
 import OrganizationSwitcher from "./components/SwitchOrganization";
 import TemplateCrudPage from "./components/TemplateCrudPage";
-import ContactPage from "./components/ContactsPage/contact.page";
-import GroupPage from "./components/GroupsPage/group.page";
-import LabelPage from "./components/LabelsPage/label.page";
-import DiskPage from "./components/DisksPage/disk.page";
-import WebhookPage from "./components/WebhooksPage/webhook.page";
-import DrivePage from "./components/DrivesPage/drive.page";
-import ApiKeyPage from "./components/ApiKeysPage/api-key.page";
-import PermissionPage from "./components/PermissionsPage/permission.page";
+import ContactPage from "./pages/ContactsPage/contact.page";
+import GroupPage from "./pages/GroupsPage/group.page";
+import LabelPage from "./pages/LabelsPage/label.page";
+import DiskPage from "./pages/DisksPage/disk.page";
+import WebhookPage from "./pages/WebhooksPage/webhook.page";
+import DrivePage from "./pages/DrivesPage/drive.page";
+import ApiKeyPage from "./pages/ApiKeysPage/api-key.page";
+import PermissionPage from "./pages/PermissionsPage/permission.page";
+import { defaultTempCloudSharingRootFolderID } from "./api/dexie-database";
+import { useSelector } from "react-redux";
+import { ReduxAppState } from "./redux-offline/ReduxProvider";
 
 const { Sider, Content } = Layout;
 
@@ -223,7 +226,7 @@ const RouterUI = () => {
 
   return (
     <BrowserRouter>
-      <LoadSampleFiles />
+      {/* <LoadSampleFiles /> */}
       <UploadPanel
         uploadPanelVisible={uploadPanelVisible}
         setUploadPanelVisible={setUploadPanelVisible}
@@ -282,6 +285,7 @@ const RouterUI = () => {
                     }}
                   >
                     <ConnectICPButton />
+
                     <ActionMenuButton
                       isBigButton={true}
                       toggleUploadPanel={setUploadPanelVisible}
@@ -303,7 +307,14 @@ const RouterUI = () => {
               }}
             >
               <Routes>
-                <Route path="/" element={<Navigate to="/drive/Web3Storj/" />} />
+                <Route
+                  path="/"
+                  element={
+                    <Navigate
+                      to={`/drive/${defaultTempCloudSharingRootFolderID}/`}
+                    />
+                  }
+                />
                 <Route
                   path="/drive/*"
                   element={

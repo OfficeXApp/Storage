@@ -1,18 +1,32 @@
-// src/components/LabelsPage/index.tsx
+// src/components/ContactsPage/index.tsx
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { Button, Layout, Typography } from "antd";
-import type { LabelFE, LabelID } from "@officexapp/types";
-import { useDispatch } from "react-redux";
-import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
-import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import LabelsAddDrawer from "./label.add";
-import LabelTab from "./label.tab";
-import LabelsTableList from "./labels.table";
+import { Button, Drawer, Layout, Typography, Space, Input, Form } from "antd";
+import type {
+  ContactFE,
+  Disk,
+  IRequestCreateDisk,
+  IRequestListDisks,
+  IResponseCreateDisk,
+  IResponseListDisks,
+  UserID,
+} from "@officexapp/types";
+import { DiskTypeEnum, SystemPermissionType } from "@officexapp/types";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import {
+  createDiskAction,
+  listDisksAction,
+} from "../../redux-offline/disks/disks.actions";
+import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
+import ContactsAddDrawer from "./contact.add";
+import ContactTab from "./contact.tab";
+import ContactsTableList from "./contacts.table";
+import { SAMPLE_CONTACTS } from "./sample";
 import useScreenType from "react-screentype-hook";
 
-const { Content } = Layout;
-const { Title } = Typography;
+const { Content, Footer } = Layout;
+const { Title, Paragraph, Text } = Typography;
 
 // Define tab item type for TypeScript
 type TabItem = {
@@ -22,16 +36,15 @@ type TabItem = {
   closable?: boolean;
 };
 
-const LabelsPage: React.FC = () => {
+const ContactsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const dispatch = useDispatch();
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
-  // Check if a label tab is already open
-  const isLabelTabOpen = useCallback(
+  // Sample contact data - expanded list
+  const isContentTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
         return true;
@@ -46,7 +59,7 @@ const LabelsPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Labels List",
+      label: "Contacts List",
       children: null,
       closable: false,
     },
@@ -63,35 +76,37 @@ const LabelsPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Load labels on component mount
-  useEffect(() => {
-    dispatch(listLabelsAction({}));
-  }, [dispatch]);
-
-  // Function to handle clicking on a label
+  // Function to handle clicking on a contact
   const handleClickContentTab = useCallback(
-    (label: LabelFE, focus_tab = false) => {
-      setLastClickedId(label.id);
+    (contact: ContactFE, focus_tab = false) => {
+      setLastClickedId(contact.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
+      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === label.id
+        (item) => item.key === contact.id
       );
+      console.log(`existingTabIndex`, existingTabIndex);
+
+      if (existingTabIndex !== -1 && focus_tab == true) {
+        setActiveKey(contact.id);
+        return;
+      }
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== label.id
+          (item) => item.key !== contact.id
         );
         setTabItems(updatedTabs);
       } else {
         // Create new tab
         const newTab: TabItem = {
-          key: label.id,
-          label: label.value,
+          key: contact.id,
+          label: contact.name,
           children: (
-            <LabelTab label={label} onDelete={handleDeletionCloseTabs} />
+            <ContactTab contact={contact} onDelete={handleDeletionCloseTabs} />
           ),
           closable: true,
         };
@@ -103,18 +118,18 @@ const LabelsPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked label's tab
+        // Switch to the clicked contact's tab
         if (focus_tab) {
-          setActiveKey(label.id);
+          setActiveKey(contact.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (labelID: LabelID) => {
+  const handleDeletionCloseTabs = (userID: UserID) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== labelID);
+    const updatedTabs = tabItems.filter((item) => item.key !== userID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -123,10 +138,10 @@ const LabelsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/labels`;
+      const newUrl = `/resources/contacts`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/labels/${newActiveKey}`;
+      const newUrl = `/resources/contacts/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -155,6 +170,7 @@ const LabelsPage: React.FC = () => {
     setDrawerOpen(!drawerOpen);
   };
 
+  // The rest of your component remains the same
   return (
     <Layout
       style={{
@@ -194,7 +210,7 @@ const LabelsPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Labels
+            Contacts
           </Title>
           <Button
             size={screenType.isMobile ? "small" : "middle"}
@@ -207,7 +223,7 @@ const LabelsPage: React.FC = () => {
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
           >
-            Add Label
+            Add Contact
           </Button>
         </div>
 
@@ -225,7 +241,7 @@ const LabelsPage: React.FC = () => {
               flex: 1,
               display: "flex",
               flexDirection: "column",
-              minHeight: screenType.isMobile ? "70vh" : 0,
+              minHeight: screenType.isMobile ? "70vh" : 0, // Critical fix for flexbox scrolling
             }}
           >
             {/* Custom tab bar with pinned first tab */}
@@ -306,7 +322,7 @@ const LabelsPage: React.FC = () => {
                 overflow: "hidden",
                 display: "flex",
                 minHeight: screenType.isMobile ? "70vh" : 0,
-                position: "relative",
+                position: "relative", // Added for absolute positioning of children
               }}
             >
               {/* Render all tab content but only show the active one */}
@@ -321,8 +337,8 @@ const LabelsPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <LabelsTableList
-                  isLabelTabOpen={isLabelTabOpen}
+                <ContactsTableList
+                  isContentTabOpen={isContentTabOpen}
                   handleClickContentTab={handleClickContentTab}
                 />
               </div>
@@ -351,13 +367,13 @@ const LabelsPage: React.FC = () => {
         </div>
       </Content>
 
-      <LabelsAddDrawer
+      <ContactsAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddLabel={() => {}}
+        onAddContact={() => {}}
       />
     </Layout>
   );
 };
 
-export default LabelsPage;
+export default ContactsPage;

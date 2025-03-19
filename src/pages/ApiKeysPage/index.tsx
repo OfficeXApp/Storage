@@ -1,25 +1,15 @@
-// src/components/DisksPage/index.tsx
-
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Button, Layout, Typography, Space } from "antd";
-import type {
-  DiskID,
-  IRequestCreateDisk,
-  IRequestListDisks,
-} from "@officexapp/types";
-import { DiskTypeEnum } from "@officexapp/types";
+import type { ApiKeyFE, ApiKeyID, UserID } from "@officexapp/types";
+import { SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import {
-  createDiskAction,
-  listDisksAction,
-} from "../../redux-offline/disks/disks.actions";
+import { listApiKeysAction } from "../../redux-offline/api-keys/api-keys.actions";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import DisksAddDrawer from "./disk.add";
-import DiskTab from "./disk.tab";
-import DisksTableList from "./disks.table";
+import ApiKeyAddDrawer from "./api-key.add";
+import ApiKeyTab from "./api-key.tab";
+import ApiKeysTableList from "./api-keys.table";
 import useScreenType from "react-screentype-hook";
-import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -32,14 +22,14 @@ type TabItem = {
   closable?: boolean;
 };
 
-const DisksPage: React.FC = () => {
+const ApiKeysPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
 
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
-  // Check if a specific disk tab is open
+  // Check if content tab is open
   const isContentTabOpen = useCallback(
     (id: string) => {
       if (id === lastClickedId) {
@@ -55,7 +45,7 @@ const DisksPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Disks List",
+      label: "API Keys List",
       children: null,
       closable: false,
     },
@@ -72,29 +62,36 @@ const DisksPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Function to handle clicking on a disk
+  // Function to handle clicking on an API key
   const handleClickContentTab = useCallback(
-    (disk: DiskFEO, focus_tab = false) => {
-      setLastClickedId(disk.id);
+    (apiKey: ApiKeyFE, focus_tab = false) => {
+      setLastClickedId(apiKey.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === disk.id
+        (item) => item.key === apiKey.id
       );
+
+      if (existingTabIndex !== -1 && focus_tab == true) {
+        setActiveKey(apiKey.id);
+        return;
+      }
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== disk.id
+          (item) => item.key !== apiKey.id
         );
         setTabItems(updatedTabs);
       } else {
         // Create new tab
         const newTab: TabItem = {
-          key: disk.id,
-          label: disk.name,
-          children: <DiskTab disk={disk} onDelete={handleDeletionCloseTabs} />,
+          key: apiKey.id,
+          label: apiKey.name,
+          children: (
+            <ApiKeyTab apiKey={apiKey} onDelete={handleDeletionCloseTabs} />
+          ),
           closable: true,
         };
 
@@ -105,18 +102,18 @@ const DisksPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked disk's tab
+        // Switch to the clicked API key's tab
         if (focus_tab) {
-          setActiveKey(disk.id);
+          setActiveKey(apiKey.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (diskID: DiskID) => {
+  const handleDeletionCloseTabs = (apiKeyID: ApiKeyID) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== diskID);
+    const updatedTabs = tabItems.filter((item) => item.key !== apiKeyID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -125,10 +122,10 @@ const DisksPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/disks`;
+      const newUrl = `/resources/api-keys`;
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/disks/${newActiveKey}`;
+      const newUrl = `/resources/api-keys/${newActiveKey}`;
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -157,15 +154,6 @@ const DisksPage: React.FC = () => {
     setDrawerOpen(!drawerOpen);
   };
 
-  // Dispatch to load disks when component mounts
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const listParams: IRequestListDisks = {};
-    dispatch(listDisksAction(listParams));
-  }, [dispatch]);
-
-  // The main component render
   return (
     <Layout
       style={{
@@ -205,7 +193,7 @@ const DisksPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Disks
+            API Keys
           </Title>
           <Button
             size={screenType.isMobile ? "small" : "middle"}
@@ -218,7 +206,7 @@ const DisksPage: React.FC = () => {
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
           >
-            Add Disk
+            Create API Key
           </Button>
         </div>
 
@@ -332,7 +320,7 @@ const DisksPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <DisksTableList
+                <ApiKeysTableList
                   isContentTabOpen={isContentTabOpen}
                   handleClickContentTab={handleClickContentTab}
                 />
@@ -362,13 +350,13 @@ const DisksPage: React.FC = () => {
         </div>
       </Content>
 
-      <DisksAddDrawer
+      <ApiKeyAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddDisk={() => {}}
+        onAddApiKey={() => {}}
       />
     </Layout>
   );
 };
 
-export default DisksPage;
+export default ApiKeysPage;

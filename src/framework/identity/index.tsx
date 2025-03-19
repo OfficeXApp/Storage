@@ -82,6 +82,8 @@ interface IdentitySystemContextType {
   isInitialized: boolean;
   error: Error | null;
 
+  isOfflineOrg: boolean;
+
   currentOrg: IndexDB_Organization | null;
   currentProfile: AuthProfile | null;
   currentAPIKey: IndexDB_ApiKey | null;
@@ -168,7 +170,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   const [currentAPIKey, setCurrentAPIKey] = useState<IndexDB_ApiKey | null>(
     null
   );
-
+  const isOfflineOrg = currentOrg?.endpoint === "";
   const [listOfOrgs, setListOfOrgs] = useState<IndexDB_Organization[]>([]);
   const [listOfProfiles, setListOfProfiles] = useState<IndexDB_Profile[]>([]);
   const [listOfAPIKeys, setListOfAPIKeys] = useState<IndexDB_ApiKey[]>([]);
@@ -907,6 +909,8 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   const contextValue: IdentitySystemContextType = {
     isInitialized,
     error,
+
+    isOfflineOrg,
 
     currentOrg,
     currentProfile,

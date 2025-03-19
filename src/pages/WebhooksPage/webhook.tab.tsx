@@ -47,7 +47,7 @@ import {
   WebhookEventLabel,
 } from "@officexapp/types";
 import { LOCAL_STORAGE_TOGGLE_REST_API_DOCS } from "../../framework/identity/constants";
-import CodeBlock from "../CodeBlock";
+import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
@@ -55,7 +55,7 @@ import {
   deleteWebhookAction,
   updateWebhookAction,
 } from "../../redux-offline/webhooks/webhooks.actions";
-import TagCopy from "../TagCopy";
+import TagCopy from "../../components/TagCopy";
 import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph, Text } = Typography;

@@ -43,7 +43,7 @@ import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
   shortenAddress,
 } from "../../framework/identity/constants";
-import CodeBlock from "../CodeBlock";
+import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
@@ -51,7 +51,7 @@ import {
   deleteLabelAction,
   updateLabelAction,
 } from "../../redux-offline/labels/labels.actions";
-import TagCopy from "../TagCopy";
+import TagCopy from "../../components/TagCopy";
 import { useNavigate } from "react-router-dom";
 
 const { Title, Paragraph, Text } = Typography;

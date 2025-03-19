@@ -1,7 +1,15 @@
 // db/dexie-manager.ts
 import Dexie from "dexie";
-import { DriveID, UserID } from "@officexapp/types";
-import { DISKS_DEXIE_TABLE } from "../redux-offline/disks/disks.reducer";
+import {
+  DirectoryPermissionType,
+  DiskTypeEnum,
+  DriveID,
+  UserID,
+} from "@officexapp/types";
+import {
+  DiskFEO,
+  DISKS_DEXIE_TABLE,
+} from "../redux-offline/disks/disks.reducer";
 import { CONTACTS_DEXIE_TABLE } from "../redux-offline/contacts/contacts.reducer";
 import { APIKEYS_DEXIE_TABLE } from "../redux-offline/api-keys/api-keys.reducer";
 import { LABELS_DEXIE_TABLE } from "../redux-offline/labels/labels.reducer";
@@ -13,6 +21,12 @@ import {
   DIRECTORY_PERMISSIONS_DEXIE_TABLE,
   SYSTEM_PERMISSIONS_DEXIE_TABLE,
 } from "../redux-offline/permissions/permissions.reducer";
+import {
+  DIRECTORY_LIST_QUERY_RESULTS_TABLE,
+  FILES_DEXIE_TABLE,
+  FolderFEO,
+  FOLDERS_DEXIE_TABLE,
+} from "../redux-offline/directory/directory.reducer";
 
 /**
  * Singleton class to manage Dexie database connections
@@ -84,6 +98,10 @@ class DexieManager {
       [APIKEYS_DEXIE_TABLE]: "id, _syncConflict",
       [DIRECTORY_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
       [SYSTEM_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
+      [FILES_DEXIE_TABLE]: "id, folder_uuid, _syncConflict",
+      [FOLDERS_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
+      [DIRECTORY_LIST_QUERY_RESULTS_TABLE]:
+        "listDirectoryKey, last_updated_date_ms",
     });
 
     // Set as current and return
@@ -216,8 +234,263 @@ export const initDexieDb = async (
     } else {
       console.warn("dummy_init table not found in database schema");
     }
+
+    // Initialize default disks
+    if (db.tables.some((table) => table.name === DISKS_DEXIE_TABLE)) {
+      // 1. Check and initialize Browser Cache disk
+      const existingBrowserCacheDisk = await db
+        .table(DISKS_DEXIE_TABLE)
+        .get(defaultBrowserCacheDiskID);
+
+      if (!existingBrowserCacheDisk) {
+        // Create the default Browser Cache disk
+        const browserCacheDisk: DiskFEO = {
+          id: defaultBrowserCacheDiskID,
+          name: "Browser Cache",
+          public_note:
+            "Local browser cache for offline access. Files get deleted if you clear browser history for this site.",
+          disk_type: DiskTypeEnum.BrowserCache,
+          labels: [],
+          created_at: Date.now(),
+          permission_previews: [],
+          root_folder: defaultBrowserCacheRootFolderID,
+          trash_folder: defaultBrowserCacheTrashFolderID,
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+        };
+
+        await db.table(DISKS_DEXIE_TABLE).add(browserCacheDisk);
+        console.log(
+          `Initialized default Browser Cache disk for ${userID}@${orgID}`
+        );
+      } else {
+        console.log(
+          `Default Browser Cache disk already exists for ${userID}@${orgID}`
+        );
+      }
+
+      // 2. Check and initialize Free Cloud Sharing disk
+      const existingCloudSharingDisk = await db
+        .table(DISKS_DEXIE_TABLE)
+        .get(defaultTempCloudSharingDiskID);
+
+      if (!existingCloudSharingDisk) {
+        // Create the Free Cloud Sharing disk
+        const cloudSharingDisk: DiskFEO = {
+          id: defaultTempCloudSharingDiskID,
+          name: "Free Cloud Sharing",
+          disk_type: DiskTypeEnum.StorjWeb3,
+          public_note:
+            "Free public filesharing. Files expire within 24 hours, UTC midnight daily.",
+          labels: [],
+          created_at: Date.now(),
+          permission_previews: [],
+          root_folder: defaultTempCloudSharingRootFolderID,
+          trash_folder: defaultTempCloudSharingTrashFolderID,
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+        };
+
+        await db.table(DISKS_DEXIE_TABLE).add(cloudSharingDisk);
+        console.log(
+          `Initialized default Free Cloud Sharing disk for ${userID}@${orgID}`
+        );
+      } else {
+        console.log(
+          `Default Free Cloud Sharing disk already exists for ${userID}@${orgID}`
+        );
+      }
+    } else {
+      console.warn(`${DISKS_DEXIE_TABLE} table not found in database schema`);
+    }
+
+    // Initialize default root folders
+    if (db.tables.some((table) => table.name === FOLDERS_DEXIE_TABLE)) {
+      // 1. Check and initialize Browser Cache root folder
+      const existingBrowserCacheRootFolder = await db
+        .table(FOLDERS_DEXIE_TABLE)
+        .get(defaultBrowserCacheRootFolderID);
+
+      if (!existingBrowserCacheRootFolder) {
+        // Create the root folder for Browser Cache disk
+        const browserCacheRootFolder: FolderFEO = {
+          id: defaultBrowserCacheRootFolderID,
+          name: "Root",
+          subfolder_uuids: [],
+          file_uuids: [],
+          full_directory_path: `${defaultBrowserCacheDiskID}::/`,
+          labels: [],
+          created_by: userID,
+          created_at: Date.now(),
+          last_updated_date_ms: Date.now(),
+          last_updated_by: userID,
+          disk_id: defaultBrowserCacheDiskID,
+          deleted: false,
+          expires_at: 0,
+          drive_id: orgID,
+          has_sovereign_permissions: true,
+          clipped_directory_path: `${defaultBrowserCacheDiskID}::/`,
+          permission_previews: [
+            DirectoryPermissionType.UPLOAD,
+            DirectoryPermissionType.DELETE,
+            DirectoryPermissionType.EDIT,
+            DirectoryPermissionType.INVITE,
+            DirectoryPermissionType.MANAGE,
+            DirectoryPermissionType.VIEW,
+          ],
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+        };
+
+        await db.table(FOLDERS_DEXIE_TABLE).add(browserCacheRootFolder);
+
+        const browserCacheTrashFolder: FolderFEO = {
+          id: defaultBrowserCacheTrashFolderID,
+          name: "Trash",
+          subfolder_uuids: [],
+          file_uuids: [],
+          full_directory_path: `${defaultBrowserCacheDiskID}::.trash/`,
+          labels: [],
+          created_by: userID,
+          created_at: Date.now(),
+          last_updated_date_ms: Date.now(),
+          last_updated_by: userID,
+          disk_id: defaultBrowserCacheDiskID,
+          deleted: false,
+          expires_at: 0,
+          drive_id: orgID,
+          has_sovereign_permissions: true,
+          clipped_directory_path: `${defaultBrowserCacheDiskID}::.trash/`,
+          permission_previews: [
+            DirectoryPermissionType.UPLOAD,
+            DirectoryPermissionType.DELETE,
+            DirectoryPermissionType.EDIT,
+            DirectoryPermissionType.INVITE,
+            DirectoryPermissionType.MANAGE,
+            DirectoryPermissionType.VIEW,
+          ],
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+        };
+
+        await db.table(FOLDERS_DEXIE_TABLE).add(browserCacheTrashFolder);
+        console.log(
+          `Initialized root folder for Browser Cache disk for ${userID}@${orgID}`
+        );
+      } else {
+        console.log(
+          `Root folder for Browser Cache disk already exists for ${userID}@${orgID}`
+        );
+      }
+
+      // 2. Check and initialize Free Cloud Sharing root folder
+      const existingCloudSharingRootFolder = await db
+        .table(FOLDERS_DEXIE_TABLE)
+        .get(defaultTempCloudSharingRootFolderID);
+
+      if (!existingCloudSharingRootFolder) {
+        // Create the root folder for Free Cloud Sharing disk
+        const cloudSharingRootFolder: FolderFEO = {
+          id: defaultTempCloudSharingRootFolderID,
+          name: "Root",
+          subfolder_uuids: [],
+          file_uuids: [],
+          full_directory_path: `${defaultTempCloudSharingDiskID}::/`,
+          labels: [],
+          created_by: userID,
+          created_at: Date.now(),
+          last_updated_date_ms: Date.now(),
+          last_updated_by: userID,
+          disk_id: defaultTempCloudSharingDiskID,
+          deleted: false,
+          expires_at: 0,
+          drive_id: orgID,
+          has_sovereign_permissions: true,
+          clipped_directory_path: `${defaultTempCloudSharingDiskID}::/`,
+          permission_previews: [
+            DirectoryPermissionType.UPLOAD,
+            DirectoryPermissionType.DELETE,
+            DirectoryPermissionType.EDIT,
+            DirectoryPermissionType.INVITE,
+            DirectoryPermissionType.MANAGE,
+            DirectoryPermissionType.VIEW,
+          ],
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+        };
+
+        await db.table(FOLDERS_DEXIE_TABLE).add(cloudSharingRootFolder);
+
+        const cloudSharingTrashFolder: FolderFEO = {
+          id: defaultTempCloudSharingTrashFolderID,
+          name: "Trash",
+          subfolder_uuids: [],
+          file_uuids: [],
+          full_directory_path: `${defaultTempCloudSharingDiskID}::.trash/`,
+          labels: [],
+          created_by: userID,
+          created_at: Date.now(),
+          last_updated_date_ms: Date.now(),
+          last_updated_by: userID,
+          disk_id: defaultTempCloudSharingDiskID,
+          deleted: false,
+          expires_at: 0,
+          drive_id: orgID,
+          has_sovereign_permissions: true,
+          clipped_directory_path: `${defaultTempCloudSharingDiskID}::.trash/`,
+          permission_previews: [
+            DirectoryPermissionType.UPLOAD,
+            DirectoryPermissionType.DELETE,
+            DirectoryPermissionType.EDIT,
+            DirectoryPermissionType.INVITE,
+            DirectoryPermissionType.MANAGE,
+            DirectoryPermissionType.VIEW,
+          ],
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+        };
+
+        await db.table(FOLDERS_DEXIE_TABLE).add(cloudSharingTrashFolder);
+        console.log(
+          `Initialized root folder for Free Cloud Sharing disk for ${userID}@${orgID}`
+        );
+      } else {
+        console.log(
+          `Root folder for Free Cloud Sharing disk already exists for ${userID}@${orgID}`
+        );
+      }
+    } else {
+      console.warn(`${FOLDERS_DEXIE_TABLE} table not found in database schema`);
+    }
   } catch (error) {
     console.error("Error initializing Dexie database:", error);
     throw error;
   }
 };
+
+const disk_browser_slug = "offline-local-browser-cache";
+const disk_free_cloud_slug = "free-temp-cloud-sharing";
+
+export const defaultBrowserCacheDiskID = `DiskID_${disk_browser_slug}`;
+export const defaultTempCloudSharingDiskID = `DiskID_${disk_free_cloud_slug}`;
+
+// Default root folder IDs
+export const defaultBrowserCacheRootFolderID = `FolderID_root-folder-${disk_browser_slug}`;
+export const defaultTempCloudSharingRootFolderID = `FolderID_root-folder-${disk_free_cloud_slug}`;
+
+export const defaultBrowserCacheTrashFolderID = `FolderID_trash-folder-${disk_browser_slug}`;
+export const defaultTempCloudSharingTrashFolderID = `FolderID_trash-folder-${disk_free_cloud_slug}`;
+
+export type DirectoryListQueryString = string;

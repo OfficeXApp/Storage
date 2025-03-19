@@ -7,24 +7,23 @@ import {
   Input,
   Space,
   Tag,
-  Avatar,
   Row,
   Col,
   Tooltip,
-  DatePicker,
+  Badge,
+  Popover,
   message,
   Tabs,
   FloatButton,
   Divider,
   Popconfirm,
-  Switch,
+  Select,
 } from "antd";
 import {
   EditOutlined,
-  KeyOutlined,
   TagOutlined,
   ClockCircleOutlined,
-  UserOutlined,
+  DatabaseOutlined,
   GlobalOutlined,
   FileTextOutlined,
   CopyOutlined,
@@ -32,46 +31,51 @@ import {
   DownOutlined,
   UpOutlined,
   CodeOutlined,
-  LockOutlined,
+  KeyOutlined,
 } from "@ant-design/icons";
 import {
-  ApiKeyFE,
-  ApiKeyID,
-  IRequestUpdateApiKey,
+  IRequestUpdateDisk,
   SystemPermissionType,
+  DiskID,
+  DiskTypeEnum,
 } from "@officexapp/types";
 import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
   shortenAddress,
 } from "../../framework/identity/constants";
-import CodeBlock from "../CodeBlock";
+import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
-  deleteApiKeyAction,
-  updateApiKeyAction,
-} from "../../redux-offline/api-keys/api-keys.actions";
-import dayjs from "dayjs";
+  deleteDiskAction,
+  updateDiskAction,
+} from "../../redux-offline/disks/disks.actions";
+import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
 import { useNavigate } from "react-router-dom";
+import {
+  defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDiskID,
+} from "../../api/dexie-database";
+import TagCopy from "../../components/TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
+const { Option } = Select;
 
-// Define the props for the ApiKeyTab component
-interface ApiKeyTabProps {
-  apiKey: ApiKeyFE;
-  onSave?: (updatedApiKey: Partial<ApiKeyFE>) => void;
-  onDelete?: (apiKeyID: ApiKeyID) => void;
+// Define the props for the DiskTab component
+interface DiskTabProps {
+  disk: DiskFEO;
+  onSave?: (updatedDisk: Partial<DiskFEO>) => void;
+  onDelete?: (diskID: DiskID) => void;
 }
 
-const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
+const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [showCodeSnippets, setShowCodeSnippets] = useState(false);
-  const [neverExpires, setNeverExpires] = useState(apiKey.expires_at === -1);
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
@@ -95,50 +99,54 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
   const handleSave = () => {
     form.validateFields().then((values) => {
       // Determine which fields have changed
-      const changedFields: IRequestUpdateApiKey = { id: apiKey.id };
+      const changedFields: IRequestUpdateDisk = { id: disk.id as DiskID };
 
-      // Calculate expiration
-      let expiresAt: number | undefined = undefined;
-      if (neverExpires) {
-        expiresAt = -1;
-      } else if (values.expires_at) {
-        expiresAt = values.expires_at.valueOf();
-      }
+      // Define the specific fields we care about
+      const fieldsToCheck: (keyof IRequestUpdateDisk)[] = [
+        "name",
+        "public_note",
+        "private_note",
+        "auth_json",
+        "external_id",
+        "external_payload",
+      ];
 
-      // Only include fields that have changed
-      if (values.name !== apiKey.name) {
-        changedFields.name = values.name;
-      }
+      // Only check the fields we care about
+      fieldsToCheck.forEach((field) => {
+        // Skip if the field isn't in values
+        if (!(field in values)) return;
 
-      if (expiresAt !== apiKey.expires_at) {
-        changedFields.expires_at = expiresAt;
-      }
+        const valueFromForm = values[field];
+        const originalValue = disk[field as keyof DiskFEO];
 
-      if (values.is_revoked !== apiKey.is_revoked) {
-        changedFields.is_revoked = values.is_revoked;
-      }
+        // Only include fields that have changed
+        if (valueFromForm !== originalValue) {
+          // Handle empty strings - don't include them if they're just empty strings replacing undefined/null
+          if (valueFromForm === "" && !originalValue) {
+            return;
+          }
 
-      if (values.external_id !== (apiKey.external_id || "")) {
-        changedFields.external_id = values.external_id || undefined;
-      }
-
-      if (values.external_payload !== (apiKey.external_payload || "")) {
-        changedFields.external_payload = values.external_payload || undefined;
-      }
+          changedFields[field] = valueFromForm;
+        }
+      });
 
       // Only proceed if there are actual changes
       if (Object.keys(changedFields).length > 1 && changedFields.id) {
         // More than just the ID
         // Dispatch the update action if we're online
-        dispatch(updateApiKeyAction(changedFields));
+        dispatch(
+          updateDiskAction({
+            ...changedFields,
+          })
+        );
 
         message.success(
           isOnline
-            ? "Updating API key..."
-            : "Queued API key update for when you're back online"
+            ? "Updating disk..."
+            : "Queued disk update for when you're back online"
         );
 
-        // Call the onSave prop if provided
+        // Call the onSave prop if provided (for backward compatibility)
         if (onSave) {
           onSave(changedFields);
         }
@@ -151,13 +159,10 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
   };
 
   const formatDate = (timestamp: number) => {
-    if (timestamp === -1) return "Never expires";
     return new Date(timestamp).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 
@@ -201,7 +206,7 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
         addonBefore={
           <div
             style={{
-              width: screenType.isMobile ? 120 : 100,
+              width: screenType.isMobile ? 120 : 90,
               display: "flex",
               alignItems: "center",
             }}
@@ -222,103 +227,39 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
     );
   };
 
-  const shortenKey = (key: string) => {
-    if (!key || key.length < 10) return key;
-    return `${key.slice(0, 6)}...${key.slice(-4)}`;
+  const getDiskTypeLabel = (type: DiskTypeEnum) => {
+    switch (type) {
+      case DiskTypeEnum.LocalSSD:
+        return "Physical SSD";
+      case DiskTypeEnum.AwsBucket:
+        return "Amazon Bucket";
+      case DiskTypeEnum.StorjWeb3:
+        return "StorjWeb3 Bucket";
+      case DiskTypeEnum.BrowserCache:
+        return "Offline Browser";
+      case DiskTypeEnum.IcpCanister:
+        return "ICP Canister";
+      default:
+        return "Unknown";
+    }
   };
 
   const initialValues = {
-    name: apiKey.name,
-    is_revoked: apiKey.is_revoked,
-    expires_at: apiKey.expires_at === -1 ? null : dayjs(apiKey.expires_at),
-    external_id: apiKey.external_id || "",
-    external_payload: apiKey.external_payload || "",
-  };
-
-  const getStatusLabel = () => {
-    if (apiKey.is_revoked) {
-      return <Tag color="red">Revoked</Tag>;
-    }
-
-    if (apiKey.expires_at === -1) {
-      return <Tag color="green">Active</Tag>;
-    }
-
-    const now = Date.now();
-    if (apiKey.expires_at < now) {
-      return <Tag color="orange">Expired</Tag>;
-    }
-
-    return <Tag color="green">Active</Tag>;
+    name: disk.name,
+    disk_type: disk.disk_type,
+    auth_json: disk.auth_json || "",
+    public_note: disk.public_note || "",
+    private_note: disk.private_note || "",
+    external_id: disk.external_id || "",
+    external_payload: disk.external_payload || "",
   };
 
   const renderCodeSnippets = () => {
-    const jsCode_GET = `// Get API Key
-const response = await fetch(\`/api_keys/get/\${apiKeyId}\`, {
-  method: 'GET',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
-  }
-});
-const data = await response.json();`;
-
-    const jsCode_CREATE = `// Create API Key
-const response = await fetch('/api_keys/create', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
-  },
-  body: JSON.stringify({
-    name: 'My API Key',
-    expires_at: -1, // Never expires, or timestamp
-    external_id: 'external-identifier', // Optional
-    external_payload: '{"custom":"data"}' // Optional
-  })
-});
-const data = await response.json();`;
-
-    const jsCode_UPDATE = `// Update API Key
-const response = await fetch('/api_keys/update', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
-  },
-  body: JSON.stringify({
-    id: '${apiKey.id}',
-    name: 'Updated Name', // Optional
-    expires_at: ${apiKey.expires_at}, // Optional
-    is_revoked: false, // Optional
-    external_id: '${apiKey.external_id || "external-id"}', // Optional
-    external_payload: '${apiKey.external_payload || "{}"}' // Optional
-  })
-});
-const data = await response.json();`;
-
-    const jsCode_DELETE = `// Delete API Key
-const response = await fetch('/api_keys/delete', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
-  },
-  body: JSON.stringify({
-    id: '${apiKey.id}'
-  })
-});
-const data = await response.json();`;
-
-    const jsCode_LIST = `// List API Keys
-const response = await fetch(\`/api_keys/list/\${userId}\`, {
-  method: 'GET',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
-  }
-});
-const data = await response.json();`;
+    const jsCode_GET = `function getDisk(id) {\n  return fetch(\`/disks/get/\${id}\`, {\n    method: 'GET',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n  }).then(response => response.json());\n}`;
+    const jsCode_CREATE = `function createDisk(diskData) {\n  return fetch('/disks/create', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(diskData),\n  }).then(response => response.json());\n}`;
+    const jsCode_UPDATE = `function updateDisk(diskData) {\n  return fetch('/disks/update', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(diskData),\n  }).then(response => response.json());\n}`;
+    const jsCode_DELETE = `function deleteDisk(id) {\n  return fetch('/disks/delete', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify({ id }),\n  }).then(response => response.json());\n}`;
+    const jsCode_LIST = `function listDisks(params) {\n  return fetch('/disks/list', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(params),\n  }).then(response => response.json());\n}`;
 
     return (
       <Card
@@ -335,27 +276,27 @@ const data = await response.json();`;
               <CodeBlock
                 code={jsCode_GET}
                 language="javascript"
-                title="GET API Key"
+                title="GET Disk"
               />
               <CodeBlock
                 code={jsCode_CREATE}
                 language="javascript"
-                title="CREATE API Key"
+                title="CREATE Disk"
               />
               <CodeBlock
                 code={jsCode_UPDATE}
                 language="javascript"
-                title="UPDATE API Key"
+                title="UPDATE Disk"
               />
               <CodeBlock
                 code={jsCode_DELETE}
                 language="javascript"
-                title="DELETE API Key"
+                title="DELETE Disk"
               />
               <CodeBlock
                 code={jsCode_LIST}
                 language="javascript"
-                title="LIST API Keys"
+                title="LIST Disks"
               />
             </Space>
           </Tabs.TabPane>
@@ -380,7 +321,7 @@ const data = await response.json();`;
     >
       <Row justify="space-between" align="middle" style={{ marginTop: 16 }}>
         <Col>
-          {/* Empty col where buttons used to be */}
+          {/* Empty col for spacing */}
           <p></p>
         </Col>
         <Col>
@@ -411,43 +352,13 @@ const data = await response.json();`;
                   size={screenType.isMobile ? "small" : "middle"}
                   ghost
                   disabled={
-                    !apiKey.permission_previews.includes(
+                    !disk.permission_previews.includes(
                       SystemPermissionType.EDIT
                     )
                   }
                 >
                   Edit
                 </Button>
-                <Popconfirm
-                  title="Do you want to revoke this API key?"
-                  description="This will immediately prevent this key from being used."
-                  onConfirm={() => {
-                    dispatch(
-                      updateApiKeyAction({
-                        id: apiKey.id,
-                        is_revoked: true,
-                      })
-                    );
-                    message.success("API key revoked");
-                  }}
-                  okText="Yes"
-                  cancelText="No"
-                  disabled={apiKey.is_revoked}
-                >
-                  <Button
-                    icon={<LockOutlined />}
-                    size={screenType.isMobile ? "small" : "middle"}
-                    danger
-                    disabled={
-                      apiKey.is_revoked ||
-                      !apiKey.permission_previews.includes(
-                        SystemPermissionType.EDIT
-                      )
-                    }
-                  >
-                    Revoke
-                  </Button>
-                </Popconfirm>
               </>
             )}
           </Space>
@@ -468,119 +379,119 @@ const data = await response.json();`;
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
-                    placeholder="API key name"
+                    placeholder="Disk name"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
 
-                <Form.Item name="is_revoked" label="Status">
-                  <Switch
-                    checked={!form.getFieldValue("is_revoked")}
-                    onChange={(checked) => {
-                      form.setFieldsValue({ is_revoked: !checked });
-                    }}
-                    checkedChildren="Active"
-                    unCheckedChildren="Revoked"
+                <Form.Item
+                  name="disk_type"
+                  label="Disk Type"
+                  rules={[
+                    { required: true, message: "Please select disk type" },
+                  ]}
+                >
+                  <Select
+                    disabled
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  >
+                    <Option value={DiskTypeEnum.BrowserCache}>
+                      Offline Browser
+                    </Option>
+                    <Option value={DiskTypeEnum.AwsBucket}>Amazon S3</Option>
+                    <Option value={DiskTypeEnum.LocalSSD}>Physical SSD</Option>
+                    <Option value={DiskTypeEnum.AwsBucket}>
+                      Amazon Bucket
+                    </Option>
+                    <Option value={DiskTypeEnum.StorjWeb3}>
+                      StorjWeb3 Bucket
+                    </Option>
+                  </Select>
+                </Form.Item>
+
+                <Form.Item name="public_note" label="Public Note">
+                  <TextArea
+                    rows={2}
+                    placeholder="Public information about this disk"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
 
-                <Form.Item label="Expiration">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginBottom: 16,
-                    }}
-                  >
-                    <Switch
-                      checked={neverExpires}
-                      onChange={(checked) => {
-                        setNeverExpires(checked);
-                        if (checked) {
-                          form.setFieldsValue({ expires_at: null });
-                        }
-                      }}
-                    />
-                    <span style={{ marginLeft: 8 }}>Never Expires</span>
-                  </div>
-
-                  {!neverExpires && (
-                    <Form.Item name="expires_at" noStyle>
-                      <DatePicker
-                        showTime
-                        placeholder="Select expiry date and time"
-                        style={{ width: "100%" }}
+                {disk.permission_previews.includes(
+                  SystemPermissionType.EDIT
+                ) && (
+                  <>
+                    <Form.Item
+                      name="private_note"
+                      label="Private Note"
+                      extra="Only organization owners and editors can view this note"
+                    >
+                      <TextArea
+                        rows={3}
+                        placeholder="Private notes (only visible to owners and editors)"
+                        variant="borderless"
+                        style={{ backgroundColor: "#fafafa" }}
                       />
                     </Form.Item>
-                  )}
-                </Form.Item>
 
-                {/* Advanced section in edit mode */}
-                <div style={{ marginTop: "16px" }}>
-                  <details
-                    style={{ marginTop: "16px" }}
-                    open={isAdvancedOpen}
-                    onToggle={(e) => setIsAdvancedOpen(e.currentTarget.open)}
-                  >
-                    <summary
-                      style={{
-                        cursor: "pointer",
-                        color: "#595959",
-                        fontSize: "14px",
-                        marginBottom: "8px",
-                        userSelect: "none",
-                      }}
-                    >
-                      Advanced Details
-                    </summary>
-
-                    <div style={{ padding: "12px 0" }}>
-                      <Form.Item name="external_id" label="External ID">
-                        <Input
-                          prefix={<GlobalOutlined />}
-                          placeholder="External identifier"
-                          variant="borderless"
-                          style={{ backgroundColor: "#fafafa" }}
-                        />
-                      </Form.Item>
-
+                    {disk.disk_type !== DiskTypeEnum.BrowserCache && (
                       <Form.Item
-                        name="external_payload"
-                        label="External Payload"
+                        name="auth_json"
+                        label="Authentication JSON"
+                        extra="Authentication information for cloud storage"
                       >
                         <TextArea
-                          rows={3}
-                          placeholder="Additional data for external systems (JSON, etc.)"
+                          rows={4}
+                          placeholder='{"key": "value", ...}'
                           variant="borderless"
                           style={{ backgroundColor: "#fafafa" }}
                         />
                       </Form.Item>
-                    </div>
-                  </details>
-                </div>
+                    )}
+
+                    <Form.Item name="external_id" label="External ID">
+                      <Input
+                        placeholder="External identifier"
+                        variant="borderless"
+                        style={{ backgroundColor: "#fafafa" }}
+                      />
+                    </Form.Item>
+
+                    <Form.Item name="external_payload" label="External Payload">
+                      <TextArea
+                        rows={2}
+                        placeholder="Additional data for external systems"
+                        variant="borderless"
+                        style={{ backgroundColor: "#fafafa" }}
+                      />
+                    </Form.Item>
+                  </>
+                )}
 
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this API key?"
+                    title="Are you sure you want to delete this disk?"
                     okText="Yes"
                     cancelText="No"
                     onConfirm={() => {
-                      dispatch(deleteApiKeyAction({ id: apiKey.id }));
+                      dispatch(deleteDiskAction({ id: disk.id }));
                       message.success(
                         isOnline
-                          ? "Deleting API key..."
-                          : "Queued API key delete for when you're back online"
+                          ? "Deleting disk..."
+                          : "Queued disk delete for when you're back online"
                       );
                       if (onDelete) {
-                        onDelete(apiKey.id);
+                        onDelete(disk.id);
                       }
                     }}
                   >
                     <Button
                       disabled={
-                        !apiKey.permission_previews.includes(
+                        !disk.permission_previews.includes(
                           SystemPermissionType.DELETE
                         )
                       }
@@ -588,7 +499,7 @@ const data = await response.json();`;
                       type="primary"
                       danger
                     >
-                      Delete API Key
+                      Delete Disk
                     </Button>
                   </Popconfirm>
                 </Form.Item>
@@ -606,11 +517,21 @@ const data = await response.json();`;
                       }}
                     >
                       <Space align="center" size={16}>
-                        <Avatar
-                          size={64}
-                          icon={<KeyOutlined />}
-                          style={{ backgroundColor: "#1890ff" }}
-                        />
+                        <div
+                          style={{
+                            width: 64,
+                            height: 64,
+                            backgroundColor: "#1890ff",
+                            borderRadius: "50%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "white",
+                            fontSize: "28px",
+                          }}
+                        >
+                          <DatabaseOutlined />
+                        </div>
                         <div
                           style={{
                             display: "flex",
@@ -631,26 +552,19 @@ const data = await response.json();`;
                               level={3}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {apiKey.name}
+                              {disk.name}
                             </Title>
-                            <Tag>
-                              {shortenAddress(
-                                apiKey.id.replace("ApiKeyID_", "")
-                              )}
-                            </Tag>
-                            {getStatusLabel()}
-                          </div>
-                          <Space style={{ marginTop: "4px" }}>
-                            {apiKey.user_name && (
-                              <Text type="secondary">
-                                Owned by {apiKey.user_name}{" "}
-                                <code style={{ fontSize: "0.6rem" }}>
-                                  {shortenAddress(
-                                    apiKey.user_id.replace("UserID_", "")
-                                  )}
-                                </code>
-                              </Text>
+                            {disk.id === defaultBrowserCacheDiskID ||
+                            disk.id === defaultTempCloudSharingDiskID ? (
+                              <Tag color="blue">Temp</Tag>
+                            ) : (
+                              <TagCopy id={disk.id} color="blue" />
                             )}
+                          </div>
+                          <Space>
+                            <Text type="secondary">
+                              {getDiskTypeLabel(disk.disk_type)}
+                            </Text>
                           </Space>
                         </div>
                       </Space>
@@ -661,6 +575,7 @@ const data = await response.json();`;
                 <Row gutter={[16, 16]}>
                   <Col span={24}>
                     {/* Always displayed fields */}
+
                     {!screenType.isMobile && (
                       <div
                         style={{
@@ -670,8 +585,8 @@ const data = await response.json();`;
                           flexWrap: "wrap",
                         }}
                       >
-                        {apiKey.labels &&
-                          apiKey.labels.map((label, index) => (
+                        {disk.labels &&
+                          disk.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
@@ -687,32 +602,18 @@ const data = await response.json();`;
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : apiKey.labels && apiKey.labels.length > 0
+                          : disk.labels && disk.labels.length > 0
                             ? 0
                             : 32,
                       }}
                     >
-                      {/* Key value display */}
                       <Card size="small" style={{ marginTop: 8 }}>
-                        <Space>
-                          <Input.Password
-                            readOnly
-                            value={apiKey.value}
-                            style={{ width: 300 }}
-                          />
-                          <Button
-                            type="text"
-                            icon={<CopyOutlined />}
-                            onClick={() => copyToClipboard(apiKey.value)}
-                            size="small"
-                          >
-                            Copy
-                          </Button>
-                        </Space>
+                        <GlobalOutlined style={{ marginRight: 8 }} />
+                        {disk.public_note || "No public note available"}
                       </Card>
                     </div>
 
-                    {screenType.isMobile && apiKey.labels && (
+                    {screenType.isMobile && disk.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -721,7 +622,7 @@ const data = await response.json();`;
                           flexWrap: "wrap",
                         }}
                       >
-                        {apiKey.labels.map((label, index) => (
+                        {disk.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
@@ -759,60 +660,71 @@ const data = await response.json();`;
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "API Key ID",
-                          apiKey.id,
-                          <KeyOutlined />
+                          "Disk ID",
+                          disk.id,
+                          <DatabaseOutlined />
                         )}
 
-                        {apiKey.user_id &&
+                        {disk.auth_json &&
+                          disk.permission_previews.includes(
+                            SystemPermissionType.EDIT
+                          ) &&
                           renderReadOnlyField(
-                            "User ID",
-                            apiKey.user_id,
-                            <UserOutlined />,
-                            `/resources/contacts/${apiKey.user_id}`
+                            "Auth JSON",
+                            disk.auth_json,
+                            <KeyOutlined />
                           )}
 
-                        {apiKey.external_id &&
-                          renderReadOnlyField(
-                            "External ID",
-                            apiKey.external_id,
-                            <GlobalOutlined />
+                        {disk.private_note &&
+                          disk.permission_previews.includes(
+                            SystemPermissionType.EDIT
+                          ) && (
+                            <div style={{ marginTop: "16px" }}>
+                              <Space align="center">
+                                <Text strong>Private Note:</Text>
+                                <Popover
+                                  content="Only organization owners and editors can view this note"
+                                  trigger="hover"
+                                >
+                                  <InfoCircleOutlined
+                                    style={{ color: "#1890ff" }}
+                                  />
+                                </Popover>
+                              </Space>
+                              <Card
+                                size="small"
+                                style={{
+                                  marginTop: 8,
+                                  backgroundColor: "#fafafa",
+                                }}
+                              >
+                                <FileTextOutlined style={{ marginRight: 8 }} />
+                                {disk.private_note}
+                              </Card>
+                            </div>
                           )}
-
-                        {apiKey.external_payload && (
-                          <div style={{ marginTop: "16px" }}>
-                            <Space align="center">
-                              <Text strong>External Payload:</Text>
-                            </Space>
-                            <Card
-                              size="small"
-                              style={{
-                                marginTop: 8,
-                                backgroundColor: "#fafafa",
-                              }}
-                            >
-                              <FileTextOutlined style={{ marginRight: 8 }} />
-                              {apiKey.external_payload}
-                            </Card>
-                          </div>
-                        )}
 
                         <div style={{ marginTop: "16px" }}>
                           <Space align="center">
                             <ClockCircleOutlined />
                             <Text type="secondary">
-                              Created on {formatDate(apiKey.created_at)}
+                              Created on {formatDate(disk.created_at)}
                             </Text>
                           </Space>
-                        </div>
-
-                        <div style={{ marginTop: "8px" }}>
-                          <Space align="center">
-                            <ClockCircleOutlined />
-                            <Text type="secondary">
-                              Expires on {formatDate(apiKey.expires_at)}
-                            </Text>
-                          </Space>
+                          {disk.external_id && (
+                            <div style={{ marginTop: 8 }}>
+                              <Text type="secondary">
+                                External ID: {disk.external_id}
+                              </Text>
+                            </div>
+                          )}
+                          {disk.external_payload && (
+                            <div style={{ marginTop: 8 }}>
+                              <Text type="secondary">
+                                External Payload: {disk.external_payload}
+                              </Text>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </details>
@@ -830,16 +742,16 @@ const data = await response.json();`;
       </Row>
 
       {/* FloatButton for View Code at bottom right corner */}
-      {!screenType.isMobile && (
+      {!screenType.isMobile && !showCodeSnippets && (
         <FloatButton
           icon={<CodeOutlined />}
-          type={showCodeSnippets ? "primary" : "default"}
-          tooltip={showCodeSnippets ? "Hide Code" : "View Code"}
+          type="default"
+          tooltip="View Code"
           onClick={() => {
-            setShowCodeSnippets(!showCodeSnippets);
+            setShowCodeSnippets(true);
             localStorage.setItem(
               LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
-              JSON.stringify(!showCodeSnippets)
+              JSON.stringify(true)
             );
           }}
           style={{ right: 24, bottom: 64 }}
@@ -851,4 +763,4 @@ const data = await response.json();`;
   );
 };
 
-export default ApiKeyTab;
+export default DiskTab;

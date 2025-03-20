@@ -310,7 +310,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             parent_folder_uuid: "",
             subfolder_uuids: [],
             file_uuids: [],
-            full_directory_path: `${disk.disk_type}::` as DriveFullFilePath,
+            full_directory_path: `${disk.disk_type}::/` as DriveFullFilePath,
             labels: [],
             created_by: "Owner" as UserID,
             created_at: Date.now(),
@@ -323,7 +323,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             drive_id: currentOrg?.driveID || "",
             has_sovereign_permissions: false,
             clipped_directory_path:
-              `${disk.disk_type}::` as DriveClippedFilePath,
+              `${disk.disk_type}::/` as DriveClippedFilePath,
             permission_previews: [],
           })),
           files: [],

@@ -142,9 +142,9 @@ export interface S3AdapterConfig {
 
 // Canister specific config
 export interface CanisterAdapterConfig {
-  canisterId: string;
+  endpoint: string;
   maxChunkSize?: number;
-  host?: string;
+  apiKey: string;
 }
 
 /**

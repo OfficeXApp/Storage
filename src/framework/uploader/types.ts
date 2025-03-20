@@ -131,7 +131,7 @@ export interface IndexDBAdapterConfig {
 }
 
 // S3 specific config
-export interface S3AdapterConfig {
+export interface LocalS3AdapterConfig {
   diskID: DiskID;
   endpoint: string;
   region: string;

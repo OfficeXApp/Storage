@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { UploadManager } from "./UploadManager";
-import { S3Adapter } from "./adapters/s3bucket.adapter";
+import { LocalS3Adapter } from "./adapters/locals3.adapter";
 import { IndexedDBAdapter } from "./adapters/indexdb.adapter";
 import { DiskID, DiskTypeEnum } from "@officexapp/types";
 import {
@@ -16,7 +16,7 @@ import {
   UploadID,
   UploadProgressInfo,
   BatchUploadConfig,
-  S3AdapterConfig,
+  LocalS3AdapterConfig,
   IndexDBAdapterConfig,
   QueuedUploadItem,
   PauseReason,

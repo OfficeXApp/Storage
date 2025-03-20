@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Button,
   Card,
@@ -9,8 +9,6 @@ import {
   message,
   Divider,
   Typography,
-  Popover,
-  Image,
   Modal,
 } from "antd";
 import {
@@ -26,97 +24,118 @@ import {
   EyeOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  FolderID,
-  FileID,
-  DiskID,
-  GenerateID,
-  DiskTypeEnum,
-} from "@officexapp/types";
-import {
-  CREATE_FILE,
-  createFileAction,
-} from "../../redux-offline/directory/directory.actions";
-import { sleep } from "../../api/helpers";
+import { useDispatch } from "react-redux";
+import { DiskTypeEnum } from "@officexapp/types";
 import { useMultiUploader } from "../../framework/uploader/hook";
-import { IndexedDBAdapter } from "../../framework/uploader/adapters/indexdb.adapter";
+import { CanisterAdapter } from "../../framework/uploader/adapters/canister.adapter";
+import { UploadState, QueuedUploadItem } from "../../framework/uploader/types";
 
 const { Title, Text } = Typography;
 
-// Base API URL - would normally come from environment or config
-const API_BASE_URL =
+const apiBaseUrl =
   "http://bw4dl-smaaa-aaaaa-qaacq-cai.localhost:8000/v1/default";
-const API_KEY =
+const apiKey =
   "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiMTYyM2IwODkwZTc2NGM1MzdkMGVlODdhZWE3OGQyYWZiNGJmZDBmN2NmOTU1NDE5OGExNjY4OTM3YTRlMmM3ZiJ9";
-
-const currentFolderId = "FolderID_dc228a63-6cc8-4de6-addf-839012898e31";
 const diskId = "DiskID_ae284014-1881-4ee6-afc2-568f87269ad2";
+const currentFolderId = "FolderID_dc228a63-6cc8-4de6-addf-839012898e31";
+const maxChunkSize = 0.5 * 1024 * 1024; // 0.5MB chunks default
 
-// Upload statuses
-enum UploadState {
-  QUEUED = "queued",
-  ACTIVE = "active",
-  PAUSED = "paused",
-  COMPLETED = "completed",
-  FAILED = "failed",
-  CANCELLED = "cancelled",
-}
-
-// Interface for tracking uploads
-interface UploadItem {
-  id: string;
-  file: File;
-  state: UploadState;
-  progress: number;
-  chunks: {
-    total: number;
-    completed: number;
-  };
-  url?: string;
-  error?: string;
-  createdAt: number;
-  blobUrl?: string;
-}
-
+/**
+ * A component for uploading files to a Canister using the MultiUploader framework
+ */
 const CanisterUploader = () => {
+  const {
+    uploadFiles,
+    pauseUpload,
+    resumeUpload,
+    cancelUpload,
+    clearFinishedUploads,
+    pauseAllUploads,
+    resumeAllUploads,
+    currentUploads,
+    progress,
+    getFileUrl,
+    isInitialized,
+    registerAdapter,
+  } = useMultiUploader();
+
   const dispatch = useDispatch();
   const [fileList, setFileList] = useState<File[]>([]);
-  const [uploads, setUploads] = useState<UploadItem[]>([]);
-  const [overallProgress, setOverallProgress] = useState(0);
+  const [urls, setUrls] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadingActive, setUploadingActive] = useState(false);
-  const activeCancelTokens = useRef<Record<string, AbortController>>({});
+  const [adapterRegistered, setAdapterRegistered] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewTitle, setPreviewTitle] = useState<string>("");
 
-  // Calculate overall progress whenever uploads change
+  // Register the Canister adapter when component initializes
   useEffect(() => {
-    if (uploads.length === 0) {
-      setOverallProgress(0);
-      return;
-    }
+    const initAdapter = async () => {
+      if (isInitialized && !adapterRegistered) {
+        try {
+          // Create Canister adapter
+          const canisterAdapter = new CanisterAdapter();
 
-    const total = uploads.reduce((sum, item) => sum + item.progress, 0);
-    setOverallProgress(Math.floor(total / uploads.length));
+          // Configuration for Canister adapter
+          const canisterConfig = {
+            diskID: diskId,
+            endpoint: apiBaseUrl,
+            apiKey: apiKey,
+            maxChunkSize: maxChunkSize,
+          };
 
-    // Check if any uploads are still active
-    const activeUploads = uploads.some(
-      (item) =>
-        item.state === UploadState.ACTIVE || item.state === UploadState.QUEUED
-    );
-    setUploadingActive(activeUploads);
+          // Register the adapter
+          await registerAdapter(
+            canisterAdapter,
+            DiskTypeEnum.IcpCanister,
+            diskId,
+            canisterConfig,
+            3 // Concurrency
+          );
 
-    return () => {
-      // Revoke all blob URLs when component unmounts
-      uploads.forEach((item) => {
-        if (item.blobUrl) {
-          URL.revokeObjectURL(item.blobUrl);
+          console.log("Canister adapter registered successfully");
+          setAdapterRegistered(true);
+        } catch (error) {
+          console.error("Failed to register Canister adapter:", error);
+          message.error("Failed to initialize Canister uploader");
         }
-      });
+      }
     };
-  }, [uploads]);
+
+    initAdapter();
+  }, [
+    apiBaseUrl,
+    apiKey,
+    diskId,
+    isInitialized,
+    adapterRegistered,
+    registerAdapter,
+    maxChunkSize,
+  ]);
+
+  // Update URLs for completed uploads
+  useEffect(() => {
+    const fetchUrls = async () => {
+      for (const upload of currentUploads) {
+        if (
+          upload.state === UploadState.COMPLETED &&
+          !urls[upload.id] &&
+          upload.config.diskID === diskId // Only handle URLs for our disk
+        ) {
+          try {
+            const url = await getFileUrl(upload.id);
+            if (url) {
+              setUrls((prev) => ({ ...prev, [upload.id]: url }));
+            }
+          } catch (error) {
+            console.error(`Error getting URL for ${upload.id}:`, error);
+          }
+        }
+      }
+    };
+
+    fetchUrls();
+  }, [currentUploads, getFileUrl, urls, diskId]);
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,542 +145,146 @@ const CanisterUploader = () => {
     }
   };
 
-  // Create a file record in the system using Redux action
-  const createFileRecord = async (file: File): Promise<string> => {
-    const fileId = GenerateID.File();
-
-    // Prepare the create file action
-    const createAction = {
-      action: CREATE_FILE as "CREATE_FILE",
-      payload: {
-        id: fileId,
-        name: file.name,
-        parent_folder_uuid: currentFolderId,
-        extension: file.name.split(".").pop() || "",
-        labels: [],
-        file_size: file.size,
-        raw_url: "", // Will be populated later
-        disk_id: diskId,
-        // disk_type: DiskTypeEnum.IcpCanister,
-      },
-    };
-
-    console.log("About to create file record with action:", createAction);
-
-    // Dispatch action to create file record
-    dispatch(createFileAction(createAction, undefined, false));
-
-    console.log("Sent dispatch to create file record");
-
-    await sleep(5000);
-    return fileId;
-  };
-
-  // Upload a single chunk
-  const uploadChunk = async (
-    fileId: string,
-    chunkIndex: number,
-    chunkData: Uint8Array,
-    totalChunks: number,
-    abortController: AbortController
-  ): Promise<boolean> => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/directory/raw_upload/chunk`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${API_KEY}`,
-          },
-          body: JSON.stringify({
-            file_id: fileId,
-            chunk_index: chunkIndex,
-            chunk_data: Array.from(chunkData),
-            total_chunks: totalChunks,
-          }),
-          signal: abortController.signal,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
-      }
-
-      return true;
-    } catch (error) {
-      if ((error as Error).name === "AbortError") {
-        console.log(
-          `Upload of chunk ${chunkIndex} for file ${fileId} was cancelled`
-        );
-        return false;
-      }
-      throw error;
-    }
-  };
-
-  // Complete the upload
-  const completeUpload = async (
-    fileId: string,
-    filename: string,
-    abortController: AbortController
-  ): Promise<boolean> => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/directory/raw_upload/complete`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${API_KEY}`,
-          },
-          body: JSON.stringify({
-            file_id: fileId,
-            filename,
-          }),
-          signal: abortController.signal,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Complete upload failed: ${response.statusText}`);
-      }
-
-      return true;
-    } catch (error) {
-      if ((error as Error).name === "AbortError") {
-        console.log(`Complete upload for file ${fileId} was cancelled`);
-        return false;
-      }
-      throw error;
-    }
-  };
-
-  const fetchFileContent = async (fileId: string) => {
-    try {
-      const existingItem = uploads.find((item) => item.id === fileId);
-
-      // If we already have a blob URL, don't fetch again
-      if (existingItem?.blobUrl) {
-        return existingItem.blobUrl;
-      }
-
-      // 1. Fetch metadata
-      const metaRes = await fetch(
-        `${API_BASE_URL}/directory/raw_download/meta?file_id=${fileId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${API_KEY}`,
-          },
-        }
-      );
-
-      if (!metaRes.ok) {
-        throw new Error(`Metadata request failed: ${metaRes.statusText}`);
-      }
-
-      const metadata = await metaRes.json();
-      const { total_size, total_chunks } = metadata;
-
-      // 2. Fetch all chunks
-      let allBytes = new Uint8Array(total_size);
-      let offset = 0;
-
-      for (let i = 0; i < total_chunks; i++) {
-        const chunkRes = await fetch(
-          `${API_BASE_URL}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${API_KEY}`,
-            },
-          }
-        );
-
-        if (!chunkRes.ok) {
-          throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);
-        }
-
-        const chunkBuf = await chunkRes.arrayBuffer();
-        allBytes.set(new Uint8Array(chunkBuf), offset);
-        offset += chunkBuf.byteLength;
-      }
-
-      // 3. Create blob and URL
-      const blob = new Blob([allBytes]);
-      const blobUrl = URL.createObjectURL(blob);
-
-      // Save blobUrl to state
-      setUploads((prev) =>
-        prev.map((item) => (item.id === fileId ? { ...item, blobUrl } : item))
-      );
-
-      return blobUrl;
-    } catch (error) {
-      console.error(`Error fetching content for ${fileId}:`, error);
-      message.error(`Failed to prepare preview: ${(error as Error).message}`);
-      return null;
-    }
-  };
-
-  // Upload a file with chunking
-  const uploadFile = async (file: File) => {
-    const CHUNK_SIZE = 0.5 * 1024 * 1024; // 0.5MB chunks
-    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-
-    // Create a file record and get the ID
-    const fileId = await createFileRecord(file);
-
-    const abortController = new AbortController();
-    activeCancelTokens.current[fileId] = abortController;
-
-    // Add to uploads state with initial values
-    const uploadItem: UploadItem = {
-      id: fileId,
-      file,
-      state: UploadState.QUEUED,
-      progress: 0,
-      chunks: {
-        total: totalChunks,
-        completed: 0,
-      },
-      createdAt: Date.now(),
-    };
-
-    setUploads((prev) => [...prev, uploadItem]);
-
-    try {
-      // Update state to active
-      setUploads((prev) =>
-        prev.map((item) =>
-          item.id === fileId ? { ...item, state: UploadState.ACTIVE } : item
-        )
-      );
-
-      // Upload each chunk
-      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-        // Check if upload was cancelled
-        if (abortController.signal.aborted) {
-          return;
-        }
-
-        const start = chunkIndex * CHUNK_SIZE;
-        const end = Math.min(start + CHUNK_SIZE, file.size);
-        const chunk = file.slice(start, end);
-
-        const chunkArrayBuffer = await chunk.arrayBuffer();
-        const chunkData = new Uint8Array(chunkArrayBuffer);
-
-        const success = await uploadChunk(
-          fileId,
-          chunkIndex,
-          chunkData,
-          totalChunks,
-          abortController
-        );
-
-        if (!success) {
-          // Upload was cancelled
-          return;
-        }
-
-        // Update progress
-        const newCompletedChunks = chunkIndex + 1;
-        const newProgress = Math.floor(
-          (newCompletedChunks / totalChunks) * 100
-        );
-
-        setUploads((prev) =>
-          prev.map((item) =>
-            item.id === fileId
-              ? {
-                  ...item,
-                  progress: newProgress,
-                  chunks: {
-                    ...item.chunks,
-                    completed: newCompletedChunks,
-                  },
-                }
-              : item
-          )
-        );
-      }
-
-      // Complete the upload
-      const completed = await completeUpload(
-        fileId,
-        file.name,
-        abortController
-      );
-
-      if (isImageFile(file)) {
-        fetchFileContent(fileId);
-      }
-
-      if (!completed) {
-        // Upload was cancelled during completion
-        return;
-      }
-
-      // Update final state
-      setUploads((prev) =>
-        prev.map((item) =>
-          item.id === fileId
-            ? {
-                ...item,
-                state: UploadState.COMPLETED,
-                progress: 100,
-              }
-            : item
-        )
-      );
-
-      // Generate URL for the uploaded file
-      fetchFileUrl(fileId);
-
-      message.success(`File ${file.name} uploaded successfully`);
-    } catch (error) {
-      console.error(`Error uploading file ${file.name}:`, error);
-
-      setUploads((prev) =>
-        prev.map((item) =>
-          item.id === fileId
-            ? {
-                ...item,
-                state: UploadState.FAILED,
-                error: (error as Error).message,
-              }
-            : item
-        )
-      );
-
-      message.error(
-        `Failed to upload ${file.name}: ${(error as Error).message}`
-      );
-    } finally {
-      // Clean up the abort controller
-      delete activeCancelTokens.current[fileId];
-    }
-  };
-
-  const handlePreviewCancel = () => {
-    setPreviewVisible(false);
-  };
-
-  // Upload all selected files
-  const handleUpload = async () => {
+  // Upload selected files
+  const handleUpload = () => {
     if (fileList.length === 0) {
       message.warning("Please select files first");
       return;
     }
 
-    for (const file of fileList) {
-      await uploadFile(file);
-    }
-
-    // Clear file list after starting uploads
-    setFileList([]);
-  };
-
-  // Fetch URL for a completed file
-  const fetchFileUrl = async (fileId: string) => {
     try {
-      // Fetch the file metadata
-      const response = await fetch(
-        `${API_BASE_URL}/directory/raw_download/meta?file_id=${fileId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${API_KEY}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch file URL: ${response.statusText}`);
-      }
-
-      // Create a URL that would be used to access the file
-      const fileUrl = `${API_BASE_URL}/directory/raw_download?file_id=${fileId}`;
-
-      // Update the URL in the uploads state
-      setUploads((prev) =>
-        prev.map((item) =>
-          item.id === fileId ? { ...item, url: fileUrl } : item
-        )
-      );
-
-      return fileUrl;
+      // Upload all files in the fileList with Redux dispatch in metadata
+      uploadFiles(fileList, currentFolderId, DiskTypeEnum.IcpCanister, diskId, {
+        metadata: {
+          dispatch: dispatch,
+        },
+        onFileComplete: (id) => {
+          message.success(`File upload completed successfully`);
+          fetchFileUrl(id);
+        },
+        onAllComplete: () => {
+          message.success("All files uploaded successfully");
+          setFileList([]);
+        },
+      });
     } catch (error) {
-      console.error(`Error fetching URL for ${fileId}:`, error);
-      return null;
+      console.error("Error starting uploads:", error);
+      message.error("Failed to start uploads");
     }
   };
 
-  // Cancel an upload
-  const handleCancelUpload = (id: string) => {
-    const abortController = activeCancelTokens.current[id];
-
-    if (abortController) {
-      abortController.abort();
-      delete activeCancelTokens.current[id];
-    }
-
-    setUploads((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, state: UploadState.CANCELLED } : item
-      )
-    );
-
-    message.info(
-      `Upload cancelled for file: ${uploads.find((item) => item.id === id)?.file.name}`
-    );
-  };
-
-  // Clear finished uploads
-  const clearFinishedUploads = () => {
-    uploads.forEach((item) => {
-      if (
-        (item.state === UploadState.COMPLETED ||
-          item.state === UploadState.FAILED ||
-          item.state === UploadState.CANCELLED) &&
-        item.blobUrl
-      ) {
-        URL.revokeObjectURL(item.blobUrl);
-      }
-    });
-    setUploads((prev) =>
-      prev.filter(
-        (item) =>
-          ![
-            UploadState.COMPLETED,
-            UploadState.FAILED,
-            UploadState.CANCELLED,
-          ].includes(item.state)
-      )
-    );
-  };
-
-  // Cancel all active uploads
-  const cancelAllUploads = () => {
-    // Abort all pending uploads
-    Object.values(activeCancelTokens.current).forEach((controller) => {
-      controller.abort();
-    });
-
-    // Clear the abort controllers
-    activeCancelTokens.current = {};
-
-    // Update all active uploads to cancelled
-    setUploads((prev) =>
-      prev.map((item) =>
-        [UploadState.ACTIVE, UploadState.QUEUED].includes(item.state)
-          ? { ...item, state: UploadState.CANCELLED }
-          : item
-      )
-    );
-
-    message.info("All uploads cancelled");
-  };
-
-  // Download a file
-  const handleDownloadFile = async (fileId: string, fileName: string) => {
+  // Get file URL after upload is complete
+  const fetchFileUrl = async (id: string) => {
     try {
-      // 1. Fetch metadata
-      const metaRes = await fetch(
-        `${API_BASE_URL}/directory/raw_download/meta?file_id=${fileId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${API_KEY}`,
-          },
-        }
-      );
-
-      if (!metaRes.ok) {
-        throw new Error(`Metadata request failed: ${metaRes.statusText}`);
+      const url = await getFileUrl(id);
+      if (url) {
+        setUrls((prev) => ({ ...prev, [id]: url }));
       }
+    } catch (error) {
+      console.error(`Error getting URL for ${id}:`, error);
+    }
+  };
 
-      const metadata = await metaRes.json();
-      const { total_size, total_chunks } = metadata;
-
-      // 2. Fetch all chunks
-      let allBytes = new Uint8Array(total_size);
-      let offset = 0;
-
-      for (let i = 0; i < total_chunks; i++) {
-        const chunkRes = await fetch(
-          `${API_BASE_URL}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${API_KEY}`,
-            },
-          }
-        );
-
-        if (!chunkRes.ok) {
-          throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);
-        }
-
-        const chunkBuf = await chunkRes.arrayBuffer();
-        allBytes.set(new Uint8Array(chunkBuf), offset);
-        offset += chunkBuf.byteLength;
+  // Handle pause upload
+  const handlePauseUpload = async (id: string) => {
+    try {
+      const paused = await pauseUpload(id);
+      if (paused) {
+        message.info(`Upload paused`);
+      } else {
+        message.error(`Failed to pause upload`);
       }
+    } catch (error) {
+      console.error(`Error pausing upload ${id}:`, error);
+      message.error("Failed to pause upload");
+    }
+  };
 
-      // 3. Create blob and download
-      const blob = new Blob([allBytes]);
-      const downloadUrl = URL.createObjectURL(blob);
+  // Handle resume upload
+  const handleResumeUpload = async (id: string, item: QueuedUploadItem) => {
+    try {
+      const resumed = await resumeUpload(id, item.file);
+      if (resumed) {
+        message.info(`Upload resumed`);
+      } else {
+        message.error(`Failed to resume upload`);
+      }
+    } catch (error) {
+      console.error(`Error resuming upload ${id}:`, error);
+      message.error("Failed to resume upload");
+    }
+  };
 
-      const a = document.createElement("a");
-      a.href = downloadUrl;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
+  // Handle cancel upload
+  const handleCancelUpload = async (id: string) => {
+    try {
+      const cancelled = await cancelUpload(id);
+      if (cancelled) {
+        // Cleanup URL if it exists
+        if (urls[id]) {
+          setUrls((prev) => {
+            const newUrls = { ...prev };
+            delete newUrls[id];
+            return newUrls;
+          });
+        }
+        message.info(`Upload cancelled`);
+      } else {
+        message.error(`Failed to cancel upload`);
+      }
+    } catch (error) {
+      console.error(`Error cancelling upload ${id}:`, error);
+      message.error("Failed to cancel upload");
+    }
+  };
 
-      // Clean up
+  // Handle file download
+  const handleDownloadFile = (id: string, fileName: string) => {
+    const url = urls[id];
+    if (!url) {
+      message.error("Download URL not available yet");
+      return;
+    }
+
+    try {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up after download starts
       setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(downloadUrl);
+        document.body.removeChild(link);
       }, 100);
 
-      message.success(`File ${fileName} downloaded successfully`);
+      message.success(`Downloading ${fileName}`);
     } catch (error) {
       console.error("Error downloading file:", error);
-      message.error(`Failed to download file: ${(error as Error).message}`);
+      message.error("Failed to download file");
     }
   };
 
   // Preview an image file
-  // Handle preview for image files
-  const handlePreviewImage = async (fileId: string, fileName: string) => {
+  const handlePreviewImage = async (id: string, fileName: string) => {
     try {
       message.loading({ content: "Loading preview...", key: "preview" });
 
-      // Find the file in uploads
-      const file = uploads.find((item) => item.id === fileId);
-      if (!file) {
-        throw new Error("File not found");
+      // Get the URL if we don't already have it
+      let imageUrl = urls[id];
+      if (!imageUrl) {
+        imageUrl = (await getFileUrl(id)) || "";
+        if (imageUrl) {
+          setUrls((prev) => ({ ...prev, [id]: imageUrl }));
+        }
       }
 
-      // Get or create blob URL
-      let blobUrl = file.blobUrl;
-      if (!blobUrl) {
-        blobUrl = (await fetchFileContent(fileId)) || undefined;
-      }
-
-      if (!blobUrl) {
+      if (!imageUrl) {
         throw new Error("Failed to load preview");
       }
 
       // Set preview state
-      setPreviewImage(blobUrl);
+      setPreviewImage(imageUrl);
       setPreviewTitle(fileName);
       setPreviewVisible(true);
       message.success({ content: "Preview loaded", key: "preview" });
@@ -672,6 +295,10 @@ const CanisterUploader = () => {
         key: "preview",
       });
     }
+  };
+
+  const handlePreviewCancel = () => {
+    setPreviewVisible(false);
   };
 
   // Get file icon based on type
@@ -734,34 +361,30 @@ const CanisterUploader = () => {
     return file.type.startsWith("image/");
   };
 
-  // Calculate overall stats
-  const stats = {
-    total: uploads.length,
-    active: uploads.filter((item) => item.state === UploadState.ACTIVE).length,
-    completed: uploads.filter((item) => item.state === UploadState.COMPLETED)
-      .length,
-    failed: uploads.filter((item) => item.state === UploadState.FAILED).length,
-    cancelled: uploads.filter((item) => item.state === UploadState.CANCELLED)
-      .length,
-    queued: uploads.filter((item) => item.state === UploadState.QUEUED).length,
-  };
+  // Filter uploads for this disk ID only
+  const filteredUploads = currentUploads.filter(
+    (upload) => upload.config.diskID === diskId
+  );
 
   // Table columns
   const columns = [
     {
       title: "File",
       key: "file",
-      render: (item: UploadItem) => {
-        const file = item.file;
-        const isCompleted = item.state === UploadState.COMPLETED;
+      render: (record: QueuedUploadItem) => {
+        const file = record.file;
+        const isCompleted = record.state === UploadState.COMPLETED;
         const isImage = isImageFile(file);
-        const fileUrl = item.url;
+        const fileUrl = urls[record.id];
 
         if (isCompleted && isImage && fileUrl) {
           return (
             <Space>
               {getFileIcon(file)}
-              <span style={{ cursor: "pointer", color: "#1890ff" }}>
+              <span
+                style={{ cursor: "pointer", color: "#1890ff" }}
+                onClick={() => handlePreviewImage(record.id, file.name)}
+              >
                 {file.name}
               </span>
             </Space>
@@ -779,45 +402,76 @@ const CanisterUploader = () => {
     {
       title: "Size",
       key: "size",
-      render: (item: UploadItem) => formatBytes(item.file.size),
+      render: (record: QueuedUploadItem) => formatBytes(record.file.size),
     },
     {
       title: "Status",
       key: "state",
-      render: (item: UploadItem) => (
-        <Tag color={getStateTagColor(item.state)}>
-          {item.state.toUpperCase()}
+      render: (record: QueuedUploadItem) => (
+        <Tag color={getStateTagColor(record.state)}>
+          {record.state.toUpperCase()}
         </Tag>
       ),
     },
     {
       title: "Progress",
       key: "progress",
-      render: (item: UploadItem) => (
-        <Progress
-          percent={item.progress}
-          size="small"
-          status={item.state === UploadState.FAILED ? "exception" : undefined}
-        />
-      ),
+      render: (record: QueuedUploadItem) => {
+        // Calculate progress percentage
+        let uploadProgress = 0;
+        if (record.lastProgress) {
+          uploadProgress = record.lastProgress.progress;
+        } else if (record.state === UploadState.COMPLETED) {
+          uploadProgress = 100;
+        }
+
+        return (
+          <Progress
+            percent={uploadProgress}
+            size="small"
+            status={
+              record.state === UploadState.FAILED ? "exception" : undefined
+            }
+          />
+        );
+      },
     },
     {
       title: "Actions",
       key: "actions",
-      render: (item: UploadItem) => {
+      render: (record: QueuedUploadItem) => {
+        const canPause = record.state === UploadState.ACTIVE;
+        const canResume = record.state === UploadState.PAUSED;
         const canCancel =
-          item.state === UploadState.ACTIVE ||
-          item.state === UploadState.QUEUED;
-        const isCompleted = item.state === UploadState.COMPLETED;
-        const fileUrl = item.url;
-        const isImage = isImageFile(item.file);
+          record.state === UploadState.ACTIVE ||
+          record.state === UploadState.QUEUED ||
+          record.state === UploadState.PAUSED;
+        const isCompleted = record.state === UploadState.COMPLETED;
+        const fileUrl = urls[record.id];
+        const isImage = isImageFile(record.file);
 
         return (
           <Space size="small">
+            {canPause && (
+              <Button
+                icon={<PauseCircleOutlined />}
+                onClick={() => handlePauseUpload(record.id)}
+                size="small"
+                type="text"
+              />
+            )}
+            {canResume && (
+              <Button
+                icon={<PlayCircleOutlined />}
+                onClick={() => handleResumeUpload(record.id, record)}
+                size="small"
+                type="text"
+              />
+            )}
             {canCancel && (
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handleCancelUpload(item.id)}
+                onClick={() => handleCancelUpload(record.id)}
                 size="small"
                 danger
                 type="text"
@@ -825,17 +479,21 @@ const CanisterUploader = () => {
             )}
             {isCompleted && (
               <>
-                {isImage && (
+                {isImage && fileUrl && (
                   <Button
                     icon={<EyeOutlined />}
-                    onClick={() => handlePreviewImage(item.id, item.file.name)}
+                    onClick={() =>
+                      handlePreviewImage(record.id, record.file.name)
+                    }
                     size="small"
                     type="text"
                   />
                 )}
                 <Button
                   icon={<DownloadOutlined />}
-                  onClick={() => handleDownloadFile(item.id, item.file.name)}
+                  onClick={() =>
+                    handleDownloadFile(record.id, record.file.name)
+                  }
                   size="small"
                   type="text"
                 />
@@ -847,9 +505,19 @@ const CanisterUploader = () => {
     },
   ];
 
+  // Clean up function to revoke object URLs on unmount
+  useEffect(() => {
+    return () => {
+      // Clean up URLs when component unmounts
+      Object.values(urls).forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, [urls]);
+
   return (
     <Card
-      title="Canister File Upload Demo"
+      title="Canister File Upload"
       style={{ width: "100%", maxWidth: 800, margin: "0 auto" }}
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
@@ -860,6 +528,7 @@ const CanisterUploader = () => {
             <Button
               icon={<UploadOutlined />}
               onClick={() => fileInputRef.current?.click()}
+              disabled={!adapterRegistered}
             >
               Select Files
             </Button>
@@ -873,7 +542,7 @@ const CanisterUploader = () => {
             <Button
               type="primary"
               onClick={handleUpload}
-              disabled={fileList.length === 0}
+              disabled={fileList.length === 0 || !adapterRegistered}
             >
               Upload to Canister
             </Button>
@@ -899,31 +568,79 @@ const CanisterUploader = () => {
           <Title level={4}>Upload Progress</Title>
           <Space style={{ marginBottom: 16 }}>
             <Button
-              onClick={cancelAllUploads}
-              disabled={stats.active + stats.queued === 0}
+              onClick={() => pauseAllUploads()}
+              disabled={progress.activeFiles === 0}
             >
-              Cancel All Uploads
+              Pause All Uploads
             </Button>
             <Button
-              onClick={clearFinishedUploads}
-              disabled={stats.completed + stats.failed + stats.cancelled === 0}
+              onClick={() => resumeAllUploads()}
+              disabled={progress.pausedFiles === 0}
+            >
+              Resume All
+            </Button>
+            <Button
+              onClick={() => clearFinishedUploads()}
+              disabled={
+                progress.completedFiles +
+                  progress.failedFiles +
+                  progress.cancelledFiles ===
+                0
+              }
             >
               Clear Finished
             </Button>
           </Space>
 
           <div style={{ marginBottom: 16 }}>
-            <Text>Overall Progress: {overallProgress}%</Text>
-            <Progress percent={overallProgress} />
+            <Text>Overall Progress: {progress.overallProgress}%</Text>
+            <Progress percent={progress.overallProgress} />
           </div>
 
           <Space style={{ marginBottom: 16 }}>
-            <Tag color="blue">Total: {stats.total}</Tag>
-            <Tag color="processing">Active: {stats.active}</Tag>
-            <Tag color="success">Completed: {stats.completed}</Tag>
-            <Tag color="error">Failed: {stats.failed}</Tag>
-            <Tag color="default">Cancelled: {stats.cancelled}</Tag>
-            <Tag color="blue">Queued: {stats.queued}</Tag>
+            <Tag color="blue">Total: {filteredUploads.length}</Tag>
+            <Tag color="processing">
+              Active:{" "}
+              {
+                filteredUploads.filter((u) => u.state === UploadState.ACTIVE)
+                  .length
+              }
+            </Tag>
+            <Tag color="success">
+              Completed:{" "}
+              {
+                filteredUploads.filter((u) => u.state === UploadState.COMPLETED)
+                  .length
+              }
+            </Tag>
+            <Tag color="warning">
+              Paused:{" "}
+              {
+                filteredUploads.filter((u) => u.state === UploadState.PAUSED)
+                  .length
+              }
+            </Tag>
+            <Tag color="error">
+              Failed:{" "}
+              {
+                filteredUploads.filter((u) => u.state === UploadState.FAILED)
+                  .length
+              }
+            </Tag>
+            <Tag color="default">
+              Cancelled:{" "}
+              {
+                filteredUploads.filter((u) => u.state === UploadState.CANCELLED)
+                  .length
+              }
+            </Tag>
+            <Tag color="blue">
+              Queued:{" "}
+              {
+                filteredUploads.filter((u) => u.state === UploadState.QUEUED)
+                  .length
+              }
+            </Tag>
           </Space>
         </div>
 
@@ -933,7 +650,7 @@ const CanisterUploader = () => {
         <div>
           <Title level={4}>Uploads</Title>
           <Table
-            dataSource={uploads}
+            dataSource={filteredUploads}
             columns={columns}
             rowKey="id"
             pagination={false}
@@ -941,6 +658,8 @@ const CanisterUploader = () => {
           />
         </div>
       </Space>
+
+      {/* Image preview modal */}
       <Modal
         visible={previewVisible}
         title={previewTitle}

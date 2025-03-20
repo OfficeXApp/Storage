@@ -1,5 +1,5 @@
-import { Observable, Subject, from, of } from "rxjs";
-import { map, catchError, tap, finalize } from "rxjs/operators";
+import { Observable, Subject, of } from "rxjs";
+import { finalize, takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 import {
   UploadID,
@@ -11,16 +11,20 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskID, DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, GenerateID } from "@officexapp/types";
+import {
+  CREATE_FILE,
+  createFileAction,
+} from "../../../redux-offline/directory/directory.actions";
 
 /**
- * Adapter for uploading files to Internet Computer Protocol (ICP) Canisters
+ * Adapter for uploading files to Canister storage
  */
 export class CanisterAdapter implements IUploadAdapter {
-  private apiKey: string;
-  private endpoint: string;
-  private maxChunkSize: number;
-  private diskID: DiskID;
+  private baseUrl: string = "";
+  private apiKey: string = "";
+  private maxChunkSize: number = 0.5 * 1024 * 1024; // 0.5MB chunks by default
+  private diskID: string = "";
 
   // Store active uploads for pause/resume/cancel
   private activeUploads: Map<
@@ -31,46 +35,48 @@ export class CanisterAdapter implements IUploadAdapter {
     }
   > = new Map();
 
-  // Store metadata for resumable uploads
-  private resumableMetadata: Map<UploadID, ResumableUploadMetadata> = new Map();
+  // Store metadata for resume capability
+  private resumableUploads: Map<UploadID, ResumableUploadMetadata> = new Map();
 
-  constructor(config?: CanisterAdapterConfig) {
-    this.endpoint = config?.endpoint || "";
-    this.maxChunkSize = config?.maxChunkSize || 0.5 * 1024 * 1024; // Default to 0.5MB chunks
-    this.apiKey = ""; // Will be set during initialization
-    this.diskID = config?.diskID || "";
-  }
+  // Store blob URLs for downloaded files
+  private blobUrls: Map<UploadID, string> = new Map();
 
   /**
    * Initialize the Canister adapter
    */
   public async initialize(config: CanisterAdapterConfig): Promise<void> {
-    this.endpoint = config.endpoint || this.endpoint;
-    this.maxChunkSize = config.maxChunkSize || this.maxChunkSize;
-    this.diskID = config.diskID || this.diskID;
+    if (!config.endpoint) {
+      throw new Error("Canister endpoint is required");
+    }
 
-    // API key would typically be provided in the config or fetched from a secure source
-    this.apiKey = config.apiKey || this.apiKey;
+    if (!config.apiKey) {
+      throw new Error("Canister API key is required");
+    }
 
-    console.log(`Initialized Canister adapter with config:
-      - Max chunk size: ${this.maxChunkSize} bytes
-      - Endpoint URL: ${this.endpoint}
-    `);
+    this.baseUrl = config.endpoint;
+    this.apiKey = config.apiKey;
+    this.diskID = config.diskID;
+
+    if (config.maxChunkSize) {
+      this.maxChunkSize = config.maxChunkSize;
+    }
+
+    console.log(`Initialized Canister adapter with endpoint: ${this.baseUrl}`);
   }
 
   /**
-   * Upload a file to the canister
+   * Upload a file to Canister with chunking
    */
   public uploadFile(
     file: File,
     config: UploadConfig
   ): Observable<UploadProgressInfo> {
-    // Generate a unique ID if not provided in config
+    // Use the ID from metadata if provided, otherwise generate a new one
     const uploadId =
       (config.metadata?.id as UploadID) || (uuidv4() as UploadID);
 
     console.log(
-      `CanisterAdapter: Starting upload with ID: ${uploadId} for file: ${config.file.name}`
+      `CanisterAdapter: Starting upload with ID: ${uploadId} for file: ${file.name}`
     );
 
     // Create progress subject
@@ -82,44 +88,21 @@ export class CanisterAdapter implements IUploadAdapter {
     // Save to active uploads
     this.activeUploads.set(uploadId, { controller, progress });
 
-    // Calculate total chunks
+    // Define chunk size - default to maxChunkSize or use config value
     const chunkSize = config.chunkSize || this.maxChunkSize;
-    const totalChunks = Math.ceil(file.size / chunkSize);
 
-    // Create initial metadata for resumable uploads
-    const metadata: ResumableUploadMetadata = {
-      id: uploadId,
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      fileLastModified: file.lastModified,
-      uploadStartTime: Date.now(),
-      lastUpdateTime: Date.now(),
-      diskType: config.diskType,
-      diskID: this.diskID,
-      uploadedChunks: [],
-      totalChunks,
-      chunkSize,
-      uploadPath: config.uploadPath,
-      customMetadata: config.metadata,
-    };
-
-    // Store metadata for resume capability
-    this.resumableMetadata.set(uploadId, metadata);
-
-    // Start the upload process
+    // Start upload process asynchronously
     this.processUpload(
       uploadId,
       file,
       config,
       progress,
       controller.signal,
-      chunkSize,
-      totalChunks
+      chunkSize
     );
 
     // Return observable
-    return progress.asObservable().pipe(
+    return progress.pipe(
       finalize(() => {
         // Clean up when observable completes or errors
         this.activeUploads.delete(uploadId);
@@ -136,38 +119,42 @@ export class CanisterAdapter implements IUploadAdapter {
     config: UploadConfig,
     progressSubject: Subject<UploadProgressInfo>,
     signal: AbortSignal,
-    chunkSize: number,
-    totalChunks: number
+    chunkSize: number
   ): Promise<void> {
+    // Calculate total chunks
+    const totalChunks = Math.ceil(file.size / chunkSize);
     let chunksUploaded = 0;
     let bytesUploaded = 0;
     const startTime = Date.now();
 
-    // First, create a file record in the system
     try {
-      // Emit initial progress
-      const initialProgress: UploadProgressInfo = {
+      // First create a file record in the system
+      const fileId = await this.createFileRecord(file, config, uploadId);
+
+      // Store metadata for resume capability
+      const metadata: ResumableUploadMetadata = {
         id: uploadId,
         fileName: file.name,
-        state: UploadState.ACTIVE,
-        progress: 0,
-        bytesUploaded: 0,
-        bytesTotal: file.size,
-        startTime,
+        fileSize: file.size,
+        fileType: file.type,
+        fileLastModified: file.lastModified,
+        uploadStartTime: startTime,
+        lastUpdateTime: startTime,
         diskType: config.diskType,
+        diskID: config.diskID,
+        uploadedChunks: [],
+        totalChunks,
+        chunkSize,
         uploadPath: config.uploadPath,
+        customMetadata: { ...config.metadata, fileId },
       };
 
-      progressSubject.next(initialProgress);
+      this.resumableUploads.set(uploadId, metadata);
 
-      // Create the file record on the canister
-      await this.createFileRecord(uploadId, file, config.uploadPath);
-
-      // Process each chunk
+      // Process all chunks
       for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
         if (signal.aborted) {
-          progressSubject.error(new Error("Upload cancelled"));
-          return;
+          throw new Error("Upload cancelled");
         }
 
         // Calculate chunk boundaries
@@ -175,13 +162,13 @@ export class CanisterAdapter implements IUploadAdapter {
         const end = Math.min(start + chunkSize, file.size);
         const chunk = file.slice(start, end);
 
-        // Read the chunk as ArrayBuffer
+        // Convert chunk to Uint8Array
         const chunkArrayBuffer = await chunk.arrayBuffer();
         const chunkData = new Uint8Array(chunkArrayBuffer);
 
         // Upload the chunk
         const success = await this.uploadChunk(
-          uploadId,
+          fileId,
           chunkIndex,
           chunkData,
           totalChunks,
@@ -189,23 +176,19 @@ export class CanisterAdapter implements IUploadAdapter {
         );
 
         if (!success) {
-          // Chunk upload failed or was cancelled
-          return;
+          throw new Error("Chunk upload failed");
         }
 
         // Update progress
         chunksUploaded++;
         bytesUploaded += end - start;
 
-        // Update resumable metadata
-        const metadata = this.resumableMetadata.get(uploadId);
-        if (metadata) {
-          metadata.uploadedChunks.push(chunkIndex);
-          metadata.lastUpdateTime = Date.now();
-          this.resumableMetadata.set(uploadId, metadata);
-        }
+        // Update metadata for resume capability
+        metadata.uploadedChunks.push(chunkIndex);
+        metadata.lastUpdateTime = Date.now();
+        this.resumableUploads.set(uploadId, metadata);
 
-        // Emit progress update
+        // Emit progress
         const progress: UploadProgressInfo = {
           id: uploadId,
           fileName: file.name,
@@ -224,87 +207,80 @@ export class CanisterAdapter implements IUploadAdapter {
         progressSubject.next(progress);
       }
 
-      // All chunks uploaded, finalize the upload
-      if (chunksUploaded === totalChunks) {
-        const completed = await this.completeUpload(
-          uploadId,
-          file.name,
-          signal
-        );
+      // Complete the upload
+      await this.completeUpload(fileId, file.name, signal);
 
-        if (!completed) {
-          progressSubject.error(new Error("Failed to complete upload"));
-          return;
-        }
-
-        // Final progress update
-        const finalProgress: UploadProgressInfo = {
-          id: uploadId,
-          fileName: file.name,
-          state: UploadState.COMPLETED,
-          progress: 100,
-          bytesUploaded: file.size,
-          bytesTotal: file.size,
-          startTime,
-          diskType: config.diskType,
-          uploadPath: config.uploadPath,
-        };
-
-        progressSubject.next(finalProgress);
-        progressSubject.complete();
-      }
-    } catch (error) {
-      console.error("Error during upload process:", error);
-
-      // Emit error progress
-      const errorProgress: UploadProgressInfo = {
+      // If we got here, upload is complete
+      const finalProgress: UploadProgressInfo = {
         id: uploadId,
         fileName: file.name,
-        state: UploadState.FAILED,
-        progress: Math.floor((bytesUploaded / file.size) * 100),
-        bytesUploaded,
+        state: UploadState.COMPLETED,
+        progress: 100,
+        bytesUploaded: file.size,
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        errorMessage: (error as Error).message,
         uploadPath: config.uploadPath,
       };
 
-      progressSubject.next(errorProgress);
-      progressSubject.error(error);
+      progressSubject.next(finalProgress);
+      progressSubject.complete();
+    } catch (error) {
+      if (
+        (error as Error).name === "AbortError" ||
+        (error as Error).message === "Upload cancelled"
+      ) {
+        progressSubject.error(new Error("Upload cancelled"));
+      } else {
+        console.error("Error uploading file:", error);
+        progressSubject.error(error);
+      }
     }
   }
 
   /**
-   * Create a file record in the canister system
+   * Create a file record in the system using Redux action
    */
   private async createFileRecord(
-    fileId: UploadID,
     file: File,
-    uploadPath: string
-  ): Promise<void> {
+    config: UploadConfig,
+    uploadId: UploadID
+  ): Promise<string> {
     try {
-      const response = await fetch(`${this.endpoint}/directory/create_file`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify({
-          id: fileId,
-          name: file.name,
-          path: uploadPath,
-          file_size: file.size,
-          extension: file.name.split(".").pop() || "",
-          disk_type: "IcpCanister",
-        }),
-      });
+      // Generate a file ID or use the one from metadata
+      const fileId = config.metadata?.fileId || GenerateID.File();
 
-      if (!response.ok) {
-        throw new Error(`Failed to create file record: ${response.statusText}`);
+      // Need dispatch function to be in metadata for Redux integration
+      if (!config.metadata?.dispatch) {
+        throw new Error("Redux dispatch function is required in the metadata");
       }
 
-      console.log(`Created file record for ${fileId}`);
+      const dispatch = config.metadata.dispatch;
+
+      // Prepare the create file action
+      const createAction = {
+        action: CREATE_FILE as "CREATE_FILE",
+        payload: {
+          id: fileId,
+          name: file.name,
+          parent_folder_uuid: config.uploadPath,
+          extension: file.name.split(".").pop() || "",
+          labels: [],
+          file_size: file.size,
+          raw_url: "", // Will be populated later
+          disk_id: config.diskID,
+        },
+      };
+
+      console.log("Creating file record with action:", createAction);
+
+      // Dispatch action to create file record
+      dispatch(createFileAction(createAction, undefined, false));
+
+      // Wait for the record to be created
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return fileId;
     } catch (error) {
       console.error("Error creating file record:", error);
       throw error;
@@ -312,10 +288,10 @@ export class CanisterAdapter implements IUploadAdapter {
   }
 
   /**
-   * Upload a single chunk to the canister
+   * Upload a single chunk
    */
   private async uploadChunk(
-    fileId: UploadID,
+    fileId: string,
     chunkIndex: number,
     chunkData: Uint8Array,
     totalChunks: number,
@@ -323,7 +299,7 @@ export class CanisterAdapter implements IUploadAdapter {
   ): Promise<boolean> {
     try {
       const response = await fetch(
-        `${this.endpoint}/directory/raw_upload/chunk`,
+        `${this.baseUrl}/directory/raw_upload/chunk`,
         {
           method: "POST",
           headers: {
@@ -341,34 +317,32 @@ export class CanisterAdapter implements IUploadAdapter {
       );
 
       if (!response.ok) {
-        throw new Error(
-          `Failed to upload chunk ${chunkIndex}: ${response.statusText}`
-        );
+        throw new Error(`Upload failed: ${response.statusText}`);
       }
 
       return true;
     } catch (error) {
       if ((error as Error).name === "AbortError") {
-        console.log(`Upload of chunk ${chunkIndex} was cancelled`);
+        console.log(
+          `Upload of chunk ${chunkIndex} for file ${fileId} was cancelled`
+        );
         return false;
       }
-
-      console.error(`Error uploading chunk ${chunkIndex}:`, error);
       throw error;
     }
   }
 
   /**
-   * Complete the upload on the canister
+   * Complete the upload
    */
   private async completeUpload(
-    fileId: UploadID,
+    fileId: string,
     filename: string,
     signal: AbortSignal
   ): Promise<boolean> {
     try {
       const response = await fetch(
-        `${this.endpoint}/directory/raw_upload/complete`,
+        `${this.baseUrl}/directory/raw_upload/complete`,
         {
           method: "POST",
           headers: {
@@ -384,17 +358,15 @@ export class CanisterAdapter implements IUploadAdapter {
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to complete upload: ${response.statusText}`);
+        throw new Error(`Complete upload failed: ${response.statusText}`);
       }
 
       return true;
     } catch (error) {
       if ((error as Error).name === "AbortError") {
-        console.log(`Complete upload was cancelled`);
+        console.log(`Complete upload for file ${fileId} was cancelled`);
         return false;
       }
-
-      console.error("Error completing upload:", error);
       throw error;
     }
   }
@@ -413,6 +385,13 @@ export class CanisterAdapter implements IUploadAdapter {
     upload.controller.abort();
     this.activeUploads.delete(id);
 
+    // Ensure we have the metadata saved for resuming later
+    if (!this.resumableUploads.has(id)) {
+      console.warn(`No resumable metadata found for ${id}`);
+      return false;
+    }
+
+    // Return success
     return true;
   }
 
@@ -423,7 +402,8 @@ export class CanisterAdapter implements IUploadAdapter {
     id: UploadID,
     file: File
   ): Observable<UploadProgressInfo> {
-    const metadata = this.resumableMetadata.get(id);
+    // Get existing metadata
+    const metadata = this.resumableUploads.get(id);
 
     if (!metadata) {
       return of({
@@ -435,25 +415,41 @@ export class CanisterAdapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime: Date.now(),
         diskType: DiskTypeEnum.IcpCanister,
-        errorMessage: "No resumable metadata found",
+        errorMessage: "No resumable upload metadata found",
         uploadPath: "",
       });
     }
 
-    // Create progress subject
+    // Validate file
+    if (!this.validateFileForResume(metadata, file)) {
+      return of({
+        id,
+        fileName: file.name,
+        state: UploadState.FAILED,
+        progress: 0,
+        bytesUploaded: 0,
+        bytesTotal: file.size,
+        startTime: Date.now(),
+        diskType: metadata.diskType,
+        errorMessage: "File does not match the paused upload",
+        uploadPath: metadata.uploadPath,
+      });
+    }
+
+    // Create new progress subject
     const progress = new Subject<UploadProgressInfo>();
 
-    // Create abort controller
+    // Create new abort controller
     const controller = new AbortController();
 
     // Save to active uploads
     this.activeUploads.set(id, { controller, progress });
 
-    // Resume upload process
+    // Continue from where we left off
     this.resumeUploadProcess(id, file, metadata, progress, controller.signal);
 
     // Return observable
-    return progress.asObservable().pipe(
+    return progress.pipe(
       finalize(() => {
         // Clean up when observable completes or errors
         this.activeUploads.delete(id);
@@ -471,8 +467,16 @@ export class CanisterAdapter implements IUploadAdapter {
     progressSubject: Subject<UploadProgressInfo>,
     signal: AbortSignal
   ): Promise<void> {
+    // Get the file ID from metadata
+    const fileId = metadata.customMetadata?.fileId as string;
+
+    if (!fileId) {
+      progressSubject.error(new Error("Missing file ID in resumable metadata"));
+      return;
+    }
+
+    // Calculate what's left to upload
     const totalChunks = metadata.totalChunks;
-    const chunkSize = metadata.chunkSize;
     const uploadedChunks = new Set(metadata.uploadedChunks);
     const remainingChunks: number[] = [];
 
@@ -483,15 +487,17 @@ export class CanisterAdapter implements IUploadAdapter {
       }
     }
 
-    let bytesUploaded = uploadedChunks.size * chunkSize;
-    // Adjust for last chunk which may be smaller
-    if (uploadedChunks.has(totalChunks - 1)) {
-      bytesUploaded = bytesUploaded - chunkSize + (file.size % chunkSize);
+    let bytesUploaded = 0;
+    // Calculate already uploaded bytes
+    for (const chunkIndex of metadata.uploadedChunks) {
+      const start = chunkIndex * metadata.chunkSize;
+      const end = Math.min(start + metadata.chunkSize, file.size);
+      bytesUploaded += end - start;
     }
 
     try {
-      // Emit initial progress
-      const initialProgress: UploadProgressInfo = {
+      // Initial progress update
+      progressSubject.next({
         id: uploadId,
         fileName: file.name,
         state: UploadState.ACTIVE,
@@ -501,29 +507,26 @@ export class CanisterAdapter implements IUploadAdapter {
         startTime: metadata.uploadStartTime,
         diskType: metadata.diskType,
         uploadPath: metadata.uploadPath,
-      };
+      });
 
-      progressSubject.next(initialProgress);
-
-      // Process remaining chunks
+      // Process each remaining chunk
       for (const chunkIndex of remainingChunks) {
         if (signal.aborted) {
-          progressSubject.error(new Error("Upload cancelled"));
-          return;
+          throw new Error("Upload cancelled");
         }
 
         // Calculate chunk boundaries
-        const start = chunkIndex * chunkSize;
-        const end = Math.min(start + chunkSize, file.size);
+        const start = chunkIndex * metadata.chunkSize;
+        const end = Math.min(start + metadata.chunkSize, file.size);
         const chunk = file.slice(start, end);
 
-        // Read the chunk as ArrayBuffer
+        // Convert chunk to Uint8Array
         const chunkArrayBuffer = await chunk.arrayBuffer();
         const chunkData = new Uint8Array(chunkArrayBuffer);
 
         // Upload the chunk
         const success = await this.uploadChunk(
-          uploadId,
+          fileId,
           chunkIndex,
           chunkData,
           totalChunks,
@@ -531,20 +534,19 @@ export class CanisterAdapter implements IUploadAdapter {
         );
 
         if (!success) {
-          // Chunk upload failed or was cancelled
-          return;
+          throw new Error("Chunk upload failed");
         }
 
         // Update progress
-        bytesUploaded += end - start;
         uploadedChunks.add(chunkIndex);
+        bytesUploaded += end - start;
 
-        // Update resumable metadata
+        // Update metadata for resume capability
         metadata.uploadedChunks.push(chunkIndex);
         metadata.lastUpdateTime = Date.now();
-        this.resumableMetadata.set(uploadId, metadata);
+        this.resumableUploads.set(uploadId, metadata);
 
-        // Emit progress update
+        // Emit progress
         const progress: UploadProgressInfo = {
           id: uploadId,
           fileName: file.name,
@@ -563,20 +565,10 @@ export class CanisterAdapter implements IUploadAdapter {
         progressSubject.next(progress);
       }
 
-      // All chunks uploaded, finalize the upload if needed
+      // If all chunks uploaded, complete the upload
       if (uploadedChunks.size === totalChunks) {
-        const completed = await this.completeUpload(
-          uploadId,
-          file.name,
-          signal
-        );
+        await this.completeUpload(fileId, file.name, signal);
 
-        if (!completed) {
-          progressSubject.error(new Error("Failed to complete upload"));
-          return;
-        }
-
-        // Final progress update
         const finalProgress: UploadProgressInfo = {
           id: uploadId,
           fileName: file.name,
@@ -593,24 +585,15 @@ export class CanisterAdapter implements IUploadAdapter {
         progressSubject.complete();
       }
     } catch (error) {
-      console.error("Error during resumeUploadProcess:", error);
-
-      // Emit error progress
-      const errorProgress: UploadProgressInfo = {
-        id: uploadId,
-        fileName: file.name,
-        state: UploadState.FAILED,
-        progress: Math.floor((bytesUploaded / file.size) * 100),
-        bytesUploaded,
-        bytesTotal: file.size,
-        startTime: metadata.uploadStartTime,
-        diskType: metadata.diskType,
-        errorMessage: (error as Error).message,
-        uploadPath: metadata.uploadPath,
-      };
-
-      progressSubject.next(errorProgress);
-      progressSubject.error(error);
+      if (
+        (error as Error).name === "AbortError" ||
+        (error as Error).message === "Upload cancelled"
+      ) {
+        progressSubject.error(new Error("Upload cancelled"));
+      } else {
+        console.error("Error resuming upload:", error);
+        progressSubject.error(error);
+      }
     }
   }
 
@@ -618,23 +601,28 @@ export class CanisterAdapter implements IUploadAdapter {
    * Cancel an active upload
    */
   public async cancelUpload(id: UploadID): Promise<boolean> {
-    const upload = this.activeUploads.get(id);
-    if (!upload) {
-      console.warn(`Cannot cancel upload ${id}: not found or not active`);
+    // First pause the upload
+    const paused = await this.pauseUpload(id);
+
+    if (!paused) {
       return false;
     }
 
-    // Abort the current upload process
-    upload.controller.abort();
-    this.activeUploads.delete(id);
+    // Get the metadata to find the file ID
+    const metadata = this.resumableUploads.get(id);
+    if (!metadata || !metadata.customMetadata?.fileId) {
+      console.warn(`No metadata or file ID found for upload ${id}`);
+      // Clean up the metadata
+      this.resumableUploads.delete(id);
+      return true;
+    }
 
-    // Remove from resumable metadata
-    this.resumableMetadata.delete(id);
-
-    // Try to cancel on the server
+    // Call the API to cancel the upload
     try {
+      const fileId = metadata.customMetadata.fileId as string;
+
       const response = await fetch(
-        `${this.endpoint}/directory/raw_upload/cancel`,
+        `${this.baseUrl}/directory/raw_upload/cancel`,
         {
           method: "POST",
           headers: {
@@ -642,23 +630,31 @@ export class CanisterAdapter implements IUploadAdapter {
             Authorization: `Bearer ${this.apiKey}`,
           },
           body: JSON.stringify({
-            file_id: id,
+            file_id: fileId,
           }),
         }
       );
 
-      // Even if the server-side cancel fails, we still consider the cancel successful
-      // since we've aborted the client-side operation
+      // Even if the API call fails, we still want to clean up locally
+      this.resumableUploads.delete(id);
+
+      // Revoke blob URL if it exists
+      this.revokeBlobUrl(id);
+
       if (!response.ok) {
         console.warn(
-          `Server-side cancel for ${id} failed: ${response.statusText}`
+          `API failed to cancel upload for ${fileId}: ${response.statusText}`
         );
+        return true; // Still return true because we cleaned up locally
       }
-    } catch (error) {
-      console.warn(`Error during server-side cancel for ${id}:`, error);
-    }
 
-    return true;
+      return true;
+    } catch (error) {
+      console.error("Error cancelling upload on server:", error);
+      // Still clean up locally
+      this.resumableUploads.delete(id);
+      return true;
+    }
   }
 
   /**
@@ -667,52 +663,20 @@ export class CanisterAdapter implements IUploadAdapter {
   public async getUploadStatus(
     id: UploadID
   ): Promise<UploadProgressInfo | null> {
-    // Check if this is an active upload
-    const isActive = this.activeUploads.has(id);
+    // Check if upload is active
+    const active = this.activeUploads.has(id);
 
-    if (isActive) {
-      // Status will be emitted through the observable
+    if (active) {
+      // Status will be provided through the observable
       return null;
     }
 
-    // Check if we have resumable metadata
-    const metadata = this.resumableMetadata.get(id);
+    // Check if we have metadata
+    const metadata = this.resumableUploads.get(id);
 
     if (!metadata) {
-      // Try to fetch status from server
-      try {
-        const response = await fetch(
-          `${this.endpoint}/directory/raw_upload/status?file_id=${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${this.apiKey}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          return null;
-        }
-
-        const status = await response.json();
-
-        return {
-          id,
-          fileName: status.filename,
-          state: status.state as UploadState,
-          progress: status.progress,
-          bytesUploaded: status.bytes_uploaded,
-          bytesTotal: status.bytes_total,
-          startTime: status.start_time,
-          diskType: DiskTypeEnum.IcpCanister,
-          uploadPath: status.upload_path,
-        };
-      } catch (error) {
-        console.error(`Error fetching upload status for ${id}:`, error);
-        return null;
-      }
+      // We don't know about this upload
+      return null;
     }
 
     // Calculate progress from metadata
@@ -743,7 +707,7 @@ export class CanisterAdapter implements IUploadAdapter {
       supportsConcurrentUploads: true,
       supportsProgress: true,
       requiresAuthentication: true,
-      maxConcurrentUploads: 3, // Reasonable default for canisters
+      maxConcurrentUploads: 3,
       recommendedChunkSize: this.maxChunkSize,
     };
   }
@@ -754,7 +718,7 @@ export class CanisterAdapter implements IUploadAdapter {
   public async getResumableUploadMetadata(
     id: UploadID
   ): Promise<ResumableUploadMetadata | null> {
-    return this.resumableMetadata.get(id) || null;
+    return this.resumableUploads.get(id) || null;
   }
 
   /**
@@ -771,11 +735,16 @@ export class CanisterAdapter implements IUploadAdapter {
   }
 
   /**
-   * Clean up resources
+   * Clean up upload resources
    */
   public async cleanup(): Promise<void> {
-    // Nothing to clean up on the client side for canisters
-    // The canister's garbage collection would handle server-side cleanup
+    // Revoke all created blob URLs
+    for (const [id, url] of this.blobUrls.entries()) {
+      URL.revokeObjectURL(url);
+    }
+    this.blobUrls.clear();
+
+    return Promise.resolve();
   }
 
   /**
@@ -787,28 +756,22 @@ export class CanisterAdapter implements IUploadAdapter {
   ): Promise<boolean> {
     try {
       const response = await fetch(
-        `${this.endpoint}/directory/check_file_exists`,
+        `${this.baseUrl}/directory/check_exists?filename=${encodeURIComponent(fileName)}&path=${encodeURIComponent(uploadPath)}`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${this.apiKey}`,
           },
-          body: JSON.stringify({
-            filename: fileName,
-            path: uploadPath,
-          }),
         }
       );
 
       if (!response.ok) {
-        throw new Error(
-          `Failed to check if file exists: ${response.statusText}`
-        );
+        throw new Error(`Check exists failed: ${response.statusText}`);
       }
 
-      const result = await response.json();
-      return result.exists === true;
+      const data = await response.json();
+      return data.exists;
     } catch (error) {
       console.error("Error checking if file exists:", error);
       return false;
@@ -816,26 +779,13 @@ export class CanisterAdapter implements IUploadAdapter {
   }
 
   /**
-   * Get a URL for a file
-   */
-  public async getFileUrl(id: UploadID): Promise<string | null> {
-    try {
-      // For canister files, we can construct the download URL directly
-      return `${this.endpoint}/directory/raw_download?file_id=${id}`;
-    } catch (error) {
-      console.error(`Error getting file URL for ${id}:`, error);
-      return null;
-    }
-  }
-
-  /**
    * Download file content
    */
-  public async getFileContent(id: UploadID): Promise<Blob | null> {
+  public async downloadFile(fileId: string): Promise<Blob> {
     try {
-      // Fetch metadata to get chunk information
+      // 1. Fetch metadata
       const metaRes = await fetch(
-        `${this.endpoint}/directory/raw_download/meta?file_id=${id}`,
+        `${this.baseUrl}/directory/raw_download/meta?file_id=${fileId}`,
         {
           method: "GET",
           headers: {
@@ -850,15 +800,15 @@ export class CanisterAdapter implements IUploadAdapter {
       }
 
       const metadata = await metaRes.json();
-      const { total_size, total_chunks, content_type } = metadata;
+      const { total_size, total_chunks } = metadata;
 
-      // Fetch all chunks
+      // 2. Fetch all chunks
       let allBytes = new Uint8Array(total_size);
       let offset = 0;
 
       for (let i = 0; i < total_chunks; i++) {
         const chunkRes = await fetch(
-          `${this.endpoint}/directory/raw_download/chunk?file_id=${id}&chunk_index=${i}`,
+          `${this.baseUrl}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
           {
             method: "GET",
             headers: {
@@ -877,13 +827,142 @@ export class CanisterAdapter implements IUploadAdapter {
         offset += chunkBuf.byteLength;
       }
 
-      // Create and return blob
-      return new Blob([allBytes], {
-        type: content_type || "application/octet-stream",
-      });
+      // 3. Create and return blob
+      return new Blob([allBytes]);
     } catch (error) {
-      console.error(`Error downloading file content for ${id}:`, error);
+      console.error("Error downloading file:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Helper method to get a blob URL for a file
+   * @param id Upload ID
+   * @returns Promise that resolves to URL string or null
+   */
+  private async fetchFileContent(id: UploadID): Promise<string | null> {
+    // Check if we already have a blob URL for this file
+    if (this.blobUrls.has(id)) {
+      return this.blobUrls.get(id) || null;
+    }
+
+    // Get metadata to find the file ID
+    const metadata = this.resumableUploads.get(id);
+    if (!metadata || !metadata.customMetadata?.fileId) {
+      console.error(`No metadata or file ID found for upload ${id}`);
       return null;
     }
+
+    const fileId = metadata.customMetadata.fileId as string;
+
+    try {
+      // 1. Fetch metadata
+      const metaRes = await fetch(
+        `${this.baseUrl}/directory/raw_download/meta?file_id=${fileId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+        }
+      );
+
+      if (!metaRes.ok) {
+        throw new Error(`Metadata request failed: ${metaRes.statusText}`);
+      }
+
+      const fileMetadata = await metaRes.json();
+      const { total_size, total_chunks } = fileMetadata;
+
+      // 2. Fetch all chunks
+      let allBytes = new Uint8Array(total_size);
+      let offset = 0;
+
+      for (let i = 0; i < total_chunks; i++) {
+        const chunkRes = await fetch(
+          `${this.baseUrl}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${this.apiKey}`,
+            },
+          }
+        );
+
+        if (!chunkRes.ok) {
+          throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);
+        }
+
+        const chunkBuf = await chunkRes.arrayBuffer();
+        allBytes.set(new Uint8Array(chunkBuf), offset);
+        offset += chunkBuf.byteLength;
+      }
+
+      // 3. Create blob and URL
+      const blob = new Blob([allBytes], { type: metadata.fileType });
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Store URL for future use
+      this.blobUrls.set(id, blobUrl);
+
+      return blobUrl;
+    } catch (error) {
+      console.error(`Error fetching content for ${id}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Get a URL for a file
+   */
+  public async getFileUrl(id: UploadID): Promise<string | null> {
+    try {
+      // If there's an existing blob URL, return it
+      if (this.blobUrls.has(id)) {
+        return this.blobUrls.get(id) || null;
+      }
+
+      // Get metadata to find the file ID
+      const metadata = this.resumableUploads.get(id);
+      if (!metadata || !metadata.customMetadata?.fileId) {
+        console.error(`No metadata or file ID found for upload ${id}`);
+        return null;
+      }
+
+      const fileId = metadata.customMetadata.fileId as string;
+
+      // Download the file content and create blob URL
+      return await this.fetchFileContent(id);
+    } catch (error) {
+      console.error("Error getting file URL:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Revoke a blob URL to free up memory
+   */
+  private revokeBlobUrl(id: UploadID): void {
+    const blobUrl = this.blobUrls.get(id);
+    if (blobUrl) {
+      URL.revokeObjectURL(blobUrl);
+      this.blobUrls.delete(id);
+    }
+  }
+
+  /**
+   * Generate a pre-signed URL for direct uploads
+   * Not supported for Canister adapter
+   */
+  public async generatePresignedUrl(): Promise<{
+    url: string;
+    fields?: Record<string, string>;
+    headers?: Record<string, string>;
+    method?: string;
+  } | null> {
+    // Not supported for Canister
+    return null;
   }
 }

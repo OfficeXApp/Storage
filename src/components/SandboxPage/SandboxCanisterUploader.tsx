@@ -46,7 +46,7 @@ const { Title, Text } = Typography;
 const API_BASE_URL =
   "http://bw4dl-smaaa-aaaaa-qaacq-cai.localhost:8000/v1/default";
 const API_KEY =
-  "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiZTE5ZjU2MzJkMWQ3MThiM2Q0Mzg1M2NiODNjNmE1YjlmMzBmMzk3ZTA0N2Q1YzFlMmYxNDczMGYyOTNlM2U3ZiJ9";
+  "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiZWRkM2I2M2IzY2RhNTk2NzBiZTA5MzczZTFmZGY1NDU0YWJkMjI3N2FjMjA4NTE3MzYwZTQ5YzlkMWNhODBjMSJ9";
 
 // Upload statuses
 enum UploadState {
@@ -78,8 +78,8 @@ const CanisterUploader: React.FC<{
   currentFolderId?: FolderID;
   diskId?: DiskID;
 }> = ({
-  currentFolderId = "FolderID_e3d09567-11df-45a9-815b-2c0abc1f9aed" as FolderID,
-  diskId = "DiskID_e3d09567-11df-45a9-815b-2c0abc1f9aed" as DiskID,
+  currentFolderId = "FolderID_8413fc62-ac57-4ec0-98e8-957b3db58614" as FolderID,
+  diskId = "DiskID_0488a8f3-6bf5-4993-865d-483d82814fa5" as DiskID,
 }) => {
   const dispatch = useDispatch();
   const [fileList, setFileList] = useState<File[]>([]);
@@ -143,7 +143,7 @@ const CanisterUploader: React.FC<{
         file_size: file.size,
         raw_url: "", // Will be populated later
         disk_id: diskId,
-        disk_type: DiskTypeEnum.IcpCanister,
+        // disk_type: DiskTypeEnum.IcpCanister,
       },
     };
 

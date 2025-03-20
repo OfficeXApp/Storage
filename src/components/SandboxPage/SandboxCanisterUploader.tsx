@@ -39,6 +39,8 @@ import {
   createFileAction,
 } from "../../redux-offline/directory/directory.actions";
 import { sleep } from "../../api/helpers";
+import { useMultiUploader } from "../../framework/uploader/hook";
+import { IndexedDBAdapter } from "../../framework/uploader/adapters/indexdb.adapter";
 
 const { Title, Text } = Typography;
 
@@ -46,7 +48,10 @@ const { Title, Text } = Typography;
 const API_BASE_URL =
   "http://bw4dl-smaaa-aaaaa-qaacq-cai.localhost:8000/v1/default";
 const API_KEY =
-  "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiZWRkM2I2M2IzY2RhNTk2NzBiZTA5MzczZTFmZGY1NDU0YWJkMjI3N2FjMjA4NTE3MzYwZTQ5YzlkMWNhODBjMSJ9";
+  "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiMTYyM2IwODkwZTc2NGM1MzdkMGVlODdhZWE3OGQyYWZiNGJmZDBmN2NmOTU1NDE5OGExNjY4OTM3YTRlMmM3ZiJ9";
+
+const currentFolderId = "FolderID_dc228a63-6cc8-4de6-addf-839012898e31";
+const diskId = "DiskID_ae284014-1881-4ee6-afc2-568f87269ad2";
 
 // Upload statuses
 enum UploadState {
@@ -74,13 +79,7 @@ interface UploadItem {
   blobUrl?: string;
 }
 
-const CanisterUploader: React.FC<{
-  currentFolderId?: FolderID;
-  diskId?: DiskID;
-}> = ({
-  currentFolderId = "FolderID_8413fc62-ac57-4ec0-98e8-957b3db58614" as FolderID,
-  diskId = "DiskID_0488a8f3-6bf5-4993-865d-483d82814fa5" as DiskID,
-}) => {
+const CanisterUploader = () => {
   const dispatch = useDispatch();
   const [fileList, setFileList] = useState<File[]>([]);
   const [uploads, setUploads] = useState<UploadItem[]>([]);

@@ -33,6 +33,8 @@ import {
 } from "../../framework/uploader/types";
 import { DiskTypeEnum } from "@officexapp/types";
 import { defaultBrowserCacheDiskID } from "../../api/dexie-database";
+import { IndexedDBAdapter } from "../../framework/uploader/adapters/indexdb.adapter";
+import { sleep } from "../../api/helpers";
 
 const { Title, Text } = Typography;
 
@@ -55,6 +57,7 @@ const SandboxUploader: React.FC = () => {
     getFileUrl,
     isInitialized,
     uploadManager,
+    registerAdapter,
   } = useMultiUploader();
 
   const [fileList, setFileList] = useState<File[]>([]);
@@ -65,6 +68,41 @@ const SandboxUploader: React.FC = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
+  const [adapterRegistered, setAdapterRegistered] = useState(false);
+
+  useEffect(() => {
+    const registerAdapters = async () => {
+      if (isInitialized && !adapterRegistered) {
+        try {
+          // Create IndexedDB adapter
+          const indexedDBAdapter = new IndexedDBAdapter();
+
+          // Configuration for IndexedDB
+          const indexDBConfig = {
+            databaseName: "officex-browser-cache-storage-user123",
+            objectStoreName: "files",
+          };
+
+          // Register the adapter
+          await registerAdapter(
+            indexedDBAdapter,
+            DiskTypeEnum.BrowserCache,
+            defaultBrowserCacheDiskID,
+            indexDBConfig,
+            1, // Concurrency
+            2 // Priority
+          );
+
+          console.log("Adapter registered successfully");
+          setAdapterRegistered(true);
+        } catch (error) {
+          console.error("Failed to register adapter:", error);
+        }
+      }
+    };
+
+    registerAdapters();
+  }, [isInitialized, adapterRegistered, registerAdapter]);
 
   // Check initialization status
   useEffect(() => {
@@ -83,6 +121,7 @@ const SandboxUploader: React.FC = () => {
   // Update URLs for completed uploads
   useEffect(() => {
     const checkCompletedUploads = async () => {
+      await sleep(2000);
       for (const upload of currentUploads) {
         if (upload.state === UploadState.COMPLETED && !urls[upload.id]) {
           try {

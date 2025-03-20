@@ -252,9 +252,9 @@ export class UploadManager {
       }
 
       // Get the adapter for this upload
-      const adapterReg = this.adapters.get(uploadItem.config.diskType);
+      const adapterReg = this.adapters.get(uploadItem.config.diskID);
       if (!adapterReg) {
-        console.error(`No adapter found for ${uploadItem.config.diskType}`);
+        console.error(`No adapter found for ${uploadItem.config.diskID}`);
         return false;
       }
 
@@ -379,9 +379,9 @@ export class UploadManager {
       this.cancelUpload$.next(id);
 
       // Get the adapter for this upload
-      const adapterReg = this.adapters.get(uploadItem.config.diskType);
+      const adapterReg = this.adapters.get(uploadItem.config.diskID);
       if (!adapterReg) {
-        console.error(`No adapter found for ${uploadItem.config.diskType}`);
+        console.error(`No adapter found for ${uploadItem.config.diskID}`);
         return false;
       }
 
@@ -644,12 +644,12 @@ export class UploadManager {
     }
 
     // Get the adapter for this upload
-    const adapterReg = this.adapters.get(uploadItem.config.diskType);
+    const adapterReg = this.adapters.get(uploadItem.config.diskID);
     if (!adapterReg) {
-      console.error(`No adapter found for ${uploadItem.config.diskType}`);
+      console.error(`No adapter found for ${uploadItem.config.diskID}`);
       uploadItem.state = UploadState.FAILED;
       uploadItem.error = new Error(
-        `No adapter found for ${uploadItem.config.diskType}`
+        `No adapter found for ${uploadItem.config.diskID}`
       );
       this.uploadQueue.set(id, uploadItem);
       this.updateProgressTracking();
@@ -923,7 +923,7 @@ export class UploadManager {
       if (!item) return;
 
       // Get adapter to retrieve resumable metadata
-      const adapterReg = this.adapters.get(item.config.diskType);
+      const adapterReg = this.adapters.get(item.config.diskID);
       if (!adapterReg) return;
 
       // Get resumable metadata from adapter
@@ -1100,7 +1100,7 @@ export class UploadManager {
       }
 
       // Get the adapter for this storage type
-      const adapterReg = this.adapters.get(savedState.diskType);
+      const adapterReg = this.adapters.get(savedState.diskID);
       if (!adapterReg) {
         return null;
       }
@@ -1109,7 +1109,7 @@ export class UploadManager {
     }
 
     // Get the adapter for this upload
-    const adapterReg = this.adapters.get(uploadItem.config.diskType);
+    const adapterReg = this.adapters.get(uploadItem.config.diskID);
     if (!adapterReg) {
       return null;
     }

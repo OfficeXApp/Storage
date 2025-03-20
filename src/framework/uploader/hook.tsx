@@ -23,16 +23,19 @@ import {
 } from "./types";
 import { Observable } from "rxjs";
 import { defaultBrowserCacheDiskID } from "../../api/dexie-database";
+import { IUploadAdapter } from "./adapters/IUploadAdapter";
 
-// Add missing CanisterAdapter configuration type (we'll implement this later)
+// Add missing CanisterAdapter configuration type
 interface CanisterAdapterConfig {
+  diskID: DiskID;
   canisterId: string;
   maxChunkSize?: number;
   host?: string;
+  apiKey: string;
 }
 
 interface MultiUploaderContextType {
-  uploadManager: UploadManager | null;
+  uploadManager: UploadManager | undefined;
   isInitialized: boolean;
   progress: AggregateUploadProgress;
   currentUploads: QueuedUploadItem[];
@@ -58,11 +61,20 @@ interface MultiUploaderContextType {
   clearFinishedUploads: () => void;
   getUploadProgress: (id: UploadID) => Observable<UploadProgressInfo | null>;
   getFileUrl: (id: UploadID) => Promise<string | null>;
+  // New method for dynamically registering adapters
+  registerAdapter: (
+    adapter: IUploadAdapter,
+    diskType: DiskTypeEnum,
+    diskID: DiskID,
+    config: any,
+    concurrency?: number,
+    priority?: number
+  ) => Promise<void>;
 }
 
 // Default context values
 const defaultContextValue: MultiUploaderContextType = {
-  uploadManager: null,
+  uploadManager: undefined,
   isInitialized: false,
   progress: {
     totalFiles: 0,
@@ -90,6 +102,7 @@ const defaultContextValue: MultiUploaderContextType = {
   clearFinishedUploads: () => {},
   getUploadProgress: () => new Observable(),
   getFileUrl: () => Promise.resolve(null),
+  registerAdapter: () => Promise.resolve(),
 };
 
 // Create context
@@ -99,28 +112,16 @@ const MultiUploaderContext =
 // Configuration props for the provider
 interface MultiUploaderProviderProps {
   children: React.ReactNode;
-  s3Config?: S3AdapterConfig;
-  canisterConfig?: CanisterAdapterConfig;
-  indexDBConfig?: IndexDBAdapterConfig;
-  enableS3?: boolean;
-  enableCanister?: boolean;
-  enableIndexDB?: boolean;
   autoInit?: boolean;
 }
 
 // Create provider component
 export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   children,
-  s3Config,
-  canisterConfig,
-  indexDBConfig,
-  enableS3 = true,
-  enableCanister = true,
-  enableIndexDB = true,
   autoInit = true,
 }) => {
   const [isInitialized, setIsInitialized] = useState(false);
-  const uploadManagerRef = useRef<UploadManager | null>(null);
+  const uploadManagerRef = useRef<UploadManager>();
   const [progress, setProgress] = useState<AggregateUploadProgress>(
     defaultContextValue.progress
   );
@@ -135,39 +136,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       }
 
       const manager = uploadManagerRef.current;
-
-      // Register adapters based on configuration
-      if (enableIndexDB) {
-        const indexDBAdapter = new IndexedDBAdapter(indexDBConfig);
-        await manager.registerAdapter(
-          indexDBAdapter,
-          DiskTypeEnum.BrowserCache,
-          defaultBrowserCacheDiskID,
-          indexDBConfig || {},
-          1, // Concurrency of 1 for IndexedDB
-          2 // Priority 2 (lower priority than S3)
-        );
-        console.log("IndexedDB adapter registered");
-      }
-
-      if (enableS3 && s3Config) {
-        const s3Adapter = new S3Adapter();
-        await manager.registerAdapter(
-          s3Adapter,
-          DiskTypeEnum.AwsBucket,
-          s3Config.diskID,
-          s3Config,
-          10, // Concurrency of 10 for S3
-          1 // Priority 1 (higher priority)
-        );
-        console.log("S3 adapter registered");
-      }
-
-      if (enableCanister && canisterConfig) {
-        // We'll need to implement the CanisterAdapter later
-        // For now, we'll just log a message
-        console.log("Canister adapter not yet implemented");
-      }
 
       // Subscribe to progress updates
       const subscription = manager.getProgress().subscribe((progress) => {
@@ -207,12 +175,35 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
           // Dispose upload manager on unmount
           if (uploadManagerRef.current) {
             uploadManagerRef.current.dispose();
-            uploadManagerRef.current = null;
+            uploadManagerRef.current = undefined;
           }
         };
       });
     }
   }, [autoInit]);
+
+  // Method to register adapter dynamically
+  const registerAdapter = async (
+    adapter: IUploadAdapter,
+    diskType: DiskTypeEnum,
+    diskID: DiskID,
+    config: any,
+    concurrency: number = 3,
+    priority: number = 0
+  ): Promise<void> => {
+    if (!uploadManagerRef.current) {
+      throw new Error("Upload manager not initialized");
+    }
+
+    return uploadManagerRef.current.registerAdapter(
+      adapter,
+      diskType,
+      diskID,
+      config,
+      concurrency,
+      priority
+    );
+  };
 
   // Create context value
   const contextValue: MultiUploaderContextType = {
@@ -220,26 +211,29 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     isInitialized,
     progress,
     currentUploads,
+    registerAdapter,
 
     // Upload methods
-    uploadFile: (file, uploadPath, diskType, options) => {
+    uploadFile: (file, uploadPath, diskType, diskID, options) => {
       if (!uploadManagerRef.current)
         throw new Error("Upload manager not initialized");
       return uploadManagerRef.current.uploadFile(
         file,
         uploadPath,
         diskType,
+        diskID,
         options
       );
     },
 
-    uploadFiles: (files, uploadPath, diskType, options) => {
+    uploadFiles: (files, uploadPath, diskType, diskID, options) => {
       if (!uploadManagerRef.current)
         throw new Error("Upload manager not initialized");
       return uploadManagerRef.current.uploadFiles(
         files,
         uploadPath,
         diskType,
+        diskID,
         options
       );
     },
@@ -280,6 +274,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     },
 
     getFileUrl: async (id) => {
+      console.log(`uploadManagerRef.current`, uploadManagerRef.current);
       if (!uploadManagerRef.current) return null;
       return uploadManagerRef.current.getFileUrl(id);
     },

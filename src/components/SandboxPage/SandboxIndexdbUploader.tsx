@@ -32,6 +32,7 @@ import {
   QueuedUploadItem,
 } from "../../framework/uploader/types";
 import { DiskTypeEnum } from "@officexapp/types";
+import { defaultBrowserCacheDiskID } from "../../api/dexie-database";
 
 const { Title, Text } = Typography;
 
@@ -128,6 +129,7 @@ const SandboxUploader: React.FC = () => {
         fileList,
         "/uploads",
         DiskTypeEnum.BrowserCache,
+        defaultBrowserCacheDiskID,
         {
           onFileComplete: (id) => {
             // Find the file this ID corresponds to

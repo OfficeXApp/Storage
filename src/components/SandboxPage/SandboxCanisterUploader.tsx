@@ -154,7 +154,7 @@ const CanisterUploader: React.FC<{
 
     console.log("Sent dispatch to create file record");
 
-    await sleep(30000);
+    await sleep(5000);
     return fileId;
   };
 

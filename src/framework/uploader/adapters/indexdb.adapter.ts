@@ -13,6 +13,7 @@ import {
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
 import { DiskTypeEnum } from "@officexapp/types";
+import { defaultBrowserCacheDiskID } from "../../../api/dexie-database";
 
 /**
  * Adapter for uploading files to IndexedDB
@@ -279,6 +280,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
       uploadStartTime: startTime,
       lastUpdateTime: startTime,
       diskType: config.diskType,
+      diskID: config.diskID,
       uploadedChunks: [],
       totalChunks,
       chunkSize,
@@ -896,6 +898,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
             file,
             uploadPath: metadata.uploadPath,
             diskType: metadata.diskType,
+            diskID: defaultBrowserCacheDiskID,
             metadata: metadata.customMetadata,
             chunkSize: metadata.chunkSize,
           };
@@ -921,6 +924,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         file,
         uploadPath: metadata.uploadPath,
         diskType: metadata.diskType,
+        diskID: defaultBrowserCacheDiskID,
         metadata: metadata.customMetadata,
         chunkSize: metadata.chunkSize,
       };

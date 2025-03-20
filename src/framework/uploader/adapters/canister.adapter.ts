@@ -11,7 +11,7 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskID, DiskTypeEnum } from "@officexapp/types";
 
 /**
  * Adapter for uploading files to Internet Computer Protocol (ICP) Canisters
@@ -20,6 +20,7 @@ export class CanisterAdapter implements IUploadAdapter {
   private apiKey: string;
   private endpoint: string;
   private maxChunkSize: number;
+  private diskID: DiskID;
 
   // Store active uploads for pause/resume/cancel
   private activeUploads: Map<
@@ -37,6 +38,7 @@ export class CanisterAdapter implements IUploadAdapter {
     this.endpoint = config?.endpoint || "";
     this.maxChunkSize = config?.maxChunkSize || 0.5 * 1024 * 1024; // Default to 0.5MB chunks
     this.apiKey = ""; // Will be set during initialization
+    this.diskID = config?.diskID || "";
   }
 
   /**
@@ -45,6 +47,7 @@ export class CanisterAdapter implements IUploadAdapter {
   public async initialize(config: CanisterAdapterConfig): Promise<void> {
     this.endpoint = config.endpoint || this.endpoint;
     this.maxChunkSize = config.maxChunkSize || this.maxChunkSize;
+    this.diskID = config.diskID || this.diskID;
 
     // API key would typically be provided in the config or fetched from a secure source
     this.apiKey = config.apiKey || this.apiKey;
@@ -93,6 +96,7 @@ export class CanisterAdapter implements IUploadAdapter {
       uploadStartTime: Date.now(),
       lastUpdateTime: Date.now(),
       diskType: config.diskType,
+      diskID: this.diskID,
       uploadedChunks: [],
       totalChunks,
       chunkSize,

@@ -36,13 +36,13 @@ import {
   UploadResponse,
 } from "./types";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskID, DiskTypeEnum } from "@officexapp/types";
 
 /**
  * Manager for coordinating uploads across different adapters
  */
 export class UploadManager {
-  private adapters: Map<DiskTypeEnum, AdapterRegistration> = new Map();
+  private adapters: Map<DiskID, AdapterRegistration> = new Map();
   private uploadQueue: Map<UploadID, QueuedUploadItem> = new Map();
   private activeUploads: Map<UploadID, Subscription> = new Map();
   private uploadProgress$ = new BehaviorSubject<AggregateUploadProgress>(
@@ -106,6 +106,7 @@ export class UploadManager {
   public async registerAdapter(
     adapter: IUploadAdapter,
     diskType: DiskTypeEnum,
+    diskID: DiskID,
     config: any,
     concurrency: number = 3,
     priority: number = 0
@@ -114,9 +115,10 @@ export class UploadManager {
     await adapter.initialize(config);
 
     // Register the adapter
-    this.adapters.set(diskType, {
+    this.adapters.set(diskID, {
       adapter,
-      diskType: diskType,
+      diskType,
+      diskID,
       concurrency,
       priority,
       enabled: true,
@@ -138,6 +140,7 @@ export class UploadManager {
     file: File,
     uploadPath: string,
     diskType: DiskTypeEnum,
+    diskID: DiskID,
     options: Partial<UploadConfig> = {}
   ): UploadID {
     // Generate a unique ID for this upload
@@ -148,7 +151,8 @@ export class UploadManager {
     const config: UploadConfig = {
       file,
       uploadPath,
-      diskType: diskType,
+      diskType,
+      diskID,
       chunkSize: options.chunkSize,
       priority: options.priority || 0,
       // Make sure the ID is passed through the metadata
@@ -195,12 +199,13 @@ export class UploadManager {
     files: File[],
     uploadPath: string,
     diskType: DiskTypeEnum,
+    diskID: DiskID,
     options: Partial<BatchUploadConfig> = {}
   ): UploadID[] {
     const ids: UploadID[] = [];
 
     for (const file of files) {
-      const id = this.uploadFile(file, uploadPath, diskType, {
+      const id = this.uploadFile(file, uploadPath, diskType, diskID, {
         ...options,
         onComplete: (uploadId) => {
           if (options.onFileComplete) {
@@ -247,9 +252,9 @@ export class UploadManager {
       }
 
       // Get the adapter for this upload
-      const adapterReg = this.adapters.get(uploadItem.config.diskType);
+      const adapterReg = this.adapters.get(uploadItem.config.diskID);
       if (!adapterReg) {
-        console.error(`No adapter found for ${uploadItem.config.diskType}`);
+        console.error(`No adapter found for ${uploadItem.config.diskID}`);
         return false;
       }
 
@@ -317,6 +322,7 @@ export class UploadManager {
         file,
         uploadPath: savedData.uploadPath,
         diskType: savedData.diskType,
+        diskID: savedData.diskID,
         chunkSize: savedData.chunkSize,
         metadata: savedData.customMetadata,
       };
@@ -373,9 +379,9 @@ export class UploadManager {
       this.cancelUpload$.next(id);
 
       // Get the adapter for this upload
-      const adapterReg = this.adapters.get(uploadItem.config.diskType);
+      const adapterReg = this.adapters.get(uploadItem.config.diskID);
       if (!adapterReg) {
-        console.error(`No adapter found for ${uploadItem.config.diskType}`);
+        console.error(`No adapter found for ${uploadItem.config.diskID}`);
         return false;
       }
 
@@ -575,18 +581,18 @@ export class UploadManager {
 
     try {
       // Group uploads by adapter/storage type
-      const uploadsByType = this.groupQueuedUploadsByType();
+      const uploadsByDiskID = this.groupQueuedUploadsByDiskID();
 
       // For each adapter
-      for (const [diskType, uploads] of uploadsByType.entries()) {
-        const adapterReg = this.adapters.get(diskType);
+      for (const [diskID, uploads] of uploadsByDiskID.entries()) {
+        const adapterReg = this.adapters.get(diskID);
         if (!adapterReg || !adapterReg.enabled) continue;
 
         // Count existing active uploads for this adapter
         const activeCount = Array.from(this.activeUploads.entries()).filter(
           ([id, _]) => {
             const upload = this.uploadQueue.get(id);
-            return upload && upload.config.diskType === diskType;
+            return upload && upload.config.diskID === diskID;
           }
         ).length;
 
@@ -638,12 +644,12 @@ export class UploadManager {
     }
 
     // Get the adapter for this upload
-    const adapterReg = this.adapters.get(uploadItem.config.diskType);
+    const adapterReg = this.adapters.get(uploadItem.config.diskID);
     if (!adapterReg) {
-      console.error(`No adapter found for ${uploadItem.config.diskType}`);
+      console.error(`No adapter found for ${uploadItem.config.diskID}`);
       uploadItem.state = UploadState.FAILED;
       uploadItem.error = new Error(
-        `No adapter found for ${uploadItem.config.diskType}`
+        `No adapter found for ${uploadItem.config.diskID}`
       );
       this.uploadQueue.set(id, uploadItem);
       this.updateProgressTracking();
@@ -891,18 +897,18 @@ export class UploadManager {
   /**
    * Group queued uploads by storage type
    */
-  private groupQueuedUploadsByType(): Map<DiskTypeEnum, QueuedUploadItem[]> {
-    const result = new Map<DiskTypeEnum, QueuedUploadItem[]>();
+  private groupQueuedUploadsByDiskID(): Map<DiskID, QueuedUploadItem[]> {
+    const result = new Map<DiskID, QueuedUploadItem[]>();
 
     for (const item of this.uploadQueue.values()) {
       if (item.state !== UploadState.QUEUED) continue;
 
-      const diskType = item.config.diskType;
-      if (!result.has(diskType)) {
-        result.set(diskType, []);
+      const diskID = item.config.diskID;
+      if (!result.has(diskID)) {
+        result.set(diskID, []);
       }
 
-      result.get(diskType)!.push(item);
+      result.get(diskID)!.push(item);
     }
 
     return result;
@@ -917,7 +923,7 @@ export class UploadManager {
       if (!item) return;
 
       // Get adapter to retrieve resumable metadata
-      const adapterReg = this.adapters.get(item.config.diskType);
+      const adapterReg = this.adapters.get(item.config.diskID);
       if (!adapterReg) return;
 
       // Get resumable metadata from adapter
@@ -1094,7 +1100,7 @@ export class UploadManager {
       }
 
       // Get the adapter for this storage type
-      const adapterReg = this.adapters.get(savedState.diskType);
+      const adapterReg = this.adapters.get(savedState.diskID);
       if (!adapterReg) {
         return null;
       }
@@ -1103,7 +1109,7 @@ export class UploadManager {
     }
 
     // Get the adapter for this upload
-    const adapterReg = this.adapters.get(uploadItem.config.diskType);
+    const adapterReg = this.adapters.get(uploadItem.config.diskID);
     if (!adapterReg) {
       return null;
     }
@@ -1133,6 +1139,7 @@ export class UploadManager {
         file,
         uploadPath: response.uploadPath,
         diskType: response.diskType,
+        diskID: response.diskID,
       },
       state: UploadState.COMPLETED,
       addedAt: response.uploadStartTime,

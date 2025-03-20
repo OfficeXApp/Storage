@@ -1,6 +1,6 @@
 // src/framework/uploader/types.ts - Shared types for the upload system
 
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskID, DiskTypeEnum } from "@officexapp/types";
 import { Observable } from "rxjs";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
 import { ObjectCannedACL } from "@aws-sdk/client-s3";
@@ -44,6 +44,7 @@ export interface ResumableUploadMetadata {
   uploadStartTime: number;
   lastUpdateTime: number;
   diskType: DiskTypeEnum;
+  diskID: DiskID;
   uploadedChunks: number[];
   totalChunks: number;
   chunkSize: number;
@@ -91,6 +92,7 @@ export interface AggregateUploadProgress {
 export interface UploadConfig {
   file: File;
   uploadPath: string;
+  diskID: DiskID;
   diskType: DiskTypeEnum;
   chunkSize?: number;
   priority?: number; // Higher number = higher priority
@@ -129,7 +131,8 @@ export interface IndexDBAdapterConfig {
 }
 
 // S3 specific config
-export interface S3AdapterConfig {
+export interface LocalS3AdapterConfig {
+  diskID: DiskID;
   endpoint: string;
   region: string;
   accessKeyId: string;
@@ -142,9 +145,10 @@ export interface S3AdapterConfig {
 
 // Canister specific config
 export interface CanisterAdapterConfig {
-  canisterId: string;
+  diskID: DiskID;
+  endpoint: string;
   maxChunkSize?: number;
-  host?: string;
+  apiKey: string;
 }
 
 /**
@@ -153,6 +157,7 @@ export interface CanisterAdapterConfig {
 export interface AdapterRegistration {
   adapter: IUploadAdapter;
   diskType: DiskTypeEnum;
+  diskID: DiskID;
   priority: number; // Lower number = higher priority
   concurrency: number;
   enabled: boolean;
@@ -187,6 +192,7 @@ export interface UploadResponse {
   fileSize: number;
   uploadPath: string;
   diskType: DiskTypeEnum;
+  diskID: DiskID;
   uploadStartTime: number;
   uploadEndTime: number;
   duration: number;

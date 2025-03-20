@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Button,
   Card,
@@ -9,7 +9,8 @@ import {
   message,
   Divider,
   Typography,
-  Modal,
+  Popover,
+  Image,
 } from "antd";
 import {
   UploadOutlined,
@@ -24,27 +25,26 @@ import {
   EyeOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
-import { DiskTypeEnum } from "@officexapp/types";
 import { useMultiUploader } from "../../framework/uploader/hook";
-import { CanisterAdapter } from "../../framework/uploader/adapters/canister.adapter";
-import { UploadState, QueuedUploadItem } from "../../framework/uploader/types";
+import {
+  UploadState,
+  UploadID,
+  QueuedUploadItem,
+} from "../../framework/uploader/types";
+import { DiskTypeEnum } from "@officexapp/types";
+import { defaultBrowserCacheDiskID } from "../../api/dexie-database";
+import { IndexedDBAdapter } from "../../framework/uploader/adapters/indexdb.adapter";
+import { sleep } from "../../api/helpers";
 
 const { Title, Text } = Typography;
 
-const apiBaseUrl =
-  "http://bw4dl-smaaa-aaaaa-qaacq-cai.localhost:8000/v1/default";
-const apiKey =
-  "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiMTYyM2IwODkwZTc2NGM1MzdkMGVlODdhZWE3OGQyYWZiNGJmZDBmN2NmOTU1NDE5OGExNjY4OTM3YTRlMmM3ZiJ9";
-const diskId = "DiskID_ae284014-1881-4ee6-afc2-568f87269ad2";
-const currentFolderId = "FolderID_dc228a63-6cc8-4de6-addf-839012898e31";
-const maxChunkSize = 0.5 * 1024 * 1024; // 0.5MB chunks default
-
 /**
- * A component for uploading files to a Canister using the MultiUploader framework
+ * A demo component showcasing the usage of the MultiUploader framework
+ * specifically with IndexedDB
  */
-const CanisterUploader = () => {
+const SandboxUploader: React.FC = () => {
   const {
+    uploadFile,
     uploadFiles,
     pauseUpload,
     resumeUpload,
@@ -56,76 +56,83 @@ const CanisterUploader = () => {
     progress,
     getFileUrl,
     isInitialized,
+    uploadManager,
     registerAdapter,
   } = useMultiUploader();
 
-  const dispatch = useDispatch();
   const [fileList, setFileList] = useState<File[]>([]);
   const [urls, setUrls] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [initializationStatus, setInitializationStatus] =
+    useState("Initializing...");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
   const [adapterRegistered, setAdapterRegistered] = useState(false);
-  const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [previewTitle, setPreviewTitle] = useState<string>("");
 
-  // Register the Canister adapter when component initializes
   useEffect(() => {
-    const initAdapter = async () => {
+    const registerAdapters = async () => {
       if (isInitialized && !adapterRegistered) {
         try {
-          // Create Canister adapter
-          const canisterAdapter = new CanisterAdapter();
+          // Create IndexedDB adapter
+          const indexedDBAdapter = new IndexedDBAdapter();
 
-          // Configuration for Canister adapter
-          const canisterConfig = {
-            diskID: diskId,
-            endpoint: apiBaseUrl,
-            apiKey: apiKey,
-            maxChunkSize: maxChunkSize,
+          // Configuration for IndexedDB
+          const indexDBConfig = {
+            databaseName: "officex-browser-cache-storage-user123",
+            objectStoreName: "files",
           };
 
           // Register the adapter
           await registerAdapter(
-            canisterAdapter,
-            DiskTypeEnum.IcpCanister,
-            diskId,
-            canisterConfig,
-            3 // Concurrency
+            indexedDBAdapter,
+            DiskTypeEnum.BrowserCache,
+            defaultBrowserCacheDiskID,
+            indexDBConfig,
+            1, // Concurrency
+            2 // Priority
           );
 
-          console.log("Canister adapter registered successfully");
+          console.log("Adapter registered successfully");
           setAdapterRegistered(true);
         } catch (error) {
-          console.error("Failed to register Canister adapter:", error);
-          message.error("Failed to initialize Canister uploader");
+          console.error("Failed to register adapter:", error);
         }
       }
     };
 
-    initAdapter();
-  }, [
-    apiBaseUrl,
-    apiKey,
-    diskId,
-    isInitialized,
-    adapterRegistered,
-    registerAdapter,
-    maxChunkSize,
-  ]);
+    registerAdapters();
+  }, [isInitialized, adapterRegistered, registerAdapter]);
+
+  // Check initialization status
+  useEffect(() => {
+    if (isInitialized) {
+      setInitializationStatus("Initialized");
+      console.log("MultiUploader initialized successfully");
+      console.log(
+        "Available adapters:",
+        uploadManager?.getRegisteredAdapters()
+      );
+    } else {
+      setInitializationStatus("Not initialized");
+    }
+  }, [isInitialized, uploadManager]);
 
   // Update URLs for completed uploads
   useEffect(() => {
-    const fetchUrls = async () => {
+    const checkCompletedUploads = async () => {
+      await sleep(2000);
       for (const upload of currentUploads) {
-        if (
-          upload.state === UploadState.COMPLETED &&
-          !urls[upload.id] &&
-          upload.config.diskID === diskId // Only handle URLs for our disk
-        ) {
+        if (upload.state === UploadState.COMPLETED && !urls[upload.id]) {
           try {
+            console.log(`Fetching URL for completed upload ${upload.id}`);
             const url = await getFileUrl(upload.id);
+
             if (url) {
+              console.log(`Got URL for ${upload.id}: ${url}`);
               setUrls((prev) => ({ ...prev, [upload.id]: url }));
+            } else {
+              console.warn(`No URL returned for ${upload.id}`);
             }
           } catch (error) {
             console.error(`Error getting URL for ${upload.id}:`, error);
@@ -134,8 +141,8 @@ const CanisterUploader = () => {
       }
     };
 
-    fetchUrls();
-  }, [currentUploads, getFileUrl, urls, diskId]);
+    checkCompletedUploads();
+  }, [currentUploads, getFileUrl, urls]);
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,32 +160,93 @@ const CanisterUploader = () => {
     }
 
     try {
-      // Upload all files in the fileList with Redux dispatch in metadata
-      uploadFiles(fileList, currentFolderId, DiskTypeEnum.IcpCanister, diskId, {
-        metadata: {
-          dispatch: dispatch,
-        },
-        onFileComplete: (id) => {
-          message.success(`File upload completed successfully`);
-          fetchFileUrl(id);
-        },
-        onAllComplete: () => {
-          message.success("All files uploaded successfully");
-          setFileList([]);
-        },
+      // Store mapping of file name to upload ID for easier tracking
+      const fileToIdMap = new Map();
+
+      // Upload all files in the fileList
+      const uploadIds = uploadFiles(
+        fileList,
+        "/uploads",
+        DiskTypeEnum.BrowserCache,
+        defaultBrowserCacheDiskID,
+        {
+          onFileComplete: (id) => {
+            // Find the file this ID corresponds to
+            const matchingFile = fileList.find((file) => {
+              return fileToIdMap.get(file.name) === id;
+            });
+
+            if (matchingFile) {
+              message.success(
+                `File ${matchingFile.name} uploaded successfully`
+              );
+              console.log(
+                `Upload complete for ${matchingFile.name} with ID: ${id}`
+              );
+              fetchFileUrl(id);
+            } else {
+              console.warn(`Completed upload ID ${id} doesn't match any file`);
+              fetchFileUrl(id); // Try anyway
+            }
+          },
+          onAllComplete: () => {
+            message.success("All files uploaded successfully");
+            setFileList([]);
+          },
+        }
+      );
+
+      // Store the mapping between files and their upload IDs
+      fileList.forEach((file, index) => {
+        if (index < uploadIds.length) {
+          fileToIdMap.set(file.name, uploadIds[index]);
+          console.log(
+            `Mapped file ${file.name} to upload ID: ${uploadIds[index]}`
+          );
+        }
       });
+
+      console.log("Started uploads with IDs:", uploadIds);
     } catch (error) {
       console.error("Error starting uploads:", error);
-      message.error("Failed to start uploads");
+      message.error("Failed to start uploads. Check console for details.");
     }
   };
 
   // Get file URL after upload is complete
-  const fetchFileUrl = async (id: string) => {
+  const fetchFileUrl = async (id: UploadID) => {
+    console.log(`Fetching URL for ${id}`);
     try {
+      // Log all available uploads first to help with debugging
+      console.log("Current uploads:", currentUploads);
+
+      // Check if this ID exists in our upload list
+      const uploadItem = currentUploads.find((upload) => upload.id === id);
+      if (!uploadItem) {
+        console.warn(`No upload found with ID ${id} in currentUploads`);
+        // Try to get the URL anyway, since the ID might be correct in IndexedDB
+      } else {
+        console.log(`Found upload for ID ${id}: ${uploadItem.file.name}`);
+      }
+
       const url = await getFileUrl(id);
+      console.log(`URL for ${id}:`, url);
+
       if (url) {
         setUrls((prev) => ({ ...prev, [id]: url }));
+      } else {
+        console.warn(`No URL returned for ${id}`);
+
+        // Let's try once more after a short delay
+        setTimeout(async () => {
+          const retryUrl = await getFileUrl(id);
+          if (retryUrl) {
+            console.log(`Succeeded getting URL for ${id} after retry`);
+            setUrls((prev) => ({ ...prev, [id]: retryUrl }));
+          } else {
+            console.error(`Failed to get URL for ${id} after retry`);
+          }
+        }, 1000);
       }
     } catch (error) {
       console.error(`Error getting URL for ${id}:`, error);
@@ -186,67 +254,55 @@ const CanisterUploader = () => {
   };
 
   // Handle pause upload
-  const handlePauseUpload = async (id: string) => {
+  const handlePauseUpload = async (id: UploadID) => {
     try {
       const paused = await pauseUpload(id);
       if (paused) {
-        message.info(`Upload paused`);
+        message.info(`Upload paused: ${id}`);
       } else {
-        message.error(`Failed to pause upload`);
+        message.error(`Failed to pause upload: ${id}`);
       }
     } catch (error) {
       console.error(`Error pausing upload ${id}:`, error);
-      message.error("Failed to pause upload");
+      message.error("Failed to pause upload. Check console for details.");
     }
   };
 
   // Handle resume upload
-  const handleResumeUpload = async (id: string, item: QueuedUploadItem) => {
+  const handleResumeUpload = async (id: UploadID, item: QueuedUploadItem) => {
     try {
       const resumed = await resumeUpload(id, item.file);
       if (resumed) {
-        message.info(`Upload resumed`);
+        message.info(`Upload resumed: ${id}`);
       } else {
-        message.error(`Failed to resume upload`);
+        message.error(`Failed to resume upload: ${id}`);
       }
     } catch (error) {
       console.error(`Error resuming upload ${id}:`, error);
-      message.error("Failed to resume upload");
+      message.error("Failed to resume upload. Check console for details.");
     }
   };
 
   // Handle cancel upload
-  const handleCancelUpload = async (id: string) => {
+  const handleCancelUpload = async (id: UploadID) => {
     try {
       const cancelled = await cancelUpload(id);
       if (cancelled) {
-        // Cleanup URL if it exists
-        if (urls[id]) {
-          setUrls((prev) => {
-            const newUrls = { ...prev };
-            delete newUrls[id];
-            return newUrls;
-          });
-        }
-        message.info(`Upload cancelled`);
+        revokeObjectURL(id);
+        message.info(`Upload cancelled: ${id}`);
       } else {
-        message.error(`Failed to cancel upload`);
+        message.error(`Failed to cancel upload: ${id}`);
       }
     } catch (error) {
       console.error(`Error cancelling upload ${id}:`, error);
-      message.error("Failed to cancel upload");
+      message.error("Failed to cancel upload. Check console for details.");
     }
   };
 
   // Handle file download
-  const handleDownloadFile = (id: string, fileName: string) => {
-    const url = urls[id];
-    if (!url) {
-      message.error("Download URL not available yet");
-      return;
-    }
-
+  const handleDownloadFile = (url: string, fileName: string) => {
     try {
+      console.log(`Downloading ${fileName} from ${url}`);
       const link = document.createElement("a");
       link.href = url;
       link.download = fileName;
@@ -257,48 +313,10 @@ const CanisterUploader = () => {
       setTimeout(() => {
         document.body.removeChild(link);
       }, 100);
-
-      message.success(`Downloading ${fileName}`);
     } catch (error) {
       console.error("Error downloading file:", error);
-      message.error("Failed to download file");
+      message.error("Failed to download file. Please try again.");
     }
-  };
-
-  // Preview an image file
-  const handlePreviewImage = async (id: string, fileName: string) => {
-    try {
-      message.loading({ content: "Loading preview...", key: "preview" });
-
-      // Get the URL if we don't already have it
-      let imageUrl = urls[id];
-      if (!imageUrl) {
-        imageUrl = (await getFileUrl(id)) || "";
-        if (imageUrl) {
-          setUrls((prev) => ({ ...prev, [id]: imageUrl }));
-        }
-      }
-
-      if (!imageUrl) {
-        throw new Error("Failed to load preview");
-      }
-
-      // Set preview state
-      setPreviewImage(imageUrl);
-      setPreviewTitle(fileName);
-      setPreviewVisible(true);
-      message.success({ content: "Preview loaded", key: "preview" });
-    } catch (error) {
-      console.error("Error preparing image preview:", error);
-      message.error({
-        content: `Failed to preview image: ${(error as Error).message}`,
-        key: "preview",
-      });
-    }
-  };
-
-  const handlePreviewCancel = () => {
-    setPreviewVisible(false);
   };
 
   // Get file icon based on type
@@ -361,33 +379,44 @@ const CanisterUploader = () => {
     return file.type.startsWith("image/");
   };
 
-  // Filter uploads for this disk ID only
-  const filteredUploads = currentUploads.filter(
-    (upload) => upload.config.diskID === diskId
-  );
+  // Image preview content for Popover
+  const renderImagePreview = (url: string) => {
+    return (
+      <div style={{ width: "250px" }}>
+        <Image src={url} alt="Preview" style={{ width: "100%" }} />
+      </div>
+    );
+  };
 
   // Table columns
   const columns = [
     {
       title: "File",
+      dataIndex: "file",
       key: "file",
-      render: (record: QueuedUploadItem) => {
-        const file = record.file;
+      render: (file: File, record: QueuedUploadItem) => {
         const isCompleted = record.state === UploadState.COMPLETED;
         const isImage = isImageFile(file);
+        console.log("urls", urls);
         const fileUrl = urls[record.id];
-
+        console.log(
+          `isCompleted: ${isCompleted}, isImage: ${isImage}, fileUrl: ${fileUrl}`
+        );
         if (isCompleted && isImage && fileUrl) {
           return (
-            <Space>
-              {getFileIcon(file)}
-              <span
-                style={{ cursor: "pointer", color: "#1890ff" }}
-                onClick={() => handlePreviewImage(record.id, file.name)}
-              >
-                {file.name}
-              </span>
-            </Space>
+            <Popover
+              content={renderImagePreview(fileUrl)}
+              title={file.name}
+              trigger="hover"
+              placement="right"
+            >
+              <Space>
+                {getFileIcon(file)}
+                <span style={{ cursor: "pointer", color: "#1890ff" }}>
+                  {file.name}
+                </span>
+              </Space>
+            </Popover>
           );
         }
 
@@ -401,33 +430,26 @@ const CanisterUploader = () => {
     },
     {
       title: "Size",
+      dataIndex: "file",
       key: "size",
-      render: (record: QueuedUploadItem) => formatBytes(record.file.size),
+      render: (file: File) => formatBytes(file.size),
     },
     {
       title: "Status",
+      dataIndex: "state",
       key: "state",
-      render: (record: QueuedUploadItem) => (
-        <Tag color={getStateTagColor(record.state)}>
-          {record.state.toUpperCase()}
-        </Tag>
+      render: (state: UploadState) => (
+        <Tag color={getStateTagColor(state)}>{state.toUpperCase()}</Tag>
       ),
     },
     {
       title: "Progress",
       key: "progress",
-      render: (record: QueuedUploadItem) => {
-        // Calculate progress percentage
-        let uploadProgress = 0;
-        if (record.lastProgress) {
-          uploadProgress = record.lastProgress.progress;
-        } else if (record.state === UploadState.COMPLETED) {
-          uploadProgress = 100;
-        }
-
+      render: (_: any, record: QueuedUploadItem) => {
+        const uploadProgress = record.lastProgress?.progress || 0;
         return (
           <Progress
-            percent={uploadProgress}
+            percent={Math.floor(uploadProgress)}
             size="small"
             status={
               record.state === UploadState.FAILED ? "exception" : undefined
@@ -439,12 +461,11 @@ const CanisterUploader = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (record: QueuedUploadItem) => {
+      render: (_: any, record: QueuedUploadItem) => {
         const canPause = record.state === UploadState.ACTIVE;
         const canResume = record.state === UploadState.PAUSED;
         const canCancel =
           record.state === UploadState.ACTIVE ||
-          record.state === UploadState.QUEUED ||
           record.state === UploadState.PAUSED;
         const isCompleted = record.state === UploadState.COMPLETED;
         const fileUrl = urls[record.id];
@@ -477,23 +498,19 @@ const CanisterUploader = () => {
                 type="text"
               />
             )}
-            {isCompleted && (
+            {isCompleted && fileUrl && (
               <>
-                {isImage && fileUrl && (
+                {isImage && (
                   <Button
                     icon={<EyeOutlined />}
-                    onClick={() =>
-                      handlePreviewImage(record.id, record.file.name)
-                    }
+                    onClick={() => window.open(fileUrl, "_blank")}
                     size="small"
                     type="text"
                   />
                 )}
                 <Button
                   icon={<DownloadOutlined />}
-                  onClick={() =>
-                    handleDownloadFile(record.id, record.file.name)
-                  }
+                  onClick={() => handleDownloadFile(fileUrl, record.file.name)}
                   size="small"
                   type="text"
                 />
@@ -505,22 +522,37 @@ const CanisterUploader = () => {
     },
   ];
 
-  // Clean up function to revoke object URLs on unmount
-  useEffect(() => {
-    return () => {
-      // Clean up URLs when component unmounts
-      Object.values(urls).forEach((url) => {
+  const revokeObjectURL = useCallback(
+    (id: UploadID) => {
+      const url = urls[id];
+      if (url) {
         URL.revokeObjectURL(url);
-      });
-    };
-  }, [urls]);
+        setUrls((prev) => {
+          const newUrls = { ...prev };
+          delete newUrls[id];
+          return newUrls;
+        });
+      }
+    },
+    [urls]
+  );
 
   return (
     <Card
-      title="Canister File Upload"
+      title="IndexedDB File Upload Demo"
       style={{ width: "100%", maxWidth: 800, margin: "0 auto" }}
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        {/* Initialization status */}
+        <div>
+          <Tag
+            color={isInitialized ? "success" : "warning"}
+            style={{ marginBottom: 16 }}
+          >
+            Status: {initializationStatus}
+          </Tag>
+        </div>
+
         {/* File selection */}
         <div>
           <Title level={4}>Select Files</Title>
@@ -528,7 +560,6 @@ const CanisterUploader = () => {
             <Button
               icon={<UploadOutlined />}
               onClick={() => fileInputRef.current?.click()}
-              disabled={!adapterRegistered}
             >
               Select Files
             </Button>
@@ -542,9 +573,9 @@ const CanisterUploader = () => {
             <Button
               type="primary"
               onClick={handleUpload}
-              disabled={fileList.length === 0 || !adapterRegistered}
+              disabled={fileList.length === 0 || !isInitialized}
             >
-              Upload to Canister
+              Upload to IndexedDB
             </Button>
           </Space>
           {fileList.length > 0 && (
@@ -571,7 +602,7 @@ const CanisterUploader = () => {
               onClick={() => pauseAllUploads()}
               disabled={progress.activeFiles === 0}
             >
-              Pause All Uploads
+              Pause All
             </Button>
             <Button
               onClick={() => resumeAllUploads()}
@@ -581,12 +612,7 @@ const CanisterUploader = () => {
             </Button>
             <Button
               onClick={() => clearFinishedUploads()}
-              disabled={
-                progress.completedFiles +
-                  progress.failedFiles +
-                  progress.cancelledFiles ===
-                0
-              }
+              disabled={progress.completedFiles + progress.failedFiles === 0}
             >
               Clear Finished
             </Button>
@@ -598,49 +624,11 @@ const CanisterUploader = () => {
           </div>
 
           <Space style={{ marginBottom: 16 }}>
-            <Tag color="blue">Total: {filteredUploads.length}</Tag>
-            <Tag color="processing">
-              Active:{" "}
-              {
-                filteredUploads.filter((u) => u.state === UploadState.ACTIVE)
-                  .length
-              }
-            </Tag>
-            <Tag color="success">
-              Completed:{" "}
-              {
-                filteredUploads.filter((u) => u.state === UploadState.COMPLETED)
-                  .length
-              }
-            </Tag>
-            <Tag color="warning">
-              Paused:{" "}
-              {
-                filteredUploads.filter((u) => u.state === UploadState.PAUSED)
-                  .length
-              }
-            </Tag>
-            <Tag color="error">
-              Failed:{" "}
-              {
-                filteredUploads.filter((u) => u.state === UploadState.FAILED)
-                  .length
-              }
-            </Tag>
-            <Tag color="default">
-              Cancelled:{" "}
-              {
-                filteredUploads.filter((u) => u.state === UploadState.CANCELLED)
-                  .length
-              }
-            </Tag>
-            <Tag color="blue">
-              Queued:{" "}
-              {
-                filteredUploads.filter((u) => u.state === UploadState.QUEUED)
-                  .length
-              }
-            </Tag>
+            <Tag color="blue">Total: {progress.totalFiles}</Tag>
+            <Tag color="processing">Active: {progress.activeFiles}</Tag>
+            <Tag color="success">Completed: {progress.completedFiles}</Tag>
+            <Tag color="warning">Paused: {progress.pausedFiles}</Tag>
+            <Tag color="error">Failed: {progress.failedFiles}</Tag>
           </Space>
         </div>
 
@@ -650,7 +638,7 @@ const CanisterUploader = () => {
         <div>
           <Title level={4}>Uploads</Title>
           <Table
-            dataSource={filteredUploads}
+            dataSource={currentUploads}
             columns={columns}
             rowKey="id"
             pagination={false}
@@ -658,20 +646,8 @@ const CanisterUploader = () => {
           />
         </div>
       </Space>
-
-      {/* Image preview modal */}
-      <Modal
-        visible={previewVisible}
-        title={previewTitle}
-        footer={null}
-        onCancel={handlePreviewCancel}
-      >
-        {previewImage && (
-          <img alt="Preview" style={{ width: "100%" }} src={previewImage} />
-        )}
-      </Modal>
     </Card>
   );
 };
 
-export default CanisterUploader;
+export default SandboxUploader;

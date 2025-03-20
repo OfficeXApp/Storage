@@ -11,6 +11,10 @@ import {
   Typography,
   Popover,
   Image,
+  Form,
+  Input,
+  Switch,
+  Alert,
 } from "antd";
 import {
   UploadOutlined,
@@ -24,22 +28,28 @@ import {
   FileUnknownOutlined,
   EyeOutlined,
   DownloadOutlined,
+  SettingOutlined,
+  CloudOutlined,
 } from "@ant-design/icons";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import {
   UploadState,
   UploadID,
   QueuedUploadItem,
+  LocalS3AdapterConfig,
 } from "../../framework/uploader/types";
 import { DiskTypeEnum } from "@officexapp/types";
+import { LocalS3Adapter } from "../../framework/uploader/adapters/locals3.adapter";
+import { sleep } from "../../api/helpers";
+import { defaultTempCloudSharingDiskID } from "../../api/dexie-database";
 
 const { Title, Text } = Typography;
 
 /**
  * A demo component showcasing the usage of the MultiUploader framework
- * specifically with IndexedDB
+ * specifically with S3 adapter connected to Storj decentralized storage
  */
-const SandboxUploader: React.FC = () => {
+const S3UploaderSandbox: React.FC = () => {
   const {
     uploadFile,
     uploadFiles,
@@ -54,6 +64,7 @@ const SandboxUploader: React.FC = () => {
     getFileUrl,
     isInitialized,
     uploadManager,
+    registerAdapter,
   } = useMultiUploader();
 
   const [fileList, setFileList] = useState<File[]>([]);
@@ -61,27 +72,71 @@ const SandboxUploader: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [initializationStatus, setInitializationStatus] =
     useState("Initializing...");
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
+  const [adapterRegistered, setAdapterRegistered] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
-  // Check initialization status
+  // Hardcoded Storj credentials
+  const freeTrialStorjCreds = {
+    access_key: "jwu43kry2lja5z27c5mwfwxxkvea",
+    secret_key: "j37zrkuw7e2rvxywqmidx6gcmqf64brxygvbqhgiaotcfv47telme",
+    endpoint: "https://gateway.storjshare.io",
+  };
+
+  // S3 Configuration Settings
+  const [s3Config, setS3Config] = useState<LocalS3AdapterConfig>({
+    diskID: defaultTempCloudSharingDiskID,
+    endpoint: freeTrialStorjCreds.endpoint,
+    region: "us-east-1",
+    accessKeyId: freeTrialStorjCreds.access_key,
+    secretAccessKey: freeTrialStorjCreds.secret_key,
+    bucket: "officex",
+    useMultipartUpload: true,
+    partSize: 5 * 1024 * 1024, // 5MB parts
+  });
+
   useEffect(() => {
-    if (isInitialized) {
-      setInitializationStatus("Initialized");
-      console.log("MultiUploader initialized successfully");
-      console.log(
-        "Available adapters:",
-        uploadManager?.getRegisteredAdapters()
-      );
+    const registerLocalS3Adapter = async () => {
+      if (isInitialized && !adapterRegistered) {
+        try {
+          console.log(
+            "Initializing S3 adapter with Storj configuration:",
+            s3Config
+          );
+
+          // Create S3 adapter
+          const localS3Adapter = new LocalS3Adapter();
+
+          // Register the adapter
+          await registerAdapter(
+            localS3Adapter,
+            DiskTypeEnum.StorjWeb3,
+            s3Config.diskID,
+            s3Config,
+            3, // Concurrency
+            1 // Priority (lower number is higher priority)
+          );
+
+          console.log("Storj S3 Adapter registered successfully");
+          setAdapterRegistered(true);
+          setInitializationStatus("Connected to Storj");
+        } catch (error) {
+          console.error("Failed to register Storj S3 adapter:", error);
+          setInitializationStatus("Failed to connect to Storj");
+        }
+      }
+    };
+
+    if (adapterRegistered) {
+      setInitializationStatus("Connected to Storj");
     } else {
-      setInitializationStatus("Not initialized");
+      registerLocalS3Adapter();
     }
-  }, [isInitialized, uploadManager]);
+  }, [isInitialized, adapterRegistered, registerAdapter, s3Config]);
 
   // Update URLs for completed uploads
   useEffect(() => {
     const checkCompletedUploads = async () => {
+      await sleep(2000);
       for (const upload of currentUploads) {
         if (upload.state === UploadState.COMPLETED && !urls[upload.id]) {
           try {
@@ -112,10 +167,34 @@ const SandboxUploader: React.FC = () => {
     }
   };
 
+  // Update S3 configuration
+  const handleS3ConfigChange = (
+    field: keyof LocalS3AdapterConfig,
+    value: any
+  ) => {
+    setS3Config((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    // If the adapter was already registered, unregister it
+    if (adapterRegistered) {
+      setAdapterRegistered(false);
+      setInitializationStatus("Configuration changed, re-initializing...");
+    }
+  };
+
   // Upload selected files
   const handleUpload = () => {
     if (fileList.length === 0) {
       message.warning("Please select files first");
+      return;
+    }
+
+    if (!adapterRegistered) {
+      message.error(
+        "Storj adapter not initialized. Please check your settings."
+      );
       return;
     }
 
@@ -127,7 +206,8 @@ const SandboxUploader: React.FC = () => {
       const uploadIds = uploadFiles(
         fileList,
         "/uploads",
-        DiskTypeEnum.BrowserCache,
+        DiskTypeEnum.StorjWeb3,
+        s3Config.diskID,
         {
           onFileComplete: (id) => {
             // Find the file this ID corresponds to
@@ -183,7 +263,6 @@ const SandboxUploader: React.FC = () => {
       const uploadItem = currentUploads.find((upload) => upload.id === id);
       if (!uploadItem) {
         console.warn(`No upload found with ID ${id} in currentUploads`);
-        // Try to get the URL anyway, since the ID might be correct in IndexedDB
       } else {
         console.log(`Found upload for ID ${id}: ${uploadItem.file.name}`);
       }
@@ -356,11 +435,8 @@ const SandboxUploader: React.FC = () => {
       render: (file: File, record: QueuedUploadItem) => {
         const isCompleted = record.state === UploadState.COMPLETED;
         const isImage = isImageFile(file);
-        console.log("urls", urls);
         const fileUrl = urls[record.id];
-        console.log(
-          `isCompleted: ${isCompleted}, isImage: ${isImage}, fileUrl: ${fileUrl}`
-        );
+
         if (isCompleted && isImage && fileUrl) {
           return (
             <Popover
@@ -496,16 +572,118 @@ const SandboxUploader: React.FC = () => {
     [urls]
   );
 
+  // S3 Settings Form
+  const renderS3Settings = () => (
+    <Card
+      title="Storj Configuration"
+      style={{ marginBottom: 16 }}
+      extra={
+        <Button type="link" onClick={() => setShowSettings(false)}>
+          Hide
+        </Button>
+      }
+    >
+      <Form layout="vertical">
+        <Form.Item label="Endpoint URL">
+          <Input
+            value={s3Config.endpoint}
+            onChange={(e) => handleS3ConfigChange("endpoint", e.target.value)}
+            placeholder="https://gateway.storjshare.io"
+          />
+        </Form.Item>
+        <Form.Item label="Region">
+          <Input
+            value={s3Config.region}
+            onChange={(e) => handleS3ConfigChange("region", e.target.value)}
+            placeholder="us-east-1"
+          />
+        </Form.Item>
+        <Form.Item label="Bucket Name">
+          <Input
+            value={s3Config.bucket}
+            onChange={(e) => handleS3ConfigChange("bucket", e.target.value)}
+            placeholder="officex"
+          />
+        </Form.Item>
+        <Form.Item label="Access Key ID">
+          <Input
+            value={s3Config.accessKeyId}
+            onChange={(e) =>
+              handleS3ConfigChange("accessKeyId", e.target.value)
+            }
+            placeholder="AKIAXXXXXXXXXXXXXXXX"
+          />
+        </Form.Item>
+        <Form.Item label="Secret Access Key">
+          <Input.Password
+            value={s3Config.secretAccessKey}
+            onChange={(e) =>
+              handleS3ConfigChange("secretAccessKey", e.target.value)
+            }
+            placeholder="Your secret access key"
+          />
+        </Form.Item>
+        <Form.Item label="Use Multipart Upload">
+          <Switch
+            checked={s3Config.useMultipartUpload}
+            onChange={(checked) =>
+              handleS3ConfigChange("useMultipartUpload", checked)
+            }
+          />
+        </Form.Item>
+        {s3Config.useMultipartUpload && (
+          <Form.Item label="Part Size (bytes)">
+            <Input
+              type="number"
+              value={s3Config.partSize}
+              onChange={(e) =>
+                handleS3ConfigChange("partSize", parseInt(e.target.value))
+              }
+              placeholder="5242880"
+            />
+            <Text type="secondary">
+              Recommended: 5MB (5242880 bytes) minimum for optimal performance
+            </Text>
+          </Form.Item>
+        )}
+      </Form>
+    </Card>
+  );
+
   return (
     <Card
-      title="IndexedDB File Upload Demo"
+      title={
+        <Space>
+          <CloudOutlined />
+          Storj Decentralized Storage Upload Demo
+        </Space>
+      }
       style={{ width: "100%", maxWidth: 800, margin: "0 auto" }}
+      extra={
+        <Button
+          icon={<SettingOutlined />}
+          onClick={() => setShowSettings(!showSettings)}
+        >
+          Storj Settings
+        </Button>
+      }
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        {/* S3 Settings */}
+        {showSettings && renderS3Settings()}
+
+        {/* Info Alert */}
+        <Alert
+          message="Using Storj Decentralized Storage"
+          description="This demo uses Storj, an S3-compatible decentralized storage network. Files are encrypted, split into pieces, and distributed across a global network of nodes."
+          type="info"
+          showIcon
+        />
+
         {/* Initialization status */}
         <div>
           <Tag
-            color={isInitialized ? "success" : "warning"}
+            color={adapterRegistered ? "success" : "warning"}
             style={{ marginBottom: 16 }}
           >
             Status: {initializationStatus}
@@ -532,9 +710,9 @@ const SandboxUploader: React.FC = () => {
             <Button
               type="primary"
               onClick={handleUpload}
-              disabled={fileList.length === 0 || !isInitialized}
+              disabled={fileList.length === 0 || !adapterRegistered}
             >
-              Upload to IndexedDB
+              Upload to Storj
             </Button>
           </Space>
           {fileList.length > 0 && (
@@ -605,8 +783,16 @@ const SandboxUploader: React.FC = () => {
           />
         </div>
       </Space>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
     </Card>
   );
 };
 
-export default SandboxUploader;
+export default S3UploaderSandbox;

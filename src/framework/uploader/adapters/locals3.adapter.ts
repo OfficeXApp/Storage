@@ -26,7 +26,7 @@ import {
   UploadConfig,
   UploadState,
   AdapterFeatures,
-  S3AdapterConfig,
+  LocalS3AdapterConfig,
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
@@ -36,9 +36,9 @@ import { getMimeType } from "../helpers";
 /**
  * Adapter for uploading files to AWS S3 or S3-compatible storage (like Storj)
  */
-export class S3Adapter implements IUploadAdapter {
+export class LocalS3Adapter implements IUploadAdapter {
   private s3Client: S3 | null = null;
-  private config: S3AdapterConfig | null = null;
+  private config: LocalS3AdapterConfig | null = null;
 
   // Store active uploads for pause/resume/cancel
   private activeUploads: Map<
@@ -53,9 +53,9 @@ export class S3Adapter implements IUploadAdapter {
   /**
    * Initialize the S3 adapter
    */
-  public async initialize(config: S3AdapterConfig): Promise<void> {
+  public async initialize(config: LocalS3AdapterConfig): Promise<void> {
     if (this.s3Client) {
-      console.log("S3Adapter already initialized");
+      console.log("LocalS3Adapter already initialized");
       return;
     }
 
@@ -323,6 +323,7 @@ export class S3Adapter implements IUploadAdapter {
         uploadStartTime: startTime,
         lastUpdateTime: startTime,
         diskType: config.diskType,
+        diskID: config.diskID,
         uploadedChunks: [],
         totalChunks: totalParts,
         chunkSize: partSize,
@@ -507,6 +508,7 @@ export class S3Adapter implements IUploadAdapter {
         uploadStartTime: startTime,
         lastUpdateTime: Date.now(),
         diskType: config.diskType,
+        diskID: config.diskID,
         uploadedChunks: [],
         totalChunks: 1,
         chunkSize: file.size,
@@ -626,6 +628,7 @@ export class S3Adapter implements IUploadAdapter {
               file,
               uploadPath: metadata.uploadPath,
               diskType: metadata.diskType,
+              diskID: metadata.diskID,
               metadata: metadata.customMetadata,
             },
             key,
@@ -778,6 +781,7 @@ export class S3Adapter implements IUploadAdapter {
             file,
             uploadPath: metadata.uploadPath,
             diskType: metadata.diskType,
+            diskID: metadata.diskID,
             metadata: metadata.customMetadata,
           },
           key,
@@ -862,6 +866,7 @@ export class S3Adapter implements IUploadAdapter {
           file,
           uploadPath: metadata.uploadPath,
           diskType: metadata.diskType,
+          diskID: metadata.diskID,
           metadata: metadata.customMetadata,
         },
         key,

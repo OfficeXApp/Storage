@@ -467,7 +467,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 name: fileData.payload.name,
                 extension: fileData.payload.extension || "",
                 folder_uuid: parentFolderId,
-                disk_type: fileData.payload.disk_type || "local",
+                disk_type: fileData.payload.disk_type || "BrowserCache",
                 file_version: 1,
                 full_directory_path: parentFolder
                   ? `${parentFolder.full_directory_path}/${fileData.payload.name}`
@@ -1338,8 +1338,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                 // Create new paths for the deleted folder
                 const folderName = cachedFolder.name;
-                const trashPath = `${cachedFolder.disk_id}::.trash/${folderName}/`;
-                const trashClippedPath = `${cachedFolder.disk_id}::.trash/${folderName}/`;
+                const trashPath = `${cachedFolder.disk_id}::/.trash/${folderName}/`;
+                const trashClippedPath = `${cachedFolder.disk_id}::/.trash/${folderName}/`;
 
                 // Store the original path for potential restoration later
                 const optimisticFolder: FolderFEO = {

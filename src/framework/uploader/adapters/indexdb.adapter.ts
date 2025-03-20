@@ -13,6 +13,7 @@ import {
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
 import { DiskTypeEnum } from "@officexapp/types";
+import { defaultBrowserCacheDiskID } from "../../../api/dexie-database";
 
 /**
  * Adapter for uploading files to IndexedDB
@@ -160,21 +161,20 @@ export class IndexedDBAdapter implements IUploadAdapter {
           console.log("Upgrading IndexedDB database structure");
           const db = (event.target as IDBOpenDBRequest).result;
 
-          // Create stores if they don't exist
-          if (!db.objectStoreNames.contains(this.FILES_STORE_NAME)) {
-            console.log(`Creating object store: ${this.FILES_STORE_NAME}`);
-            db.createObjectStore(this.FILES_STORE_NAME, { keyPath: "id" });
-          }
+          // Create all required stores if they don't exist
+          const requiredStores = [
+            this.FILES_STORE_NAME,
+            this.CHUNKS_STORE_NAME,
+            this.METADATA_STORE_NAME,
+          ];
 
-          if (!db.objectStoreNames.contains(this.CHUNKS_STORE_NAME)) {
-            console.log(`Creating object store: ${this.CHUNKS_STORE_NAME}`);
-            db.createObjectStore(this.CHUNKS_STORE_NAME, { keyPath: "id" });
-          }
-
-          if (!db.objectStoreNames.contains(this.METADATA_STORE_NAME)) {
-            console.log(`Creating object store: ${this.METADATA_STORE_NAME}`);
-            db.createObjectStore(this.METADATA_STORE_NAME, { keyPath: "id" });
-          }
+          // Check and create each required store
+          requiredStores.forEach((storeName) => {
+            if (!db.objectStoreNames.contains(storeName)) {
+              console.log(`Creating object store: ${storeName}`);
+              db.createObjectStore(storeName, { keyPath: "id" });
+            }
+          });
         };
       } catch (error) {
         console.error(
@@ -279,6 +279,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
       uploadStartTime: startTime,
       lastUpdateTime: startTime,
       diskType: config.diskType,
+      diskID: config.diskID,
       uploadedChunks: [],
       totalChunks,
       chunkSize,
@@ -896,6 +897,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
             file,
             uploadPath: metadata.uploadPath,
             diskType: metadata.diskType,
+            diskID: defaultBrowserCacheDiskID,
             metadata: metadata.customMetadata,
             chunkSize: metadata.chunkSize,
           };
@@ -921,6 +923,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         file,
         uploadPath: metadata.uploadPath,
         diskType: metadata.diskType,
+        diskID: defaultBrowserCacheDiskID,
         metadata: metadata.customMetadata,
         chunkSize: metadata.chunkSize,
       };
@@ -1246,12 +1249,18 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return null;
       }
 
+      console.log(`Found file info for ${id}:`, fileInfo);
+
       // Reconstruct the file from chunks
       const blob = await this.reconstructFile(id);
       if (!blob) {
         console.error(`Failed to reconstruct file ${id}`);
         return null;
       }
+
+      console.log(
+        `Successfully reconstructed file ${id}, blob size: ${blob.size}`
+      );
 
       // Create and return object URL
       const url = URL.createObjectURL(blob);
@@ -1343,40 +1352,37 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return;
       }
 
+      const chunkId = `${uploadId}_chunk_${chunkIndex}`;
+      console.log(`Attempting to retrieve chunk ${chunkId}`);
+
       const transaction = this.db.transaction(
         [this.CHUNKS_STORE_NAME],
         "readonly"
       );
       const store = transaction.objectStore(this.CHUNKS_STORE_NAME);
-      const chunkId = `${uploadId}_chunk_${chunkIndex}`;
 
-      console.log(`Getting chunk ${chunkId}`);
+      // Log all keys in the store to see what's available
+      const keysRequest = store.getAllKeys();
+      keysRequest.onsuccess = () => {
+        console.log(`Available chunk keys:`, keysRequest.result);
+        console.log(`Looking for key: ${chunkId}`);
+      };
+
       const request = store.get(chunkId);
 
       request.onsuccess = () => {
-        if (request.result && request.result.data) {
+        if (request.result) {
+          console.log(
+            `Found chunk ${chunkId}, data size: ${request.result.data?.byteLength || "unknown"}`
+          );
           resolve(request.result.data);
         } else {
-          console.warn(`Chunk ${chunkId} not found`);
+          console.warn(`Chunk ${chunkId} not found in store`);
           resolve(null);
         }
       };
 
-      request.onerror = (event) => {
-        console.error(
-          `Error getting chunk ${chunkIndex} for ${uploadId}:`,
-          (event.target as IDBRequest).error
-        );
-        resolve(null);
-      };
-
-      transaction.onerror = (event) => {
-        console.error(
-          `Transaction error getting chunk ${chunkIndex} for ${uploadId}:`,
-          (event.target as IDBTransaction).error
-        );
-        resolve(null);
-      };
+      // Other error handling
     });
   }
 

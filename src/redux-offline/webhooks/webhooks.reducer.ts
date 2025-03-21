@@ -107,6 +107,7 @@ export const webhooksReducer = (
     }
 
     case GET_WEBHOOK_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic webhook with the error message
       const newWebhookMap = { ...state.webhookMap };
       delete newWebhookMap[action.meta.optimisticID];
@@ -150,6 +151,7 @@ export const webhooksReducer = (
     }
 
     case LIST_WEBHOOKS_ROLLBACK: {
+      if (!action.payload.response) return state;
       return {
         ...state,
         webhooks: [],
@@ -199,6 +201,7 @@ export const webhooksReducer = (
     }
 
     case CREATE_WEBHOOK_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Add a sync warning to the optimistic webhook
       const newReduxWebhooks = state.webhooks.map((webhook) => {
         if (webhook._optimisticID === action.meta.optimisticID) {
@@ -258,6 +261,7 @@ export const webhooksReducer = (
     }
 
     case UPDATE_WEBHOOK_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic webhook with the error message
       return {
         ...state,
@@ -305,6 +309,7 @@ export const webhooksReducer = (
     }
 
     case DELETE_WEBHOOK_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic webhook with the error message
       return {
         ...state,

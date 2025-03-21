@@ -130,8 +130,17 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       const effectWithAuth = async (effect: any) => {
+        console.log(`_____effect`, effect);
+
+        if (!currentOrg.endpoint) return;
+
         // Extract request details from the effect
         const { url, method = "GET", headers = {}, data } = effect;
+
+        if (headers["shouldBehaveOfflineDiskUI"]) return;
+
+        const sanitizedHeaders = { ...headers };
+        delete sanitizedHeaders["shouldBehaveOfflineDiskUI"];
 
         // Construct full URL if needed
         let fullUrl = url;
@@ -154,7 +163,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
-            ...headers,
+            ...sanitizedHeaders,
           },
           // Only include body for non-GET requests
           ...(method !== "GET" && {
@@ -192,6 +201,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           ],
         },
         retry: (action: any, retries: number) => {
+          if (!currentOrg.endpoint) return;
           // If we've exceeded our retry schedule, stop retrying
           if (retries >= retrySchedule.length) {
             console.log(

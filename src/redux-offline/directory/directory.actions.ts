@@ -103,7 +103,7 @@ export const generateListDirectoryKey = (
 // list directory files & folders
 export const listDirectoryAction = (
   payload: IRequestListDirectory,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   // Generate a unique ID for this request
   const listDirectoryKey = generateListDirectoryKey(payload);
@@ -119,6 +119,7 @@ export const listDirectoryAction = (
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: payload,
@@ -137,19 +138,22 @@ export const listDirectoryAction = (
 };
 
 // Get File
-export const getFileAction = (action: GetFileAction, isOfflineDrive = true) => {
+export const getFileAction = (
+  action: GetFileAction,
+  shouldBehaveOfflineDiskUI = true
+) => {
   const resourceId = action.payload.id as FileID;
   return {
     type: GET_FILE,
     meta: {
       optimisticID: resourceId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -169,20 +173,20 @@ export const getFileAction = (action: GetFileAction, isOfflineDrive = true) => {
 // Get Folder
 export const getFolderAction = (
   action: GetFolderAction,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const resourceId = action.payload.id as FolderID;
   return {
     type: GET_FOLDER,
     meta: {
       optimisticID: resourceId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -203,7 +207,7 @@ export const getFolderAction = (
 export const createFileAction = (
   action: CreateFileAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const id = GenerateID.File();
   // Assign the generated ID to the resource_id if not provided
@@ -215,13 +219,13 @@ export const createFileAction = (
     type: CREATE_FILE,
     meta: {
       optimisticID: id,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -239,7 +243,7 @@ export const createFileAction = (
 export const createFolderAction = (
   action: CreateFolderAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const id = action.payload.id || GenerateID.Folder();
   return {
@@ -247,13 +251,13 @@ export const createFolderAction = (
     meta: {
       optimisticID: id,
       listDirectoryKey,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -277,20 +281,20 @@ export const createFolderAction = (
 export const updateFileAction = (
   action: UpdateFileAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const resourceId = action.payload.id as FileID;
   return {
     type: UPDATE_FILE,
     meta: {
       optimisticID: resourceId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -314,20 +318,20 @@ export const updateFileAction = (
 export const updateFolderAction = (
   action: UpdateFolderAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const resourceId = action.payload.id as FolderID;
   return {
     type: UPDATE_FOLDER,
     meta: {
       optimisticID: resourceId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -351,20 +355,20 @@ export const updateFolderAction = (
 export const deleteFileAction = (
   action: DeleteFileAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const resourceId = action.payload.id as FileID;
   return {
     type: DELETE_FILE,
     meta: {
       optimisticID: resourceId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -388,7 +392,7 @@ export const deleteFileAction = (
 export const deleteFolderAction = (
   action: DeleteFolderAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const resourceId = action.payload.id as FolderID;
   return {
@@ -396,13 +400,13 @@ export const deleteFolderAction = (
     meta: {
       optimisticID: resourceId,
       listDirectoryKey,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -426,7 +430,7 @@ export const deleteFolderAction = (
 export const copyFileAction = (
   action: CopyFileAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const sourceId = action.payload.id as FileID;
   const destinationId = GenerateID.File();
@@ -436,13 +440,13 @@ export const copyFileAction = (
     meta: {
       optimisticID: sourceId,
       destinationID: destinationId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -472,7 +476,7 @@ export const copyFileAction = (
 export const copyFolderAction = (
   action: CopyFolderAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const sourceId = action.payload.id as FolderID;
   const destinationId = GenerateID.Folder();
@@ -482,13 +486,13 @@ export const copyFolderAction = (
     meta: {
       optimisticID: sourceId,
       destinationID: destinationId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -518,7 +522,7 @@ export const copyFolderAction = (
 export const moveFileAction = (
   action: MoveFileAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const resourceId = action.payload.id as FileID;
 
@@ -526,13 +530,13 @@ export const moveFileAction = (
     type: MOVE_FILE,
     meta: {
       optimisticID: resourceId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -553,7 +557,7 @@ export const moveFileAction = (
 export const moveFolderAction = (
   action: MoveFolderAction,
   listDirectoryKey?: string,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const resourceId = action.payload.id as FolderID;
 
@@ -561,13 +565,13 @@ export const moveFolderAction = (
     type: MOVE_FOLDER,
     meta: {
       optimisticID: resourceId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -590,7 +594,7 @@ export const moveFolderAction = (
 // Restore Trash
 export const restoreTrashAction = (
   action: RestoreTrashAction,
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const resourceId = action.payload.id as DirectoryResourceID;
 
@@ -598,13 +602,13 @@ export const restoreTrashAction = (
     type: RESTORE_TRASH,
     meta: {
       optimisticID: resourceId,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
@@ -627,7 +631,7 @@ export const restoreTrashAction = (
 // Batch Action
 export const directoryBatchAction = (
   directoryActions: DirectoryAction[],
-  isOfflineDrive = true
+  shouldBehaveOfflineDiskUI = true
 ) => {
   const actionIds = directoryActions.map((action) => {
     if (action.payload.id) {
@@ -650,13 +654,13 @@ export const directoryBatchAction = (
     meta: {
       optimisticID: batchId,
       actionIds: actionIds,
-      isOfflineDrive,
       offline: {
         effect: {
           url: `/directory/action`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {

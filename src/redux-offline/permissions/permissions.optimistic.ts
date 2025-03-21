@@ -170,6 +170,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_SYSTEM_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -225,6 +226,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_SYSTEM_PERMISSIONS_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const error_message = `Failed to fetch system permissions - ${err.err.message}`;
@@ -289,6 +291,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_SYSTEM_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -360,6 +363,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_SYSTEM_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -420,6 +424,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_SYSTEM_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -479,6 +484,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_DIRECTORY_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -552,6 +558,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_DIRECTORY_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -623,6 +630,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_DIRECTORY_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -683,6 +691,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_DIRECTORY_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -753,6 +762,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case REDEEM_DIRECTORY_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -823,6 +833,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case REDEEM_SYSTEM_PERMISSION_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

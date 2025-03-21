@@ -111,6 +111,7 @@ export const apiKeysReducer = (
     }
 
     case GET_APIKEY_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic apikey with the error message
       const newApiKeyMap = { ...state.apikeyMap };
       delete newApiKeyMap[action.meta.optimisticID];
@@ -164,6 +165,7 @@ export const apiKeysReducer = (
     }
 
     case LIST_APIKEYS_ROLLBACK: {
+      if (!action.payload.response) return state;
       return {
         ...state,
         apikeys: [],
@@ -225,6 +227,7 @@ export const apiKeysReducer = (
     }
 
     case CREATE_APIKEY_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Add a sync warning to the optimistic apikey
       const newReduxApiKeys = state.apikeys.map((apikey) => {
         if (apikey._optimisticID === action.meta.optimisticID) {
@@ -303,6 +306,7 @@ export const apiKeysReducer = (
     }
 
     case UPDATE_APIKEY_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic apikey with the error message
       return {
         ...state,
@@ -357,6 +361,7 @@ export const apiKeysReducer = (
     }
 
     case DELETE_APIKEY_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic apikey with the error message
       return {
         ...state,

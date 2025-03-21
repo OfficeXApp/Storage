@@ -9,7 +9,7 @@ import React, {
 import { UploadManager } from "./UploadManager";
 import { LocalS3Adapter } from "./adapters/locals3.adapter";
 import { IndexedDBAdapter } from "./adapters/indexdb.adapter";
-import { DiskID, DiskTypeEnum } from "@officexapp/types";
+import { DiskID, DiskTypeEnum, FileID, FolderID } from "@officexapp/types";
 import {
   AggregateUploadProgress,
   UploadConfig,
@@ -22,8 +22,17 @@ import {
   PauseReason,
 } from "./types";
 import { Observable } from "rxjs";
-import { defaultBrowserCacheDiskID } from "../../api/dexie-database";
+import {
+  defaultBrowserCacheDiskID,
+  defaultBrowserCacheRootFolderID,
+  defaultTempCloudSharingRootFolderID,
+} from "../../api/dexie-database";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
+import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
+import { useSelector } from "react-redux";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import { useParams } from "react-router-dom";
+import { set } from "lodash";
 
 // Add missing CanisterAdapter configuration type
 interface CanisterAdapterConfig {
@@ -35,7 +44,10 @@ interface CanisterAdapterConfig {
 }
 
 interface MultiUploaderContextType {
-  uploadManager: UploadManager | undefined;
+  uploadTargetDisk: DiskFEO | null;
+  uploadTargetFolderID: FolderID | null;
+  currentFileID: FileID | null;
+  uploadManager: UploadManager | null;
   isInitialized: boolean;
   progress: AggregateUploadProgress;
   currentUploads: QueuedUploadItem[];
@@ -74,7 +86,10 @@ interface MultiUploaderContextType {
 
 // Default context values
 const defaultContextValue: MultiUploaderContextType = {
-  uploadManager: undefined,
+  uploadTargetDisk: null,
+  uploadTargetFolderID: null,
+  currentFileID: null,
+  uploadManager: null,
   isInitialized: false,
   progress: {
     totalFiles: 0,
@@ -122,10 +137,63 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const uploadManagerRef = useRef<UploadManager>();
+  const { "*": encodedPath } = useParams<{ "*": string }>();
   const [progress, setProgress] = useState<AggregateUploadProgress>(
     defaultContextValue.progress
   );
   const [currentUploads, setCurrentUploads] = useState<QueuedUploadItem[]>([]);
+
+  const { disks, defaultDisk } = useSelector((state: ReduxAppState) => ({
+    defaultDisk: state.disks.defaultDisk,
+    disks: state.disks.disks,
+  }));
+  const [uploadTargetDiskID, setUploadTargetDiskID] = useState<DiskID | null>(
+    null
+  );
+  const [uploadTargetFolderID, setUploadTargetFolderID] =
+    useState<FolderID | null>(null);
+  const [currentFileID, setCurrentFileID] = useState<FileID | null>(null);
+
+  const uploadTargetDisk =
+    disks.find((d) => d.id === uploadTargetDiskID) || defaultDisk;
+
+  useEffect(() => {
+    const pathParts = window.location.pathname.split("/").filter(Boolean);
+
+    if (pathParts.includes("drive")) {
+      if (pathParts.length >= 2) {
+        // We're at /drive/diskID or deeper
+        const diskID = pathParts[1];
+        setUploadTargetDiskID(diskID);
+
+        // Check if we have a folder or file ID in the path
+        if (pathParts.length >= 3) {
+          const resourceId = pathParts[2];
+
+          if (resourceId && resourceId.startsWith("FolderID_")) {
+            setUploadTargetFolderID(resourceId);
+            setCurrentFileID(null);
+          } else if (resourceId && resourceId.startsWith("FileID_")) {
+            // We're viewing a file, so set folder to parent (if available) and set file ID
+            setCurrentFileID(resourceId);
+            // You might need to fetch the parent folder ID here if necessary
+          }
+        } else {
+          // At disk root, try to set to the disk's root folder
+          const targetDisk = disks.find((d) => d.id === diskID);
+          if (targetDisk && targetDisk.root_folder) {
+            setUploadTargetFolderID(targetDisk.root_folder as FolderID);
+          }
+          setCurrentFileID(null);
+        }
+      } else {
+        // At /drive root
+        setUploadTargetDiskID(defaultBrowserCacheDiskID);
+        setUploadTargetFolderID(defaultBrowserCacheRootFolderID);
+        setCurrentFileID(null);
+      }
+    }
+  }, [window.location.pathname, disks]);
 
   // Initialize the upload manager
   const initializeUploadManager = async () => {
@@ -207,7 +275,10 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
   // Create context value
   const contextValue: MultiUploaderContextType = {
-    uploadManager: uploadManagerRef.current,
+    uploadTargetDisk,
+    uploadTargetFolderID,
+    currentFileID,
+    uploadManager: uploadManagerRef.current || null,
     isInitialized,
     progress,
     currentUploads,

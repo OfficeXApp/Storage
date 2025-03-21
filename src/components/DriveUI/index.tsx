@@ -104,6 +104,7 @@ import { defaultTempCloudSharingRootFolderID } from "../../api/dexie-database";
 import {
   FileFEO,
   FolderFEO,
+  shouldBehaveOfflineDiskUIIntent,
 } from "../../redux-offline/directory/directory.reducer";
 
 interface DriveItemRow {
@@ -169,7 +170,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     const path = encodedPath ? decodeURIComponent(encodedPath) : "";
     const pathParts = path.split("/").filter(Boolean);
 
-    console.log("Path parts:", pathParts);
+    // console.log("Path parts:", pathParts);
     const diskID = pathParts[0];
     const folderFileID = pathParts[1];
 
@@ -343,7 +344,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         setListDirectoryKey(_listDirectoryKey);
 
         // Dispatch the action to fetch the directory listing
-        dispatch(listDirectoryAction(listParams));
+        dispatch(
+          listDirectoryAction(
+            listParams,
+            currentDisk ? shouldBehaveOfflineDiskUIIntent(currentDisk) : true
+          )
+        );
         // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
         return;
       }

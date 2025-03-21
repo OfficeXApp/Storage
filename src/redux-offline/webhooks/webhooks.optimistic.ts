@@ -127,6 +127,7 @@ export const webhooksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_WEBHOOK_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -186,6 +187,7 @@ export const webhooksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_WEBHOOKS_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const error_message = `Failed to fetch webhooks - ${err.err.message}`;
@@ -256,6 +258,7 @@ export const webhooksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_WEBHOOK_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -330,6 +333,7 @@ export const webhooksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_WEBHOOK_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -391,6 +395,7 @@ export const webhooksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_WEBHOOK_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

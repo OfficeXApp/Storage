@@ -129,6 +129,7 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_GROUP_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -153,7 +154,7 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
           case LIST_GROUPS: {
             // Get cached data from IndexedDB
             const cachedGroups = await table.toArray();
-
+            console.log(`cachedGroups`, cachedGroups);
             // Enhance action with cached data if available
             if (cachedGroups && cachedGroups.length > 0) {
               enhancedAction = {
@@ -190,6 +191,7 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_GROUPS_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const error_message = `Failed to fetch groups - ${err.err.message}`;
@@ -264,6 +266,7 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_GROUP_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -342,6 +345,7 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_GROUP_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -404,6 +408,7 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_GROUP_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

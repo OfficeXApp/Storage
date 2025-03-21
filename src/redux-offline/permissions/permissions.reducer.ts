@@ -182,6 +182,7 @@ export const systemPermissionsReducer = (
     }
 
     case GET_SYSTEM_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       const newPermissionMap = { ...state.permissionMap };
 
@@ -241,6 +242,7 @@ export const systemPermissionsReducer = (
     }
 
     case LIST_SYSTEM_PERMISSIONS_ROLLBACK: {
+      if (!action.payload.response) return state;
       return {
         ...state,
         loading: false,
@@ -295,6 +297,7 @@ export const systemPermissionsReducer = (
     }
 
     case CREATE_SYSTEM_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
 
       return {
@@ -368,6 +371,7 @@ export const systemPermissionsReducer = (
     }
 
     case UPDATE_SYSTEM_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
 
       return {
@@ -427,6 +431,7 @@ export const systemPermissionsReducer = (
     }
 
     case DELETE_SYSTEM_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
 
       return {
@@ -499,6 +504,7 @@ export const systemPermissionsReducer = (
     }
 
     case REDEEM_SYSTEM_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
 
       return {
@@ -570,6 +576,7 @@ export const directoryPermissionsReducer = (
     }
 
     case GET_DIRECTORY_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       const newPermissionMap = { ...state.permissionMap };
 
@@ -645,6 +652,7 @@ export const directoryPermissionsReducer = (
     }
 
     case CREATE_DIRECTORY_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
 
       return {
@@ -719,6 +727,7 @@ export const directoryPermissionsReducer = (
     }
 
     case UPDATE_DIRECTORY_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
 
       return {
@@ -779,6 +788,7 @@ export const directoryPermissionsReducer = (
     }
 
     case DELETE_DIRECTORY_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
 
       return {
@@ -852,6 +862,7 @@ export const directoryPermissionsReducer = (
     }
 
     case REDEEM_DIRECTORY_PERMISSION_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
 
       return {

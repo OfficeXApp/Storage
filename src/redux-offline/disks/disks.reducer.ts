@@ -109,6 +109,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case GET_DISK_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic disk with the error message
       const newDiskMap = { ...state.diskMap };
       delete newDiskMap[action.meta.optimisticID];
@@ -138,7 +139,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
       const DEFAULT_DISK_ID = localStorage.getItem(
         LOCALSTORAGE_DEFAULT_DISK_ID
       );
-      const defaultDisk = action.optimistic.find(
+      const defaultDisk = (action.optimistic || []).find(
         (disk: DiskFEO) => disk.id === DEFAULT_DISK_ID
       );
       return {
@@ -196,6 +197,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case LIST_DISKS_ROLLBACK: {
+      if (!action.payload.response) return state;
       return {
         ...state,
         loading: false,
@@ -237,6 +239,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case CREATE_DISK_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Add a sync warning to the optimistic disk
       const newReduxDisks = state.disks.map((disk) => {
         if (disk._optimisticID === action.meta.optimisticID) {
@@ -294,6 +297,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case UPDATE_DISK_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic disk with the error message
       return {
         ...state,

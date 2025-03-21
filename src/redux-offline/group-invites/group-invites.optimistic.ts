@@ -129,6 +129,7 @@ export const groupInvitesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_GROUP_INVITE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -188,6 +189,7 @@ export const groupInvitesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_GROUP_INVITES_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const error_message = `Failed to fetch group invites - ${err.err.message}`;
@@ -260,6 +262,7 @@ export const groupInvitesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_GROUP_INVITE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -334,6 +337,7 @@ export const groupInvitesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_GROUP_INVITE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -396,6 +400,7 @@ export const groupInvitesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_GROUP_INVITE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

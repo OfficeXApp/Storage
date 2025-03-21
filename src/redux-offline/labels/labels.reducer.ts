@@ -111,6 +111,7 @@ export const labelsReducer = (
     }
 
     case GET_LABEL_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic label with the error message
       const newLabelMap = { ...state.labelMap };
       delete newLabelMap[action.meta.optimisticID];
@@ -166,6 +167,7 @@ export const labelsReducer = (
     }
 
     case LIST_LABELS_ROLLBACK: {
+      if (!action.payload.response) return state;
       return {
         ...state,
         loading: false,
@@ -224,6 +226,7 @@ export const labelsReducer = (
     }
 
     case CREATE_LABEL_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Add a sync warning to the optimistic label
       const newReduxLabels = state.labels.map((label) => {
         if (label._optimisticID === action.meta.optimisticID) {
@@ -298,6 +301,7 @@ export const labelsReducer = (
     }
 
     case UPDATE_LABEL_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic label with the error message
       return {
         ...state,
@@ -356,6 +360,7 @@ export const labelsReducer = (
     }
 
     case DELETE_LABEL_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic label with the error message
       return {
         ...state,

@@ -109,6 +109,7 @@ export const groupInvitesReducer = (
     }
 
     case GET_GROUP_INVITE_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic invite with the error message
       const newInviteMap = { ...state.inviteMap };
       delete newInviteMap[action.meta.optimisticID];
@@ -154,6 +155,7 @@ export const groupInvitesReducer = (
     }
 
     case LIST_GROUP_INVITES_ROLLBACK: {
+      if (!action.payload.response) return state;
       return {
         ...state,
         invites: [],
@@ -203,6 +205,7 @@ export const groupInvitesReducer = (
     }
 
     case CREATE_GROUP_INVITE_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Add a sync warning to the optimistic invite
       const newReduxInvites = state.invites.map((invite) => {
         if (invite._optimisticID === action.meta.optimisticID) {
@@ -262,6 +265,7 @@ export const groupInvitesReducer = (
     }
 
     case UPDATE_GROUP_INVITE_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic invite with the error message
       return {
         ...state,
@@ -309,6 +313,7 @@ export const groupInvitesReducer = (
     }
 
     case DELETE_GROUP_INVITE_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic invite with the error message
       return {
         ...state,

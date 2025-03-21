@@ -131,6 +131,7 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_DISK_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -226,7 +227,9 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DISKS_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
+              if (!action.payload.response) break;
               const err = await action.payload.response.json();
               const error_message = `Failed to fetch disks - ${err.err.message}`;
               enhancedAction = {
@@ -294,6 +297,7 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_DISK_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -368,6 +372,7 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_DISK_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -430,6 +435,7 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_DISK_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

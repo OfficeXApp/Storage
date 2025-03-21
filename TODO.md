@@ -4,10 +4,10 @@
 
 The large sprints of work are:
 
-- [🔵] Polish all tables to match groups behavior (got rid of OPEN button and clicking name goes into tab directly no untab, clicking rest of row tabs/untabs without navigating to it)
+- [x] Create a unified provider for handling uploads to different end destinations
+- [🔵] Cleanup/refactor directory reducers & optimistic middleware to handle the diverse file uploading
 
 1. Directory navigation & interaction (1-2 days)
-
 1. Invite system with smooth onboarding & sharing (1-2 days)
 1. Offline JS functionality replica (1-2 days)
 1. Cleaning & testing all the crud routes together (2-3 days)
@@ -49,3 +49,4 @@ The large sprints of work are:
 - [x] Hook up redux-offline with a long term ui state storage, maybe an indexdb local read replica or redux-cache when offline? its okay to call backend every page load, but when offline need to get the data from somewhere. maybe we get rid of explicit persist cache on disks-et-al and only cache offline. when no internet we query direct from localstorage? thus redux offline only handles mutations (create, update, delete) while queries (get, list) are handled by custom logic searching indexdb. --> seems more sensible to seperate out logic for mutations vs queries
 - [x] Contacts crud routes (with redux-offline)
 - [x] fix add webhooks component
+- [x] Polish all tables to match groups behavior (got rid of OPEN button and clicking name goes into tab directly no untab, clicking rest of row tabs/untabs without navigating to it)

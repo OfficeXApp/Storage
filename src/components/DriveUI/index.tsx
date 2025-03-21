@@ -169,7 +169,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     const path = encodedPath ? decodeURIComponent(encodedPath) : "";
     const pathParts = path.split("/").filter(Boolean);
 
-    console.log("Path parts:", pathParts);
+    // console.log("Path parts:", pathParts);
     const diskID = pathParts[0];
     const folderFileID = pathParts[1];
 

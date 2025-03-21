@@ -45,6 +45,7 @@ import {
 } from "../../redux-offline/disks/disks.reducer";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { J } from "vitest/dist/chunks/reporters.D7Jzd9GS.js";
+import { useMultiUploader } from "../../framework/uploader/hook";
 
 interface ActionMenuButtonProps {
   isBigButton?: boolean; // Determines the button style
@@ -67,37 +68,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { "*": encodedPath } = useParams<{ "*": string }>();
-
-  const { disks, defaultDisk } = useSelector((state: ReduxAppState) => ({
-    defaultDisk: state.disks.defaultDisk,
-    disks: state.disks.disks,
-  }));
-  const [currentDiskId, setCurrentDiskId] = useState<DiskID | null>(null);
-  const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
-
-  const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
-
-  useEffect(() => {
-    const path = encodedPath ? decodeURIComponent(encodedPath) : "";
-    const pathParts = path.split("/").filter(Boolean);
-
-    console.log("ActionMenuButton Path-Parts:", pathParts);
-    const diskID = pathParts[0];
-    const folderFileID = pathParts[1];
-
-    setCurrentDiskId(diskID);
-
-    if (folderFileID && folderFileID.startsWith("FolderID_")) {
-      let folderId = folderFileID;
-      setCurrentFolderId(folderId);
-    } else {
-      setCurrentFolderId(defaultTempCloudSharingRootFolderID);
-    }
-
-    // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
-    //   setIsStorjModalVisible(true);
-    // }
-  }, [location, encodedPath]);
+  const { uploadTargetFolderID, uploadTargetDisk } = useMultiUploader();
 
   const handleFileSelect = (files: FileList | null) => {
     // if (files && targetFolderID) {
@@ -133,7 +104,10 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
 
   const handleCreateFolder = async () => {
     mixpanel.track("Create Folder");
-    if (newFolderName.trim() && currentDisk && currentFolderId) {
+    console.log(
+      `Creating folder: ${newFolderName} in ${uploadTargetFolderID} of ${uploadTargetDisk?.id}`
+    );
+    if (newFolderName.trim() && uploadTargetDisk && uploadTargetFolderID) {
       try {
         // Create the folder action
         const createAction = {
@@ -142,9 +116,8 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
             id: GenerateID.Folder(),
             name: newFolderName,
             labels: [],
-            disk_id: currentDisk.id,
-            disk_type: currentDisk.disk_type,
-            parent_folder_uuid: currentFolderId,
+            disk_id: uploadTargetDisk.id,
+            parent_folder_uuid: uploadTargetFolderID,
           },
         };
 

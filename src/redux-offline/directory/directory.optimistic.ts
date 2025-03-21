@@ -72,6 +72,7 @@ import {
   CreateFolderPayload,
   CreateFolderAction,
   UploadStatus,
+  DiskTypeEnum,
 } from "@officexapp/types";
 import { DISKS_DEXIE_TABLE } from "../disks/disks.reducer";
 
@@ -630,7 +631,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 last_updated_date_ms: Date.now(),
                 last_updated_by: userID,
                 disk_id: folderData.payload.disk_id,
-                disk_type: folderData.payload.disk_type,
+                disk_type: DiskTypeEnum.BrowserCache,
                 deleted: false,
                 expires_at: folderData.payload.expires_at || 0,
                 drive_id: orgID,

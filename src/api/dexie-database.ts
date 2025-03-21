@@ -69,6 +69,9 @@ class DexieManager {
    * Only one database will be open at a time
    */
   public getDb(userID: UserID, orgID: DriveID): Dexie {
+    if (!userID || !orgID) {
+      throw new Error("Invalid userID or orgID");
+    }
     const storeKey = this.getStoreKey(userID, orgID);
 
     // Return current db if it's already the one we want

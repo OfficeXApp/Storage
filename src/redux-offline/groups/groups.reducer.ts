@@ -111,6 +111,7 @@ export const groupsReducer = (
     }
 
     case GET_GROUP_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic group with the error message
       const newGroupMap = { ...state.groupMap };
       delete newGroupMap[action.meta.optimisticID];
@@ -137,6 +138,7 @@ export const groupsReducer = (
     // ------------------------------ LIST GROUPS --------------------------------- //
 
     case LIST_GROUPS: {
+      console.log(`reducer action.optimistic`, action.optimistic);
       return {
         ...state,
         groups: action.optimistic || [],
@@ -161,6 +163,7 @@ export const groupsReducer = (
     }
 
     case LIST_GROUPS_ROLLBACK: {
+      if (!action.payload.response) return state;
       return {
         ...state,
         groups: [],
@@ -221,6 +224,7 @@ export const groupsReducer = (
     }
 
     case CREATE_GROUP_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Add a sync warning to the optimistic group
       const newReduxGroups = state.groups.map((group) => {
         if (group._optimisticID === action.meta.optimisticID) {
@@ -289,6 +293,7 @@ export const groupsReducer = (
     }
 
     case UPDATE_GROUP_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic group with the error message
       return {
         ...state,
@@ -348,6 +353,7 @@ export const groupsReducer = (
     }
 
     case DELETE_GROUP_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic group with the error message
       return {
         ...state,

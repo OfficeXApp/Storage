@@ -111,6 +111,7 @@ export const drivesReducer = (
     }
 
     case GET_DRIVE_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic drive with the error message
       const newDriveMap = { ...state.driveMap };
       delete newDriveMap[action.meta.optimisticID];
@@ -154,6 +155,7 @@ export const drivesReducer = (
     }
 
     case LIST_DRIVES_ROLLBACK: {
+      if (!action.payload.response) return state;
       return {
         ...state,
         drives: [],
@@ -199,6 +201,7 @@ export const drivesReducer = (
     }
 
     case CREATE_DRIVE_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Add a sync warning to the optimistic drive
       const newReduxDrives = state.drives.map((drive) => {
         if (drive._optimisticID === action.meta.optimisticID) {
@@ -257,6 +260,7 @@ export const drivesReducer = (
     }
 
     case UPDATE_DRIVE_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic drive with the error message
       return {
         ...state,
@@ -304,6 +308,7 @@ export const drivesReducer = (
     }
 
     case DELETE_DRIVE_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic drive with the error message
       return {
         ...state,

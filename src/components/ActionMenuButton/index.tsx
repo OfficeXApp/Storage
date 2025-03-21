@@ -46,6 +46,7 @@ import {
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { J } from "vitest/dist/chunks/reporters.D7Jzd9GS.js";
 import { useMultiUploader } from "../../framework/uploader/hook";
+import { shouldBehaveOfflineDiskUIIntent } from "../../redux-offline/directory/directory.reducer";
 
 interface ActionMenuButtonProps {
   isBigButton?: boolean; // Determines the button style
@@ -126,7 +127,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           createFolderAction(
             createAction,
             optimisticListDirectoryKey,
-            isOfflineOrg
+            shouldBehaveOfflineDiskUIIntent(uploadTargetDisk)
           )
         );
 

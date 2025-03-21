@@ -125,6 +125,7 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_APIKEY_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -184,6 +185,7 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_APIKEYS_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const error_message = `Failed to fetch API keys - ${err.err.message}`;
@@ -259,6 +261,7 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_APIKEY_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -333,6 +336,7 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_APIKEY_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -395,6 +399,7 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_APIKEY_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

@@ -51,7 +51,12 @@ import {
   LIST_DIRECTORY_COMMIT,
   LIST_DIRECTORY,
 } from "./directory.actions";
-import { DirectoryListQueryString } from "../../api/dexie-database";
+import {
+  defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDiskID,
+  DirectoryListQueryString,
+} from "../../api/dexie-database";
+import { DiskFEO } from "../disks/disks.reducer";
 
 export const DIRECTORY_REDUX_KEY = "directory";
 
@@ -59,6 +64,17 @@ export const DIRECTORY_LIST_QUERY_RESULTS_TABLE =
   "directory-list-query-results";
 export const FILES_DEXIE_TABLE = "files";
 export const FOLDERS_DEXIE_TABLE = "folders";
+
+export const shouldBehaveOfflineDiskUIIntent = (disk: DiskFEO) => {
+  if (
+    disk.id === defaultBrowserCacheDiskID ||
+    disk.id === defaultTempCloudSharingDiskID
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
 
 export interface FileFEO extends FileRecordFE {
   _isOptimistic?: boolean; // flag for optimistic updates
@@ -293,6 +309,7 @@ export const directoryReducer = (
     }
 
     case LIST_DIRECTORY_ROLLBACK: {
+      if (!action.payload.response) return state;
       const listDirectoryKey = action.meta?.listDirectoryKey;
       let errorMessage = "Failed to list directory contents";
 
@@ -386,6 +403,7 @@ export const directoryReducer = (
     }
 
     case GET_FILE_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
         ...state,
@@ -463,6 +481,7 @@ export const directoryReducer = (
     }
 
     case GET_FOLDER_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
         ...state,
@@ -542,6 +561,7 @@ export const directoryReducer = (
     }
 
     case CREATE_FILE_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
         ...state,
@@ -675,6 +695,8 @@ export const directoryReducer = (
     }
 
     case CREATE_FOLDER_ROLLBACK: {
+      if (!action.payload.response) return state;
+
       const optimisticID = action.meta?.optimisticID;
       const listDirectoryKey = action.meta?.listDirectoryKey;
 
@@ -793,6 +815,7 @@ export const directoryReducer = (
     }
 
     case UPDATE_FILE_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
         ...state,
@@ -877,6 +900,7 @@ export const directoryReducer = (
     }
 
     case UPDATE_FOLDER_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
         ...state,
@@ -922,6 +946,7 @@ export const directoryReducer = (
     }
 
     case DELETE_FILE_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
         ...state,
@@ -969,6 +994,7 @@ export const directoryReducer = (
     }
 
     case DELETE_FOLDER_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
         ...state,
@@ -1054,6 +1080,7 @@ export const directoryReducer = (
     }
 
     case MOVE_FILE_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
         ...state,
@@ -1137,6 +1164,7 @@ export const directoryReducer = (
     }
 
     case MOVE_FOLDER_ROLLBACK: {
+      if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
         ...state,
@@ -1220,6 +1248,7 @@ export const directoryReducer = (
     }
 
     case COPY_FILE_ROLLBACK: {
+      if (!action.payload.response) return state;
       const destinationId = action.meta?.destinationID;
       return {
         ...state,
@@ -1357,6 +1386,7 @@ export const directoryReducer = (
     }
 
     case COPY_FOLDER_ROLLBACK: {
+      if (!action.payload.response) return state;
       const destinationId = action.meta?.destinationID;
       return {
         ...state,

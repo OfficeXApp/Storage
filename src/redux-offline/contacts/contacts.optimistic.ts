@@ -135,6 +135,7 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_CONTACT_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -194,6 +195,7 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_CONTACTS_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const error_message = `Failed to fetch contacts - ${err.err.message}`;
@@ -265,6 +267,7 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_CONTACT_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -339,6 +342,7 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_CONTACT_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -401,6 +405,7 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_CONTACT_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

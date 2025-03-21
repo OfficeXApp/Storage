@@ -127,6 +127,7 @@ export const labelsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_LABEL_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -186,6 +187,7 @@ export const labelsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_LABELS_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const error_message = `Failed to fetch labels - ${err.err.message}`;
@@ -260,6 +262,7 @@ export const labelsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_LABEL_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -334,6 +337,7 @@ export const labelsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_LABEL_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -395,6 +399,7 @@ export const labelsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_LABEL_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

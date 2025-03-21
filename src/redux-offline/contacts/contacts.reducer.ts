@@ -111,6 +111,7 @@ export const contactsReducer = (
     }
 
     case GET_CONTACT_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic contact with the error message
       const newContactMap = { ...state.contactMap };
       delete newContactMap[action.meta.optimisticID];
@@ -156,6 +157,7 @@ export const contactsReducer = (
     }
 
     case LIST_CONTACTS_ROLLBACK: {
+      if (!action.payload.response) return state;
       return {
         ...state,
         loading: false,
@@ -202,6 +204,7 @@ export const contactsReducer = (
     }
 
     case CREATE_CONTACT_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Add a sync warning to the optimistic contact
       const newReduxContacts = state.contacts.map((contact) => {
         if (contact._optimisticID === action.meta.optimisticID) {
@@ -259,6 +262,7 @@ export const contactsReducer = (
     }
 
     case UPDATE_CONTACT_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic contact with the error message
       return {
         ...state,
@@ -304,6 +308,7 @@ export const contactsReducer = (
     }
 
     case DELETE_CONTACT_ROLLBACK: {
+      if (!action.payload.response) return state;
       // Update the optimistic contact with the error message
       return {
         ...state,

@@ -542,7 +542,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         const store = transaction.objectStore(PROFILES_STORE_NAME);
         store.add(newProfile);
         await syncLatestIdentities();
-        initDexieDb(newProfile.userID, currentOrg?.driveID || "");
+        if (newProfile.userID && currentOrg?.driveID) {
+          initDexieDb(newProfile.userID, currentOrg?.driveID || "");
+        }
         return newProfile;
       } catch (err) {
         console.error("Error adding profile:", err);
@@ -720,7 +722,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         const store = transaction.objectStore(ORGS_STORE_NAME);
         store.add(newOrg);
         await syncLatestIdentities();
-        initDexieDb(currentProfile?.userID || "", driveID);
+        if (currentProfile?.userID && driveID) {
+          initDexieDb(currentProfile?.userID || "", driveID);
+        }
         return newOrg;
       } catch (err) {
         console.error("Error adding organization:", err);

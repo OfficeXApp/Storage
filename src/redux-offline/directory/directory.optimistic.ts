@@ -296,6 +296,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_ROLLBACK: {
+            if (!action.payload.response) break;
             // No local IndexedDB state to roll back for the cache
             break;
           }
@@ -355,6 +356,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_FILE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -428,6 +430,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_FOLDER_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -585,6 +588,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_FILE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -832,6 +836,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_FOLDER_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -1006,6 +1011,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_FILE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -1133,6 +1139,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_FOLDER_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -1249,6 +1256,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_FILE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -1451,6 +1459,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_FOLDER_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -1623,6 +1632,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case MOVE_FILE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -1792,6 +1802,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case MOVE_FOLDER_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -1928,6 +1939,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case COPY_FILE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const destinationId = action.meta?.destinationID;
@@ -2124,6 +2136,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case COPY_FOLDER_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const destinationId = action.meta?.destinationID;
@@ -2421,6 +2434,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case RESTORE_TRASH_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const resourceId = action.meta?.optimisticID;

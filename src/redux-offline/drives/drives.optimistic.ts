@@ -129,6 +129,7 @@ export const drivesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_DRIVE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -188,6 +189,7 @@ export const drivesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DRIVES_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const error_message = `Failed to fetch drives - ${err.err.message}`;
@@ -258,6 +260,7 @@ export const drivesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_DRIVE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -332,6 +335,7 @@ export const drivesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_DRIVE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
@@ -394,6 +398,7 @@ export const drivesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case DELETE_DRIVE_ROLLBACK: {
+            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

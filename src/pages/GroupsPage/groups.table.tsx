@@ -53,6 +53,8 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
   const [filteredGroups, setFilteredGroups] = useState(groups);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+  console.log(`groups`, groups);
+
   // Update filtered groups whenever search text or groups change
   useEffect(() => {
     const filtered = groups.filter((group) =>

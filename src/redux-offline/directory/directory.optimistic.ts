@@ -479,7 +479,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 last_updated_by: userID,
                 disk_id: fileData.payload.disk_id,
                 file_size: fileData.payload.file_size || 0,
-                raw_url: fileData.payload.raw_url || "",
+                raw_url: "",
                 deleted: false,
                 drive_id: orgID,
                 expires_at: fileData.payload.expires_at || 0,

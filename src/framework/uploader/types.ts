@@ -152,6 +152,16 @@ export interface CanisterAdapterConfig {
 }
 
 /**
+ * Interface for CloudS3 adapter configuration
+ */
+export interface CloudS3AdapterConfig {
+  diskID: DiskID;
+  endpoint: string;
+  apiKey: string;
+  maxChunkSize?: number;
+}
+
+/**
  * Upload adapter registry entry
  */
 export interface AdapterRegistration {

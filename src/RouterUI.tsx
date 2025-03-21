@@ -49,6 +49,7 @@ import SandboxPage from "./components/SandboxPage";
 import SandboxIndexdbUploader from "./components/SandboxPage/SandboxIndexdbUploader.tsx";
 import SandboxCanisterUploader from "./components/SandboxPage/SandboxCanisterUploader.tsx";
 import SandboxLocalStorjUploader from "./components/SandboxPage/SandboxLocalStorjUploader.tsx";
+import SandboxCloudStorjUploader from "./components/SandboxPage/SandboxCloudStorjUploader.tsx";
 import ContactsPage from "./pages/ContactsPage";
 import GroupsPage from "./pages/GroupsPage";
 import PermissionsPage from "./pages/PermissionsPage";
@@ -346,6 +347,10 @@ const RouterUI = () => {
                 <Route
                   path="/sandbox_localstorj_uploader"
                   element={<SandboxLocalStorjUploader />}
+                />
+                <Route
+                  path="/sandbox_cloudstorj_uploader"
+                  element={<SandboxCloudStorjUploader />}
                 />
 
                 <Route path="/presale" element={<PreseedOffer />} />

@@ -267,7 +267,6 @@ export class CanisterAdapter implements IUploadAdapter {
           extension: file.name.split(".").pop() || "",
           labels: [],
           file_size: file.size,
-          raw_url: "", // Will be populated later
           disk_id: config.diskID,
         },
       };

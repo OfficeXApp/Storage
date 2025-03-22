@@ -340,7 +340,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           direction: SortDirection.ASC,
         };
         const _listDirectoryKey = generateListDirectoryKey(listParams);
-        console.log(`setting _listDirectoryKey`, _listDirectoryKey);
         setListDirectoryKey(_listDirectoryKey);
 
         // Dispatch the action to fetch the directory listing
@@ -518,7 +517,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             permanent: true,
           },
         };
-        console.log(`====listDirectoryKey`, listDirectoryKey);
+        // console.log(`====listDirectoryKey`, listDirectoryKey);
         dispatch(deleteFolderAction(deleteAction, listDirectoryKey));
       } else {
         // Create the delete file action

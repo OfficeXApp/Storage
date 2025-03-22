@@ -125,8 +125,8 @@ export class UploadManager {
       config,
     });
 
-    console.log(`Registered upload adapter for ${diskID}`);
-    console.log(`this.adapters`, this.adapters);
+    // console.log(`Registered upload adapter for ${diskID}`);
+    // console.log(`this.adapters`, this.adapters);
   }
 
   /**
@@ -586,7 +586,6 @@ export class UploadManager {
    * Get information about available upload adapters
    */
   public getRegisteredAdapters(): AdapterRegistration[] {
-    console.log(`++++++ this.adapters`, this.adapters);
     return Array.from(this.adapters.values());
   }
 
@@ -688,7 +687,7 @@ export class UploadManager {
     // Define pause signal
     const pauseSignal$ = this.pauseAllUploads$.pipe(
       tap((reason) => {
-        console.log(`Pausing upload ${id} due to ${reason}`);
+        // console.log(`Pausing upload ${id} due to ${reason}`);
       })
     );
 
@@ -1103,7 +1102,7 @@ export class UploadManager {
         this.uploadStorage.removeItem(key);
       }
 
-      console.log(`Cleaned up ${keysToRemove.length} expired upload states`);
+      // console.log(`Cleaned up ${keysToRemove.length} expired upload states`);
     } catch (error) {
       console.error("Error cleaning up expired uploads:", error);
     }

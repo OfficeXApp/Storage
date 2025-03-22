@@ -130,8 +130,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       const effectWithAuth = async (effect: any) => {
-        console.log(`_____effect`, effect);
-
         if (!currentOrg.endpoint) return;
 
         // Extract request details from the effect

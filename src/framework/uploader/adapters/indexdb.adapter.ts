@@ -46,7 +46,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
    */
   public async initialize(config?: IndexDBAdapterConfig): Promise<void> {
     if (this.db) {
-      console.log("IndexedDBAdapter already initialized");
+      // console.log("IndexedDBAdapter already initialized");
       return;
     }
 
@@ -171,7 +171,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
           // Check and create each required store
           requiredStores.forEach((storeName) => {
             if (!db.objectStoreNames.contains(storeName)) {
-              console.log(`Creating object store: ${storeName}`);
+              // console.log(`Creating object store: ${storeName}`);
               db.createObjectStore(storeName, { keyPath: "id" });
             }
           });
@@ -496,7 +496,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return;
       }
 
-      console.log(`Finalizing upload for ${uploadId} with file ${file.name}`);
+      // console.log(`Finalizing upload for ${uploadId} with file ${file.name}`);
 
       const transaction = this.db.transaction(
         [this.FILES_STORE_NAME],
@@ -516,11 +516,11 @@ export class IndexedDBAdapter implements IUploadAdapter {
         metadata: config.metadata || {},
       };
 
-      console.log("Storing file metadata:", fileData);
+      // console.log("Storing file metadata:", fileData);
       const request = store.put(fileData);
 
       request.onsuccess = () => {
-        console.log(`File metadata stored successfully for ${uploadId}`);
+        // console.log(`File metadata stored successfully for ${uploadId}`);
         resolve(); // Resolve immediately, thumbnail generation should not block completion
 
         // Generate thumbnail if it's an image (after resolving)
@@ -1216,7 +1216,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
    */
   public async getFileUrl(id: UploadID): Promise<string | null> {
     try {
-      console.log(`Getting URL for file ${id}`);
+      // console.log(`Getting URL for file ${id}`);
 
       // Check if it's a completed upload
       const fileInfo = await this.getFileInfo(id);
@@ -1225,7 +1225,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return null;
       }
 
-      console.log(`Found file info for ${id}:`, fileInfo);
+      // console.log(`Found file info for ${id}:`, fileInfo);
 
       // Reconstruct the file from chunks
       const blob = await this.reconstructFile(id);
@@ -1234,13 +1234,13 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return null;
       }
 
-      console.log(
-        `Successfully reconstructed file ${id}, blob size: ${blob.size}`
-      );
+      // console.log(
+      //   `Successfully reconstructed file ${id}, blob size: ${blob.size}`
+      // );
 
       // Create and return object URL
       const url = URL.createObjectURL(blob);
-      console.log(`Created URL for ${id}: ${url}`);
+      // console.log(`Created URL for ${id}: ${url}`);
       return url;
     } catch (error) {
       console.error(`Error getting file URL for ${id}:`, error);
@@ -1280,7 +1280,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return null;
       }
 
-      console.log(`Reconstructing file ${id} with ${totalChunks} chunks`);
+      // console.log(`Reconstructing file ${id} with ${totalChunks} chunks`);
       const chunks: Uint8Array[] = [];
 
       // Get all chunks
@@ -1303,9 +1303,9 @@ export class IndexedDBAdapter implements IUploadAdapter {
       // Create blob from chunks
       const fileType =
         fileInfo?.type || metadata?.fileType || "application/octet-stream";
-      console.log(
-        `Creating blob with type: ${fileType}, chunks length: ${chunks.length}`
-      );
+      // console.log(
+      //   `Creating blob with type: ${fileType}, chunks length: ${chunks.length}`
+      // );
 
       return new Blob(chunks, { type: fileType });
     } catch (error) {
@@ -1329,7 +1329,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
       }
 
       const chunkId = `${uploadId}_chunk_${chunkIndex}`;
-      console.log(`Attempting to retrieve chunk ${chunkId}`);
+      // console.log(`Attempting to retrieve chunk ${chunkId}`);
 
       const transaction = this.db.transaction(
         [this.CHUNKS_STORE_NAME],
@@ -1340,17 +1340,17 @@ export class IndexedDBAdapter implements IUploadAdapter {
       // Log all keys in the store to see what's available
       const keysRequest = store.getAllKeys();
       keysRequest.onsuccess = () => {
-        console.log(`Available chunk keys:`, keysRequest.result);
-        console.log(`Looking for key: ${chunkId}`);
+        // console.log(`Available chunk keys:`, keysRequest.result);
+        // console.log(`Looking for key: ${chunkId}`);
       };
 
       const request = store.get(chunkId);
 
       request.onsuccess = () => {
         if (request.result) {
-          console.log(
-            `Found chunk ${chunkId}, data size: ${request.result.data?.byteLength || "unknown"}`
-          );
+          // console.log(
+          //   `Found chunk ${chunkId}, data size: ${request.result.data?.byteLength || "unknown"}`
+          // );
           resolve(request.result.data);
         } else {
           console.warn(`Chunk ${chunkId} not found in store`);

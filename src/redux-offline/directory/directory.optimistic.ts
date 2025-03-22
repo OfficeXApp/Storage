@@ -172,7 +172,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           // ------------------------------ LIST DIRECTORY --------------------------------- //
           case LIST_DIRECTORY: {
             const listDirectoryKey = action.meta.listDirectoryKey;
-            console.log(`action >>>>> ${listDirectoryKey}`, action);
+
             try {
               const listCacheTable = db.table<DirectoryListCacheEntry, string>(
                 DIRECTORY_LIST_QUERY_RESULTS_TABLE
@@ -610,7 +610,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           case CREATE_FOLDER: {
             // Only handle actions with folder data
             let listDirectoryKey = action.meta?.listDirectoryKey;
-            console.log(`action >>>>> ${listDirectoryKey}`, action);
+
             if (action.meta?.offline?.effect?.data) {
               const folderData: CreateFolderAction =
                 action.meta.offline.effect.data.actions[0];
@@ -618,8 +618,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               const parentFolderId = folderData.payload.parent_folder_uuid;
 
               const parentFolder = await foldersTable.get(parentFolderId);
-
-              console.log(`parentFolder`, parentFolder);
 
               // Create optimistic folder object
               const optimisticFolder: FolderFEO = {
@@ -1277,8 +1275,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           // ------------------------------ DELETE FOLDER --------------------------------- //
           // ------------------------------ DELETE FOLDER --------------------------------- //
           case DELETE_FOLDER: {
-            console.log("DELETE_FOLDER", action);
-
             const optimisticID = action.meta.optimisticID;
             const cachedFolder = await foldersTable.get(optimisticID);
             let listDirectoryKey = action.meta?.listDirectoryKey;
@@ -1288,8 +1284,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             const isPermanentDelete = folderData.payload.permanent === true;
 
             if (cachedFolder) {
-              console.log(`cachedFolder`, cachedFolder);
-
               if (isPermanentDelete) {
                 // Handle permanent deletion - actually remove the folder from IndexedDB
                 // First, update parent folder reference if it exists
@@ -1407,7 +1401,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               }
 
               // Update directory listing cache (same for both permanent and trash)
-              console.log(`listDirectoryKey`, listDirectoryKey);
+
               if (listDirectoryKey) {
                 try {
                   const listCacheTable = db.table<
@@ -1416,8 +1410,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
                   const cachedResult =
                     await listCacheTable.get(listDirectoryKey);
-
-                  console.log(`cachedResult`, cachedResult);
 
                   if (cachedResult) {
                     // Update the cached listing by removing the folder from the cached folders array
@@ -1431,8 +1423,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                       totalFolders: Math.max(0, cachedResult.totalFolders - 1),
                       last_updated_date_ms: Date.now(),
                     };
-
-                    console.log(`updatedCachedResult`, updatedCachedResult);
 
                     await listCacheTable.put(updatedCachedResult);
                   }

@@ -55,7 +55,7 @@ export class LocalS3Adapter implements IUploadAdapter {
    */
   public async initialize(config: LocalS3AdapterConfig): Promise<void> {
     if (this.s3Client) {
-      console.log("LocalS3Adapter already initialized");
+      // console.log("LocalS3Adapter already initialized");
       return;
     }
 
@@ -76,7 +76,7 @@ export class LocalS3Adapter implements IUploadAdapter {
     try {
       const command = new ListBucketsCommand({});
       await this.s3Client.send(command);
-      console.log("Successfully connected to S3");
+      // console.log("Successfully connected to S3");
 
       // Ensure bucket exists
       await this.ensureBucketExists(config.bucket);
@@ -98,14 +98,14 @@ export class LocalS3Adapter implements IUploadAdapter {
       // Check if bucket exists
       const command = new HeadBucketCommand({ Bucket: bucketName });
       await this.s3Client.send(command);
-      console.log(`Bucket ${bucketName} already exists.`);
+      // console.log(`Bucket ${bucketName} already exists.`);
     } catch (error) {
       if ((error as any).name === "NotFound") {
         try {
           // Create bucket if it doesn't exist
           const createCommand = new CreateBucketCommand({ Bucket: bucketName });
           await this.s3Client.send(createCommand);
-          console.log(`Created bucket: ${bucketName}`);
+          // console.log(`Created bucket: ${bucketName}`);
 
           // Wait a moment for bucket creation to propagate
           await new Promise((resolve) => setTimeout(resolve, 2000));

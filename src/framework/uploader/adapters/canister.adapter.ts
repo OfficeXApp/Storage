@@ -61,7 +61,7 @@ export class CanisterAdapter implements IUploadAdapter {
       this.maxChunkSize = config.maxChunkSize;
     }
 
-    console.log(`Initialized Canister adapter with endpoint: ${this.baseUrl}`);
+    // console.log(`Initialized Canister adapter with endpoint: ${this.baseUrl}`);
   }
 
   /**
@@ -76,9 +76,9 @@ export class CanisterAdapter implements IUploadAdapter {
     const uploadId =
       (config.metadata?.id as UploadID) || (uuidv4() as UploadID);
 
-    console.log(
-      `CanisterAdapter: Starting upload with ID: ${uploadId} for file: ${file.name}`
-    );
+    // console.log(
+    //   `CanisterAdapter: Starting upload with ID: ${uploadId} for file: ${file.name}`
+    // );
 
     // Create progress subject
     const progress = new Subject<UploadProgressInfo>();
@@ -275,7 +275,7 @@ export class CanisterAdapter implements IUploadAdapter {
         },
       };
 
-      console.log("Creating file record with action:", createAction);
+      // console.log("Creating file record with action:", createAction);
 
       // Dispatch action to create file record
       dispatch(createFileAction(createAction, undefined, false));
@@ -326,9 +326,9 @@ export class CanisterAdapter implements IUploadAdapter {
       return true;
     } catch (error) {
       if ((error as Error).name === "AbortError") {
-        console.log(
-          `Upload of chunk ${chunkIndex} for file ${fileId} was cancelled`
-        );
+        // console.log(
+        //   `Upload of chunk ${chunkIndex} for file ${fileId} was cancelled`
+        // );
         return false;
       }
       throw error;
@@ -367,7 +367,7 @@ export class CanisterAdapter implements IUploadAdapter {
       return true;
     } catch (error) {
       if ((error as Error).name === "AbortError") {
-        console.log(`Complete upload for file ${fileId} was cancelled`);
+        // console.log(`Complete upload for file ${fileId} was cancelled`);
         return false;
       }
       throw error;

@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import {
-  StorageLocationEnum,
-  useDrive,
-  DriveDB,
-  getUploadFolderPath,
-} from "../../framework";
+import { useMultiUploader } from "../../framework/uploader/hook";
+
 import {
   Upload,
   Button,
@@ -33,7 +29,7 @@ import { v4 as uuidv4 } from "uuid";
 import UploadDropZone from "../UploadDropZone";
 import useScreenType from "react-screentype-hook";
 import mixpanel from "mixpanel-browser";
-import { UserID } from "@officexapp/types";
+import { DiskTypeEnum, FileID, UserID } from "@officexapp/types";
 
 const { Text } = Typography;
 
@@ -43,13 +39,14 @@ const UploadPanel: React.FC<{
   setUploadPanelVisible: (bool: boolean) => void;
 }> = ({ children, uploadPanelVisible, setUploadPanelVisible }) => {
   const {
-    uploadFilesFolders,
-    cancelUpload,
-    cancelAllUploads,
-    getUploadQueue,
-    uploadProgress,
-    clearQueue,
-  } = useDrive();
+    uploadFiles,
+    currentUploads,
+    clearFinishedUploads,
+    progress: uploadProgress,
+    uploadTargetDisk,
+    uploadTargetFolderID,
+  } = useMultiUploader();
+
   const screenType = useScreenType();
   const [selectedFiles, setSelectedFiles] = useState<UploadFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +54,22 @@ const UploadPanel: React.FC<{
   const navigate = useNavigate();
   const location = useLocation();
 
-  const uploadQueue = getUploadQueue();
+  const getUploadFolderPath = () => {
+    // Get the current folder path
+    const uploadPath = uploadTargetFolderID ? `/${uploadTargetFolderID}` : "/";
+
+    // Get the storage location (disk type)
+    const diskType = uploadTargetDisk
+      ? (uploadTargetDisk.disk_type as DiskTypeEnum)
+      : DiskTypeEnum.BrowserCache;
+    const diskID = uploadTargetDisk ? uploadTargetDisk.id : undefined;
+
+    return {
+      uploadFolderPath: uploadPath,
+      storageLocation: diskType,
+      diskID,
+    };
+  };
 
   const handleFileSelect = (files: FileList | null) => {
     if (files) {
@@ -69,18 +81,33 @@ const UploadPanel: React.FC<{
           status: "uploading",
         }))
       );
-      const { uploadFolderPath, storageLocation } = getUploadFolderPath();
+
+      const { uploadFolderPath, storageLocation, diskID } =
+        getUploadFolderPath();
       console.log(`uploadFolderPath: ${uploadFolderPath}`);
-      uploadFilesFolders(
-        fileArray,
-        uploadFolderPath,
-        storageLocation,
-        "user123" as UserID,
-        5,
-        (fileUUID) => {
-          console.log(`Local callback: File ${fileUUID} upload completed`);
-        }
-      );
+
+      // Create an array of file objects with generated FileIDs
+      const uploadFilesArray = fileArray.map((file) => ({
+        file,
+        fileID: `FileID_${uuidv4()}` as FileID,
+      }));
+
+      // Use uploadFiles from useMultiUploader
+      if (diskID) {
+        uploadFiles(
+          uploadFilesArray,
+          uploadFolderPath,
+          storageLocation,
+          diskID,
+          {
+            onFileComplete: (fileUUID) => {
+              console.log(`Local callback: File ${fileUUID} upload completed`);
+            },
+          }
+        );
+      } else {
+        console.error("No disk ID available for upload");
+      }
     }
   };
 
@@ -95,27 +122,30 @@ const UploadPanel: React.FC<{
   };
 
   const handleClearQueue = () => {
-    clearQueue();
+    clearFinishedUploads();
     setSelectedFiles([]);
   };
 
   const handleViewFile = (
     filePath: string,
-    storageLocation: StorageLocationEnum
+    storageLocation: DiskTypeEnum,
+    diskID: string
   ) => {
-    const basePath = `/drive/${storageLocation}`;
-    // const folderPath = filePath.substring(0, filePath.lastIndexOf("/"));
+    const basePath = `/drive/${diskID}`;
     return `${basePath}${filePath}`;
   };
 
   const menuItems = (
     filePath: string,
-    storageLocation: StorageLocationEnum
+    storageLocation: DiskTypeEnum,
+    diskID: string
   ) => [
     {
       key: "1",
       label: (
-        <Link to={handleViewFile(filePath, storageLocation)}>View File</Link>
+        <Link to={handleViewFile(filePath, storageLocation, diskID)}>
+          View File
+        </Link>
       ),
     },
   ];
@@ -148,7 +178,7 @@ const UploadPanel: React.FC<{
 
   useEffect(() => {
     // Check if all uploads are complete
-    const allUploadsComplete = uploadProgress.percentage === 100;
+    const allUploadsComplete = uploadProgress.overallProgress === 100;
 
     if (allUploadsComplete) {
       appendRefreshParam();
@@ -225,7 +255,7 @@ const UploadPanel: React.FC<{
       />
 
       <UploadDropZone toggleUploadPanel={setUploadPanelVisible}>
-        {uploadQueue.length === 0 ? (
+        {currentUploads.length === 0 ? (
           <Result
             icon={
               <CloudUploadOutlined
@@ -266,18 +296,28 @@ const UploadPanel: React.FC<{
           <>
             <List
               size="small"
-              dataSource={uploadQueue}
+              dataSource={currentUploads}
               renderItem={(item) => (
-                <Link to={handleViewFile(item.path, item.storageLocation)}>
+                <Link
+                  to={handleViewFile(
+                    item.config.uploadPath,
+                    item.config.diskType,
+                    item.config.diskID
+                  )}
+                >
                   <List.Item
                     key={item.id}
                     onClick={() =>
-                      handleViewFile(item.path, item.storageLocation)
+                      handleViewFile(
+                        item.config.uploadPath,
+                        item.config.diskType,
+                        item.config.diskID
+                      )
                     }
                     actions={[
                       <Dropdown
                         menu={{
-                          items: [], // menuItems(item.path, item.storageLocation),
+                          items: [], // menuItems(item.config.uploadPath, item.config.diskType, item.config.diskID),
                         }}
                         trigger={["click"]}
                       >
@@ -292,9 +332,14 @@ const UploadPanel: React.FC<{
                   >
                     <List.Item.Meta
                       avatar={<FileOutlined />}
-                      title={item.name}
+                      title={item.file.name}
                       description={
-                        <Progress percent={item.progress} size="small" />
+                        <Progress
+                          percent={
+                            item.lastProgress ? item.lastProgress.progress : 0
+                          }
+                          size="small"
+                        />
                       }
                     />
                   </List.Item>

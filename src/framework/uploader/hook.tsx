@@ -170,7 +170,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   const DEFAULT_ADAPTER_CONFIGS = {
     // IndexedDB adapter config
     [defaultBrowserCacheDiskID]: {
-      databaseName: `officex-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`,
+      databaseName: `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`,
       objectStoreName: "files",
     },
     // S3 adapter config for Storj
@@ -232,19 +232,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       !currentProfile ||
       registeredDefaultAdapters
     ) {
-      console.log(`did not qualify! 
-        
-        uploadManagerRef.current: ${uploadManagerRef.current?.getRegisteredAdapters()}
-        isInitialized: ${isInitialized}
-        currentOrg: ${currentOrg}
-        currentProfile: ${currentProfile}
-        registeredDefaultAdapters: ${registeredDefaultAdapters}
-        
-        `);
       return;
     }
-
-    console.log("Trying to Registering default adapters for disks");
 
     try {
       // Get currently registered adapters
@@ -350,7 +339,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             // console.log(`Registered AWS Bucket adapter for disk: ${diskId}`);
             continue;
           } else if (diskType === DiskTypeEnum.LocalSSD) {
-            console.log(`Registered LocalSSD adapter for disk: ${diskId}`);
+            // console.log(`Registered LocalSSD adapter for disk: ${diskId}`);
             continue;
           }
         } catch (error) {
@@ -358,7 +347,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
         }
       }
       setRegisteredDefaultAdapters(true);
-      console.log("Default adapters registration complete");
+      // console.log("Default adapters registration complete");
     } catch (error) {
       console.error("Error during default adapter registration:", error);
     }
@@ -372,16 +361,16 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
   // Initialize the upload manager
   const initializeUploadManager = async () => {
-    console.log(`Initializing upload manager`);
+    // console.log(`Initializing upload manager`);
     try {
       // Create new upload manager if it doesn't exist
       if (!uploadManagerRef.current) {
-        console.log(`Creating new upload manager`);
+        // console.log(`Creating new upload manager`);
         uploadManagerRef.current = new UploadManager();
       }
 
       const manager = uploadManagerRef.current;
-      console.log(`Upload manager used`, manager);
+      // console.log(`Upload manager used`, manager);
       // Subscribe to progress updates
       const subscription = manager.getProgress().subscribe((progress) => {
         setProgress(progress);
@@ -392,7 +381,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       // Check for any previous uploads
       const resumableUploads = await manager.checkForPreviousUploads();
       if (resumableUploads.length > 0) {
-        console.log(`Found ${resumableUploads.length} resumable uploads`);
+        // console.log(`Found ${resumableUploads.length} resumable uploads`);
       }
 
       // Clean up expired uploads
@@ -523,7 +512,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     },
 
     getFileUrl: async (id) => {
-      console.log(`uploadManagerRef.current`, uploadManagerRef.current);
+      // console.log(`uploadManagerRef.current`, uploadManagerRef.current);
       if (!uploadManagerRef.current) return null;
       return uploadManagerRef.current.getFileUrl(id);
     },

@@ -230,9 +230,9 @@ export const initDexieDb = async (
           status: "initialized",
         });
 
-        console.log(`Initialized dummy_init table for ${userID}@${orgID}`);
+        // console.log(`Initialized dummy_init table for ${userID}@${orgID}`);
       } else {
-        console.log(`dummy_init table already has data for ${userID}@${orgID}`);
+        // console.log(`dummy_init table already has data for ${userID}@${orgID}`);
       }
     } else {
       console.warn("dummy_init table not found in database schema");
@@ -265,13 +265,13 @@ export const initDexieDb = async (
         };
 
         await db.table(DISKS_DEXIE_TABLE).add(browserCacheDisk);
-        console.log(
-          `Initialized default Browser Cache disk for ${userID}@${orgID}`
-        );
+        // console.log(
+        //   `Initialized default Browser Cache disk for ${userID}@${orgID}`
+        // );
       } else {
-        console.log(
-          `Default Browser Cache disk already exists for ${userID}@${orgID}`
-        );
+        // console.log(
+        //   `Default Browser Cache disk already exists for ${userID}@${orgID}`
+        // );
       }
 
       // 2. Check and initialize Free Cloud Sharing disk
@@ -299,13 +299,13 @@ export const initDexieDb = async (
         };
 
         await db.table(DISKS_DEXIE_TABLE).add(cloudSharingDisk);
-        console.log(
-          `Initialized default Free Cloud Sharing disk for ${userID}@${orgID}`
-        );
+        // console.log(
+        //   `Initialized default Free Cloud Sharing disk for ${userID}@${orgID}`
+        // );
       } else {
-        console.log(
-          `Default Free Cloud Sharing disk already exists for ${userID}@${orgID}`
-        );
+        // console.log(
+        //   `Default Free Cloud Sharing disk already exists for ${userID}@${orgID}`
+        // );
       }
     } else {
       console.warn(`${DISKS_DEXIE_TABLE} table not found in database schema`);
@@ -387,13 +387,13 @@ export const initDexieDb = async (
         };
 
         await db.table(FOLDERS_DEXIE_TABLE).add(browserCacheTrashFolder);
-        console.log(
-          `Initialized root folder for Browser Cache disk for ${userID}@${orgID}`
-        );
+        // console.log(
+        //   `Initialized root folder for Browser Cache disk for ${userID}@${orgID}`
+        // );
       } else {
-        console.log(
-          `Root folder for Browser Cache disk already exists for ${userID}@${orgID}`
-        );
+        // console.log(
+        //   `Root folder for Browser Cache disk already exists for ${userID}@${orgID}`
+        // );
       }
 
       // 2. Check and initialize Free Cloud Sharing root folder
@@ -470,13 +470,13 @@ export const initDexieDb = async (
         };
 
         await db.table(FOLDERS_DEXIE_TABLE).add(cloudSharingTrashFolder);
-        console.log(
-          `Initialized root folder for Free Cloud Sharing disk for ${userID}@${orgID}`
-        );
+        // console.log(
+        //   `Initialized root folder for Free Cloud Sharing disk for ${userID}@${orgID}`
+        // );
       } else {
-        console.log(
-          `Root folder for Free Cloud Sharing disk already exists for ${userID}@${orgID}`
-        );
+        // console.log(
+        //   `Root folder for Free Cloud Sharing disk already exists for ${userID}@${orgID}`
+        // );
       }
     } else {
       console.warn(`${FOLDERS_DEXIE_TABLE} table not found in database schema`);

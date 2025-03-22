@@ -56,9 +56,9 @@ export class CloudS3Adapter implements IUploadAdapter {
     this.apiEndpoint = config.endpoint;
     this.apiKey = config.apiKey || "";
 
-    console.log(
-      `Initialized Cloud S3 adapter with endpoint: ${this.apiEndpoint}`
-    );
+    // console.log(
+    //   `Initialized Cloud S3 adapter with endpoint: ${this.apiEndpoint}`
+    // );
   }
 
   /**
@@ -73,9 +73,9 @@ export class CloudS3Adapter implements IUploadAdapter {
     const uploadId =
       (config.metadata?.id as UploadID) || (uuidv4() as UploadID);
 
-    console.log(
-      `CloudS3Adapter: Starting upload with ID: ${uploadId} for file: ${file.name}`
-    );
+    // console.log(
+    //   `CloudS3Adapter: Starting upload with ID: ${uploadId} for file: ${file.name}`
+    // );
 
     // Create progress subject
     const progress = new Subject<UploadProgressInfo>();
@@ -309,7 +309,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         },
       };
 
-      console.log("Creating file record with action:", createAction);
+      // console.log("Creating file record with action:", createAction);
 
       // Make direct API call following the /directory/action pattern
       const response = await fetch(`${this.apiEndpoint}/directory/action`, {
@@ -329,7 +329,7 @@ export class CloudS3Adapter implements IUploadAdapter {
 
       const result = await response.json();
 
-      console.log(`File record creation result:`, result);
+      // console.log(`File record creation result:`, result);
 
       // Extract presigned URL data from the API response
       let presignedData = null;
@@ -393,7 +393,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         },
       };
 
-      console.log("Updating file status with action:", updateAction);
+      // console.log("Updating file status with action:", updateAction);
 
       // Make direct API call following the /directory/action pattern
       const response = await fetch(`${this.apiEndpoint}/directory/action`, {
@@ -530,7 +530,7 @@ export class CloudS3Adapter implements IUploadAdapter {
 
     // For simple form-based uploads, we need to start over
     // So we'll just call uploadFile again
-    console.log(`Restarting upload for ${id} from the beginning`);
+    // console.log(`Restarting upload for ${id} from the beginning`);
 
     // Prepare config for restart
     const config: UploadConfig = {

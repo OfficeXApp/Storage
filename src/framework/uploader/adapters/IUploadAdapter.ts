@@ -10,12 +10,21 @@ import {
   ResumableUploadMetadata,
   UploadResponse,
 } from "../types";
+import { FileID } from "@officexapp/types";
 
 export interface IUploadAdapter {
   initialize(config: any): Promise<void>;
-  uploadFile(file: File, config: UploadConfig): Observable<UploadProgressInfo>;
+  uploadFile(
+    fileID: FileID,
+    file: File,
+    config: UploadConfig
+  ): Observable<UploadProgressInfo>;
   pauseUpload(id: UploadID): Promise<boolean>;
-  resumeUpload(id: UploadID, file: File): Observable<UploadProgressInfo>;
+  resumeUpload(
+    id: UploadID,
+    fileID: FileID,
+    file: File
+  ): Observable<UploadProgressInfo>;
   cancelUpload(id: UploadID): Promise<boolean>;
   getUploadStatus(id: UploadID): Promise<UploadProgressInfo | null>;
   getSupportedFeatures(): AdapterFeatures;
@@ -24,6 +33,5 @@ export interface IUploadAdapter {
   ): Promise<ResumableUploadMetadata | null>;
   validateFileForResume(metadata: ResumableUploadMetadata, file: File): boolean;
   cleanup(): Promise<void>;
-  checkIfExists(fileName: string, uploadPath: string): Promise<boolean>;
   getFileUrl(id: UploadID): Promise<string | null>;
 }

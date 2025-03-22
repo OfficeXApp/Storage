@@ -36,7 +36,7 @@ import {
   UploadResponse,
 } from "./types";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
-import { DiskID, DiskTypeEnum } from "@officexapp/types";
+import { DiskID, DiskTypeEnum, FileID } from "@officexapp/types";
 
 /**
  * Manager for coordinating uploads across different adapters
@@ -138,6 +138,7 @@ export class UploadManager {
    * @returns ID of the upload
    */
   public uploadFile(
+    fileID: FileID,
     file: File,
     uploadPath: string,
     diskType: DiskTypeEnum,
@@ -150,6 +151,7 @@ export class UploadManager {
     // console.log(`Creating upload with ID: ${id} for file: ${file.name}`);
 
     const config: UploadConfig = {
+      fileID,
       file,
       uploadPath,
       diskType,
@@ -170,6 +172,7 @@ export class UploadManager {
     // Create upload item and add to queue
     const uploadItem: QueuedUploadItem = {
       id,
+      fileID,
       file,
       config,
       state: UploadState.QUEUED,
@@ -197,7 +200,7 @@ export class UploadManager {
    * @returns Array of upload IDs
    */
   public uploadFiles(
-    files: File[],
+    files: { file: File; fileID: FileID }[],
     uploadPath: string,
     diskType: DiskTypeEnum,
     diskID: DiskID,
@@ -206,24 +209,31 @@ export class UploadManager {
     const ids: UploadID[] = [];
 
     for (const file of files) {
-      const id = this.uploadFile(file, uploadPath, diskType, diskID, {
-        ...options,
-        onComplete: (uploadId) => {
-          if (options.onFileComplete) {
-            options.onFileComplete(uploadId);
-          }
+      const id = this.uploadFile(
+        file.fileID,
+        file.file,
+        uploadPath,
+        diskType,
+        diskID,
+        {
+          ...options,
+          onComplete: (uploadId) => {
+            if (options.onFileComplete) {
+              options.onFileComplete(uploadId);
+            }
 
-          // Check if all uploads are complete
-          const allComplete = ids.every((id) => {
-            const item = this.uploadQueue.get(id);
-            return item && item.state === UploadState.COMPLETED;
-          });
+            // Check if all uploads are complete
+            const allComplete = ids.every((id) => {
+              const item = this.uploadQueue.get(id);
+              return item && item.state === UploadState.COMPLETED;
+            });
 
-          if (allComplete && options.onAllComplete) {
-            options.onAllComplete();
-          }
-        },
-      });
+            if (allComplete && options.onAllComplete) {
+              options.onAllComplete();
+            }
+          },
+        }
+      );
 
       ids.push(id);
     }
@@ -299,7 +309,11 @@ export class UploadManager {
    * @param file File reference (required for cross-session resume)
    * @returns Promise that resolves to true if resumed successfully
    */
-  public async resumeUpload(id: UploadID, file?: File): Promise<boolean> {
+  public async resumeUpload(
+    id: UploadID,
+    fileID: FileID,
+    file?: File
+  ): Promise<boolean> {
     const uploadItem = this.uploadQueue.get(id);
     let uploadFile = file;
 
@@ -321,6 +335,7 @@ export class UploadManager {
       // Recreate the upload item from saved state
       const config: UploadConfig = {
         file,
+        fileID,
         uploadPath: savedData.uploadPath,
         diskType: savedData.diskType,
         diskID: savedData.diskID,
@@ -330,6 +345,7 @@ export class UploadManager {
 
       const newUploadItem: QueuedUploadItem = {
         id,
+        fileID,
         file,
         config,
         state: UploadState.PAUSED,
@@ -453,7 +469,7 @@ export class UploadManager {
     // Resume each paused upload
     for (const [id, item] of this.uploadQueue.entries()) {
       if (item.state === UploadState.PAUSED) {
-        this.resumeUpload(id, item.file);
+        this.resumeUpload(id, item.fileID, item.file);
       }
     }
   }
@@ -487,6 +503,7 @@ export class UploadManager {
         // Convert QueuedUploadItem to UploadProgressInfo
         return {
           id: queued.id,
+          fileID: queued.fileID,
           fileName: queued.file.name,
           state: queued.state,
           progress: queued.state === UploadState.COMPLETED ? 100 : 0,
@@ -681,10 +698,15 @@ export class UploadManager {
     // Check if this is a resume operation
     if (uploadItem.resumeData) {
       // Resume the upload
-      uploadObservable = adapterReg.adapter.resumeUpload(id, uploadItem.file);
+      uploadObservable = adapterReg.adapter.resumeUpload(
+        id,
+        uploadItem.fileID,
+        uploadItem.file
+      );
     } else {
       // Start a new upload
       uploadObservable = adapterReg.adapter.uploadFile(
+        uploadItem.fileID,
         uploadItem.file,
         uploadItem.config
       );
@@ -1013,7 +1035,7 @@ export class UploadManager {
           item.pauseReason === PauseReason.TAB_HIDDEN
         ) {
           // Resume this upload
-          this.resumeUpload(id, item.file);
+          this.resumeUpload(id, item.fileID, item.file);
         }
       }
     }
@@ -1136,8 +1158,10 @@ export class UploadManager {
     // Create an upload item
     const uploadItem: QueuedUploadItem = {
       id,
+      fileID: response.fileID,
       file,
       config: {
+        fileID: response.fileID,
         file,
         uploadPath: response.uploadPath,
         diskType: response.diskType,

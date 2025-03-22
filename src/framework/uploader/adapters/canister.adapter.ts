@@ -11,7 +11,7 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskTypeEnum, GenerateID } from "@officexapp/types";
+import { DiskTypeEnum, FileID, GenerateID } from "@officexapp/types";
 import {
   CREATE_FILE,
   createFileAction,
@@ -68,6 +68,7 @@ export class CanisterAdapter implements IUploadAdapter {
    * Upload a file to Canister with chunking
    */
   public uploadFile(
+    fileID: FileID,
     file: File,
     config: UploadConfig
   ): Observable<UploadProgressInfo> {
@@ -134,6 +135,7 @@ export class CanisterAdapter implements IUploadAdapter {
       // Store metadata for resume capability
       const metadata: ResumableUploadMetadata = {
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
@@ -191,6 +193,7 @@ export class CanisterAdapter implements IUploadAdapter {
         // Emit progress
         const progress: UploadProgressInfo = {
           id: uploadId,
+          fileID: config.fileID,
           fileName: file.name,
           state:
             chunksUploaded === totalChunks
@@ -213,6 +216,7 @@ export class CanisterAdapter implements IUploadAdapter {
       // If we got here, upload is complete
       const finalProgress: UploadProgressInfo = {
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         state: UploadState.COMPLETED,
         progress: 100,
@@ -248,7 +252,7 @@ export class CanisterAdapter implements IUploadAdapter {
   ): Promise<string> {
     try {
       // Generate a file ID or use the one from metadata
-      const fileId = config.metadata?.fileId || GenerateID.File();
+      const fileID = config.fileID || GenerateID.File();
 
       // Need dispatch function to be in metadata for Redux integration
       if (!config.metadata?.dispatch) {
@@ -261,7 +265,7 @@ export class CanisterAdapter implements IUploadAdapter {
       const createAction = {
         action: CREATE_FILE as "CREATE_FILE",
         payload: {
-          id: fileId,
+          id: fileID,
           name: file.name,
           parent_folder_uuid: config.uploadPath,
           extension: file.name.split(".").pop() || "",
@@ -279,7 +283,7 @@ export class CanisterAdapter implements IUploadAdapter {
       // Wait for the record to be created
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      return fileId;
+      return fileID;
     } catch (error) {
       console.error("Error creating file record:", error);
       throw error;
@@ -399,6 +403,7 @@ export class CanisterAdapter implements IUploadAdapter {
    */
   public resumeUpload(
     id: UploadID,
+    fileID: FileID,
     file: File
   ): Observable<UploadProgressInfo> {
     // Get existing metadata
@@ -407,6 +412,7 @@ export class CanisterAdapter implements IUploadAdapter {
     if (!metadata) {
       return of({
         id,
+        fileID,
         fileName: file.name,
         state: UploadState.FAILED,
         progress: 0,
@@ -423,6 +429,7 @@ export class CanisterAdapter implements IUploadAdapter {
     if (!this.validateFileForResume(metadata, file)) {
       return of({
         id,
+        fileID: metadata.fileID,
         fileName: file.name,
         state: UploadState.FAILED,
         progress: 0,
@@ -498,6 +505,7 @@ export class CanisterAdapter implements IUploadAdapter {
       // Initial progress update
       progressSubject.next({
         id: uploadId,
+        fileID: metadata.fileID,
         fileName: file.name,
         state: UploadState.ACTIVE,
         progress: Math.floor((bytesUploaded / file.size) * 100),
@@ -548,6 +556,7 @@ export class CanisterAdapter implements IUploadAdapter {
         // Emit progress
         const progress: UploadProgressInfo = {
           id: uploadId,
+          fileID: metadata.fileID,
           fileName: file.name,
           state:
             uploadedChunks.size === totalChunks
@@ -570,6 +579,7 @@ export class CanisterAdapter implements IUploadAdapter {
 
         const finalProgress: UploadProgressInfo = {
           id: uploadId,
+          fileID: metadata.fileID,
           fileName: file.name,
           state: UploadState.COMPLETED,
           progress: 100,
@@ -684,6 +694,7 @@ export class CanisterAdapter implements IUploadAdapter {
 
     return {
       id,
+      fileID: metadata.fileID,
       fileName: metadata.fileName,
       state: UploadState.PAUSED,
       progress,
@@ -744,37 +755,6 @@ export class CanisterAdapter implements IUploadAdapter {
     this.blobUrls.clear();
 
     return Promise.resolve();
-  }
-
-  /**
-   * Check if a file already exists
-   */
-  public async checkIfExists(
-    fileName: string,
-    uploadPath: string
-  ): Promise<boolean> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/directory/check_exists?filename=${encodeURIComponent(fileName)}&path=${encodeURIComponent(uploadPath)}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Check exists failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.exists;
-    } catch (error) {
-      console.error("Error checking if file exists:", error);
-      return false;
-    }
   }
 
   /**

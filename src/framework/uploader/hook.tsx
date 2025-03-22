@@ -57,6 +57,7 @@ interface MultiUploaderContextType {
   progress: AggregateUploadProgress;
   currentUploads: QueuedUploadItem[];
   uploadFile: (
+    fileID: FileID,
     file: File,
     uploadPath: string,
     diskType: DiskTypeEnum,
@@ -64,7 +65,7 @@ interface MultiUploaderContextType {
     options?: Partial<UploadConfig>
   ) => UploadID;
   uploadFiles: (
-    files: File[],
+    files: { file: File; fileID: FileID }[],
     uploadPath: string,
     diskType: DiskTypeEnum,
     diskID: DiskID,
@@ -72,7 +73,7 @@ interface MultiUploaderContextType {
   ) => UploadID[];
   registerDefaultAdapters: () => Promise<void>;
   pauseUpload: (id: UploadID) => Promise<boolean>;
-  resumeUpload: (id: UploadID, file: File) => Promise<boolean>;
+  resumeUpload: (id: UploadID, fileID: FileID, file: File) => Promise<boolean>;
   cancelUpload: (id: UploadID) => Promise<boolean>;
   pauseAllUploads: () => void;
   resumeAllUploads: () => void;
@@ -461,10 +462,11 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     registerAdapter,
     registerDefaultAdapters,
     // Upload methods
-    uploadFile: (file, uploadPath, diskType, diskID, options) => {
+    uploadFile: (fileID, file, uploadPath, diskType, diskID, options) => {
       if (!uploadManagerRef.current)
         throw new Error("Upload manager not initialized");
       return uploadManagerRef.current.uploadFile(
+        fileID,
         file,
         uploadPath,
         diskType,
@@ -490,9 +492,9 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       return uploadManagerRef.current.pauseUpload(id);
     },
 
-    resumeUpload: async (id, file) => {
+    resumeUpload: async (id, fileID, file) => {
       if (!uploadManagerRef.current) return false;
-      return uploadManagerRef.current.resumeUpload(id, file);
+      return uploadManagerRef.current.resumeUpload(id, fileID, file);
     },
 
     cancelUpload: async (id) => {

@@ -1,6 +1,6 @@
 // src/framework/uploader/types.ts - Shared types for the upload system
 
-import { DiskID, DiskTypeEnum } from "@officexapp/types";
+import { DiskID, DiskTypeEnum, FileID } from "@officexapp/types";
 import { Observable } from "rxjs";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
 import { ObjectCannedACL } from "@aws-sdk/client-s3";
@@ -37,6 +37,7 @@ export type UploadID = string;
  */
 export interface ResumableUploadMetadata {
   id: UploadID;
+  fileID: FileID;
   fileName: string;
   fileSize: number;
   fileType: string;
@@ -57,6 +58,7 @@ export interface ResumableUploadMetadata {
  */
 export interface UploadProgressInfo {
   id: UploadID;
+  fileID: FileID;
   fileName: string;
   state: UploadState;
   progress: number; // 0-100
@@ -91,6 +93,7 @@ export interface AggregateUploadProgress {
  */
 export interface UploadConfig {
   file: File;
+  fileID: FileID;
   uploadPath: string;
   diskID: DiskID;
   diskType: DiskTypeEnum;
@@ -179,6 +182,7 @@ export interface AdapterRegistration {
  */
 export interface QueuedUploadItem {
   id: UploadID;
+  fileID: FileID;
   file: File;
   config: UploadConfig;
   state: UploadState;
@@ -198,6 +202,7 @@ export interface QueuedUploadItem {
  */
 export interface UploadResponse {
   id: UploadID;
+  fileID: FileID;
   fileName: string;
   fileSize: number;
   uploadPath: string;

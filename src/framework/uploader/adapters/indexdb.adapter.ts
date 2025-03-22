@@ -12,7 +12,7 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, FileID } from "@officexapp/types";
 import { defaultBrowserCacheDiskID } from "../../../api/dexie-database";
 
 /**
@@ -190,12 +190,14 @@ export class IndexedDBAdapter implements IUploadAdapter {
    * Upload a file to IndexedDB
    */
   public uploadFile(
+    fileID: FileID,
     file: File,
     config: UploadConfig
   ): Observable<UploadProgressInfo> {
     if (!this.db) {
       return of({
         id: config.file.name as UploadID,
+        fileID,
         fileName: config.file.name,
         state: UploadState.FAILED,
         progress: 0,
@@ -272,6 +274,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
     // Store metadata for resume capability
     const metadata: ResumableUploadMetadata = {
       id: uploadId,
+      fileID: config.fileID,
       fileName: file.name,
       fileSize: file.size,
       fileType: file.type,
@@ -326,6 +329,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         // Emit progress
         const progress: UploadProgressInfo = {
           id: uploadId,
+          fileID: config.fileID,
           fileName: file.name,
           state:
             chunksUploaded === totalChunks
@@ -752,11 +756,13 @@ export class IndexedDBAdapter implements IUploadAdapter {
    */
   public resumeUpload(
     id: UploadID,
+    fileID: FileID,
     file: File
   ): Observable<UploadProgressInfo> {
     if (!this.db) {
       return of({
         id: id,
+        fileID,
         fileName: file.name,
         state: UploadState.FAILED,
         progress: 0,
@@ -876,6 +882,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         // Emit progress
         const progress: UploadProgressInfo = {
           id: uploadId,
+          fileID: metadata.fileID,
           fileName: file.name,
           state:
             uploadedChunks.size === totalChunks
@@ -895,6 +902,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         if (uploadedChunks.size === totalChunks) {
           const config: UploadConfig = {
             file,
+            fileID: metadata.fileID,
             uploadPath: metadata.uploadPath,
             diskType: metadata.diskType,
             diskID: defaultBrowserCacheDiskID,
@@ -921,6 +929,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
       // No chunks left, finalize
       const config: UploadConfig = {
         file,
+        fileID: metadata.fileID,
         uploadPath: metadata.uploadPath,
         diskType: metadata.diskType,
         diskID: defaultBrowserCacheDiskID,
@@ -933,6 +942,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
           // Emit final progress
           const progress: UploadProgressInfo = {
             id: uploadId,
+            fileID: metadata.fileID,
             fileName: file.name,
             state: UploadState.COMPLETED,
             progress: 100,
@@ -997,6 +1007,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
       if (fileInfo && fileInfo.uploadComplete) {
         return {
           id,
+          fileID: fileInfo.id,
           fileName: fileInfo.name,
           state: UploadState.COMPLETED,
           progress: 100,
@@ -1017,6 +1028,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
     return {
       id,
+      fileID: metadata.fileID,
       fileName: metadata.fileName,
       state: UploadState.PAUSED,
       progress,
@@ -1197,42 +1209,6 @@ export class IndexedDBAdapter implements IUploadAdapter {
         throw error;
       }
     }
-  }
-
-  /**
-   * Check if a file already exists
-   */
-  public async checkIfExists(
-    fileName: string,
-    uploadPath: string
-  ): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject(new Error("IndexedDB not initialized"));
-        return;
-      }
-
-      const transaction = this.db.transaction(
-        [this.FILES_STORE_NAME],
-        "readonly"
-      );
-      const store = transaction.objectStore(this.FILES_STORE_NAME);
-
-      // Get all files (inefficient but IndexedDB doesn't support querying by properties)
-      const request = store.getAll();
-
-      request.onsuccess = () => {
-        const files = request.result;
-        const exists = files.some(
-          (file) => file.name === fileName && file.uploadPath === uploadPath
-        );
-
-        resolve(exists);
-      };
-
-      request.onerror = () =>
-        reject(new Error("Failed to check if file exists"));
-    });
   }
 
   /**

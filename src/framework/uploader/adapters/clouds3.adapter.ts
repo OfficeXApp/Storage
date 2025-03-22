@@ -14,6 +14,7 @@ import { IUploadAdapter } from "./IUploadAdapter";
 import {
   DiskID,
   DiskTypeEnum,
+  FileID,
   GenerateID,
   UploadStatus,
 } from "@officexapp/types";
@@ -64,6 +65,7 @@ export class CloudS3Adapter implements IUploadAdapter {
    * Upload a file to S3 using presigned URL
    */
   public uploadFile(
+    fileID: FileID,
     file: File,
     config: UploadConfig
   ): Observable<UploadProgressInfo> {
@@ -110,7 +112,7 @@ export class CloudS3Adapter implements IUploadAdapter {
 
     try {
       // First create a file record in the system
-      const { fileId, presignedData } = await this.createFileRecord(
+      const { fileID, presignedData } = await this.createFileRecord(
         file,
         config,
         uploadId
@@ -123,6 +125,7 @@ export class CloudS3Adapter implements IUploadAdapter {
       // Send initial progress
       progressSubject.next({
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         state: UploadState.ACTIVE,
         progress: 0,
@@ -136,6 +139,7 @@ export class CloudS3Adapter implements IUploadAdapter {
       // Store metadata for limited resume capability
       const metadata: ResumableUploadMetadata = {
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
@@ -150,7 +154,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         uploadPath: config.uploadPath,
         customMetadata: {
           ...config.metadata,
-          fileId,
+          fileID,
         },
       };
 
@@ -176,6 +180,7 @@ export class CloudS3Adapter implements IUploadAdapter {
           // Update progress information
           progressSubject.next({
             id: uploadId,
+            fileID: config.fileID,
             fileName: file.name,
             state: UploadState.ACTIVE,
             progress: Math.floor(progress * 100),
@@ -190,11 +195,12 @@ export class CloudS3Adapter implements IUploadAdapter {
       );
 
       // Update file status to completed
-      await this.updateFileStatus(fileId, UploadStatus.COMPLETED, config);
+      await this.updateFileStatus(fileID, UploadStatus.COMPLETED, config);
 
       // If we got here, upload is complete
       const finalProgress: UploadProgressInfo = {
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         state: UploadState.COMPLETED,
         progress: 100,
@@ -284,16 +290,16 @@ export class CloudS3Adapter implements IUploadAdapter {
     file: File,
     config: UploadConfig,
     uploadId: UploadID
-  ): Promise<{ fileId: string; presignedData: any }> {
+  ): Promise<{ fileID: FileID; presignedData: any }> {
     try {
       // Generate a file ID or use the one from metadata
-      const fileId = config.metadata?.fileId || GenerateID.File();
+      const fileID = config.fileID || GenerateID.File();
 
       // Prepare create file action
       const createAction = {
         action: CREATE_FILE as "CREATE_FILE",
         payload: {
-          id: fileId,
+          id: fileID,
           name: file.name,
           parent_folder_uuid: config.uploadPath,
           extension: file.name.split(".").pop() || "",
@@ -358,11 +364,11 @@ export class CloudS3Adapter implements IUploadAdapter {
               },
             },
           },
-          meta: { optimisticID: fileId },
+          meta: { optimisticID: fileID },
         });
       }
 
-      return { fileId, presignedData };
+      return { fileID, presignedData };
     } catch (error) {
       console.error("Error creating file record:", error);
       throw error;
@@ -373,7 +379,7 @@ export class CloudS3Adapter implements IUploadAdapter {
    * Update file record status after upload is complete
    */
   private async updateFileStatus(
-    fileId: string,
+    fileID: FileID,
     uploadStatus: UploadStatus,
     config: UploadConfig
   ): Promise<void> {
@@ -382,7 +388,7 @@ export class CloudS3Adapter implements IUploadAdapter {
       const updateAction = {
         action: UPDATE_FILE as "UPDATE_FILE",
         payload: {
-          id: fileId,
+          id: fileID,
           upload_status: uploadStatus,
         },
       };
@@ -417,14 +423,14 @@ export class CloudS3Adapter implements IUploadAdapter {
               data: {
                 result: {
                   file: {
-                    id: fileId,
+                    id: fileID,
                     upload_status: uploadStatus,
                   },
                 },
               },
             },
           },
-          meta: { optimisticID: fileId },
+          meta: { optimisticID: fileID },
         });
       }
 
@@ -433,7 +439,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         config.metadata?.onFileComplete &&
         uploadStatus === UploadStatus.COMPLETED
       ) {
-        config.metadata.onFileComplete(fileId);
+        config.metadata.onFileComplete(fileID);
       }
     } catch (error) {
       console.error("Error updating file status:", error);
@@ -466,6 +472,7 @@ export class CloudS3Adapter implements IUploadAdapter {
    */
   public resumeUpload(
     id: UploadID,
+    fileID: FileID,
     file: File
   ): Observable<UploadProgressInfo> {
     // Get existing metadata
@@ -476,6 +483,7 @@ export class CloudS3Adapter implements IUploadAdapter {
       const progress = new Subject<UploadProgressInfo>();
       progress.next({
         id,
+        fileID,
         fileName: file.name,
         state: UploadState.FAILED,
         progress: 0,
@@ -496,6 +504,7 @@ export class CloudS3Adapter implements IUploadAdapter {
       const progress = new Subject<UploadProgressInfo>();
       progress.next({
         id,
+        fileID,
         fileName: file.name,
         state: UploadState.FAILED,
         progress: 0,
@@ -526,6 +535,7 @@ export class CloudS3Adapter implements IUploadAdapter {
     // Prepare config for restart
     const config: UploadConfig = {
       file,
+      fileID,
       uploadPath: metadata.uploadPath,
       diskType: metadata.diskType,
       diskID: metadata.diskID,
@@ -585,6 +595,7 @@ export class CloudS3Adapter implements IUploadAdapter {
 
     return {
       id,
+      fileID: metadata.fileID,
       fileName: metadata.fileName,
       state: UploadState.PAUSED,
       progress: 0, // For form-based uploads, we don't track partial progress
@@ -640,38 +651,6 @@ export class CloudS3Adapter implements IUploadAdapter {
   public async cleanup(): Promise<void> {
     // Clean up any resources if needed
     return Promise.resolve();
-  }
-
-  /**
-   * Check if a file already exists
-   */
-  public async checkIfExists(
-    fileName: string,
-    uploadPath: string
-  ): Promise<boolean> {
-    try {
-      // This would be a call to your API to check if file exists
-      const response = await fetch(
-        `${this.apiEndpoint}/directory/check_exists?filename=${encodeURIComponent(fileName)}&path=${encodeURIComponent(uploadPath)}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Check exists failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.exists;
-    } catch (error) {
-      console.error("Error checking if file exists:", error);
-      return false;
-    }
   }
 
   /**

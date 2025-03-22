@@ -49,7 +49,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const disks = useSelector((state: ReduxAppState) => state.disks.disks);
-  console.log(`look at disks`, disks);
+
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredDisks, setFilteredDisks] = useState(disks);

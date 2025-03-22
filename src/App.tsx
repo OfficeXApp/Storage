@@ -9,12 +9,23 @@ import { setupFreeTrialStorj } from "./api/storj";
 import mixpanel from "mixpanel-browser";
 import { useIdentitySystem } from "./framework/identity";
 import { LOCAL_STORAGE_SEED_PHRASE } from "./framework/identity/constants";
+import { useMultiUploader } from "./framework/uploader/hook";
+import { listDisksAction } from "./redux-offline/disks/disks.actions";
+import { useDispatch } from "react-redux";
+import { listApiKeysAction } from "./redux-offline/api-keys/api-keys.actions";
+import { listContactsAction } from "./redux-offline/contacts/contacts.actions";
+import { listDrivesAction } from "./redux-offline/drives/drives.actions";
+import { listGroupsAction } from "./redux-offline/groups/groups.actions";
+import { listGroupInvitesAction } from "./redux-offline/group-invites/group-invites.actions";
+import { listLabelsAction } from "./redux-offline/labels/labels.actions";
+import { listWebhooksAction } from "./redux-offline/webhooks/webhooks.actions";
 
 function App() {
   const [emvMnemonic, setEvmMnemonic] = useState<string | null>(null);
   const [icpMnemonic, setIcpMnemonic] = useState<string | null>(null);
-  const { currentProfile } = useIdentitySystem();
+  const { currentProfile, currentOrg } = useIdentitySystem();
   const { evmPublicKey, icpPublicKey, slug } = currentProfile || {};
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const _evmMnemonic = localStorage.getItem(LOCAL_STORAGE_SEED_PHRASE);
@@ -25,6 +36,7 @@ function App() {
     if (_icpMnemonic) {
       setIcpMnemonic(_icpMnemonic);
     }
+    fetchAllResources();
     setupFreeTrialStorj();
   }, []);
 
@@ -46,6 +58,16 @@ function App() {
       });
     }
   }, [evmPublicKey, icpPublicKey, slug, ref]);
+
+  const fetchAllResources = useCallback(() => {
+    if (currentProfile && currentOrg) {
+      dispatch(listContactsAction({}));
+      dispatch(listDisksAction({}));
+      dispatch(listDrivesAction({}));
+      dispatch(listGroupsAction({}));
+      dispatch(listLabelsAction({}));
+    }
+  }, [currentOrg, currentProfile]);
 
   return (
     <div style={{ height: "100vh", maxHeight: "100vh", overflow: "hidden" }}>

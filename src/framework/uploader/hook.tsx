@@ -25,14 +25,19 @@ import { Observable } from "rxjs";
 import {
   defaultBrowserCacheDiskID,
   defaultBrowserCacheRootFolderID,
+  defaultTempCloudSharingDiskID,
   defaultTempCloudSharingRootFolderID,
 } from "../../api/dexie-database";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
 import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useParams } from "react-router-dom";
 import { set } from "lodash";
+import { useIdentitySystem } from "../identity";
+import { listDisksAction } from "../../redux-offline/disks/disks.actions";
+import { CloudS3Adapter } from "./adapters/clouds3.adapter";
+import { CanisterAdapter } from "./adapters/canister.adapter";
 
 // Add missing CanisterAdapter configuration type
 interface CanisterAdapterConfig {
@@ -65,6 +70,7 @@ interface MultiUploaderContextType {
     diskID: DiskID,
     options?: Partial<BatchUploadConfig>
   ) => UploadID[];
+  registerDefaultAdapters: () => Promise<void>;
   pauseUpload: (id: UploadID) => Promise<boolean>;
   resumeUpload: (id: UploadID, file: File) => Promise<boolean>;
   cancelUpload: (id: UploadID) => Promise<boolean>;
@@ -109,6 +115,7 @@ const defaultContextValue: MultiUploaderContextType = {
   uploadFiles: () => {
     throw new Error("MultiUploaderProvider not initialized");
   },
+  registerDefaultAdapters: () => Promise.resolve(),
   pauseUpload: () => Promise.resolve(false),
   resumeUpload: () => Promise.resolve(false),
   cancelUpload: () => Promise.resolve(false),
@@ -135,6 +142,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   children,
   autoInit = true,
 }) => {
+  const { currentOrg, currentProfile, currentAPIKey } = useIdentitySystem();
   const [isInitialized, setIsInitialized] = useState(false);
   const uploadManagerRef = useRef<UploadManager>();
   const { "*": encodedPath } = useParams<{ "*": string }>();
@@ -142,7 +150,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     defaultContextValue.progress
   );
   const [currentUploads, setCurrentUploads] = useState<QueuedUploadItem[]>([]);
-
+  const dispatch = useDispatch();
   const { disks, defaultDisk } = useSelector((state: ReduxAppState) => ({
     defaultDisk: state.disks.defaultDisk,
     disks: state.disks.disks,
@@ -153,9 +161,29 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   const [uploadTargetFolderID, setUploadTargetFolderID] =
     useState<FolderID | null>(null);
   const [currentFileID, setCurrentFileID] = useState<FileID | null>(null);
-
+  const [registeredDefaultAdapters, setRegisteredDefaultAdapters] =
+    useState(false);
   const uploadTargetDisk =
     disks.find((d) => d.id === uploadTargetDiskID) || defaultDisk;
+
+  const DEFAULT_ADAPTER_CONFIGS = {
+    // IndexedDB adapter config
+    [defaultBrowserCacheDiskID]: {
+      databaseName: `officex-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`,
+      objectStoreName: "files",
+    },
+    // S3 adapter config for Storj
+    [defaultTempCloudSharingDiskID]: {
+      diskID: defaultTempCloudSharingDiskID,
+      endpoint: "https://gateway.storjshare.io",
+      region: "us-east-1",
+      accessKeyId: "jwu43kry2lja5z27c5mwfwxxkvea",
+      secretAccessKey: "j37zrkuw7e2rvxywqmidx6gcmqf64brxygvbqhgiaotcfv47telme",
+      bucket: "officex",
+      useMultipartUpload: true,
+      partSize: 5 * 1024 * 1024, // 5MB parts
+    },
+  };
 
   useEffect(() => {
     const pathParts = window.location.pathname.split("/").filter(Boolean);
@@ -195,16 +223,164 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     }
   }, [window.location.pathname, disks]);
 
+  const registerDefaultAdapters = async () => {
+    if (
+      !uploadManagerRef.current ||
+      !isInitialized ||
+      !currentOrg ||
+      !currentProfile ||
+      registeredDefaultAdapters
+    ) {
+      console.log(`did not qualify! 
+        
+        uploadManagerRef.current: ${uploadManagerRef.current?.getRegisteredAdapters()}
+        isInitialized: ${isInitialized}
+        currentOrg: ${currentOrg}
+        currentProfile: ${currentProfile}
+        registeredDefaultAdapters: ${registeredDefaultAdapters}
+        
+        `);
+      return;
+    }
+
+    console.log("Trying to Registering default adapters for disks");
+
+    try {
+      // Get currently registered adapters
+      const registeredAdapters =
+        uploadManagerRef.current.getRegisteredAdapters();
+
+      const registeredDiskIds = new Set(
+        registeredAdapters.map((adapter) => adapter.diskID)
+      );
+
+      // Process all disks from the Redux store
+      for (const disk of disks) {
+        const diskId = disk.id;
+        const diskType = disk.disk_type as DiskTypeEnum;
+
+        // Skip if this disk already has a registered adapter
+        if (registeredDiskIds.has(diskId)) {
+          // console.log(`Adapter already registered for disk: ${diskId}`);
+          continue;
+        }
+
+        try {
+          if (disk.id === defaultBrowserCacheDiskID) {
+            const indexedDBAdapter = new IndexedDBAdapter();
+            await uploadManagerRef.current.registerAdapter(
+              indexedDBAdapter,
+              DiskTypeEnum.BrowserCache,
+              defaultBrowserCacheDiskID,
+              DEFAULT_ADAPTER_CONFIGS[defaultBrowserCacheDiskID],
+              2, // Concurrency
+              2 // Priority
+            );
+            // console.log(
+            //   `Registered default IndexedDB adapter for ${defaultBrowserCacheDiskID}`
+            // );
+            continue;
+          } else if (disk.id === defaultTempCloudSharingDiskID) {
+            const localS3Adapter = new LocalS3Adapter();
+            await uploadManagerRef.current.registerAdapter(
+              localS3Adapter,
+              DiskTypeEnum.StorjWeb3,
+              defaultTempCloudSharingDiskID,
+              DEFAULT_ADAPTER_CONFIGS[defaultTempCloudSharingDiskID],
+              3, // Concurrency
+              1 // Priority
+            );
+
+            // console.log(
+            //   `Registered default LocalS3 adapter for ${defaultTempCloudSharingDiskID}`
+            // );
+            continue;
+          } else if (diskType === DiskTypeEnum.IcpCanister) {
+            const canisterAdapter = new CanisterAdapter();
+            const canisterConfig = {
+              diskID: diskId,
+              endpoint: currentOrg.endpoint,
+              apiKey: currentAPIKey?.value,
+              maxChunkSize: (1 * 1024 * 1024) / 2, // 0.5MB
+            };
+            await registerAdapter(
+              canisterAdapter,
+              DiskTypeEnum.IcpCanister,
+              diskId,
+              canisterConfig,
+              3 // Concurrency
+            );
+            // console.log(`Registered ICP adapter for disk: ${diskId}`);
+            continue;
+          } else if (diskType === DiskTypeEnum.StorjWeb3) {
+            const cloudS3Adapter = new CloudS3Adapter();
+            const cloudS3Config = {
+              endpoint: `${currentOrg.endpoint}/v1/default`,
+              maxChunkSize: 5 * 1024 * 1024,
+              rawUrlProxyPath: `/v1/${currentOrg.driveID}/directory/asset/`,
+              apiKey: currentAPIKey?.value,
+            };
+            // Register the adapter
+            await registerAdapter(
+              cloudS3Adapter,
+              DiskTypeEnum.StorjWeb3,
+              diskId,
+              cloudS3Config,
+              3 // Concurrency
+            );
+            // console.log(`Registered StorjWeb3 adapter for disk: ${diskId}`);
+            continue;
+          } else if (diskType === DiskTypeEnum.AwsBucket) {
+            const cloudS3Adapter = new CloudS3Adapter();
+            const cloudS3Config = {
+              endpoint: `${currentOrg.endpoint}/v1/default`,
+              maxChunkSize: 5 * 1024 * 1024,
+              rawUrlProxyPath: `/v1/${currentOrg.driveID}/directory/asset/`,
+              apiKey: currentAPIKey?.value,
+            };
+            // Register the adapter
+            await registerAdapter(
+              cloudS3Adapter,
+              DiskTypeEnum.StorjWeb3,
+              diskId,
+              cloudS3Config,
+              3 // Concurrency
+            );
+            // console.log(`Registered AWS Bucket adapter for disk: ${diskId}`);
+            continue;
+          } else if (diskType === DiskTypeEnum.LocalSSD) {
+            console.log(`Registered LocalSSD adapter for disk: ${diskId}`);
+            continue;
+          }
+        } catch (error) {
+          console.error(`Error registering adapter for disk ${diskId}:`, error);
+        }
+      }
+      setRegisteredDefaultAdapters(true);
+      console.log("Default adapters registration complete");
+    } catch (error) {
+      console.error("Error during default adapter registration:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (currentProfile && currentOrg && isInitialized && disks.length > 0) {
+      registerDefaultAdapters();
+    }
+  }, [currentProfile, currentOrg, isInitialized, disks]);
+
   // Initialize the upload manager
   const initializeUploadManager = async () => {
+    console.log(`Initializing upload manager`);
     try {
       // Create new upload manager if it doesn't exist
       if (!uploadManagerRef.current) {
+        console.log(`Creating new upload manager`);
         uploadManagerRef.current = new UploadManager();
       }
 
       const manager = uploadManagerRef.current;
-
+      console.log(`Upload manager used`, manager);
       // Subscribe to progress updates
       const subscription = manager.getProgress().subscribe((progress) => {
         setProgress(progress);
@@ -283,7 +459,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     progress,
     currentUploads,
     registerAdapter,
-
+    registerDefaultAdapters,
     // Upload methods
     uploadFile: (file, uploadPath, diskType, diskID, options) => {
       if (!uploadManagerRef.current)

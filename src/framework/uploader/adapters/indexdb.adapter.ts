@@ -55,12 +55,12 @@ export class IndexedDBAdapter implements IUploadAdapter {
       this.FILES_STORE_NAME = config.objectStoreName || this.FILES_STORE_NAME;
     }
 
-    console.log(`Initializing IndexedDB adapter with:
-        - Database: ${this.DB_NAME}
-        - Files store: ${this.FILES_STORE_NAME}
-        - Chunks store: ${this.CHUNKS_STORE_NAME}
-        - Metadata store: ${this.METADATA_STORE_NAME}
-      `);
+    // console.log(`Initializing IndexedDB adapter with:
+    //     - Database: ${this.DB_NAME}
+    //     - Files store: ${this.FILES_STORE_NAME}
+    //     - Chunks store: ${this.CHUNKS_STORE_NAME}
+    //     - Metadata store: ${this.METADATA_STORE_NAME}
+    //   `);
 
     return new Promise((resolve, reject) => {
       try {
@@ -87,13 +87,13 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
         request.onsuccess = (event) => {
           this.db = (event.target as IDBOpenDBRequest).result;
-          console.log("IndexedDB opened successfully");
+          // console.log("IndexedDB opened successfully");
 
           // Log existing stores for debugging
-          console.log(
-            "Available object stores:",
-            Array.from(this.db.objectStoreNames)
-          );
+          // console.log(
+          //   "Available object stores:",
+          //   Array.from(this.db.objectStoreNames)
+          // );
 
           // Check if all required stores exist
           const requiredStores = [
@@ -120,12 +120,12 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
             reopenRequest.onupgradeneeded = (event) => {
               const db = (event.target as IDBOpenDBRequest).result;
-              console.log("Creating missing object stores");
+              // console.log("Creating missing object stores");
 
               // Create missing stores
               for (const storeName of missingStores) {
                 if (!db.objectStoreNames.contains(storeName)) {
-                  console.log(`Creating object store: ${storeName}`);
+                  // console.log(`Creating object store: ${storeName}`);
                   db.createObjectStore(storeName, { keyPath: "id" });
                 }
               }
@@ -133,11 +133,11 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
             reopenRequest.onsuccess = (event) => {
               this.db = (event.target as IDBOpenDBRequest).result;
-              console.log("IndexedDB reopened with all required stores");
-              console.log(
-                "Available object stores:",
-                Array.from(this.db.objectStoreNames)
-              );
+              // console.log("IndexedDB reopened with all required stores");
+              // console.log(
+              //   "Available object stores:",
+              //   Array.from(this.db.objectStoreNames)
+              // );
               resolve();
             };
 
@@ -152,13 +152,13 @@ export class IndexedDBAdapter implements IUploadAdapter {
             };
           } else {
             // All required stores exist
-            console.log("All required object stores found");
+            // console.log("All required object stores found");
             resolve();
           }
         };
 
         request.onupgradeneeded = (event) => {
-          console.log("Upgrading IndexedDB database structure");
+          // console.log("Upgrading IndexedDB database structure");
           const db = (event.target as IDBOpenDBRequest).result;
 
           // Create all required stores if they don't exist
@@ -217,9 +217,9 @@ export class IndexedDBAdapter implements IUploadAdapter {
     const uploadId =
       (config.metadata?.id as UploadID) || (uuidv4() as UploadID);
 
-    console.log(
-      `IndexedDBAdapter: Starting upload with ID: ${uploadId} for file: ${config.file.name}`
-    );
+    // console.log(
+    //   `IndexedDBAdapter: Starting upload with ID: ${uploadId} for file: ${config.file.name}`
+    // );
 
     // Create progress subject
     const progress = new Subject<UploadProgressInfo>();

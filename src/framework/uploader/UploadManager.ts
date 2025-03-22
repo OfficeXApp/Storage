@@ -125,7 +125,8 @@ export class UploadManager {
       config,
     });
 
-    console.log(`Registered upload adapter for ${diskType}`);
+    console.log(`Registered upload adapter for ${diskID}`);
+    console.log(`this.adapters`, this.adapters);
   }
 
   /**
@@ -146,7 +147,7 @@ export class UploadManager {
     // Generate a unique ID for this upload
     const id = (options.metadata?.id as UploadID) || (uuidv4() as UploadID);
 
-    console.log(`Creating upload with ID: ${id} for file: ${file.name}`);
+    // console.log(`Creating upload with ID: ${id} for file: ${file.name}`);
 
     const config: UploadConfig = {
       file,
@@ -568,6 +569,7 @@ export class UploadManager {
    * Get information about available upload adapters
    */
   public getRegisteredAdapters(): AdapterRegistration[] {
+    console.log(`++++++ this.adapters`, this.adapters);
     return Array.from(this.adapters.values());
   }
 

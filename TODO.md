@@ -5,7 +5,8 @@
 The large sprints of work are:
 
 - [x] Create a unified provider for handling uploads to different end destinations
-- [🔵] Cleanup/refactor directory reducers & optimistic middleware to handle the diverse file uploading
+- [x] Cleanup/refactor directory reducers & optimistic middleware to handle the diverse file uploading
+- [🔵] Implement actual file uploading & panel showing progress
 
 1. Directory navigation & interaction (1-2 days)
 1. Invite system with smooth onboarding & sharing (1-2 days)

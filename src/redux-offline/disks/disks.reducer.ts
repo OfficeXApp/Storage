@@ -136,6 +136,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     // ------------------------------ LIST DISKS --------------------------------- //
 
     case LIST_DISKS: {
+      console.log(`LIST_DISKS reducer`, action);
       const DEFAULT_DISK_ID = localStorage.getItem(
         LOCALSTORAGE_DEFAULT_DISK_ID
       );
@@ -152,6 +153,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case LIST_DISKS_COMMIT: {
+      console.log(`LIST_DISKS_COMMIT reducer`, action);
       // Get items from the API response
       const serverDisks = action.payload.ok.data.items || [];
 
@@ -197,6 +199,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case LIST_DISKS_ROLLBACK: {
+      console.log(`LIST_DISKS_ROLLBACK reducer`, action);
       if (!action.payload.response) return state;
       return {
         ...state,

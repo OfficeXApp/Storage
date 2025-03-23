@@ -157,16 +157,21 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [singleFile, setSingleFile] = useState<FileRecord | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (listDirectoryResults) {
       const { folders, files } = listDirectoryResults;
       setContent({ folders, files });
+      setIsLoading(false);
+      setIs404NotFound(false);
     }
   }, [listDirectoryResults]);
 
   // Show notification for Web3Storj free trial
   useEffect(() => {
+    console.log(`====location`, location);
+
     const path = encodedPath ? decodeURIComponent(encodedPath) : "";
     const pathParts = path.split("/").filter(Boolean);
 
@@ -178,8 +183,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
     if (location.pathname === "/drive" || pathParts.length === 0) {
       setListDirectoryKey("");
-      const listParams: IRequestListDisks = {};
-      dispatch(listDisksAction(listParams));
+      setCurrentFolderId(null);
+      setCurrentFileId(null);
+      setIsLoading(false);
+      setIs404NotFound(false);
+      fetchContent({});
     } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
@@ -224,6 +232,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
+      setIsLoading(true);
       fetchContent({
         targetFolderId: folderId,
       });
@@ -232,18 +241,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setCurrentFolderId(null);
       setCurrentFileId(fileId);
       fetchFileById(fileId);
+      setIsLoading(true);
     }
 
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
     //   setIsStorjModalVisible(true);
     // }
   }, [location, encodedPath]);
-
-  useEffect(() => {
-    if (disks && disks.length > 0 && location.pathname === "/drive") {
-      fetchContent({});
-    }
-  }, [disks]);
 
   const fetchFileById = (fileId: FileID) => {
     try {
@@ -265,6 +269,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setTimeout(() => {
         if (!singleFile) {
           setIs404NotFound(true);
+          setIsLoading(false);
         }
       }, 3000);
     } catch (error) {
@@ -329,6 +334,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           })),
           files: [],
         });
+        setIsLoading(false);
         return;
       }
 
@@ -611,20 +617,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
-    if (!currentFolderId) {
-      // At root, showing disks
-      return content.folders.map((f) => ({
-        id: f.id,
-        title: f.name,
-        owner: f.created_by,
-        isFolder: true,
-        fullPath: f.full_directory_path,
-        diskID: f.disk_id,
-        isDisabled: false,
-      }));
-    }
-
-    // In a folder, showing folders and files
     return [
       ...content.folders.map((f) => ({
         id: f.id,
@@ -645,7 +637,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         isDisabled: false,
       })),
     ];
-  }, [content, currentFolderId]);
+  }, [content, currentFolderId, disks]);
 
   const handleRenameChange = (id: string, newName: string) => {
     setRenamingItems((prev) => ({ ...prev, [id]: newName }));

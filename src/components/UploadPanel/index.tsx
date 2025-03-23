@@ -126,13 +126,9 @@ const UploadPanel: React.FC<{
     setSelectedFiles([]);
   };
 
-  const handleViewFile = (
-    filePath: string,
-    storageLocation: DiskTypeEnum,
-    diskID: string
-  ) => {
-    const basePath = `/drive/${diskID}`;
-    return `${basePath}${filePath}`;
+  const handleViewFile = (fileID: FileID, diskID: string) => {
+    const path = `/drive/${diskID}/${fileID}`;
+    return path;
   };
 
   const menuItems = (
@@ -142,11 +138,7 @@ const UploadPanel: React.FC<{
   ) => [
     {
       key: "1",
-      label: (
-        <Link to={handleViewFile(filePath, storageLocation, diskID)}>
-          View File
-        </Link>
-      ),
+      label: <Link to={handleViewFile(filePath, diskID)}>View File</Link>,
     },
   ];
 
@@ -299,20 +291,12 @@ const UploadPanel: React.FC<{
               dataSource={currentUploads}
               renderItem={(item) => (
                 <Link
-                  to={handleViewFile(
-                    item.config.uploadPath,
-                    item.config.diskType,
-                    item.config.diskID
-                  )}
+                  to={handleViewFile(item.config.fileID, item.config.diskID)}
                 >
                   <List.Item
                     key={item.id}
                     onClick={() =>
-                      handleViewFile(
-                        item.config.uploadPath,
-                        item.config.diskType,
-                        item.config.diskID
-                      )
+                      handleViewFile(item.config.fileID, item.config.diskID)
                     }
                     actions={[
                       <Dropdown

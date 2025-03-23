@@ -157,11 +157,13 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     disks: state.disks.disks,
   }));
   const [uploadTargetDiskID, setUploadTargetDiskID] = useState<DiskID | null>(
-    null
+    defaultBrowserCacheDiskID
   );
   const [uploadTargetFolderID, setUploadTargetFolderID] =
     useState<FolderID | null>(null);
-  const [currentFileID, setCurrentFileID] = useState<FileID | null>(null);
+  const [currentFileID, setCurrentFileID] = useState<FileID | null>(
+    defaultBrowserCacheRootFolderID
+  );
   const [registeredDefaultAdapters, setRegisteredDefaultAdapters] =
     useState(false);
   const uploadTargetDisk =
@@ -465,6 +467,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     },
 
     uploadFiles: (files, uploadPath, diskType, diskID, options) => {
+      console.log(`diskID`, diskID);
       if (!uploadManagerRef.current)
         throw new Error("Upload manager not initialized");
       return uploadManagerRef.current.uploadFiles(

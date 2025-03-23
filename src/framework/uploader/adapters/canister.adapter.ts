@@ -135,7 +135,7 @@ export class CanisterAdapter implements IUploadAdapter {
       // Store metadata for resume capability
       const metadata: ResumableUploadMetadata = {
         id: uploadId,
-        fileID: config.fileID,
+        fileID: fileId || config.fileID,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
@@ -147,7 +147,7 @@ export class CanisterAdapter implements IUploadAdapter {
         uploadedChunks: [],
         totalChunks,
         chunkSize,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
         customMetadata: { ...config.metadata, fileId },
       };
 
@@ -204,7 +204,7 @@ export class CanisterAdapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime,
           diskType: config.diskType,
-          uploadPath: config.uploadPath,
+          parentFolderID: config.parentFolderID,
         };
 
         progressSubject.next(progress);
@@ -224,7 +224,7 @@ export class CanisterAdapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       };
 
       progressSubject.next(finalProgress);
@@ -249,7 +249,7 @@ export class CanisterAdapter implements IUploadAdapter {
     file: File,
     config: UploadConfig,
     uploadId: UploadID
-  ): Promise<string> {
+  ): Promise<FileID> {
     try {
       // Generate a file ID or use the one from metadata
       const fileID = config.fileID || GenerateID.File();
@@ -267,7 +267,7 @@ export class CanisterAdapter implements IUploadAdapter {
         payload: {
           id: fileID,
           name: file.name,
-          parent_folder_uuid: config.uploadPath,
+          parent_folder_uuid: config.parentFolderID,
           extension: file.name.split(".").pop() || "",
           labels: [],
           file_size: file.size,
@@ -421,7 +421,7 @@ export class CanisterAdapter implements IUploadAdapter {
         startTime: Date.now(),
         diskType: DiskTypeEnum.IcpCanister,
         errorMessage: "No resumable upload metadata found",
-        uploadPath: "",
+        parentFolderID: "",
       });
     }
 
@@ -438,7 +438,7 @@ export class CanisterAdapter implements IUploadAdapter {
         startTime: Date.now(),
         diskType: metadata.diskType,
         errorMessage: "File does not match the paused upload",
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       });
     }
 
@@ -513,7 +513,7 @@ export class CanisterAdapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime: metadata.uploadStartTime,
         diskType: metadata.diskType,
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       });
 
       // Process each remaining chunk
@@ -567,7 +567,7 @@ export class CanisterAdapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime: metadata.uploadStartTime,
           diskType: metadata.diskType,
-          uploadPath: metadata.uploadPath,
+          parentFolderID: metadata.parentFolderID,
         };
 
         progressSubject.next(progress);
@@ -587,7 +587,7 @@ export class CanisterAdapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime: metadata.uploadStartTime,
           diskType: metadata.diskType,
-          uploadPath: metadata.uploadPath,
+          parentFolderID: metadata.parentFolderID,
         };
 
         progressSubject.next(finalProgress);
@@ -702,7 +702,7 @@ export class CanisterAdapter implements IUploadAdapter {
       bytesTotal: metadata.fileSize,
       startTime: metadata.uploadStartTime,
       diskType: metadata.diskType,
-      uploadPath: metadata.uploadPath,
+      parentFolderID: metadata.parentFolderID,
     };
   }
 

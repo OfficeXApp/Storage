@@ -12,8 +12,12 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskTypeEnum, FileID } from "@officexapp/types";
+import { DiskTypeEnum, FileID, GenerateID } from "@officexapp/types";
 import { defaultBrowserCacheDiskID } from "../../../api/dexie-database";
+import {
+  CREATE_FILE,
+  createFileAction,
+} from "../../../redux-offline/directory/directory.actions";
 
 /**
  * Adapter for uploading files to IndexedDB
@@ -206,7 +210,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         startTime: Date.now(),
         diskType: config.diskType,
         errorMessage: "IndexedDB not initialized",
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       }).pipe(
         tap(() => {
           console.error("IndexedDB not initialized");
@@ -254,27 +258,74 @@ export class IndexedDBAdapter implements IUploadAdapter {
     );
   }
 
+  private async createFileRecord(
+    file: File,
+    config: UploadConfig,
+    uploadId: UploadID
+  ): Promise<FileID> {
+    try {
+      // Generate a file ID or use the one from metadata
+      const fileID = config.fileID || GenerateID.File();
+
+      // Need dispatch function to be in metadata for Redux integration
+      if (!config.metadata?.dispatch) {
+        throw new Error("Redux dispatch function is required in the metadata");
+      }
+
+      const dispatch = config.metadata.dispatch;
+
+      // Prepare the create file action
+      const createAction = {
+        action: CREATE_FILE as "CREATE_FILE",
+        payload: {
+          id: fileID,
+          name: file.name,
+          parent_folder_uuid: config.parentFolderID,
+          extension: file.name.split(".").pop() || "",
+          labels: [],
+          file_size: file.size,
+          disk_id: config.diskID,
+        },
+      };
+
+      // console.log("Creating file record with action:", createAction);
+
+      // Dispatch action to create file record
+      dispatch(createFileAction(createAction, undefined, true));
+
+      // Wait for the record to be created
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return fileID;
+    } catch (error) {
+      console.error("Error creating file record:", error);
+      throw error;
+    }
+  }
+
   /**
    * Process the upload with chunking
    */
-  private processUpload(
+  private async processUpload(
     uploadId: UploadID,
     file: File,
     config: UploadConfig,
     progressSubject: Subject<UploadProgressInfo>,
     signal: AbortSignal,
     chunkSize: number
-  ): void {
+  ): Promise<void> {
     // Calculate total chunks
     const totalChunks = Math.ceil(file.size / chunkSize);
     let chunksUploaded = 0;
     let bytesUploaded = 0;
     const startTime = Date.now();
 
+    const fileId = await this.createFileRecord(file, config, uploadId);
+
     // Store metadata for resume capability
     const metadata: ResumableUploadMetadata = {
       id: uploadId,
-      fileID: config.fileID,
+      fileID: fileId || config.fileID,
       fileName: file.name,
       fileSize: file.size,
       fileType: file.type,
@@ -286,7 +337,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
       uploadedChunks: [],
       totalChunks,
       chunkSize,
-      uploadPath: config.uploadPath,
+      parentFolderID: config.parentFolderID,
       customMetadata: config.metadata,
     };
 
@@ -315,7 +366,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
       try {
         // Store the chunk - wait for it to complete
-        await this.storeChunk(uploadId, chunkIndex, chunk);
+        await this.storeChunk(uploadId, config.fileID, chunkIndex, chunk);
 
         // Update progress
         chunksUploaded++;
@@ -340,14 +391,14 @@ export class IndexedDBAdapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime,
           diskType: config.diskType,
-          uploadPath: config.uploadPath,
+          parentFolderID: config.parentFolderID,
         };
 
         progressSubject.next(progress);
 
         // If all chunks uploaded, finalize
         if (chunksUploaded === totalChunks) {
-          await this.finalizeUpload(uploadId, file, config);
+          await this.finalizeUpload(uploadId, config.fileID, file, config);
           progressSubject.complete();
         } else {
           // Process next chunk
@@ -365,6 +416,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
    */
   private storeChunk(
     uploadId: UploadID,
+    fileID: FileID,
     chunkIndex: number,
     chunkBlob: Blob
   ): Promise<void> {
@@ -390,8 +442,8 @@ export class IndexedDBAdapter implements IUploadAdapter {
           const store = transaction.objectStore(this.CHUNKS_STORE_NAME);
 
           const request = store.put({
-            id: `${uploadId}_chunk_${chunkIndex}`,
-            uploadId,
+            id: `${fileID}_chunk_${chunkIndex}`,
+            fileID,
             chunkIndex,
             data: new Uint8Array(chunkData),
             timestamp: Date.now(),
@@ -445,6 +497,12 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return;
       }
 
+      const safeMetadata = { ...metadata };
+      // @ts-ignore
+      delete safeMetadata.customMetadata.dispatch;
+      console.log(`metadata`, metadata);
+      console.log(`safeMetadata`, safeMetadata);
+
       const transaction = this.db.transaction(
         [this.METADATA_STORE_NAME],
         "readwrite"
@@ -453,8 +511,8 @@ export class IndexedDBAdapter implements IUploadAdapter {
       const store = transaction.objectStore(this.METADATA_STORE_NAME);
 
       const request = store.put({
-        ...metadata,
-        id: metadata.id,
+        ...safeMetadata,
+        id: safeMetadata.fileID,
         timestamp: Date.now(),
       });
 
@@ -487,6 +545,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
    */
   private finalizeUpload(
     uploadId: UploadID,
+    fileID: FileID,
     file: File,
     config: UploadConfig
   ): Promise<void> {
@@ -505,12 +564,12 @@ export class IndexedDBAdapter implements IUploadAdapter {
       const store = transaction.objectStore(this.FILES_STORE_NAME);
 
       const fileData = {
-        id: uploadId, // Make sure we're using the same ID as used elsewhere
+        id: fileID, // Make sure we're using the same ID as used elsewhere
         name: file.name,
         size: file.size,
         type: file.type,
         lastModified: file.lastModified,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
         uploadComplete: true,
         uploadCompletedAt: Date.now(),
         metadata: config.metadata || {},
@@ -525,7 +584,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
         // Generate thumbnail if it's an image (after resolving)
         if (file.type.startsWith("image/")) {
-          this.generateThumbnail(uploadId, file).catch((err) =>
+          this.generateThumbnail(fileID, file).catch((err) =>
             console.warn("Failed to generate thumbnail:", err)
           );
         }
@@ -533,7 +592,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
       request.onerror = (event) => {
         const error = (event.target as IDBRequest).error;
-        console.error(`Failed to save file metadata for ${uploadId}:`, error);
+        console.error(`Failed to save file metadata for ${fileID}:`, error);
         reject(
           new Error(
             `Failed to save file metadata: ${error?.message || "Unknown error"}`
@@ -543,10 +602,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
       transaction.onerror = (event) => {
         const error = (event.target as IDBTransaction).error;
-        console.error(
-          `Transaction error finalizing upload ${uploadId}:`,
-          error
-        );
+        console.error(`Transaction error finalizing upload ${fileID}:`, error);
         reject(error);
       };
     });
@@ -555,10 +611,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
   /**
    * Generate a thumbnail for image files
    */
-  private async generateThumbnail(
-    uploadId: UploadID,
-    file: File
-  ): Promise<void> {
+  private async generateThumbnail(fileID: FileID, file: File): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         reject(new Error("IndexedDB not initialized"));
@@ -617,8 +670,8 @@ export class IndexedDBAdapter implements IUploadAdapter {
               const store = transaction.objectStore(this.FILES_STORE_NAME);
 
               const request = store.put({
-                id: `${uploadId}_thumbnail`,
-                uploadId,
+                id: `${fileID}_thumbnail`,
+                fileID,
                 thumbnail: blob,
                 timestamp: Date.now(),
               });
@@ -706,8 +759,8 @@ export class IndexedDBAdapter implements IUploadAdapter {
               const store = transaction.objectStore(this.FILES_STORE_NAME);
 
               const request = store.put({
-                id: `${uploadId}_thumbnail`,
-                uploadId,
+                id: `${fileID}_thumbnail`,
+                fileID,
                 thumbnail: blob,
                 timestamp: Date.now(),
               });
@@ -771,7 +824,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         startTime: Date.now(),
         diskType: DiskTypeEnum.BrowserCache,
         errorMessage: "IndexedDB not initialized",
-        uploadPath: "",
+        parentFolderID: "",
       }).pipe(
         tap(() => {
           console.error("IndexedDB not initialized");
@@ -868,7 +921,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
       try {
         // Store the chunk
-        await this.storeChunk(uploadId, chunkIndex, chunk);
+        await this.storeChunk(uploadId, metadata.fileID, chunkIndex, chunk);
 
         // Update progress
         uploadedChunks.add(chunkIndex);
@@ -893,7 +946,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime: metadata.uploadStartTime,
           diskType: metadata.diskType,
-          uploadPath: metadata.uploadPath,
+          parentFolderID: metadata.parentFolderID,
         };
 
         progressSubject.next(progress);
@@ -903,14 +956,14 @@ export class IndexedDBAdapter implements IUploadAdapter {
           const config: UploadConfig = {
             file,
             fileID: metadata.fileID,
-            uploadPath: metadata.uploadPath,
+            parentFolderID: metadata.parentFolderID,
             diskType: metadata.diskType,
             diskID: defaultBrowserCacheDiskID,
             metadata: metadata.customMetadata,
             chunkSize: metadata.chunkSize,
           };
 
-          await this.finalizeUpload(uploadId, file, config);
+          await this.finalizeUpload(uploadId, metadata.fileID, file, config);
           progressSubject.complete();
         } else if (index < remainingChunks.length - 1) {
           // Process next chunk
@@ -930,14 +983,14 @@ export class IndexedDBAdapter implements IUploadAdapter {
       const config: UploadConfig = {
         file,
         fileID: metadata.fileID,
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
         diskType: metadata.diskType,
         diskID: defaultBrowserCacheDiskID,
         metadata: metadata.customMetadata,
         chunkSize: metadata.chunkSize,
       };
 
-      this.finalizeUpload(uploadId, file, config)
+      this.finalizeUpload(uploadId, metadata.fileID, file, config)
         .then(() => {
           // Emit final progress
           const progress: UploadProgressInfo = {
@@ -950,7 +1003,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
             bytesTotal: file.size,
             startTime: metadata.uploadStartTime,
             diskType: metadata.diskType,
-            uploadPath: metadata.uploadPath,
+            parentFolderID: metadata.parentFolderID,
           };
 
           progressSubject.next(progress);
@@ -1015,7 +1068,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
           bytesTotal: fileInfo.size,
           startTime: fileInfo.uploadCompletedAt - 1000, // Approximate
           diskType: DiskTypeEnum.BrowserCache,
-          uploadPath: fileInfo.uploadPath,
+          parentFolderID: fileInfo.parentFolderID,
         };
       }
 
@@ -1036,7 +1089,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
       bytesTotal: metadata.fileSize,
       startTime: metadata.uploadStartTime,
       diskType: metadata.diskType,
-      uploadPath: metadata.uploadPath,
+      parentFolderID: metadata.parentFolderID,
     };
   }
 
@@ -1090,7 +1143,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
    * Get metadata for resuming an upload
    */
   public async getResumableUploadMetadata(
-    id: UploadID
+    id: FileID
   ): Promise<ResumableUploadMetadata | null> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
@@ -1134,7 +1187,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
   /**
    * Clean up upload resources
    */
-  public async cleanup(id?: UploadID): Promise<void> {
+  public async cleanup(id?: FileID): Promise<void> {
     if (!this.db) {
       throw new Error("IndexedDB not initialized");
     }
@@ -1279,13 +1332,17 @@ export class IndexedDBAdapter implements IUploadAdapter {
         console.error(`Unable to determine total chunks for ${id}`);
         return null;
       }
+      if (!metadata) {
+        console.warn(`No metadata found for ${id}`);
+        return null;
+      }
 
       // console.log(`Reconstructing file ${id} with ${totalChunks} chunks`);
       const chunks: Uint8Array[] = [];
 
       // Get all chunks
       for (let i = 0; i < totalChunks; i++) {
-        const chunkData = await this.getChunk(id, i);
+        const chunkData = await this.getChunk(id, metadata.fileID, i);
         if (chunkData) {
           chunks.push(chunkData);
         } else {
@@ -1319,6 +1376,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
    */
   private getChunk(
     uploadId: UploadID,
+    fileID: FileID,
     chunkIndex: number
   ): Promise<Uint8Array | null> {
     return new Promise((resolve, reject) => {
@@ -1328,7 +1386,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return;
       }
 
-      const chunkId = `${uploadId}_chunk_${chunkIndex}`;
+      const chunkId = `${fileID}_chunk_${chunkIndex}`;
       // console.log(`Attempting to retrieve chunk ${chunkId}`);
 
       const transaction = this.db.transaction(
@@ -1392,8 +1450,11 @@ export class IndexedDBAdapter implements IUploadAdapter {
           const metadata = await this.getResumableUploadMetadata(id);
           const fileInfo = await this.getFileInfo(id);
 
-          if (!metadata && !fileInfo) {
+          if (!fileInfo) {
             throw new Error("File not found");
+          }
+          if (!metadata) {
+            throw new Error("Metadata not found");
           }
 
           const totalChunks =
@@ -1402,7 +1463,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
           // Stream each chunk
           for (let i = 0; i < totalChunks; i++) {
-            const chunkData = await this.getChunk(id, i);
+            const chunkData = await this.getChunk(id, metadata.fileID, i);
 
             if (chunkData) {
               controller.enqueue(chunkData);

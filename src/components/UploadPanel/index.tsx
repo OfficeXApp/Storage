@@ -30,6 +30,7 @@ import UploadDropZone from "../UploadDropZone";
 import useScreenType from "react-screentype-hook";
 import mixpanel from "mixpanel-browser";
 import { DiskTypeEnum, FileID, UserID } from "@officexapp/types";
+import { useDispatch } from "react-redux";
 
 const { Text } = Typography;
 
@@ -46,7 +47,7 @@ const UploadPanel: React.FC<{
     uploadTargetDisk,
     uploadTargetFolderID,
   } = useMultiUploader();
-
+  const dispatch = useDispatch();
   const screenType = useScreenType();
   const [selectedFiles, setSelectedFiles] = useState<UploadFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -101,6 +102,9 @@ const UploadPanel: React.FC<{
           {
             onFileComplete: (fileUUID) => {
               console.log(`Local callback: File ${fileUUID} upload completed`);
+            },
+            metadata: {
+              dispatch,
             },
           }
         );

@@ -146,7 +146,7 @@ export class LocalS3Adapter implements IUploadAdapter {
     this.activeUploads.set(uploadId, { controller, progress });
 
     // Determine key (S3 object path)
-    const key = this.getObjectKey(config.uploadPath, file.name);
+    const key = this.getObjectKey(config.parentFolderID, file.name);
 
     // Check if we should use multipart upload
     const useMultipartUpload =
@@ -213,7 +213,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       });
 
       // Read the file
@@ -261,7 +261,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       });
 
       progressSubject.complete();
@@ -331,7 +331,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         uploadedChunks: [],
         totalChunks: totalParts,
         chunkSize: partSize,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
         customMetadata: {
           ...config.metadata,
           s3Key: key,
@@ -422,7 +422,7 @@ export class LocalS3Adapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime,
           diskType: config.diskType,
-          uploadPath: config.uploadPath,
+          parentFolderID: config.parentFolderID,
         });
       }
 
@@ -468,7 +468,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       });
 
       progressSubject.complete();
@@ -519,7 +519,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         uploadedChunks: [],
         totalChunks: 1,
         chunkSize: file.size,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
         customMetadata: {
           ...config.metadata,
           s3Key: key,
@@ -621,7 +621,7 @@ export class LocalS3Adapter implements IUploadAdapter {
             bytesTotal: file.size,
             startTime: metadata.uploadStartTime,
             diskType: metadata.diskType,
-            uploadPath: metadata.uploadPath,
+            parentFolderID: metadata.parentFolderID,
           });
           progress.complete();
           return;
@@ -636,7 +636,7 @@ export class LocalS3Adapter implements IUploadAdapter {
             {
               file,
               fileID,
-              uploadPath: metadata.uploadPath,
+              parentFolderID: metadata.parentFolderID,
               diskType: metadata.diskType,
               diskID: metadata.diskID,
               metadata: metadata.customMetadata,
@@ -722,7 +722,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime: metadata.uploadStartTime,
         diskType: metadata.diskType,
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       });
 
       // Start from the beginning, skipping already uploaded parts
@@ -791,7 +791,7 @@ export class LocalS3Adapter implements IUploadAdapter {
           {
             file,
             fileID: metadata.fileID,
-            uploadPath: metadata.uploadPath,
+            parentFolderID: metadata.parentFolderID,
             diskType: metadata.diskType,
             diskID: metadata.diskID,
             metadata: metadata.customMetadata,
@@ -813,7 +813,7 @@ export class LocalS3Adapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime: metadata.uploadStartTime,
           diskType: metadata.diskType,
-          uploadPath: metadata.uploadPath,
+          parentFolderID: metadata.parentFolderID,
         });
       }
 
@@ -878,7 +878,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         {
           file,
           fileID: metadata.fileID,
-          uploadPath: metadata.uploadPath,
+          parentFolderID: metadata.parentFolderID,
           diskType: metadata.diskType,
           diskID: metadata.diskID,
           metadata: metadata.customMetadata,
@@ -899,7 +899,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime: metadata.uploadStartTime,
         diskType: metadata.diskType,
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       });
 
       progressSubject.complete();
@@ -1009,7 +1009,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: metadata.fileSize,
         startTime: metadata.uploadStartTime,
         diskType: metadata.diskType,
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       };
     } catch (error) {
       console.error("Error getting upload status:", error);
@@ -1153,9 +1153,9 @@ export class LocalS3Adapter implements IUploadAdapter {
   /**
    * Get an S3 object key from a path and filename
    */
-  private getObjectKey(uploadPath: string, fileName: string): string {
+  private getObjectKey(parentFolderID: string, fileName: string): string {
     // Normalize path (remove leading/trailing slashes)
-    const path = uploadPath.replace(/^\/+|\/+$/g, "");
+    const path = parentFolderID.replace(/^\/+|\/+$/g, "");
 
     return path ? `${path}/${fileName}` : fileName;
   }

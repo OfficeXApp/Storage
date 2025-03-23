@@ -132,7 +132,7 @@ export class UploadManager {
   /**
    * Upload a single file
    * @param file File to upload
-   * @param uploadPath Path where the file should be stored
+   * @param parentFolderID Path where the file should be stored
    * @param diskType Type of storage to use
    * @param options Additional upload options
    * @returns ID of the upload
@@ -140,7 +140,7 @@ export class UploadManager {
   public uploadFile(
     fileID: FileID,
     file: File,
-    uploadPath: string,
+    parentFolderID: string,
     diskType: DiskTypeEnum,
     diskID: DiskID,
     options: Partial<UploadConfig> = {}
@@ -153,7 +153,7 @@ export class UploadManager {
     const config: UploadConfig = {
       fileID,
       file,
-      uploadPath,
+      parentFolderID,
       diskType,
       diskID,
       chunkSize: options.chunkSize,
@@ -194,14 +194,14 @@ export class UploadManager {
   /**
    * Upload multiple files in a batch
    * @param files Array of files to upload
-   * @param uploadPath Base path for uploads
+   * @param parentFolderID Base path for uploads
    * @param diskType Storage type to use
    * @param options Batch upload options
    * @returns Array of upload IDs
    */
   public uploadFiles(
     files: { file: File; fileID: FileID }[],
-    uploadPath: string,
+    parentFolderID: string,
     diskType: DiskTypeEnum,
     diskID: DiskID,
     options: Partial<BatchUploadConfig> = {}
@@ -212,7 +212,7 @@ export class UploadManager {
       const id = this.uploadFile(
         file.fileID,
         file.file,
-        uploadPath,
+        parentFolderID,
         diskType,
         diskID,
         {
@@ -336,7 +336,7 @@ export class UploadManager {
       const config: UploadConfig = {
         file,
         fileID,
-        uploadPath: savedData.uploadPath,
+        parentFolderID: savedData.parentFolderID,
         diskType: savedData.diskType,
         diskID: savedData.diskID,
         chunkSize: savedData.chunkSize,
@@ -512,7 +512,7 @@ export class UploadManager {
           bytesTotal: queued.file.size,
           startTime: queued.startedAt || queued.addedAt,
           diskType: queued.config.diskType,
-          uploadPath: queued.config.uploadPath,
+          parentFolderID: queued.config.parentFolderID,
         };
       })
     );
@@ -1162,7 +1162,7 @@ export class UploadManager {
       config: {
         fileID: response.fileID,
         file,
-        uploadPath: response.uploadPath,
+        parentFolderID: response.parentFolderID,
         diskType: response.diskType,
         diskID: response.diskID,
       },

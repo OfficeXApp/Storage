@@ -1,6 +1,6 @@
 // src/framework/uploader/types.ts - Shared types for the upload system
 
-import { DiskID, DiskTypeEnum, FileID } from "@officexapp/types";
+import { DiskID, DiskTypeEnum, FileID, FolderID } from "@officexapp/types";
 import { Observable } from "rxjs";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
 import { ObjectCannedACL } from "@aws-sdk/client-s3";
@@ -49,7 +49,7 @@ export interface ResumableUploadMetadata {
   uploadedChunks: number[];
   totalChunks: number;
   chunkSize: number;
-  uploadPath: string;
+  parentFolderID: FolderID;
   customMetadata?: Record<string, any>;
 }
 
@@ -70,7 +70,7 @@ export interface UploadProgressInfo {
   diskType: DiskTypeEnum;
   errorMessage?: string;
   retryCount?: number;
-  uploadPath: string;
+  parentFolderID: FolderID;
 }
 
 /**
@@ -94,7 +94,7 @@ export interface AggregateUploadProgress {
 export interface UploadConfig {
   file: File;
   fileID: FileID;
-  uploadPath: string;
+  parentFolderID: FolderID;
   diskID: DiskID;
   diskType: DiskTypeEnum;
   chunkSize?: number;
@@ -111,7 +111,7 @@ export interface UploadConfig {
  */
 export interface BatchUploadConfig {
   files: File[];
-  uploadPath: string;
+  parentFolderID: FolderID;
   diskType: DiskTypeEnum;
   concurrency?: number;
   chunkSize?: number;
@@ -205,7 +205,7 @@ export interface UploadResponse {
   fileID: FileID;
   fileName: string;
   fileSize: number;
-  uploadPath: string;
+  parentFolderID: FolderID;
   diskType: DiskTypeEnum;
   diskID: DiskID;
   uploadStartTime: number;

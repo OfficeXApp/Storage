@@ -133,7 +133,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       });
 
       // Store metadata for limited resume capability
@@ -151,7 +151,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         uploadedChunks: [],
         totalChunks: 1, // Single chunk for non-multipart upload
         chunkSize: file.size,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
         customMetadata: {
           ...config.metadata,
           fileID,
@@ -188,7 +188,7 @@ export class CloudS3Adapter implements IUploadAdapter {
             bytesTotal: file.size,
             startTime,
             diskType: config.diskType,
-            uploadPath: config.uploadPath,
+            parentFolderID: config.parentFolderID,
           });
         },
         signal
@@ -208,7 +208,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       };
 
       progressSubject.next(finalProgress);
@@ -301,7 +301,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         payload: {
           id: fileID,
           name: file.name,
-          parent_folder_uuid: config.uploadPath,
+          parent_folder_uuid: config.parentFolderID,
           extension: file.name.split(".").pop() || "",
           labels: [],
           file_size: file.size,
@@ -492,7 +492,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         startTime: Date.now(),
         diskType: DiskTypeEnum.StorjWeb3,
         errorMessage: "No resumable upload metadata found",
-        uploadPath: "",
+        parentFolderID: "",
       });
       progress.complete();
       return progress;
@@ -513,7 +513,7 @@ export class CloudS3Adapter implements IUploadAdapter {
         startTime: Date.now(),
         diskType: metadata.diskType,
         errorMessage: "File does not match the paused upload",
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       });
       progress.complete();
       return progress;
@@ -536,7 +536,7 @@ export class CloudS3Adapter implements IUploadAdapter {
     const config: UploadConfig = {
       file,
       fileID,
-      uploadPath: metadata.uploadPath,
+      parentFolderID: metadata.parentFolderID,
       diskType: metadata.diskType,
       diskID: metadata.diskID,
       metadata: metadata.customMetadata,
@@ -603,7 +603,7 @@ export class CloudS3Adapter implements IUploadAdapter {
       bytesTotal: metadata.fileSize,
       startTime: metadata.uploadStartTime,
       diskType: metadata.diskType,
-      uploadPath: metadata.uploadPath,
+      parentFolderID: metadata.parentFolderID,
     };
   }
 

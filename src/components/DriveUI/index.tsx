@@ -144,6 +144,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
 
+  const getFileResult: FileFEO | undefined = useSelector(
+    (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
+  );
+
   const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
 
   const [content, setContent] = useState<{
@@ -168,10 +172,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     }
   }, [listDirectoryResults]);
 
+  useEffect(() => {
+    console.log(`====getFileResult for ${currentFileId}`, getFileResult);
+    if (currentFileId && !getFileResult) {
+      setIs404NotFound(true);
+      setIsLoading(false);
+    }
+  }, [getFileResult, currentFileId]);
+
   // Show notification for Web3Storj free trial
   useEffect(() => {
-    console.log(`====location`, location);
-
     const path = encodedPath ? decodeURIComponent(encodedPath) : "";
     const pathParts = path.split("/").filter(Boolean);
 
@@ -250,6 +260,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   }, [location, encodedPath]);
 
   const fetchFileById = (fileId: FileID) => {
+    console.log("Fetching file by ID:", fileId);
     try {
       // Create the get file action
       const getAction = {
@@ -264,14 +275,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
       // We'll rely on the useEffect that watches filesFromRedux to set the file
       // when it arrives from the Redux store after the action completes
-
-      // Set a timeout to show 404 if the file isn't found after a delay
-      setTimeout(() => {
-        if (!singleFile) {
-          setIs404NotFound(true);
-          setIsLoading(false);
-        }
-      }, 3000);
     } catch (error) {
       console.error("Error fetching file by ID:", error);
       setIs404NotFound(true);

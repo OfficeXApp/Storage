@@ -305,7 +305,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           case GET_FILE: {
             // Get cached data from IndexedDB
             const optimisticID = action.meta.optimisticID;
+            console.log("GET_FILE optimisticID", optimisticID);
             const cachedFile = await filesTable.get(optimisticID);
+            console.log("GET_FILE cachedFile", cachedFile);
             if (cachedFile) {
               enhancedAction = {
                 ...action,

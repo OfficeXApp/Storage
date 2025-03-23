@@ -84,7 +84,6 @@ const UploadPanel: React.FC<{
 
       const { uploadFolderPath, storageLocation, diskID } =
         getUploadFolderPath();
-      console.log(`uploadFolderPath: ${uploadFolderPath}`);
 
       // Create an array of file objects with generated FileIDs
       const uploadFilesArray = fileArray.map((file) => ({

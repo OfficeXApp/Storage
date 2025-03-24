@@ -160,7 +160,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     defaultBrowserCacheDiskID
   );
   const [uploadTargetFolderID, setUploadTargetFolderID] =
-    useState<FolderID | null>(null);
+    useState<FolderID | null>(defaultBrowserCacheRootFolderID);
   const [currentFileID, setCurrentFileID] = useState<FileID | null>(
     defaultBrowserCacheRootFolderID
   );
@@ -202,6 +202,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
           const resourceId = pathParts[2];
 
           if (resourceId && resourceId.startsWith("FolderID_")) {
+            console.log(`setting the parent folder`, resourceId);
             setUploadTargetFolderID(resourceId);
             setCurrentFileID(null);
           } else if (resourceId && resourceId.startsWith("FileID_")) {
@@ -468,6 +469,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
     uploadFiles: (files, uploadPath, diskType, diskID, options) => {
       console.log(`diskID`, diskID);
+      console.log(`options,`, options);
       if (!uploadManagerRef.current)
         throw new Error("Upload manager not initialized");
       return uploadManagerRef.current.uploadFiles(

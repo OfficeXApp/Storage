@@ -158,7 +158,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     {}
   );
   const [isStorjModalVisible, setIsStorjModalVisible] = useState(false);
-  const [singleFile, setSingleFile] = useState<FileRecord | null>(null);
+  const [singleFile, setSingleFile] = useState<FileFEO | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
   const [isLoading, setIsLoading] = useState(true);
@@ -173,10 +173,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   }, [listDirectoryResults]);
 
   useEffect(() => {
-    console.log(`====getFileResult for ${currentFileId}`, getFileResult);
     if (currentFileId && !getFileResult) {
       setIs404NotFound(true);
       setIsLoading(false);
+    } else if (currentFileId && getFileResult) {
+      setIs404NotFound(false);
+      setIsLoading(false);
+      setSingleFile(getFileResult);
     }
   }, [getFileResult, currentFileId]);
 
@@ -198,6 +201,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setIsLoading(false);
       setIs404NotFound(false);
       fetchContent({});
+      setSingleFile(null);
     } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
@@ -845,6 +849,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           ) : singleFile ? (
             <div style={{ padding: "20px" }}>
               {/* <FilePage file={singleFile} /> */}
+              {JSON.stringify(singleFile)}
             </div>
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>

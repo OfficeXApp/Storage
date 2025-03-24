@@ -218,7 +218,7 @@ export const createFileAction = (
   return {
     type: CREATE_FILE,
     meta: {
-      optimisticID: id,
+      optimisticID: action.payload.id,
       offline: {
         effect: {
           url: `/directory/action`,

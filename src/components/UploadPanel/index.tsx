@@ -31,6 +31,7 @@ import useScreenType from "react-screentype-hook";
 import mixpanel from "mixpanel-browser";
 import { DiskTypeEnum, FileID, UserID } from "@officexapp/types";
 import { useDispatch } from "react-redux";
+import { generateListDirectoryKey } from "../../redux-offline/directory/directory.actions";
 
 const { Text } = Typography;
 
@@ -55,9 +56,11 @@ const UploadPanel: React.FC<{
   const navigate = useNavigate();
   const location = useLocation();
 
-  const getUploadFolderPath = () => {
+  const getUploadFolderID = () => {
     // Get the current folder path
-    const uploadPath = uploadTargetFolderID ? `/${uploadTargetFolderID}` : "/";
+    const parentFolderID = uploadTargetFolderID
+      ? `${uploadTargetFolderID}`
+      : "root";
 
     // Get the storage location (disk type)
     const diskType = uploadTargetDisk
@@ -66,8 +69,8 @@ const UploadPanel: React.FC<{
     const diskID = uploadTargetDisk ? uploadTargetDisk.id : undefined;
 
     return {
-      uploadFolderPath: uploadPath,
-      storageLocation: diskType,
+      parentFolderID,
+      diskType,
       diskID,
     };
   };
@@ -83,8 +86,7 @@ const UploadPanel: React.FC<{
         }))
       );
 
-      const { uploadFolderPath, storageLocation, diskID } =
-        getUploadFolderPath();
+      const { parentFolderID, diskType, diskID } = getUploadFolderID();
 
       // Create an array of file objects with generated FileIDs
       const uploadFilesArray = fileArray.map((file) => ({
@@ -94,20 +96,18 @@ const UploadPanel: React.FC<{
 
       // Use uploadFiles from useMultiUploader
       if (diskID) {
-        uploadFiles(
-          uploadFilesArray,
-          uploadFolderPath,
-          storageLocation,
-          diskID,
-          {
-            onFileComplete: (fileUUID) => {
-              console.log(`Local callback: File ${fileUUID} upload completed`);
-            },
-            metadata: {
-              dispatch,
-            },
-          }
-        );
+        uploadFiles(uploadFilesArray, parentFolderID, diskType, diskID, {
+          onFileComplete: (fileUUID) => {
+            console.log(`Local callback: File ${fileUUID} upload completed`);
+          },
+          metadata: {
+            dispatch,
+          },
+          parentFolderID: uploadTargetFolderID || "",
+          listDirectoryKey: generateListDirectoryKey({
+            folder_id: uploadTargetFolderID || undefined,
+          }),
+        });
       } else {
         console.error("No disk ID available for upload");
       }

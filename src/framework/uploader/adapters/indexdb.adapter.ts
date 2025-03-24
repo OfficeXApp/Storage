@@ -198,6 +198,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
     file: File,
     config: UploadConfig
   ): Observable<UploadProgressInfo> {
+    console.log(`..uploadFile config`, config);
     if (!this.db) {
       return of({
         id: config.file.name as UploadID,
@@ -264,6 +265,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
     uploadId: UploadID
   ): Promise<FileID> {
     try {
+      console.log(`createFileRecord, config`, config);
       // Generate a file ID or use the one from metadata
       const fileID = config.fileID || GenerateID.File();
 
@@ -291,7 +293,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
       // console.log("Creating file record with action:", createAction);
 
       // Dispatch action to create file record
-      dispatch(createFileAction(createAction, undefined, true));
+      dispatch(createFileAction(createAction, config.listDirectoryKey, true));
 
       // Wait for the record to be created
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -321,6 +323,8 @@ export class IndexedDBAdapter implements IUploadAdapter {
     const startTime = Date.now();
 
     const fileId = await this.createFileRecord(file, config, uploadId);
+
+    console.log(`>> fileId`, fileId);
 
     // Store metadata for resume capability
     const metadata: ResumableUploadMetadata = {
@@ -555,7 +559,9 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return;
       }
 
-      // console.log(`Finalizing upload for ${uploadId} with file ${file.name}`);
+      console.log(
+        `Finalizing upload for ${uploadId} with file ${file.name} and id ${fileID}`
+      );
 
       const transaction = this.db.transaction(
         [this.FILES_STORE_NAME],
@@ -577,6 +583,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
 
       // console.log("Storing file metadata:", fileData);
       const request = store.put(fileData);
+      console.log(`WE GOT IT`);
 
       request.onsuccess = () => {
         // console.log(`File metadata stored successfully for ${uploadId}`);

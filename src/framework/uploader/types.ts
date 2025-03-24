@@ -104,6 +104,7 @@ export interface UploadConfig {
   retryLimit?: number;
   retryDelay?: number;
   skipDuplicates?: boolean;
+  listDirectoryKey?: string;
 }
 
 /**
@@ -121,6 +122,7 @@ export interface BatchUploadConfig {
   retryLimit?: number;
   retryDelay?: number;
   skipDuplicates?: boolean;
+  listDirectoryKey?: string;
 }
 
 /**

@@ -207,7 +207,7 @@ export class UploadManager {
     options: Partial<BatchUploadConfig> = {}
   ): UploadID[] {
     const ids: UploadID[] = [];
-
+    console.log(`upload option`, options);
     for (const file of files) {
       const id = this.uploadFile(
         file.fileID,

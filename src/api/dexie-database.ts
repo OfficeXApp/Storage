@@ -22,7 +22,6 @@ import {
   SYSTEM_PERMISSIONS_DEXIE_TABLE,
 } from "../redux-offline/permissions/permissions.reducer";
 import {
-  DIRECTORY_LIST_QUERY_RESULTS_TABLE,
   FILES_DEXIE_TABLE,
   FolderFEO,
   FOLDERS_DEXIE_TABLE,
@@ -103,8 +102,6 @@ class DexieManager {
       [SYSTEM_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
       [FILES_DEXIE_TABLE]: "id, folder_uuid, _syncConflict",
       [FOLDERS_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
-      [DIRECTORY_LIST_QUERY_RESULTS_TABLE]:
-        "listDirectoryKey, last_updated_date_ms",
     });
 
     // Set as current and return

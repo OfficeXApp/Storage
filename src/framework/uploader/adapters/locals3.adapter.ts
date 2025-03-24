@@ -30,7 +30,7 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, FileID } from "@officexapp/types";
 import { getMimeType } from "../helpers";
 
 /**
@@ -55,7 +55,7 @@ export class LocalS3Adapter implements IUploadAdapter {
    */
   public async initialize(config: LocalS3AdapterConfig): Promise<void> {
     if (this.s3Client) {
-      console.log("LocalS3Adapter already initialized");
+      // console.log("LocalS3Adapter already initialized");
       return;
     }
 
@@ -76,7 +76,7 @@ export class LocalS3Adapter implements IUploadAdapter {
     try {
       const command = new ListBucketsCommand({});
       await this.s3Client.send(command);
-      console.log("Successfully connected to S3");
+      // console.log("Successfully connected to S3");
 
       // Ensure bucket exists
       await this.ensureBucketExists(config.bucket);
@@ -98,14 +98,14 @@ export class LocalS3Adapter implements IUploadAdapter {
       // Check if bucket exists
       const command = new HeadBucketCommand({ Bucket: bucketName });
       await this.s3Client.send(command);
-      console.log(`Bucket ${bucketName} already exists.`);
+      // console.log(`Bucket ${bucketName} already exists.`);
     } catch (error) {
       if ((error as any).name === "NotFound") {
         try {
           // Create bucket if it doesn't exist
           const createCommand = new CreateBucketCommand({ Bucket: bucketName });
           await this.s3Client.send(createCommand);
-          console.log(`Created bucket: ${bucketName}`);
+          // console.log(`Created bucket: ${bucketName}`);
 
           // Wait a moment for bucket creation to propagate
           await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -124,6 +124,7 @@ export class LocalS3Adapter implements IUploadAdapter {
    * Upload a file to S3
    */
   public uploadFile(
+    fileID: FileID,
     file: File,
     config: UploadConfig
   ): Observable<UploadProgressInfo> {
@@ -145,7 +146,7 @@ export class LocalS3Adapter implements IUploadAdapter {
     this.activeUploads.set(uploadId, { controller, progress });
 
     // Determine key (S3 object path)
-    const key = this.getObjectKey(config.uploadPath, file.name);
+    const key = this.getObjectKey(config.parentFolderID, file.name);
 
     // Check if we should use multipart upload
     const useMultipartUpload =
@@ -204,6 +205,7 @@ export class LocalS3Adapter implements IUploadAdapter {
       // Send initial progress
       progressSubject.next({
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         state: UploadState.ACTIVE,
         progress: 0,
@@ -211,7 +213,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       });
 
       // Read the file
@@ -251,6 +253,7 @@ export class LocalS3Adapter implements IUploadAdapter {
       // Send completion progress
       progressSubject.next({
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         state: UploadState.COMPLETED,
         progress: 100,
@@ -258,7 +261,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       });
 
       progressSubject.complete();
@@ -316,6 +319,7 @@ export class LocalS3Adapter implements IUploadAdapter {
       // Save initial metadata for resume capability
       const metadata: ResumableUploadMetadata = {
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type || getMimeType(file),
@@ -327,7 +331,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         uploadedChunks: [],
         totalChunks: totalParts,
         chunkSize: partSize,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
         customMetadata: {
           ...config.metadata,
           s3Key: key,
@@ -410,6 +414,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         // Send progress update
         progressSubject.next({
           id: uploadId,
+          fileID: config.fileID,
           fileName: file.name,
           state: UploadState.ACTIVE,
           progress,
@@ -417,7 +422,7 @@ export class LocalS3Adapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime,
           diskType: config.diskType,
-          uploadPath: config.uploadPath,
+          parentFolderID: config.parentFolderID,
         });
       }
 
@@ -455,6 +460,7 @@ export class LocalS3Adapter implements IUploadAdapter {
       // Send completion progress
       progressSubject.next({
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         state: UploadState.COMPLETED,
         progress: 100,
@@ -462,7 +468,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       });
 
       progressSubject.complete();
@@ -501,6 +507,7 @@ export class LocalS3Adapter implements IUploadAdapter {
     try {
       const metadata: ResumableUploadMetadata = existingMetadata || {
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type || getMimeType(file),
@@ -512,7 +519,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         uploadedChunks: [],
         totalChunks: 1,
         chunkSize: file.size,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
         customMetadata: {
           ...config.metadata,
           s3Key: key,
@@ -562,6 +569,7 @@ export class LocalS3Adapter implements IUploadAdapter {
    */
   public resumeUpload(
     id: UploadID,
+    fileID: FileID,
     file: File
   ): Observable<UploadProgressInfo> {
     if (!this.s3Client || !this.config) {
@@ -605,6 +613,7 @@ export class LocalS3Adapter implements IUploadAdapter {
           // Already complete - just return 100%
           progress.next({
             id,
+            fileID,
             fileName: file.name,
             state: UploadState.COMPLETED,
             progress: 100,
@@ -612,7 +621,7 @@ export class LocalS3Adapter implements IUploadAdapter {
             bytesTotal: file.size,
             startTime: metadata.uploadStartTime,
             diskType: metadata.diskType,
-            uploadPath: metadata.uploadPath,
+            parentFolderID: metadata.parentFolderID,
           });
           progress.complete();
           return;
@@ -626,7 +635,8 @@ export class LocalS3Adapter implements IUploadAdapter {
             file,
             {
               file,
-              uploadPath: metadata.uploadPath,
+              fileID,
+              parentFolderID: metadata.parentFolderID,
               diskType: metadata.diskType,
               diskID: metadata.diskID,
               metadata: metadata.customMetadata,
@@ -704,6 +714,7 @@ export class LocalS3Adapter implements IUploadAdapter {
       // Send initial progress
       progressSubject.next({
         id: uploadId,
+        fileID: metadata.fileID,
         fileName: file.name,
         state: UploadState.ACTIVE,
         progress: Math.floor((uploadedBytes / file.size) * 100),
@@ -711,7 +722,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime: metadata.uploadStartTime,
         diskType: metadata.diskType,
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       });
 
       // Start from the beginning, skipping already uploaded parts
@@ -779,7 +790,8 @@ export class LocalS3Adapter implements IUploadAdapter {
           file,
           {
             file,
-            uploadPath: metadata.uploadPath,
+            fileID: metadata.fileID,
+            parentFolderID: metadata.parentFolderID,
             diskType: metadata.diskType,
             diskID: metadata.diskID,
             metadata: metadata.customMetadata,
@@ -793,6 +805,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         // Send progress update
         progressSubject.next({
           id: uploadId,
+          fileID: metadata.fileID,
           fileName: file.name,
           state: UploadState.ACTIVE,
           progress,
@@ -800,7 +813,7 @@ export class LocalS3Adapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime: metadata.uploadStartTime,
           diskType: metadata.diskType,
-          uploadPath: metadata.uploadPath,
+          parentFolderID: metadata.parentFolderID,
         });
       }
 
@@ -864,7 +877,8 @@ export class LocalS3Adapter implements IUploadAdapter {
         file,
         {
           file,
-          uploadPath: metadata.uploadPath,
+          fileID: metadata.fileID,
+          parentFolderID: metadata.parentFolderID,
           diskType: metadata.diskType,
           diskID: metadata.diskID,
           metadata: metadata.customMetadata,
@@ -877,6 +891,7 @@ export class LocalS3Adapter implements IUploadAdapter {
       // Send completion progress
       progressSubject.next({
         id: uploadId,
+        fileID: metadata.fileID,
         fileName: file.name,
         state: UploadState.COMPLETED,
         progress: 100,
@@ -884,7 +899,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime: metadata.uploadStartTime,
         diskType: metadata.diskType,
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       });
 
       progressSubject.complete();
@@ -985,6 +1000,7 @@ export class LocalS3Adapter implements IUploadAdapter {
 
       return {
         id,
+        fileID: metadata.fileID,
         fileName: metadata.fileName,
         state,
         progress: state === UploadState.COMPLETED ? 100 : progress,
@@ -993,7 +1009,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         bytesTotal: metadata.fileSize,
         startTime: metadata.uploadStartTime,
         diskType: metadata.diskType,
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       };
     } catch (error) {
       console.error("Error getting upload status:", error);
@@ -1081,37 +1097,6 @@ export class LocalS3Adapter implements IUploadAdapter {
   }
 
   /**
-   * Check if a file already exists in S3
-   */
-  public async checkIfExists(
-    fileName: string,
-    uploadPath: string
-  ): Promise<boolean> {
-    if (!this.s3Client || !this.config) {
-      throw new Error("S3 adapter not initialized");
-    }
-
-    const key = this.getObjectKey(uploadPath, fileName);
-
-    try {
-      await this.s3Client.send(
-        new HeadObjectCommand({
-          Bucket: this.config.bucket,
-          Key: key,
-        })
-      );
-
-      return true;
-    } catch (error) {
-      if ((error as any).name === "NotFound") {
-        return false;
-      }
-
-      throw error;
-    }
-  }
-
-  /**
    * Get a URL for a file
    */
   public async getFileUrl(id: UploadID): Promise<string | null> {
@@ -1168,9 +1153,9 @@ export class LocalS3Adapter implements IUploadAdapter {
   /**
    * Get an S3 object key from a path and filename
    */
-  private getObjectKey(uploadPath: string, fileName: string): string {
+  private getObjectKey(parentFolderID: string, fileName: string): string {
     // Normalize path (remove leading/trailing slashes)
-    const path = uploadPath.replace(/^\/+|\/+$/g, "");
+    const path = parentFolderID.replace(/^\/+|\/+$/g, "");
 
     return path ? `${path}/${fileName}` : fileName;
   }

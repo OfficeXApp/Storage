@@ -38,7 +38,7 @@ import {
   QueuedUploadItem,
   LocalS3AdapterConfig,
 } from "../../framework/uploader/types";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, GenerateID } from "@officexapp/types";
 import { LocalS3Adapter } from "../../framework/uploader/adapters/locals3.adapter";
 import { sleep } from "../../api/helpers";
 import { defaultTempCloudSharingDiskID } from "../../api/dexie-database";
@@ -204,7 +204,7 @@ const S3UploaderSandbox: React.FC = () => {
 
       // Upload all files in the fileList
       const uploadIds = uploadFiles(
-        fileList,
+        fileList.map((file) => ({ file, fileID: GenerateID.File() })),
         "/uploads",
         DiskTypeEnum.StorjWeb3,
         s3Config.diskID,
@@ -309,7 +309,7 @@ const S3UploaderSandbox: React.FC = () => {
   // Handle resume upload
   const handleResumeUpload = async (id: UploadID, item: QueuedUploadItem) => {
     try {
-      const resumed = await resumeUpload(id, item.file);
+      const resumed = await resumeUpload(id, item.fileID, item.file);
       if (resumed) {
         message.info(`Upload resumed: ${id}`);
       } else {

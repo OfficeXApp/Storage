@@ -144,6 +144,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
 
+  const getFileResult: FileFEO | undefined = useSelector(
+    (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
+  );
+
   const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
 
   const [content, setContent] = useState<{
@@ -154,16 +158,30 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     {}
   );
   const [isStorjModalVisible, setIsStorjModalVisible] = useState(false);
-  const [singleFile, setSingleFile] = useState<FileRecord | null>(null);
+  const [singleFile, setSingleFile] = useState<FileFEO | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (listDirectoryResults) {
       const { folders, files } = listDirectoryResults;
       setContent({ folders, files });
+      setIsLoading(false);
+      setIs404NotFound(false);
     }
   }, [listDirectoryResults]);
+
+  useEffect(() => {
+    if (currentFileId && !getFileResult) {
+      setIs404NotFound(true);
+      setIsLoading(false);
+    } else if (currentFileId && getFileResult) {
+      setIs404NotFound(false);
+      setIsLoading(false);
+      setSingleFile(getFileResult);
+    }
+  }, [getFileResult, currentFileId]);
 
   // Show notification for Web3Storj free trial
   useEffect(() => {
@@ -178,8 +196,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
     if (location.pathname === "/drive" || pathParts.length === 0) {
       setListDirectoryKey("");
-      const listParams: IRequestListDisks = {};
-      dispatch(listDisksAction(listParams));
+      setCurrentFolderId(null);
+      setCurrentFileId(null);
+      setIsLoading(false);
+      setIs404NotFound(false);
+      fetchContent({});
+      setSingleFile(null);
     } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
@@ -224,6 +246,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
+      setIsLoading(true);
       fetchContent({
         targetFolderId: folderId,
       });
@@ -232,6 +255,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setCurrentFolderId(null);
       setCurrentFileId(fileId);
       fetchFileById(fileId);
+      setIsLoading(true);
     }
 
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
@@ -239,13 +263,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     // }
   }, [location, encodedPath]);
 
-  useEffect(() => {
-    if (disks && disks.length > 0 && location.pathname === "/drive") {
-      fetchContent({});
-    }
-  }, [disks]);
-
   const fetchFileById = (fileId: FileID) => {
+    console.log("Fetching file by ID:", fileId);
     try {
       // Create the get file action
       const getAction = {
@@ -260,13 +279,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
       // We'll rely on the useEffect that watches filesFromRedux to set the file
       // when it arrives from the Redux store after the action completes
-
-      // Set a timeout to show 404 if the file isn't found after a delay
-      setTimeout(() => {
-        if (!singleFile) {
-          setIs404NotFound(true);
-        }
-      }, 3000);
     } catch (error) {
       console.error("Error fetching file by ID:", error);
       setIs404NotFound(true);
@@ -329,6 +341,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           })),
           files: [],
         });
+        setIsLoading(false);
         return;
       }
 
@@ -340,7 +353,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           direction: SortDirection.ASC,
         };
         const _listDirectoryKey = generateListDirectoryKey(listParams);
-        console.log(`setting _listDirectoryKey`, _listDirectoryKey);
         setListDirectoryKey(_listDirectoryKey);
 
         // Dispatch the action to fetch the directory listing
@@ -518,7 +530,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             permanent: true,
           },
         };
-        console.log(`====listDirectoryKey`, listDirectoryKey);
+        // console.log(`====listDirectoryKey`, listDirectoryKey);
         dispatch(deleteFolderAction(deleteAction, listDirectoryKey));
       } else {
         // Create the delete file action
@@ -612,20 +624,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
-    if (!currentFolderId) {
-      // At root, showing disks
-      return content.folders.map((f) => ({
-        id: f.id,
-        title: f.name,
-        owner: f.created_by,
-        isFolder: true,
-        fullPath: f.full_directory_path,
-        diskID: f.disk_id,
-        isDisabled: false,
-      }));
-    }
-
-    // In a folder, showing folders and files
     return [
       ...content.folders.map((f) => ({
         id: f.id,
@@ -646,7 +644,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         isDisabled: false,
       })),
     ];
-  }, [content, currentFolderId]);
+  }, [content, currentFolderId, disks]);
 
   const handleRenameChange = (id: string, newName: string) => {
     setRenamingItems((prev) => ({ ...prev, [id]: newName }));
@@ -851,6 +849,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           ) : singleFile ? (
             <div style={{ padding: "20px" }}>
               {/* <FilePage file={singleFile} /> */}
+              {JSON.stringify(singleFile)}
             </div>
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>

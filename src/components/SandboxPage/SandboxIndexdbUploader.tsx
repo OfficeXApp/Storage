@@ -31,7 +31,7 @@ import {
   UploadID,
   QueuedUploadItem,
 } from "../../framework/uploader/types";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, GenerateID } from "@officexapp/types";
 import { defaultBrowserCacheDiskID } from "../../api/dexie-database";
 import { IndexedDBAdapter } from "../../framework/uploader/adapters/indexdb.adapter";
 import { sleep } from "../../api/helpers";
@@ -79,7 +79,7 @@ const SandboxUploader: React.FC = () => {
 
           // Configuration for IndexedDB
           const indexDBConfig = {
-            databaseName: "officex-browser-cache-storage-user123",
+            databaseName: "OFFICEX-browser-cache-storage-user123",
             objectStoreName: "files",
           };
 
@@ -165,7 +165,7 @@ const SandboxUploader: React.FC = () => {
 
       // Upload all files in the fileList
       const uploadIds = uploadFiles(
-        fileList,
+        fileList.map((file) => ({ file, fileID: GenerateID.File() })),
         "/uploads",
         DiskTypeEnum.BrowserCache,
         defaultBrowserCacheDiskID,
@@ -271,7 +271,7 @@ const SandboxUploader: React.FC = () => {
   // Handle resume upload
   const handleResumeUpload = async (id: UploadID, item: QueuedUploadItem) => {
     try {
-      const resumed = await resumeUpload(id, item.file);
+      const resumed = await resumeUpload(id, item.fileID, item.file);
       if (resumed) {
         message.info(`Upload resumed: ${id}`);
       } else {

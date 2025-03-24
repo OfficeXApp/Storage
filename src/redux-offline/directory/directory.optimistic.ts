@@ -57,7 +57,6 @@ import {
   FolderFEO,
   FILES_DEXIE_TABLE,
   FOLDERS_DEXIE_TABLE,
-  DIRECTORY_LIST_QUERY_RESULTS_TABLE,
 } from "./directory.reducer";
 import _ from "lodash";
 import {
@@ -171,80 +170,173 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
         switch (action.type) {
           // ------------------------------ LIST DIRECTORY --------------------------------- //
           case LIST_DIRECTORY: {
-            const listDirectoryKey = action.meta.listDirectoryKey;
-            console.log(`action >>>>> ${listDirectoryKey}`, action);
+            console.log(`action.payload`, action);
             try {
-              const listCacheTable = db.table<DirectoryListCacheEntry, string>(
-                DIRECTORY_LIST_QUERY_RESULTS_TABLE
+              const queryParams = action.payload;
+              const folderId = queryParams.folder_id || "root";
+              const diskId = queryParams.disk_id;
+              const filters = queryParams.filters || "";
+              const pageSize = queryParams.page_size || 50;
+              const cursor = queryParams.cursor || "";
+              const direction = queryParams.direction || "ASC";
+
+              // Get data from IndexedDB directly
+              await db.transaction(
+                "r",
+                [filesTable, foldersTable],
+                async () => {
+                  // Query folders
+                  let foldersQuery = foldersTable
+                    .where("parent_folder_uuid")
+                    .equals(folderId);
+
+                  // Apply disk filter if specified
+                  if (diskId) {
+                    foldersQuery = foldersTable.where("disk_id").equals(diskId);
+                  }
+
+                  // Get all matching folders
+                  let folders = await foldersQuery.toArray();
+                  console.log(`folders`);
+                  // Filter deleted folders
+                  folders = folders.filter((folder) => !folder.deleted);
+
+                  // Get total folder count before pagination
+                  const totalFolders = folders.length;
+
+                  // Sort folders
+                  folders.sort((a, b) => {
+                    if (direction === "ASC") {
+                      return a.name.localeCompare(b.name);
+                    } else {
+                      return b.name.localeCompare(a.name);
+                    }
+                  });
+
+                  // Apply pagination
+                  if (cursor) {
+                    const cursorIndex = folders.findIndex(
+                      (folder) => folder.id === cursor
+                    );
+                    if (cursorIndex >= 0) {
+                      folders = folders.slice(
+                        cursorIndex + 1,
+                        cursorIndex + 1 + pageSize
+                      );
+                    } else {
+                      folders = folders.slice(0, pageSize);
+                    }
+                  } else {
+                    folders = folders.slice(0, pageSize);
+                  }
+
+                  // Query files
+                  let filesQuery = filesTable
+                    .where("folder_uuid")
+                    .equals(folderId);
+
+                  console.log(
+                    `filesQuery on ${folderId} and ${diskId}`,
+                    filesQuery
+                  );
+
+                  // Apply disk filter if specified
+                  if (diskId) {
+                    filesQuery = filesTable.where("disk_id").equals(diskId);
+                  }
+
+                  // Get all matching files
+                  let files = await filesQuery.toArray();
+
+                  console.log(`files`, files);
+
+                  // Filter deleted files
+                  files = files.filter((file) => !file.deleted);
+
+                  // Get total file count before pagination
+                  const totalFiles = files.length;
+
+                  // Sort files
+                  files.sort((a, b) => {
+                    if (direction === "ASC") {
+                      return a.name.localeCompare(b.name);
+                    } else {
+                      return b.name.localeCompare(a.name);
+                    }
+                  });
+
+                  // Apply pagination
+                  if (cursor) {
+                    const cursorIndex = files.findIndex(
+                      (file) => file.id === cursor
+                    );
+                    if (cursorIndex >= 0) {
+                      files = files.slice(
+                        cursorIndex + 1,
+                        cursorIndex + 1 + pageSize
+                      );
+                    } else {
+                      files = files.slice(0, pageSize);
+                    }
+                  } else {
+                    files = files.slice(0, pageSize);
+                  }
+
+                  // Calculate the next cursor
+                  const nextCursor =
+                    files.length > 0 ? files[files.length - 1].id : null;
+
+                  // Add metadata to results
+                  const enhancedFiles = files.map((file) => ({
+                    ...file,
+                    _isOptimistic: true,
+                    _syncWarning:
+                      "Retrieved from local IndexedDB. This data may be out of sync with the cloud.",
+                  }));
+
+                  const enhancedFolders = folders.map((folder) => ({
+                    ...folder,
+                    _isOptimistic: true,
+                    _syncWarning:
+                      "Retrieved from local IndexedDB. This data may be out of sync with the cloud.",
+                  }));
+
+                  enhancedAction = {
+                    ...action,
+                    optimistic: {
+                      files: enhancedFiles,
+                      folders: enhancedFolders,
+                      totalFiles,
+                      totalFolders,
+                      cursor: nextCursor,
+                    },
+                  };
+                }
               );
-              const cachedResult = await listCacheTable.get(listDirectoryKey);
-
-              if (!cachedResult) {
-                const cacheEntry: DirectoryListCacheEntry = {
-                  listDirectoryKey,
-                  folders: [],
-                  files: [],
-                  totalFiles: 0,
-                  totalFolders: 0,
-                  cursor: null,
-                  last_updated_date_ms: Date.now(),
-                };
-                await listCacheTable.put(cacheEntry);
-              }
-
-              let resultsToRender = cachedResult || {
-                files: [],
-                folders: [],
-                totalFiles: 0,
-                totalFolders: 0,
-                cursor: null,
-              };
-
-              if (resultsToRender) {
-                enhancedAction = {
-                  ...action,
-                  optimistic: {
-                    files: resultsToRender.files.map((file) => ({
-                      ...file,
-                      _isOptimistic: true,
-                      _syncWarning:
-                        "Cached directory listing. This data might be slightly out of date.",
-                    })),
-                    folders: resultsToRender.folders.map((folder) => ({
-                      ...folder,
-                      _isOptimistic: true,
-                      _syncWarning:
-                        "Cached directory listing. This data might be slightly out of date.",
-                    })),
-                    totalFiles: resultsToRender.totalFiles,
-                    totalFolders: resultsToRender.totalFolders,
-                    cursor: resultsToRender.cursor,
-                  },
-                };
-              }
             } catch (error) {
-              console.error("Error checking directory listing cache:", error);
+              console.error(
+                "Error querying IndexedDB for directory listing:",
+                error
+              );
             }
 
+            if (action.meta?.isOfflineDrive) {
+              return;
+            }
             break;
           }
 
           case LIST_DIRECTORY_COMMIT: {
-            const listDirectoryKey = action.meta?.listDirectoryKey;
             const response = action.payload?.ok?.data;
 
-            if (response && listDirectoryKey) {
+            if (response) {
               const files = response.files || [];
               const folders = response.folders || [];
 
               try {
                 await db.transaction(
                   "rw",
-                  [
-                    filesTable,
-                    foldersTable,
-                    db.table(DIRECTORY_LIST_QUERY_RESULTS_TABLE),
-                  ],
+                  [filesTable, foldersTable],
                   async () => {
                     // Update files in IndexedDB
                     for (const file of files) {
@@ -267,26 +359,11 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                         _isOptimistic: false,
                       });
                     }
-
-                    // Cache the directory listing results
-                    const cacheEntry: DirectoryListCacheEntry = {
-                      listDirectoryKey,
-                      folders: response.folders,
-                      files: response.files,
-                      totalFiles: response.total_files,
-                      totalFolders: response.total_folders,
-                      cursor: response.cursor || null,
-                      last_updated_date_ms: Date.now(),
-                    };
-
-                    await db
-                      .table(DIRECTORY_LIST_QUERY_RESULTS_TABLE)
-                      .put(cacheEntry);
                   }
                 );
               } catch (error) {
                 console.error(
-                  "Error caching directory listing results:",
+                  "Error updating IndexedDB with directory listing results:",
                   error
                 );
               }
@@ -297,15 +374,18 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case LIST_DIRECTORY_ROLLBACK: {
             if (!action.payload.response) break;
-            // No local IndexedDB state to roll back for the cache
+            // No local IndexedDB state to roll back since we're not caching the directory listings anymore
             break;
           }
 
           // ------------------------------ GET FILE --------------------------------- //
           case GET_FILE: {
+            console.log(`GET_FILE`, action);
             // Get cached data from IndexedDB
             const optimisticID = action.meta.optimisticID;
+            console.log("GET_FILE optimisticID", optimisticID);
             const cachedFile = await filesTable.get(optimisticID);
+            console.log("GET_FILE cachedFile", cachedFile);
             if (cachedFile) {
               enhancedAction = {
                 ...action,
@@ -454,13 +534,18 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ CREATE FILE --------------------------------- //
           case CREATE_FILE: {
+            console.log(`CREATE_FILE`, action);
             const listDirectoryKey = action.meta?.listDirectoryKey;
             // Only handle actions with file data
             if (action.meta?.offline?.effect?.data) {
               const fileData = action.meta.offline.effect.data.actions[0];
               const optimisticID = action.meta.optimisticID;
+              console.log(
+                `fileData.payload.parent_folder_uuid`,
+                fileData.payload
+              );
               const parentFolderId =
-                fileData.payload.parent_folder_id || "root";
+                fileData.payload.parent_folder_uuid || "root";
 
               // Get parent folder for any fields we need from it
               const parentFolder = await foldersTable.get(parentFolderId);
@@ -505,42 +590,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
               // Save to IndexedDB
               await filesTable.put(optimisticFile);
-
-              if (listDirectoryKey) {
-                try {
-                  const listCacheTable = db.table<
-                    DirectoryListCacheEntry,
-                    string
-                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
-                  const cachedResult =
-                    await listCacheTable.get(listDirectoryKey);
-
-                  if (cachedResult) {
-                    // Check if the file belongs in this view based on parent folder
-                    const requestParams = JSON.parse(listDirectoryKey);
-                    const fileBelongsInView =
-                      (!requestParams.folder_id && !parentFolderId) || // Both are root
-                      requestParams.folder_id === parentFolderId; // Parent folder matches requested folder
-
-                    if (fileBelongsInView) {
-                      // Add the new file to the cached listing
-                      const updatedCachedResult = {
-                        ...cachedResult,
-                        files: [optimisticFile, ...cachedResult.files],
-                        totalFiles: cachedResult.totalFiles + 1,
-                        last_updated_date_ms: Date.now(),
-                      };
-
-                      await listCacheTable.put(updatedCachedResult);
-                    }
-                  }
-                } catch (error) {
-                  console.error(
-                    "Error updating directory listing cache with new file:",
-                    error
-                  );
-                }
-              }
 
               // Enhance action with optimisticID
               enhancedAction = {
@@ -610,7 +659,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           case CREATE_FOLDER: {
             // Only handle actions with folder data
             let listDirectoryKey = action.meta?.listDirectoryKey;
-            console.log(`action >>>>> ${listDirectoryKey}`, action);
+
             if (action.meta?.offline?.effect?.data) {
               const folderData: CreateFolderAction =
                 action.meta.offline.effect.data.actions[0];
@@ -618,8 +667,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               const parentFolderId = folderData.payload.parent_folder_uuid;
 
               const parentFolder = await foldersTable.get(parentFolderId);
-
-              console.log(`parentFolder`, parentFolder);
 
               // Create optimistic folder object
               const optimisticFolder: FolderFEO = {
@@ -669,43 +716,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 await foldersTable.put(updatedParentFolder);
               }
 
-              // Add to relevant view
-              if (listDirectoryKey) {
-                try {
-                  const listCacheTable = db.table<
-                    DirectoryListCacheEntry,
-                    string
-                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
-                  const cachedResult =
-                    await listCacheTable.get(listDirectoryKey);
-
-                  if (cachedResult) {
-                    // Check if the folder belongs in this view based on parent folder
-                    const requestParams = JSON.parse(listDirectoryKey);
-                    const folderBelongsInView =
-                      (!requestParams.folder_id && !parentFolderId) || // Both are root
-                      requestParams.folder_id === parentFolderId; // Parent folder matches requested folder
-
-                    if (folderBelongsInView) {
-                      // Add the new folder to the cached listing
-                      const updatedCachedResult = {
-                        ...cachedResult,
-                        folders: [optimisticFolder, ...cachedResult.folders],
-                        totalFolders: cachedResult.totalFolders + 1,
-                        last_updated_date_ms: Date.now(),
-                      };
-
-                      await listCacheTable.put(updatedCachedResult);
-                    }
-                  }
-                } catch (error) {
-                  console.error(
-                    "Error updating directory listing cache with new folder:",
-                    error
-                  );
-                }
-              }
-
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
@@ -751,47 +761,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 };
 
                 await foldersTable.put(realFolderEnhanced);
-
-                if (listDirectoryKey) {
-                  const listCacheTable = db.table<
-                    DirectoryListCacheEntry,
-                    string
-                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
-                  const cachedResult =
-                    await listCacheTable.get(listDirectoryKey);
-
-                  if (cachedResult) {
-                    // Update the folder in the cache (replace optimistic version with real version)
-                    const updatedFolders = cachedResult.folders.map((folder) =>
-                      folder._optimisticID === optimisticID ||
-                      folder.id === optimisticID
-                        ? realFolderEnhanced
-                        : folder
-                    );
-
-                    // If folder wasn't in the list but should be, add it
-                    if (!updatedFolders.some((f) => f.id === realFolder.id)) {
-                      const requestParams = JSON.parse(listDirectoryKey);
-                      const folderBelongsInView =
-                        (!requestParams.folder_id &&
-                          !realFolder.parent_folder_uuid) || // Both are root
-                        requestParams.folder_id ===
-                          realFolder.parent_folder_uuid; // Parent folder matches requested folder
-
-                      if (folderBelongsInView) {
-                        updatedFolders.push(realFolderEnhanced);
-                      }
-                    }
-
-                    const updatedCachedResult = {
-                      ...cachedResult,
-                      folders: updatedFolders,
-                      last_updated_date_ms: Date.now(),
-                    };
-
-                    await listCacheTable.put(updatedCachedResult);
-                  }
-                }
 
                 // Update parent folder references if needed
                 if (
@@ -848,50 +817,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   optimisticID,
                   error_message
                 );
-                if (listDirectoryKey) {
-                  try {
-                    const listCacheTable = db.table<
-                      DirectoryListCacheEntry,
-                      string
-                    >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
-                    const cachedResult =
-                      await listCacheTable.get(listDirectoryKey);
-
-                    if (cachedResult) {
-                      // Mark the folder as having a sync conflict instead of removing it
-                      const updatedFolders = cachedResult.folders.map(
-                        (folder) => {
-                          if (
-                            folder._optimisticID === optimisticID ||
-                            folder.id === optimisticID
-                          ) {
-                            return {
-                              ...folder,
-                              _syncWarning: error_message,
-                              _syncSuccess: false,
-                              _syncConflict: true,
-                              _isOptimistic: false,
-                            };
-                          }
-                          return folder;
-                        }
-                      );
-
-                      const updatedCachedResult = {
-                        ...cachedResult,
-                        folders: updatedFolders,
-                        last_updated_date_ms: Date.now(),
-                      };
-
-                      await listCacheTable.put(updatedCachedResult);
-                    }
-                  } catch (error) {
-                    console.error(
-                      "Error updating directory listing cache on folder creation rollback:",
-                      error
-                    );
-                  }
-                }
                 enhancedAction = {
                   ...action,
                   error_message,
@@ -930,40 +855,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                 // Save to IndexedDB
                 await filesTable.put(optimisticFile);
-
-                if (listDirectoryKey) {
-                  try {
-                    const listCacheTable = db.table<
-                      DirectoryListCacheEntry,
-                      string
-                    >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
-                    const cachedResult =
-                      await listCacheTable.get(listDirectoryKey);
-
-                    if (cachedResult) {
-                      // Update the file in the cached listing
-                      const updatedFiles = cachedResult.files.map((file) => {
-                        if (file.id === optimisticID) {
-                          return optimisticFile;
-                        }
-                        return file;
-                      });
-
-                      const updatedCachedResult = {
-                        ...cachedResult,
-                        files: updatedFiles,
-                        last_updated_date_ms: Date.now(),
-                      };
-
-                      await listCacheTable.put(updatedCachedResult);
-                    }
-                  } catch (error) {
-                    console.error(
-                      "Error updating directory listing cache for file update:",
-                      error
-                    );
-                  }
-                }
 
                 // Enhance action with optimisticID
                 enhancedAction = {
@@ -1055,42 +946,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                 // Save to IndexedDB
                 await foldersTable.put(optimisticFolder);
-
-                if (listDirectoryKey) {
-                  try {
-                    const listCacheTable = db.table<
-                      DirectoryListCacheEntry,
-                      string
-                    >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
-                    const cachedResult =
-                      await listCacheTable.get(listDirectoryKey);
-
-                    if (cachedResult) {
-                      // Update the folder in the cached listing
-                      const updatedFolders = cachedResult.folders.map(
-                        (folder) => {
-                          if (folder.id === optimisticID) {
-                            return optimisticFolder;
-                          }
-                          return folder;
-                        }
-                      );
-
-                      const updatedCachedResult = {
-                        ...cachedResult,
-                        folders: updatedFolders,
-                        last_updated_date_ms: Date.now(),
-                      };
-
-                      await listCacheTable.put(updatedCachedResult);
-                    }
-                  } catch (error) {
-                    console.error(
-                      "Error updating directory listing cache for folder update:",
-                      error
-                    );
-                  }
-                }
 
                 // Enhance action with optimisticID
                 enhancedAction = {
@@ -1200,38 +1055,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 }
               }
 
-              if (listDirectoryKey) {
-                try {
-                  const listCacheTable = db.table<
-                    DirectoryListCacheEntry,
-                    string
-                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
-                  const cachedResult =
-                    await listCacheTable.get(listDirectoryKey);
-
-                  if (cachedResult) {
-                    // Update the cached listing by removing the file
-                    const updatedFiles = cachedResult.files.filter(
-                      (file) => file.id !== optimisticID
-                    );
-
-                    const updatedCachedResult = {
-                      ...cachedResult,
-                      files: updatedFiles,
-                      totalFiles: Math.max(0, cachedResult.totalFiles - 1),
-                      last_updated_date_ms: Date.now(),
-                    };
-
-                    await listCacheTable.put(updatedCachedResult);
-                  }
-                } catch (error) {
-                  console.error(
-                    "Error updating directory listing cache for file deletion:",
-                    error
-                  );
-                }
-              }
-
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
@@ -1277,8 +1100,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           // ------------------------------ DELETE FOLDER --------------------------------- //
           // ------------------------------ DELETE FOLDER --------------------------------- //
           case DELETE_FOLDER: {
-            console.log("DELETE_FOLDER", action);
-
             const optimisticID = action.meta.optimisticID;
             const cachedFolder = await foldersTable.get(optimisticID);
             let listDirectoryKey = action.meta?.listDirectoryKey;
@@ -1288,8 +1109,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             const isPermanentDelete = folderData.payload.permanent === true;
 
             if (cachedFolder) {
-              console.log(`cachedFolder`, cachedFolder);
-
               if (isPermanentDelete) {
                 // Handle permanent deletion - actually remove the folder from IndexedDB
                 // First, update parent folder reference if it exists
@@ -1407,42 +1226,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               }
 
               // Update directory listing cache (same for both permanent and trash)
-              console.log(`listDirectoryKey`, listDirectoryKey);
-              if (listDirectoryKey) {
-                try {
-                  const listCacheTable = db.table<
-                    DirectoryListCacheEntry,
-                    string
-                  >(DIRECTORY_LIST_QUERY_RESULTS_TABLE);
-                  const cachedResult =
-                    await listCacheTable.get(listDirectoryKey);
-
-                  console.log(`cachedResult`, cachedResult);
-
-                  if (cachedResult) {
-                    // Update the cached listing by removing the folder from the cached folders array
-                    const updatedFolders = cachedResult.folders.filter(
-                      (folder) => folder.id !== optimisticID
-                    );
-
-                    const updatedCachedResult = {
-                      ...cachedResult,
-                      folders: updatedFolders,
-                      totalFolders: Math.max(0, cachedResult.totalFolders - 1),
-                      last_updated_date_ms: Date.now(),
-                    };
-
-                    console.log(`updatedCachedResult`, updatedCachedResult);
-
-                    await listCacheTable.put(updatedCachedResult);
-                  }
-                } catch (error) {
-                  console.error(
-                    "Error updating directory listing cache for folder deletion:",
-                    error
-                  );
-                }
-              }
             }
             break;
           }

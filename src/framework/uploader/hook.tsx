@@ -57,6 +57,7 @@ interface MultiUploaderContextType {
   progress: AggregateUploadProgress;
   currentUploads: QueuedUploadItem[];
   uploadFile: (
+    fileID: FileID,
     file: File,
     uploadPath: string,
     diskType: DiskTypeEnum,
@@ -64,7 +65,7 @@ interface MultiUploaderContextType {
     options?: Partial<UploadConfig>
   ) => UploadID;
   uploadFiles: (
-    files: File[],
+    files: { file: File; fileID: FileID }[],
     uploadPath: string,
     diskType: DiskTypeEnum,
     diskID: DiskID,
@@ -72,7 +73,7 @@ interface MultiUploaderContextType {
   ) => UploadID[];
   registerDefaultAdapters: () => Promise<void>;
   pauseUpload: (id: UploadID) => Promise<boolean>;
-  resumeUpload: (id: UploadID, file: File) => Promise<boolean>;
+  resumeUpload: (id: UploadID, fileID: FileID, file: File) => Promise<boolean>;
   cancelUpload: (id: UploadID) => Promise<boolean>;
   pauseAllUploads: () => void;
   resumeAllUploads: () => void;
@@ -156,11 +157,13 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     disks: state.disks.disks,
   }));
   const [uploadTargetDiskID, setUploadTargetDiskID] = useState<DiskID | null>(
-    null
+    defaultBrowserCacheDiskID
   );
   const [uploadTargetFolderID, setUploadTargetFolderID] =
-    useState<FolderID | null>(null);
-  const [currentFileID, setCurrentFileID] = useState<FileID | null>(null);
+    useState<FolderID | null>(defaultBrowserCacheRootFolderID);
+  const [currentFileID, setCurrentFileID] = useState<FileID | null>(
+    defaultBrowserCacheRootFolderID
+  );
   const [registeredDefaultAdapters, setRegisteredDefaultAdapters] =
     useState(false);
   const uploadTargetDisk =
@@ -169,7 +172,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   const DEFAULT_ADAPTER_CONFIGS = {
     // IndexedDB adapter config
     [defaultBrowserCacheDiskID]: {
-      databaseName: `officex-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`,
+      databaseName: `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`,
       objectStoreName: "files",
     },
     // S3 adapter config for Storj
@@ -199,6 +202,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
           const resourceId = pathParts[2];
 
           if (resourceId && resourceId.startsWith("FolderID_")) {
+            console.log(`setting the parent folder`, resourceId);
             setUploadTargetFolderID(resourceId);
             setCurrentFileID(null);
           } else if (resourceId && resourceId.startsWith("FileID_")) {
@@ -231,19 +235,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       !currentProfile ||
       registeredDefaultAdapters
     ) {
-      console.log(`did not qualify! 
-        
-        uploadManagerRef.current: ${uploadManagerRef.current?.getRegisteredAdapters()}
-        isInitialized: ${isInitialized}
-        currentOrg: ${currentOrg}
-        currentProfile: ${currentProfile}
-        registeredDefaultAdapters: ${registeredDefaultAdapters}
-        
-        `);
       return;
     }
-
-    console.log("Trying to Registering default adapters for disks");
 
     try {
       // Get currently registered adapters
@@ -349,7 +342,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             // console.log(`Registered AWS Bucket adapter for disk: ${diskId}`);
             continue;
           } else if (diskType === DiskTypeEnum.LocalSSD) {
-            console.log(`Registered LocalSSD adapter for disk: ${diskId}`);
+            // console.log(`Registered LocalSSD adapter for disk: ${diskId}`);
             continue;
           }
         } catch (error) {
@@ -357,7 +350,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
         }
       }
       setRegisteredDefaultAdapters(true);
-      console.log("Default adapters registration complete");
+      // console.log("Default adapters registration complete");
     } catch (error) {
       console.error("Error during default adapter registration:", error);
     }
@@ -371,16 +364,16 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
   // Initialize the upload manager
   const initializeUploadManager = async () => {
-    console.log(`Initializing upload manager`);
+    // console.log(`Initializing upload manager`);
     try {
       // Create new upload manager if it doesn't exist
       if (!uploadManagerRef.current) {
-        console.log(`Creating new upload manager`);
+        // console.log(`Creating new upload manager`);
         uploadManagerRef.current = new UploadManager();
       }
 
       const manager = uploadManagerRef.current;
-      console.log(`Upload manager used`, manager);
+      // console.log(`Upload manager used`, manager);
       // Subscribe to progress updates
       const subscription = manager.getProgress().subscribe((progress) => {
         setProgress(progress);
@@ -391,7 +384,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       // Check for any previous uploads
       const resumableUploads = await manager.checkForPreviousUploads();
       if (resumableUploads.length > 0) {
-        console.log(`Found ${resumableUploads.length} resumable uploads`);
+        // console.log(`Found ${resumableUploads.length} resumable uploads`);
       }
 
       // Clean up expired uploads
@@ -461,10 +454,11 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     registerAdapter,
     registerDefaultAdapters,
     // Upload methods
-    uploadFile: (file, uploadPath, diskType, diskID, options) => {
+    uploadFile: (fileID, file, uploadPath, diskType, diskID, options) => {
       if (!uploadManagerRef.current)
         throw new Error("Upload manager not initialized");
       return uploadManagerRef.current.uploadFile(
+        fileID,
         file,
         uploadPath,
         diskType,
@@ -474,6 +468,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     },
 
     uploadFiles: (files, uploadPath, diskType, diskID, options) => {
+      console.log(`diskID`, diskID);
+      console.log(`options,`, options);
       if (!uploadManagerRef.current)
         throw new Error("Upload manager not initialized");
       return uploadManagerRef.current.uploadFiles(
@@ -490,9 +486,9 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       return uploadManagerRef.current.pauseUpload(id);
     },
 
-    resumeUpload: async (id, file) => {
+    resumeUpload: async (id, fileID, file) => {
       if (!uploadManagerRef.current) return false;
-      return uploadManagerRef.current.resumeUpload(id, file);
+      return uploadManagerRef.current.resumeUpload(id, fileID, file);
     },
 
     cancelUpload: async (id) => {
@@ -521,7 +517,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     },
 
     getFileUrl: async (id) => {
-      console.log(`uploadManagerRef.current`, uploadManagerRef.current);
+      // console.log(`uploadManagerRef.current`, uploadManagerRef.current);
       if (!uploadManagerRef.current) return null;
       return uploadManagerRef.current.getFileUrl(id);
     },

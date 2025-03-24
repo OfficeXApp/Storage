@@ -2,6 +2,8 @@
 
 ## Overview
 
+- [🔵] Fix uploading to indexdb which saves raw chunks but doesnt save into dexie files hashtable (we might want to undo our indexdb.adapter which replced uploadid with fileid, possibly incorrect)
+
 The large sprints of work are:
 
 - [x] Create a unified provider for handling uploads to different end destinations

@@ -154,7 +154,7 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
           case LIST_GROUPS: {
             // Get cached data from IndexedDB
             const cachedGroups = await table.toArray();
-            console.log(`cachedGroups`, cachedGroups);
+
             // Enhance action with cached data if available
             if (cachedGroups && cachedGroups.length > 0) {
               enhancedAction = {

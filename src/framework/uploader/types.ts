@@ -1,6 +1,6 @@
 // src/framework/uploader/types.ts - Shared types for the upload system
 
-import { DiskID, DiskTypeEnum } from "@officexapp/types";
+import { DiskID, DiskTypeEnum, FileID, FolderID } from "@officexapp/types";
 import { Observable } from "rxjs";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
 import { ObjectCannedACL } from "@aws-sdk/client-s3";
@@ -37,6 +37,7 @@ export type UploadID = string;
  */
 export interface ResumableUploadMetadata {
   id: UploadID;
+  fileID: FileID;
   fileName: string;
   fileSize: number;
   fileType: string;
@@ -48,7 +49,7 @@ export interface ResumableUploadMetadata {
   uploadedChunks: number[];
   totalChunks: number;
   chunkSize: number;
-  uploadPath: string;
+  parentFolderID: FolderID;
   customMetadata?: Record<string, any>;
 }
 
@@ -57,6 +58,7 @@ export interface ResumableUploadMetadata {
  */
 export interface UploadProgressInfo {
   id: UploadID;
+  fileID: FileID;
   fileName: string;
   state: UploadState;
   progress: number; // 0-100
@@ -68,7 +70,7 @@ export interface UploadProgressInfo {
   diskType: DiskTypeEnum;
   errorMessage?: string;
   retryCount?: number;
-  uploadPath: string;
+  parentFolderID: FolderID;
 }
 
 /**
@@ -91,7 +93,8 @@ export interface AggregateUploadProgress {
  */
 export interface UploadConfig {
   file: File;
-  uploadPath: string;
+  fileID: FileID;
+  parentFolderID: FolderID;
   diskID: DiskID;
   diskType: DiskTypeEnum;
   chunkSize?: number;
@@ -101,6 +104,7 @@ export interface UploadConfig {
   retryLimit?: number;
   retryDelay?: number;
   skipDuplicates?: boolean;
+  listDirectoryKey?: string;
 }
 
 /**
@@ -108,7 +112,7 @@ export interface UploadConfig {
  */
 export interface BatchUploadConfig {
   files: File[];
-  uploadPath: string;
+  parentFolderID: FolderID;
   diskType: DiskTypeEnum;
   concurrency?: number;
   chunkSize?: number;
@@ -118,6 +122,7 @@ export interface BatchUploadConfig {
   retryLimit?: number;
   retryDelay?: number;
   skipDuplicates?: boolean;
+  listDirectoryKey?: string;
 }
 
 /**
@@ -179,6 +184,7 @@ export interface AdapterRegistration {
  */
 export interface QueuedUploadItem {
   id: UploadID;
+  fileID: FileID;
   file: File;
   config: UploadConfig;
   state: UploadState;
@@ -198,9 +204,10 @@ export interface QueuedUploadItem {
  */
 export interface UploadResponse {
   id: UploadID;
+  fileID: FileID;
   fileName: string;
   fileSize: number;
-  uploadPath: string;
+  parentFolderID: FolderID;
   diskType: DiskTypeEnum;
   diskID: DiskID;
   uploadStartTime: number;

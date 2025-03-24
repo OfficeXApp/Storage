@@ -138,7 +138,6 @@ export const groupsReducer = (
     // ------------------------------ LIST GROUPS --------------------------------- //
 
     case LIST_GROUPS: {
-      console.log(`reducer action.optimistic`, action.optimistic);
       return {
         ...state,
         groups: action.optimistic || [],

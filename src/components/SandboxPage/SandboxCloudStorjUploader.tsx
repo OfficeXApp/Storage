@@ -25,7 +25,7 @@ import {
   DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, GenerateID } from "@officexapp/types";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import { CloudS3Adapter } from "../../framework/uploader/adapters/clouds3.adapter";
 import { UploadState, QueuedUploadItem } from "../../framework/uploader/types";
@@ -155,19 +155,25 @@ const CloudS3Uploader = () => {
 
     try {
       // Upload all files in the fileList with Redux dispatch in metadata
-      uploadFiles(fileList, currentFolderId, DiskTypeEnum.StorjWeb3, diskId, {
-        metadata: {
-          dispatch: dispatch,
-        },
-        onFileComplete: (id) => {
-          message.success(`File upload completed successfully`);
-          fetchFileUrl(id);
-        },
-        onAllComplete: () => {
-          message.success("All files uploaded successfully");
-          setFileList([]);
-        },
-      });
+      uploadFiles(
+        fileList.map((file) => ({ file, fileID: GenerateID.File() })),
+        currentFolderId,
+        DiskTypeEnum.StorjWeb3,
+        diskId,
+        {
+          metadata: {
+            dispatch: dispatch,
+          },
+          onFileComplete: (id) => {
+            message.success(`File upload completed successfully`);
+            fetchFileUrl(id);
+          },
+          onAllComplete: () => {
+            message.success("All files uploaded successfully");
+            setFileList([]);
+          },
+        }
+      );
     } catch (error) {
       console.error("Error starting uploads:", error);
       message.error("Failed to start uploads");
@@ -204,7 +210,7 @@ const CloudS3Uploader = () => {
   // Handle resume upload
   const handleResumeUpload = async (id: string, item: QueuedUploadItem) => {
     try {
-      const resumed = await resumeUpload(id, item.file);
+      const resumed = await resumeUpload(id, item.fileID, item.file);
       if (resumed) {
         message.info(`Upload resumed`);
       } else {

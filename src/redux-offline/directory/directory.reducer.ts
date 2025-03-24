@@ -60,8 +60,6 @@ import { DiskFEO } from "../disks/disks.reducer";
 
 export const DIRECTORY_REDUX_KEY = "directory";
 
-export const DIRECTORY_LIST_QUERY_RESULTS_TABLE =
-  "directory-list-query-results";
 export const FILES_DEXIE_TABLE = "files";
 export const FOLDERS_DEXIE_TABLE = "folders";
 
@@ -176,70 +174,34 @@ export const directoryReducer = (
   action: any
 ): DirectoryState => {
   switch (action.type) {
-    // ------------------------------ LIST DIRECTORY --------------------------------- //
     case LIST_DIRECTORY: {
-      const listDirectoryKey = action.meta.listDirectoryKey;
-
+      console.log("LIST_DIRECTORY reducer", action);
+      let listDirectoryKey = action.meta?.listDirectoryKey;
       if (action.optimistic) {
-        const { files, folders, totalFiles, totalFolders, cursor } =
-          action.optimistic;
-
-        const updatedFileMap = { ...state.fileMap };
-        files.forEach((file: FileFEO) => {
-          updatedFileMap[file.id] = file;
-        });
-
-        const updatedFolderMap = { ...state.folderMap };
-        folders.forEach((folder: FolderFEO) => {
-          updatedFolderMap[folder.id] = folder;
-        });
-
         return {
           ...state,
           listingDataMap: {
             ...state.listingDataMap,
-            [listDirectoryKey]: {
-              folders,
-              files,
-              totalFiles,
-              totalFolders,
-              cursor,
-              isLoading: true,
-              error: null,
-              lastUpdated: Date.now(),
-            },
+            [listDirectoryKey]: action.optimistic,
           },
-          fileMap: updatedFileMap,
-          folderMap: updatedFolderMap,
         };
       }
 
       return {
         ...state,
-        listingDataMap: {
-          ...state.listingDataMap,
-          [listDirectoryKey]: {
-            ...(state.listingDataMap[listDirectoryKey] || {
-              folders: [],
-              files: [],
-              totalFiles: 0,
-              totalFolders: 0,
-              cursor: null,
-              lastUpdated: 0,
-            }),
-            isLoading: true,
-            error: null,
-          },
-        },
+        loading: true,
+        error: null,
       };
     }
 
     case LIST_DIRECTORY_COMMIT: {
-      const listDirectoryKey = action.meta?.listDirectoryKey;
       const response = action.payload?.ok?.data;
 
-      if (!response || !listDirectoryKey) {
-        return state;
+      if (!response) {
+        return {
+          ...state,
+          loading: false,
+        };
       }
 
       const processedFiles = response.files.map((file: FileRecordFE) => ({
@@ -272,25 +234,10 @@ export const directoryReducer = (
 
       return {
         ...state,
-        listingDataMap: {
-          ...state.listingDataMap,
-          [listDirectoryKey]: {
-            folders: processedFolders,
-            files: processedFiles,
-            totalFiles: response.total_files,
-            totalFolders: response.total_folders,
-            cursor: response.cursor || null,
-            isLoading: false,
-            error: null,
-            lastUpdated: Date.now(),
-          },
-        },
         files: [
           ...state.files.filter(
             (file) =>
-              !processedFiles.some(
-                (newFile: FileRecordFE) => newFile.id === file.id
-              )
+              !processedFiles.some((newFile: FileFEO) => newFile.id === file.id)
           ),
           ...processedFiles,
         ],
@@ -298,19 +245,20 @@ export const directoryReducer = (
           ...state.folders.filter(
             (folder) =>
               !processedFolders.some(
-                (newFolder: FolderRecordFE) => newFolder.id === folder.id
+                (newFolder: FolderFEO) => newFolder.id === folder.id
               )
           ),
           ...processedFolders,
         ],
         fileMap: updatedFileMap,
         folderMap: updatedFolderMap,
+        loading: false,
+        error: null,
       };
     }
 
     case LIST_DIRECTORY_ROLLBACK: {
       if (!action.payload.response) return state;
-      const listDirectoryKey = action.meta?.listDirectoryKey;
       let errorMessage = "Failed to list directory contents";
 
       try {
@@ -322,32 +270,16 @@ export const directoryReducer = (
         console.error("Error parsing error response:", e);
       }
 
-      if (listDirectoryKey) {
-        return {
-          ...state,
-          listingDataMap: {
-            ...state.listingDataMap,
-            [listDirectoryKey]: {
-              ...(state.listingDataMap[listDirectoryKey] || {
-                folders: [],
-                files: [],
-                totalFiles: 0,
-                totalFolders: 0,
-                cursor: null,
-                lastUpdated: 0,
-              }),
-              isLoading: false,
-              error: errorMessage,
-            },
-          },
-        };
-      }
-
-      return state;
+      return {
+        ...state,
+        loading: false,
+        error: errorMessage,
+      };
     }
 
     // ------------------------------ GET FILE --------------------------------- //
     case GET_FILE: {
+      console.log(`GET_FILE reducer`, action);
       return {
         ...state,
         files: action.optimistic
@@ -504,12 +436,17 @@ export const directoryReducer = (
 
     // ------------------------------ CREATE FILE --------------------------------- //
     case CREATE_FILE: {
+      console.log(`CREATE_FILE reducer`, action);
       const optimisticFile = action.optimistic;
       return {
         ...state,
         files: optimisticFile
           ? updateOrAddFile(state.files, optimisticFile, "_optimisticID")
           : state.files,
+        fileMap: {
+          ...state.fileMap,
+          [optimisticFile.id]: optimisticFile,
+        },
         loading: true,
         error: null,
       };
@@ -548,6 +485,8 @@ export const directoryReducer = (
       const filteredFiles = state.files.filter(
         (file) => file._optimisticID !== optimisticID
       );
+
+      console.log(`newFile COMMIT`, newFile);
 
       return {
         ...state,

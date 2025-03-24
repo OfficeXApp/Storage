@@ -11,7 +11,7 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskTypeEnum, GenerateID } from "@officexapp/types";
+import { DiskTypeEnum, FileID, GenerateID } from "@officexapp/types";
 import {
   CREATE_FILE,
   createFileAction,
@@ -61,13 +61,14 @@ export class CanisterAdapter implements IUploadAdapter {
       this.maxChunkSize = config.maxChunkSize;
     }
 
-    console.log(`Initialized Canister adapter with endpoint: ${this.baseUrl}`);
+    // console.log(`Initialized Canister adapter with endpoint: ${this.baseUrl}`);
   }
 
   /**
    * Upload a file to Canister with chunking
    */
   public uploadFile(
+    fileID: FileID,
     file: File,
     config: UploadConfig
   ): Observable<UploadProgressInfo> {
@@ -75,9 +76,9 @@ export class CanisterAdapter implements IUploadAdapter {
     const uploadId =
       (config.metadata?.id as UploadID) || (uuidv4() as UploadID);
 
-    console.log(
-      `CanisterAdapter: Starting upload with ID: ${uploadId} for file: ${file.name}`
-    );
+    // console.log(
+    //   `CanisterAdapter: Starting upload with ID: ${uploadId} for file: ${file.name}`
+    // );
 
     // Create progress subject
     const progress = new Subject<UploadProgressInfo>();
@@ -134,6 +135,7 @@ export class CanisterAdapter implements IUploadAdapter {
       // Store metadata for resume capability
       const metadata: ResumableUploadMetadata = {
         id: uploadId,
+        fileID: fileId || config.fileID,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
@@ -145,7 +147,7 @@ export class CanisterAdapter implements IUploadAdapter {
         uploadedChunks: [],
         totalChunks,
         chunkSize,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
         customMetadata: { ...config.metadata, fileId },
       };
 
@@ -191,6 +193,7 @@ export class CanisterAdapter implements IUploadAdapter {
         // Emit progress
         const progress: UploadProgressInfo = {
           id: uploadId,
+          fileID: config.fileID,
           fileName: file.name,
           state:
             chunksUploaded === totalChunks
@@ -201,7 +204,7 @@ export class CanisterAdapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime,
           diskType: config.diskType,
-          uploadPath: config.uploadPath,
+          parentFolderID: config.parentFolderID,
         };
 
         progressSubject.next(progress);
@@ -213,6 +216,7 @@ export class CanisterAdapter implements IUploadAdapter {
       // If we got here, upload is complete
       const finalProgress: UploadProgressInfo = {
         id: uploadId,
+        fileID: config.fileID,
         fileName: file.name,
         state: UploadState.COMPLETED,
         progress: 100,
@@ -220,7 +224,7 @@ export class CanisterAdapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime,
         diskType: config.diskType,
-        uploadPath: config.uploadPath,
+        parentFolderID: config.parentFolderID,
       };
 
       progressSubject.next(finalProgress);
@@ -245,10 +249,10 @@ export class CanisterAdapter implements IUploadAdapter {
     file: File,
     config: UploadConfig,
     uploadId: UploadID
-  ): Promise<string> {
+  ): Promise<FileID> {
     try {
       // Generate a file ID or use the one from metadata
-      const fileId = config.metadata?.fileId || GenerateID.File();
+      const fileID = config.fileID || GenerateID.File();
 
       // Need dispatch function to be in metadata for Redux integration
       if (!config.metadata?.dispatch) {
@@ -261,9 +265,9 @@ export class CanisterAdapter implements IUploadAdapter {
       const createAction = {
         action: CREATE_FILE as "CREATE_FILE",
         payload: {
-          id: fileId,
+          id: fileID,
           name: file.name,
-          parent_folder_uuid: config.uploadPath,
+          parent_folder_uuid: config.parentFolderID,
           extension: file.name.split(".").pop() || "",
           labels: [],
           file_size: file.size,
@@ -271,7 +275,7 @@ export class CanisterAdapter implements IUploadAdapter {
         },
       };
 
-      console.log("Creating file record with action:", createAction);
+      // console.log("Creating file record with action:", createAction);
 
       // Dispatch action to create file record
       dispatch(createFileAction(createAction, undefined, false));
@@ -279,7 +283,7 @@ export class CanisterAdapter implements IUploadAdapter {
       // Wait for the record to be created
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      return fileId;
+      return fileID;
     } catch (error) {
       console.error("Error creating file record:", error);
       throw error;
@@ -322,9 +326,9 @@ export class CanisterAdapter implements IUploadAdapter {
       return true;
     } catch (error) {
       if ((error as Error).name === "AbortError") {
-        console.log(
-          `Upload of chunk ${chunkIndex} for file ${fileId} was cancelled`
-        );
+        // console.log(
+        //   `Upload of chunk ${chunkIndex} for file ${fileId} was cancelled`
+        // );
         return false;
       }
       throw error;
@@ -363,7 +367,7 @@ export class CanisterAdapter implements IUploadAdapter {
       return true;
     } catch (error) {
       if ((error as Error).name === "AbortError") {
-        console.log(`Complete upload for file ${fileId} was cancelled`);
+        // console.log(`Complete upload for file ${fileId} was cancelled`);
         return false;
       }
       throw error;
@@ -399,6 +403,7 @@ export class CanisterAdapter implements IUploadAdapter {
    */
   public resumeUpload(
     id: UploadID,
+    fileID: FileID,
     file: File
   ): Observable<UploadProgressInfo> {
     // Get existing metadata
@@ -407,6 +412,7 @@ export class CanisterAdapter implements IUploadAdapter {
     if (!metadata) {
       return of({
         id,
+        fileID,
         fileName: file.name,
         state: UploadState.FAILED,
         progress: 0,
@@ -415,7 +421,7 @@ export class CanisterAdapter implements IUploadAdapter {
         startTime: Date.now(),
         diskType: DiskTypeEnum.IcpCanister,
         errorMessage: "No resumable upload metadata found",
-        uploadPath: "",
+        parentFolderID: "",
       });
     }
 
@@ -423,6 +429,7 @@ export class CanisterAdapter implements IUploadAdapter {
     if (!this.validateFileForResume(metadata, file)) {
       return of({
         id,
+        fileID: metadata.fileID,
         fileName: file.name,
         state: UploadState.FAILED,
         progress: 0,
@@ -431,7 +438,7 @@ export class CanisterAdapter implements IUploadAdapter {
         startTime: Date.now(),
         diskType: metadata.diskType,
         errorMessage: "File does not match the paused upload",
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       });
     }
 
@@ -498,6 +505,7 @@ export class CanisterAdapter implements IUploadAdapter {
       // Initial progress update
       progressSubject.next({
         id: uploadId,
+        fileID: metadata.fileID,
         fileName: file.name,
         state: UploadState.ACTIVE,
         progress: Math.floor((bytesUploaded / file.size) * 100),
@@ -505,7 +513,7 @@ export class CanisterAdapter implements IUploadAdapter {
         bytesTotal: file.size,
         startTime: metadata.uploadStartTime,
         diskType: metadata.diskType,
-        uploadPath: metadata.uploadPath,
+        parentFolderID: metadata.parentFolderID,
       });
 
       // Process each remaining chunk
@@ -548,6 +556,7 @@ export class CanisterAdapter implements IUploadAdapter {
         // Emit progress
         const progress: UploadProgressInfo = {
           id: uploadId,
+          fileID: metadata.fileID,
           fileName: file.name,
           state:
             uploadedChunks.size === totalChunks
@@ -558,7 +567,7 @@ export class CanisterAdapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime: metadata.uploadStartTime,
           diskType: metadata.diskType,
-          uploadPath: metadata.uploadPath,
+          parentFolderID: metadata.parentFolderID,
         };
 
         progressSubject.next(progress);
@@ -570,6 +579,7 @@ export class CanisterAdapter implements IUploadAdapter {
 
         const finalProgress: UploadProgressInfo = {
           id: uploadId,
+          fileID: metadata.fileID,
           fileName: file.name,
           state: UploadState.COMPLETED,
           progress: 100,
@@ -577,7 +587,7 @@ export class CanisterAdapter implements IUploadAdapter {
           bytesTotal: file.size,
           startTime: metadata.uploadStartTime,
           diskType: metadata.diskType,
-          uploadPath: metadata.uploadPath,
+          parentFolderID: metadata.parentFolderID,
         };
 
         progressSubject.next(finalProgress);
@@ -684,6 +694,7 @@ export class CanisterAdapter implements IUploadAdapter {
 
     return {
       id,
+      fileID: metadata.fileID,
       fileName: metadata.fileName,
       state: UploadState.PAUSED,
       progress,
@@ -691,7 +702,7 @@ export class CanisterAdapter implements IUploadAdapter {
       bytesTotal: metadata.fileSize,
       startTime: metadata.uploadStartTime,
       diskType: metadata.diskType,
-      uploadPath: metadata.uploadPath,
+      parentFolderID: metadata.parentFolderID,
     };
   }
 
@@ -744,37 +755,6 @@ export class CanisterAdapter implements IUploadAdapter {
     this.blobUrls.clear();
 
     return Promise.resolve();
-  }
-
-  /**
-   * Check if a file already exists
-   */
-  public async checkIfExists(
-    fileName: string,
-    uploadPath: string
-  ): Promise<boolean> {
-    try {
-      const response = await fetch(
-        `${this.baseUrl}/directory/check_exists?filename=${encodeURIComponent(fileName)}&path=${encodeURIComponent(uploadPath)}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Check exists failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.exists;
-    } catch (error) {
-      console.error("Error checking if file exists:", error);
-      return false;
-    }
   }
 
   /**

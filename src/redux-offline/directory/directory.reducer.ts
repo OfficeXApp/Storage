@@ -59,7 +59,6 @@ import {
 import { DiskFEO } from "../disks/disks.reducer";
 
 export const DIRECTORY_REDUX_KEY = "directory";
-
 export const FILES_DEXIE_TABLE = "files";
 export const FOLDERS_DEXIE_TABLE = "folders";
 

@@ -197,7 +197,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                   // Get all matching folders
                   let folders = await foldersQuery.toArray();
-                  console.log(`folders`);
                   // Filter deleted folders
                   folders = folders.filter((folder) => !folder.deleted);
 
@@ -232,13 +231,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                   // Query files
                   let filesQuery = filesTable
-                    .where("folder_uuid")
+                    .where("parent_folder_uuid")
                     .equals(folderId);
-
-                  console.log(
-                    `filesQuery on ${folderId} and ${diskId}`,
-                    filesQuery
-                  );
 
                   // Apply disk filter if specified
                   if (diskId) {
@@ -247,8 +241,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                   // Get all matching files
                   let files = await filesQuery.toArray();
-
-                  console.log(`files`, files);
 
                   // Filter deleted files
                   files = files.filter((file) => !file.deleted);
@@ -380,12 +372,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ GET FILE --------------------------------- //
           case GET_FILE: {
-            console.log(`GET_FILE`, action);
             // Get cached data from IndexedDB
             const optimisticID = action.meta.optimisticID;
-            console.log("GET_FILE optimisticID", optimisticID);
             const cachedFile = await filesTable.get(optimisticID);
-            console.log("GET_FILE cachedFile", cachedFile);
             if (cachedFile) {
               enhancedAction = {
                 ...action,
@@ -540,10 +529,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             if (action.meta?.offline?.effect?.data) {
               const fileData = action.meta.offline.effect.data.actions[0];
               const optimisticID = action.meta.optimisticID;
-              console.log(
-                `fileData.payload.parent_folder_uuid`,
-                fileData.payload
-              );
               const parentFolderId =
                 fileData.payload.parent_folder_uuid || "root";
 
@@ -555,7 +540,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 id: optimisticID,
                 name: fileData.payload.name,
                 extension: fileData.payload.extension || "",
-                folder_uuid: parentFolderId,
+                parent_folder_uuid: parentFolderId,
                 disk_type: fileData.payload.disk_type || "BrowserCache",
                 file_version: 1,
                 full_directory_path: parentFolder
@@ -606,6 +591,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           case CREATE_FILE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
             let realFile: FileRecordFE | undefined;
+
+            console.log(`CREATE_FILE_COMMIT`, action);
 
             // Extract the file from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.file) {
@@ -870,6 +857,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_FILE_COMMIT: {
+            console.log(`UPDATE_FILE_COMMIT`, action);
             const optimisticID = action.meta?.optimisticID;
             let realFile: FileRecordFE | undefined;
 
@@ -1039,9 +1027,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               await filesTable.put(optimisticFile);
 
               // Update parent folder reference if it exists
-              if (cachedFile.folder_uuid) {
+              if (cachedFile.parent_folder_uuid) {
                 const parentFolder = await foldersTable.get(
-                  cachedFile.folder_uuid
+                  cachedFile.parent_folder_uuid
                 );
                 if (parentFolder) {
                   await foldersTable.put({
@@ -1166,8 +1154,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                 // Create new paths for the deleted folder
                 const folderName = cachedFolder.name;
-                const trashPath = `${cachedFolder.disk_id}::/.trash/${folderName}/`;
-                const trashClippedPath = `${cachedFolder.disk_id}::/.trash/${folderName}/`;
+                const trashPath = `${cachedFolder.disk_id}::.trash/${folderName}/`;
+                const trashClippedPath = `${cachedFolder.disk_id}::.trash/${folderName}/`;
 
                 // Store the original path for potential restoration later
                 const optimisticFolder: FolderFEO = {
@@ -1274,7 +1262,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             if (cachedFile && destinationFolderId) {
               // Get source and destination folders
               const sourceFolder = await foldersTable.get(
-                cachedFile.folder_uuid
+                cachedFile.parent_folder_uuid
               );
               const destinationFolder =
                 await foldersTable.get(destinationFolderId);
@@ -1288,7 +1276,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               // Create optimistic file object with updates
               const optimisticFile: FileFEO = {
                 ...cachedFile,
-                folder_uuid: destinationFolderId,
+                parent_folder_uuid: destinationFolderId,
                 full_directory_path: newFilePath,
                 clipped_directory_path: newFilePath,
                 last_updated_date_ms: Date.now(),
@@ -1375,11 +1363,12 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   // Update folder references if needed
                   if (
                     optimisticFile &&
-                    optimisticFile.folder_uuid !== realFile.folder_uuid
+                    optimisticFile.parent_folder_uuid !==
+                      realFile.parent_folder_uuid
                   ) {
                     // Update old folder reference
                     const oldFolder = await foldersTable.get(
-                      optimisticFile.folder_uuid
+                      optimisticFile.parent_folder_uuid
                     );
                     if (oldFolder) {
                       await foldersTable.put({
@@ -1393,7 +1382,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
                     // Update new folder reference
                     const newFolder = await foldersTable.get(
-                      realFile.folder_uuid
+                      realFile.parent_folder_uuid
                     );
                     if (newFolder) {
                       await foldersTable.put({
@@ -1629,7 +1618,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               const optimisticFile: FileFEO = {
                 ...sourceFile,
                 id: destinationId,
-                folder_uuid: destinationFolderId,
+                parent_folder_uuid: destinationFolderId,
                 full_directory_path: newFilePath,
                 clipped_directory_path: newFilePath,
                 created_at: Date.now(),
@@ -1702,7 +1691,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   });
 
                   // Update folder reference
-                  const folder = await foldersTable.get(realFile.folder_uuid);
+                  const folder = await foldersTable.get(
+                    realFile.parent_folder_uuid
+                  );
                   if (folder && !folder.file_uuids.includes(realFile.id)) {
                     await foldersTable.put({
                       ...folder,
@@ -1959,7 +1950,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               const file = await filesTable.get(resourceId);
               if (file) {
                 // Get the current parent folder
-                const currentFolder = await foldersTable.get(file.folder_uuid);
+                const currentFolder = await foldersTable.get(
+                  file.parent_folder_uuid
+                );
                 const disk = await disksTable.get(file.disk_id);
 
                 // Verify the file is in trash

@@ -195,7 +195,9 @@ export const directoryReducer = (
     }
 
     case LIST_DIRECTORY_COMMIT: {
-      const response = action.payload?.ok?.data;
+      console.log(`LIST_DIRECTORY_COMMIT reducer`, action);
+      let listDirectoryKey = action.meta?.listDirectoryKey;
+      const response = action.payload;
 
       if (!response) {
         return {
@@ -234,6 +236,10 @@ export const directoryReducer = (
 
       return {
         ...state,
+        listingDataMap: {
+          ...state.listingDataMap,
+          [listDirectoryKey]: action.payload,
+        },
         files: [
           ...state.files.filter(
             (file) =>
@@ -704,6 +710,7 @@ export const directoryReducer = (
     }
 
     case UPDATE_FILE_COMMIT: {
+      console.log(`UPDATE_FILE_COMMIT reducer`, action);
       const optimisticID = action.meta?.optimisticID;
       let realFile;
 

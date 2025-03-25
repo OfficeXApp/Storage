@@ -53,6 +53,8 @@ export class CanisterAdapter implements IUploadAdapter {
       throw new Error("Canister API key is required");
     }
 
+    console.log(`canister config`, config);
+
     this.baseUrl = config.endpoint;
     this.apiKey = config.apiKey;
     this.diskID = config.diskID;
@@ -272,13 +274,14 @@ export class CanisterAdapter implements IUploadAdapter {
           labels: [],
           file_size: file.size,
           disk_id: config.diskID,
+          disk_type: config.diskType,
         },
       };
 
       // console.log("Creating file record with action:", createAction);
 
       // Dispatch action to create file record
-      dispatch(createFileAction(createAction, undefined, false));
+      dispatch(createFileAction(createAction, config.listDirectoryKey, false));
 
       // Wait for the record to be created
       await new Promise((resolve) => setTimeout(resolve, 1000));

@@ -292,7 +292,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             const canisterAdapter = new CanisterAdapter();
             const canisterConfig = {
               diskID: diskId,
-              endpoint: currentOrg.endpoint,
+              endpoint: `${currentOrg.endpoint}/v1/default`,
               apiKey: currentAPIKey?.value,
               maxChunkSize: (1 * 1024 * 1024) / 2, // 0.5MB
             };
@@ -301,7 +301,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               DiskTypeEnum.IcpCanister,
               diskId,
               canisterConfig,
-              3 // Concurrency
+              1 // Concurrency
             );
             // console.log(`Registered ICP adapter for disk: ${diskId}`);
             continue;

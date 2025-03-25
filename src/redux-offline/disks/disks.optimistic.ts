@@ -32,7 +32,7 @@ import {
 } from "../../framework/identity";
 import { DiskFEO, DISKS_DEXIE_TABLE, DISKS_REDUX_KEY } from "./disks.reducer";
 import _ from "lodash";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, SystemPermissionType } from "@officexapp/types";
 
 /**
  * Middleware for handling optimistic updates for the disks table
@@ -256,6 +256,13 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
                 ...diskData,
                 created_at: Date.now(),
                 updated_at: Date.now(),
+                permission_previews: [
+                  SystemPermissionType.CREATE,
+                  SystemPermissionType.EDIT,
+                  SystemPermissionType.DELETE,
+                  SystemPermissionType.VIEW,
+                  SystemPermissionType.INVITE,
+                ],
                 _optimisticID: optimisticID,
                 _syncWarning: `Awaiting Sync. This disk was created offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be recreated. Anything else depending on it may also be affected.`,
                 _syncConflict: false,

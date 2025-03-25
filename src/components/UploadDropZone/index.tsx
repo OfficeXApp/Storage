@@ -3,8 +3,12 @@ import { useDropzone } from "react-dropzone";
 // import { useDrive, getUploadFolderPath } from "../../framework";
 import "./dropzone.css"; // Assuming you have some custom CSS
 import mixpanel from "mixpanel-browser";
-import { UserID } from "@officexapp/types";
+import { DiskTypeEnum, FileID, UserID } from "@officexapp/types";
 import { getUploadFolderPath, useDrive } from "../../framework";
+import { useMultiUploader } from "../../framework/uploader/hook";
+import { v4 as uuidv4 } from "uuid";
+import { generateListDirectoryKey } from "../../redux-offline/directory/directory.actions";
+import { useDispatch } from "react-redux";
 
 interface UploadDropZoneProps {
   children: React.ReactNode;
@@ -15,55 +19,51 @@ const UploadDropZone: React.FC<UploadDropZoneProps> = ({
   children,
   toggleUploadPanel,
 }) => {
-  const { uploadFilesFolders } = useDrive();
+  const { uploadFiles, uploadTargetFolderID, uploadTargetDisk } =
+    useMultiUploader();
+  const dispatch = useDispatch();
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0) {
+      console.log(`Accepted files: ${acceptedFiles.length}`, acceptedFiles);
+      if (
+        acceptedFiles.length > 0 &&
+        uploadTargetDisk &&
+        uploadTargetFolderID
+      ) {
         mixpanel.track("Upload Files");
-        const { uploadFolderPath, storageLocation } = getUploadFolderPath();
 
-        const directoryStructure = acceptedFiles.reduce(
-          (acc, file) => {
-            // Assuming path gives the full relative path
-            const relativePath = (file as any).path || file.name; // 'path' is non-standard, so cast to any
-            const pathParts = relativePath.split("/");
-            const directory = pathParts.slice(0, -1).join("/");
-
-            if (!acc[directory]) {
-              acc[directory] = [];
-            }
-            acc[directory].push(file);
-
-            return acc;
-          },
-          {} as Record<string, File[]>
+        // Create an array of file objects with generated FileIDs
+        const uploadFilesArray = acceptedFiles.map((file) => ({
+          file,
+          fileID: `FileID_${uuidv4()}` as FileID,
+        }));
+        console.log("uploadFilesArray", uploadFilesArray);
+        // Use uploadFiles from useMultiUploader
+        uploadFiles(
+          uploadFilesArray,
+          uploadTargetFolderID,
+          uploadTargetDisk.disk_type as DiskTypeEnum,
+          uploadTargetDisk.id,
+          {
+            onFileComplete: (fileUUID) => {
+              console.log(`Local callback: File ${fileUUID} upload completed`);
+            },
+            parentFolderID: uploadTargetFolderID,
+            metadata: {
+              dispatch,
+            },
+            listDirectoryKey: generateListDirectoryKey({
+              folder_id: uploadTargetFolderID || undefined,
+            }),
+          }
         );
-
-        // Upload files preserving the folder structure
-        for (const directory in directoryStructure) {
-          const filesInDirectory = directoryStructure[directory];
-          const fullPath = `${uploadFolderPath}/${directory}`;
-
-          uploadFilesFolders(
-            filesInDirectory,
-            fullPath,
-            storageLocation,
-            "user123" as UserID, // Replace with dynamic user ID as needed
-            5,
-            (fileUUID) => {
-              console.log(
-                `Local callback: File ${fileUUID} in ${directory} uploaded successfully`
-              );
-            }
-          );
-        }
 
         console.log("Selected files for upload:", acceptedFiles);
         toggleUploadPanel(true);
       }
     },
-    [uploadFilesFolders, toggleUploadPanel]
+    [uploadFiles, uploadTargetFolderID, uploadTargetDisk, toggleUploadPanel]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -80,7 +80,13 @@ const UploadDropZone: React.FC<UploadDropZoneProps> = ({
       })}
       style={{ width: "100%", height: "100%" }}
     >
-      <input {...getInputProps()} />
+      <input
+        {...getInputProps()}
+        // @ts-ignore
+        webkitdirectory
+        mozdirectory
+        directory
+      />
       {children}
     </div>
   );

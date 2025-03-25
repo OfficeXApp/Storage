@@ -292,7 +292,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             const canisterAdapter = new CanisterAdapter();
             const canisterConfig = {
               diskID: diskId,
-              endpoint: `${currentOrg.endpoint}/v1/default`,
+              endpoint: `${currentOrg.endpoint}/v1/${currentOrg.driveID}`,
               apiKey: currentAPIKey?.value,
               maxChunkSize: (1 * 1024 * 1024) / 2, // 0.5MB
             };
@@ -308,7 +308,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
           } else if (diskType === DiskTypeEnum.StorjWeb3) {
             const cloudS3Adapter = new CloudS3Adapter();
             const cloudS3Config = {
-              endpoint: `${currentOrg.endpoint}/v1/default`,
+              endpoint: `${currentOrg.endpoint}/v1/${currentOrg.driveID}`,
               maxChunkSize: 5 * 1024 * 1024,
               rawUrlProxyPath: `/v1/${currentOrg.driveID}/directory/asset/`,
               apiKey: currentAPIKey?.value,

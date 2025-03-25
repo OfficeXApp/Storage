@@ -382,7 +382,19 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   );
 
   const handleBack = () => {
-    navigate(-1);
+    console.log(`content`, content);
+    // if (content.files.length > 0 && content.files[0]?.parent_folder_uuid) {
+    //   navigate(
+    //     `/drive/${content.files[0].disk_id}/${content.files[0].parent_folder_uuid}`
+    //   );
+    // }
+    // if (content.folders.length > 0 && content.folders[0]?.parent_folder_uuid) {
+    //   navigate(
+    //     `/drive/${content.folders[0].disk_id}/${content.folders[0].parent_folder_uuid}`
+    //   );
+    // } else {
+    navigate(`/drive`);
+    // }
   };
 
   const appendRefreshParam = () => {

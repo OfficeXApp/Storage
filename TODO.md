@@ -3,7 +3,8 @@
 ## Overview
 
 - [🔵] Fix upload process with inherent folder direvtory preservation (uploading folder should preserve directory)
-- [x] Fix uploading to indexdb which saves raw chunks but doesnt save into dexie files hashtable (we might want to undo our indexdb.adapter which replced uploadid with fileid, possibly incorrect)
+- [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
+- [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
 
 The large sprints of work are:
 
@@ -55,3 +56,4 @@ The large sprints of work are:
 - [x] Contacts crud routes (with redux-offline)
 - [x] fix add webhooks component
 - [x] Polish all tables to match groups behavior (got rid of OPEN button and clicking name goes into tab directly no untab, clicking rest of row tabs/untabs without navigating to it)
+- [x] Fix uploading to indexdb which saves raw chunks but doesnt save into dexie files hashtable (we might want to undo our indexdb.adapter which replced uploadid with fileid, possibly incorrect)

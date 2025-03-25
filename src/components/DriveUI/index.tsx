@@ -382,7 +382,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   );
 
   const handleBack = () => {
-    console.log(`content`, content);
+    // console.log(`content`, content);
     // if (content.files.length > 0 && content.files[0]?.parent_folder_uuid) {
     //   navigate(
     //     `/drive/${content.files[0].disk_id}/${content.files[0].parent_folder_uuid}`
@@ -427,7 +427,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         dataIndex: "title",
         key: "title",
         render: (text: string, record: DriveItemRow) => {
-          console.log(`record`, record);
+          // console.log(`record`, record);
           return (
             <div
               onClick={() => {

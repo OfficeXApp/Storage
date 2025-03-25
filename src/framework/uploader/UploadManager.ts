@@ -36,7 +36,15 @@ import {
   UploadResponse,
 } from "./types";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
-import { DiskID, DiskTypeEnum, FileID } from "@officexapp/types";
+import {
+  CreateFolderPayload,
+  DiskID,
+  DiskTypeEnum,
+  FileConflictResolutionEnum,
+  FileID,
+  FolderID,
+  GenerateID,
+} from "@officexapp/types";
 
 /**
  * Manager for coordinating uploads across different adapters
@@ -53,6 +61,9 @@ export class UploadManager {
   private pauseAllUploads$ = new Subject<PauseReason>();
   private resumeAllUploads$ = new Subject<void>();
 
+  private apiKey = "";
+  private endpoint = "";
+
   // Storage for resumable uploads
   private uploadStorage: Storage;
   private readonly STORAGE_KEY_PREFIX = "uploadmanager_";
@@ -64,9 +75,12 @@ export class UploadManager {
   /**
    * Create a new UploadManager
    */
-  constructor() {
+  constructor(endpoint: string, apiKey: string) {
     // Use localStorage for small metadata, actual chunks would be in IndexedDB
     this.uploadStorage = localStorage;
+
+    this.endpoint = endpoint;
+    this.apiKey = apiKey;
 
     // Setup network status monitoring
     window.addEventListener("online", () => {
@@ -208,34 +222,48 @@ export class UploadManager {
   ): UploadID[] {
     const ids: UploadID[] = [];
     console.log(`upload option`, options);
-    for (const file of files) {
-      const id = this.uploadFile(
-        file.fileID,
-        file.file,
-        parentFolderID,
-        diskType,
+
+    const isFolderUpload =
+      files.length > 0 &&
+      files[0].file.webkitRelativePath &&
+      files[0].file.webkitRelativePath.includes("/");
+
+    if (isFolderUpload) {
+      this.handleFolderUpload(files, {
+        folderID: parentFolderID,
         diskID,
-        {
-          ...options,
-          onComplete: (uploadId) => {
-            if (options.onFileComplete) {
-              options.onFileComplete(uploadId);
-            }
+        diskType,
+      });
+    } else {
+      for (const file of files) {
+        const id = this.uploadFile(
+          file.fileID,
+          file.file,
+          parentFolderID,
+          diskType,
+          diskID,
+          {
+            ...options,
+            onComplete: (uploadId) => {
+              if (options.onFileComplete) {
+                options.onFileComplete(uploadId);
+              }
 
-            // Check if all uploads are complete
-            const allComplete = ids.every((id) => {
-              const item = this.uploadQueue.get(id);
-              return item && item.state === UploadState.COMPLETED;
-            });
+              // Check if all uploads are complete
+              const allComplete = ids.every((id) => {
+                const item = this.uploadQueue.get(id);
+                return item && item.state === UploadState.COMPLETED;
+              });
 
-            if (allComplete && options.onAllComplete) {
-              options.onAllComplete();
-            }
-          },
-        }
-      );
+              if (allComplete && options.onAllComplete) {
+                options.onAllComplete();
+              }
+            },
+          }
+        );
 
-      ids.push(id);
+        ids.push(id);
+      }
     }
 
     return ids;
@@ -1180,5 +1208,148 @@ export class UploadManager {
     this.updateProgressTracking();
 
     return id;
+  }
+
+  async handleFolderUpload(
+    files: { file: File; fileID: FileID }[],
+    config: any
+  ): Promise<any[]> {
+    // Extract all unique folder paths from files
+    const folderPaths = new Set<string>();
+
+    files.forEach((fileObj) => {
+      const relativePath = fileObj.file.webkitRelativePath;
+      if (relativePath) {
+        // Get all parent folder paths
+        const parts = relativePath.split("/");
+        let currentPath = "";
+
+        // Skip the last part as it's the filename
+        for (let i = 0; i < parts.length - 1; i++) {
+          currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
+          folderPaths.add(currentPath);
+        }
+      }
+    });
+
+    // Sort paths by depth to ensure parent folders are created first
+    const sortedPaths = Array.from(folderPaths).sort(
+      (a, b) => (a.match(/\//g) || []).length - (b.match(/\//g) || []).length
+    );
+
+    // Map to track created folders: path -> folderID
+    const folderMap = new Map<string, FolderID>();
+    // Set the root folder ID from config
+    const rootFolderID = config.folderID;
+
+    // Create all necessary folders
+    for (const path of sortedPaths) {
+      const parts = path.split("/");
+      const folderName = parts[parts.length - 1];
+      let parentFolderID: FolderID;
+
+      if (parts.length === 1) {
+        // Top-level folder, use the root folder ID from config
+        parentFolderID = rootFolderID as FolderID;
+      } else {
+        // Get parent folder path
+        const parentPath = parts.slice(0, parts.length - 1).join("/");
+        parentFolderID = folderMap.get(parentPath) as FolderID;
+      }
+
+      // Create the folder
+      const folderID = await this.createFolder({
+        name: folderName,
+        parent_folder_uuid: parentFolderID,
+        disk_id: config.diskID,
+        labels: [],
+        file_conflict_resolution: FileConflictResolutionEnum.KEEP_ORIGINAL,
+      });
+
+      // Store the created folder ID
+      folderMap.set(path, folderID);
+    }
+
+    // Upload files to their respective folders
+    const uploadResults: any[] = [];
+
+    for (const fileObj of files) {
+      const relativePath = fileObj.file.webkitRelativePath as string;
+      const pathParts = relativePath.split("/");
+
+      // Get the parent folder path (everything except the filename)
+      const parentFolderPath = pathParts
+        .slice(0, pathParts.length - 1)
+        .join("/");
+      const parentFolderID = folderMap.get(parentFolderPath) as FolderID;
+
+      // Upload the file to the correct parent folder
+      const result = await this.uploadFile(
+        fileObj.fileID,
+        fileObj.file,
+        parentFolderID,
+        config.diskType,
+        config.diskID,
+        {
+          ...config,
+          folderID: parentFolderID,
+        }
+      );
+
+      uploadResults.push(result);
+    }
+
+    return uploadResults;
+  }
+
+  async createFolder(folderConfig: CreateFolderPayload): Promise<FolderID> {
+    const folderID = folderConfig.id || GenerateID.Folder();
+
+    // Prepare create folder action
+    const createAction = {
+      action: "CREATE_FOLDER" as const,
+      payload: {
+        id: folderID,
+        name: folderConfig.name,
+        parent_folder_uuid: folderConfig.parent_folder_uuid,
+        labels: folderConfig.labels || [],
+        disk_id: folderConfig.disk_id,
+        expires_at: folderConfig.expires_at || null,
+        file_conflict_resolution: folderConfig.file_conflict_resolution || null,
+        has_sovereign_permissions:
+          folderConfig.has_sovereign_permissions || null,
+        shortcut_to: folderConfig.shortcut_to || null,
+        external_id: folderConfig.external_id || null,
+        external_payload: folderConfig.external_payload || null,
+      },
+    };
+
+    // Make direct API call following the /directory/action pattern
+    const response = await fetch(`${this.endpoint}/directory/action`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        actions: [createAction],
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create folder: ${response.statusText}`);
+    }
+
+    const result = (await response.json()) as any[];
+
+    if (result[0].success) {
+      console.log(`Folder created successfully: ${folderConfig.name}`, result);
+      // Return the folder ID from the response
+      return result[0].response.result.folder.id;
+    } else {
+      throw new Error(
+        `Failed to create folder: ${JSON.stringify(result[0].response.error)}`
+      );
+    }
   }
 }

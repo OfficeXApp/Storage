@@ -27,7 +27,10 @@ import {
   DiskTypeEnum,
   GenerateID,
 } from "@officexapp/types";
-import { createDiskAction } from "../../redux-offline/disks/disks.actions";
+import {
+  createDiskAction,
+  listDisksAction,
+} from "../../redux-offline/disks/disks.actions";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 
 const { Text, Paragraph } = Typography;
@@ -122,6 +125,7 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
       .then((values) => {
         // Create disk data from form values
         const diskData: IRequestCreateDisk = {
+          id: GenerateID.Disk(),
           name: values.name,
           disk_type: values.diskType,
           public_note: values.publicNote || "",

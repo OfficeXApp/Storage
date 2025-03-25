@@ -30,8 +30,12 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskTypeEnum, FileID } from "@officexapp/types";
+import { DiskTypeEnum, FileID, GenerateID } from "@officexapp/types";
 import { getMimeType } from "../helpers";
+import {
+  CREATE_FILE,
+  createFileAction,
+} from "../../../redux-offline/directory/directory.actions";
 
 /**
  * Adapter for uploading files to AWS S3 or S3-compatible storage (like Storj)
@@ -142,11 +146,14 @@ export class LocalS3Adapter implements IUploadAdapter {
     // Create abort controller
     const controller = new AbortController();
 
-    // Save to active uploads
+    // Save to active uploadsLocal callback
     this.activeUploads.set(uploadId, { controller, progress });
 
     // Determine key (S3 object path)
-    const key = this.getObjectKey(config.parentFolderID, file.name);
+    const extension = file.name.split(".").pop();
+    const key = `${fileID}.${extension}`;
+
+    console.log(`getObjectKey`, key);
 
     // Check if we should use multipart upload
     const useMultipartUpload =
@@ -202,10 +209,13 @@ export class LocalS3Adapter implements IUploadAdapter {
     const startTime = Date.now();
 
     try {
+      // Create file record first
+      const fileID = await this.createFileRecord(file, config, uploadId);
+
       // Send initial progress
       progressSubject.next({
         id: uploadId,
-        fileID: config.fileID,
+        fileID: fileID || config.fileID,
         fileName: file.name,
         state: UploadState.ACTIVE,
         progress: 0,
@@ -223,7 +233,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         progressSubject.error(new Error("Upload cancelled"));
         return;
       }
-
+      console.log(`to this key`, key);
       // Upload to S3
       await this.s3Client.putObject({
         Bucket: this.config.bucket,
@@ -232,9 +242,6 @@ export class LocalS3Adapter implements IUploadAdapter {
         ContentType: file.type || getMimeType(file),
         ACL:
           (this.config.acl as ObjectCannedACL) || ObjectCannedACL.public_read,
-        ...(config.metadata && {
-          Metadata: this.flattenMetadata(config.metadata),
-        }),
       });
 
       // Get signed URL for the file
@@ -478,6 +485,72 @@ export class LocalS3Adapter implements IUploadAdapter {
     }
   }
 
+  private async createFileRecord(
+    file: File,
+    config: UploadConfig,
+    uploadId: UploadID
+  ): Promise<FileID> {
+    try {
+      // Generate a file ID or use the one from metadata
+      const fileID = config.fileID || GenerateID.File();
+
+      // Need dispatch function to be in metadata for Redux integration
+      if (!config.metadata?.dispatch) {
+        throw new Error("Redux dispatch function is required in the metadata");
+      }
+
+      const dispatch = config.metadata.dispatch;
+
+      // Prepare the create file action
+      const createAction = {
+        action: CREATE_FILE as "CREATE_FILE",
+        payload: {
+          id: fileID,
+          name: file.name,
+          parent_folder_uuid: config.parentFolderID,
+          extension: file.name.split(".").pop() || "",
+          labels: [],
+          file_size: file.size,
+          disk_id: config.diskID,
+          disk_type: config.diskType,
+          expires_at: this.getNextUtcMidnight(),
+        },
+      };
+
+      // Dispatch action to create file record
+      dispatch(createFileAction(createAction, config.listDirectoryKey, true));
+
+      // Wait for the record to be created
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return fileID;
+    } catch (error) {
+      console.error("Error creating file record:", error);
+      throw error;
+    }
+  }
+
+  private getNextUtcMidnight() {
+    // Get current date in UTC
+    const now = new Date();
+
+    // Create a new Date object for the next day at midnight UTC
+    const nextMidnight = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 1, // Add 1 day to get tomorrow
+        0, // Hour: 00
+        0, // Minute: 00
+        0, // Second: 00
+        0 // Millisecond: 000
+      )
+    );
+
+    // Return the Unix timestamp in milliseconds
+    return nextMidnight.getTime();
+  }
+
   /**
    * Read a file or blob as ArrayBuffer
    */
@@ -602,6 +675,8 @@ export class LocalS3Adapter implements IUploadAdapter {
         // Get S3 key and uploadId from metadata
         const key = metadata.customMetadata?.s3Key as string;
         const s3UploadId = metadata.customMetadata?.s3UploadId as string;
+
+        console.log(`s3 key`, key);
 
         if (!key) {
           progress.error(new Error("S3 key not found in metadata"));
@@ -1148,16 +1223,6 @@ export class LocalS3Adapter implements IUploadAdapter {
 
     // Generate signed URL
     return getSignedUrl(this.s3Client, command, { expiresIn: 3600 * 24 }); // 24 hours
-  }
-
-  /**
-   * Get an S3 object key from a path and filename
-   */
-  private getObjectKey(parentFolderID: string, fileName: string): string {
-    // Normalize path (remove leading/trailing slashes)
-    const path = parentFolderID.replace(/^\/+|\/+$/g, "");
-
-    return path ? `${path}/${fileName}` : fileName;
   }
 
   /**

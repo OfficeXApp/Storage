@@ -164,6 +164,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log(`listDirectoryResults`, listDirectoryResults);
     if (listDirectoryResults) {
       const { folders, files } = listDirectoryResults;
       setContent({ folders, files });
@@ -176,6 +177,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     if (currentFileId && !getFileResult) {
       setIs404NotFound(true);
       setIsLoading(false);
+      setSingleFile(null);
     } else if (currentFileId && getFileResult) {
       setIs404NotFound(false);
       setIsLoading(false);
@@ -193,6 +195,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     const folderFileID = pathParts[1];
 
     setCurrentDiskId(diskID);
+
+    console.log(`====pathParts`, pathParts);
+    console.log(`====location`, location);
 
     if (location.pathname === "/drive" || pathParts.length === 0) {
       setListDirectoryKey("");
@@ -239,6 +244,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
+      setSingleFile(null);
       fetchContent({
         targetFolderId: folderId,
       });
@@ -246,6 +252,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
+      setSingleFile(null);
       setIsLoading(true);
       fetchContent({
         targetFolderId: folderId,
@@ -261,7 +268,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
     //   setIsStorjModalVisible(true);
     // }
-  }, [location, encodedPath]);
+  }, [location, encodedPath, disks]);
 
   const fetchFileById = (fileId: FileID) => {
     console.log("Fetching file by ID:", fileId);
@@ -393,8 +400,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     }
   };
 
-  const renderIconForFile = (fullPath: DriveFullFilePath) => {
-    const fileType = getFileType(fullPath);
+  const renderIconForFile = (title: string) => {
+    const fileType = getFileType(title);
     switch (fileType) {
       default:
         return <FileOutlined />;
@@ -407,55 +414,60 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         title: "Name",
         dataIndex: "title",
         key: "title",
-        render: (text: string, record: DriveItemRow) => (
-          <div
-            onClick={() => {
-              if (record.isDisabled) {
-                return;
-              } else {
-                handleFileFolderClick(record);
-              }
-            }}
-            style={{
-              cursor: record.isDisabled ? "not-allowed" : "pointer",
-              width: "100%",
-              color: record.isDisabled ? "gray" : "black",
-              padding: "8px 0",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {renamingItems[record.id] ? (
-              <Input
-                value={renamingItems[record.id]}
-                onChange={(e) => handleRenameChange(record.id, e.target.value)}
-                onPressEnter={() => handleRenameSubmit(record)}
-                onBlur={() => handleRenameChange(record.id, "")}
-                onClick={(e) => e.stopPropagation()}
-                prefix={
-                  record.isFolder ? (
-                    <FolderOpenOutlined />
-                  ) : (
-                    renderIconForFile(record.fullPath)
-                  )
+        render: (text: string, record: DriveItemRow) => {
+          console.log(`record`, record);
+          return (
+            <div
+              onClick={() => {
+                if (record.isDisabled) {
+                  return;
+                } else {
+                  handleFileFolderClick(record);
                 }
-                suffix={
-                  <CheckOutlined onClick={() => handleRenameSubmit(record)} />
-                }
-              />
-            ) : (
-              <>
-                {record.isFolder ? (
-                  <FolderOpenFilled />
-                ) : (
-                  renderIconForFile(record.fullPath)
-                )}
-                <span style={{ marginLeft: 8 }}>{text}</span>
-              </>
-            )}
-          </div>
-        ),
+              }}
+              style={{
+                cursor: record.isDisabled ? "not-allowed" : "pointer",
+                width: "100%",
+                color: record.isDisabled ? "gray" : "black",
+                padding: "8px 0",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {renamingItems[record.id] ? (
+                <Input
+                  value={renamingItems[record.id]}
+                  onChange={(e) =>
+                    handleRenameChange(record.id, e.target.value)
+                  }
+                  onPressEnter={() => handleRenameSubmit(record)}
+                  onBlur={() => handleRenameChange(record.id, "")}
+                  onClick={(e) => e.stopPropagation()}
+                  prefix={
+                    record.isFolder ? (
+                      <FolderOpenOutlined />
+                    ) : (
+                      renderIconForFile(record.title)
+                    )
+                  }
+                  suffix={
+                    <CheckOutlined onClick={() => handleRenameSubmit(record)} />
+                  }
+                />
+              ) : (
+                <>
+                  {record.isFolder ? (
+                    <FolderOpenFilled />
+                  ) : record ? (
+                    renderIconForFile(record.title)
+                  ) : null}
+                  <span style={{ marginLeft: 8 }}>{text}</span>
+                </>
+              )}
+            </div>
+          );
+        },
       },
       {
         title: "Owner",
@@ -624,6 +636,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
+    console.log(`====content`, content);
     return [
       ...content.folders.map((f) => ({
         id: f.id,

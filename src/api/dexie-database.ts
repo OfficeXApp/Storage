@@ -100,7 +100,7 @@ class DexieManager {
       [APIKEYS_DEXIE_TABLE]: "id, _syncConflict",
       [DIRECTORY_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
       [SYSTEM_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
-      [FILES_DEXIE_TABLE]: "id, folder_uuid, _syncConflict",
+      [FILES_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
       [FOLDERS_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
     });
 
@@ -356,7 +356,7 @@ export const initDexieDb = async (
           name: "Trash",
           subfolder_uuids: [],
           file_uuids: [],
-          full_directory_path: `${defaultBrowserCacheDiskID}::/.trash/`,
+          full_directory_path: `${defaultBrowserCacheDiskID}::.trash/`,
           labels: [],
           created_by: userID,
           created_at: Date.now(),
@@ -368,7 +368,7 @@ export const initDexieDb = async (
           expires_at: 0,
           drive_id: orgID,
           has_sovereign_permissions: true,
-          clipped_directory_path: `${defaultBrowserCacheDiskID}::/.trash/`,
+          clipped_directory_path: `${defaultBrowserCacheDiskID}::.trash/`,
           permission_previews: [
             DirectoryPermissionType.UPLOAD,
             DirectoryPermissionType.DELETE,
@@ -439,7 +439,7 @@ export const initDexieDb = async (
           name: "Trash",
           subfolder_uuids: [],
           file_uuids: [],
-          full_directory_path: `${defaultTempCloudSharingDiskID}::/.trash/`,
+          full_directory_path: `${defaultTempCloudSharingDiskID}::.trash/`,
           labels: [],
           created_by: userID,
           created_at: Date.now(),
@@ -451,7 +451,7 @@ export const initDexieDb = async (
           expires_at: 0,
           drive_id: orgID,
           has_sovereign_permissions: true,
-          clipped_directory_path: `${defaultTempCloudSharingDiskID}::/.trash/`,
+          clipped_directory_path: `${defaultTempCloudSharingDiskID}::.trash/`,
           permission_previews: [
             DirectoryPermissionType.UPLOAD,
             DirectoryPermissionType.DELETE,

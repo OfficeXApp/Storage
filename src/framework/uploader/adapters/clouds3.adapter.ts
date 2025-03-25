@@ -292,6 +292,8 @@ export class CloudS3Adapter implements IUploadAdapter {
     uploadId: UploadID
   ): Promise<{ fileID: FileID; presignedData: any }> {
     try {
+      console.log(`CREATE_FILE`, file);
+
       // Generate a file ID or use the one from metadata
       const fileID = config.fileID || GenerateID.File();
 
@@ -329,7 +331,7 @@ export class CloudS3Adapter implements IUploadAdapter {
 
       const result = await response.json();
 
-      // console.log(`File record creation result:`, result);
+      console.log(`File record creation result:`, result);
 
       // Extract presigned URL data from the API response
       let presignedData = null;
@@ -411,6 +413,12 @@ export class CloudS3Adapter implements IUploadAdapter {
         throw new Error(`Failed to update file status: ${response.statusText}`);
       }
 
+      const data = await response.json();
+
+      console.log(`Upload status`, data);
+
+      const updatedFile = data[0]?.response?.result;
+
       // If dispatch is provided, update Redux store with a COMMIT action
       if (config.metadata?.dispatch) {
         const dispatch = config.metadata.dispatch;
@@ -422,10 +430,9 @@ export class CloudS3Adapter implements IUploadAdapter {
             ok: {
               data: {
                 result: {
-                  file: {
-                    id: fileID,
-                    upload_status: uploadStatus,
-                  },
+                  ...updatedFile,
+                  id: fileID,
+                  upload_status: uploadStatus,
                 },
               },
             },

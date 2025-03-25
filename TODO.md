@@ -2,13 +2,15 @@
 
 ## Overview
 
-- [🔵] Fix uploading to indexdb which saves raw chunks but doesnt save into dexie files hashtable (we might want to undo our indexdb.adapter which replced uploadid with fileid, possibly incorrect)
+- [🔵] Fix upload process with inherent folder direvtory preservation (uploading folder should preserve directory)
+- [x] Fix uploading to indexdb which saves raw chunks but doesnt save into dexie files hashtable (we might want to undo our indexdb.adapter which replced uploadid with fileid, possibly incorrect)
 
 The large sprints of work are:
 
 - [x] Create a unified provider for handling uploads to different end destinations
 - [x] Cleanup/refactor directory reducers & optimistic middleware to handle the diverse file uploading
 - [🔵] Implement actual file uploading & panel showing progress
+- [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 
 1. Directory navigation & interaction (1-2 days)
 1. Invite system with smooth onboarding & sharing (1-2 days)

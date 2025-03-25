@@ -287,6 +287,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
           labels: [],
           file_size: file.size,
           disk_id: config.diskID,
+          disk_type: config.diskType,
         },
       };
 

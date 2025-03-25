@@ -152,10 +152,14 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   );
   const [currentUploads, setCurrentUploads] = useState<QueuedUploadItem[]>([]);
   const dispatch = useDispatch();
-  const { disks, defaultDisk } = useSelector((state: ReduxAppState) => ({
-    defaultDisk: state.disks.defaultDisk,
-    disks: state.disks.disks,
-  }));
+  const { disks, defaultDisk, folderMap, fileMap } = useSelector(
+    (state: ReduxAppState) => ({
+      defaultDisk: state.disks.defaultDisk,
+      disks: state.disks.disks,
+      folderMap: state.directory.folderMap,
+      fileMap: state.directory.fileMap,
+    })
+  );
   const [uploadTargetDiskID, setUploadTargetDiskID] = useState<DiskID | null>(
     defaultBrowserCacheDiskID
   );
@@ -228,6 +232,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   }, [window.location.pathname, disks]);
 
   const registerDefaultAdapters = async () => {
+    console.log(`registerDefaultAdapters...`);
     if (
       !uploadManagerRef.current ||
       !isInitialized ||
@@ -242,6 +247,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       // Get currently registered adapters
       const registeredAdapters =
         uploadManagerRef.current.getRegisteredAdapters();
+
+      console.log(`Registered adapters`, registeredAdapters);
 
       const registeredDiskIds = new Set(
         registeredAdapters.map((adapter) => adapter.diskID)
@@ -292,7 +299,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             const canisterAdapter = new CanisterAdapter();
             const canisterConfig = {
               diskID: diskId,
-              endpoint: `${currentOrg.endpoint}/v1/default`,
+              endpoint: `${currentOrg.endpoint}/v1/${currentOrg.driveID}`,
               apiKey: currentAPIKey?.value,
               maxChunkSize: (1 * 1024 * 1024) / 2, // 0.5MB
             };
@@ -308,7 +315,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
           } else if (diskType === DiskTypeEnum.StorjWeb3) {
             const cloudS3Adapter = new CloudS3Adapter();
             const cloudS3Config = {
-              endpoint: `${currentOrg.endpoint}/v1/default`,
+              endpoint: `${currentOrg.endpoint}/v1/${currentOrg.driveID}`,
               maxChunkSize: 5 * 1024 * 1024,
               rawUrlProxyPath: `/v1/${currentOrg.driveID}/directory/asset/`,
               apiKey: currentAPIKey?.value,
@@ -357,19 +364,31 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   };
 
   useEffect(() => {
+    console.log(`refresh--`);
+    console.log(`currentProfile`, currentProfile);
+    console.log(`currentOrg`, currentOrg);
+    console.log(`isInitialized`, isInitialized);
+    console.log(`disks`, disks);
     if (currentProfile && currentOrg && isInitialized && disks.length > 0) {
+      console.log("registering default adapters...");
       registerDefaultAdapters();
     }
   }, [currentProfile, currentOrg, isInitialized, disks]);
 
   // Initialize the upload manager
   const initializeUploadManager = async () => {
-    // console.log(`Initializing upload manager`);
+    console.log(`Initializing upload manager`);
     try {
       // Create new upload manager if it doesn't exist
+      console.log(`uploadManagerRef`, uploadManagerRef.current);
       if (!uploadManagerRef.current) {
         // console.log(`Creating new upload manager`);
-        uploadManagerRef.current = new UploadManager();
+        uploadManagerRef.current = new UploadManager(
+          currentOrg?.endpoint
+            ? `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}`
+            : "",
+          currentAPIKey?.value || ""
+        );
       }
 
       const manager = uploadManagerRef.current;
@@ -404,7 +423,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
   // Auto-initialize if enabled
   useEffect(() => {
-    if (autoInit) {
+    if (autoInit && currentOrg && currentProfile) {
       initializeUploadManager().then((cleanup) => {
         // Return cleanup function for useEffect
         return () => {
@@ -417,7 +436,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
         };
       });
     }
-  }, [autoInit]);
+  }, [autoInit, currentOrg, currentProfile]);
 
   // Method to register adapter dynamically
   const registerAdapter = async (
@@ -467,14 +486,13 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       );
     },
 
-    uploadFiles: (files, uploadPath, diskType, diskID, options) => {
-      console.log(`diskID`, diskID);
-      console.log(`options,`, options);
-      if (!uploadManagerRef.current)
+    uploadFiles: (files, parentFolderID, diskType, diskID, options) => {
+      if (!uploadManagerRef.current) {
         throw new Error("Upload manager not initialized");
+      }
       return uploadManagerRef.current.uploadFiles(
         files,
-        uploadPath,
+        parentFolderID,
         diskType,
         diskID,
         options

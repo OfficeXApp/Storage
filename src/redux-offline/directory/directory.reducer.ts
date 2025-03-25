@@ -6,6 +6,7 @@ import {
   FolderID,
   FileRecordFE,
   FolderRecordFE,
+  DiskID,
 } from "@officexapp/types";
 import {
   GET_FILE,
@@ -63,10 +64,10 @@ export const DIRECTORY_REDUX_KEY = "directory";
 export const FILES_DEXIE_TABLE = "files";
 export const FOLDERS_DEXIE_TABLE = "folders";
 
-export const shouldBehaveOfflineDiskUIIntent = (disk: DiskFEO) => {
+export const shouldBehaveOfflineDiskUIIntent = (diskID: DiskID) => {
   if (
-    disk.id === defaultBrowserCacheDiskID ||
-    disk.id === defaultTempCloudSharingDiskID
+    diskID === defaultBrowserCacheDiskID ||
+    diskID === defaultTempCloudSharingDiskID
   ) {
     return true;
   } else {

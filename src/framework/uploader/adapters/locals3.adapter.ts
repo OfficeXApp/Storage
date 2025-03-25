@@ -1232,6 +1232,7 @@ export class LocalS3Adapter implements IUploadAdapter {
   private flattenMetadata(
     metadata: Record<string, any>
   ): Record<string, string> {
+    console.log(`flatten metadata`, metadata);
     const result: Record<string, string> = {};
 
     for (const [key, value] of Object.entries(metadata)) {
@@ -1241,6 +1242,7 @@ export class LocalS3Adapter implements IUploadAdapter {
         result[key] = String(value);
       }
     }
+    delete result.dispatch;
 
     return result;
   }

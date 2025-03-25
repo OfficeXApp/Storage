@@ -127,7 +127,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           createFolderAction(
             createAction,
             optimisticListDirectoryKey,
-            shouldBehaveOfflineDiskUIIntent(uploadTargetDisk)
+            shouldBehaveOfflineDiskUIIntent(uploadTargetDisk.id)
           )
         );
 

@@ -1291,6 +1291,14 @@ export class UploadManager {
     // Upload files to their respective folders
     const uploadResults: any[] = [];
 
+    const params = new URLSearchParams(location.search);
+    params.set("refresh", uuidv4()); // Set or update the refresh parameter
+    window.history.replaceState(
+      null,
+      "",
+      `${location.pathname}?${params.toString()}`
+    );
+
     for (const fileObj of files) {
       const relativePath = fileObj.file.webkitRelativePath as string;
       const pathParts = relativePath.split("/");
@@ -1349,7 +1357,10 @@ export class UploadManager {
       },
     };
 
-    if (this.endpoint) {
+    if (
+      this.endpoint &&
+      !shouldBehaveOfflineDiskUIIntent(folderConfig.disk_id)
+    ) {
       // Make direct API call following the /directory/action pattern
       const response = await fetch(`${this.endpoint}/directory/action`, {
         method: "POST",

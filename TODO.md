@@ -2,16 +2,12 @@
 
 ## Overview
 
-- [x] Fix upload process with inherent folder direvtory preservation (uploading folder should preserve directory)
+- [🔵] Fix the lack of duplicate handling for files & folders
+- [🔵] Implement actual file uploading & panel showing progress (from DriveUI too!)
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
 - [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
 
-The large sprints of work are:
-
-- [x] Create a unified provider for handling uploads to different end destinations
-- [x] Cleanup/refactor directory reducers & optimistic middleware to handle the diverse file uploading
-- [🔵] Implement actual file uploading & panel showing progress
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 
 1. Directory navigation & interaction (1-2 days)
@@ -58,3 +54,6 @@ The large sprints of work are:
 - [x] fix add webhooks component
 - [x] Polish all tables to match groups behavior (got rid of OPEN button and clicking name goes into tab directly no untab, clicking rest of row tabs/untabs without navigating to it)
 - [x] Fix uploading to indexdb which saves raw chunks but doesnt save into dexie files hashtable (we might want to undo our indexdb.adapter which replced uploadid with fileid, possibly incorrect)
+- [x] Fix upload process with inherent folder direvtory preservation (uploading folder should preserve directory)
+- [x] Create a unified provider for handling uploads to different end destinations
+- [x] Cleanup/refactor directory reducers & optimistic middleware to handle the diverse file uploading

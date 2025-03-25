@@ -366,7 +366,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         dispatch(
           listDirectoryAction(
             listParams,
-            currentDisk ? shouldBehaveOfflineDiskUIIntent(currentDisk) : true
+            currentDisk ? shouldBehaveOfflineDiskUIIntent(currentDisk.id) : true
           )
         );
         // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
@@ -393,8 +393,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     //     `/drive/${content.folders[0].disk_id}/${content.folders[0].parent_folder_uuid}`
     //   );
     // } else {
-    navigate(`/drive`);
+    // navigate(`/drive`);
     // }
+    navigate(-1);
   };
 
   const appendRefreshParam = () => {

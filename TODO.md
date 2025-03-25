@@ -2,9 +2,10 @@
 
 ## Overview
 
-- [🔵] Fix upload process with inherent folder direvtory preservation (uploading folder should preserve directory)
+- [x] Fix upload process with inherent folder direvtory preservation (uploading folder should preserve directory)
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
+- [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
 
 The large sprints of work are:
 

@@ -45,6 +45,12 @@ import {
   FolderID,
   GenerateID,
 } from "@officexapp/types";
+import {
+  CREATE_FOLDER,
+  CREATE_FOLDER_COMMIT,
+  createFolderAction,
+} from "../../redux-offline/directory/directory.actions";
+import { shouldBehaveOfflineDiskUIIntent } from "../../redux-offline/directory/directory.reducer";
 
 /**
  * Manager for coordinating uploads across different adapters
@@ -159,6 +165,8 @@ export class UploadManager {
     diskID: DiskID,
     options: Partial<UploadConfig> = {}
   ): UploadID {
+    console.log(`the upload file`, options);
+
     // Generate a unique ID for this upload
     const id = (options.metadata?.id as UploadID) || (uuidv4() as UploadID);
 
@@ -229,11 +237,15 @@ export class UploadManager {
       files[0].file.webkitRelativePath.includes("/");
 
     if (isFolderUpload) {
-      this.handleFolderUpload(files, {
-        folderID: parentFolderID,
-        diskID,
-        diskType,
-      });
+      this.handleFolderUpload(
+        files,
+        {
+          folderID: parentFolderID,
+          diskID,
+          diskType,
+        },
+        options.metadata?.dispatch
+      );
     } else {
       for (const file of files) {
         const id = this.uploadFile(
@@ -1212,8 +1224,11 @@ export class UploadManager {
 
   async handleFolderUpload(
     files: { file: File; fileID: FileID }[],
-    config: any
+    config: any,
+    dispatch: any
   ): Promise<any[]> {
+    console.log(`handleFolderUpload`, dispatch);
+
     // Extract all unique folder paths from files
     const folderPaths = new Set<string>();
 
@@ -1258,13 +1273,16 @@ export class UploadManager {
       }
 
       // Create the folder
-      const folderID = await this.createFolder({
-        name: folderName,
-        parent_folder_uuid: parentFolderID,
-        disk_id: config.diskID,
-        labels: [],
-        file_conflict_resolution: FileConflictResolutionEnum.KEEP_ORIGINAL,
-      });
+      const folderID = await this.createFolder(
+        {
+          name: folderName,
+          parent_folder_uuid: parentFolderID,
+          disk_id: config.diskID,
+          labels: [],
+          file_conflict_resolution: FileConflictResolutionEnum.KEEP_ORIGINAL,
+        },
+        dispatch
+      );
 
       // Store the created folder ID
       folderMap.set(path, folderID);
@@ -1293,6 +1311,9 @@ export class UploadManager {
         {
           ...config,
           folderID: parentFolderID,
+          metadata: {
+            dispatch: dispatch,
+          },
         }
       );
 
@@ -1302,54 +1323,86 @@ export class UploadManager {
     return uploadResults;
   }
 
-  async createFolder(folderConfig: CreateFolderPayload): Promise<FolderID> {
+  async createFolder(
+    folderConfig: CreateFolderPayload,
+    dispatch: any
+  ): Promise<FolderID> {
     const folderID = folderConfig.id || GenerateID.Folder();
 
     // Prepare create folder action
     const createAction = {
-      action: "CREATE_FOLDER" as const,
+      action: CREATE_FOLDER as "CREATE_FOLDER",
       payload: {
         id: folderID,
         name: folderConfig.name,
         parent_folder_uuid: folderConfig.parent_folder_uuid,
         labels: folderConfig.labels || [],
         disk_id: folderConfig.disk_id,
-        expires_at: folderConfig.expires_at || null,
-        file_conflict_resolution: folderConfig.file_conflict_resolution || null,
+        expires_at: folderConfig.expires_at || -1,
+        file_conflict_resolution:
+          folderConfig.file_conflict_resolution || undefined,
         has_sovereign_permissions:
-          folderConfig.has_sovereign_permissions || null,
-        shortcut_to: folderConfig.shortcut_to || null,
-        external_id: folderConfig.external_id || null,
-        external_payload: folderConfig.external_payload || null,
+          folderConfig.has_sovereign_permissions || undefined,
+        shortcut_to: folderConfig.shortcut_to || undefined,
+        external_id: folderConfig.external_id || undefined,
+        external_payload: folderConfig.external_payload || undefined,
       },
     };
 
-    // Make direct API call following the /directory/action pattern
-    const response = await fetch(`${this.endpoint}/directory/action`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({
-        actions: [createAction],
-      }),
-    });
+    if (this.endpoint) {
+      // Make direct API call following the /directory/action pattern
+      const response = await fetch(`${this.endpoint}/directory/action`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          actions: [createAction],
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Failed to create folder: ${response.statusText}`);
-    }
+      if (!response.ok) {
+        throw new Error(`Failed to create folder: ${response.statusText}`);
+      }
 
-    const result = (await response.json()) as any[];
+      const result = (await response.json()) as any[];
 
-    if (result[0].success) {
-      console.log(`Folder created successfully: ${folderConfig.name}`, result);
-      // Return the folder ID from the response
-      return result[0].response.result.folder.id;
+      if (result[0].success) {
+        console.log(
+          `Folder created successfully: ${folderConfig.name}`,
+          result
+        );
+        const folderResult = result[0].response.result.folder;
+        dispatch({
+          type: CREATE_FOLDER_COMMIT,
+          payload: {
+            ok: {
+              data: {
+                result: {
+                  folder: folderResult,
+                },
+              },
+            },
+          },
+          meta: { optimisticID: folderID },
+        });
+        // Return the folder ID from the response
+        return result[0].response.result.folder.id;
+      } else {
+        throw new Error(
+          `Failed to create folder: ${JSON.stringify(result[0].response.error)}`
+        );
+      }
     } else {
-      throw new Error(
-        `Failed to create folder: ${JSON.stringify(result[0].response.error)}`
+      dispatch(
+        createFolderAction(
+          createAction,
+          undefined,
+          shouldBehaveOfflineDiskUIIntent(folderConfig.disk_id)
+        )
       );
+      return createAction.payload.id;
     }
   }
 }

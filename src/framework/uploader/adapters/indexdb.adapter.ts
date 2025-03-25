@@ -323,6 +323,8 @@ export class IndexedDBAdapter implements IUploadAdapter {
     let bytesUploaded = 0;
     const startTime = Date.now();
 
+    console.log(`processUpload`, config);
+
     const fileId = await this.createFileRecord(file, config, uploadId);
 
     console.log(`>> fileId`, fileId);

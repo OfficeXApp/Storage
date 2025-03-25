@@ -1,12 +1,11 @@
 // FilePage.tsx
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   Button,
   Result,
   Typography,
-  Table,
   message,
   Input,
   Spin,
@@ -21,20 +20,10 @@ import {
   FilePdfOutlined,
   FileUnknownOutlined,
   FileExcelOutlined,
-  DownloadOutlined,
-  ShareAltOutlined,
-  LinkOutlined,
   EditOutlined,
   CheckOutlined,
-  ShrinkOutlined,
-  ArrowsAltOutlined,
 } from "@ant-design/icons";
-import {
-  FileMetadata,
-  FileUUID,
-  StorageLocationEnum,
-  useDrive,
-} from "../../framework";
+import { FileUUID, StorageLocationEnum, useDrive } from "../../framework";
 import useScreenType from "react-screentype-hook";
 import { useNavigate } from "react-router-dom";
 import FilePreview from "../FilePreview";
@@ -42,40 +31,36 @@ import { createPseudoShareLink } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
 import { isFreeTrialStorj } from "../../api/storj";
 import { useIdentitySystem } from "../../framework/identity";
+import { FileFEO } from "../../redux-offline/directory/directory.reducer";
+import { DiskTypeEnum } from "@officexapp/types";
 
 const { Text } = Typography;
 
 interface FilePreviewProps {
-  file: FileMetadata;
+  file: FileFEO;
 }
 
 const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const screenType = useScreenType();
   const isMobile = screenType.isMobile;
-  const [fileName, setFileName] = useState(
-    file.originalFileName || "Unknown File"
-  );
+  const [fileName, setFileName] = useState(file.name || "Unknown File");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const {
-    renameFilePath,
-    indexdbGetFileUrl,
-    indexdbDownloadFile,
-    indexdbGetVideoStream,
-  } = useDrive();
-  const { currentProfile } = useIdentitySystem();
+  const { renameFilePath } = useDrive();
+  const { currentProfile, currentOrg, currentAPIKey } = useIdentitySystem();
   const { evmPublicKey, icpAccount } = currentProfile || {};
 
+  // State for file content and UI
   const [fileUrl, setFileUrl] = useState<string>("");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const mediaSourceRef = useRef<MediaSource | null>(null);
-  const sourceBufferRef = useRef<SourceBuffer | null>(null);
-  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
-
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
+
+  // IndexedDB specific state and methods
+  const dbNameRef = useRef<string>(
+    `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
+  );
+  const objectStoreNameRef = useRef<string>("files");
 
   const getFileType = ():
     | "image"
@@ -84,7 +69,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     | "pdf"
     | "spreadsheet"
     | "other" => {
-    const name = file.originalFileName || "";
+    const name = file.name || "";
     const extension =
       file.extension?.toLowerCase() || name.split(".").pop()?.toLowerCase();
 
@@ -117,51 +102,213 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         return "other";
     }
   };
-  const fileType = getFileType();
 
   useEffect(() => {
-    if (
-      isModalVisible &&
-      file.storageLocation === StorageLocationEnum.BrowserCache &&
-      fileType === "video"
-    ) {
-      loadVideoAsBlob();
+    if (currentOrg && currentProfile) {
+      dbNameRef.current = `OFFICEX-browser-cache-storage-${currentOrg.driveID}-${currentProfile.userID}`;
     }
-  }, [isModalVisible, file]);
+  }, [currentOrg, currentProfile]);
 
-  const loadVideoAsBlob = async () => {
-    setIsLoading(true);
+  const fileType = getFileType();
 
-    try {
-      const stream = await indexdbGetVideoStream(file.id as FileUUID);
-      const reader = stream.getReader();
-      const chunks: Uint8Array[] = [];
+  // New method to handle files from IndexedDB
+  const getFileFromIndexedDB = async (fileId: FileUUID): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const openRequest = indexedDB.open(dbNameRef.current, 1);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunks.push(value);
+      openRequest.onerror = (event) => {
+        console.error("Error opening IndexedDB:", event);
+        reject(new Error("Failed to open IndexedDB"));
+      };
+
+      openRequest.onsuccess = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+
+        // Try retrieving the file first
+        const filesTransaction = db.transaction(
+          [objectStoreNameRef.current],
+          "readonly"
+        );
+        const filesStore = filesTransaction.objectStore(
+          objectStoreNameRef.current
+        );
+        const fileRequest = filesStore.get(fileId);
+
+        fileRequest.onsuccess = async () => {
+          if (fileRequest.result) {
+            // Check if we have the complete file
+            if (fileRequest.result.uploadComplete) {
+              console.log(
+                "Found complete file in IndexedDB:",
+                fileRequest.result
+              );
+
+              // For certain file types that need reconstruction from chunks
+              if (["image", "video", "audio", "pdf"].includes(fileType)) {
+                try {
+                  const fileBlob = await reconstructFileFromChunks(db, fileId);
+                  if (fileBlob) {
+                    const url = URL.createObjectURL(fileBlob);
+                    resolve(url);
+                  } else {
+                    reject(new Error("Failed to reconstruct file from chunks"));
+                  }
+                } catch (error) {
+                  console.error("Error reconstructing file:", error);
+                  reject(error);
+                }
+              } else {
+                // For other types where direct access may be enough
+                resolve(fileRequest.result.url || "");
+              }
+            } else {
+              reject(new Error("File upload is not complete"));
+            }
+          } else {
+            reject(new Error("File not found in IndexedDB"));
+          }
+        };
+
+        fileRequest.onerror = (event) => {
+          console.error("Error retrieving file from IndexedDB:", event);
+          reject(new Error("Failed to retrieve file from IndexedDB"));
+        };
+      };
+
+      // Handle database version upgrade (first time)
+      openRequest.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+
+        // Create object stores if they don't exist
+        if (!db.objectStoreNames.contains(objectStoreNameRef.current)) {
+          db.createObjectStore(objectStoreNameRef.current, { keyPath: "id" });
+        }
+        if (!db.objectStoreNames.contains("file_chunks")) {
+          db.createObjectStore("file_chunks", { keyPath: "id" });
+        }
+      };
+    });
+  };
+
+  // Helper method to reconstruct a file from chunks
+  const reconstructFileFromChunks = async (
+    db: IDBDatabase,
+    fileId: FileUUID
+  ): Promise<Blob | null> => {
+    return new Promise((resolve, reject) => {
+      try {
+        // First get the file metadata to determine chunks
+        const filesTransaction = db.transaction(
+          [objectStoreNameRef.current],
+          "readonly"
+        );
+        const filesStore = filesTransaction.objectStore(
+          objectStoreNameRef.current
+        );
+        const metadataRequest = filesStore.get(fileId);
+
+        metadataRequest.onsuccess = async () => {
+          if (!metadataRequest.result) {
+            console.error("File metadata not found for reconstruction");
+            return resolve(null);
+          }
+
+          const fileInfo = metadataRequest.result;
+          const chunkSize = 1024 * 1024; // Default 1MB chunks
+          const totalChunks = Math.ceil(fileInfo.size / chunkSize);
+
+          // Start transaction for chunks
+          const chunksTransaction = db.transaction(["file_chunks"], "readonly");
+          const chunksStore = chunksTransaction.objectStore("file_chunks");
+
+          const chunks: Uint8Array[] = [];
+          let loadedChunks = 0;
+
+          // Process each chunk
+          for (let i = 0; i < totalChunks; i++) {
+            const chunkId = `${fileId}_chunk_${i}`;
+            const chunkRequest = chunksStore.get(chunkId);
+
+            chunkRequest.onsuccess = (event) => {
+              const result = (event.target as IDBRequest).result;
+              if (result && result.data) {
+                chunks[i] = result.data; // Store at correct position
+                loadedChunks++;
+
+                // Check if all chunks are loaded
+                if (loadedChunks === totalChunks) {
+                  const blob = new Blob(chunks, {
+                    type: fileInfo.type || "application/octet-stream",
+                  });
+                  resolve(blob);
+                }
+              } else {
+                console.warn(`Missing chunk ${i} for file ${fileId}`);
+                loadedChunks++;
+
+                // Even with missing chunks, try to construct partial file
+                if (loadedChunks === totalChunks) {
+                  if (chunks.length > 0) {
+                    const blob = new Blob(chunks.filter(Boolean), {
+                      type: fileInfo.type || "application/octet-stream",
+                    });
+                    resolve(blob);
+                  } else {
+                    resolve(null);
+                  }
+                }
+              }
+            };
+
+            chunkRequest.onerror = (event) => {
+              console.error(`Error loading chunk ${i}:`, event);
+              loadedChunks++;
+
+              // Continue with remaining chunks
+              if (loadedChunks === totalChunks && chunks.length > 0) {
+                const blob = new Blob(chunks.filter(Boolean), {
+                  type: fileInfo.type || "application/octet-stream",
+                });
+                resolve(blob);
+              }
+            };
+          }
+
+          // Handle case with no chunks
+          if (totalChunks === 0) {
+            resolve(null);
+          }
+        };
+
+        metadataRequest.onerror = (event) => {
+          console.error("Error getting file metadata:", event);
+          reject(new Error("Failed to get file metadata"));
+        };
+      } catch (error) {
+        console.error("Error during file reconstruction:", error);
+        reject(error);
       }
-
-      const blob = new Blob(chunks, { type: `video/${file.extension}` });
-      setVideoBlob(blob);
-
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error loading video as blob:", error);
-      setIsLoading(false);
-    }
+    });
   };
 
   useEffect(() => {
     const loadFileContent = async () => {
       setIsLoading(true);
       try {
-        if (file.storageLocation === StorageLocationEnum.BrowserCache) {
-          const url = await indexdbGetFileUrl(file.id as FileUUID);
+        if (file.disk_type === DiskTypeEnum.BrowserCache) {
+          // Use IndexedDB approach instead of indexdbGetFileUrl
+          const url = await getFileFromIndexedDB(file.id as FileUUID);
           setFileUrl(url);
-        } else if (file.storageLocation === StorageLocationEnum.Web3Storj) {
-          setFileUrl(file.rawURL as string);
+        } else if (file.disk_type === DiskTypeEnum.StorjWeb3) {
+          setFileUrl(file.raw_url as string);
+        } else if (file.disk_type === DiskTypeEnum.IcpCanister) {
+          // Handle IcpCanister files using the raw download endpoints
+          const blobUrl = await fetchFileContentFromCanister(file.id as string);
+          if (blobUrl) {
+            setFileUrl(blobUrl);
+          } else {
+            throw new Error("Failed to load file from Canister");
+          }
         }
       } catch (error) {
         console.error("Error loading file content", error);
@@ -177,19 +324,75 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       loadFileContent();
     }
 
-    setFileName(file.originalFileName || "Unknown File");
+    setFileName(file.name || "Unknown File");
 
     // Cleanup function
     return () => {
-      if (mediaSourceRef.current) {
-        if (mediaSourceRef.current.readyState === "open") {
-          mediaSourceRef.current.endOfStream();
-        }
-        URL.revokeObjectURL(videoRef.current?.src || "");
+      if (fileUrl) {
+        URL.revokeObjectURL(fileUrl);
       }
-      sourceBufferRef.current = null;
     };
-  }, [file, fileType, indexdbGetFileUrl, indexdbGetVideoStream]);
+  }, [file, fileType]);
+
+  const fetchFileContentFromCanister = async (fileId: string) => {
+    try {
+      // 1. Fetch metadata
+      const metaRes = await fetch(
+        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/directory/raw_download/meta?file_id=${fileId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${currentAPIKey?.value}`,
+          },
+        }
+      );
+
+      if (!metaRes.ok) {
+        throw new Error(`Metadata request failed: ${metaRes.statusText}`);
+      }
+
+      const metadata = await metaRes.json();
+      const { total_size, total_chunks } = metadata;
+
+      // 2. Fetch all chunks
+      let allBytes = new Uint8Array(total_size);
+      let offset = 0;
+
+      for (let i = 0; i < total_chunks; i++) {
+        const chunkRes = await fetch(
+          `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${currentAPIKey?.value}`,
+            },
+          }
+        );
+
+        if (!chunkRes.ok) {
+          throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);
+        }
+
+        const chunkBuf = await chunkRes.arrayBuffer();
+        allBytes.set(new Uint8Array(chunkBuf), offset);
+        offset += chunkBuf.byteLength;
+      }
+
+      // 3. Create blob and URL
+      const blob = new Blob([allBytes]);
+      const blobUrl = URL.createObjectURL(blob);
+
+      return blobUrl;
+    } catch (error) {
+      console.error(
+        `Error fetching content from Canister for ${fileId}:`,
+        error
+      );
+      return null;
+    }
+  };
 
   const getIcon = () => {
     switch (fileType) {
@@ -211,7 +414,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const handleRename = async (newName: string) => {
     setIsUpdatingName(true);
     try {
-      const oldName = file.originalFileName;
+      const oldName = file.name;
       await renameFilePath(file.id as FileUUID, newName);
       setFileName(newName);
       message.success("File renamed successfully");
@@ -241,7 +444,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     }
     setIsGeneratingShareLink(true);
     const shareLink = await createPseudoShareLink({
-      title: `${isFreeTrialStorj() ? `Expires in 24 hours - ` : ``}${file.originalFileName}`,
+      title: `${isFreeTrialStorj() ? `Expires in 24 hours - ` : ``}${file.name}`,
       url,
       ref: evmPublicKey,
     });
@@ -249,7 +452,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     navigator.clipboard.writeText(shareLink);
     setIsGeneratingShareLink(false);
     mixpanel.track("Share File", {
-      "File Type": file.originalFileName.split(".").pop(),
+      "File Type": file.name.split(".").pop(),
       Link: shareLink,
     });
   };
@@ -261,6 +464,28 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     const i = Math.floor(Math.log(size) / Math.log(k));
     return parseFloat((size / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
+
+  const handleDownload = () => {
+    if (fileUrl) {
+      mixpanel.track("Download File", {
+        "File Type": file.name.split(".").pop(),
+      });
+
+      // For browser cache files, create a downloadable link
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      message.error("File URL not available for download");
+    }
+  };
+
+  if (!currentOrg && !currentProfile) {
+    return null;
+  }
 
   return (
     <>
@@ -316,37 +541,29 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             </div>
           )
         }
-        subTitle={`File Size: ${formatFileSize(file.fileSize)}`}
+        subTitle={`File Size: ${formatFileSize(file.file_size)}`}
         extra={[
-          <a
+          <Button
             key="download2"
-            href={fileUrl}
-            download={file.originalFileName}
-            target={file.extension.toLowerCase() === "pdf" ? "_blank" : "_self"}
+            type="primary"
+            onClick={handleDownload}
+            disabled={!fileUrl || isLoading}
           >
-            <Button
-              onClick={() => {
-                mixpanel.track("Download File", {
-                  "File Type": file.originalFileName.split(".").pop(),
-                });
-              }}
-              type="primary"
-              key="download2"
-            >
-              Download
-            </Button>
-          </a>,
+            Download
+          </Button>,
           <Button
             key="preview2"
             onClick={() => setIsModalVisible(true)}
-            disabled={fileType === "other"}
+            disabled={fileType === "other" || !fileUrl || isLoading}
           >
             Preview
           </Button>,
           <Button
             key="share2"
-            onClick={() => handleShare(file.rawURL)}
-            disabled={!file.rawURL}
+            onClick={() => handleShare(file.raw_url)}
+            disabled={
+              !file.raw_url || file.disk_type === DiskTypeEnum.BrowserCache
+            }
             loading={isGeneratingShareLink}
           >
             Share
@@ -358,6 +575,14 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           background: "rgba(0,0,0,0.02)",
         }}
       />
+
+      {isLoading && (
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <Spin size="large" />
+          <div style={{ marginTop: 10 }}>Loading file content...</div>
+        </div>
+      )}
+
       {isModalVisible && (
         <Modal
           open={isModalVisible}
@@ -368,7 +593,55 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           closable={true}
           closeIcon={null} // Hide default close icon to customize header
         >
-          <FilePreview file={file} />
+          {file.disk_type === DiskTypeEnum.BrowserCache ||
+          file.disk_type === DiskTypeEnum.IcpCanister ? (
+            // Custom preview for IndexedDB files
+            <div style={{ textAlign: "center" }}>
+              {fileType === "image" && fileUrl && (
+                <img
+                  src={fileUrl}
+                  alt={file.name}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "calc(80vh)",
+                    objectFit: "contain",
+                  }}
+                />
+              )}
+              {fileType === "video" && fileUrl && (
+                <video
+                  src={fileUrl}
+                  controls
+                  style={{ maxWidth: "100%", maxHeight: "calc(80vh)" }}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              )}
+              {fileType === "audio" && fileUrl && (
+                <audio
+                  src={fileUrl}
+                  controls
+                  style={{ width: "100%", marginTop: "20px" }}
+                >
+                  Your browser does not support the audio tag.
+                </audio>
+              )}
+              {fileType === "pdf" && fileUrl && (
+                <iframe
+                  src={fileUrl}
+                  title={file.name}
+                  style={{
+                    width: "100%",
+                    height: "calc(80vh)",
+                    border: "none",
+                  }}
+                />
+              )}
+            </div>
+          ) : (
+            // Use FilePreview for other storage types
+            <FilePreview file={file} />
+          )}
         </Modal>
       )}
     </>

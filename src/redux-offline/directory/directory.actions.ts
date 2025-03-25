@@ -205,7 +205,7 @@ export const getFolderAction = (
 
 // Create File
 export const createFileAction = (
-  action: CreateFileAction,
+  action: CreateFileAction & { raw_url?: string },
   listDirectoryKey?: string,
   shouldBehaveOfflineDiskUI = true
 ) => {

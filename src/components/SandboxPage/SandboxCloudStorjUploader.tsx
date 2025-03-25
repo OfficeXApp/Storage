@@ -56,7 +56,6 @@ const CloudS3Uploader = () => {
     resumeAllUploads,
     currentUploads,
     progress,
-    getFileUrl,
     isInitialized,
     registerAdapter,
   } = useMultiUploader();

@@ -660,17 +660,4 @@ export class CloudS3Adapter implements IUploadAdapter {
     // Clean up any resources if needed
     return Promise.resolve();
   }
-
-  /**
-   * Get a URL for a file
-   */
-  public async getFileUrl(id: UploadID): Promise<string | null> {
-    try {
-      // Return the URL that was saved during file creation
-      return this.uploadedFileUrls[id] || null;
-    } catch (error) {
-      console.error("Error getting file URL:", error);
-      return null;
-    }
-  }
 }

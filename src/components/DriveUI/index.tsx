@@ -874,8 +874,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             </div>
           ) : singleFile ? (
             <div style={{ padding: "20px" }}>
-              {/* <FilePage file={singleFile} /> */}
-              {JSON.stringify(singleFile)}
+              <FilePage file={singleFile} />
             </div>
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>

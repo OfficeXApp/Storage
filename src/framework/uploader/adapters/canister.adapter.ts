@@ -16,6 +16,7 @@ import {
   CREATE_FILE,
   createFileAction,
 } from "../../../redux-offline/directory/directory.actions";
+import { FileFEO } from "../../../redux-offline/directory/directory.reducer";
 
 /**
  * Adapter for uploading files to Canister storage
@@ -761,169 +762,6 @@ export class CanisterAdapter implements IUploadAdapter {
   }
 
   /**
-   * Download file content
-   */
-  public async downloadFile(fileId: string): Promise<Blob> {
-    try {
-      // 1. Fetch metadata
-      const metaRes = await fetch(
-        `${this.baseUrl}/directory/raw_download/meta?file_id=${fileId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-        }
-      );
-
-      if (!metaRes.ok) {
-        throw new Error(`Metadata request failed: ${metaRes.statusText}`);
-      }
-
-      const metadata = await metaRes.json();
-      const { total_size, total_chunks } = metadata;
-
-      // 2. Fetch all chunks
-      let allBytes = new Uint8Array(total_size);
-      let offset = 0;
-
-      for (let i = 0; i < total_chunks; i++) {
-        const chunkRes = await fetch(
-          `${this.baseUrl}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${this.apiKey}`,
-            },
-          }
-        );
-
-        if (!chunkRes.ok) {
-          throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);
-        }
-
-        const chunkBuf = await chunkRes.arrayBuffer();
-        allBytes.set(new Uint8Array(chunkBuf), offset);
-        offset += chunkBuf.byteLength;
-      }
-
-      // 3. Create and return blob
-      return new Blob([allBytes]);
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Helper method to get a blob URL for a file
-   * @param id Upload ID
-   * @returns Promise that resolves to URL string or null
-   */
-  private async fetchFileContent(id: UploadID): Promise<string | null> {
-    // Check if we already have a blob URL for this file
-    if (this.blobUrls.has(id)) {
-      return this.blobUrls.get(id) || null;
-    }
-
-    // Get metadata to find the file ID
-    const metadata = this.resumableUploads.get(id);
-    if (!metadata || !metadata.customMetadata?.fileId) {
-      console.error(`No metadata or file ID found for upload ${id}`);
-      return null;
-    }
-
-    const fileId = metadata.customMetadata.fileId as string;
-
-    try {
-      // 1. Fetch metadata
-      const metaRes = await fetch(
-        `${this.baseUrl}/directory/raw_download/meta?file_id=${fileId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-        }
-      );
-
-      if (!metaRes.ok) {
-        throw new Error(`Metadata request failed: ${metaRes.statusText}`);
-      }
-
-      const fileMetadata = await metaRes.json();
-      const { total_size, total_chunks } = fileMetadata;
-
-      // 2. Fetch all chunks
-      let allBytes = new Uint8Array(total_size);
-      let offset = 0;
-
-      for (let i = 0; i < total_chunks; i++) {
-        const chunkRes = await fetch(
-          `${this.baseUrl}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${this.apiKey}`,
-            },
-          }
-        );
-
-        if (!chunkRes.ok) {
-          throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);
-        }
-
-        const chunkBuf = await chunkRes.arrayBuffer();
-        allBytes.set(new Uint8Array(chunkBuf), offset);
-        offset += chunkBuf.byteLength;
-      }
-
-      // 3. Create blob and URL
-      const blob = new Blob([allBytes], { type: metadata.fileType });
-      const blobUrl = URL.createObjectURL(blob);
-
-      // Store URL for future use
-      this.blobUrls.set(id, blobUrl);
-
-      return blobUrl;
-    } catch (error) {
-      console.error(`Error fetching content for ${id}:`, error);
-      return null;
-    }
-  }
-
-  /**
-   * Get a URL for a file
-   */
-  public async getFileUrl(id: UploadID): Promise<string | null> {
-    try {
-      // If there's an existing blob URL, return it
-      if (this.blobUrls.has(id)) {
-        return this.blobUrls.get(id) || null;
-      }
-
-      // Get metadata to find the file ID
-      const metadata = this.resumableUploads.get(id);
-      if (!metadata || !metadata.customMetadata?.fileId) {
-        console.error(`No metadata or file ID found for upload ${id}`);
-        return null;
-      }
-
-      const fileId = metadata.customMetadata.fileId as string;
-
-      // Download the file content and create blob URL
-      return await this.fetchFileContent(id);
-    } catch (error) {
-      console.error("Error getting file URL:", error);
-      return null;
-    }
-  }
-
-  /**
    * Revoke a blob URL to free up memory
    */
   private revokeBlobUrl(id: UploadID): void {
@@ -932,19 +770,5 @@ export class CanisterAdapter implements IUploadAdapter {
       URL.revokeObjectURL(blobUrl);
       this.blobUrls.delete(id);
     }
-  }
-
-  /**
-   * Generate a pre-signed URL for direct uploads
-   * Not supported for Canister adapter
-   */
-  public async generatePresignedUrl(): Promise<{
-    url: string;
-    fields?: Record<string, string>;
-    headers?: Record<string, string>;
-    method?: string;
-  } | null> {
-    // Not supported for Canister
-    return null;
   }
 }

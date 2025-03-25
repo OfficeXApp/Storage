@@ -18,6 +18,7 @@ import {
   CREATE_FILE,
   createFileAction,
 } from "../../../redux-offline/directory/directory.actions";
+import { FileFEO } from "../../../redux-offline/directory/directory.reducer";
 
 /**
  * Adapter for uploading files to IndexedDB
@@ -1275,43 +1276,6 @@ export class IndexedDBAdapter implements IUploadAdapter {
   }
 
   /**
-   * Get a URL for a file
-   */
-  public async getFileUrl(id: UploadID): Promise<string | null> {
-    try {
-      // console.log(`Getting URL for file ${id}`);
-
-      // Check if it's a completed upload
-      const fileInfo = await this.getFileInfo(id);
-      if (!fileInfo) {
-        console.warn(`No file info found for ${id}`);
-        return null;
-      }
-
-      // console.log(`Found file info for ${id}:`, fileInfo);
-
-      // Reconstruct the file from chunks
-      const blob = await this.reconstructFile(id);
-      if (!blob) {
-        console.error(`Failed to reconstruct file ${id}`);
-        return null;
-      }
-
-      // console.log(
-      //   `Successfully reconstructed file ${id}, blob size: ${blob.size}`
-      // );
-
-      // Create and return object URL
-      const url = URL.createObjectURL(blob);
-      // console.log(`Created URL for ${id}: ${url}`);
-      return url;
-    } catch (error) {
-      console.error(`Error getting file URL for ${id}:`, error);
-      return null;
-    }
-  }
-
-  /**
    * Reconstruct a file from chunks
    */
   private async reconstructFile(id: UploadID): Promise<Blob | null> {
@@ -1427,66 +1391,6 @@ export class IndexedDBAdapter implements IUploadAdapter {
       };
 
       // Other error handling
-    });
-  }
-
-  /**
-   * Generate a pre-signed URL for direct uploads
-   * Not applicable for IndexedDB
-   */
-  public async generatePresignedUrl(config: UploadConfig): Promise<{
-    url: string;
-    fields?: Record<string, string>;
-    headers?: Record<string, string>;
-    method?: string;
-  } | null> {
-    // Not applicable for IndexedDB
-    return null;
-  }
-
-  /**
-   * Get file as a stream
-   * Helper method for DriveDB integration
-   */
-  public getFileStream(id: UploadID): ReadableStream<Uint8Array> {
-    return new ReadableStream({
-      start: async (controller) => {
-        if (!this.db) {
-          throw new Error("IndexedDB not initialized");
-        }
-
-        try {
-          // Get metadata
-          const metadata = await this.getResumableUploadMetadata(id);
-          const fileInfo = await this.getFileInfo(id);
-
-          if (!fileInfo) {
-            throw new Error("File not found");
-          }
-          if (!metadata) {
-            throw new Error("Metadata not found");
-          }
-
-          const totalChunks =
-            metadata?.totalChunks ||
-            Math.ceil(fileInfo.size / (metadata?.chunkSize || 1024 * 1024));
-
-          // Stream each chunk
-          for (let i = 0; i < totalChunks; i++) {
-            const chunkData = await this.getChunk(id, metadata.fileID, i);
-
-            if (chunkData) {
-              controller.enqueue(chunkData);
-            } else {
-              throw new Error(`Missing chunk ${i}`);
-            }
-          }
-
-          controller.close();
-        } catch (error) {
-          controller.error(error);
-        }
-      },
     });
   }
 }

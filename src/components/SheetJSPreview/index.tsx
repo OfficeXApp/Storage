@@ -5,9 +5,10 @@ import { Button, Result } from "antd";
 import { FileExcelOutlined } from "@ant-design/icons";
 import { FileMetadata } from "../../framework";
 import mixpanel from "mixpanel-browser";
+import { FileFEO } from "../../redux-offline/directory/directory.reducer";
 
 interface SheetJSPreviewProps {
-  file: FileMetadata;
+  file: FileFEO;
   rowCount?: number; // Default number of rows to display
   maxPreviewSize?: number; // Maximum size for preview (in MB)
   showButtons?: boolean;
@@ -27,7 +28,7 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
   const [headers, setHeaders] = useState<string[]>([]); // State for column headers
   const [fileSize, setFileSize] = useState<number>(0); // Store file size
 
-  const { rawURL: url } = file;
+  const { raw_url: url } = file;
 
   useEffect(() => {
     const checkFileSizeAndFetch = async () => {
@@ -99,13 +100,13 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
                         ? "_blank"
                         : "_self"
                     }
-                    download={file.originalFileName}
+                    download={file.name}
                   >
                     <Button
                       type="primary"
                       onClick={() => {
                         mixpanel.track("Download File", {
-                          "File Type": file.originalFileName.split(".").pop(),
+                          "File Type": file.name.split(".").pop(),
                         });
                       }}
                       key="download1"
@@ -138,13 +139,13 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
                         ? "_blank"
                         : "_self"
                     }
-                    download={file.originalFileName}
+                    download={file.name}
                   >
                     <Button
                       type="primary"
                       onClick={() => {
                         mixpanel.track("Download File", {
-                          "File Type": file.originalFileName.split(".").pop(),
+                          "File Type": file.name.split(".").pop(),
                         });
                       }}
                       key="download1"

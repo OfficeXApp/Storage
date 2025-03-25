@@ -232,9 +232,12 @@ export class UploadManager {
     console.log(`upload option`, options);
 
     const isFolderUpload =
-      files.length > 0 &&
-      files[0].file.webkitRelativePath &&
-      files[0].file.webkitRelativePath.includes("/");
+      (files.length > 0 &&
+        files[0].file.webkitRelativePath &&
+        files[0].file.webkitRelativePath.includes("/")) ||
+      (files.length > 0 &&
+        (files[0].file as any).path &&
+        (files[0].file as any).path.includes("/"));
 
     if (isFolderUpload) {
       this.handleFolderUpload(
@@ -1233,10 +1236,11 @@ export class UploadManager {
     const folderPaths = new Set<string>();
 
     files.forEach((fileObj) => {
-      const relativePath = fileObj.file.webkitRelativePath;
+      const relativePath =
+        fileObj.file.webkitRelativePath || (fileObj.file as any).path;
       if (relativePath) {
         // Get all parent folder paths
-        const parts = relativePath.split("/");
+        const parts = relativePath.split("/").filter((p: string) => p);
         let currentPath = "";
 
         // Skip the last part as it's the filename
@@ -1300,8 +1304,12 @@ export class UploadManager {
     );
 
     for (const fileObj of files) {
-      const relativePath = fileObj.file.webkitRelativePath as string;
-      const pathParts = relativePath.split("/");
+      const relativePath =
+        (fileObj.file.webkitRelativePath as string) ||
+        (fileObj.file as any).path;
+      const pathParts = relativePath.split("/").filter((p: string) => p);
+
+      console.log(`spilit pathParts`, pathParts);
 
       // Get the parent folder path (everything except the filename)
       const parentFolderPath = pathParts

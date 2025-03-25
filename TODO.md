@@ -2,7 +2,6 @@
 
 ## Overview
 
-- [🔵] Fix the lack of duplicate handling for files & folders
 - [🔵] Implement actual file uploading & panel showing progress (from DriveUI too!)
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
@@ -57,3 +56,4 @@
 - [x] Fix upload process with inherent folder direvtory preservation (uploading folder should preserve directory)
 - [x] Create a unified provider for handling uploads to different end destinations
 - [x] Cleanup/refactor directory reducers & optimistic middleware to handle the diverse file uploading
+- [x] Fix the lack of duplicate handling for files & folders

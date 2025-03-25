@@ -76,6 +76,8 @@ const UploadPanel: React.FC<{
   };
 
   const handleFileSelect = (files: FileList | null) => {
+    console.log(`files`, files);
+
     if (files) {
       const fileArray = Array.from(files);
       setSelectedFiles(

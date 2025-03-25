@@ -23,6 +23,7 @@ import mixpanel from "mixpanel-browser";
 import {
   DirectoryResourceID,
   DiskID,
+  DiskTypeEnum,
   FileID,
   FolderID,
   GenerateID,
@@ -33,6 +34,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   CREATE_FOLDER,
   createFolderAction,
+  generateListDirectoryKey,
   listDirectoryAction,
 } from "../../redux-offline/directory/directory.actions";
 import {
@@ -69,28 +71,43 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { "*": encodedPath } = useParams<{ "*": string }>();
-  const { uploadTargetFolderID, uploadTargetDisk } = useMultiUploader();
+  const { uploadTargetFolderID, uploadTargetDisk, uploadFiles } =
+    useMultiUploader();
 
   const handleFileSelect = (files: FileList | null) => {
-    // if (files && targetFolderID) {
-    //   const fileArray = Array.from(files);
-    //   // Get upload folder path and storage location
-    //   const { uploadFolderPath, storageLocation } = getUploadFolderPath();
-    //   // Call the upload function
-    //   uploadFilesFolders(
-    //     fileArray,
-    //     uploadFolderPath,
-    //     storageLocation,
-    //     "user123" as UserID,
-    //     5,
-    //     (fileUUID) => {
-    //       console.log(`Local callback: File ${fileUUID} upload completed`);
-    //     }
-    //   );
-    //   console.log("Selected files for upload:", fileArray);
-    //   // Expand the UploadPanel after files are selected
-    //   toggleUploadPanel(true);
-    // }
+    if (files && uploadTargetDisk && uploadTargetFolderID) {
+      const fileArray = Array.from(files);
+
+      // Create an array of file objects with generated FileIDs
+      const uploadFilesArray = fileArray.map((file) => ({
+        file,
+        fileID: `FileID_${uuidv4()}` as FileID,
+      }));
+
+      // Use uploadFiles from useMultiUploader
+      uploadFiles(
+        uploadFilesArray,
+        uploadTargetFolderID,
+        uploadTargetDisk.disk_type as DiskTypeEnum,
+        uploadTargetDisk.id,
+        {
+          onFileComplete: (fileUUID) => {
+            console.log(`Local callback: File ${fileUUID} upload completed`);
+          },
+          metadata: {
+            dispatch,
+          },
+          parentFolderID: uploadTargetFolderID,
+          listDirectoryKey: generateListDirectoryKey({
+            folder_id: uploadTargetFolderID || undefined,
+          }),
+        }
+      );
+
+      console.log("Selected files for upload:", fileArray);
+      // Expand the UploadPanel after files are selected
+      toggleUploadPanel(true);
+    }
   };
 
   const handleUploadFiles = () => {

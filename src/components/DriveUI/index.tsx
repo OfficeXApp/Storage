@@ -164,6 +164,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log(`listDirectoryResults`, listDirectoryResults);
     if (listDirectoryResults) {
       const { folders, files } = listDirectoryResults;
       setContent({ folders, files });
@@ -176,6 +177,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     if (currentFileId && !getFileResult) {
       setIs404NotFound(true);
       setIsLoading(false);
+      setSingleFile(null);
     } else if (currentFileId && getFileResult) {
       setIs404NotFound(false);
       setIsLoading(false);
@@ -193,6 +195,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     const folderFileID = pathParts[1];
 
     setCurrentDiskId(diskID);
+
+    console.log(`====pathParts`, pathParts);
+    console.log(`====location`, location);
 
     if (location.pathname === "/drive" || pathParts.length === 0) {
       setListDirectoryKey("");
@@ -239,6 +244,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
+      setSingleFile(null);
       fetchContent({
         targetFolderId: folderId,
       });
@@ -246,6 +252,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
+      setSingleFile(null);
       setIsLoading(true);
       fetchContent({
         targetFolderId: folderId,
@@ -261,7 +268,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
     //   setIsStorjModalVisible(true);
     // }
-  }, [location, encodedPath]);
+  }, [location, encodedPath, disks]);
 
   const fetchFileById = (fileId: FileID) => {
     console.log("Fetching file by ID:", fileId);

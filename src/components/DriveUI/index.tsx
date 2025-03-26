@@ -339,7 +339,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             disk_id: disk.id,
             disk_type: disk.disk_type,
             deleted: false,
-            expires_at: 0,
+            expires_at: -1,
             drive_id: currentOrg?.driveID || "",
             has_sovereign_permissions: false,
             clipped_directory_path:
@@ -483,10 +483,20 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         },
       },
       {
-        title: "Owner",
-        dataIndex: "owner",
-        key: "owner",
-        render: () => "me",
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        render: (_: any, record: DriveItemRow) => {
+          if (record.isDisabled) {
+            return (
+              <span style={{ color: "gray", cursor: "not-allowed" }}>
+                Expired
+              </span>
+            );
+          } else {
+            return null;
+          }
+        },
         responsive: ["md"] as Breakpoint[],
       },
       {
@@ -658,7 +668,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         isFolder: true,
         fullPath: f.full_directory_path,
         diskID: f.disk_id,
-        isDisabled: false,
+        isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
       })),
       ...content.files.map((f) => ({
         id: f.id,
@@ -667,7 +677,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         isFolder: false,
         fullPath: f.full_directory_path,
         diskID: f.disk_id,
-        isDisabled: false,
+        isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
       })),
     ];
   }, [content, currentFolderId, disks]);

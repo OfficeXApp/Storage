@@ -46,10 +46,10 @@ import ConnectICPButton from "./components/ConnectICPButton";
 import SettingsPage from "./components/SettingsPage";
 import GiftPage from "./components/GiftPage";
 import SandboxPage from "./components/SandboxPage";
-import SandboxIndexdbUploader from "./components/SandboxPage/SandboxIndexdbUploader.tsx";
-import SandboxCanisterUploader from "./components/SandboxPage/SandboxCanisterUploader.tsx";
-import SandboxLocalStorjUploader from "./components/SandboxPage/SandboxLocalStorjUploader.tsx";
-import SandboxCloudStorjUploader from "./components/SandboxPage/SandboxCloudStorjUploader.tsx";
+// import SandboxIndexdbUploader from "./components/SandboxPage/SandboxIndexdbUploader.tsx";
+// import SandboxCanisterUploader from "./components/SandboxPage/SandboxCanisterUploader.tsx";
+// import SandboxLocalStorjUploader from "./components/SandboxPage/SandboxLocalStorjUploader.tsx";
+// import SandboxCloudStorjUploader from "./components/SandboxPage/SandboxCloudStorjUploader.tsx";
 import ContactsPage from "./pages/ContactsPage";
 import GroupsPage from "./pages/GroupsPage";
 import PermissionsPage from "./pages/PermissionsPage";
@@ -336,7 +336,7 @@ const RouterUI = () => {
                 />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/sandbox" element={<SandboxPage />} />
-                <Route
+                {/* <Route
                   path="/sandbox_indexdb_uploader"
                   element={<SandboxIndexdbUploader />}
                 />
@@ -351,7 +351,7 @@ const RouterUI = () => {
                 <Route
                   path="/sandbox_cloudstorj_uploader"
                   element={<SandboxCloudStorjUploader />}
-                />
+                /> */}
 
                 <Route path="/presale" element={<PreseedOffer />} />
                 <Route path="/preseed" element={<Navigate to="/presale" />} />

@@ -86,78 +86,25 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
 
   if (url.startsWith("blob") || !url.includes("http")) {
     return (
-      <Result
-        icon={<FileExcelOutlined />}
-        title="Preview Unavailable"
-        extra={
-          showButtons
-            ? [
-                <div key="download">
-                  <a
-                    href={url}
-                    target={
-                      file.extension.toLowerCase() === "pdf"
-                        ? "_blank"
-                        : "_self"
-                    }
-                    download={file.name}
-                  >
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        mixpanel.track("Download File", {
-                          "File Type": file.name.split(".").pop(),
-                        });
-                      }}
-                      key="download1"
-                    >
-                      Download
-                    </Button>
-                  </a>
-                </div>,
-              ]
-            : []
-        }
-      />
+      <div
+        style={{ width: "100%", justifyContent: "center", marginTop: "32px" }}
+      >
+        <Result icon={<FileExcelOutlined />} title="Preview Unavailable" />
+      </div>
     );
   }
 
   if (fileSize > maxPreviewSize) {
     return (
-      <Result
-        icon={<FileExcelOutlined />}
-        title="Preview Unavailable"
-        subTitle={`File size exceeded the max preview size of ${maxPreviewSize} mb`}
-        extra={
-          showButtons
-            ? [
-                <div key="download">
-                  <a
-                    href={url}
-                    target={
-                      file.extension.toLowerCase() === "pdf"
-                        ? "_blank"
-                        : "_self"
-                    }
-                    download={file.name}
-                  >
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        mixpanel.track("Download File", {
-                          "File Type": file.name.split(".").pop(),
-                        });
-                      }}
-                      key="download1"
-                    >
-                      Download
-                    </Button>
-                  </a>
-                </div>,
-              ]
-            : []
-        }
-      />
+      <div
+        style={{ width: "100%", justifyContent: "center", marginTop: "32px" }}
+      >
+        <Result
+          icon={<FileExcelOutlined />}
+          title="Preview Unavailable"
+          subTitle={`File size exceeded the max preview size of ${maxPreviewSize} mb`}
+        />
+      </div>
     );
   }
 

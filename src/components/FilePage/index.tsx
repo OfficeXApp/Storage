@@ -33,6 +33,7 @@ import { isFreeTrialStorj } from "../../api/storj";
 import { useIdentitySystem } from "../../framework/identity";
 import { FileFEO } from "../../redux-offline/directory/directory.reducer";
 import { DiskTypeEnum } from "@officexapp/types";
+import SheetJSPreview from "../SheetJSPreview";
 
 const { Text } = Typography;
 
@@ -60,6 +61,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const dbNameRef = useRef<string>(
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
   );
+
+  console.log(`file.name`, file);
+
   const objectStoreNameRef = useRef<string>("files");
 
   const getFileType = ():
@@ -144,7 +148,16 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               );
 
               // For certain file types that need reconstruction from chunks
-              if (["image", "video", "audio", "pdf"].includes(fileType)) {
+              if (
+                [
+                  "image",
+                  "video",
+                  "audio",
+                  "pdf",
+                  "spreadsheet",
+                  "other",
+                ].includes(fileType)
+              ) {
                 try {
                   const fileBlob = await reconstructFileFromChunks(db, fileId);
                   if (fileBlob) {
@@ -299,8 +312,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           // Use IndexedDB approach instead of indexdbGetFileUrl
           const url = await getFileFromIndexedDB(file.id as FileUUID);
           setFileUrl(url);
-        } else if (file.disk_type === DiskTypeEnum.StorjWeb3) {
-          setFileUrl(file.raw_url as string);
+        } else if (
+          file.disk_type === DiskTypeEnum.StorjWeb3 ||
+          file.disk_type === DiskTypeEnum.AwsBucket
+        ) {
+          const url = await getPresignedUrl(file.raw_url as string);
+          console.log(`the presigned url`, url);
+          setFileUrl(url as string);
         } else if (file.disk_type === DiskTypeEnum.IcpCanister) {
           // Handle IcpCanister files using the raw download endpoints
           const blobUrl = await fetchFileContentFromCanister(file.id as string);
@@ -318,11 +336,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       }
     };
 
-    if (fileType === "other") {
-      setIsModalVisible(false);
-    } else {
-      loadFileContent();
-    }
+    loadFileContent();
 
     setFileName(file.name || "Unknown File");
 
@@ -333,6 +347,27 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       }
     };
   }, [file, fileType]);
+
+  async function getPresignedUrl(initialUrl: string) {
+    try {
+      // Make a HEAD request to follow redirects without downloading content
+      const response = await fetch(initialUrl, {
+        method: "GET",
+        redirect: "follow",
+      });
+
+      if (response.ok) {
+        // response.url will contain the final URL after all redirects
+        return response.url;
+      } else {
+        console.error("Error fetching presigned URL:", response.status);
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Failed to get presigned URL:", error);
+      throw error;
+    }
+  }
 
   const fetchFileContentFromCanister = async (fileId: string) => {
     try {
@@ -397,17 +432,17 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const getIcon = () => {
     switch (fileType) {
       case "image":
-        return <PictureOutlined style={{ fontSize: 48 }} />;
+        return <PictureOutlined style={{ fontSize: 36 }} />;
       case "video":
-        return <VideoCameraOutlined style={{ fontSize: 48 }} />;
+        return <VideoCameraOutlined style={{ fontSize: 36 }} />;
       case "audio":
-        return <AudioOutlined style={{ fontSize: 48 }} />;
+        return <AudioOutlined style={{ fontSize: 36 }} />;
       case "spreadsheet":
-        return <FileExcelOutlined style={{ fontSize: 48 }} />;
+        return <FileExcelOutlined style={{ fontSize: 36 }} />;
       case "pdf":
-        return <FilePdfOutlined style={{ fontSize: 48 }} />;
+        return <FilePdfOutlined style={{ fontSize: 36 }} />;
       default:
-        return <FileOutlined style={{ fontSize: 48 }} />;
+        return <FileOutlined style={{ fontSize: 36 }} />;
     }
   };
 
@@ -465,6 +500,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     return parseFloat((size / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
+  console.log(`fileType & url`, fileType, fileUrl);
+
   const handleDownload = () => {
     if (fileUrl) {
       mixpanel.track("Download File", {
@@ -484,161 +521,168 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   return (
     <>
-      <Result
-        icon={getIcon()}
-        title={
-          isEditing ? (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Input
-                defaultValue={fileName}
-                onPressEnter={(e) => handleRename(e.currentTarget.value)}
-                onBlur={(e) => setIsEditing(false)}
-                autoFocus
-                onChange={(e) => setFileName(e.target.value)}
-                disabled={isUpdatingName}
-                style={{ width: 200 }}
-                suffix={
-                  <Button
-                    type="link"
-                    icon={<CheckOutlined />}
-                    loading={isUpdatingName}
-                    onClick={() => handleRename(fileName)}
-                  />
-                }
-              />
-              {isUpdatingName && (
-                <Spin size="small" style={{ marginLeft: 8 }} />
-              )}
-            </div>
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text strong>{fileName}</Text>
-              <Tooltip title="Rename">
-                <Button
-                  type="link"
-                  icon={<EditOutlined />}
-                  onClick={() => setIsEditing(true)}
-                  loading={isUpdatingName}
-                />
-              </Tooltip>
-            </div>
-          )
-        }
-        subTitle={`File Size: ${formatFileSize(file.file_size)}`}
-        extra={[
-          <Button
-            key="download2"
-            type="primary"
-            onClick={handleDownload}
-            disabled={!fileUrl || isLoading}
-          >
-            Download
-          </Button>,
-          <Button
-            key="preview2"
-            onClick={() => setIsModalVisible(true)}
-            disabled={fileType === "other" || !fileUrl || isLoading}
-          >
-            Preview
-          </Button>,
-          <Button
-            key="share2"
-            onClick={() => handleShare(file.raw_url)}
-            disabled={
-              !file.raw_url || file.disk_type === DiskTypeEnum.BrowserCache
-            }
-            loading={isGeneratingShareLink}
-          >
-            Share
-          </Button>,
-        ]}
+      <div
+        className="file-header-container"
         style={{
-          paddingTop: isMobile ? 70 : 150,
-          paddingBottom: isMobile ? 70 : 150,
           background: "rgba(0,0,0,0.02)",
+          padding: "8px 16px",
+          borderRadius: "8px",
+          marginBottom: "16px",
         }}
-      />
-
-      {isLoading && (
-        <div style={{ textAlign: "center", marginTop: 20 }}>
-          <Spin size="large" />
-          <div style={{ marginTop: 10 }}>Loading file content...</div>
-        </div>
-      )}
-
-      {isModalVisible && (
-        <Modal
-          open={isModalVisible}
-          footer={null}
-          onCancel={() => setIsModalVisible(false)}
-          width={isMobile ? "100%" : "80%"}
-          style={{ top: 20 }}
-          closable={true}
-          closeIcon={null} // Hide default close icon to customize header
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: isMobile ? "wrap" : "nowrap",
+          }}
         >
-          {file.disk_type === DiskTypeEnum.BrowserCache ||
-          file.disk_type === DiskTypeEnum.IcpCanister ? (
-            // Custom preview for IndexedDB files
-            <div style={{ textAlign: "center" }}>
-              {fileType === "image" && fileUrl && (
-                <img
-                  src={fileUrl}
-                  alt={file.name}
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "calc(80vh)",
-                    objectFit: "contain",
-                  }}
-                />
-              )}
-              {fileType === "video" && fileUrl && (
-                <video
-                  src={fileUrl}
-                  controls
-                  style={{ maxWidth: "100%", maxHeight: "calc(80vh)" }}
-                >
-                  Your browser does not support the video tag.
-                </video>
-              )}
-              {fileType === "audio" && fileUrl && (
-                <audio
-                  src={fileUrl}
-                  controls
-                  style={{ width: "100%", marginTop: "20px" }}
-                >
-                  Your browser does not support the audio tag.
-                </audio>
-              )}
-              {fileType === "pdf" && fileUrl && (
-                <iframe
-                  src={fileUrl}
-                  title={file.name}
-                  style={{
-                    width: "100%",
-                    height: "calc(80vh)",
-                    border: "none",
-                  }}
-                />
-              )}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flex: "1",
+            }}
+          >
+            <div style={{ marginRight: 16 }}>
+              {isLoading ? <Spin size="default" /> : getIcon()}
             </div>
-          ) : (
-            // Use FilePreview for other storage types
-            <FilePreview file={file} />
-          )}
-        </Modal>
-      )}
+            <div style={{ flex: "1" }}>
+              {isEditing ? (
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Input
+                    defaultValue={fileName}
+                    onPressEnter={(e) => handleRename(e.currentTarget.value)}
+                    onBlur={(e) => setIsEditing(false)}
+                    autoFocus
+                    onChange={(e) => setFileName(e.target.value)}
+                    disabled={isUpdatingName}
+                    style={{ width: "100%", maxWidth: "300px" }}
+                    suffix={
+                      <Button
+                        type="link"
+                        icon={<CheckOutlined />}
+                        loading={isUpdatingName}
+                        onClick={() => handleRename(fileName)}
+                      />
+                    }
+                  />
+                  {isUpdatingName && (
+                    <Spin size="small" style={{ marginLeft: 8 }} />
+                  )}
+                </div>
+              ) : (
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Text strong style={{ marginRight: "8px" }}>
+                    {fileName}
+                  </Text>
+                  <Tooltip title="Rename">
+                    <Button
+                      type="link"
+                      icon={<EditOutlined />}
+                      onClick={() => setIsEditing(true)}
+                      loading={isUpdatingName}
+                      style={{ padding: "0" }}
+                    />
+                  </Tooltip>
+                </div>
+              )}
+              <Text type="secondary" style={{ display: "block" }}>
+                File Size: {formatFileSize(file.file_size)}
+              </Text>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              marginTop: isMobile ? "12px" : "0",
+              width: isMobile ? "100%" : "auto",
+              justifyContent: isMobile ? "flex-end" : "flex-end",
+            }}
+          >
+            <Button
+              type="primary"
+              onClick={handleDownload}
+              disabled={!fileUrl || isLoading}
+            >
+              Download
+            </Button>
+            <Button
+              onClick={() => handleShare(file.raw_url)}
+              disabled={
+                !file.raw_url || file.disk_type === DiskTypeEnum.BrowserCache
+              }
+              loading={isGeneratingShareLink}
+            >
+              Share
+            </Button>
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "flex" }}>
+        {fileType === "image" && fileUrl && (
+          <img
+            src={fileUrl}
+            alt={file.name}
+            style={{
+              width: "100%",
+              maxWidth: "800px",
+              maxHeight: "calc(80vh)",
+              objectFit: "contain",
+            }}
+          />
+        )}
+        {fileType === "video" && fileUrl && (
+          <video
+            src={fileUrl}
+            controls
+            style={{
+              width: "100%",
+              maxWidth: "800px",
+              maxHeight: "calc(80vh)",
+            }}
+          >
+            Your browser does not support the video tag.
+          </video>
+        )}
+        {fileType === "audio" && fileUrl && (
+          <audio
+            src={fileUrl}
+            controls
+            style={{ width: "100%", marginTop: "20px" }}
+          >
+            Your browser does not support the audio tag.
+          </audio>
+        )}
+        {fileType === "spreadsheet" && fileUrl && (
+          <SheetJSPreview file={file} showButtons={true} />
+        )}
+        {fileType === "pdf" && fileUrl && (
+          <iframe
+            src={fileUrl}
+            title={file.name}
+            style={{
+              width: "100%",
+              height: "calc(80vh)",
+              border: "none",
+            }}
+          />
+        )}
+        {fileType === "other" && fileUrl && (
+          <div
+            style={{
+              width: "100%",
+              justifyContent: "center",
+              marginTop: "32px",
+            }}
+          >
+            <Result icon={<FileExcelOutlined />} title="Preview Unavailable" />
+          </div>
+        )}
+      </div>
     </>
   );
 };

@@ -204,6 +204,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
           evm_public_address: evmAddress || undefined,
           public_note: values.publicNote || "",
           external_id: values.externalId || undefined,
+          is_placeholder: !isOwned,
         };
 
         console.log("Contact data:", contactData);

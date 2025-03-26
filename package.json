@@ -19,7 +19,7 @@
     "@dfinity/identity": "^2.1.1",
     "@dfinity/principal": "^2.1.1",
     "@officexapp/framework": "^0.0.354",
-    "@officexapp/types": "^0.0.56",
+    "@officexapp/types": "^0.0.57",
     "@redux-offline/redux-offline": "^2.6.0",
     "@scure/bip39": "^1.4.0",
     "antd": "^5.20.1",
@@ -47,6 +47,7 @@
     "react-screentype-hook": "^1.0.18",
     "rxjs": "^7.8.1",
     "tailwind-merge": "^2.5.2",
+    "uninstall": "^0.0.0",
     "uuid": "^10.0.0",
     "viem": "^2.19.4",
     "xlsx": "^0.18.5"

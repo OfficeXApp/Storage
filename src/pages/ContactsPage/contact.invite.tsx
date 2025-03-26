@@ -46,7 +46,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
   onClose,
   organizationId,
 }) => {
-  const isPlaceholderUser = !!contact.from_placeholder_user_id;
+  const isOwnedUser = !Boolean(contact.from_placeholder_user_id);
   const [enableAutoLogin, setEnableAutoLogin] = useState<boolean>(true);
   const [redirectUrl, setRedirectUrl] = useState<string>("");
   const [apiKeyDates, setApiKeyDates] = useState<[Date, Date] | null>(null);
@@ -119,8 +119,20 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
       if (enableAutoLogin) {
         const apiKey = await createApiKey();
 
-        if (isPlaceholderUser) {
-          // For placeholder users, create RedeemContactBtoaBody
+        if (isOwnedUser) {
+          // For owned users, create AutoLoginContactBtoaBody
+          const autoLoginPayload: AutoLoginContactBtoaBody = {
+            type: "AutoLoginContactBtoaBody",
+            org_name: currentOrg?.nickname || "",
+            profile_name: contact.name,
+            current_user_id: contact.id,
+            api_key: apiKey.value,
+            redirect_url: redirectUrl || undefined,
+          };
+          console.log("Created AutoLoginContactBtoaBody:", autoLoginPayload);
+          return autoLoginPayload;
+        } else {
+          // For not owned users, create RedeemContactBtoaBody
           const redeemPayload: RedeemContactBtoaBody = {
             type: "RedeemContactBtoaBody",
             current_user_id: contact.id,
@@ -133,24 +145,12 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
           };
           console.log("Created RedeemContactBtoaBody:", redeemPayload);
           return redeemPayload;
-        } else {
-          // For regular users, create AutoLoginContactBtoaBody
-          const autoLoginPayload: AutoLoginContactBtoaBody = {
-            type: "AutoLoginContactBtoaBody",
-            org_name: currentOrg?.nickname || "",
-            profile_name: contact.name,
-            profile_user_id: contact.id,
-            api_key: apiKey.value,
-            redirect_url: redirectUrl || undefined,
-          };
-          console.log("Created AutoLoginContactBtoaBody:", autoLoginPayload);
-          return autoLoginPayload;
         }
       } else {
         // Simple invite without auto-login
         const simplePayload: SimpleOrgContactInviteBody = {
           type: "SimpleOrgContactInviteBody",
-          profile_user_id: contact.id,
+          current_user_id: contact.id,
           org_name: currentOrg?.nickname || "",
           profile_name: contact.name,
         };
@@ -197,6 +197,8 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
         });
     }
   };
+
+  console.log(`target invite isOwnedUser=${isOwnedUser}`, contact);
 
   return (
     <Modal
@@ -322,9 +324,9 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 color: "rgba(0,0,0,0.3)",
               }}
             >
-              {isPlaceholderUser
-                ? `Contact will link their own identity`
-                : `Your organization owns this profile`}
+              {isOwnedUser
+                ? `Your organization owns this profile`
+                : `Contact will link their own identity`}
             </span>
           </Form.Item>
         </Form>

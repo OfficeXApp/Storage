@@ -203,12 +203,9 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
   return (
     <Modal
       title={
-        <span>
+        <span style={{ fontSize: "1.3rem" }}>
           Invite {contact.name} {` `}
           <TagCopy id={contact?.id || ""} />
-          to {currentOrg?.nickname}
-          {` `}
-          <TagCopy id={currentOrg?.driveID || ""} />
         </span>
       }
       open={isVisible}
@@ -216,8 +213,14 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
       width={600}
       footer={null}
     >
-      <div>
+      <div style={{ marginTop: 0 }}>
         <Form layout="vertical">
+          <span>
+            To join your organization {currentOrg?.nickname}
+            {` `}
+            <TagCopy id={currentOrg?.driveID || ""} />
+          </span>
+          <br />
           <Switch
             checked={enableAutoLogin}
             onChange={setEnableAutoLogin}

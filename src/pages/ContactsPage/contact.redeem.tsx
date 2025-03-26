@@ -9,6 +9,7 @@ import {
   Space,
   Spin,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
 import { IRequestRedeemContact, UserID } from "@officexapp/types";
@@ -18,6 +19,8 @@ import { urlSafeBase64Decode } from "../../api/helpers";
 import {
   CheckCircleOutlined,
   EditOutlined,
+  QuestionCircleFilled,
+  QuestionCircleOutlined,
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -198,11 +201,32 @@ const ContactRedeem = () => {
 
     switch (redeemData.type) {
       case "RedeemContactBtoaBody":
-        return "Self-Custody Profile";
+        return (
+          <span>
+            Self-Custody Profile{" "}
+            <Tooltip title="You own this profile and its keys are stored on your device.">
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </span>
+        );
       case "AutoLoginContactBtoaBody":
-        return "Organization-Owned Profile";
+        return (
+          <span>
+            Organization-Owned Profile{" "}
+            <Tooltip title="This profile is owned by the organization and you are being granted access.">
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </span>
+        );
       case "SimpleOrgContactInviteBody":
-        return "Accept with Existing Profile";
+        return (
+          <span>
+            Accept with Existing Profile{" "}
+            <Tooltip title="You are being invited to join the organization with your existing profile.">
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </span>
+        );
       default:
         return "Unknown";
     }
@@ -252,13 +276,6 @@ const ContactRedeem = () => {
                 }}
               >
                 <div style={{ marginBottom: 24 }}>
-                  <Text type="secondary">Invitation Type</Text>
-                  <Paragraph style={{ fontSize: "16px", marginBottom: 0 }}>
-                    {getInvitationType()}
-                  </Paragraph>
-                </div>
-
-                <div style={{ marginBottom: 24 }}>
                   <Text type="secondary">Organization</Text>
                   {editingOrg ? (
                     <Input
@@ -299,7 +316,7 @@ const ContactRedeem = () => {
                 </div>
 
                 <div style={{ marginBottom: 24 }}>
-                  <Text type="secondary">Profile</Text>
+                  <Text type="secondary">{getInvitationType()}</Text>
                   {redeemData.type === "RedeemContactBtoaBody" ? (
                     <Select
                       showSearch

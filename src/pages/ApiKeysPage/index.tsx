@@ -10,6 +10,7 @@ import ApiKeyAddDrawer from "./api-key.add";
 import ApiKeyTab from "./api-key.tab";
 import ApiKeysTableList from "./api-keys.table";
 import useScreenType from "react-screentype-hook";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -26,7 +27,7 @@ const ApiKeysPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-
+  const { wrapOrgCode } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Check if content tab is open
@@ -122,10 +123,10 @@ const ApiKeysPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/api-keys`;
+      const newUrl = wrapOrgCode(`/resources/api-keys`);
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/api-keys/${newActiveKey}`;
+      const newUrl = wrapOrgCode(`/resources/api-keys/${newActiveKey}`);
       window.history.pushState({}, "", newUrl);
     }
   };

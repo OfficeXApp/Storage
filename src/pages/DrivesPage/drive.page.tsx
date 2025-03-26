@@ -8,10 +8,12 @@ import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
+import { useIdentitySystem } from "../../framework/identity";
 
 const DrivePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const params = useParams();
   const driveID = params.driveID;
@@ -51,7 +53,7 @@ const DrivePage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/drives")}
+          onClick={() => navigate(wrapOrgCode("/resources/drives"))}
           style={{
             display: "flex",
             alignItems: "center",
@@ -73,7 +75,7 @@ const DrivePage = () => {
         <DriveTab
           drive={drive}
           onDelete={() => {
-            navigate(`/resources/drives`);
+            navigate(wrapOrgCode(`/resources/drives`));
           }}
         />
       </Content>

@@ -36,6 +36,7 @@ import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { listDrivesAction } from "../../redux-offline/drives/drives.actions";
 import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
+import { useIdentitySystem } from "../../framework/identity";
 
 interface DrivesTableListProps {
   isDriveTabOpen: (id: string) => boolean;
@@ -54,6 +55,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
   const [searchText, setSearchText] = useState("");
   const [filteredDrives, setFilteredDrives] = useState(drives);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const { wrapOrgCode } = useIdentitySystem();
 
   // Update filtered drives whenever search text or drives change
   useEffect(() => {
@@ -165,7 +167,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleClickContentTab(record, true);
-                const newUrl = `/resources/drives/${record.id}`;
+                const newUrl = wrapOrgCode(`/resources/drives/${record.id}`);
                 window.history.pushState({}, "", newUrl);
               }}
             >

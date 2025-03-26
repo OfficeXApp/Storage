@@ -48,7 +48,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const apiKeys = useSelector((state: ReduxAppState) => state.apikeys.apikeys);
   const screenType = useScreenType();
-  const { currentProfile } = useIdentitySystem();
+  const { currentProfile, wrapOrgCode } = useIdentitySystem();
   const [searchText, setSearchText] = useState("");
   const [filteredApiKeys, setFilteredApiKeys] = useState(apiKeys);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -196,7 +196,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               handleClickContentTab(record, true);
-              const newUrl = `/resources/api-keys/${record.id}`;
+              const newUrl = wrapOrgCode(`/resources/api-keys/${record.id}`);
               window.history.pushState({}, "", newUrl);
             }}
           >

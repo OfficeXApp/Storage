@@ -10,6 +10,7 @@ import LabelsAddDrawer from "./label.add";
 import LabelTab from "./label.tab";
 import LabelsTableList from "./labels.table";
 import useScreenType from "react-screentype-hook";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -27,7 +28,7 @@ const LabelsPage: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
   const dispatch = useDispatch();
-
+  const { wrapOrgCode } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Check if a label tab is already open
@@ -128,10 +129,10 @@ const LabelsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/labels`;
+      const newUrl = wrapOrgCode(`/resources/labels`);
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/labels/${newActiveKey}`;
+      const newUrl = wrapOrgCode(`/resources/labels/${newActiveKey}`);
       window.history.pushState({}, "", newUrl);
     }
   };

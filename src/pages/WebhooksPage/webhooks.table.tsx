@@ -33,6 +33,7 @@ import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { listWebhooksAction } from "../../redux-offline/webhooks/webhooks.actions";
 import TagCopy from "../../components/TagCopy";
+import { useIdentitySystem } from "../../framework/identity";
 
 interface WebhooksTableListProps {
   isWebhookTabOpen: (id: string) => boolean;
@@ -43,6 +44,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
   isWebhookTabOpen,
   handleClickContentTab,
 }) => {
+  const { wrapOrgCode } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const webhooks = useSelector(
@@ -150,7 +152,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleClickContentTab(record, true);
-                const newUrl = `/resources/webhooks/${record.id}`;
+                const newUrl = wrapOrgCode(`/resources/webhooks/${record.id}`);
                 window.history.pushState({}, "", newUrl);
               }}
             >

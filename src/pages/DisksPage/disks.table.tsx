@@ -36,6 +36,7 @@ import {
   defaultTempCloudSharingDiskID,
 } from "../../api/dexie-database";
 import TagCopy from "../../components/TagCopy";
+import { useIdentitySystem } from "../../framework/identity";
 
 interface DisksTableListProps {
   isContentTabOpen: (id: string) => boolean;
@@ -49,7 +50,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const disks = useSelector((state: ReduxAppState) => state.disks.disks);
-
+  const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredDisks, setFilteredDisks] = useState(disks);
@@ -181,7 +182,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleClickContentTab(record, true);
-                const newUrl = `/resources/disks/${record.id}`;
+                const newUrl = wrapOrgCode(`/resources/disks/${record.id}`);
                 window.history.pushState({}, "", newUrl);
               }}
             >

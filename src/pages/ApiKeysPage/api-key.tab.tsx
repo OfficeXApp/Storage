@@ -54,6 +54,7 @@ import {
 } from "../../redux-offline/api-keys/api-keys.actions";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -75,6 +76,7 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -769,7 +771,7 @@ const data = await response.json();`;
                             "User ID",
                             apiKey.user_id,
                             <UserOutlined />,
-                            `/resources/contacts/${apiKey.user_id}`
+                            wrapOrgCode(`/resources/contacts/${apiKey.user_id}`)
                           )}
 
                         {apiKey.external_id &&

@@ -8,10 +8,12 @@ import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
+import { useIdentitySystem } from "../../framework/identity";
 
 const ContactPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const params = useParams();
   const userID = params.userID;
@@ -48,7 +50,7 @@ const ContactPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/contacts")}
+          onClick={() => navigate(wrapOrgCode("/resources/contacts"))}
           style={{
             display: "flex",
             alignItems: "center",
@@ -70,7 +72,7 @@ const ContactPage = () => {
         <ContactTab
           contact={contact}
           onDelete={() => {
-            navigate(`/resources/contacts`);
+            navigate(wrapOrgCode(`/resources/contacts`));
           }}
         />
       </Content>

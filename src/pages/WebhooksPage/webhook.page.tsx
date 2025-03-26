@@ -8,10 +8,12 @@ import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
+import { useIdentitySystem } from "../../framework/identity";
 
 const WebhookPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const params = useParams();
   const webhookID = params.webhookID;
@@ -51,7 +53,7 @@ const WebhookPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/webhooks")}
+          onClick={() => navigate(wrapOrgCode("/resources/webhooks"))}
           style={{
             display: "flex",
             alignItems: "center",
@@ -73,7 +75,7 @@ const WebhookPage = () => {
         <WebhookTab
           webhook={webhook}
           onDelete={() => {
-            navigate(`/resources/webhooks`);
+            navigate(wrapOrgCode(`/resources/webhooks`));
           }}
         />
       </Content>

@@ -68,12 +68,12 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     createOrganization,
     createApiKey,
     switchOrganization,
+    wrapOrgCode,
   } = useIdentitySystem();
   const [searchValue, setSearchValue] = useState("");
   const [options, setOptions] = useState<
     { value: string; label: React.ReactNode }[]
   >([]);
-  // const { searchFilesQuery, reindexFuzzySearch } = useDrive();
 
   // dummy mock
   const searchFilesQuery = async (
@@ -256,7 +256,9 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const onSelect = (value: string) => {
     const [storageLocation, ...pathParts] = value.split("::");
     navigate(
-      `/drive/${encodeURIComponent(storageLocation)}/${encodeURIComponent(pathParts.join("/"))}`
+      wrapOrgCode(
+        `/drive/${encodeURIComponent(storageLocation)}/${encodeURIComponent(pathParts.join("/"))}`
+      )
     );
   };
 

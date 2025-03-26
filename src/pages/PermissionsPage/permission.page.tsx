@@ -11,10 +11,12 @@ import { Button, Layout, Radio } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
+import { useIdentitySystem } from "../../framework/identity";
 
 const PermissionsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const params = useParams();
   const permissionID = params.permissionID;
@@ -78,7 +80,7 @@ const PermissionsPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/permissions")}
+          onClick={() => navigate(wrapOrgCode("/resources/permissions"))}
           style={{
             display: "flex",
             alignItems: "center",
@@ -114,7 +116,7 @@ const PermissionsPage = () => {
           // @ts-ignore
           permissionType={permissionType || "system"}
           onDelete={() => {
-            navigate(`/resources/permissions`);
+            navigate(wrapOrgCode(`/resources/permissions`));
           }}
         />
       </Content>

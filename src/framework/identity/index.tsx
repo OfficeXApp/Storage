@@ -40,6 +40,9 @@ import { listDisksAction } from "../../redux-offline/disks/disks.actions";
 import { listDrivesAction } from "../../redux-offline/drives/drives.actions";
 import { listGroupsAction } from "../../redux-offline/groups/groups.actions";
 import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
+import { useParams } from "react-router-dom";
+import { urlSafeBase64Decode, urlSafeBase64Encode } from "../../api/helpers";
+import { Button, notification, Space } from "antd";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -135,6 +138,8 @@ interface IdentitySystemContextType {
   syncLatestIdentities: () => Promise<void>;
   deriveProfileFromSeed: (seedPhrase: string) => Promise<IndexDB_Profile>;
   generateSignature: () => Promise<string>;
+
+  wrapOrgCode: (route: string) => string;
 }
 
 // Create the context
@@ -181,9 +186,16 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   const [listOfProfiles, setListOfProfiles] = useState<IndexDB_Profile[]>([]);
   const [listOfAPIKeys, setListOfAPIKeys] = useState<IndexDB_ApiKey[]>([]);
 
+  const listOfOrgsRef = useRef(listOfOrgs);
+  const listOfProfilesRef = useRef(listOfProfiles);
+  const listOfAPIKeysRef = useRef(listOfAPIKeys);
+
   useEffect(() => {
     currentProfileRef.current = currentProfile;
-  }, [currentProfile]);
+    listOfOrgsRef.current = listOfOrgs;
+    listOfProfilesRef.current = listOfProfiles;
+    listOfAPIKeysRef.current = listOfAPIKeys;
+  }, [currentProfile, listOfOrgs, listOfProfiles, listOfAPIKeys]);
 
   // Initialize IndexedDB when component mounts
   useEffect(() => {
@@ -312,7 +324,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             // Load initial data
             await syncLatestIdentities();
 
-            setIsInitialized(true);
+            await enterByOrgCode();
           } catch (err) {
             console.error("Error initializing default data:", err);
             setError(err instanceof Error ? err : new Error(String(err)));
@@ -389,7 +401,28 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     setListOfProfiles(profiles);
     const apiKeys = await listApiKeys();
     setListOfAPIKeys(apiKeys);
+
+    listOfOrgsRef.current = orgs;
+    listOfProfilesRef.current = profiles;
+    listOfAPIKeysRef.current = apiKeys;
   }, [db]);
+
+  function getOrgCodeFromUrl() {
+    const path = window.location.pathname;
+    console.log(`getOrgCodeFromUrl path`, path);
+    // Match pattern /org/{orgcode}/ in the URL
+    const orgRegex = /\/org\/([^\/]+)/;
+    const match = path.match(orgRegex);
+
+    console.log(`getOrgCodeFromUrl match`, match);
+
+    if (match && match[1]) {
+      return match[1];
+    }
+
+    return "current"; // Default fallback
+  }
+
   const findApiKeyForProfileAndOrg = async (
     userID: string,
     driveID: string
@@ -864,6 +897,26 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         );
         setCurrentAPIKey(apiKey);
       }
+
+      // Update URL with new org code
+      const path = window.location.pathname;
+      const orgRegex = /\/org\/([^\/]+)(\/.*)?$/;
+      const match = path.match(orgRegex);
+
+      if (match) {
+        // Get the route part after the org code
+        const routeSuffix = match[2] || "";
+
+        // Generate new org code
+        const btoaEndpoint = urlSafeBase64Encode(org.endpoint || "");
+        const newOrgCode = `${org.driveID}__${btoaEndpoint}`;
+
+        // Create new path with updated org code
+        const newPath = `/org/${newOrgCode}${routeSuffix}`;
+
+        // Update browser history without refreshing the page
+        window.history.pushState({}, "", newPath);
+      }
     },
     []
   );
@@ -932,6 +985,78 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     [db, syncLatestIdentities]
   );
 
+  // Enter by orgcode
+  const enterByOrgCode = async () => {
+    const orgcode = getOrgCodeFromUrl();
+    console.log(`orgcode: ${orgcode}`);
+    if (orgcode === "current") {
+      setIsInitialized(true);
+      return;
+    }
+    const [driveID, endpointBtoa] = orgcode.split("__");
+    const endpoint = urlSafeBase64Decode(endpointBtoa);
+    console.log(`enterByOrgCode: ${driveID}`, endpoint);
+    if (!driveID) {
+      console.error("Invalid orgcode");
+      setIsInitialized(true);
+      return;
+    }
+    console.log(`driveID: ${driveID}`, listOfOrgs);
+    console.log(`endpoint: ${endpoint}`);
+    const org = listOfOrgsRef.current?.find((org) => org.driveID === driveID);
+    console.log(`>> org: ${org}`, org);
+    if (!org && (!endpoint || endpoint === "undefined")) {
+      console.log(`Skipping offline anon org`, org, endpoint);
+      setIsInitialized(true);
+      return;
+    }
+    if (org) {
+      const defaultProfile = listOfProfilesRef.current?.find(
+        (profile) => profile.userID === org.defaultProfile
+      );
+      console.log(`>> defaultProfile: ${defaultProfile}`, defaultProfile);
+      await switchOrganization(org);
+      if (defaultProfile) {
+        await switchProfile(defaultProfile);
+      }
+    } else {
+      // org not found, lets add it
+      const newOrg = await createOrganization({
+        driveID,
+        nickname: `Unknown Shared Org`,
+        icpPublicAddress: driveID.replace("DriveID_", ""),
+        endpoint,
+        note: "",
+      });
+      await switchOrganization(newOrg);
+
+      notification.warning({
+        message: "Unknown Organization",
+        description:
+          "You're accessing an unknown organization. Please be careful and remember to remove it later if not needed.",
+        duration: 10, // Show for 10 seconds
+        placement: "topRight",
+        key: "unknown-org-notification", // Unique key to prevent duplicates
+        btn: (
+          <Space>
+            <Button type="link" href="https://officex.app" target="_blank">
+              Learn More
+            </Button>
+          </Space>
+        ),
+      });
+    }
+
+    setIsInitialized(true);
+  };
+
+  const wrapOrgCode = (route: string) => {
+    const btoaEndpoint = urlSafeBase64Encode(currentOrg?.endpoint || "");
+    const orgcode = `${currentOrg?.driveID}__${btoaEndpoint}`;
+
+    return `/org/${orgcode}${route}`;
+  };
+
   // Context value
   const contextValue: IdentitySystemContextType = {
     isInitialized,
@@ -966,7 +1091,13 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     syncLatestIdentities,
     deriveProfileFromSeed,
     generateSignature,
+
+    wrapOrgCode,
   };
+
+  if (!isInitialized) {
+    return "Loading...";
+  }
 
   return (
     <IdentitySystemContext.Provider value={contextValue}>

@@ -8,7 +8,7 @@ import {
   FolderUUID,
   StorageLocationEnum,
 } from "../../framework";
-import FilePreview from "../FilePreview";
+// import FilePreview from "../FilePreview";
 import useScreenType from "react-screentype-hook";
 import {
   getPseudoShareLink,
@@ -156,9 +156,9 @@ const GiftPage: React.FC = () => {
         ]}
       />
       <div style={{ padding: screenType.isMobile ? 10 : 0 }}>
-        {fileMetadata && (
-          <FilePreview file={fileMetadata} showButtons={false} />
-        )}
+        {fileMetadata &&
+          // <FilePreview file={fileMetadata} showButtons={false} />
+          JSON.stringify(fileMetadata)}
       </div>
       <br />
       <br />

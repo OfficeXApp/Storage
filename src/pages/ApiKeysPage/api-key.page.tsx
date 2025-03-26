@@ -8,10 +8,12 @@ import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
+import { useIdentitySystem } from "../../framework/identity";
 
 const ApiKeyPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const params = useParams();
   const apiKeyID = params.apiKeyID;
@@ -51,7 +53,7 @@ const ApiKeyPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/api-keys")}
+          onClick={() => navigate(wrapOrgCode("/resources/api-keys"))}
           style={{
             display: "flex",
             alignItems: "center",
@@ -73,7 +75,7 @@ const ApiKeyPage = () => {
         <ApiKeyTab
           apiKey={apiKey}
           onDelete={() => {
-            navigate(`/resources/apikeys`);
+            navigate(wrapOrgCode(`/resources/apikeys`));
           }}
         />
       </Content>

@@ -35,6 +35,7 @@ import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { listGroupsAction } from "../../redux-offline/groups/groups.actions";
 import { formatUserString } from "../../api/helpers";
+import { useIdentitySystem } from "../../framework/identity";
 
 interface GroupsTableProps {
   isContentTabOpen: (id: string) => boolean;
@@ -45,6 +46,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
   isContentTabOpen,
   handleClickContentTab,
 }) => {
+  const { wrapOrgCode } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const groups = useSelector((state: ReduxAppState) => state.groups.groups);
@@ -168,7 +170,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               handleClickContentTab(record, true);
-              const newUrl = `/resources/groups/${record.id}`;
+              const newUrl = wrapOrgCode(`/resources/groups/${record.id}`);
               window.history.pushState({}, "", newUrl);
             }}
           >

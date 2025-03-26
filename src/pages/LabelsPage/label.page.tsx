@@ -8,10 +8,12 @@ import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
+import { useIdentitySystem } from "../../framework/identity";
 
 const LabelPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const params = useParams();
   const labelID = params.labelID;
@@ -48,7 +50,7 @@ const LabelPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/labels")}
+          onClick={() => navigate(wrapOrgCode("/resources/labels"))}
           style={{
             display: "flex",
             alignItems: "center",
@@ -70,7 +72,7 @@ const LabelPage = () => {
         <LabelTab
           label={label}
           onDelete={() => {
-            navigate(`/resources/labels`);
+            navigate(wrapOrgCode(`/resources/labels`));
           }}
         />
       </Content>

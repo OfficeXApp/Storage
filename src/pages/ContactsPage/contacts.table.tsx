@@ -33,6 +33,7 @@ import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
 import { formatUserString, getLastOnlineStatus } from "../../api/helpers";
+import { useIdentitySystem } from "../../framework/identity";
 
 interface ContactsTableListProps {
   isContentTabOpen: (id: string) => boolean;
@@ -48,6 +49,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   const contacts = useSelector(
     (state: ReduxAppState) => state.contacts.contacts
   );
+  const { wrapOrgCode } = useIdentitySystem();
   console.log(`look at contacts`, contacts);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
@@ -157,7 +159,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleClickContentTab(record, true);
-                const newUrl = `/resources/groups/${record.id}`;
+                const newUrl = wrapOrgCode(`/resources/groups/${record.id}`);
                 window.history.pushState({}, "", newUrl);
               }}
             >

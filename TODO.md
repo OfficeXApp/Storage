@@ -22,6 +22,7 @@
 - [ ] Implement "Default Disk"
 - [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
 - [ ] Back button on /drive for when new user arrives
+- [ ] When adding a new org, dont just refresh page, go to /contacts just in case
 - [ ] Trash bin functionality
 - [ ] Edit file/folder name
 - [ ] Delete file folder / Restore trash / Delete forever

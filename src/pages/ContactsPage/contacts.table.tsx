@@ -159,7 +159,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleClickContentTab(record, true);
-                const newUrl = wrapOrgCode(`/resources/groups/${record.id}`);
+                const newUrl = wrapOrgCode(`/resources/contacts/${record.id}`);
                 window.history.pushState({}, "", newUrl);
               }}
             >

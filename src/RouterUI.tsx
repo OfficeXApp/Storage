@@ -51,6 +51,7 @@ import SandboxPage from "./components/SandboxPage";
 // import SandboxLocalStorjUploader from "./components/SandboxPage/SandboxLocalStorjUploader.tsx";
 // import SandboxCloudStorjUploader from "./components/SandboxPage/SandboxCloudStorjUploader.tsx";
 import ContactsPage from "./pages/ContactsPage";
+import ContactRedeem from "./pages/ContactsPage/contact.redeem";
 import GroupsPage from "./pages/GroupsPage";
 import PermissionsPage from "./pages/PermissionsPage";
 import LabelsPage from "./pages/LabelsPage";
@@ -379,6 +380,10 @@ const RouterUI = () => {
               <Route
                 path="/org/:orgcode/resources/contacts"
                 element={<ContactsPage />}
+              />
+              <Route
+                path="/org/:orgcode/resources/contacts/redeem"
+                element={<ContactRedeem />}
               />
               <Route
                 path="/org/:orgcode/resources/contacts/:userID"

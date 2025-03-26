@@ -912,7 +912,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         const newOrgCode = `${org.driveID}__${btoaEndpoint}`;
 
         // Create new path with updated org code
-        const newPath = `/org/${newOrgCode}${routeSuffix}`;
+        const newPath = `/org/${newOrgCode}${routeSuffix}?${window.location.href.split("?").pop()}`;
 
         // Update browser history without refreshing the page
         window.history.pushState({}, "", newPath);

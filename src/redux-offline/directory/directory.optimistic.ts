@@ -553,10 +553,10 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 last_updated_by: userID,
                 disk_id: fileData.payload.disk_id,
                 file_size: fileData.payload.file_size || 0,
-                raw_url: "",
+                raw_url: fileData.payload.raw_url || "",
                 deleted: false,
                 drive_id: orgID,
-                expires_at: fileData.payload.expires_at || 0,
+                expires_at: fileData.payload.expires_at || -1,
                 has_sovereign_permissions:
                   fileData.payload.has_sovereign_permissions || false,
                 clipped_directory_path: parentFolder
@@ -671,7 +671,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 disk_id: folderData.payload.disk_id,
                 disk_type: DiskTypeEnum.BrowserCache,
                 deleted: false,
-                expires_at: folderData.payload.expires_at || 0,
+                expires_at: folderData.payload.expires_at || -1,
                 drive_id: orgID,
                 has_sovereign_permissions:
                   folderData.payload.has_sovereign_permissions || false,

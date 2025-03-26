@@ -33,5 +33,4 @@ export interface IUploadAdapter {
   ): Promise<ResumableUploadMetadata | null>;
   validateFileForResume(metadata: ResumableUploadMetadata, file: File): boolean;
   cleanup(): Promise<void>;
-  getFileUrl(id: UploadID): Promise<string | null>;
 }

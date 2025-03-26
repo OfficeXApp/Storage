@@ -35,6 +35,8 @@ import { getMimeType } from "../helpers";
 import {
   CREATE_FILE,
   createFileAction,
+  UPDATE_FILE,
+  updateFileAction,
 } from "../../../redux-offline/directory/directory.actions";
 
 /**
@@ -240,12 +242,24 @@ export class LocalS3Adapter implements IUploadAdapter {
         Key: key,
         Body: new Uint8Array(fileBuffer),
         ContentType: file.type || getMimeType(file),
-        ACL:
-          (this.config.acl as ObjectCannedACL) || ObjectCannedACL.public_read,
+        ACL: ObjectCannedACL.public_read,
       });
 
       // Get signed URL for the file
-      const url = await this.getSignedUrl(key, file.name);
+      const raw_url = await this.getSignedUrl(key, file.name);
+
+      const updateAction = {
+        action: UPDATE_FILE as "UPDATE_FILE",
+        payload: {
+          id: fileID,
+          raw_url,
+        },
+      };
+
+      // Dispatch action to create file record
+      config.metadata?.dispatch(
+        updateFileAction(updateAction, config.listDirectoryKey, true)
+      );
 
       // Save resumable metadata (not strictly necessary for simple uploads, but good for consistency)
       await this.saveResumableMetadata(
@@ -275,6 +289,33 @@ export class LocalS3Adapter implements IUploadAdapter {
     } catch (error) {
       console.error("Error in simple upload:", error);
       progressSubject.error(error);
+    }
+  }
+
+  private async getSignedUrl(key: string, fileName?: string): Promise<string> {
+    if (!this.s3Client || !this.config) {
+      throw new Error("S3 adapter not initialized");
+    }
+
+    // 1 week in seconds (7 days * 24 hours * 60 minutes * 60 seconds)
+    const ONE_WEEK_IN_SECONDS = 7 * 24 * 60 * 60;
+
+    const command = new GetObjectCommand({
+      Bucket: this.config.bucket,
+      Key: key,
+      ...(fileName && {
+        ResponseContentDisposition: `inline; filename="${fileName}"`,
+      }),
+    });
+
+    try {
+      // Using AWS SDK v3 signature
+      return await getSignedUrl(this.s3Client, command, {
+        expiresIn: ONE_WEEK_IN_SECONDS,
+      });
+    } catch (error) {
+      console.error("Error generating signed URL:", error);
+      throw error;
     }
   }
 
@@ -498,6 +539,8 @@ export class LocalS3Adapter implements IUploadAdapter {
       if (!config.metadata?.dispatch) {
         throw new Error("Redux dispatch function is required in the metadata");
       }
+      const extension = file.name.split(".").pop();
+      const key = `${fileID}.${extension}`;
 
       const dispatch = config.metadata.dispatch;
 
@@ -1169,60 +1212,6 @@ export class LocalS3Adapter implements IUploadAdapter {
     } catch (error) {
       console.error("Error cleaning up S3 adapter:", error);
     }
-  }
-
-  /**
-   * Get a URL for a file
-   */
-  public async getFileUrl(id: UploadID): Promise<string | null> {
-    if (!this.s3Client || !this.config) {
-      return null;
-    }
-
-    try {
-      // Get metadata
-      const metadata = await this.getResumableUploadMetadata(id);
-
-      if (!metadata || !metadata.customMetadata) {
-        return null;
-      }
-
-      const key = metadata.customMetadata.s3Key as string;
-
-      if (!key) {
-        return null;
-      }
-
-      // Generate signed URL
-      return this.getSignedUrl(key, metadata.fileName);
-    } catch (error) {
-      console.error("Error getting file URL:", error);
-      return null;
-    }
-  }
-
-  /**
-   * Generate a pre-signed URL for direct uploads
-   */
-
-  /**
-   * Generate a signed URL for a file
-   */
-  private async getSignedUrl(key: string, fileName?: string): Promise<string> {
-    if (!this.s3Client || !this.config) {
-      throw new Error("S3 adapter not initialized");
-    }
-
-    const command = new GetObjectCommand({
-      Bucket: this.config.bucket,
-      Key: key,
-      ...(fileName && {
-        ResponseContentDisposition: `inline; filename="${fileName}"`,
-      }),
-    });
-
-    // Generate signed URL
-    return getSignedUrl(this.s3Client, command, { expiresIn: 3600 * 24 }); // 24 hours
   }
 
   /**

@@ -28,7 +28,7 @@ const StorjSettingsCard: React.FC<StorjSettingsCardProps> = ({
   onSave,
   onCancel,
 }) => {
-  const { initStorj } = useDrive();
+  // const { initStorj } = useDrive();
   const [form] = Form.useForm();
   const [isTesting, setIsTesting] = useState(false);
 
@@ -73,11 +73,11 @@ const StorjSettingsCard: React.FC<StorjSettingsCardProps> = ({
       await client.send(command);
 
       message.success("Successfully connected to Storj!");
-      await initStorj({
-        accessKeyId: values.accessKey,
-        secretAccessKey: values.secretKey,
-        endpoint: values.endpoint,
-      });
+      // await initStorj({
+      //   accessKeyId: values.accessKey,
+      //   secretAccessKey: values.secretKey,
+      //   endpoint: values.endpoint,
+      // });
       return true;
     } catch (error) {
       console.error("Error invalid Storj credentials:", error);

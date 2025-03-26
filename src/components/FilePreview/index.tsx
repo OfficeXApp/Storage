@@ -42,11 +42,13 @@ import { createPseudoShareLink } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
 import { isFreeTrialStorj } from "../../api/storj";
 import { useIdentitySystem } from "../../framework/identity";
+import { FileFEO } from "../../redux-offline/directory/directory.reducer";
+import { DiskTypeEnum } from "@officexapp/types";
 
 const { Text } = Typography;
 
 interface FilePreviewProps {
-  file: FileMetadata;
+  file: FileFEO;
   showButtons?: boolean;
 }
 
@@ -56,9 +58,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
 }) => {
   const screenType = useScreenType();
   const isMobile = screenType.isMobile;
-  const [fileName, setFileName] = useState(
-    file.originalFileName || "Unknown File"
-  );
+  const [fileName, setFileName] = useState(file.name || "Unknown File");
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -88,7 +88,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
     | "pdf"
     | "spreadsheet"
     | "other" => {
-    const name = file.originalFileName || "";
+    const name = file.name || "";
     const extension =
       file.extension?.toLowerCase() || name.split(".").pop()?.toLowerCase();
 
@@ -126,7 +126,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
   useEffect(() => {
     if (
       isModalVisible &&
-      file.storageLocation === StorageLocationEnum.BrowserCache &&
+      file.disk_type === DiskTypeEnum.BrowserCache &&
       fileType === "video"
     ) {
       loadVideoAsBlob();
@@ -160,17 +160,17 @@ const FilePreview: React.FC<FilePreviewProps> = ({
   useEffect(() => {
     const loadFileContent = async () => {
       if (window.location.pathname === "/gift") {
-        setFileUrl(file.rawURL as string);
+        setFileUrl(file.raw_url as string);
         return;
       }
       setIsLoading(true);
       try {
-        if (file.storageLocation === StorageLocationEnum.BrowserCache) {
+        if (file.disk_type === DiskTypeEnum.BrowserCache) {
           const url = await indexdbGetFileUrl(file.id as FileUUID);
           setFileUrl(url);
-        } else if (file.storageLocation === StorageLocationEnum.Web3Storj) {
+        } else if (file.disk_type === DiskTypeEnum.StorjWeb3) {
           console.log(`setFileUrl Web3Storj`, file);
-          setFileUrl(file.rawURL as string);
+          setFileUrl(file.raw_url as string);
         }
       } catch (error) {
         console.error("Error loading file content", error);
@@ -186,7 +186,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
       loadFileContent();
     }
 
-    setFileName(file.originalFileName || "Unknown File");
+    setFileName(file.name || "Unknown File");
 
     // Cleanup function
     return () => {
@@ -218,8 +218,8 @@ const FilePreview: React.FC<FilePreviewProps> = ({
   };
 
   const handleRaw = () => {
-    if (file.rawURL) {
-      window.open(file.rawURL as string, "_blank");
+    if (file.raw_url) {
+      window.open(file.raw_url as string, "_blank");
     } else {
       message.error("No raw URL available");
     }
@@ -234,7 +234,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
     }
     setIsGeneratingShareLink(true);
     const shareLink = await createPseudoShareLink({
-      title: `${isFreeTrialStorj() ? `Expires in 24 hours - ` : ``}${file.originalFileName}`,
+      title: `${isFreeTrialStorj() ? `Expires in 24 hours - ` : ``}${file.name}`,
       url,
       ref: evmPublicKey,
     });
@@ -242,7 +242,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
     navigator.clipboard.writeText(shareLink);
     setIsGeneratingShareLink(false);
     mixpanel.track("Share File", {
-      "File Type": file.originalFileName.split(".").pop(),
+      "File Type": file.name.split(".").pop(),
       Link: shareLink,
     });
   };
@@ -306,7 +306,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
                 <Spin size="large" />
               </div>
             )}
-            {file.storageLocation === StorageLocationEnum.BrowserCache ? (
+            {file.disk_type === DiskTypeEnum.BrowserCache ? (
               <>
                 {videoBlob ? (
                   <video
@@ -351,7 +351,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
             <iframe
               src={`${fileUrl}#navpanes=${isMobile ? "1" : "0"}`}
               style={{ width: "100%", height: "80vh" }}
-              title={file.originalFileName}
+              title={file.name}
             />
           </div>
         );
@@ -372,14 +372,12 @@ const FilePreview: React.FC<FilePreviewProps> = ({
                               ? "_blank"
                               : "_self"
                           }
-                          download={file.originalFileName}
+                          download={file.name}
                         >
                           <Button
                             onClick={() => {
                               mixpanel.track("Download File", {
-                                "File Type": file.originalFileName
-                                  .split(".")
-                                  .pop(),
+                                "File Type": file.name.split(".").pop(),
                               });
                             }}
                             key="download1"
@@ -410,7 +408,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
           <div style={{ display: "flex", flexDirection: "row", gap: 5 }}>
             <a
               href={fileUrl}
-              download={file.originalFileName}
+              download={file.name}
               target={
                 file.extension.toLowerCase() === "pdf" ? "_blank" : "_self"
               }
@@ -421,7 +419,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
                 size="small"
                 onClick={() => {
                   mixpanel.track("Download File", {
-                    "File Type": file.originalFileName.split(".").pop(),
+                    "File Type": file.name.split(".").pop(),
                   });
                 }}
               >
@@ -437,16 +435,14 @@ const FilePreview: React.FC<FilePreviewProps> = ({
             >
               Share
             </Button>
-            {file.rawURL && (
-              <a href={file.rawURL} target="_blank" rel="noreferrer">
+            {file.raw_url && (
+              <a href={file.raw_url} target="_blank" rel="noreferrer">
                 <Button
                   type="link"
                   onClick={handleRaw}
                   icon={<LinkOutlined />}
                   size="small"
-                  disabled={
-                    file.storageLocation === StorageLocationEnum.BrowserCache
-                  }
+                  disabled={file.disk_type === DiskTypeEnum.BrowserCache}
                 >
                   Raw
                 </Button>

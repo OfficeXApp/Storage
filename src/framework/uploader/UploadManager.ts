@@ -1152,38 +1152,6 @@ export class UploadManager {
   }
 
   /**
-   * Get URL for an uploaded file
-   * @param id Upload ID
-   * @returns Promise that resolves to URL string or null
-   */
-  public async getFileUrl(id: UploadID): Promise<string | null> {
-    const uploadItem = this.uploadQueue.get(id);
-    if (!uploadItem) {
-      // Check if this was a previous upload
-      const savedState = await this.getResumableState(id);
-      if (!savedState) {
-        return null;
-      }
-
-      // Get the adapter for this storage type
-      const adapterReg = this.adapters.get(savedState.diskID);
-      if (!adapterReg) {
-        return null;
-      }
-
-      return adapterReg.adapter.getFileUrl(id);
-    }
-
-    // Get the adapter for this upload
-    const adapterReg = this.adapters.get(uploadItem.config.diskID);
-    if (!adapterReg) {
-      return null;
-    }
-
-    return adapterReg.adapter.getFileUrl(id);
-  }
-
-  /**
    * Import completed uploads for tracking
    * Used to register uploads that were completed outside this manager
    * @param response Response metadata from a completed upload
@@ -1230,8 +1198,6 @@ export class UploadManager {
     config: any,
     dispatch: any
   ): Promise<any[]> {
-    console.log(`handleFolderUpload`, dispatch);
-
     // Extract all unique folder paths from files
     const folderPaths = new Set<string>();
 

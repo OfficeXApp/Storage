@@ -2,7 +2,7 @@
 
 ## Overview
 
-- [🔵] Implement actual file uploading & panel showing progress (from DriveUI too!)
+- [ ] Add FilePage UI
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
 - [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
@@ -57,3 +57,4 @@
 - [x] Create a unified provider for handling uploads to different end destinations
 - [x] Cleanup/refactor directory reducers & optimistic middleware to handle the diverse file uploading
 - [x] Fix the lack of duplicate handling for files & folders
+- [x] Implement actual file uploading & panel showing progress (from DriveUI too!)

@@ -5,9 +5,10 @@ import { Button, Result } from "antd";
 import { FileExcelOutlined } from "@ant-design/icons";
 import { FileMetadata } from "../../framework";
 import mixpanel from "mixpanel-browser";
+import { FileFEO } from "../../redux-offline/directory/directory.reducer";
 
 interface SheetJSPreviewProps {
-  file: FileMetadata;
+  file: FileFEO;
   rowCount?: number; // Default number of rows to display
   maxPreviewSize?: number; // Maximum size for preview (in MB)
   showButtons?: boolean;
@@ -27,7 +28,7 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
   const [headers, setHeaders] = useState<string[]>([]); // State for column headers
   const [fileSize, setFileSize] = useState<number>(0); // Store file size
 
-  const { rawURL: url } = file;
+  const { raw_url: url } = file;
 
   useEffect(() => {
     const checkFileSizeAndFetch = async () => {
@@ -85,78 +86,25 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
 
   if (url.startsWith("blob") || !url.includes("http")) {
     return (
-      <Result
-        icon={<FileExcelOutlined />}
-        title="Preview Unavailable"
-        extra={
-          showButtons
-            ? [
-                <div key="download">
-                  <a
-                    href={url}
-                    target={
-                      file.extension.toLowerCase() === "pdf"
-                        ? "_blank"
-                        : "_self"
-                    }
-                    download={file.originalFileName}
-                  >
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        mixpanel.track("Download File", {
-                          "File Type": file.originalFileName.split(".").pop(),
-                        });
-                      }}
-                      key="download1"
-                    >
-                      Download
-                    </Button>
-                  </a>
-                </div>,
-              ]
-            : []
-        }
-      />
+      <div
+        style={{ width: "100%", justifyContent: "center", marginTop: "32px" }}
+      >
+        <Result icon={<FileExcelOutlined />} title="Preview Unavailable" />
+      </div>
     );
   }
 
   if (fileSize > maxPreviewSize) {
     return (
-      <Result
-        icon={<FileExcelOutlined />}
-        title="Preview Unavailable"
-        subTitle={`File size exceeded the max preview size of ${maxPreviewSize} mb`}
-        extra={
-          showButtons
-            ? [
-                <div key="download">
-                  <a
-                    href={url}
-                    target={
-                      file.extension.toLowerCase() === "pdf"
-                        ? "_blank"
-                        : "_self"
-                    }
-                    download={file.originalFileName}
-                  >
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        mixpanel.track("Download File", {
-                          "File Type": file.originalFileName.split(".").pop(),
-                        });
-                      }}
-                      key="download1"
-                    >
-                      Download
-                    </Button>
-                  </a>
-                </div>,
-              ]
-            : []
-        }
-      />
+      <div
+        style={{ width: "100%", justifyContent: "center", marginTop: "32px" }}
+      >
+        <Result
+          icon={<FileExcelOutlined />}
+          title="Preview Unavailable"
+          subTitle={`File size exceeded the max preview size of ${maxPreviewSize} mb`}
+        />
+      </div>
     );
   }
 

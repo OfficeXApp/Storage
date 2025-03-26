@@ -38,6 +38,7 @@ import { useIdentitySystem } from "../identity";
 import { listDisksAction } from "../../redux-offline/disks/disks.actions";
 import { CloudS3Adapter } from "./adapters/clouds3.adapter";
 import { CanisterAdapter } from "./adapters/canister.adapter";
+import { FileFEO } from "../../redux-offline/directory/directory.reducer";
 
 // Add missing CanisterAdapter configuration type
 interface CanisterAdapterConfig {
@@ -79,8 +80,6 @@ interface MultiUploaderContextType {
   resumeAllUploads: () => void;
   clearFinishedUploads: () => void;
   getUploadProgress: (id: UploadID) => Observable<UploadProgressInfo | null>;
-  getFileUrl: (id: UploadID) => Promise<string | null>;
-  // New method for dynamically registering adapters
   registerAdapter: (
     adapter: IUploadAdapter,
     diskType: DiskTypeEnum,
@@ -124,7 +123,6 @@ const defaultContextValue: MultiUploaderContextType = {
   resumeAllUploads: () => {},
   clearFinishedUploads: () => {},
   getUploadProgress: () => new Observable(),
-  getFileUrl: () => Promise.resolve(null),
   registerAdapter: () => Promise.resolve(),
 };
 
@@ -532,12 +530,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     getUploadProgress: (id) => {
       if (!uploadManagerRef.current) return new Observable();
       return uploadManagerRef.current.getUploadProgress(id);
-    },
-
-    getFileUrl: async (id) => {
-      // console.log(`uploadManagerRef.current`, uploadManagerRef.current);
-      if (!uploadManagerRef.current) return null;
-      return uploadManagerRef.current.getFileUrl(id);
     },
   };
 

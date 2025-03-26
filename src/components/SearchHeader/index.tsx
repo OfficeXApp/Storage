@@ -73,7 +73,23 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const [options, setOptions] = useState<
     { value: string; label: React.ReactNode }[]
   >([]);
-  const { searchFilesQuery, reindexFuzzySearch } = useDrive();
+  // const { searchFilesQuery, reindexFuzzySearch } = useDrive();
+
+  // dummy mock
+  const searchFilesQuery = async (
+    searchString: string,
+    limit: number,
+    after: number
+  ) => {
+    return {
+      files: [],
+      folders: [],
+      total: 0,
+      hasMore: false,
+    };
+  };
+  const reindexFuzzySearch = () => {};
+
   const navigate = useNavigate();
   const screenType = useScreenType();
 

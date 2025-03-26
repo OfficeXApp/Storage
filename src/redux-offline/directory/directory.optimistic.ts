@@ -91,7 +91,6 @@ export interface DirectoryListCacheEntry {
 export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
   currentOrg: IndexDB_Organization;
   currentProfile: AuthProfile;
-  currentAPIKey: IndexDB_ApiKey | null;
 }): Middleware => {
   // @ts-ignore
   return (store: MiddlewareAPI<Dispatch, any>) =>

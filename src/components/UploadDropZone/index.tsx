@@ -80,13 +80,7 @@ const UploadDropZone: React.FC<UploadDropZoneProps> = ({
       })}
       style={{ width: "100%", height: "100%" }}
     >
-      <input
-        {...getInputProps()}
-        // @ts-ignore
-        webkitdirectory
-        mozdirectory
-        directory
-      />
+      <input {...getInputProps()} />
       {children}
     </div>
   );

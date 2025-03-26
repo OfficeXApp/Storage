@@ -2,7 +2,6 @@
 
 ## Overview
 
-- [ ] Add FilePage UI
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
 - [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
@@ -16,6 +15,21 @@
 1. UI polish before prod (1-2 days)
    - api key tab, change edit to manage and put inside edit & revoke. the current place where revoke it, change to "Login As"
    - hyperlink resources on UI for ease of navigation
+
+## Polish Checklist
+
+- [ ] Implement "Default Disk"
+- [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
+- [ ] Back button on /drive for when new user arrives
+- [ ] Trash bin functionality
+- [ ] Edit file/folder name
+- [ ] Delete file folder / Restore trash / Delete forever
+- [ ] Default offline contacts / api keys
+- [ ] Refactor settings page
+- [ ] Smart sidemenu nav opens closes based on which page
+- [ ] Clear optimistic cache when 401 unauthorized
+- [ ] Cache bug where switching from owner to anon account, the anon seems to copy cache of admin... investigate
+- [ ] Switching orgs doesnt immediately load resources despite listening for it in useEffect App.tsx. check cache issues
 
 ## Todo
 
@@ -58,3 +72,4 @@
 - [x] Cleanup/refactor directory reducers & optimistic middleware to handle the diverse file uploading
 - [x] Fix the lack of duplicate handling for files & folders
 - [x] Implement actual file uploading & panel showing progress (from DriveUI too!)
+- [x] Add FilePage UI

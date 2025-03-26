@@ -48,7 +48,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const { renameFilePath } = useDrive();
-  const { currentProfile, currentOrg, currentAPIKey } = useIdentitySystem();
+  const { currentProfile, currentOrg, currentAPIKey, generateSignature } =
+    useIdentitySystem();
   const { evmPublicKey, icpAccount } = currentProfile || {};
 
   // State for file content and UI
@@ -370,6 +371,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   }
 
   const fetchFileContentFromCanister = async (fileId: string) => {
+    let auth_token = currentAPIKey?.value || generateSignature();
     try {
       // 1. Fetch metadata
       const metaRes = await fetch(
@@ -378,7 +380,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${currentAPIKey?.value}`,
+            Authorization: `Bearer ${auth_token}`,
           },
         }
       );
@@ -401,7 +403,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${currentAPIKey?.value}`,
+              Authorization: `Bearer ${auth_token}`,
             },
           }
         );

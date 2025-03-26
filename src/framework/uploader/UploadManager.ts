@@ -67,7 +67,7 @@ export class UploadManager {
   private pauseAllUploads$ = new Subject<PauseReason>();
   private resumeAllUploads$ = new Subject<void>();
 
-  private apiKey = "";
+  private apiKey = () => Promise.resolve("");
   private endpoint = "";
 
   // Storage for resumable uploads
@@ -81,7 +81,7 @@ export class UploadManager {
   /**
    * Create a new UploadManager
    */
-  constructor(endpoint: string, apiKey: string) {
+  constructor(endpoint: string, apiKey: () => Promise<string>) {
     // Use localStorage for small metadata, actual chunks would be in IndexedDB
     this.uploadStorage = localStorage;
 
@@ -1335,12 +1335,13 @@ export class UploadManager {
       this.endpoint &&
       !shouldBehaveOfflineDiskUIIntent(folderConfig.disk_id)
     ) {
+      const auth_token = await this.apiKey();
       // Make direct API call following the /directory/action pattern
       const response = await fetch(`${this.endpoint}/directory/action`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${auth_token}`,
         },
         body: JSON.stringify({
           actions: [createAction],

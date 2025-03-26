@@ -36,9 +36,18 @@ function App() {
     if (_icpMnemonic) {
       setIcpMnemonic(_icpMnemonic);
     }
-    fetchAllResources();
     setupFreeTrialStorj();
   }, []);
+
+  useEffect(() => {
+    if (currentProfile && currentOrg) {
+      dispatch(listContactsAction({}));
+      dispatch(listDisksAction({}));
+      dispatch(listDrivesAction({}));
+      dispatch(listGroupsAction({}));
+      dispatch(listLabelsAction({}));
+    }
+  }, [currentOrg, currentProfile]);
 
   useEffect(() => {
     setupAnalytics();
@@ -58,16 +67,6 @@ function App() {
       });
     }
   }, [evmPublicKey, icpPublicKey, slug, ref]);
-
-  const fetchAllResources = useCallback(() => {
-    if (currentProfile && currentOrg) {
-      dispatch(listContactsAction({}));
-      dispatch(listDisksAction({}));
-      dispatch(listDrivesAction({}));
-      dispatch(listGroupsAction({}));
-      dispatch(listLabelsAction({}));
-    }
-  }, [currentOrg, currentProfile]);
 
   return (
     <div style={{ height: "100vh", maxHeight: "100vh", overflow: "hidden" }}>

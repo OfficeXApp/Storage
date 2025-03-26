@@ -141,7 +141,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   children,
   autoInit = true,
 }) => {
-  const { currentOrg, currentProfile, currentAPIKey } = useIdentitySystem();
+  const { currentOrg, currentProfile, currentAPIKey, generateSignature } =
+    useIdentitySystem();
   const [isInitialized, setIsInitialized] = useState(false);
   const uploadManagerRef = useRef<UploadManager>();
   const { "*": encodedPath } = useParams<{ "*": string }>();
@@ -294,11 +295,12 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             // );
             continue;
           } else if (diskType === DiskTypeEnum.IcpCanister) {
+            const auth_token = currentAPIKey?.value || generateSignature();
             const canisterAdapter = new CanisterAdapter();
             const canisterConfig = {
               diskID: diskId,
               endpoint: `${currentOrg.endpoint}/v1/${currentOrg.driveID}`,
-              apiKey: currentAPIKey?.value,
+              apiKey: auth_token,
               maxChunkSize: (1 * 1024 * 1024) / 2, // 0.5MB
             };
             await registerAdapter(
@@ -311,12 +313,13 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             // console.log(`Registered ICP adapter for disk: ${diskId}`);
             continue;
           } else if (diskType === DiskTypeEnum.StorjWeb3) {
+            const auth_token = currentAPIKey?.value || generateSignature();
             const cloudS3Adapter = new CloudS3Adapter();
             const cloudS3Config = {
               endpoint: `${currentOrg.endpoint}/v1/${currentOrg.driveID}`,
               maxChunkSize: 5 * 1024 * 1024,
               rawUrlProxyPath: `/v1/${currentOrg.driveID}/directory/asset/`,
-              apiKey: currentAPIKey?.value,
+              apiKey: auth_token,
             };
             // Register the adapter
             await registerAdapter(
@@ -329,12 +332,13 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             // console.log(`Registered StorjWeb3 adapter for disk: ${diskId}`);
             continue;
           } else if (diskType === DiskTypeEnum.AwsBucket) {
+            const auth_token = currentAPIKey?.value || generateSignature();
             const cloudS3Adapter = new CloudS3Adapter();
             const cloudS3Config = {
               endpoint: `${currentOrg.endpoint}/v1/default`,
               maxChunkSize: 5 * 1024 * 1024,
               rawUrlProxyPath: `/v1/${currentOrg.driveID}/directory/asset/`,
-              apiKey: currentAPIKey?.value,
+              apiKey: auth_token,
             };
             // Register the adapter
             await registerAdapter(
@@ -373,6 +377,14 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     }
   }, [currentProfile, currentOrg, isInitialized, disks]);
 
+  const generateAuthToken = async () => {
+    if (currentAPIKey?.value) {
+      return currentAPIKey.value;
+    } else {
+      return generateSignature();
+    }
+  };
+
   // Initialize the upload manager
   const initializeUploadManager = async () => {
     console.log(`Initializing upload manager`);
@@ -385,7 +397,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
           currentOrg?.endpoint
             ? `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}`
             : "",
-          currentAPIKey?.value || ""
+          generateAuthToken
         );
       }
 

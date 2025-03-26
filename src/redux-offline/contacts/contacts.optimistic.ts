@@ -41,7 +41,6 @@ import _ from "lodash";
 export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
   currentOrg: IndexDB_Organization;
   currentProfile: AuthProfile;
-  currentAPIKey: IndexDB_ApiKey | null;
 }): Middleware => {
   // Return the actual middleware function with access to the provided values
   // @ts-ignore

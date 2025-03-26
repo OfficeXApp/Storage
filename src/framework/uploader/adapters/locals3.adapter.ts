@@ -35,6 +35,8 @@ import { getMimeType } from "../helpers";
 import {
   CREATE_FILE,
   createFileAction,
+  UPDATE_FILE,
+  updateFileAction,
 } from "../../../redux-offline/directory/directory.actions";
 
 /**
@@ -244,7 +246,20 @@ export class LocalS3Adapter implements IUploadAdapter {
       });
 
       // Get signed URL for the file
-      const url = this.getPublicUrl(key);
+      const raw_url = await this.getSignedUrl(key, file.name);
+
+      const updateAction = {
+        action: UPDATE_FILE as "UPDATE_FILE",
+        payload: {
+          id: fileID,
+          raw_url,
+        },
+      };
+
+      // Dispatch action to create file record
+      config.metadata?.dispatch(
+        updateFileAction(updateAction, config.listDirectoryKey, true)
+      );
 
       // Save resumable metadata (not strictly necessary for simple uploads, but good for consistency)
       await this.saveResumableMetadata(
@@ -277,20 +292,31 @@ export class LocalS3Adapter implements IUploadAdapter {
     }
   }
 
-  private getPublicUrl(key: string): string {
-    if (!this.config) {
+  private async getSignedUrl(key: string, fileName?: string): Promise<string> {
+    if (!this.s3Client || !this.config) {
       throw new Error("S3 adapter not initialized");
     }
 
-    // For local S3 (like MinIO), construct the URL directly
-    const endpoint = this.config.endpoint || "";
-    const bucket = this.config.bucket;
+    // 1 week in seconds (7 days * 24 hours * 60 minutes * 60 seconds)
+    const ONE_WEEK_IN_SECONDS = 7 * 24 * 60 * 60;
 
-    // Remove trailing slash from endpoint if present
-    const baseUrl = endpoint.endsWith("/") ? endpoint.slice(0, -1) : endpoint;
+    const command = new GetObjectCommand({
+      Bucket: this.config.bucket,
+      Key: key,
+      ...(fileName && {
+        ResponseContentDisposition: `inline; filename="${fileName}"`,
+      }),
+    });
 
-    // Construct the URL based on path style or virtual hosted style
-    return `${baseUrl}/${bucket}/${key}`;
+    try {
+      // Using AWS SDK v3 signature
+      return await getSignedUrl(this.s3Client, command, {
+        expiresIn: ONE_WEEK_IN_SECONDS,
+      });
+    } catch (error) {
+      console.error("Error generating signed URL:", error);
+      throw error;
+    }
   }
 
   /**
@@ -515,9 +541,6 @@ export class LocalS3Adapter implements IUploadAdapter {
       }
       const extension = file.name.split(".").pop();
       const key = `${fileID}.${extension}`;
-      const rawUrl = this.getPublicUrl(key);
-
-      console.log(`rawUrl`, rawUrl);
 
       const dispatch = config.metadata.dispatch;
 
@@ -534,7 +557,6 @@ export class LocalS3Adapter implements IUploadAdapter {
           disk_id: config.diskID,
           disk_type: config.diskType,
           expires_at: this.getNextUtcMidnight(),
-          raw_url: rawUrl,
         },
       };
 

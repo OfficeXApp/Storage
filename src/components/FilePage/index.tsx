@@ -471,13 +471,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         "File Type": file.name.split(".").pop(),
       });
 
-      // For browser cache files, create a downloadable link
-      const link = document.createElement("a");
-      link.href = fileUrl;
-      link.download = file.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Open file URL in a new tab
+      window.open(fileUrl, "_blank");
     } else {
       message.error("File URL not available for download");
     }

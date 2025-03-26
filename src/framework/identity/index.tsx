@@ -35,6 +35,11 @@ import {
   getDexieDb,
   initDexieDb,
 } from "../../api/dexie-database";
+import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
+import { listDisksAction } from "../../redux-offline/disks/disks.actions";
+import { listDrivesAction } from "../../redux-offline/drives/drives.actions";
+import { listGroupsAction } from "../../redux-offline/groups/groups.actions";
+import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -129,7 +134,7 @@ interface IdentitySystemContextType {
 
   syncLatestIdentities: () => Promise<void>;
   deriveProfileFromSeed: (seedPhrase: string) => Promise<IndexDB_Profile>;
-  generateSignature: () => Promise<string | null>;
+  generateSignature: () => Promise<string>;
 }
 
 // Create the context
@@ -170,10 +175,15 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   const [currentAPIKey, setCurrentAPIKey] = useState<IndexDB_ApiKey | null>(
     null
   );
+  const currentProfileRef = useRef(currentProfile);
   const isOfflineOrg = currentOrg?.endpoint === "";
   const [listOfOrgs, setListOfOrgs] = useState<IndexDB_Organization[]>([]);
   const [listOfProfiles, setListOfProfiles] = useState<IndexDB_Profile[]>([]);
   const [listOfAPIKeys, setListOfAPIKeys] = useState<IndexDB_ApiKey[]>([]);
+
+  useEffect(() => {
+    currentProfileRef.current = currentProfile;
+  }, [currentProfile]);
 
   // Initialize IndexedDB when component mounts
   useEffect(() => {
@@ -450,20 +460,24 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     []
   );
   // Generate signature using ICP identity
-  const generateSignature = useCallback(async (): Promise<string | null> => {
+  const generateSignature = useCallback(async (): Promise<string> => {
     try {
-      if (!currentProfile) {
+      if (!currentProfileRef.current) {
         console.error("ICP account not initialized");
-        return null;
+        return "";
       }
-      if (!currentProfile.icpAccount) {
+      if (!currentProfileRef.current.icpAccount) {
         console.error(
           "No ICP Account via private key, this is likely an API user"
         );
-        return null;
+        return "";
       }
 
-      const identity = currentProfile.icpAccount.identity;
+      console.log(
+        `Generating signature for ${currentProfileRef.current.nickname}`
+      );
+
+      const identity = currentProfileRef.current.icpAccount.identity;
 
       // Use the raw public key for signature verification
       const rawPublicKey = identity.getPublicKey().toRaw();
@@ -501,9 +515,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       return sig_token;
     } catch (error) {
       console.error("Signature generation error:", error);
-      return null;
+      return "";
     }
-  }, [currentProfile?.icpAccount]);
+  }, [currentProfile]);
 
   // Profiles
   const listProfiles = async (): Promise<IndexDB_Profile[]> => {
@@ -649,27 +663,34 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     },
     [_currentProfile, db, listOfProfiles, syncLatestIdentities]
   );
-  const switchProfile = useCallback(async (profile: IndexDB_Profile) => {
-    localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
-    localStorage.setItem(
-      LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
-      profile.evmPublicAddress
-    );
-    localStorage.setItem(
-      LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
-      profile.icpPublicAddress
-    );
-    localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
-    await hydrateFullAuthProfile(profile);
-    closeDexieDb();
-    if (currentOrg) {
-      const apiKey = await findApiKeyForProfileAndOrg(
-        profile.userID,
-        currentOrg.driveID
+  const switchProfile = useCallback(
+    async (profile: IndexDB_Profile) => {
+      localStorage.setItem(LOCAL_STORAGE_SEED_PHRASE, profile.seedPhrase);
+      localStorage.setItem(
+        LOCAL_STORAGE_EVM_PUBLIC_ADDRESS,
+        profile.evmPublicAddress
       );
-      setCurrentAPIKey(apiKey);
-    }
-  }, []);
+      localStorage.setItem(
+        LOCAL_STORAGE_ICP_PUBLIC_ADDRESS,
+        profile.icpPublicAddress
+      );
+      localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
+      await hydrateFullAuthProfile(profile);
+      closeDexieDb();
+      console.log(`we have swiched profiles`);
+      console.log(`currentOrg on profile swtich`, currentOrg);
+      if (currentOrg) {
+        console.log(`seeking api key...`);
+        const apiKey = await findApiKeyForProfileAndOrg(
+          profile.userID,
+          currentOrg.driveID
+        );
+        console.log(`found api key`, apiKey);
+        setCurrentAPIKey(apiKey);
+      }
+    },
+    [currentOrg]
+  );
 
   // Organizations
   const listOrganizations = async (): Promise<IndexDB_Organization[]> => {

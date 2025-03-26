@@ -671,7 +671,7 @@ const OrganizationSwitcher = () => {
           // Extract ICP principal from profile UserID (remove the UserID prefix)
           const icpPrincipal = profile.userID.replace("UserID_", "");
 
-          message.info("Redeeming gift card...");
+          message.info("Redeeming Gift Card...");
 
           // Make the first POST request to redeem the voucher
           const redeemResponse = await fetch(
@@ -703,12 +703,12 @@ const OrganizationSwitcher = () => {
             throw new Error("Invalid response from voucher redemption");
           }
 
-          message.info("Minting on blockchain...");
+          message.info("Minting Anonymous Blockchain...");
 
           // wait 5 seconds
           await sleep(5000);
 
-          message.info("Claiming your cloud...");
+          message.info("Promoting you to Admin...");
 
           const { drive_id, endpoint, redeem_code } = redeemData.ok.data;
 
@@ -802,9 +802,13 @@ const OrganizationSwitcher = () => {
           await switchOrganization(newOrg, profile.userID);
 
           message.success(
-            `Successfully created organization "${orgNickToUse}" with gift card`
+            `Successfully Created Organization "${orgNickToUse}" with Gift Card`
           );
           setGiftCardValue("");
+
+          message.success("Refreshing Page...");
+          window.location.reload();
+
           setIsModalVisible(false);
         } catch (error) {
           console.error("Error redeeming gift card:", error);

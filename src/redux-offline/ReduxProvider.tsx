@@ -109,15 +109,33 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
   const storesMapRef = useRef(new Map<string, Store>());
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0); // Simple way to force re-render
 
+  const currentOrgRef = useRef(currentOrg);
+  const currentProfileRef = useRef(currentProfile);
+  const currentAPIKeyRef = useRef(currentAPIKey);
+
+  useEffect(() => {
+    console.log(`currentAPIKEy`, currentAPIKey);
+    currentOrgRef.current = currentOrg;
+    currentProfileRef.current = currentProfile;
+    currentAPIKeyRef.current = currentAPIKey;
+  }, [currentOrg, currentProfile, currentAPIKey]);
+
+  console.log(`--outside-- ${currentProfile?.nickname}`, currentProfile);
+  console.log(`--outside--`, atob(currentAPIKey?.value || ""));
+
   // Create or get a store for a specific organization
   const getOrCreateStore = useCallback(
     async (orgId: DriveID, userID: UserID): Promise<Store> => {
+      // const org = currentOrgRef.current;
+      // const profile = currentProfileRef.current;
+      // const apiKey = currentAPIKeyRef.current;
+
       // Return existing store if we have one
       const storeKey = compileReduxStoreKey(orgId, userID);
       if (storesMapRef.current.has(storeKey)) {
         return storesMapRef.current.get(storeKey)!;
       }
-      if (!currentOrg || !currentProfile) {
+      if (!currentOrgRef.current || !currentProfileRef.current) {
         throw new Error("Cannot create store without current org and profile");
       }
 
@@ -130,7 +148,12 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       const effectWithAuth = async (effect: any) => {
-        if (!currentOrg.endpoint) return;
+        if (
+          !currentOrgRef.current ||
+          !currentOrgRef.current.endpoint ||
+          !currentProfileRef.current
+        )
+          return;
 
         // Extract request details from the effect
         const { url, method = "GET", headers = {}, data } = effect;
@@ -143,17 +166,30 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         // Construct full URL if needed
         let fullUrl = url;
         if (!url.includes("http")) {
-          fullUrl = `${currentOrg.endpoint}/v1/${currentOrg.driveID}${url}`;
+          fullUrl = `${currentOrgRef.current.endpoint}/v1/${currentOrgRef.current.driveID}${url}`;
         }
 
         // Get fresh auth token right when executing the request
-        const authToken = currentAPIKey?.value
-          ? currentAPIKey.value
+        const authToken = currentAPIKeyRef.current?.value
+          ? currentAPIKeyRef.current.value
           : await generateSignature();
 
         if (!authToken) {
           throw new Error("Failed to obtain authentication token");
         }
+        console.log(
+          `currentOrg = ${currentOrgRef.current.nickname}`,
+          currentOrgRef.current
+        );
+        console.log(
+          `currentProfile = ${currentProfileRef.current.nickname}`,
+          currentProfileRef.current
+        );
+        console.log(`currentAPIKey =>`, currentAPIKeyRef.current);
+        console.log(`authToken`, atob(authToken));
+
+        console.log(`currentOrg REF = `, currentOrgRef.current);
+        console.log(`currentProfile REF = `, currentProfileRef.current);
 
         // Configure fetch options with fresh auth token
         const fetchOptions: RequestInit = {
@@ -184,7 +220,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       // Configure offline options specific to this profile+organization pair
-      const retrySchedule = [1000, 5000, 15000, 30000, 60000];
+      const retrySchedule = [2000, 15000];
       const offlineOptions = {
         ...offlineConfig,
         effect: effectWithAuth,
@@ -199,7 +235,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           ],
         },
         retry: (action: any, retries: number) => {
-          if (!currentOrg.endpoint) return;
+          if (!currentOrgRef.current?.endpoint) return;
           // If we've exceeded our retry schedule, stop retrying
           if (retries >= retrySchedule.length) {
             console.log(
@@ -229,7 +265,10 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         enhanceStore,
       } = createOffline(offlineOptions);
 
-      const _idset = { currentOrg, currentProfile, currentAPIKey };
+      const _idset = {
+        currentOrg: currentOrgRef.current,
+        currentProfile: currentProfileRef.current,
+      };
 
       const middlewares: Middleware[] = [
         // These optimistic middleware must come before offlineMiddleware
@@ -325,6 +364,9 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
     const updateStore = async () => {
       if (currentOrg && currentProfile) {
         // Get the appropriate store
+        console.log(
+          `about to create stores with user = ${currentProfile.nickname}`
+        );
         const store = await getOrCreateStore(
           currentOrg.driveID,
           currentProfile.userID
@@ -341,7 +383,13 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
     updateStore();
-  }, [currentOrg, currentProfile, getOrCreateStore]);
+  }, [
+    currentOrg,
+    currentProfile,
+    getOrCreateStore,
+    currentAPIKey,
+    generateSignature,
+  ]);
 
   // Context value with the delete function
   const contextValue = React.useMemo(

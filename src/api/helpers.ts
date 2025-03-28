@@ -148,3 +148,42 @@ export const formatUserString = (nickname: string, userID: UserID) => {
   const userstring = `${nickname.replace(" ", "_")}@${userID}`;
   navigator.clipboard.writeText(userstring);
 };
+
+// Encode: Direct URL-safe Base64
+export function urlSafeBase64Encode(str: string) {
+  // Handle Unicode characters
+  const utf8Bytes = new TextEncoder().encode(str);
+  const binaryString = Array.from(utf8Bytes)
+    .map((byte) => String.fromCharCode(byte))
+    .join("");
+
+  // Standard Base64 encoding
+  const base64 = btoa(binaryString);
+
+  // Make URL-safe by replacing characters
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+
+// Decode: URL-safe Base64 to original string
+export function urlSafeBase64Decode(str: string) {
+  // Convert back to standard Base64
+  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+
+  // Add padding if needed
+  const pad = base64.length % 4;
+  if (pad) {
+    base64 += "=".repeat(4 - pad);
+  }
+
+  // Decode Base64 to binary
+  const binaryString = atob(base64);
+
+  // Convert binary to UTF-8
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+
+  // Decode UTF-8
+  return new TextDecoder().decode(bytes);
+}

@@ -8,16 +8,20 @@ import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
+import { useIdentitySystem } from "../../framework/identity";
 
 const GroupPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const params = useParams();
   const groupID = params.groupID;
   const group = useSelector(
     (state: ReduxAppState) => state.groups.groupMap[groupID || ""]
   );
+
+  console.log(`groupID`, groupID, params);
 
   useEffect(() => {
     if (groupID) {
@@ -51,7 +55,7 @@ const GroupPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/groups")}
+          onClick={() => navigate(wrapOrgCode("/resources/groups"))}
           style={{
             display: "flex",
             alignItems: "center",
@@ -73,7 +77,7 @@ const GroupPage = () => {
         <GroupTab
           group={group}
           onDelete={() => {
-            navigate(`/resources/groups`);
+            navigate(wrapOrgCode(`/resources/groups`));
           }}
         />
       </Content>

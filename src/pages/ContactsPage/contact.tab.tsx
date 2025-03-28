@@ -35,9 +35,9 @@ import {
   DownOutlined,
   UpOutlined,
   CodeOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import {
-  ContactFE,
   IRequestUpdateContact,
   SystemPermissionType,
   UserID,
@@ -56,14 +56,16 @@ import {
   updateContactAction,
 } from "../../redux-offline/contacts/contacts.actions";
 import { useNavigate } from "react-router-dom";
+import { ContactFEO } from "../../redux-offline/contacts/contacts.reducer";
+import InviteContactModal from "./contact.invite";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
 // Define the props for the ContactTab component
 interface ContactTabProps {
-  contact: ContactFE;
-  onSave?: (updatedContact: Partial<ContactFE>) => void;
+  contact: ContactFEO;
+  onSave?: (updatedContact: Partial<ContactFEO>) => void;
   onDelete?: (contactID: UserID) => void;
 }
 
@@ -80,6 +82,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -117,7 +120,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
         if (!(field in values)) return;
 
         const valueFromForm = values[field];
-        const originalValue = contact[field as keyof ContactFE];
+        const originalValue = contact[field as keyof ContactFEO];
 
         // Only include fields that have changed
         if (valueFromForm !== originalValue) {
@@ -344,12 +347,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   Edit
                 </Button>
                 <Button
-                  icon={<TeamOutlined />}
-                  onClick={() => {}}
+                  icon={<LockOutlined />}
+                  onClick={() => setIsInviteModalOpen(true)}
                   type="primary"
                   size={screenType.isMobile ? "small" : "middle"}
                 >
-                  Copy Link
+                  Share Login
                 </Button>
               </>
             )}
@@ -663,6 +666,16 @@ const ContactTab: React.FC<ContactTabProps> = ({
                             <WalletOutlined />
                           )}
 
+                        {renderReadOnlyField(
+                          "Owner",
+                          // @ts-ignore
+                          contact.is_placeholder ||
+                            contact.from_placeholder_user_id
+                            ? "Self-Custodied Account"
+                            : "Owned by Organization",
+                          <WalletOutlined />
+                        )}
+
                         {contact.private_note &&
                           contact.permission_previews.includes(
                             SystemPermissionType.EDIT
@@ -763,6 +776,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
       )}
       <br />
       <br />
+      <InviteContactModal
+        contact={contact}
+        isVisible={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        organizationId="org-123"
+      />
     </div>
   );
 };

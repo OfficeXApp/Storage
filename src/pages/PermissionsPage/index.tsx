@@ -14,6 +14,7 @@ import PermissionsAddDrawer from "./system-permission.add";
 import PermissionTab from "./permission.tab";
 import PermissionsTableList from "./permissions.table";
 import useScreenType from "react-screentype-hook";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -33,7 +34,7 @@ const PermissionsPage: React.FC = () => {
   const [permissionType, setPermissionType] = useState<"system" | "directory">(
     "system"
   );
-
+  const { wrapOrgCode } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Check if content tab is open
@@ -148,10 +149,12 @@ const PermissionsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/permissions`;
+      const newUrl = wrapOrgCode(`/resources/permissions`);
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/permissions/${newActiveKey.includes("System") ? "system" : "directory"}/${newActiveKey}`;
+      const newUrl = wrapOrgCode(
+        `/resources/permissions/${newActiveKey.includes("System") ? "system" : "directory"}/${newActiveKey}`
+      );
       window.history.pushState({}, "", newUrl);
     }
   };

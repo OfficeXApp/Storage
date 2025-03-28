@@ -53,6 +53,7 @@ import {
 } from "../../redux-offline/labels/labels.actions";
 import TagCopy from "../../components/TagCopy";
 import { useNavigate } from "react-router-dom";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -73,6 +74,7 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -596,7 +598,9 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
                                   } else {
                                     // Navigate using React Router
                                     navigate(
-                                      `/resources/contacts/${label.created_by}`
+                                      wrapOrgCode(
+                                        `/resources/contacts/${label.created_by}`
+                                      )
                                     );
                                   }
                                 }}

@@ -24,6 +24,7 @@ import ContactTab from "./contact.tab";
 import ContactsTableList from "./contacts.table";
 import { SAMPLE_CONTACTS } from "./sample";
 import useScreenType from "react-screentype-hook";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -40,7 +41,7 @@ const ContactsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-
+  const { wrapOrgCode } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Sample contact data - expanded list
@@ -138,10 +139,10 @@ const ContactsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/contacts`;
+      const newUrl = wrapOrgCode(`/resources/contacts`);
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/contacts/${newActiveKey}`;
+      const newUrl = wrapOrgCode(`/resources/contacts/${newActiveKey}`);
       window.history.pushState({}, "", newUrl);
     }
   };

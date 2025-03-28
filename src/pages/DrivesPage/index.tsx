@@ -24,6 +24,7 @@ import DrivesAddDrawer from "./drive.add";
 import DriveTab from "./drive.tab";
 import DrivesTableList from "./drives.table";
 import useScreenType from "react-screentype-hook";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -40,7 +41,7 @@ const DrivesPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-
+  const { wrapOrgCode } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Check if content tab is open
@@ -138,10 +139,10 @@ const DrivesPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/drives`;
+      const newUrl = wrapOrgCode(`/resources/drives`);
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/drives/${newActiveKey}`;
+      const newUrl = wrapOrgCode(`/resources/drives/${newActiveKey}`);
       window.history.pushState({}, "", newUrl);
     }
   };

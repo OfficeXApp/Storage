@@ -45,6 +45,7 @@ import {
 import DirectoryPermissionAddDrawer from "./directory-permission.add";
 import SystemPermissionAddDrawer from "./system-permission.add";
 import TagCopy from "../../components/TagCopy";
+import { useIdentitySystem } from "../../framework/identity";
 
 dayjs.extend(relativeTime);
 
@@ -63,6 +64,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   isContentTabOpen,
   handleClickContentTab,
 }) => {
+  const { wrapOrgCode } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const systemPermissions = useSelector(
@@ -235,7 +237,9 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleClickContentTab(record, "system", true);
-                const newUrl = `/resources/permissions/system/${record.id}`;
+                const newUrl = wrapOrgCode(
+                  `/resources/permissions/system/${record.id}`
+                );
                 window.history.pushState({}, "", newUrl);
               }}
             >
@@ -348,7 +352,9 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleClickContentTab(record, "directory", true);
-                const newUrl = `/resources/permissions/directory/${record.id}`;
+                const newUrl = wrapOrgCode(
+                  `/resources/permissions/directory/${record.id}`
+                );
                 window.history.pushState({}, "", newUrl);
               }}
             >

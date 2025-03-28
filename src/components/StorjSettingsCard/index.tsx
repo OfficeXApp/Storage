@@ -28,7 +28,6 @@ const StorjSettingsCard: React.FC<StorjSettingsCardProps> = ({
   onSave,
   onCancel,
 }) => {
-  // const { initStorj } = useDrive();
   const [form] = Form.useForm();
   const [isTesting, setIsTesting] = useState(false);
 

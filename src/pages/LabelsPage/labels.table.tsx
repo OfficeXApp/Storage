@@ -32,6 +32,7 @@ import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
+import { useIdentitySystem } from "../../framework/identity";
 
 interface LabelsTableListProps {
   isLabelTabOpen: (id: string) => boolean;
@@ -43,6 +44,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
   handleClickContentTab,
 }) => {
   const dispatch = useDispatch();
+  const { wrapOrgCode } = useIdentitySystem();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const labels = useSelector((state: ReduxAppState) => state.labels.labels);
   const screenType = useScreenType();
@@ -147,7 +149,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               handleClickContentTab(record, true);
-              const newUrl = `/resources/labels/${record.id}`;
+              const newUrl = wrapOrgCode(`/resources/labels/${record.id}`);
               window.history.pushState({}, "", newUrl);
             }}
           >

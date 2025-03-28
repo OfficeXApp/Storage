@@ -9,6 +9,7 @@ import useScreenType from "react-screentype-hook";
 import GroupsAddDrawer from "./group.add";
 import GroupTab from "./group.tab";
 import GroupsTableList from "./groups.table";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -25,7 +26,7 @@ const GroupsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-
+  const { wrapOrgCode } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Check if a group's tab is open
@@ -122,10 +123,10 @@ const GroupsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/groups`;
+      const newUrl = wrapOrgCode(`/resources/groups`);
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/groups/${newActiveKey}`;
+      const newUrl = wrapOrgCode(`/resources/groups/${newActiveKey}`);
       window.history.pushState({}, "", newUrl);
     }
   };

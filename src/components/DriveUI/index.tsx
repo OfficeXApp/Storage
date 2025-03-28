@@ -128,7 +128,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const screenType = useScreenType();
   const dispatch = useDispatch();
 
-  const { currentOrg } = useIdentitySystem();
+  const { currentOrg, wrapOrgCode } = useIdentitySystem();
 
   const [listDirectoryKey, setListDirectoryKey] = useState("");
 
@@ -407,9 +407,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const handleFileFolderClick = (item: DriveItemRow) => {
     if (item.isDisabled) return;
     if (item.isFolder) {
-      navigate(`/drive/${item.diskID}/${item.id}/`);
+      navigate(wrapOrgCode(`/drive/${item.diskID}/${item.id}/`));
     } else {
-      navigate(`/drive/${item.diskID}/${item.id}`);
+      navigate(wrapOrgCode(`/drive/${item.diskID}/${item.id}`));
     }
   };
 
@@ -738,7 +738,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const handleStorjSettingsCancel = () => {
     if (!areStorjSettingsSet()) {
-      navigate("/drive");
+      navigate(wrapOrgCode("/drive"));
     }
     setIsStorjModalVisible(false);
   };

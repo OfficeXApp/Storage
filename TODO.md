@@ -2,6 +2,9 @@
 
 ## Overview
 
+- [🔵] Invite system with smooth onboarding & sharing (1-2 days)
+- [x] Invite contact with redeem feature
+
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
 - [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
@@ -9,7 +12,6 @@
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 
 1. Directory navigation & interaction (1-2 days)
-1. Invite system with smooth onboarding & sharing (1-2 days)
 1. Offline JS functionality replica (1-2 days)
 1. Cleaning & testing all the crud routes together (2-3 days)
 1. UI polish before prod (1-2 days)
@@ -21,15 +23,18 @@
 - [ ] Implement "Default Disk"
 - [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
 - [ ] Back button on /drive for when new user arrives
+- [ ] When adding a new org, dont just refresh page, go to /contacts just in case
 - [ ] Trash bin functionality
 - [ ] Edit file/folder name
 - [ ] Delete file folder / Restore trash / Delete forever
 - [ ] Default offline contacts / api keys
+- [ ] Fix bugs when removing an org or profile, proper redirects, etc
 - [ ] Refactor settings page
 - [ ] Smart sidemenu nav opens closes based on which page
 - [ ] Clear optimistic cache when 401 unauthorized
 - [ ] Cache bug where switching from owner to anon account, the anon seems to copy cache of admin... investigate
 - [ ] Switching orgs doesnt immediately load resources despite listening for it in useEffect App.tsx. check cache issues
+- [ ] Fix all the places where .replace() doesnt use proper regex match all
 
 ## Todo
 

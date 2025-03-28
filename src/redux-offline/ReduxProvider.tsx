@@ -220,7 +220,8 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       // Configure offline options specific to this profile+organization pair
-      const retrySchedule = [2000, 15000];
+      // const retrySchedule = [2000, 15000];
+      const retrySchedule: number[] = [];
       const offlineOptions = {
         ...offlineConfig,
         effect: effectWithAuth,

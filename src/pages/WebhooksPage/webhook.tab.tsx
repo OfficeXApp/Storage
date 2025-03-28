@@ -57,6 +57,7 @@ import {
 } from "../../redux-offline/webhooks/webhooks.actions";
 import TagCopy from "../../components/TagCopy";
 import { useNavigate } from "react-router-dom";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -92,6 +93,7 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -382,23 +384,23 @@ async function listWebhooks(page = 1, limit = 10) {
 
   const determineLinkForResource = (resource_id: string) => {
     if (resource_id.startsWith("UserID_")) {
-      return `/resources/contacts/${resource_id}`;
+      return wrapOrgCode(`/resources/contacts/${resource_id}`);
     } else if (resource_id.startsWith("GroupID_")) {
-      return `/resources/groups/${resource_id}`;
+      return wrapOrgCode(`/resources/groups/${resource_id}`);
     } else if (resource_id.startsWith("SystemPermissionID_")) {
-      return `/resources/permissions/system/${resource_id}`;
+      return wrapOrgCode(`/resources/permissions/system/${resource_id}`);
     } else if (resource_id.startsWith("DirectoryPermissionID_")) {
-      return `/resources/permissions/directory/${resource_id}`;
+      return wrapOrgCode(`/resources/permissions/directory/${resource_id}`);
     } else if (resource_id.startsWith("Disk_ID_")) {
-      return `/resources/disks/${resource_id}`;
+      return wrapOrgCode(`/resources/disks/${resource_id}`);
     } else if (resource_id.startsWith("DriveID_")) {
-      return `/resources/drives/${resource_id}`;
+      return wrapOrgCode(`/resources/drives/${resource_id}`);
     } else if (resource_id.startsWith("LabelID_")) {
-      return `/resources/labels/${resource_id}`;
+      return wrapOrgCode(`/resources/labels/${resource_id}`);
     } else if (resource_id.startsWith("WebhookID_")) {
-      return `/resources/webhooks/${resource_id}`;
+      return wrapOrgCode(`/resources/webhooks/${resource_id}`);
     } else if (resource_id.startsWith("ApiKeyID_")) {
-      return `/resources/api-keys/${resource_id}`;
+      return wrapOrgCode(`/resources/api-keys/${resource_id}`);
     } else {
       return undefined;
     }

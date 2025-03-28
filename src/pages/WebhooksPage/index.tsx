@@ -14,6 +14,7 @@ import WebhooksAddDrawer from "./webhook.add";
 import WebhookTab from "./webhook.tab";
 import WebhooksTableList from "./webhooks.table";
 import useScreenType from "react-screentype-hook";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -30,7 +31,7 @@ const WebhooksPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-
+  const { wrapOrgCode } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   // Check if a webhook tab is open
@@ -138,10 +139,10 @@ const WebhooksPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = `/resources/webhooks`;
+      const newUrl = wrapOrgCode(`/resources/webhooks`);
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = `/resources/webhooks/${newActiveKey}`;
+      const newUrl = wrapOrgCode(`/resources/webhooks/${newActiveKey}`);
       window.history.pushState({}, "", newUrl);
     }
   };

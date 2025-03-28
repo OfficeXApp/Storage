@@ -11,6 +11,7 @@ import { registerServiceWorker } from "./registerSW.ts";
 import { IdentitySystemProvider } from "./framework/identity/index.tsx";
 import { ReduxOfflineProvider } from "./redux-offline/ReduxProvider.tsx";
 import { MultiUploaderProvider } from "./framework/uploader/hook.tsx";
+import { BrowserRouter } from "react-router-dom";
 
 mixpanel.init("cae2fd45d17ff2cdf642b1d8afd80aa8", {
   debug: true,
@@ -55,17 +56,21 @@ registerServiceWorker({
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AntDesignConfigProvider>
-      <IdentitySystemProvider>
-        <ReduxOfflineProvider>
-          <DriveProvider
-            onUploadComplete={(fileUUID) => console.log(`Uploaded ${fileUUID}`)}
-          >
-            <MultiUploaderProvider>
-              <App />
-            </MultiUploaderProvider>
-          </DriveProvider>
-        </ReduxOfflineProvider>
-      </IdentitySystemProvider>
+      <BrowserRouter>
+        <IdentitySystemProvider>
+          <ReduxOfflineProvider>
+            <DriveProvider
+              onUploadComplete={(fileUUID) =>
+                console.log(`Uploaded ${fileUUID}`)
+              }
+            >
+              <MultiUploaderProvider>
+                <App />
+              </MultiUploaderProvider>
+            </DriveProvider>
+          </ReduxOfflineProvider>
+        </IdentitySystemProvider>
+      </BrowserRouter>
     </AntDesignConfigProvider>
   </React.StrictMode>
 );

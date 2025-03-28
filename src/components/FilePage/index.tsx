@@ -26,13 +26,13 @@ import {
 import { FileUUID, StorageLocationEnum, useDrive } from "../../framework";
 import useScreenType from "react-screentype-hook";
 import { useNavigate } from "react-router-dom";
-import FilePreview from "../FilePreview";
+// import FilePreview from "../FilePreview";
 import { createPseudoShareLink } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
 import { isFreeTrialStorj } from "../../api/storj";
 import { useIdentitySystem } from "../../framework/identity";
 import { FileFEO } from "../../redux-offline/directory/directory.reducer";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, FileID } from "@officexapp/types";
 import SheetJSPreview from "../SheetJSPreview";
 
 const { Text } = Typography;
@@ -47,10 +47,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const [fileName, setFileName] = useState(file.name || "Unknown File");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { renameFilePath } = useDrive();
   const { currentProfile, currentOrg, currentAPIKey, generateSignature } =
     useIdentitySystem();
   const { evmPublicKey, icpAccount } = currentProfile || {};
+
+  const renameFilePath = async (fileID: FileID, newName: string) => {
+    return;
+  };
 
   // State for file content and UI
   const [fileUrl, setFileUrl] = useState<string>("");
@@ -449,27 +452,25 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   };
 
   const handleRename = async (newName: string) => {
-    setIsUpdatingName(true);
-    try {
-      const oldName = file.name;
-      await renameFilePath(file.id as FileUUID, newName);
-      setFileName(newName);
-      message.success("File renamed successfully");
-
-      // Update URL using window.history.replaceState
-      const currentPath = window.location.pathname;
-
-      const newPath = currentPath.replace(
-        encodeURIComponent(oldName),
-        encodeURIComponent(newName)
-      );
-      window.history.replaceState(null, "", newPath);
-    } catch (error) {
-      message.error("Failed to rename file");
-    } finally {
-      setIsUpdatingName(false);
-      setIsEditing(false);
-    }
+    // setIsUpdatingName(true);
+    // try {
+    //   const oldName = file.name;
+    //   await renameFilePath(file.id as FileUUID, newName);
+    //   setFileName(newName);
+    //   message.success("File renamed successfully");
+    //   // Update URL using window.history.replaceState
+    //   const currentPath = window.location.pathname;
+    //   const newPath = currentPath.replace(
+    //     encodeURIComponent(oldName),
+    //     encodeURIComponent(newName)
+    //   );
+    //   window.history.replaceState(null, "", newPath);
+    // } catch (error) {
+    //   message.error("Failed to rename file");
+    // } finally {
+    //   setIsUpdatingName(false);
+    //   setIsEditing(false);
+    // }
   };
 
   const handleShare = async (url: string) => {

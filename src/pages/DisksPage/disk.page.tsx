@@ -8,10 +8,12 @@ import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
+import { useIdentitySystem } from "../../framework/identity";
 
 const DiskPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const params = useParams();
   const diskID = params.diskID;
@@ -48,7 +50,7 @@ const DiskPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate("/resources/disks")}
+          onClick={() => navigate(wrapOrgCode("/resources/disks"))}
           style={{
             display: "flex",
             alignItems: "center",
@@ -70,7 +72,7 @@ const DiskPage = () => {
         <DiskTab
           disk={disk}
           onDelete={() => {
-            navigate(`/resources/disks`);
+            navigate(wrapOrgCode(`/resources/disks`));
           }}
         />
       </Content>

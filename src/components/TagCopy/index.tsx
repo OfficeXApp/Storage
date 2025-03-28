@@ -1,5 +1,5 @@
 import { shortenAddress } from "../../framework/identity/constants";
-import { message, Tag } from "antd";
+import { message, Tag, Tooltip } from "antd";
 
 const TagCopy = ({
   id,
@@ -20,13 +20,15 @@ const TagCopy = ({
   };
 
   return (
-    <Tag
-      color={color || "default"}
-      style={{ cursor: "pointer", ...style }}
-      onClick={handleCopy}
-    >
-      {slug}
-    </Tag>
+    <Tooltip title={id}>
+      <Tag
+        color={color || "default"}
+        style={{ cursor: "pointer", ...style }}
+        onClick={handleCopy}
+      >
+        {slug}
+      </Tag>
+    </Tooltip>
   );
 };
 

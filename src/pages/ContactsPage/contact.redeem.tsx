@@ -30,30 +30,30 @@ import { shortenAddress } from "../../framework/identity/constants";
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
-export interface RedeemContactBtoaBody extends IRequestRedeemContact {
-  type: "RedeemContactBtoaBody";
-  api_key?: string;
+export interface SelfCustodySuperswapLogin_BTOA extends IRequestRedeemContact {
+  type: "SelfCustodySuperswapLogin_BTOA";
+  api_key: string;
   org_name: string;
   profile_name: string;
   redirect_url?: string;
 }
 
-export interface AutoLoginContactBtoaBody {
-  type: "AutoLoginContactBtoaBody";
-  api_key?: string;
+export interface OrgOwnedContactApiKeyLogin_BTOA {
+  type: "OrgOwnedContactApiKeyLogin_BTOA";
+  api_key: string;
   org_name: string;
   profile_name: string;
-  current_user_id: UserID;
+  profile_id: UserID;
   redirect_url?: string;
 }
 
-export interface SimpleOrgContactInviteBody {
-  type: "SimpleOrgContactInviteBody";
+export interface SovereignStrangerLogin_BTOA {
+  type: "SovereignStrangerLogin_BTOA";
   org_name: string;
   profile_name: string;
+  profile_id: UserID;
   redirect_url?: string;
   api_key?: string;
-  current_user_id: UserID;
 }
 
 const ContactRedeem = () => {
@@ -64,9 +64,9 @@ const ContactRedeem = () => {
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [redeemData, setRedeemData] = useState<
-    | RedeemContactBtoaBody
-    | AutoLoginContactBtoaBody
-    | SimpleOrgContactInviteBody
+    | SelfCustodySuperswapLogin_BTOA
+    | OrgOwnedContactApiKeyLogin_BTOA
+    | SovereignStrangerLogin_BTOA
     | null
   >(null);
   const [selectedProfile, setSelectedProfile] =
@@ -139,11 +139,11 @@ const ContactRedeem = () => {
 
     setIsProcessing(true);
     try {
-      if (redeemData.type === "RedeemContactBtoaBody") {
+      if (redeemData.type === "SelfCustodySuperswapLogin_BTOA") {
         await processRedeemContact(redeemData);
-      } else if (redeemData.type === "AutoLoginContactBtoaBody") {
+      } else if (redeemData.type === "OrgOwnedContactApiKeyLogin_BTOA") {
         await processAutoLoginContact(redeemData);
-      } else if (redeemData.type === "SimpleOrgContactInviteBody") {
+      } else if (redeemData.type === "SovereignStrangerLogin_BTOA") {
         await processSimpleInvite(redeemData);
       }
 
@@ -162,7 +162,7 @@ const ContactRedeem = () => {
     }
   };
 
-  const processRedeemContact = async (data: RedeemContactBtoaBody) => {
+  const processRedeemContact = async (data: SelfCustodySuperswapLogin_BTOA) => {
     console.log("Processing redeem contact", data);
     if (data.api_key) {
       console.log("Using API key for authentication");
@@ -188,11 +188,13 @@ const ContactRedeem = () => {
     }
   };
 
-  const processAutoLoginContact = async (data: AutoLoginContactBtoaBody) => {
+  const processAutoLoginContact = async (
+    data: OrgOwnedContactApiKeyLogin_BTOA
+  ) => {
     console.log("Processing auto login contact", data);
   };
 
-  const processSimpleInvite = async (data: SimpleOrgContactInviteBody) => {
+  const processSimpleInvite = async (data: SovereignStrangerLogin_BTOA) => {
     console.log("Processing simple invite", data);
   };
 
@@ -200,7 +202,7 @@ const ContactRedeem = () => {
     if (!redeemData) return "Unknown";
 
     switch (redeemData.type) {
-      case "RedeemContactBtoaBody":
+      case "SelfCustodySuperswapLogin_BTOA":
         return (
           <span>
             Self-Custody Profile{" "}
@@ -209,19 +211,19 @@ const ContactRedeem = () => {
             </Tooltip>
           </span>
         );
-      case "AutoLoginContactBtoaBody":
+      case "OrgOwnedContactApiKeyLogin_BTOA":
         return (
           <span>
-            Organization-Owned Profile{" "}
+            Assigned Profile{" "}
             <Tooltip title="This profile is owned by the organization and you are being granted access.">
               <QuestionCircleOutlined />
             </Tooltip>
           </span>
         );
-      case "SimpleOrgContactInviteBody":
+      case "SovereignStrangerLogin_BTOA":
         return (
           <span>
-            Accept with Existing Profile{" "}
+            Invitee{" "}
             <Tooltip title="You are being invited to join the organization with your existing profile.">
               <QuestionCircleOutlined />
             </Tooltip>
@@ -317,7 +319,7 @@ const ContactRedeem = () => {
 
                 <div style={{ marginBottom: 24 }}>
                   <Text type="secondary">{getInvitationType()}</Text>
-                  {redeemData.type === "RedeemContactBtoaBody" ? (
+                  {redeemData.type === "SelfCustodySuperswapLogin_BTOA" ? (
                     <Select
                       showSearch
                       placeholder="Select Profile"
@@ -412,7 +414,7 @@ const ContactRedeem = () => {
                       {profileName ||
                         redeemData.profile_name ||
                         "Unnamed Profile"}
-                      <TagCopy id={redeemData.current_user_id || ""} />
+                      <TagCopy id={redeemData.profile_id || ""} />
                       <EditOutlined
                         style={{
                           color: "#1890ff",
@@ -431,14 +433,14 @@ const ContactRedeem = () => {
                   loading={isProcessing}
                   onClick={handleContinue}
                   disabled={
-                    redeemData.type === "SimpleOrgContactInviteBody" &&
-                    redeemData.current_user_id !== currentProfile?.userID
+                    redeemData.type === "SovereignStrangerLogin_BTOA" &&
+                    redeemData.profile_id !== currentProfile?.userID
                   }
                   block
                 >
-                  {redeemData.type === "SimpleOrgContactInviteBody" &&
-                  redeemData.current_user_id !== currentProfile?.userID
-                    ? `Switch to User ${shortenAddress(redeemData.current_user_id.replace("UserID_", ""))} to Join`
+                  {redeemData.type === "SovereignStrangerLogin_BTOA" &&
+                  redeemData.profile_id !== currentProfile?.userID
+                    ? `Switch to User ${shortenAddress(redeemData.profile_id.replace("UserID_", ""))} to Join`
                     : `Join Organization`}
                 </Button>
               </div>

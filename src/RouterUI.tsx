@@ -292,7 +292,7 @@ const RouterUI = () => {
                       fontSize: "0.8rem",
                     }}
                   >
-                    Alpha v0.1
+                    Beta v0.1
                   </span>
                 </div>
                 <section

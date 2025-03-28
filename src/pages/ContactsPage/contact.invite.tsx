@@ -24,9 +24,9 @@ import { useMultiUploader } from "../../framework/uploader/hook";
 import { useIdentitySystem } from "../../framework/identity";
 import TagCopy from "../../components/TagCopy";
 import {
-  AutoLoginContactBtoaBody,
-  RedeemContactBtoaBody,
-  SimpleOrgContactInviteBody,
+  OrgOwnedContactApiKeyLogin_BTOA,
+  SelfCustodySuperswapLogin_BTOA,
+  SovereignStrangerLogin_BTOA,
 } from "./contact.redeem";
 import { urlSafeBase64Encode } from "../../api/helpers";
 
@@ -120,21 +120,24 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
         const apiKey = await createApiKey();
 
         if (isOwnedUser) {
-          // For owned users, create AutoLoginContactBtoaBody
-          const autoLoginPayload: AutoLoginContactBtoaBody = {
-            type: "AutoLoginContactBtoaBody",
+          // For owned users, create OrgOwnedContactApiKeyLogin_BTOA
+          const autoLoginPayload: OrgOwnedContactApiKeyLogin_BTOA = {
+            type: "OrgOwnedContactApiKeyLogin_BTOA",
             org_name: currentOrg?.nickname || "",
             profile_name: contact.name,
-            current_user_id: contact.id,
+            profile_id: contact.id,
             api_key: apiKey.value,
             redirect_url: redirectUrl || undefined,
           };
-          console.log("Created AutoLoginContactBtoaBody:", autoLoginPayload);
+          console.log(
+            "Created OrgOwnedContactApiKeyLogin_BTOA:",
+            autoLoginPayload
+          );
           return autoLoginPayload;
         } else {
-          // For not owned users, create RedeemContactBtoaBody
-          const redeemPayload: RedeemContactBtoaBody = {
-            type: "RedeemContactBtoaBody",
+          // For not owned users, create SelfCustodySuperswapLogin_BTOA
+          const redeemPayload: SelfCustodySuperswapLogin_BTOA = {
+            type: "SelfCustodySuperswapLogin_BTOA",
             current_user_id: contact.id,
             new_user_id: contact.id, // This would be adjusted in a real scenario
             redeem_code: contact.redeem_code || "",
@@ -143,14 +146,14 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
             org_name: currentOrg?.nickname || "",
             profile_name: contact.name,
           };
-          console.log("Created RedeemContactBtoaBody:", redeemPayload);
+          console.log("Created SelfCustodySuperswapLogin_BTOA:", redeemPayload);
           return redeemPayload;
         }
       } else {
         // Simple invite without auto-login
-        const simplePayload: SimpleOrgContactInviteBody = {
-          type: "SimpleOrgContactInviteBody",
-          current_user_id: contact.id,
+        const simplePayload: SovereignStrangerLogin_BTOA = {
+          type: "SovereignStrangerLogin_BTOA",
+          profile_id: contact.id,
           org_name: currentOrg?.nickname || "",
           profile_name: contact.name,
         };

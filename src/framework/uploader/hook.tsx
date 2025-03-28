@@ -193,16 +193,16 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
   useEffect(() => {
     const pathParts = window.location.pathname.split("/").filter(Boolean);
-
+    console.log(`???pathParts`, pathParts);
     if (pathParts.includes("drive")) {
-      if (pathParts.length >= 2) {
+      if (pathParts.length >= 4) {
         // We're at /drive/diskID or deeper
-        const diskID = pathParts[1];
+        const diskID = pathParts[3];
         setUploadTargetDiskID(diskID);
 
         // Check if we have a folder or file ID in the path
         if (pathParts.length >= 3) {
-          const resourceId = pathParts[2];
+          const resourceId = pathParts[4];
 
           if (resourceId && resourceId.startsWith("FolderID_")) {
             console.log(`setting the parent folder`, resourceId);

@@ -113,6 +113,7 @@ const ContactRedeem = () => {
 
   useEffect(() => {
     if (redeemData && currentProfile && !selectedProfile) {
+      setProfileName(redeemData.profile_name);
       const autoMatchedProfile = listOfProfiles.find(
         (p) =>
           p.userID ===
@@ -128,10 +129,7 @@ const ContactRedeem = () => {
           note: autoMatchedProfile.note,
           avatar: autoMatchedProfile.avatar,
         });
-        if (autoMatchedProfile.nickname) {
-          setProfileName(autoMatchedProfile.nickname);
-        }
-      } else {
+      } else if (redeemData.type === "SelfCustodySuperswapLogin_BTOA") {
         setSelectedProfile({
           userID: currentProfile.userID,
           nickname: currentProfile.nickname,

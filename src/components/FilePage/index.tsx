@@ -34,6 +34,7 @@ import { useIdentitySystem } from "../../framework/identity";
 import { FileFEO } from "../../redux-offline/directory/directory.reducer";
 import { DiskTypeEnum, FileID } from "@officexapp/types";
 import SheetJSPreview from "../SheetJSPreview";
+import DirectorySharingDrawer from "../DirectorySharingDrawer";
 
 const { Text } = Typography;
 
@@ -60,7 +61,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
-
+  const [isShareDrawerOpen, setIsShareDrawerOpen] = useState(false);
   // IndexedDB specific state and methods
   const dbNameRef = useRef<string>(
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
@@ -474,25 +475,26 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   };
 
   const handleShare = async (url: string) => {
-    if (window.location.pathname.includes("/BrowserCache")) {
-      message.warning(
-        "Cannot share files from browser storage. Use cloud storage instead."
-      );
-      return;
-    }
-    setIsGeneratingShareLink(true);
-    const shareLink = await createPseudoShareLink({
-      title: `${isFreeTrialStorj() ? `Expires in 24 hours - ` : ``}${file.name}`,
-      url,
-      ref: evmPublicKey,
-    });
-    message.info("Link copied to clipboard");
-    navigator.clipboard.writeText(shareLink);
-    setIsGeneratingShareLink(false);
-    mixpanel.track("Share File", {
-      "File Type": file.name.split(".").pop(),
-      Link: shareLink,
-    });
+    setIsShareDrawerOpen(true);
+    // if (window.location.pathname.includes("/BrowserCache")) {
+    //   message.warning(
+    //     "Cannot share files from browser storage. Use cloud storage instead."
+    //   );
+    //   return;
+    // }
+    // setIsGeneratingShareLink(true);
+    // const shareLink = await createPseudoShareLink({
+    //   title: `${isFreeTrialStorj() ? `Expires in 24 hours - ` : ``}${file.name}`,
+    //   url,
+    //   ref: evmPublicKey,
+    // });
+    // message.info("Link copied to clipboard");
+    // navigator.clipboard.writeText(shareLink);
+    // setIsGeneratingShareLink(false);
+    // mixpanel.track("Share File", {
+    //   "File Type": file.name.split(".").pop(),
+    //   Link: shareLink,
+    // });
   };
 
   const formatFileSize = (size: number): string => {
@@ -606,14 +608,11 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               justifyContent: isMobile ? "flex-end" : "flex-end",
             }}
           >
-            <Button
-              type="primary"
-              onClick={handleDownload}
-              disabled={!fileUrl || isLoading}
-            >
+            <Button onClick={handleDownload} disabled={!fileUrl || isLoading}>
               Download
             </Button>
             <Button
+              type="primary"
               onClick={() => handleShare(file.raw_url)}
               disabled={
                 !file.raw_url || file.disk_type === DiskTypeEnum.BrowserCache
@@ -686,6 +685,11 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           </div>
         )}
       </div>
+      <DirectorySharingDrawer
+        open={isShareDrawerOpen}
+        onClose={() => setIsShareDrawerOpen(false)}
+        directoryId="optional-id"
+      />
     </>
   );
 };

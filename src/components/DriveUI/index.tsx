@@ -767,13 +767,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         }}
       >
         <Breadcrumb items={breadcrumbItems} />
-        <div style={{ display: "flex", flexDirection: "row" }}>
-          <ActionMenuButton
-            isBigButton={false}
-            toggleUploadPanel={toggleUploadPanel}
-            optimisticListDirectoryKey={listDirectoryKey}
-          />
-        </div>
+        {currentFolderId && !currentFileId && (
+          <div style={{ display: "flex", flexDirection: "row", gap: 8 }}>
+            <ActionMenuButton
+              isBigButton={false}
+              toggleUploadPanel={toggleUploadPanel}
+              optimisticListDirectoryKey={listDirectoryKey}
+            />
+
+            <Button type="primary">Share</Button>
+          </div>
+        )}
       </div>
       <div
         style={{
@@ -783,82 +787,102 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         }}
       >
         <div style={{ flexGrow: 1, padding: 16, width: "100%" }}>
-          <div
-            className="invisible-scrollbar"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: 16,
-              overflowX: "scroll",
-            }}
-          >
+          {currentFolderId && !currentFileId ? (
+            <div
+              className="invisible-scrollbar"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 16,
+                overflowX: "scroll",
+              }}
+            >
+              <Button
+                onClick={handleBack}
+                type="link"
+                icon={<ArrowLeftOutlined />}
+                style={{
+                  padding: 0,
+                  color: "inherit",
+                  textDecoration: "none",
+                  margin: "0px 8px 0px 0px",
+                }}
+              >
+                Back
+              </Button>
+
+              <div
+                style={{ display: "flex", gap: "20px", alignItems: "center" }}
+              >
+                <Dropdown menu={{ items, onClick }}>
+                  <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <Space>
+                      <SortAscendingOutlined />
+                      Type
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Dropdown>
+
+                <Dropdown menu={{ items, onClick }}>
+                  <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <Space>
+                      <TeamOutlined />
+                      People
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Dropdown>
+
+                <Dropdown menu={{ items, onClick }}>
+                  <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <Space>
+                      <ClockCircleOutlined />
+                      Modified
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Dropdown>
+
+                <Dropdown menu={{ items, onClick }}>
+                  <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <Space>
+                      <BarsOutlined />
+                      Row View
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Dropdown>
+              </div>
+            </div>
+          ) : (
             <Button
               onClick={handleBack}
+              size="small"
               type="link"
               icon={<ArrowLeftOutlined />}
               style={{
                 padding: 0,
                 color: "inherit",
                 textDecoration: "none",
-                margin: "0px 8px 0px 0px",
+                margin: "0px 8px 0px 24px",
               }}
             >
               Back
             </Button>
-            <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-              <Dropdown menu={{ items, onClick }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <SortAscendingOutlined />
-                    Type
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items, onClick }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <TeamOutlined />
-                    People
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items, onClick }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <ClockCircleOutlined />
-                    Modified
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items, onClick }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <BarsOutlined />
-                    Row View
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-            </div>
-          </div>
+          )}
           {is404NotFound ? (
             <div style={{ background: "rgba(0,0,0,0.02)" }}>
               <Result

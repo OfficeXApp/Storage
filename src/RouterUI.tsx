@@ -272,29 +272,31 @@ const RouterUI = () => {
               }}
             >
               <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    padding: "32px",
-                    fontWeight: "bold",
-                    height: "80px",
-                    display: "flex",
-                    justifyContent: "flex-start",
-                    alignItems: "center",
-                    color: "#1a1a3a",
-                    fontSize: "1rem",
-                  }}
-                >
-                  <h1>OfficeX</h1>
-                  <span
+                <Link to="/org/current/drive">
+                  <div
                     style={{
-                      fontWeight: 300,
-                      marginLeft: "10px",
-                      fontSize: "0.8rem",
+                      padding: "32px",
+                      fontWeight: "bold",
+                      height: "80px",
+                      display: "flex",
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                      color: "#1a1a3a",
+                      fontSize: "1rem",
                     }}
                   >
-                    Beta v0.1
-                  </span>
-                </div>
+                    <h1>OfficeX</h1>
+                    <span
+                      style={{
+                        fontWeight: 300,
+                        marginLeft: "10px",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      Beta v0.1
+                    </span>
+                  </div>
+                </Link>
                 <section
                   style={{
                     width: "100%",

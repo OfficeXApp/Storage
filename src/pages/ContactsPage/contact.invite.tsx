@@ -46,10 +46,14 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
   onClose,
   organizationId,
 }) => {
-  const isOwnedUser = !Boolean(contact.from_placeholder_user_id);
+  console.log(`>> contact`, contact);
+  const isOwnedUser = !Boolean(
+    // @ts-ignore
+    contact.is_placeholder || contact.from_placeholder_user_id
+  );
   const [enableAutoLogin, setEnableAutoLogin] = useState<boolean>(true);
   const [redirectUrl, setRedirectUrl] = useState<string>("");
-  const [apiKeyDates, setApiKeyDates] = useState<[Date, Date] | null>(null);
+  const [apiKeyDates, setApiKeyDates] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState<boolean>(false);
   const [generatedLink, setGeneratedLink] = useState<string>("");
@@ -61,8 +65,9 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
     return {
       name: `Auto-login key for ${contact.name}`,
       user_id: contact.id,
-      begins_at: apiKeyDates?.[0]?.getTime() ?? Date.now(),
-      expires_at: apiKeyDates?.[1]?.getTime() ?? -1, // -1 means never expires
+      begins_at:
+        apiKeyDates && apiKeyDates[0] ? apiKeyDates[0].valueOf() : Date.now(),
+      expires_at: apiKeyDates && apiKeyDates[1] ? apiKeyDates[1].valueOf() : -1, // -1 means never expires
       external_id: `auto-login-${organizationId}-${contact.id}`,
       external_payload: JSON.stringify({
         created_for: "organization-invite",
@@ -77,7 +82,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
     try {
       const request = createApiKeyRequest();
       console.log("Creating API key with request:", request);
-
+      const auth_token = currentAPIKey?.value || (await generateSignature());
       // Make the actual API call to create an API key
       const response = await fetch(
         `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/api_keys/create`,
@@ -85,7 +90,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${currentAPIKey?.value || generateSignature()}`,
+            Authorization: `Bearer ${auth_token}`,
           },
           body: JSON.stringify(request),
         }
@@ -128,26 +133,41 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
             profile_id: contact.id,
             api_key: apiKey.value,
             redirect_url: redirectUrl || undefined,
+            daterange: {
+              begins_at: apiKey.begins_at,
+              expires_at: apiKey.expires_at,
+            },
           };
           console.log(
             "Created OrgOwnedContactApiKeyLogin_BTOA:",
             autoLoginPayload
           );
           return autoLoginPayload;
-        } else {
+        } else if (contact.redeem_code) {
           // For not owned users, create SelfCustodySuperswapLogin_BTOA
           const redeemPayload: SelfCustodySuperswapLogin_BTOA = {
             type: "SelfCustodySuperswapLogin_BTOA",
             current_user_id: contact.id,
             new_user_id: contact.id, // This would be adjusted in a real scenario
             redeem_code: contact.redeem_code || "",
-            api_key: apiKey.value,
             redirect_url: redirectUrl || undefined,
             org_name: currentOrg?.nickname || "",
             profile_name: contact.name,
           };
           console.log("Created SelfCustodySuperswapLogin_BTOA:", redeemPayload);
           return redeemPayload;
+        } else {
+          // Simple invite without auto-login
+          const simplePayload: SovereignStrangerLogin_BTOA = {
+            type: "SovereignStrangerLogin_BTOA",
+            profile_id: contact.id,
+            org_name: currentOrg?.nickname || "",
+            profile_name: contact.name,
+            api_key: apiKey.value,
+            redirect_url: redirectUrl || undefined,
+          };
+          console.log("Created simple invite payload:", simplePayload);
+          return simplePayload;
         }
       } else {
         // Simple invite without auto-login
@@ -156,6 +176,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
           profile_id: contact.id,
           org_name: currentOrg?.nickname || "",
           profile_name: contact.name,
+          redirect_url: redirectUrl || undefined,
         };
         console.log("Created simple invite payload:", simplePayload);
         return simplePayload;
@@ -201,8 +222,6 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
     }
   };
 
-  console.log(`target invite isOwnedUser=${isOwnedUser}`, contact);
-
   return (
     <Modal
       title={
@@ -223,78 +242,6 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
             {` `}
             <TagCopy id={currentOrg?.driveID || ""} />
           </span>
-          <br />
-          <Switch
-            checked={enableAutoLogin}
-            onChange={setEnableAutoLogin}
-            checkedChildren="Auto-Login"
-            unCheckedChildren="Manual Login"
-            style={{ marginTop: 32 }}
-          />
-
-          {/* Advanced Section with details/summary toggle */}
-          <details
-            style={{ marginTop: "16px" }}
-            open={isAdvancedOpen}
-            onToggle={(e) => setIsAdvancedOpen(e.currentTarget.open)}
-          >
-            <summary
-              style={{
-                cursor: "pointer",
-                color: "#595959",
-                fontSize: "14px",
-                marginBottom: "8px",
-                userSelect: "none",
-              }}
-            >
-              Advanced Options
-            </summary>
-
-            <div style={{ padding: "12px 0" }}>
-              <Form.Item
-                label={
-                  <span>
-                    Redirect URL{" "}
-                    <Tooltip title="Where to redirect the user after successful login">
-                      <InfoCircleOutlined style={{ color: "#aaa" }} />
-                    </Tooltip>
-                  </span>
-                }
-              >
-                <Input
-                  prefix={<LinkOutlined />}
-                  placeholder="https://app.example.com/welcome"
-                  value={redirectUrl}
-                  onChange={(e) => setRedirectUrl(e.target.value)}
-                  variant="borderless"
-                  style={{ backgroundColor: "#fafafa" }}
-                />
-              </Form.Item>
-
-              {enableAutoLogin && (
-                <Form.Item
-                  label={
-                    <span>
-                      API Key Validity Period{" "}
-                      <Tooltip title="If not specified, the API key will never expire">
-                        <InfoCircleOutlined style={{ color: "#aaa" }} />
-                      </Tooltip>
-                    </span>
-                  }
-                >
-                  <RangePicker
-                    showTime
-                    format="YYYY-MM-DD HH:mm:ss"
-                    placeholder={["Start Time", "End Time"]}
-                    onChange={(dates) =>
-                      setApiKeyDates(dates as [Date, Date] | null)
-                    }
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              )}
-            </div>
-          </details>
 
           {/* Added Input with Generate Link button */}
           <Form.Item label="Invitation Link" style={{ marginTop: 20 }}>
@@ -335,6 +282,84 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 : `Contact will link their own identity`}
             </span>
           </Form.Item>
+
+          {/* Advanced Section with details/summary toggle */}
+          <details
+            style={{ marginTop: "16px" }}
+            open={isAdvancedOpen}
+            onToggle={(e) => setIsAdvancedOpen(e.currentTarget.open)}
+          >
+            <summary
+              style={{
+                cursor: "pointer",
+                color: "#595959",
+                fontSize: "14px",
+                marginBottom: "8px",
+                userSelect: "none",
+              }}
+            >
+              Advanced Options
+            </summary>
+
+            <div style={{ padding: "12px 0" }}>
+              <Form.Item
+                label={
+                  <span>
+                    Login with API Key{" "}
+                    <Tooltip title="This will generate a new API key for the user">
+                      <InfoCircleOutlined style={{ color: "#aaa" }} />
+                    </Tooltip>
+                  </span>
+                }
+              >
+                <Switch
+                  checked={enableAutoLogin}
+                  onChange={setEnableAutoLogin}
+                  checkedChildren="Auto-Login"
+                  unCheckedChildren="Manual Login"
+                />
+              </Form.Item>
+              {enableAutoLogin && (
+                <Form.Item
+                  label={
+                    <span>
+                      API Key Validity Period{" "}
+                      <Tooltip title="If not specified, the API key will never expire">
+                        <InfoCircleOutlined style={{ color: "#aaa" }} />
+                      </Tooltip>
+                    </span>
+                  }
+                >
+                  <RangePicker
+                    showTime
+                    format="YYYY-MM-DD HH:mm:ss"
+                    placeholder={["Start Time", "End Time"]}
+                    onChange={(dates) => setApiKeyDates(dates)}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              )}
+              <Form.Item
+                label={
+                  <span>
+                    Redirect URL{" "}
+                    <Tooltip title="Where to redirect the user after successful login">
+                      <InfoCircleOutlined style={{ color: "#aaa" }} />
+                    </Tooltip>
+                  </span>
+                }
+              >
+                <Input
+                  prefix={<LinkOutlined />}
+                  placeholder="https://app.example.com/welcome"
+                  value={redirectUrl}
+                  onChange={(e) => setRedirectUrl(e.target.value)}
+                  variant="borderless"
+                  style={{ backgroundColor: "#fafafa" }}
+                />
+              </Form.Item>
+            </div>
+          </details>
         </Form>
       </div>
     </Modal>

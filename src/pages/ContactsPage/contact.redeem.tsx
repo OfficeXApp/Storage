@@ -12,7 +12,13 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import { IRequestRedeemContact, UserID } from "@officexapp/types";
+import {
+  GenerateID,
+  IRequestRedeemContact,
+  IResponseRedeemContact,
+  IResponseWhoAmI,
+  UserID,
+} from "@officexapp/types";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { IndexDB_Profile, useIdentitySystem } from "../../framework/identity";
 import { urlSafeBase64Decode } from "../../api/helpers";
@@ -32,7 +38,6 @@ const { Title, Paragraph, Text } = Typography;
 
 export interface SelfCustodySuperswapLogin_BTOA extends IRequestRedeemContact {
   type: "SelfCustodySuperswapLogin_BTOA";
-  api_key: string;
   org_name: string;
   profile_name: string;
   redirect_url?: string;
@@ -45,6 +50,7 @@ export interface OrgOwnedContactApiKeyLogin_BTOA {
   profile_name: string;
   profile_id: UserID;
   redirect_url?: string;
+  daterange: { begins_at: number; expires_at: number };
 }
 
 export interface SovereignStrangerLogin_BTOA {
@@ -55,6 +61,15 @@ export interface SovereignStrangerLogin_BTOA {
   redirect_url?: string;
   api_key?: string;
 }
+
+const formatDate = (timestamp: number) => {
+  if (timestamp === -1) return "no expiry date";
+  return new Date(timestamp).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
 
 const ContactRedeem = () => {
   const params = useParams();
@@ -73,8 +88,6 @@ const ContactRedeem = () => {
     useState<IndexDB_Profile | null>(null);
   const { listOfProfiles } = useIdentitySystem();
 
-  console.log(`redeemData`, redeemData);
-
   // State for editable fields and edit modes
   const [profileName, setProfileName] = useState("");
   const [orgName, setOrgName] = useState("");
@@ -84,29 +97,57 @@ const ContactRedeem = () => {
   const {
     currentOrg,
     currentProfile,
+    currentAPIKey,
     createOrganization,
     switchOrganization,
     createProfile,
     switchProfile,
     createApiKey,
+    wrapOrgCode,
+    generateSignature,
   } = useIdentitySystem();
 
+  console.log(`redeemData`, redeemData);
+  console.log(`orgcode`, orgcode);
+  console.log(`currentOrg`, currentOrg);
+
   useEffect(() => {
-    if (currentProfile && !selectedProfile) {
-      setSelectedProfile({
-        userID: currentProfile.userID,
-        nickname: currentProfile.nickname,
-        icpPublicAddress: currentProfile.icpAccount?.principal.toString() || "",
-        evmPublicAddress: currentProfile.evmPublicKey || "",
-        seedPhrase: "",
-        note: "",
-        avatar: "",
-      });
-      if (currentProfile.nickname) {
-        setProfileName(currentProfile.nickname);
+    if (redeemData && currentProfile && !selectedProfile) {
+      const autoMatchedProfile = listOfProfiles.find(
+        (p) =>
+          p.userID ===
+          (redeemData as SelfCustodySuperswapLogin_BTOA).current_user_id
+      );
+      if (autoMatchedProfile) {
+        setSelectedProfile({
+          userID: autoMatchedProfile.userID,
+          nickname: autoMatchedProfile.nickname,
+          icpPublicAddress: autoMatchedProfile.icpPublicAddress,
+          evmPublicAddress: autoMatchedProfile.evmPublicAddress,
+          seedPhrase: autoMatchedProfile.seedPhrase,
+          note: autoMatchedProfile.note,
+          avatar: autoMatchedProfile.avatar,
+        });
+        if (autoMatchedProfile.nickname) {
+          setProfileName(autoMatchedProfile.nickname);
+        }
+      } else {
+        setSelectedProfile({
+          userID: currentProfile.userID,
+          nickname: currentProfile.nickname,
+          icpPublicAddress:
+            currentProfile.icpAccount?.principal.toString() || "",
+          evmPublicAddress: currentProfile.evmPublicKey || "",
+          seedPhrase: "",
+          note: "",
+          avatar: "",
+        });
+        if (currentProfile.nickname) {
+          setProfileName(currentProfile.nickname);
+        }
       }
     }
-  }, [currentProfile]);
+  }, [currentProfile, redeemData, listOfProfiles]);
 
   useEffect(() => {
     const getRedeemParam = async () => {
@@ -140,20 +181,14 @@ const ContactRedeem = () => {
     setIsProcessing(true);
     try {
       if (redeemData.type === "SelfCustodySuperswapLogin_BTOA") {
-        await processRedeemContact(redeemData);
+        await processSelfCustodySuperswapLogin(redeemData);
       } else if (redeemData.type === "OrgOwnedContactApiKeyLogin_BTOA") {
-        await processAutoLoginContact(redeemData);
+        await processOrgOwnedContactApiKeyLogin(redeemData);
       } else if (redeemData.type === "SovereignStrangerLogin_BTOA") {
-        await processSimpleInvite(redeemData);
+        await processSovereignStrangerLogin(redeemData);
       }
 
       message.success("Successfully joined organization!");
-
-      if (redeemData.redirect_url) {
-        window.location.href = redeemData.redirect_url;
-      } else {
-        navigate(orgcode ? `/${orgcode}/dashboard` : "/dashboard");
-      }
     } catch (error) {
       console.error("Error processing invitation:", error);
       message.error("Failed to process invitation");
@@ -162,40 +197,234 @@ const ContactRedeem = () => {
     }
   };
 
-  const processRedeemContact = async (data: SelfCustodySuperswapLogin_BTOA) => {
+  const processSelfCustodySuperswapLogin = async (
+    data: SelfCustodySuperswapLogin_BTOA
+  ) => {
     console.log("Processing redeem contact", data);
-    if (data.api_key) {
-      console.log("Using API key for authentication");
-    }
 
     // Use the selected profile if available
-    if (selectedProfile) {
+    if (selectedProfile && currentOrg) {
       console.log(
         "Using selected profile:",
         selectedProfile.nickname,
         selectedProfile.userID
       );
-      // Here you would add your logic to use the selected profile
-      // For example, you might want to switch to this profile
-      try {
-        await switchProfile(selectedProfile);
-      } catch (error) {
-        console.error("Error switching to profile:", error);
-        throw error;
+      const superswap_payload: IRequestRedeemContact = {
+        current_user_id: data.current_user_id,
+        new_user_id: selectedProfile.userID,
+        redeem_code: data.redeem_code,
+      };
+      const auth_token = currentAPIKey?.value || (await generateSignature());
+      const redeem_response = await fetch(
+        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/contacts/redeem`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth_token}`,
+          },
+          body: JSON.stringify(superswap_payload),
+        }
+      );
+      console.log(`redeem_response`, redeem_response);
+
+      const redeem_data: IResponseRedeemContact = await redeem_response.json();
+
+      const check = await fetch(
+        `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`,
+        {
+          headers: {
+            Authorization: `Bearer ${redeem_data.ok.data.api_key}`,
+          },
+        }
+      );
+      const checkData: IResponseWhoAmI = (await check.json()).ok.data;
+
+      console.log("checkData", checkData);
+
+      if (
+        checkData.userID !== selectedProfile.userID ||
+        checkData.driveID !== currentOrg.driveID
+      ) {
+        throw new Error("Invalid userid or driveID");
+        return;
+      }
+
+      const apiKey = {
+        apiKeyID: GenerateID.ApiKey(),
+        userID: selectedProfile.userID,
+        driveID: currentOrg?.driveID || "",
+        note: `API Key for ${orgName}`,
+        value: redeem_data.ok.data.api_key,
+        endpoint: currentOrg?.endpoint || "",
+      };
+      await createApiKey(apiKey);
+
+      const org = {
+        driveID: currentOrg?.driveID || "",
+        nickname: orgName,
+        icpPublicAddress: currentOrg?.icpPublicAddress || "",
+        endpoint: currentOrg?.endpoint || "",
+        note: `Organization owned by ${orgName}`,
+        defaultProfile: selectedProfile.userID,
+      };
+      await createOrganization(org);
+      await switchOrganization(org);
+      const profile: IndexDB_Profile = {
+        userID: selectedProfile.userID,
+        nickname: selectedProfile.nickname,
+        icpPublicAddress: selectedProfile.userID.replace("UserID_", ""),
+        evmPublicAddress: selectedProfile.evmPublicAddress,
+        seedPhrase: selectedProfile.seedPhrase,
+        note: `Self-custody profile for ${data.org_name}`,
+        avatar: selectedProfile.avatar,
+      };
+      await createProfile(profile);
+      await switchProfile(profile);
+      message.success("Successfully joined organization!");
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+      } else {
+        navigate(wrapOrgCode(`/drive`));
       }
     } else {
       console.log("No profile selected, using default values");
     }
   };
 
-  const processAutoLoginContact = async (
+  const processOrgOwnedContactApiKeyLogin = async (
     data: OrgOwnedContactApiKeyLogin_BTOA
   ) => {
+    if (!currentOrg) {
+      console.error("No current organization found");
+      return;
+    }
     console.log("Processing auto login contact", data);
+
+    const check = await fetch(
+      `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`,
+      {
+        headers: {
+          Authorization: `Bearer ${data.api_key}`,
+        },
+      }
+    );
+    const checkData: IResponseWhoAmI = (await check.json()).ok.data;
+
+    console.log("checkData", checkData);
+
+    if (
+      checkData.userID !== data.profile_id ||
+      checkData.driveID !== currentOrg.driveID
+    ) {
+      throw new Error("Invalid userid or driveID");
+      return;
+    }
+    const profile: IndexDB_Profile = {
+      userID: data.profile_id,
+      nickname: profileName,
+      icpPublicAddress: data.profile_id.replace("UserID_", ""),
+      evmPublicAddress: "",
+      seedPhrase: "",
+      note: `Organization owned profile for ${orgName}`,
+      avatar: "",
+    };
+    await createProfile(profile);
+    const org = {
+      driveID: currentOrg?.driveID || "",
+      nickname: orgName,
+      icpPublicAddress: currentOrg?.icpPublicAddress || "",
+      endpoint: currentOrg?.endpoint || "",
+      note: `Organization owned by ${orgName}`,
+      defaultProfile: data.profile_id,
+    };
+    await createOrganization(org);
+    const apiKey = {
+      apiKeyID: GenerateID.ApiKey(),
+      userID: data.profile_id,
+      driveID: currentOrg?.driveID || "",
+      note: `API Key for ${orgName}`,
+      value: data.api_key,
+      endpoint: currentOrg?.endpoint || "",
+    };
+    await createApiKey(apiKey);
+    await switchOrganization(org);
+    await switchProfile(profile);
+    message.success("Successfully joined organization!");
+    console.log(`wrapOrgCode(/drive)`, wrapOrgCode(`/drive`));
+    if (data.redirect_url) {
+      window.location.href = data.redirect_url;
+    } else {
+      navigate(wrapOrgCode(`/drive`));
+    }
   };
 
-  const processSimpleInvite = async (data: SovereignStrangerLogin_BTOA) => {
+  const processSovereignStrangerLogin = async (
+    data: SovereignStrangerLogin_BTOA
+  ) => {
     console.log("Processing simple invite", data);
+    if (!currentOrg || currentProfile?.userID !== data.profile_id) {
+      console.error("No current organization found or invalid profile");
+      return;
+    }
+    const auth_token = data.api_key || (await generateSignature());
+    const check = await fetch(
+      `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`,
+      {
+        headers: {
+          Authorization: `Bearer ${auth_token}`,
+        },
+      }
+    );
+    const checkData: IResponseWhoAmI = (await check.json()).ok.data;
+
+    console.log("checkData", checkData);
+
+    if (
+      checkData.userID !== data.profile_id ||
+      checkData.driveID !== currentOrg.driveID
+    ) {
+      throw new Error("Invalid userid or driveID");
+      return;
+    }
+    const profile: IndexDB_Profile = {
+      userID: data.profile_id,
+      nickname: profileName,
+      icpPublicAddress: data.profile_id.replace("UserID_", ""),
+      evmPublicAddress: "",
+      seedPhrase: "",
+      note: `Organization owned profile for ${orgName}`,
+      avatar: "",
+    };
+    await createProfile(profile);
+    const org = {
+      driveID: currentOrg?.driveID || "",
+      nickname: orgName,
+      icpPublicAddress: currentOrg?.icpPublicAddress || "",
+      endpoint: currentOrg?.endpoint || "",
+      note: `Organization owned by ${orgName}`,
+      defaultProfile: data.profile_id,
+    };
+    await createOrganization(org);
+    if (data.api_key) {
+      const apiKey = {
+        apiKeyID: GenerateID.ApiKey(),
+        userID: data.profile_id,
+        driveID: currentOrg?.driveID || "",
+        note: `API Key for ${orgName}`,
+        value: data.api_key,
+        endpoint: currentOrg?.endpoint || "",
+      };
+      await createApiKey(apiKey);
+    }
+    await switchOrganization(org);
+    await switchProfile(profile);
+    message.success("Successfully joined organization!");
+    if (data.redirect_url) {
+      window.location.href = data.redirect_url;
+    } else {
+      navigate(wrapOrgCode(`/drive`));
+    }
   };
 
   const getInvitationType = () => {
@@ -433,16 +662,43 @@ const ContactRedeem = () => {
                   loading={isProcessing}
                   onClick={handleContinue}
                   disabled={
-                    redeemData.type === "SovereignStrangerLogin_BTOA" &&
-                    redeemData.profile_id !== currentProfile?.userID
+                    (redeemData.type === "SovereignStrangerLogin_BTOA" &&
+                      redeemData.profile_id !== currentProfile?.userID) ||
+                    (redeemData.type === "OrgOwnedContactApiKeyLogin_BTOA" &&
+                      redeemData.daterange &&
+                      (Date.now() < redeemData.daterange.begins_at ||
+                        (redeemData.daterange.expires_at !== -1 &&
+                          Date.now() > redeemData.daterange.expires_at)))
                   }
                   block
                 >
                   {redeemData.type === "SovereignStrangerLogin_BTOA" &&
                   redeemData.profile_id !== currentProfile?.userID
                     ? `Switch to User ${shortenAddress(redeemData.profile_id.replace("UserID_", ""))} to Join`
-                    : `Join Organization`}
+                    : redeemData.type === "OrgOwnedContactApiKeyLogin_BTOA" &&
+                        redeemData.daterange &&
+                        Date.now() < redeemData.daterange.begins_at
+                      ? `Not Available Yet`
+                      : `Join Organization`}
                 </Button>
+
+                {redeemData.type === "OrgOwnedContactApiKeyLogin_BTOA" &&
+                  redeemData.daterange && (
+                    <div
+                      style={{
+                        marginTop: 8,
+                        fontSize: "0.8rem",
+                        color: "rgba(0,0,0,0.3)",
+                        textAlign: "center",
+                        width: "100%",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      {Date.now() < redeemData.daterange.begins_at
+                        ? `Available soon, from ${formatDate(redeemData.daterange.begins_at)} to ${formatDate(redeemData.daterange.expires_at)}`
+                        : `Available now, from ${formatDate(redeemData.daterange.begins_at)} to ${formatDate(redeemData.daterange.expires_at)}`}
+                    </div>
+                  )}
               </div>
             )}
           </>

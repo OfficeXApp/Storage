@@ -666,6 +666,16 @@ const ContactTab: React.FC<ContactTabProps> = ({
                             <WalletOutlined />
                           )}
 
+                        {renderReadOnlyField(
+                          "Owner",
+                          // @ts-ignore
+                          contact.is_placeholder ||
+                            contact.from_placeholder_user_id
+                            ? "Self-Custodied Account"
+                            : "Owned by Organization",
+                          <WalletOutlined />
+                        )}
+
                         {contact.private_note &&
                           contact.permission_previews.includes(
                             SystemPermissionType.EDIT

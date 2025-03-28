@@ -2,7 +2,8 @@
 
 ## Overview
 
-1. Invite system with smooth onboarding & sharing (1-2 days)
+- [🔵] Invite system with smooth onboarding & sharing (1-2 days)
+- [x] Invite contact with redeem feature
 
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
@@ -27,6 +28,7 @@
 - [ ] Edit file/folder name
 - [ ] Delete file folder / Restore trash / Delete forever
 - [ ] Default offline contacts / api keys
+- [ ] Fix bugs when removing an org or profile, proper redirects, etc
 - [ ] Refactor settings page
 - [ ] Smart sidemenu nav opens closes based on which page
 - [ ] Clear optimistic cache when 401 unauthorized

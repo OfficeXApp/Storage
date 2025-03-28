@@ -199,6 +199,10 @@ export const contactsReducer = (
         ...state,
         // Add the newly created contact to our items array
         contacts: updateOrAddContact(filteredContacts, newContact),
+        contactMap: {
+          ...state.contactMap,
+          [newContact.id]: newContact,
+        },
         loading: false,
       };
     }

@@ -32,7 +32,7 @@ import mixpanel from "mixpanel-browser";
 import { isFreeTrialStorj } from "../../api/storj";
 import { useIdentitySystem } from "../../framework/identity";
 import { FileFEO } from "../../redux-offline/directory/directory.reducer";
-import { DiskTypeEnum, FileID } from "@officexapp/types";
+import { DirectoryResourceID, DiskTypeEnum, FileID } from "@officexapp/types";
 import SheetJSPreview from "../SheetJSPreview";
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
 
@@ -66,8 +66,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const dbNameRef = useRef<string>(
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
   );
-
-  console.log(`file.name`, file);
 
   const objectStoreNameRef = useRef<string>("files");
 
@@ -505,8 +503,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     return parseFloat((size / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  console.log(`fileType & url`, fileType, fileUrl);
-
   const handleDownload = () => {
     if (fileUrl) {
       mixpanel.track("Download File", {
@@ -688,7 +684,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       <DirectorySharingDrawer
         open={isShareDrawerOpen}
         onClose={() => setIsShareDrawerOpen(false)}
-        directoryId="optional-id"
+        resourceID={file.id as DirectoryResourceID}
       />
     </>
   );

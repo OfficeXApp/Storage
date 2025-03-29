@@ -24,6 +24,9 @@ import {
   GET_DIRECTORY_PERMISSION,
   GET_DIRECTORY_PERMISSION_COMMIT,
   GET_DIRECTORY_PERMISSION_ROLLBACK,
+  LIST_DIRECTORY_PERMISSIONS,
+  LIST_DIRECTORY_PERMISSIONS_COMMIT,
+  LIST_DIRECTORY_PERMISSIONS_ROLLBACK,
   CREATE_DIRECTORY_PERMISSION,
   CREATE_DIRECTORY_PERMISSION_COMMIT,
   CREATE_DIRECTORY_PERMISSION_ROLLBACK,
@@ -88,6 +91,9 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
         GET_DIRECTORY_PERMISSION,
         GET_DIRECTORY_PERMISSION_COMMIT,
         GET_DIRECTORY_PERMISSION_ROLLBACK,
+        LIST_DIRECTORY_PERMISSIONS,
+        LIST_DIRECTORY_PERMISSIONS_COMMIT,
+        LIST_DIRECTORY_PERMISSIONS_ROLLBACK,
         CREATE_DIRECTORY_PERMISSION,
         CREATE_DIRECTORY_PERMISSION_COMMIT,
         CREATE_DIRECTORY_PERMISSION_ROLLBACK,
@@ -499,6 +505,61 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
                   error_message,
                 };
               }
+            } catch (e) {
+              console.log(e);
+            }
+            break;
+          }
+
+          case LIST_DIRECTORY_PERMISSIONS: {
+            console.log("LIST_DIRECTORY_PERMISSIONS", action);
+            const resourceId =
+              action.meta?.offline?.effect?.data?.filters?.resource_id;
+            const cachedPermissions = await directoryTable
+              .where("resource_id")
+              .equals(resourceId)
+              .toArray();
+            if (cachedPermissions && cachedPermissions.length > 0) {
+              enhancedAction = {
+                ...action,
+                optimistic: cachedPermissions.map((p) => ({
+                  ...p,
+                  _isOptimistic: true,
+                  _optimisticID: p.id,
+                })),
+              };
+            }
+            break;
+          }
+
+          case LIST_DIRECTORY_PERMISSIONS_COMMIT: {
+            console.log("LIST_DIRECTORY_PERMISSIONS_COMMIT", action);
+            const permissions = action.payload?.ok?.data?.items || [];
+            await db.transaction("rw", directoryTable, async () => {
+              for (const permission of permissions) {
+                await directoryTable.put({
+                  ...permission,
+                  _optimisticID: permission.id,
+                  _isOptimistic: false,
+                  _syncConflict: false,
+                  _syncWarning: "",
+                  _syncSuccess: true,
+                });
+              }
+            });
+            break;
+          }
+
+          case LIST_DIRECTORY_PERMISSIONS_ROLLBACK: {
+            console.log("LIST_DIRECTORY_PERMISSIONS_ROLLBACK", action);
+            if (!action.payload.response) break;
+            try {
+              const err = await action.payload.response.json();
+              const error_message = `Failed to fetch directory permissions - ${err.err.message}`;
+              enhancedAction = {
+                ...action,
+                error_message,
+              };
             } catch (e) {
               console.log(e);
             }

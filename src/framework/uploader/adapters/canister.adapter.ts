@@ -54,8 +54,6 @@ export class CanisterAdapter implements IUploadAdapter {
       throw new Error("Canister API key is required");
     }
 
-    console.log(`canister config`, config);
-
     this.baseUrl = config.endpoint;
     this.apiKey = config.apiKey;
     this.diskID = config.diskID;

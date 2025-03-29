@@ -1,5 +1,3 @@
-// src/components/DirectoryPage/directory.sharing.tsx
-
 import React, { useState } from "react";
 import {
   Button,
@@ -15,18 +13,26 @@ import {
   Typography,
 } from "antd";
 import {
+  CheckOutlined,
+  CloseOutlined,
   CopyOutlined,
+  EditOutlined,
   InfoCircleOutlined,
   MoreOutlined,
   PlusOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Permission } from "@aws-sdk/client-s3";
+import dayjs from "dayjs";
+import { useSelector } from "react-redux";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import { DirectoryResourceID } from "@officexapp/types";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
   onClose: () => void;
-  directoryId?: string;
+  resourceID: DirectoryResourceID;
 }
 
 const { RangePicker } = DatePicker;
@@ -41,15 +47,26 @@ interface PermissionRecord {
   canInvite: boolean;
   whenStart: number | null;
   whenEnd: number | null;
+  isEditing: boolean;
 }
 
 const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   open,
   onClose,
-  directoryId,
+  resourceID,
 }) => {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState(window.location.href);
+  const [searchText, setSearchText] = useState("");
+  const { permissionMap, permissionIDs } = useSelector(
+    (state: ReduxAppState) => ({
+      permissionMap: state.directoryPermissions.permissionMap,
+      permissionIDs:
+        state.directoryPermissions.resourcePermissionsMap[resourceID] || [],
+    })
+  );
+  const permissions = permissionIDs.map((pid) => permissionMap[pid]);
+  console.log(`permissions`, permissions);
 
   const [dataSource, setDataSource] = useState<PermissionRecord[]>([
     {
@@ -61,6 +78,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       canInvite: false,
       whenStart: 0,
       whenEnd: -1,
+      isEditing: false,
     },
     {
       key: "2",
@@ -71,6 +89,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       canInvite: false,
       whenStart: Date.now(),
       whenEnd: Date.now() + 30 * 24 * 60 * 60 * 1000,
+      isEditing: false,
     },
     {
       key: "3",
@@ -81,6 +100,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       canInvite: true,
       whenStart: Date.now(),
       whenEnd: null,
+      isEditing: false,
     },
     {
       key: "4",
@@ -91,19 +111,13 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       canInvite: true,
       whenStart: null,
       whenEnd: null,
+      isEditing: false,
     },
   ]);
 
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(shareUrl);
     message.success("Share URL copied to clipboard");
-  };
-
-  const handleNameChange = (key: string, value: string) => {
-    const newData = [...dataSource];
-    const index = newData.findIndex((item) => item.key === key);
-    newData[index].who = value;
-    setDataSource(newData);
   };
 
   const handleCheckboxChange = (
@@ -140,9 +154,59 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     setDataSource(newData);
   };
 
+  const toggleEditMode = (key: string) => {
+    const newData = [...dataSource];
+    const index = newData.findIndex((item) => item.key === key);
+    newData[index].isEditing = !newData[index].isEditing;
+    setDataSource(newData);
+  };
+
   const handleRemove = (key: string) => {
     const newData = dataSource.filter((item) => item.key !== key);
     setDataSource(newData);
+  };
+
+  const handleAddPermission = () => {
+    const newKey = (
+      parseInt(dataSource[dataSource.length - 1].key) + 1
+    ).toString();
+    const newRecord: PermissionRecord = {
+      key: newKey,
+      who: `User ${newKey}`,
+      canView: true,
+      canEdit: false,
+      canDelete: false,
+      canInvite: false,
+      whenStart: null,
+      whenEnd: null,
+      isEditing: true,
+    };
+    setDataSource([...dataSource, newRecord]);
+  };
+
+  const getPermissionSummary = (record: PermissionRecord) => {
+    const permissions = [];
+    if (record.canView) permissions.push("View");
+    if (record.canEdit) permissions.push("Edit");
+    if (record.canDelete) permissions.push("Delete");
+    if (record.canInvite) permissions.push("Invite");
+
+    return permissions.length ? permissions.join(", ") : "No permissions";
+  };
+
+  const getDateRangeSummary = (record: PermissionRecord) => {
+    if (record.key === "1") return "Always";
+
+    if (!record.whenStart && !record.whenEnd) return "No time limit";
+
+    const startDate = record.whenStart
+      ? new Date(record.whenStart).toLocaleDateString()
+      : "Any time";
+    const endDate = record.whenEnd
+      ? new Date(record.whenEnd).toLocaleDateString()
+      : "No end date";
+
+    return `${startDate} to ${endDate}`;
   };
 
   const columns = [
@@ -150,109 +214,211 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       title: "Who",
       dataIndex: "who",
       key: "who",
-      width: "30%",
-      render: (text: string, record: PermissionRecord) => {
-        return record.key === "1" ? (
-          <span style={{ fontSize: "16px" }}>Public</span>
-        ) : (
-          <Input
-            value={text}
-            onChange={(e) => handleNameChange(record.key, e.target.value)}
-            size="large"
-            style={{ width: "100%" }}
-          />
-        );
-      },
+      width: "25%",
+      render: (text: string, record: PermissionRecord) => (
+        <span style={{ fontSize: "16px" }}>{text}</span>
+      ),
     },
     {
       title: "Can",
       key: "can",
       width: "30%",
-      render: (_: any, record: PermissionRecord) => (
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <Checkbox
-            checked={record.canView}
-            onChange={(e) =>
-              handleCheckboxChange(record.key, "canView", e.target.checked)
-            }
-            disabled={record.key === "1"}
-          >
-            <Text style={{ fontSize: "14px" }}>View</Text>
-          </Checkbox>
-          <Checkbox
-            checked={record.canEdit}
-            onChange={(e) =>
-              handleCheckboxChange(record.key, "canEdit", e.target.checked)
-            }
-            disabled={record.key === "1"}
-          >
-            <Text style={{ fontSize: "14px" }}>Edit</Text>
-          </Checkbox>
-          <Checkbox
-            checked={record.canDelete}
-            onChange={(e) =>
-              handleCheckboxChange(record.key, "canDelete", e.target.checked)
-            }
-            disabled={record.key === "1"}
-          >
-            <Text style={{ fontSize: "14px" }}>Delete</Text>
-          </Checkbox>
-          <Checkbox
-            checked={record.canInvite}
-            onChange={(e) =>
-              handleCheckboxChange(record.key, "canInvite", e.target.checked)
-            }
-            disabled={record.key === "1"}
-          >
-            <Text style={{ fontSize: "14px" }}>Invite</Text>
-          </Checkbox>
-        </div>
-      ),
-    },
-    {
-      title: "When",
-      key: "when",
-      width: "30%",
       render: (_: any, record: PermissionRecord) => {
-        if (record.key === "1") {
-          return <span style={{ fontSize: "16px" }}>Always</span>;
+        if (record.isEditing) {
+          return (
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+            >
+              <Checkbox
+                checked={record.canView}
+                onChange={(e) =>
+                  handleCheckboxChange(record.key, "canView", e.target.checked)
+                }
+                disabled={record.key === "1"}
+              >
+                <Text style={{ fontSize: "14px" }}>View</Text>
+              </Checkbox>
+              <Checkbox
+                checked={record.canEdit}
+                onChange={(e) =>
+                  handleCheckboxChange(record.key, "canEdit", e.target.checked)
+                }
+                disabled={record.key === "1"}
+              >
+                <Text style={{ fontSize: "14px" }}>Edit</Text>
+              </Checkbox>
+              <Checkbox
+                checked={record.canDelete}
+                onChange={(e) =>
+                  handleCheckboxChange(
+                    record.key,
+                    "canDelete",
+                    e.target.checked
+                  )
+                }
+                disabled={record.key === "1"}
+              >
+                <Text style={{ fontSize: "14px" }}>Delete</Text>
+              </Checkbox>
+              <Checkbox
+                checked={record.canInvite}
+                onChange={(e) =>
+                  handleCheckboxChange(
+                    record.key,
+                    "canInvite",
+                    e.target.checked
+                  )
+                }
+                disabled={record.key === "1"}
+              >
+                <Text style={{ fontSize: "14px" }}>Invite</Text>
+              </Checkbox>
+            </div>
+          );
         }
 
         return (
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <DatePicker style={{ width: "100%" }} placeholder="Start date" />
-            <DatePicker style={{ width: "100%" }} placeholder="End date" />
-          </div>
+          <span style={{ fontSize: "14px" }}>
+            {getPermissionSummary(record)}
+          </span>
         );
       },
     },
     {
-      title: (_: any, record: PermissionRecord) => (
-        <Button icon={<PlusOutlined style={{ fontSize: "20px" }} />}>
-          Add
-        </Button>
-      ),
+      title: "When",
+      key: "when",
+      width: "35%",
+      render: (_: any, record: PermissionRecord) => {
+        if (record.isEditing) {
+          if (record.key === "1") {
+            return <span style={{ fontSize: "16px" }}>Always</span>;
+          }
+
+          const startDate = record.whenStart ? dayjs(record.whenStart) : null;
+          const endDate = record.whenEnd ? dayjs(record.whenEnd) : null;
+
+          return (
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+            >
+              <DatePicker
+                style={{ width: "100%" }}
+                placeholder="Start date"
+                value={startDate}
+                onChange={(date) => {
+                  const endValue = endDate ? endDate.toDate() : null;
+                  const startValue = date ? date.toDate() : null;
+                  handleDateRangeChange(record.key, [startValue, endValue]);
+                }}
+              />
+              <DatePicker
+                style={{ width: "100%" }}
+                placeholder="End date"
+                value={endDate}
+                onChange={(date) => {
+                  const startValue = startDate ? startDate.toDate() : null;
+                  const endValue = date ? date.toDate() : null;
+                  handleDateRangeChange(record.key, [startValue, endValue]);
+                }}
+              />
+            </div>
+          );
+        }
+
+        return (
+          <span style={{ fontSize: "14px" }}>
+            {getDateRangeSummary(record)}
+          </span>
+        );
+      },
+    },
+    {
+      title: () => {
+        const addMenuItems: MenuProps["items"] = [
+          {
+            key: "addUser",
+            label: "Add user",
+            onClick: handleAddPermission,
+          },
+          {
+            key: "addGroup",
+            label: "Add group",
+            onClick: handleAddPermission,
+          },
+          {
+            key: "addPassword",
+            label: "Add password",
+            onClick: handleAddPermission,
+          },
+          {
+            key: "addMagicLink",
+            label: "Add magic link",
+            onClick: handleAddPermission,
+          },
+        ];
+
+        return (
+          <Dropdown menu={{ items: addMenuItems }} trigger={["click"]}>
+            <Button icon={<PlusOutlined style={{ fontSize: "20px" }} />}>
+              Add
+            </Button>
+          </Dropdown>
+        );
+      },
       key: "action",
       width: "10%",
       render: (_: any, record: PermissionRecord) => {
         const items: MenuProps["items"] = [
           {
             key: "1",
+            label: (
+              <a onClick={() => handleRemove(record.key)}>Copy Password</a>
+            ),
+          },
+          {
+            key: "2",
+            label: (
+              <a onClick={() => handleRemove(record.key)}>Copy Magic Link</a>
+            ),
+          },
+          {
+            key: "3",
             label: <a onClick={() => handleRemove(record.key)}>Remove</a>,
           },
         ];
 
         return (
-          <Dropdown
-            menu={{ items }}
-            trigger={["click"]}
-            disabled={record.key === "1"}
-          >
+          <Space>
             <Button
               type="text"
-              icon={<MoreOutlined style={{ fontSize: "20px" }} />}
+              icon={
+                record.isEditing ? (
+                  <CheckOutlined style={{ fontSize: "20px" }} />
+                ) : (
+                  <EditOutlined style={{ fontSize: "20px" }} />
+                )
+              }
+              onClick={() => toggleEditMode(record.key)}
+              disabled={record.key === "1"}
             />
-          </Dropdown>
+            {record.isEditing ? (
+              <CloseOutlined
+                style={{ fontSize: "20px" }}
+                onClick={() => toggleEditMode(record.key)}
+              />
+            ) : (
+              <Dropdown
+                menu={{ items }}
+                trigger={["click"]}
+                disabled={record.key === "1"}
+              >
+                <Button
+                  type="text"
+                  icon={<MoreOutlined style={{ fontSize: "20px" }} />}
+                />
+              </Dropdown>
+            )}
+          </Space>
         );
       },
     },
@@ -265,24 +431,18 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       onClose={onClose}
       open={open}
       width={700}
-      footer={
-        <div style={{ textAlign: "right" }}>
-          <Button size="large" onClick={onClose} style={{ marginRight: 8 }}>
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              message.success("Share settings saved");
-              onClose();
-            }}
-            type="primary"
-            size="large"
-          >
-            Save Settings
-          </Button>
-        </div>
-      }
+      footer={null}
     >
+      <div style={{ marginBottom: "8px" }}>
+        <Tooltip title="Link that can be shared with others to access this directory">
+          <Space>
+            <span style={{ color: "green" }}>
+              This file is PUBLIC on the internet
+            </span>{" "}
+            <InfoCircleOutlined style={{ color: "#aaa" }} />
+          </Space>
+        </Tooltip>
+      </div>
       <div style={{ marginBottom: "16px" }}>
         <Input
           value={shareUrl}
@@ -296,21 +456,12 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
               icon={<CopyOutlined />}
               onClick={handleCopyUrl}
               size="large"
+              style={{ marginLeft: 8 }}
             >
               Copy Link
             </Button>
           }
         />
-      </div>
-      <div style={{ marginBottom: "8px" }}>
-        <Tooltip title="Link that can be shared with others to access this directory">
-          <Space>
-            <span style={{ color: "green" }}>
-              This file is PUBLIC on the internet
-            </span>{" "}
-            <InfoCircleOutlined style={{ color: "#aaa" }} />
-          </Space>
-        </Tooltip>
       </div>
 
       {/* Advanced Section */}
@@ -328,15 +479,25 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
             userSelect: "none",
           }}
         >
-          Settings
+          Advanced
         </summary>
 
+        <Input
+          placeholder="Search by name"
+          allowClear
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ marginTop: "16px", marginBottom: 8 }}
+          prefix={<InfoCircleOutlined style={{ color: "#aaa" }} />}
+          size="middle"
+        />
+
         <Table
-          dataSource={dataSource}
+          dataSource={dataSource.filter((item) =>
+            item.who.toLowerCase().includes(searchText.toLowerCase())
+          )}
           columns={columns}
           pagination={false}
           rowKey="key"
-          style={{ marginTop: "16px" }}
           bordered={false}
           rowClassName={() => "permission-table-row"}
         />

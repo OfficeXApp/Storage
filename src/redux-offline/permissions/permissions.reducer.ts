@@ -7,6 +7,7 @@ import {
   SystemPermissionFE,
   DirectoryPermissionID,
   SystemPermissionID,
+  DirectoryResourceID,
 } from "@officexapp/types";
 
 import {
@@ -31,6 +32,9 @@ import {
   GET_DIRECTORY_PERMISSION,
   GET_DIRECTORY_PERMISSION_COMMIT,
   GET_DIRECTORY_PERMISSION_ROLLBACK,
+  LIST_DIRECTORY_PERMISSIONS,
+  LIST_DIRECTORY_PERMISSIONS_COMMIT,
+  LIST_DIRECTORY_PERMISSIONS_ROLLBACK,
   CREATE_DIRECTORY_PERMISSION,
   CREATE_DIRECTORY_PERMISSION_COMMIT,
   CREATE_DIRECTORY_PERMISSION_ROLLBACK,
@@ -79,8 +83,8 @@ interface SystemPermissionsState {
 }
 
 interface DirectoryPermissionsState {
-  permissions: DirectoryPermissionFEO[];
   permissionMap: Record<DirectoryPermissionID, DirectoryPermissionFEO>;
+  resourcePermissionsMap: Record<DirectoryResourceID, DirectoryPermissionID[]>;
   loading: boolean;
   error: string | null;
 }
@@ -100,8 +104,8 @@ const initialSystemState: SystemPermissionsState = {
 };
 
 const initialDirectoryState: DirectoryPermissionsState = {
-  permissions: [],
   permissionMap: {},
+  resourcePermissionsMap: {},
   loading: false,
   error: null,
 };
@@ -393,7 +397,6 @@ export const systemPermissionsReducer = (
       };
     }
 
-    // DELETE SYSTEM PERMISSION
     case DELETE_SYSTEM_PERMISSION: {
       if (!action.optimistic) return { ...state, loading: true, error: null };
 
@@ -542,10 +545,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: updateOrAddPermission(
-          state.permissions,
-          action.optimistic
-        ),
         permissionMap: {
           ...state.permissionMap,
           [action.optimistic.id]: action.optimistic,
@@ -561,12 +560,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: state.permissions.map((p) => {
-          if (p._optimisticID === optimisticID) {
-            return permission;
-          }
-          return p;
-        }),
         permissionMap: {
           ...state.permissionMap,
           [permission.id]: permission,
@@ -586,22 +579,85 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: state.permissions.map((p) => {
-          if (p._optimisticID === optimisticID) {
-            return {
-              ...p,
-              _syncWarning: action.error_message,
-              _syncSuccess: false,
-              _syncConflict: true,
-              _isOptimistic: false,
-            };
-          }
-          return p;
-        }),
         permissionMap: newPermissionMap,
         loading: false,
         error:
           action.payload?.message || "Failed to fetch directory permission",
+      };
+    }
+
+    // LIST DIRECTORY PERMISSIONS
+    case LIST_DIRECTORY_PERMISSIONS: {
+      console.log("LIST_DIRECTORY_PERMISSIONS reducer", action);
+      const resourceId =
+        action.meta?.offline?.effect?.data?.filters?.resource_id;
+
+      if (!action.optimistic) return { ...state, loading: true, error: null };
+
+      const permits = action.optimistic || [];
+      const newPermissionMap = permits.reduce(
+        (
+          map: Record<string, DirectoryPermissionFEO>,
+          permission: DirectoryPermissionFE
+        ) => {
+          map[permission.id] = permission;
+          return map;
+        },
+        state.permissionMap
+      );
+      const newResourcePermissionsMap = {
+        ...state.resourcePermissionsMap,
+        [resourceId as string]: permits.map(
+          (p: DirectoryPermissionFEO) => p.id
+        ),
+      };
+
+      return {
+        ...state,
+        permissionMap: newPermissionMap,
+        resourcePermissionsMap: newResourcePermissionsMap,
+        loading: true,
+        error: null,
+      };
+    }
+
+    case LIST_DIRECTORY_PERMISSIONS_COMMIT: {
+      console.log("LIST_DIRECTORY_PERMISSIONS_COMMIT reducer", action);
+      const permissions = action.payload.ok.data.items;
+      const permissionMap = permissions.reduce(
+        (
+          map: Record<string, DirectoryPermissionFEO>,
+          permission: DirectoryPermissionFE
+        ) => {
+          map[permission.id] = permission;
+          return map;
+        },
+        state.permissionMap
+      );
+      const newResourcePermissionsMap = {
+        ...state.resourcePermissionsMap,
+        [action.payload.ok.data.resource_id]: permissions.map(
+          (p: DirectoryPermissionFEO) => p.id
+        ),
+      };
+
+      return {
+        ...state,
+        permissionMap,
+        resourcePermissionsMap: newResourcePermissionsMap,
+        loading: false,
+      };
+    }
+
+    case LIST_DIRECTORY_PERMISSIONS_ROLLBACK: {
+      console.log("LIST_DIRECTORY_PERMISSIONS_ROLLBACK reducer", action);
+
+      if (!action.payload.response) return state;
+
+      return {
+        ...state,
+        loading: false,
+        error: action.error_message || "Failed to fetch directory permissions",
       };
     }
 
@@ -611,11 +667,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: updateOrAddPermission(
-          state.permissions,
-          action.optimistic,
-          "_optimisticID"
-        ),
         permissionMap: {
           ...state.permissionMap,
           [action.optimistic._optimisticID as string]: action.optimistic,
@@ -635,17 +686,12 @@ export const directoryPermissionsReducer = (
         _isOptimistic: false,
       };
 
-      const filteredPermissions = state.permissions.filter(
-        (p) => p._optimisticID !== optimisticID
-      );
-
       const newPermissionMap = { ...state.permissionMap };
       delete newPermissionMap[optimisticID as string];
       newPermissionMap[newPermission.id] = newPermission;
 
       return {
         ...state,
-        permissions: updateOrAddPermission(filteredPermissions, newPermission),
         permissionMap: newPermissionMap,
         loading: false,
       };
@@ -657,18 +703,16 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: state.permissions.map((p) => {
-          if (p._optimisticID === optimisticID) {
-            return {
-              ...p,
-              _syncWarning: action.error_message,
-              _syncSuccess: false,
-              _syncConflict: true,
-              _isOptimistic: false,
-            };
-          }
-          return p;
-        }),
+        permissionMap: {
+          ...state.permissionMap,
+          [optimisticID as string]: {
+            ...state.permissionMap[optimisticID as string],
+            _syncWarning: action.error_message,
+            _syncSuccess: false,
+            _syncConflict: true,
+            _isOptimistic: false,
+          },
+        },
         loading: false,
         error:
           action.payload?.message || "Failed to create directory permission",
@@ -681,10 +725,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: updateOrAddPermission(
-          state.permissions,
-          action.optimistic
-        ),
         permissionMap: {
           ...state.permissionMap,
           [action.optimistic.id]: action.optimistic,
@@ -699,19 +739,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: state.permissions.map((p) => {
-          if (p._optimisticID === optimisticID) {
-            return {
-              ...p,
-              ...action.payload.ok.data,
-              _syncSuccess: true,
-              _syncConflict: false,
-              _syncWarning: "",
-              _isOptimistic: false,
-            };
-          }
-          return p;
-        }),
         permissionMap: {
           ...state.permissionMap,
           [action.payload.ok.data.id]: {
@@ -732,18 +759,16 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: state.permissions.map((p) => {
-          if (p._optimisticID === optimisticID) {
-            return {
-              ...p,
-              _syncWarning: action.error_message,
-              _syncSuccess: false,
-              _syncConflict: true,
-              _isOptimistic: false,
-            };
-          }
-          return p;
-        }),
+        permissionMap: {
+          ...state.permissionMap,
+          [optimisticID as string]: {
+            ...state.permissionMap[optimisticID as string],
+            _syncWarning: action.error_message,
+            _syncSuccess: false,
+            _syncConflict: true,
+            _isOptimistic: false,
+          },
+        },
         loading: false,
         error:
           action.payload?.message || "Failed to update directory permission",
@@ -756,10 +781,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: updateOrAddPermission(
-          state.permissions,
-          action.optimistic
-        ),
         permissionMap: {
           ...state.permissionMap,
           [action.optimistic.id]: action.optimistic,
@@ -772,16 +793,11 @@ export const directoryPermissionsReducer = (
     case DELETE_DIRECTORY_PERMISSION_COMMIT: {
       const optimisticID = action.meta?.optimisticID;
 
-      const filteredPermissions = state.permissions.filter(
-        (p) => p._optimisticID !== optimisticID
-      );
-
       const newPermissionMap = { ...state.permissionMap };
       delete newPermissionMap[optimisticID as string];
 
       return {
         ...state,
-        permissions: filteredPermissions,
         permissionMap: newPermissionMap,
         loading: false,
       };
@@ -793,19 +809,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: state.permissions.map((p) => {
-          if (p._optimisticID === optimisticID) {
-            return {
-              ...p,
-              _markedForDeletion: false,
-              _syncWarning: action.error_message,
-              _syncSuccess: false,
-              _syncConflict: true,
-              _isOptimistic: false,
-            };
-          }
-          return p;
-        }),
         loading: false,
         error:
           action.payload?.message || "Failed to delete directory permission",
@@ -818,10 +821,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: updateOrAddPermission(
-          state.permissions,
-          action.optimistic
-        ),
         permissionMap: {
           ...state.permissionMap,
           [action.optimistic.id]: action.optimistic,
@@ -837,10 +836,6 @@ export const directoryPermissionsReducer = (
 
       if (!redeemedPermission) return state;
 
-      const filteredPermissions = state.permissions.filter(
-        (p) => p._optimisticID !== optimisticID
-      );
-
       const newPermission = {
         ...redeemedPermission,
         _syncSuccess: true,
@@ -855,7 +850,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: updateOrAddPermission(filteredPermissions, newPermission),
         permissionMap: newPermissionMap,
         loading: false,
       };
@@ -867,18 +861,6 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
-        permissions: state.permissions.map((p) => {
-          if (p._optimisticID === optimisticID) {
-            return {
-              ...p,
-              _syncWarning: action.error_message,
-              _syncSuccess: false,
-              _syncConflict: true,
-              _isOptimistic: false,
-            };
-          }
-          return p;
-        }),
         loading: false,
         error:
           action.payload?.message || "Failed to redeem directory permission",

@@ -244,7 +244,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
           </span>
 
           {/* Added Input with Generate Link button */}
-          <Form.Item label="Invitation Link" style={{ marginTop: 20 }}>
+          <Form.Item style={{ marginTop: 20 }}>
             <Input
               value={generatedLink}
               readOnly

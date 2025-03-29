@@ -371,6 +371,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ GET FILE --------------------------------- //
           case GET_FILE: {
+            console.log(`GET_FILE`, action);
             // Get cached data from IndexedDB
             const optimisticID = action.meta.optimisticID;
             const cachedFile = await filesTable.get(optimisticID);
@@ -394,6 +395,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_FILE_COMMIT: {
+            console.log(`GET_FILE_COMMIT middleware`, action);
             const optimisticID = action.meta?.optimisticID;
             let realFile: FileRecordFE | undefined;
 
@@ -401,11 +403,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             if (action.payload?.ok?.data?.result?.file) {
               // Handle response with file in result.file structure
               realFile = action.payload.ok.data.result.file;
-            } else if (
-              action.payload?.ok?.data?.actions?.[0]?.response?.result?.file
-            ) {
+            } else if (action.payload[0]?.response?.result) {
               // Handle batch action response format
-              realFile = action.payload.ok.data.actions[0].response.result.file;
+              realFile = action.payload[0]?.response?.result;
             } else if (action.payload?.ok?.data?.items?.[0]) {
               // Handle array response format
               realFile = action.payload.ok.data.items[0];

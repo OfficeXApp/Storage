@@ -20,6 +20,7 @@ import {
   IRequestRedeemDirectoryPermission,
   SystemPermission,
   DirectoryPermission,
+  IRequestListDirectoryPermissions,
 } from "@officexapp/types";
 
 // System Permission action types
@@ -62,6 +63,12 @@ export const GET_DIRECTORY_PERMISSION_COMMIT =
   "GET_DIRECTORY_PERMISSION_COMMIT";
 export const GET_DIRECTORY_PERMISSION_ROLLBACK =
   "GET_DIRECTORY_PERMISSION_ROLLBACK";
+
+export const LIST_DIRECTORY_PERMISSIONS = "LIST_DIRECTORY_PERMISSIONS";
+export const LIST_DIRECTORY_PERMISSIONS_COMMIT =
+  "LIST_DIRECTORY_PERMISSIONS_COMMIT";
+export const LIST_DIRECTORY_PERMISSIONS_ROLLBACK =
+  "LIST_DIRECTORY_PERMISSIONS_ROLLBACK";
 
 export const CREATE_DIRECTORY_PERMISSION = "CREATE_DIRECTORY_PERMISSION";
 export const CREATE_DIRECTORY_PERMISSION_COMMIT =
@@ -255,6 +262,26 @@ export const redeemSystemPermissionAction = (
     },
   };
 };
+
+export const listDirectoryPermissionsAction = (
+  payload: IRequestListDirectoryPermissions
+) => ({
+  type: LIST_DIRECTORY_PERMISSIONS,
+  meta: {
+    offline: {
+      effect: {
+        url: `/permissions/directory/list`,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: payload,
+      },
+      commit: { type: LIST_DIRECTORY_PERMISSIONS_COMMIT },
+      rollback: { type: LIST_DIRECTORY_PERMISSIONS_ROLLBACK },
+    },
+  },
+});
 
 // Directory Permission action creators
 export const getDirectoryPermissionAction = (

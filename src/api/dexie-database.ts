@@ -98,7 +98,7 @@ class DexieManager {
       [LABELS_DEXIE_TABLE]: "id, _syncConflict",
       [WEBHOOKS_DEXIE_TABLE]: "id, _syncConflict",
       [APIKEYS_DEXIE_TABLE]: "id, _syncConflict",
-      [DIRECTORY_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
+      [DIRECTORY_PERMISSIONS_DEXIE_TABLE]: "id, resource_id, _syncConflict",
       [SYSTEM_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
       [FILES_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
       [FOLDERS_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",

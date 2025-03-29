@@ -409,12 +409,10 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
 
   function getOrgCodeFromUrl() {
     const path = window.location.pathname;
-    console.log(`getOrgCodeFromUrl path`, path);
+
     // Match pattern /org/{orgcode}/ in the URL
     const orgRegex = /\/org\/([^\/]+)/;
     const match = path.match(orgRegex);
-
-    console.log(`getOrgCodeFromUrl match`, match);
 
     if (match && match[1]) {
       return match[1];

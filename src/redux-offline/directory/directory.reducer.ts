@@ -304,6 +304,8 @@ export const directoryReducer = (
     }
 
     case GET_FILE_COMMIT: {
+      console.log(`GET_FILE_COMMIT reducer`, action);
+
       const optimisticID = action.meta?.optimisticID;
       let realFile;
 

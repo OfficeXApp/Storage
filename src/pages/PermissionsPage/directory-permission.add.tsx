@@ -58,11 +58,12 @@ interface DirectoryPermissionAddDrawerProps {
   open: boolean;
   onClose: () => void;
   onAddPermission: (permissionData: IRequestCreateDirectoryPermission) => void;
+  resourceID: DirectoryResourceID;
 }
 
 const DirectoryPermissionAddDrawer: React.FC<
   DirectoryPermissionAddDrawerProps
-> = ({ open, onClose, onAddPermission }) => {
+> = ({ open, onClose, onAddPermission, resourceID }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const contacts = useSelector(
@@ -74,7 +75,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   const [form] = Form.useForm();
   const [resourceType, setResourceType] = useState<"file" | "folder">("folder");
   const [granteeTab, setGranteeTab] = useState<string>("contacts");
-  const [targetResourceId, setTargetResourceId] = useState("");
+  const targetResourceId = resourceID;
 
   // Current step state
   const [currentStep, setCurrentStep] = useState(0);
@@ -110,7 +111,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   const [filteredGroups, setFilteredGroups] = useState(groups);
   const [permissionTypes, setPermissionTypes] = useState<
     DirectoryPermissionType[]
-  >([]);
+  >([DirectoryPermissionType.VIEW]);
 
   // Form validation state
   const [formIsValid, setFormIsValid] = useState(false);
@@ -119,8 +120,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   const [stepsValidation, setStepsValidation] = useState({
     step0: false, // Who
     step1: false, // What
-    step2: false, // Where
-    step3: true, // Advanced (optional, so default to true)
+    step2: true, // Advanced (optional, so default to true)
   });
 
   // Debug form values function
@@ -164,13 +164,6 @@ const DirectoryPermissionAddDrawer: React.FC<
       },
     },
     {
-      title: "What",
-      icon: <DatabaseOutlined />,
-      description: "Select resource to access",
-      content: renderResourceSelection,
-      isValid: () => !!form.getFieldValue("resourceId"),
-    },
-    {
       title: "Advanced",
       icon: <SettingOutlined />,
       description: "Optional settings",
@@ -192,14 +185,12 @@ const DirectoryPermissionAddDrawer: React.FC<
       const step0Valid = isStepValid(0);
       const step1Valid = permissionTypes.length > 0;
       const step2Valid = isStepValid(2);
-      const step3Valid = isStepValid(3);
 
       // For debugging
       console.log("Step validation:", {
         Who: step0Valid,
         Can: step1Valid,
-        What: step2Valid,
-        Advanced: step3Valid,
+        Advanced: step2Valid,
         PermissionTypes: permissionTypes,
       });
 
@@ -207,10 +198,9 @@ const DirectoryPermissionAddDrawer: React.FC<
         step0: step0Valid,
         step1: step1Valid,
         step2: step2Valid,
-        step3: step3Valid,
       });
 
-      setFormIsValid(step0Valid && step1Valid && step2Valid && step3Valid);
+      setFormIsValid(step0Valid && step1Valid && step2Valid);
     } catch (error) {
       console.error("Form validation error:", error);
       setFormIsValid(false);
@@ -229,7 +219,7 @@ const DirectoryPermissionAddDrawer: React.FC<
       setGroupSearchQuery("");
       setIsUserIdValid(false);
       setExtractedUserId("");
-      setPermissionTypes([]);
+      setPermissionTypes([DirectoryPermissionType.VIEW]);
       setCurrentStep(0);
       checkFormValidity();
     }
@@ -299,13 +289,6 @@ const DirectoryPermissionAddDrawer: React.FC<
     } else {
       message.warning("Please complete the current step first");
     }
-  };
-
-  // Handle resource type change
-  const handleResourceTypeChange = (e: any) => {
-    setResourceType(e.target.value);
-    form.resetFields(["resourceId"]);
-    checkFormValidity();
   };
 
   // Validate and extract UserID from input
@@ -419,7 +402,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         // Create directory permission
         const directoryPermissionData: IRequestCreateDirectoryPermission = {
           id: GenerateID.DirectoryPermission(),
-          resource_id: values.resourceId as DirectoryResourceID,
+          resource_id: resourceID,
           granted_to: selectedGrantee.id,
           permission_types: permissionTypes,
           begin_date_ms: beginDate,
@@ -640,7 +623,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     );
   }
 
-  // Step 2: Permission Types (What)
+  // Step 2: Permission Types (Can)
   function renderPermissionTypes() {
     return (
       <Form.Item
@@ -667,28 +650,26 @@ const DirectoryPermissionAddDrawer: React.FC<
             <span style={{ marginLeft: 8 }}>
               <EyeOutlined /> View
             </span>
-            {permissionTypes.includes(DirectoryPermissionType.VIEW) && (
-              <CheckCircleFilled style={{ color: "#52c41a", marginLeft: 5 }} />
-            )}
           </Space>
 
-          <Space style={{ display: "flex" }}>
-            <Switch
-              onChange={(checked) =>
-                handlePermissionTypeChange(
-                  checked,
+          {resourceID.startsWith("FolderID_") && (
+            <Space style={{ display: "flex" }}>
+              <Switch
+                onChange={(checked) =>
+                  handlePermissionTypeChange(
+                    checked,
+                    DirectoryPermissionType.UPLOAD
+                  )
+                }
+                checked={permissionTypes.includes(
                   DirectoryPermissionType.UPLOAD
-                )
-              }
-              checked={permissionTypes.includes(DirectoryPermissionType.UPLOAD)}
-            />
-            <span style={{ marginLeft: 8 }}>
-              <PlusOutlined /> Upload
-            </span>
-            {permissionTypes.includes(DirectoryPermissionType.UPLOAD) && (
-              <CheckCircleFilled style={{ color: "#52c41a", marginLeft: 5 }} />
-            )}
-          </Space>
+                )}
+              />
+              <span style={{ marginLeft: 8 }}>
+                <PlusOutlined /> Upload
+              </span>
+            </Space>
+          )}
 
           <Space style={{ display: "flex" }}>
             <Switch
@@ -703,9 +684,6 @@ const DirectoryPermissionAddDrawer: React.FC<
             <span style={{ marginLeft: 8 }}>
               <EditOutlined /> Edit
             </span>
-            {permissionTypes.includes(DirectoryPermissionType.EDIT) && (
-              <CheckCircleFilled style={{ color: "#52c41a", marginLeft: 5 }} />
-            )}
           </Space>
 
           <Space style={{ display: "flex" }}>
@@ -721,9 +699,6 @@ const DirectoryPermissionAddDrawer: React.FC<
             <span style={{ marginLeft: 8 }}>
               <DeleteOutlined /> Delete
             </span>
-            {permissionTypes.includes(DirectoryPermissionType.DELETE) && (
-              <CheckCircleFilled style={{ color: "#52c41a", marginLeft: 5 }} />
-            )}
           </Space>
 
           <Space style={{ display: "flex" }}>
@@ -739,12 +714,9 @@ const DirectoryPermissionAddDrawer: React.FC<
             <span style={{ marginLeft: 8 }}>
               <UserAddOutlined /> Invite
             </span>
-            {permissionTypes.includes(DirectoryPermissionType.INVITE) && (
-              <CheckCircleFilled style={{ color: "#52c41a", marginLeft: 5 }} />
-            )}
           </Space>
 
-          <Space style={{ display: "flex" }}>
+          {/* <Space style={{ display: "flex" }}>
             <Switch
               onChange={(checked) =>
                 handlePermissionTypeChange(
@@ -757,79 +729,35 @@ const DirectoryPermissionAddDrawer: React.FC<
             <span style={{ marginLeft: 8 }}>
               <SettingOutlined /> Manage
             </span>
-            {permissionTypes.includes(DirectoryPermissionType.MANAGE) && (
-              <CheckCircleFilled style={{ color: "#52c41a", marginLeft: 5 }} />
-            )}
-          </Space>
+          </Space> */}
         </Space>
       </Form.Item>
     );
   }
 
-  // Step 3: Resource Selection (Where)
-  function renderResourceSelection() {
-    return (
-      <>
-        <Form.Item label="Resource Type">
-          <Radio.Group onChange={handleResourceTypeChange} value={resourceType}>
-            <Radio value="folder">
-              <FolderOutlined /> Folder Resource
-            </Radio>
-            <Radio value="file">
-              <FileOutlined /> File Resource
-            </Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        <Form.Item
-          name="resourceId"
-          label={
-            <Tooltip
-              title={`ID of the ${resourceType} to grant permissions for`}
-            >
-              <Space>
-                Resource {resourceType === "folder" ? "Folder" : "File"} ID{" "}
-                <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Space>
-            </Tooltip>
-          }
-          rules={[{ required: true, message: "Please enter a resource ID" }]}
-        >
-          <Input
-            placeholder={`Enter ${resourceType} ID`}
-            onChange={(e) => setTargetResourceId(e.target.value)}
-            suffix={
-              <Tooltip title="Developer note: Minimal validation applied">
-                <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Tooltip>
-            }
-          />
-        </Form.Item>
-      </>
-    );
-  }
-
-  // Step 4: Advanced Options
+  // Step 3: Advanced Options
   function renderAdvancedOptions() {
     return (
       <div style={{ padding: "12px 0" }}>
         {/* Inheritable option */}
-        <Form.Item
-          name="inheritable"
-          valuePropName="checked"
-          label={
-            <Tooltip title="Whether this permission applies to subfolders and files">
-              <Space>
-                Inheritable <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Space>
-            </Tooltip>
-          }
-        >
-          <Switch
-            onChange={checkFormValidity}
-            checked={form.getFieldValue("inheritable")}
-          />
-        </Form.Item>
+        {resourceID.startsWith("FolderID_") && (
+          <Form.Item
+            name="inheritable"
+            valuePropName="checked"
+            label={
+              <Tooltip title="Whether this permission applies to subfolders and files">
+                <Space>
+                  Inheritable <InfoCircleOutlined style={{ color: "#aaa" }} />
+                </Space>
+              </Tooltip>
+            }
+          >
+            <Switch
+              onChange={checkFormValidity}
+              checked={form.getFieldValue("inheritable")}
+            />
+          </Form.Item>
+        )}
 
         {/* Date Range */}
         <Form.Item

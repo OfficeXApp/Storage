@@ -599,8 +599,12 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_DIRECTORY_PERMISSION_COMMIT: {
+            console.log(
+              "CREATE_DIRECTORY_PERMISSION_COMMIT middleware",
+              action
+            );
             const optimisticID = action.meta?.optimisticID;
-            const realPermission = action.payload?.ok?.data;
+            const realPermission = action.payload?.ok?.data.permission;
             if (optimisticID && realPermission) {
               await db.transaction("rw", directoryTable, async () => {
                 await directoryTable.delete(optimisticID);

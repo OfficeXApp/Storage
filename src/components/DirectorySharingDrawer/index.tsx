@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Checkbox,
@@ -27,7 +27,13 @@ import { Permission } from "@aws-sdk/client-s3";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { DirectoryResourceID } from "@officexapp/types";
+import {
+  DirectoryPermissionType,
+  DirectoryResourceID,
+} from "@officexapp/types";
+import DirectoryPermissionAddDrawer from "../../pages/PermissionsPage/directory-permission.add";
+import { LOCAL_STORAGE_DIRECTORY_PERMISSIONS_ADVANCED_OPEN } from "../../framework/identity/constants";
+import TagCopy from "../TagCopy";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
@@ -41,10 +47,12 @@ const { Text } = Typography;
 interface PermissionRecord {
   key: string;
   who: string;
+  who_id: string;
   canView: boolean;
   canEdit: boolean;
   canDelete: boolean;
   canInvite: boolean;
+  canUpload: boolean;
   whenStart: number | null;
   whenEnd: number | null;
   isEditing: boolean;
@@ -55,6 +63,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   onClose,
   resourceID,
 }) => {
+  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState(window.location.href);
   const [searchText, setSearchText] = useState("");
@@ -65,55 +74,43 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         state.directoryPermissions.resourcePermissionsMap[resourceID] || [],
     })
   );
-  const permissions = permissionIDs.map((pid) => permissionMap[pid]);
+  //   const permissions = permissionIDs.map((pid) => permissionMap[pid]);
+  const permissions = useMemo(() => {
+    return permissionIDs.map((pid) => permissionMap[pid]);
+  }, [permissionIDs, permissionMap]);
   console.log(`permissions`, permissions);
 
-  const [dataSource, setDataSource] = useState<PermissionRecord[]>([
-    {
-      key: "1",
-      who: "Public",
-      canView: false,
-      canEdit: false,
-      canDelete: false,
-      canInvite: false,
-      whenStart: 0,
-      whenEnd: -1,
-      isEditing: false,
-    },
-    {
-      key: "2",
-      who: "John D",
-      canView: true,
-      canEdit: false,
-      canDelete: false,
-      canInvite: false,
-      whenStart: Date.now(),
-      whenEnd: Date.now() + 30 * 24 * 60 * 60 * 1000,
-      isEditing: false,
-    },
-    {
-      key: "3",
-      who: "Market",
-      canView: true,
-      canEdit: true,
-      canDelete: true,
-      canInvite: true,
-      whenStart: Date.now(),
-      whenEnd: null,
-      isEditing: false,
-    },
-    {
-      key: "4",
-      who: "Admin",
-      canView: true,
-      canEdit: true,
-      canDelete: true,
-      canInvite: true,
-      whenStart: null,
-      whenEnd: null,
-      isEditing: false,
-    },
-  ]);
+  useEffect(() => {
+    const should_default_advanced_open = localStorage.getItem(
+      LOCAL_STORAGE_DIRECTORY_PERMISSIONS_ADVANCED_OPEN
+    );
+    console.log(`should_default_advanced_open`, should_default_advanced_open);
+    if (parseInt(should_default_advanced_open || "0")) {
+      setIsAdvancedOpen(true);
+    }
+  }, []);
+
+  const [dataSource, setDataSource] = useState<PermissionRecord[]>([]);
+
+  useEffect(() => {
+    if (permissions.length > 0) {
+      const data = permissions.map((p) => ({
+        key: p.id,
+        who: p.grantee_name || p.granted_to,
+        who_id: p.granted_to,
+        canView: p.permission_types.includes(DirectoryPermissionType.VIEW),
+        canEdit: p.permission_types.includes(DirectoryPermissionType.EDIT),
+        canDelete: p.permission_types.includes(DirectoryPermissionType.DELETE),
+        canInvite: p.permission_types.includes(DirectoryPermissionType.INVITE),
+        canUpload: p.permission_types.includes(DirectoryPermissionType.UPLOAD),
+        whenStart: p.begin_date_ms,
+        whenEnd: p.expiry_date_ms,
+        isEditing: false,
+      }));
+
+      setDataSource(data);
+    }
+  }, [permissions]);
 
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(shareUrl);
@@ -122,7 +119,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
 
   const handleCheckboxChange = (
     key: string,
-    field: "canView" | "canEdit" | "canDelete" | "canInvite",
+    field: "canView" | "canEdit" | "canDelete" | "canInvite" | "canUpload",
     value: boolean
   ) => {
     const newData = [...dataSource];
@@ -132,6 +129,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     if (field === "canEdit") newData[index].canEdit = value;
     if (field === "canDelete") newData[index].canDelete = value;
     if (field === "canInvite") newData[index].canInvite = value;
+    if (field === "canUpload") newData[index].canUpload = value;
 
     setDataSource(newData);
   };
@@ -155,33 +153,19 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   };
 
   const toggleEditMode = (key: string) => {
-    const newData = [...dataSource];
-    const index = newData.findIndex((item) => item.key === key);
-    newData[index].isEditing = !newData[index].isEditing;
-    setDataSource(newData);
+    // const newData = [...dataSource];
+    // const index = newData.findIndex((item) => item.key === key);
+    // newData[index].isEditing = !newData[index].isEditing;
+    // setDataSource(newData);
   };
 
   const handleRemove = (key: string) => {
-    const newData = dataSource.filter((item) => item.key !== key);
-    setDataSource(newData);
+    // const newData = dataSource.filter((item) => item.key !== key);
+    // setDataSource(newData);
   };
 
   const handleAddPermission = () => {
-    const newKey = (
-      parseInt(dataSource[dataSource.length - 1].key) + 1
-    ).toString();
-    const newRecord: PermissionRecord = {
-      key: newKey,
-      who: `User ${newKey}`,
-      canView: true,
-      canEdit: false,
-      canDelete: false,
-      canInvite: false,
-      whenStart: null,
-      whenEnd: null,
-      isEditing: true,
-    };
-    setDataSource([...dataSource, newRecord]);
+    setIsAddDrawerOpen(true);
   };
 
   const getPermissionSummary = (record: PermissionRecord) => {
@@ -214,15 +198,17 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       title: "Who",
       dataIndex: "who",
       key: "who",
-      width: "25%",
+      width: "45%",
       render: (text: string, record: PermissionRecord) => (
-        <span style={{ fontSize: "16px" }}>{text}</span>
+        <span style={{ fontSize: "16px" }}>
+          {text} <TagCopy id={record.who_id} />
+        </span>
       ),
     },
     {
       title: "Can",
       key: "can",
-      width: "30%",
+      width: "25%",
       render: (_: any, record: PermissionRecord) => {
         if (record.isEditing) {
           return (
@@ -287,7 +273,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     {
       title: "When",
       key: "when",
-      width: "35%",
+      width: "20%",
       render: (_: any, record: PermissionRecord) => {
         if (record.isEditing) {
           if (record.key === "1") {
@@ -334,35 +320,13 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     },
     {
       title: () => {
-        const addMenuItems: MenuProps["items"] = [
-          {
-            key: "addUser",
-            label: "Add user",
-            onClick: handleAddPermission,
-          },
-          {
-            key: "addGroup",
-            label: "Add group",
-            onClick: handleAddPermission,
-          },
-          {
-            key: "addPassword",
-            label: "Add password",
-            onClick: handleAddPermission,
-          },
-          {
-            key: "addMagicLink",
-            label: "Add magic link",
-            onClick: handleAddPermission,
-          },
-        ];
-
         return (
-          <Dropdown menu={{ items: addMenuItems }} trigger={["click"]}>
-            <Button icon={<PlusOutlined style={{ fontSize: "20px" }} />}>
-              Add
-            </Button>
-          </Dropdown>
+          <Button
+            onClick={handleAddPermission}
+            icon={<PlusOutlined style={{ fontSize: "20px" }} />}
+          >
+            Add
+          </Button>
         );
       },
       key: "action",
@@ -468,7 +432,14 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       <details
         style={{ marginTop: "16px" }}
         open={isAdvancedOpen}
-        onToggle={(e) => setIsAdvancedOpen(e.currentTarget.open)}
+        onToggle={(e) => {
+          setIsAdvancedOpen(e.currentTarget.open);
+          console.log(`toggled open`, e.currentTarget.open);
+          localStorage.setItem(
+            LOCAL_STORAGE_DIRECTORY_PERMISSIONS_ADVANCED_OPEN,
+            e.currentTarget.open ? "1" : "0"
+          );
+        }}
       >
         <summary
           style={{
@@ -515,6 +486,14 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           }
         `}
       </style>
+      <DirectoryPermissionAddDrawer
+        open={isAddDrawerOpen}
+        onClose={() => setIsAddDrawerOpen(false)}
+        onAddPermission={(p) =>
+          console.log("directory permission to b created", p)
+        }
+        resourceID={resourceID}
+      />
     </Drawer>
   );
 };

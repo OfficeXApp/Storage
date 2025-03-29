@@ -42,7 +42,6 @@ import {
   DirectoryPermissionFEO,
   SystemPermissionFEO,
 } from "../../redux-offline/permissions/permissions.reducer";
-import DirectoryPermissionAddDrawer from "./directory-permission.add";
 import SystemPermissionAddDrawer from "./system-permission.add";
 import TagCopy from "../../components/TagCopy";
 import { useIdentitySystem } from "../../framework/identity";
@@ -54,8 +53,7 @@ const { TabPane } = Tabs;
 interface PermissionsTableListProps {
   isContentTabOpen: (id: string) => boolean;
   handleClickContentTab: (
-    permission: SystemPermissionFEO | DirectoryPermissionFEO,
-    type: "system" | "directory",
+    permission: SystemPermissionFEO,
     focus_tab?: boolean
   ) => void;
 }
@@ -70,18 +68,11 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   const systemPermissions = useSelector(
     (state: ReduxAppState) => state.systemPermissions.permissions
   );
-  const directoryPermissions = useSelector(
-    (state: ReduxAppState) => state.directoryPermissions.permissions
-  );
   const [systemDrawerOpen, setSystemDrawerOpen] = useState(false);
-  const [directoryDrawerOpen, setDirectoryDrawerOpen] = useState(false);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
-  const [activeTab, setActiveTab] = useState<string>("system");
   const [filteredSystemPermissions, setFilteredSystemPermissions] =
     useState(systemPermissions);
-  const [filteredDirectoryPermissions, setFilteredDirectoryPermissions] =
-    useState(directoryPermissions);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   // Update filtered permissions whenever search text or permissions change
@@ -100,20 +91,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       );
     });
     setFilteredSystemPermissions(filteredSystem);
-
-    const filteredDirectory = directoryPermissions.filter(
-      (permission) =>
-        permission.resource_id
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        permission.granted_to
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        (permission.note &&
-          permission.note.toLowerCase().includes(searchText.toLowerCase()))
-    );
-    setFilteredDirectoryPermissions(filteredDirectory);
-  }, [searchText, systemPermissions, directoryPermissions]);
+  }, [searchText, systemPermissions]);
 
   // Fetch permissions on component mount
   useEffect(() => {
@@ -158,9 +136,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   };
 
   // Check if a permission is active
-  const isPermissionActive = (
-    permission: SystemPermissionFEO | DirectoryPermissionFEO
-  ) => {
+  const isPermissionActive = (permission: SystemPermissionFEO) => {
     if (permission.expiry_date_ms === -1) {
       return true;
     }
@@ -178,9 +154,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   };
 
   // Get the status badge for a permission
-  const getPermissionStatus = (
-    permission: SystemPermissionFEO | DirectoryPermissionFEO
-  ) => {
+  const getPermissionStatus = (permission: SystemPermissionFEO) => {
     if (isPermissionActive(permission)) {
       return { status: "success", text: "Active" };
     } else {
@@ -230,13 +204,13 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
           <Space
             onClick={(e) => {
               e?.stopPropagation();
-              handleClickContentTab(record, "system");
+              handleClickContentTab(record);
             }}
           >
             <div
               onClick={(e) => {
                 e.stopPropagation();
-                handleClickContentTab(record, "system", true);
+                handleClickContentTab(record, true);
                 const newUrl = wrapOrgCode(
                   `/resources/permissions/system/${record.id}`
                 );
@@ -283,7 +257,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         <Space
           onClick={(e) => {
             e?.stopPropagation();
-            handleClickContentTab(record, "system");
+            handleClickContentTab(record);
           }}
         >
           <UserOutlined />
@@ -300,7 +274,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         <div
           onClick={(e) => {
             e?.stopPropagation();
-            handleClickContentTab(record, "system");
+            handleClickContentTab(record);
           }}
         >
           {record.permission_previews.map((permission) => (
@@ -317,7 +291,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         <Space
           onClick={(e) => {
             e?.stopPropagation();
-            handleClickContentTab(record, "system");
+            handleClickContentTab(record);
           }}
         >
           <CalendarOutlined />
@@ -327,120 +301,6 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
               : "Never"}
           </span>
         </Space>
-      ),
-    },
-  ];
-
-  // Define directory permission table columns
-  const directoryColumns: ColumnsType<DirectoryPermissionFEO> = [
-    {
-      title: "Resource",
-      dataIndex: "resource_id",
-      key: "resource_id",
-      render: (_: any, record: DirectoryPermissionFE) => {
-        const status = getPermissionStatus(record);
-        const resourceType = record.resource_id.split("_")[0];
-
-        return (
-          <Space
-            onClick={(e) => {
-              e?.stopPropagation();
-              handleClickContentTab(record, "directory");
-            }}
-          >
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClickContentTab(record, "directory", true);
-                const newUrl = wrapOrgCode(
-                  `/resources/permissions/directory/${record.id}`
-                );
-                window.history.pushState({}, "", newUrl);
-              }}
-            >
-              <Popover content={status.text}>
-                <Badge
-                  // @ts-ignore
-                  status={status.status}
-                  dot
-                  offset={[-3, 3]}
-                >
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      background: "#52c41a",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
-                    }}
-                  >
-                    <FolderOutlined />
-                  </div>
-                </Badge>
-              </Popover>
-              <span style={{ marginLeft: "8px" }}>{resourceType}</span>
-            </div>
-            <Tag
-              onClick={() => {
-                // copy to clipboard
-                navigator.clipboard.writeText(record.resource_id);
-                message.success("Resource ID copied to clipboard");
-              }}
-              color="default"
-            >
-              {shortenAddress(record.resource_id)}
-            </Tag>
-          </Space>
-        );
-      },
-    },
-    {
-      title: "Granted To",
-      dataIndex: "granted_to",
-      key: "granted_to",
-      render: (_: any, record: DirectoryPermissionFE) => (
-        <Space
-          onClick={(e) => {
-            e?.stopPropagation();
-            handleClickContentTab(record, "directory");
-          }}
-        >
-          <UserOutlined />
-          <span>{shortenAddress(record.granted_to)}</span>
-        </Space>
-      ),
-    },
-    {
-      title: "Permissions",
-      dataIndex: "permission_previews",
-      key: "permission_previews",
-      render: (_: any, record: DirectoryPermissionFE) => (
-        <Space
-          onClick={(e) => {
-            e?.stopPropagation();
-            handleClickContentTab(record, "directory");
-          }}
-          wrap
-        >
-          {record.permission_previews.map((permission) => (
-            <Tag key={permission} color="green">
-              {permission}
-            </Tag>
-          ))}
-        </Space>
-      ),
-    },
-    {
-      title: "Inheritable",
-      dataIndex: "inheritable",
-      key: "inheritable",
-      render: (_: any, record: DirectoryPermissionFE) => (
-        <Tag color={record.inheritable ? "success" : "default"}>
-          {record.inheritable ? "Yes" : "No"}
-        </Tag>
       ),
     },
   ];
@@ -471,7 +331,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
                   ? "#e6f7ff"
                   : "transparent",
               }}
-              onClick={() => handleClickContentTab(permission, "system", true)}
+              onClick={() => handleClickContentTab(permission, true)}
             >
               <div
                 style={{
@@ -539,98 +399,9 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
     );
   };
 
-  // Render the mobile list view for directory permissions
-  const renderDirectoryMobileList = () => {
-    return (
-      <List
-        itemLayout="horizontal"
-        dataSource={filteredDirectoryPermissions}
-        renderItem={(permission: DirectoryPermissionFE) => {
-          const status = getPermissionStatus(permission);
-          const resourceType = permission.resource_id.split("_")[0];
-
-          return (
-            <List.Item
-              style={{
-                padding: "12px 16px",
-                cursor: "pointer",
-                backgroundColor: isContentTabOpen(permission.id)
-                  ? "#e6f7ff"
-                  : "transparent",
-              }}
-              onClick={() =>
-                handleClickContentTab(permission, "directory", true)
-              }
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  width: "100%",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      background: "#52c41a",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
-                    }}
-                  >
-                    <FolderOutlined />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontWeight: "500" }}>{resourceType}</span>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <Badge color={status.status as any} dot />
-                      <span
-                        style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}
-                      >
-                        {status.text}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
-                  <div>
-                    {permission.permission_previews.length > 0 && (
-                      <Tag color="green">
-                        {permission.permission_previews[0]}
-                      </Tag>
-                    )}
-                    {permission.permission_previews.length > 1 && (
-                      <Tag>+{permission.permission_previews.length - 1}</Tag>
-                    )}
-                  </div>
-                  <RightOutlined style={{ color: "rgba(0,0,0,0.4)" }} />
-                </div>
-              </div>
-            </List.Item>
-          );
-        }}
-      />
-    );
-  };
-
   const getPermissionTitle = (
-    permission: SystemPermissionFEO | DirectoryPermissionFEO,
-    permissionType: "system" | "directory"
+    permission: SystemPermissionFEO,
+    permissionType: "system"
   ) => {
     if (permissionType === "system") {
       const sysPermission = permission;
@@ -684,10 +455,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         return "Single Webhook";
       } else if (resourceId.startsWith("LabelID_")) {
         return "Single Label";
-      } else if (
-        resourceId.startsWith("SystemPermissionID_") ||
-        resourceId.startsWith("DirectoryPermissionID_")
-      ) {
+      } else if (resourceId.startsWith("SystemPermissionID_")) {
         return "System Permit";
       } else {
         return "Permission";
@@ -762,23 +530,13 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
                 </a>
               </Dropdown>
               {/* Replace this Dropdown with the new Add buttons */}
-              {activeTab === "system" ? (
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => setSystemDrawerOpen(true)}
-                >
-                  Add System Permission
-                </Button>
-              ) : (
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => setDirectoryDrawerOpen(true)}
-                >
-                  Add Directory Permission
-                </Button>
-              )}
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setSystemDrawerOpen(true)}
+              >
+                Add System Permission
+              </Button>
             </div>
           </div>
 
@@ -841,84 +599,33 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
 
       {/* Permissions Tabs & Tables */}
       <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
-        <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          tabBarStyle={{ marginBottom: 16 }}
-        >
-          <TabPane
-            tab={
-              <span>
-                <GlobalOutlined /> System Permissions
-              </span>
-            }
-            key="system"
-          >
-            {screenType.isMobile ? (
-              renderSystemMobileList()
-            ) : (
-              <Table
-                rowSelection={{
-                  type: "checkbox",
-                  ...rowSelection,
-                  columnWidth: 50,
-                }}
-                columns={systemColumns}
-                dataSource={filteredSystemPermissions}
-                rowKey="id"
-                pagination={false}
-                onRow={(record) => ({
-                  onClick: () => {
-                    handleClickContentTab(record, "system", false);
-                  },
-                  style: {
-                    backgroundColor: isContentTabOpen(record.id)
-                      ? "#e6f7ff"
-                      : "transparent",
-                    cursor: "pointer",
-                  },
-                })}
-                size="middle"
-              />
-            )}
-          </TabPane>
-          <TabPane
-            tab={
-              <span>
-                <FolderOutlined /> Directory Permissions
-              </span>
-            }
-            key="directory"
-          >
-            {screenType.isMobile ? (
-              renderDirectoryMobileList()
-            ) : (
-              <Table
-                rowSelection={{
-                  type: "checkbox",
-                  ...rowSelection,
-                  columnWidth: 50,
-                }}
-                columns={directoryColumns}
-                dataSource={filteredDirectoryPermissions}
-                rowKey="id"
-                pagination={false}
-                onRow={(record) => ({
-                  onClick: () => {
-                    handleClickContentTab(record, "directory", false);
-                  },
-                  style: {
-                    backgroundColor: isContentTabOpen(record.id)
-                      ? "#e6f7ff"
-                      : "transparent",
-                    cursor: "pointer",
-                  },
-                })}
-                size="middle"
-              />
-            )}
-          </TabPane>
-        </Tabs>
+        {screenType.isMobile ? (
+          renderSystemMobileList()
+        ) : (
+          <Table
+            rowSelection={{
+              type: "checkbox",
+              ...rowSelection,
+              columnWidth: 50,
+            }}
+            columns={systemColumns}
+            dataSource={filteredSystemPermissions}
+            rowKey="id"
+            pagination={false}
+            onRow={(record) => ({
+              onClick: () => {
+                handleClickContentTab(record, false);
+              },
+              style: {
+                backgroundColor: isContentTabOpen(record.id)
+                  ? "#e6f7ff"
+                  : "transparent",
+                cursor: "pointer",
+              },
+            })}
+            size="middle"
+          />
+        )}
         <br />
         <br />
       </div>
@@ -928,15 +635,6 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         onAddPermission={(data) => {
           // Handle the new permission if needed
           setSystemDrawerOpen(false);
-        }}
-      />
-
-      <DirectoryPermissionAddDrawer
-        open={directoryDrawerOpen}
-        onClose={() => setDirectoryDrawerOpen(false)}
-        onAddPermission={(data) => {
-          // Handle the new permission if needed
-          setDirectoryDrawerOpen(false);
         }}
       />
     </div>

@@ -85,14 +85,12 @@ const LOCAL_STORAGE_TOGGLE_REST_API_DOCS = "TOGGLE_REST_API_DOCS";
 
 // Define the props for the PermissionTab component
 interface PermissionTabProps {
-  permission: SystemPermissionFEO | DirectoryPermissionFEO;
-  permissionType: "system" | "directory";
-  onDelete?: (permissionID: SystemPermissionID | DirectoryPermissionID) => void;
+  permission: SystemPermissionFEO;
+  onDelete?: (permissionID: SystemPermissionID) => void;
 }
 
 const PermissionTab: React.FC<PermissionTabProps> = ({
   permission,
-  permissionType,
   onDelete,
 }) => {
   const dispatch = useDispatch();
@@ -119,72 +117,66 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   }, []);
 
   const getPermissionTitle = (
-    permission: SystemPermissionFEO | DirectoryPermissionFEO,
-    permissionType: "system" | "directory"
+    permission: SystemPermissionFEO | DirectoryPermissionFEO
   ) => {
-    if (permissionType === "system") {
-      const sysPermission = permission;
-      let resourceId = "";
+    const sysPermission = permission;
+    let resourceId = "";
 
-      // Handle if resource_id is an object or string
-      if (typeof sysPermission.resource_id === "object") {
-        resourceId = String(sysPermission.resource_id);
-      } else {
-        resourceId = String(sysPermission.resource_id);
-      }
-
-      // Check if it's a TABLE resource
-      if (resourceId.startsWith("TABLE_")) {
-        const tableName = resourceId.split("TABLE_")[1];
-
-        // Map table names to titles
-        switch (tableName) {
-          case "DRIVES":
-            return "All Drives Permit";
-          case "DISKS":
-            return "All Disks Permit";
-          case "CONTACTS":
-            return "All Contacts Permit";
-          case "GROUPS":
-            return "All Groups Permit";
-          case "WEBHOOKS":
-            return "All Webhooks Permit";
-          case "API_KEYS":
-            return "All API Keys Permit";
-          case "PERMISSIONS":
-            return "All Permissions Permit";
-          case "LABELS":
-            return "All Labels Permit";
-          default:
-            return "System Permit";
-        }
-      }
-      // Handle specific resource types
-      else if (resourceId.startsWith("DriveID_")) {
-        return "Drive Permit";
-      } else if (resourceId.startsWith("DiskID_")) {
-        return "Disk Permit";
-      } else if (resourceId.startsWith("UserID_")) {
-        return "User Permit";
-      } else if (resourceId.startsWith("GroupID_")) {
-        return "Group Permit";
-      } else if (resourceId.startsWith("ApiKeyID_")) {
-        return "API Key Permit";
-      } else if (resourceId.startsWith("WebhookID_")) {
-        return "Webhook Permit";
-      } else if (resourceId.startsWith("LabelID_")) {
-        return "Label Permit";
-      } else if (
-        resourceId.startsWith("SystemPermissionID_") ||
-        resourceId.startsWith("DirectoryPermissionID_")
-      ) {
-        return "Permission Permit";
-      } else {
-        return "System Permit";
-      }
+    // Handle if resource_id is an object or string
+    if (typeof sysPermission.resource_id === "object") {
+      resourceId = String(sysPermission.resource_id);
     } else {
-      // For directory permissions
-      return "Directory Permit";
+      resourceId = String(sysPermission.resource_id);
+    }
+
+    // Check if it's a TABLE resource
+    if (resourceId.startsWith("TABLE_")) {
+      const tableName = resourceId.split("TABLE_")[1];
+
+      // Map table names to titles
+      switch (tableName) {
+        case "DRIVES":
+          return "All Drives Permit";
+        case "DISKS":
+          return "All Disks Permit";
+        case "CONTACTS":
+          return "All Contacts Permit";
+        case "GROUPS":
+          return "All Groups Permit";
+        case "WEBHOOKS":
+          return "All Webhooks Permit";
+        case "API_KEYS":
+          return "All API Keys Permit";
+        case "PERMISSIONS":
+          return "All Permissions Permit";
+        case "LABELS":
+          return "All Labels Permit";
+        default:
+          return "System Permit";
+      }
+    }
+    // Handle specific resource types
+    else if (resourceId.startsWith("DriveID_")) {
+      return "Drive Permit";
+    } else if (resourceId.startsWith("DiskID_")) {
+      return "Disk Permit";
+    } else if (resourceId.startsWith("UserID_")) {
+      return "User Permit";
+    } else if (resourceId.startsWith("GroupID_")) {
+      return "Group Permit";
+    } else if (resourceId.startsWith("ApiKeyID_")) {
+      return "API Key Permit";
+    } else if (resourceId.startsWith("WebhookID_")) {
+      return "Webhook Permit";
+    } else if (resourceId.startsWith("LabelID_")) {
+      return "Label Permit";
+    } else if (
+      resourceId.startsWith("SystemPermissionID_") ||
+      resourceId.startsWith("DirectoryPermissionID_")
+    ) {
+      return "Permission Permit";
+    } else {
+      return "System Permit";
     }
   };
 
@@ -206,10 +198,7 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
         permissionTypes: permission.permission_types,
         note: permission.note,
         dateRange: dateRange,
-        inheritable:
-          permissionType === "directory"
-            ? (permission as DirectoryPermissionFEO).inheritable
-            : undefined,
+        inheritable: undefined,
         externalId: permission.external_id,
         externalPayload: permission.external_payload,
       });
@@ -228,32 +217,17 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
         expiryDate = values.dateRange[1].valueOf();
       }
 
-      if (permissionType === "system") {
-        const updateData: IRequestUpdateSystemPermission = {
-          id: permission.id as SystemPermissionID,
-          permission_types: values.permissionTypes,
-          begin_date_ms: beginDate,
-          expiry_date_ms: expiryDate,
-          note: values.note,
-          external_id: values.externalId,
-          external_payload: values.externalPayload,
-        };
-        console.log(`>>> Dispatching updateSystemPermissionAction`, updateData);
-        dispatch(updateSystemPermissionAction(updateData));
-      } else {
-        const updateData: IRequestUpdateDirectoryPermission = {
-          id: permission.id as DirectoryPermissionID,
-          permission_types: values.permissionTypes,
-          begin_date_ms: beginDate,
-          expiry_date_ms: expiryDate,
-          inheritable: values.inheritable,
-          note: values.note,
-          external_id: values.externalId,
-          external_payload: values.externalPayload,
-        };
-
-        dispatch(updateDirectoryPermissionAction(updateData));
-      }
+      const updateData: IRequestUpdateSystemPermission = {
+        id: permission.id as SystemPermissionID,
+        permission_types: values.permissionTypes,
+        begin_date_ms: beginDate,
+        expiry_date_ms: expiryDate,
+        note: values.note,
+        external_id: values.externalId,
+        external_payload: values.externalPayload,
+      };
+      console.log(`>>> Dispatching updateSystemPermissionAction`, updateData);
+      dispatch(updateSystemPermissionAction(updateData));
 
       message.success(
         isOnline
@@ -266,22 +240,13 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   };
 
   const handleDelete = () => {
-    console.log(
-      `Deleting permission ${permission.id} with permissionType ${permissionType}`
-    );
-    if (permissionType === "system") {
-      const deleteData: IRequestDeleteSystemPermission = {
-        permission_id: permission.id as SystemPermissionID,
-      };
+    console.log(`Deleting permission ${permission.id} `);
 
-      dispatch(deleteSystemPermissionAction(deleteData));
-    } else {
-      const deleteData: IRequestDeleteDirectoryPermission = {
-        permission_id: permission.id as DirectoryPermissionID,
-      };
+    const deleteData: IRequestDeleteSystemPermission = {
+      permission_id: permission.id as SystemPermissionID,
+    };
 
-      dispatch(deleteDirectoryPermissionAction(deleteData));
-    }
+    dispatch(deleteSystemPermissionAction(deleteData));
 
     message.success(
       isOnline
@@ -311,68 +276,33 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
 
   // Get permission type options based on permission type
   const getPermissionTypeOptions = () => {
-    if (permissionType === "system") {
-      return [
-        {
-          label: "Create",
-          value: SystemPermissionType.CREATE,
-          icon: <EditOutlined />,
-        },
-        {
-          label: "View",
-          value: SystemPermissionType.VIEW,
-          icon: <EyeOutlined />,
-        },
-        {
-          label: "Edit",
-          value: SystemPermissionType.EDIT,
-          icon: <EditOutlined />,
-        },
-        {
-          label: "Delete",
-          value: SystemPermissionType.DELETE,
-          icon: <DeleteOutlined />,
-        },
-        {
-          label: "Invite",
-          value: SystemPermissionType.INVITE,
-          icon: <UserAddOutlined />,
-        },
-      ];
-    } else {
-      return [
-        {
-          label: "View",
-          value: DirectoryPermissionType.VIEW,
-          icon: <EyeOutlined />,
-        },
-        {
-          label: "Upload",
-          value: DirectoryPermissionType.UPLOAD,
-          icon: <UploadOutlined />,
-        },
-        {
-          label: "Edit",
-          value: DirectoryPermissionType.EDIT,
-          icon: <EditOutlined />,
-        },
-        {
-          label: "Delete",
-          value: DirectoryPermissionType.DELETE,
-          icon: <DeleteOutlined />,
-        },
-        {
-          label: "Invite",
-          value: DirectoryPermissionType.INVITE,
-          icon: <UserAddOutlined />,
-        },
-        {
-          label: "Manage",
-          value: DirectoryPermissionType.MANAGE,
-          icon: <SettingOutlined />,
-        },
-      ];
-    }
+    return [
+      {
+        label: "Create",
+        value: SystemPermissionType.CREATE,
+        icon: <EditOutlined />,
+      },
+      {
+        label: "View",
+        value: SystemPermissionType.VIEW,
+        icon: <EyeOutlined />,
+      },
+      {
+        label: "Edit",
+        value: SystemPermissionType.EDIT,
+        icon: <EditOutlined />,
+      },
+      {
+        label: "Delete",
+        value: SystemPermissionType.DELETE,
+        icon: <DeleteOutlined />,
+      },
+      {
+        label: "Invite",
+        value: SystemPermissionType.INVITE,
+        icon: <UserAddOutlined />,
+      },
+    ];
   };
 
   // Check if permission is currently active
@@ -386,21 +316,16 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
 
   // Format resource name and type
   const getResourceName = () => {
-    if (permissionType === "system") {
-      const sysPermission = permission as SystemPermissionFEO;
-      if (sysPermission.resource_name) {
-        return sysPermission.resource_name;
-      }
-
-      if (typeof sysPermission.resource_id === "object") {
-        return sysPermission.resource_id;
-      }
-
-      return String(sysPermission.resource_id);
-    } else {
-      const dirPermission = permission as DirectoryPermissionFEO;
-      return dirPermission.resource_path;
+    const sysPermission = permission as SystemPermissionFEO;
+    if (sysPermission.resource_name) {
+      return sysPermission.resource_name;
     }
+
+    if (typeof sysPermission.resource_id === "object") {
+      return sysPermission.resource_id;
+    }
+
+    return String(sysPermission.resource_id);
   };
 
   // Render permission type labels
@@ -503,9 +428,9 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   };
 
   const renderCodeSnippets = () => {
-    const jsCode_GET = `// Get a ${permissionType} permission by ID
+    const jsCode_GET = `// Get a system permission by ID
 const getPermission = async (permissionId) => {
-  const response = await fetch(\`/permissions/${permissionType}/get/\${permissionId}\`, {
+  const response = await fetch(\`/permissions/system/get/\${permissionId}\`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -514,9 +439,9 @@ const getPermission = async (permissionId) => {
   return response.json();
 };`;
 
-    const jsCode_UPDATE = `// Update a ${permissionType} permission
+    const jsCode_UPDATE = `// Update a system permission
 const updatePermission = async (permissionData) => {
-  const response = await fetch(\`/permissions/${permissionType}/update\`, {
+  const response = await fetch(\`/permissions/system/update\`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -526,9 +451,9 @@ const updatePermission = async (permissionData) => {
   return response.json();
 };`;
 
-    const jsCode_DELETE = `// Delete a ${permissionType} permission
+    const jsCode_DELETE = `// Delete a system permission
 const deletePermission = async (permissionId) => {
-  const response = await fetch(\`/permissions/${permissionType}/delete\`, {
+  const response = await fetch(\`/permissions/system/delete\`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -553,17 +478,17 @@ const deletePermission = async (permissionId) => {
               <CodeBlock
                 code={jsCode_GET}
                 language="javascript"
-                title={`GET ${permissionType.charAt(0).toUpperCase() + permissionType.slice(1)} Permission`}
+                title={`GET System Permission`}
               />
               <CodeBlock
                 code={jsCode_UPDATE}
                 language="javascript"
-                title={`UPDATE ${permissionType.charAt(0).toUpperCase() + permissionType.slice(1)} Permission`}
+                title={`UPDATE System Permission`}
               />
               <CodeBlock
                 code={jsCode_DELETE}
                 language="javascript"
-                title={`DELETE ${permissionType.charAt(0).toUpperCase() + permissionType.slice(1)} Permission`}
+                title={`DELETE System Permission`}
               />
             </Space>
           </Tabs.TabPane>
@@ -702,16 +627,6 @@ const deletePermission = async (permissionId) => {
                   </Checkbox.Group>
                 </Form.Item>
 
-                {permissionType === "directory" && (
-                  <Form.Item
-                    name="inheritable"
-                    label="Inherit to Child Folders/Files"
-                    valuePropName="checked"
-                  >
-                    <Switch />
-                  </Form.Item>
-                )}
-
                 <Form.Item name="dateRange" label="Active Date Range">
                   <RangePicker
                     showTime
@@ -775,39 +690,22 @@ const deletePermission = async (permissionId) => {
                       }}
                     >
                       <Space align="center" size={16}>
-                        {permissionType === "system" ? (
-                          <div
-                            style={{
-                              width: 56,
-                              height: 56,
-                              background: "#f0f5ff",
-                              borderRadius: "50%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <LockOutlined
-                              style={{ fontSize: 24, color: "#1890ff" }}
-                            />
-                          </div>
-                        ) : (
-                          <div
-                            style={{
-                              width: 56,
-                              height: 56,
-                              background: "#f6ffed",
-                              borderRadius: "50%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <FolderOutlined
-                              style={{ fontSize: 24, color: "#52c41a" }}
-                            />
-                          </div>
-                        )}
+                        <div
+                          style={{
+                            width: 56,
+                            height: 56,
+                            background: "#f0f5ff",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <LockOutlined
+                            style={{ fontSize: 24, color: "#1890ff" }}
+                          />
+                        </div>
+
                         <div
                           style={{
                             display: "flex",
@@ -828,7 +726,7 @@ const deletePermission = async (permissionId) => {
                               level={4}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {getPermissionTitle(permission, permissionType)}
+                              {getPermissionTitle(permission)}
                             </Title>
                             <TagCopy id={permission.id} />
                           </div>
@@ -955,20 +853,6 @@ const deletePermission = async (permissionId) => {
                                   />
                                 </div>
                               </div>
-
-                              {permissionType === "directory" && (
-                                <div>
-                                  <Text type="secondary">Inheritable:</Text>
-                                  <div style={{ marginTop: 4 }}>
-                                    <Tag>
-                                      {(permission as DirectoryPermissionFEO)
-                                        .inheritable
-                                        ? "Yes"
-                                        : "No"}
-                                    </Tag>
-                                  </div>
-                                </div>
-                              )}
 
                               <div>
                                 <Text type="secondary">Timeframe:</Text>

@@ -29,30 +29,21 @@ const PermissionsPage = () => {
       state.systemPermissions.permissionMap[permissionID || ""]
   );
 
-  const directoryPermission = useSelector(
-    (state: ReduxAppState) =>
-      state.directoryPermissions.permissionMap[permissionID || ""]
-  );
-
-  const permission =
-    permissionType === "system" ? systemPermission : directoryPermission;
+  const permission = systemPermission;
 
   useEffect(() => {
     if (permissionID) {
       // Try loading both types if we don't know which it is yet
-      if (!systemPermission && !directoryPermission) {
+      if (!systemPermission) {
         dispatch(getSystemPermissionAction(permissionID));
-        dispatch(getDirectoryPermissionAction(permissionID));
       }
 
       // Once we have a permission, set the type
       if (systemPermission) {
         setPermissionType("system");
-      } else if (directoryPermission) {
-        setPermissionType("directory");
       }
     }
-  }, [permissionID, systemPermission, directoryPermission]);
+  }, [permissionID, systemPermission]);
 
   if (!permission) {
     return null;
@@ -113,8 +104,6 @@ const PermissionsPage = () => {
       >
         <PermissionsTab
           permission={permission}
-          // @ts-ignore
-          permissionType={permissionType || "system"}
           onDelete={() => {
             navigate(wrapOrgCode(`/resources/permissions`));
           }}

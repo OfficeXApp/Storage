@@ -318,6 +318,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_COMMIT: {
+            console.log(`LIST_DIRECTORY_COMMIT middleware`, action);
             const response = action.payload?.ok?.data;
 
             if (response) {

@@ -25,15 +25,18 @@ import {
 import type { MenuProps } from "antd";
 import { Permission } from "@aws-sdk/client-s3";
 import dayjs from "dayjs";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   DirectoryPermissionType,
   DirectoryResourceID,
+  IRequestListDirectoryPermissions,
 } from "@officexapp/types";
 import DirectoryPermissionAddDrawer from "../../pages/PermissionsPage/directory-permission.add";
 import { LOCAL_STORAGE_DIRECTORY_PERMISSIONS_ADVANCED_OPEN } from "../../framework/identity/constants";
 import TagCopy from "../TagCopy";
+import { set } from "lodash";
+import { listDirectoryPermissionsAction } from "../../redux-offline/permissions/permissions.actions";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
@@ -79,6 +82,10 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     return permissionIDs.map((pid) => permissionMap[pid]);
   }, [permissionIDs, permissionMap]);
   console.log(`permissions`, permissions);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, [resourceID]);
 
   useEffect(() => {
     const should_default_advanced_open = localStorage.getItem(
@@ -94,19 +101,27 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
 
   useEffect(() => {
     if (permissions.length > 0) {
-      const data = permissions.map((p) => ({
-        key: p.id,
-        who: p.grantee_name || p.granted_to,
-        who_id: p.granted_to,
-        canView: p.permission_types.includes(DirectoryPermissionType.VIEW),
-        canEdit: p.permission_types.includes(DirectoryPermissionType.EDIT),
-        canDelete: p.permission_types.includes(DirectoryPermissionType.DELETE),
-        canInvite: p.permission_types.includes(DirectoryPermissionType.INVITE),
-        canUpload: p.permission_types.includes(DirectoryPermissionType.UPLOAD),
-        whenStart: p.begin_date_ms,
-        whenEnd: p.expiry_date_ms,
-        isEditing: false,
-      }));
+      const data = permissions
+        .filter((p) => p)
+        .map((p) => ({
+          key: p.id,
+          who: p.grantee_name || p.granted_to,
+          who_id: p.granted_to,
+          canView: p.permission_types.includes(DirectoryPermissionType.VIEW),
+          canEdit: p.permission_types.includes(DirectoryPermissionType.EDIT),
+          canDelete: p.permission_types.includes(
+            DirectoryPermissionType.DELETE
+          ),
+          canInvite: p.permission_types.includes(
+            DirectoryPermissionType.INVITE
+          ),
+          canUpload: p.permission_types.includes(
+            DirectoryPermissionType.UPLOAD
+          ),
+          whenStart: p.begin_date_ms,
+          whenEnd: p.expiry_date_ms,
+          isEditing: false,
+        }));
 
       setDataSource(data);
     }
@@ -489,9 +504,16 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       <DirectoryPermissionAddDrawer
         open={isAddDrawerOpen}
         onClose={() => setIsAddDrawerOpen(false)}
-        onAddPermission={(p) =>
-          console.log("directory permission to b created", p)
-        }
+        onAddPermission={(p) => {
+          setTimeout(() => {
+            const payload: IRequestListDirectoryPermissions = {
+              filters: {
+                resource_id: resourceID,
+              },
+            };
+            dispatch(listDirectoryPermissionsAction(payload));
+          }, 500);
+        }}
         resourceID={resourceID}
       />
     </Drawer>

@@ -677,9 +677,10 @@ export const directoryPermissionsReducer = (
     }
 
     case CREATE_DIRECTORY_PERMISSION_COMMIT: {
+      console.log(`CREATE_DIRECTORY_PERMISSION_COMMIT reducer`, action);
       const optimisticID = action.meta?.optimisticID;
       const newPermission = {
-        ...action.payload.ok.data,
+        ...action.payload.ok.data.permission,
         _syncSuccess: true,
         _syncConflict: false,
         _syncWarning: "",

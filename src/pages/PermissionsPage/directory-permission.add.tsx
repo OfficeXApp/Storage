@@ -924,7 +924,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         form={form}
         layout="vertical"
         initialValues={{
-          inheritable: false,
+          inheritable: true,
         }}
       >
         <div

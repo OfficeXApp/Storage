@@ -50,6 +50,7 @@ interface CanisterAdapterConfig {
 }
 
 interface MultiUploaderContextType {
+  uploadTargetDiskID: DiskID | null;
   uploadTargetDisk: DiskFEO | null;
   uploadTargetFolderID: FolderID | null;
   currentFileID: FileID | null;
@@ -92,6 +93,7 @@ interface MultiUploaderContextType {
 
 // Default context values
 const defaultContextValue: MultiUploaderContextType = {
+  uploadTargetDiskID: null,
   uploadTargetDisk: null,
   uploadTargetFolderID: null,
   currentFileID: null,
@@ -470,6 +472,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
   // Create context value
   const contextValue: MultiUploaderContextType = {
+    uploadTargetDiskID,
     uploadTargetDisk,
     uploadTargetFolderID,
     currentFileID,

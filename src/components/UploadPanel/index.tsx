@@ -45,6 +45,7 @@ const UploadPanel: React.FC<{
     currentUploads,
     clearFinishedUploads,
     progress: uploadProgress,
+    uploadTargetDiskID,
     uploadTargetDisk,
     uploadTargetFolderID,
   } = useMultiUploader();
@@ -66,7 +67,7 @@ const UploadPanel: React.FC<{
     const diskType = uploadTargetDisk
       ? (uploadTargetDisk.disk_type as DiskTypeEnum)
       : DiskTypeEnum.BrowserCache;
-    const diskID = uploadTargetDisk ? uploadTargetDisk.id : undefined;
+    const diskID = uploadTargetDisk ? uploadTargetDisk.id : uploadTargetDiskID;
 
     return {
       parentFolderID,
@@ -89,6 +90,10 @@ const UploadPanel: React.FC<{
       );
 
       const { parentFolderID, diskType, diskID } = getUploadFolderID();
+
+      console.log(`parentFolderID`, parentFolderID);
+      console.log(`diskType`, diskType);
+      console.log(`diskID`, diskID);
 
       // Create an array of file objects with generated FileIDs
       const uploadFilesArray = fileArray.map((file) => ({

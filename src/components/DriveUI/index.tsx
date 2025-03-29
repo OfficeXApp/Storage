@@ -111,6 +111,7 @@ import {
   LIST_DIRECTORY_PERMISSIONS,
   listDirectoryPermissionsAction,
 } from "../../redux-offline/permissions/permissions.actions";
+import DirectorySharingDrawer from "../DirectorySharingDrawer";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -162,11 +163,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [renamingItems, setRenamingItems] = useState<{ [key: string]: string }>(
     {}
   );
+  const [shareFolderDrawerVisible, setShareFolderDrawerVisible] =
+    useState(false);
   const [isStorjModalVisible, setIsStorjModalVisible] = useState(false);
   const [singleFile, setSingleFile] = useState<FileFEO | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
   const [isLoading, setIsLoading] = useState(true);
+
+  console.log(`currentDiskId`, currentDiskId);
+
   useEffect(() => {
     console.log(`listDirectoryResults`, listDirectoryResults);
     if (listDirectoryResults) {
@@ -260,7 +266,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         targetFolderId: folderId,
       });
     } else if (folderFileID.startsWith("FolderID_")) {
-      console.log(`we are in folder`);
+      console.log(`we are in folder`, folderFileID);
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
@@ -283,7 +289,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
     //   setIsStorjModalVisible(true);
     // }
-  }, [location, encodedPath, disks]);
+  }, [location, encodedPath, disks, currentDiskId]);
 
   const fetchFileById = (fileId: FileID) => {
     console.log("Fetching file by ID:", fileId);
@@ -379,6 +385,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         return;
       }
 
+      console.log(`fetchContent targetFolderId`, targetFolderId);
+      console.log(`currentDiskId`, currentDiskId);
+
       // We're inside a folder, so we need to fetch its contents
       if (targetFolderId) {
         const listParams: IRequestListDirectory = {
@@ -390,12 +399,26 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         setListDirectoryKey(_listDirectoryKey);
 
         // Dispatch the action to fetch the directory listing
+        console.log(
+          `shouldBehaveOfflineDiskUIIntent(currentDiskId)`,
+          shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
+        );
         dispatch(
           listDirectoryAction(
             listParams,
-            currentDisk ? shouldBehaveOfflineDiskUIIntent(currentDisk.id) : true
+            currentDiskId
+              ? shouldBehaveOfflineDiskUIIntent(currentDiskId)
+              : true
           )
         );
+
+        const payload: IRequestListDirectoryPermissions = {
+          filters: {
+            resource_id: targetFolderId as DirectoryResourceID,
+          },
+        };
+        dispatch(listDirectoryPermissionsAction(payload));
+
         // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
         return;
       }
@@ -802,7 +825,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               optimisticListDirectoryKey={listDirectoryKey}
             />
 
-            <Button type="primary">Share</Button>
+            <Button
+              onClick={() => setShareFolderDrawerVisible(true)}
+              type="primary"
+            >
+              Share
+            </Button>
           </div>
         )}
       </div>
@@ -1032,6 +1060,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           onCancel={handleStorjSettingsCancel}
         />
       </Modal>
+
+      {currentFolderId && (
+        <DirectorySharingDrawer
+          open={shareFolderDrawerVisible}
+          onClose={() => setShareFolderDrawerVisible(false)}
+          resourceID={currentFolderId as DirectoryResourceID}
+        />
+      )}
     </div>
   );
 };

@@ -114,14 +114,10 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
   const currentAPIKeyRef = useRef(currentAPIKey);
 
   useEffect(() => {
-    console.log(`currentAPIKEy`, currentAPIKey);
     currentOrgRef.current = currentOrg;
     currentProfileRef.current = currentProfile;
     currentAPIKeyRef.current = currentAPIKey;
   }, [currentOrg, currentProfile, currentAPIKey]);
-
-  console.log(`--outside-- ${currentProfile?.nickname}`, currentProfile);
-  console.log(`--outside--`, atob(currentAPIKey?.value || ""));
 
   // Create or get a store for a specific organization
   const getOrCreateStore = useCallback(
@@ -177,19 +173,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         if (!authToken) {
           throw new Error("Failed to obtain authentication token");
         }
-        console.log(
-          `currentOrg = ${currentOrgRef.current.nickname}`,
-          currentOrgRef.current
-        );
-        console.log(
-          `currentProfile = ${currentProfileRef.current.nickname}`,
-          currentProfileRef.current
-        );
-        console.log(`currentAPIKey =>`, currentAPIKeyRef.current);
-        console.log(`authToken`, atob(authToken));
-
-        console.log(`currentOrg REF = `, currentOrgRef.current);
-        console.log(`currentProfile REF = `, currentProfileRef.current);
 
         // Configure fetch options with fresh auth token
         const fetchOptions: RequestInit = {

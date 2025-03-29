@@ -31,9 +31,6 @@ const PermissionsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const [permissionType, setPermissionType] = useState<"system" | "directory">(
-    "system"
-  );
   const { wrapOrgCode } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
@@ -72,13 +69,8 @@ const PermissionsPage: React.FC = () => {
 
   // Function to handle clicking on a permission
   const handleClickContentTab = useCallback(
-    (
-      permission: SystemPermissionFE | DirectoryPermissionFE,
-      type: "system" | "directory",
-      focus_tab = false
-    ) => {
+    (permission: SystemPermissionFE, focus_tab = false) => {
       setLastClickedId(permission.id);
-      setPermissionType(type);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
       console.log("Current tabItems via ref:", currentTabItems);
@@ -101,10 +93,7 @@ const PermissionsPage: React.FC = () => {
         setTabItems(updatedTabs);
       } else {
         // Get label based on permission type
-        const label =
-          type === "system"
-            ? `📦 ${(permission as SystemPermissionFE).resource_name || permission.resource_id.slice(0, 12)}...`
-            : `📂 ${(permission as DirectoryPermissionFE).resource_path || "Unknown"}`;
+        const label = `${(permission as SystemPermissionFE).resource_name || permission.resource_id.slice(0, 12)}...`;
 
         // Create new tab
         const newTab: TabItem = {
@@ -113,7 +102,6 @@ const PermissionsPage: React.FC = () => {
           children: (
             <PermissionTab
               permission={permission}
-              permissionType={type}
               onDelete={handleDeletionCloseTabs}
             />
           ),
@@ -136,9 +124,7 @@ const PermissionsPage: React.FC = () => {
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (
-    permissionID: SystemPermissionID | DirectoryPermissionID
-  ) => {
+  const handleDeletionCloseTabs = (permissionID: SystemPermissionID) => {
     setActiveKey("list");
     const updatedTabs = tabItems.filter((item) => item.key !== permissionID);
     setTabItems(updatedTabs);

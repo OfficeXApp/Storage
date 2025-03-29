@@ -193,7 +193,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
   useEffect(() => {
     const pathParts = window.location.pathname.split("/").filter(Boolean);
-    console.log(`???pathParts`, pathParts);
+
     if (pathParts.includes("drive")) {
       if (pathParts.length >= 4) {
         // We're at /drive/diskID or deeper
@@ -205,7 +205,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
           const resourceId = pathParts[4];
 
           if (resourceId && resourceId.startsWith("FolderID_")) {
-            console.log(`setting the parent folder`, resourceId);
+            // console.log(`setting the parent folder`, resourceId);
             setUploadTargetFolderID(resourceId);
             setCurrentFileID(null);
           } else if (resourceId && resourceId.startsWith("FileID_")) {
@@ -231,7 +231,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   }, [window.location.pathname, disks]);
 
   const registerDefaultAdapters = async () => {
-    console.log(`registerDefaultAdapters...`);
+    // console.log(`registerDefaultAdapters...`);
     if (
       !uploadManagerRef.current ||
       !isInitialized ||
@@ -247,7 +247,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       const registeredAdapters =
         uploadManagerRef.current.getRegisteredAdapters();
 
-      console.log(`Registered adapters`, registeredAdapters);
+      // console.log(`Registered adapters`, registeredAdapters);
 
       const registeredDiskIds = new Set(
         registeredAdapters.map((adapter) => adapter.diskID)
@@ -369,13 +369,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   };
 
   useEffect(() => {
-    console.log(`refresh--`);
-    console.log(`currentProfile`, currentProfile);
-    console.log(`currentOrg`, currentOrg);
-    console.log(`isInitialized`, isInitialized);
-    console.log(`disks`, disks);
     if (currentProfile && currentOrg && isInitialized && disks.length > 0) {
-      console.log("registering default adapters...");
+      // console.log("registering default adapters...");
       registerDefaultAdapters();
     }
   }, [currentProfile, currentOrg, isInitialized, disks]);
@@ -393,7 +388,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
     console.log(`Initializing upload manager`);
     try {
       // Create new upload manager if it doesn't exist
-      console.log(`uploadManagerRef`, uploadManagerRef.current);
       if (!uploadManagerRef.current) {
         // console.log(`Creating new upload manager`);
         uploadManagerRef.current = new UploadManager(

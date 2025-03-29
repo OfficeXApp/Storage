@@ -75,6 +75,7 @@ import {
   FolderRecord,
   ICPPrincipalString,
   IRequestListDirectory,
+  IRequestListDirectoryPermissions,
   IRequestListDisks,
   SortDirection,
   UserID,
@@ -106,6 +107,10 @@ import {
   FolderFEO,
   shouldBehaveOfflineDiskUIIntent,
 } from "../../redux-offline/directory/directory.reducer";
+import {
+  LIST_DIRECTORY_PERMISSIONS,
+  listDirectoryPermissionsAction,
+} from "../../redux-offline/permissions/permissions.actions";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -162,7 +167,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     console.log(`listDirectoryResults`, listDirectoryResults);
     if (listDirectoryResults) {
@@ -187,19 +191,25 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // Show notification for Web3Storj free trial
   useEffect(() => {
-    const path = encodedPath ? decodeURIComponent(encodedPath) : "";
-    const pathParts = path.split("/").filter(Boolean);
+    // const path = encodedPath ? decodeURIComponent(encodedPath) : "";
+    const pathParts = location.pathname.split("/").filter(Boolean);
+
+    if (pathParts.length < 3) {
+      return;
+    }
 
     // console.log("Path parts:", pathParts);
-    const diskID = pathParts[0];
-    const folderFileID = pathParts[1];
+    const diskID = pathParts[3];
+    const folderFileID = pathParts[4];
 
     setCurrentDiskId(diskID);
 
     console.log(`====pathParts`, pathParts);
     console.log(`====location`, location);
+    console.log(`====folderFileID`, folderFileID);
 
-    if (location.pathname === "/drive" || pathParts.length === 0) {
+    if (pathParts[2] === "drive" && pathParts.length === 3) {
+      console.log(`we are in root`);
       setListDirectoryKey("");
       setCurrentFolderId(null);
       setCurrentFileId(null);
@@ -208,6 +218,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       fetchContent({});
       setSingleFile(null);
     } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
+      console.log(`we are in public sharing`);
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
         freeTrialStorjCreds.access_key;
@@ -249,6 +260,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         targetFolderId: folderId,
       });
     } else if (folderFileID.startsWith("FolderID_")) {
+      console.log(`we are in folder`);
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
@@ -258,11 +270,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         targetFolderId: folderId,
       });
     } else if (folderFileID.startsWith("FileID_")) {
+      console.log(`we are in file`);
       let fileId = folderFileID;
       setCurrentFolderId(null);
       setCurrentFileId(fileId);
       fetchFileById(fileId);
       setIsLoading(true);
+    } else {
+      console.log(`we nowhere known`);
     }
 
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
@@ -282,7 +297,19 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       };
 
       // Dispatch the action
-      dispatch(getFileAction(getAction));
+      dispatch(
+        getFileAction(
+          getAction,
+          shouldBehaveOfflineDiskUIIntent(currentDisk?.id || "")
+        )
+      );
+
+      const payload: IRequestListDirectoryPermissions = {
+        filters: {
+          resource_id: fileId as DirectoryResourceID,
+        },
+      };
+      dispatch(listDirectoryPermissionsAction(payload));
 
       // We'll rely on the useEffect that watches filesFromRedux to set the file
       // when it arrives from the Redux store after the action completes
@@ -767,13 +794,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         }}
       >
         <Breadcrumb items={breadcrumbItems} />
-        <div style={{ display: "flex", flexDirection: "row" }}>
-          <ActionMenuButton
-            isBigButton={false}
-            toggleUploadPanel={toggleUploadPanel}
-            optimisticListDirectoryKey={listDirectoryKey}
-          />
-        </div>
+        {currentFolderId && !currentFileId && (
+          <div style={{ display: "flex", flexDirection: "row", gap: 8 }}>
+            <ActionMenuButton
+              isBigButton={false}
+              toggleUploadPanel={toggleUploadPanel}
+              optimisticListDirectoryKey={listDirectoryKey}
+            />
+
+            <Button type="primary">Share</Button>
+          </div>
+        )}
       </div>
       <div
         style={{
@@ -783,82 +814,102 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         }}
       >
         <div style={{ flexGrow: 1, padding: 16, width: "100%" }}>
-          <div
-            className="invisible-scrollbar"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: 16,
-              overflowX: "scroll",
-            }}
-          >
+          {currentFolderId && !currentFileId ? (
+            <div
+              className="invisible-scrollbar"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 16,
+                overflowX: "scroll",
+              }}
+            >
+              <Button
+                onClick={handleBack}
+                type="link"
+                icon={<ArrowLeftOutlined />}
+                style={{
+                  padding: 0,
+                  color: "inherit",
+                  textDecoration: "none",
+                  margin: "0px 8px 0px 0px",
+                }}
+              >
+                Back
+              </Button>
+
+              <div
+                style={{ display: "flex", gap: "20px", alignItems: "center" }}
+              >
+                <Dropdown menu={{ items, onClick }}>
+                  <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <Space>
+                      <SortAscendingOutlined />
+                      Type
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Dropdown>
+
+                <Dropdown menu={{ items, onClick }}>
+                  <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <Space>
+                      <TeamOutlined />
+                      People
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Dropdown>
+
+                <Dropdown menu={{ items, onClick }}>
+                  <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <Space>
+                      <ClockCircleOutlined />
+                      Modified
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Dropdown>
+
+                <Dropdown menu={{ items, onClick }}>
+                  <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <Space>
+                      <BarsOutlined />
+                      Row View
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Dropdown>
+              </div>
+            </div>
+          ) : (
             <Button
               onClick={handleBack}
+              size="small"
               type="link"
               icon={<ArrowLeftOutlined />}
               style={{
                 padding: 0,
                 color: "inherit",
                 textDecoration: "none",
-                margin: "0px 8px 0px 0px",
+                margin: "0px 8px 0px 24px",
               }}
             >
               Back
             </Button>
-            <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-              <Dropdown menu={{ items, onClick }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <SortAscendingOutlined />
-                    Type
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items, onClick }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <TeamOutlined />
-                    People
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items, onClick }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <ClockCircleOutlined />
-                    Modified
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-
-              <Dropdown menu={{ items, onClick }}>
-                <a
-                  onClick={(e) => e.preventDefault()}
-                  style={{ color: "rgba(0,0,0,0.4)" }}
-                >
-                  <Space>
-                    <BarsOutlined />
-                    Row View
-                    <DownOutlined />
-                  </Space>
-                </a>
-              </Dropdown>
-            </div>
-          </div>
+          )}
           {is404NotFound ? (
             <div style={{ background: "rgba(0,0,0,0.02)" }}>
               <Result

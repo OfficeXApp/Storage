@@ -722,6 +722,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             const listDirectoryKey = action.meta?.listDirectoryKey;
             let realFolder: FolderRecordFE | undefined;
 
+            console.log(`CREATE_FOLDER_COMMIT optimistic`, action);
+
             // Extract the folder from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.folder) {
               realFolder = action.payload.ok.data.result.folder;
@@ -797,6 +799,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_FOLDER_ROLLBACK: {
+            console.log(`CREATE_FOLDER_ROLLBACK optimistic`, action);
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();

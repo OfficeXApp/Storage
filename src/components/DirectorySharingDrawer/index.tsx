@@ -12,6 +12,7 @@ import {
   message,
   Typography,
   Popconfirm,
+  Popover,
 } from "antd";
 import {
   CheckOutlined,
@@ -117,8 +118,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         .filter((p) => p)
         .map((p) => ({
           key: p.id,
-          who: p.grantee_name || p.granted_to,
-          who_id: p.granted_to,
+          who: p.grantee_name || p.granted_to || "",
+          who_id: p.granted_to || "",
           canView: p.permission_types.includes(DirectoryPermissionType.VIEW),
           canEdit: p.permission_types.includes(DirectoryPermissionType.EDIT),
           canDelete: p.permission_types.includes(
@@ -257,7 +258,10 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       width: "45%",
       render: (text: string, record: PermissionRecord) => (
         <span style={{ fontSize: "16px" }}>
-          {text} <TagCopy id={record.who_id} />
+          <Popover content={record.original.note || "Add Custom Notes"}>
+            {text}
+          </Popover>
+          <TagCopy id={record.who_id} />
         </span>
       ),
     },

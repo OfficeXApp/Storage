@@ -561,6 +561,7 @@ export const directoryReducer = (
 
     // ------------------------------ CREATE FOLDER --------------------------------- //
     case CREATE_FOLDER: {
+      console.log(`CREATE_FOLDER reducer`, action);
       const optimisticFolder = action.optimistic;
       const listDirectoryKey = action.meta?.listDirectoryKey;
 
@@ -601,6 +602,7 @@ export const directoryReducer = (
     }
 
     case CREATE_FOLDER_COMMIT: {
+      console.log(`CREATE_FOLDER_COMMIT reducer`, action);
       const optimisticID = action.meta?.optimisticID;
       const listDirectoryKey = action.meta?.listDirectoryKey;
       let realFolder;
@@ -672,6 +674,7 @@ export const directoryReducer = (
     }
 
     case CREATE_FOLDER_ROLLBACK: {
+      console.log(`CREATE_FOLDER_ROLLBACK reducer`, action);
       if (!action.payload.response) return state;
 
       const optimisticID = action.meta?.optimisticID;

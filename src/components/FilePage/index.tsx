@@ -45,6 +45,7 @@ interface FilePreviewProps {
 const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const screenType = useScreenType();
   const isMobile = screenType.isMobile;
+  const [lastRememberedFile, setLastRememberedFile] = useState("");
   const [fileName, setFileName] = useState(file.name || "Unknown File");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -111,8 +112,11 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   };
 
   useEffect(() => {
-    setFileUrl("");
-  }, [file]);
+    if (file.id !== lastRememberedFile) {
+      setLastRememberedFile(file.id);
+      setFileUrl("");
+    }
+  }, [file.id]);
 
   useEffect(() => {
     if (currentOrg && currentProfile) {

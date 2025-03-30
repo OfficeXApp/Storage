@@ -2,9 +2,12 @@
 
 ## Overview
 
-- [🔵] Share folder & guests can upload properly
+- [🔵] Implement magic link directory permission
 - [🔵] Invite system with smooth onboarding & sharing (1-2 days)
+- [ ] Implement magic link groups
+- [ ] Implement password directory permission
 - [x] Invite contact with redeem feature
+- [x] Share folder & guests can upload properly
 
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)

@@ -35,6 +35,10 @@ import {
   DatabaseOutlined,
   KeyOutlined,
   SolutionOutlined,
+  LinkOutlined,
+  BarcodeOutlined,
+  GlobalOutlined,
+  UnlockOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -100,11 +104,11 @@ const DirectoryPermissionAddDrawer: React.FC<
     (state: ReduxAppState) => state.contacts.contacts
   );
   const groups = useSelector((state: ReduxAppState) => state.groups.groups);
-
+  const [isMagicLink, setIsMagicLink] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [resourceType, setResourceType] = useState<"file" | "folder">("folder");
-  const [granteeTab, setGranteeTab] = useState<string>("contacts");
+  const [granteeTab, setGranteeTab] = useState<string>("magiclink");
   const targetResourceId = resourceID;
   const [granteeId, setGranteeId] = useState("");
   const [inheritable, setInheritable] = useState(true);
@@ -246,11 +250,19 @@ const DirectoryPermissionAddDrawer: React.FC<
       content: renderAdvancedOptions,
       isValid: () => true, // Advanced options are optional
     },
+    {
+      title: "Finish",
+      icon: <LinkOutlined />,
+      description: "Share permission",
+      content: renderShareStep,
+      isValid: () => true, // Share step is always valid
+    },
   ];
 
   // Check if a step is valid
   const isStepValid = (stepIndex: number) => {
     if (preExistingStateForEdit && stepIndex === 0) return true;
+    if (stepIndex === 0 && isMagicLink) return true;
     return steps[stepIndex].isValid();
   };
 
@@ -259,7 +271,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     try {
       debugFormValues(); // For debugging
 
-      const step0Valid = isStepValid(0);
+      const step0Valid = isMagicLink || isStepValid(0);
       const step1Valid = permissionTypes.length > 0;
       const step2Valid = isStepValid(2);
 
@@ -297,7 +309,8 @@ const DirectoryPermissionAddDrawer: React.FC<
         setDateRange(null);
         setResourceType("folder");
         setSelectedGrantee(null);
-        setGranteeTab("contacts");
+        setGranteeTab("magiclink");
+        setIsMagicLink(true);
         setUserIdInput("");
         setContactSearchQuery("");
         setGroupSearchQuery("");
@@ -363,7 +376,16 @@ const DirectoryPermissionAddDrawer: React.FC<
   };
 
   // Navigate to a specific step when clicking on step item
+  // Navigate to a specific step when clicking on step item
   const goToStep = (stepIndex: number) => {
+    // Disable clicking steps when on Share step
+    if (currentStep === steps.length - 1) {
+      return;
+    }
+    if (stepIndex === 3) {
+      return;
+    }
+
     // Only allow going to a step if all previous steps are valid
     const canGoToStep = Array.from({ length: stepIndex }, (_, i) => i).every(
       (i) => isStepValid(i)
@@ -412,6 +434,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     });
     form.setFieldsValue({ granteeId: contactId });
     checkFormValidity();
+    setIsMagicLink(false);
   };
 
   // Handle group selection
@@ -423,6 +446,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     });
     form.setFieldsValue({ granteeId: groupId });
     checkFormValidity();
+    setIsMagicLink(false);
   };
 
   // Handle userID input
@@ -439,6 +463,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         validated: true,
       });
       form.setFieldsValue({ granteeId: extractedId });
+      setIsMagicLink(false);
     } else {
       setSelectedGrantee(null);
       form.setFieldsValue({ granteeId: undefined });
@@ -534,21 +559,15 @@ const DirectoryPermissionAddDrawer: React.FC<
             ? "Updating directory permission..."
             : "Queued directory permission update for when you're back online"
         );
-        onClose();
         setLoading(false);
       } else {
         message.info("No changes detected");
       }
     } else {
-      if (!selectedGrantee?.id) {
-        message.error("Please select a grantee");
-        return;
-      }
       // Create directory permission
       const directoryPermissionData: IRequestCreateDirectoryPermission = {
         id: GenerateID.DirectoryPermission(),
         resource_id: resourceID,
-        granted_to: selectedGrantee.id,
         permission_types: permissionTypes,
         begin_date_ms: beginDate,
         expiry_date_ms: expiryDate,
@@ -557,6 +576,13 @@ const DirectoryPermissionAddDrawer: React.FC<
         external_id: externalId,
         external_payload: externalPayload,
       };
+      if (!isMagicLink) {
+        if (!selectedGrantee?.id) {
+          message.error("Please select a grantee");
+          return;
+        }
+        directoryPermissionData.granted_to = selectedGrantee.id;
+      }
 
       console.log(`directoryPermissionData----`, directoryPermissionData);
 
@@ -569,7 +595,6 @@ const DirectoryPermissionAddDrawer: React.FC<
           : "Queued directory permission creation for when you're back online"
       );
 
-      onClose();
       setLoading(false);
     }
   };
@@ -596,7 +621,62 @@ const DirectoryPermissionAddDrawer: React.FC<
             <TagCopy id={preExistingStateForEdit.granted_to} />
           </div>
         ) : (
-          <Tabs activeKey={granteeTab} onChange={handleGranteeTabChange}>
+          <Tabs
+            activeKey={granteeTab}
+            onChange={handleGranteeTabChange}
+            style={{ maxWidth: "400px" }}
+          >
+            <TabPane
+              tab={
+                <span>
+                  <GlobalOutlined /> Public
+                </span>
+              }
+              key="public"
+            >
+              <Space>
+                <Switch
+                  checked={isMagicLink}
+                  onChange={(checked) => {
+                    setIsMagicLink(checked);
+                    if (checked) {
+                      setSelectedGrantee(null);
+                    }
+                    checkFormValidity();
+                  }}
+                />
+                <span>Public to Everyone</span>
+              </Space>
+              <p style={{ color: "rgba(0,0,0,0.4)" }}>
+                Open to entire internet. Be careful setting to public.
+              </p>
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
+                  <LinkOutlined /> Magic Link
+                </span>
+              }
+              key="magiclink"
+            >
+              <Space>
+                <Switch
+                  checked={isMagicLink}
+                  onChange={(checked) => {
+                    setIsMagicLink(checked);
+                    if (checked) {
+                      setSelectedGrantee(null);
+                    }
+                    checkFormValidity();
+                  }}
+                />
+                <span>Use Magic Link</span>
+              </Space>
+              <p style={{ color: "rgba(0,0,0,0.4)" }}>
+                Simply share this one-time magic link with anyone. Recipient
+                will attach their profile to it. Convinient but less secure.
+              </p>
+            </TabPane>
             <TabPane
               tab={
                 <span>
@@ -732,7 +812,7 @@ const DirectoryPermissionAddDrawer: React.FC<
             <TabPane
               tab={
                 <span>
-                  <UserOutlined /> By UserID
+                  <BarcodeOutlined /> Address
                 </span>
               }
               key="userid"
@@ -755,6 +835,18 @@ const DirectoryPermissionAddDrawer: React.FC<
                     Valid User ID: {extractedUserId}
                   </div>
                 )}
+              </Form.Item>
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
+                  <UnlockOutlined /> Password
+                </span>
+              }
+              key="password"
+            >
+              <Form.Item>
+                <Input.Password placeholder="Password" />
               </Form.Item>
             </TabPane>
           </Tabs>
@@ -958,9 +1050,49 @@ const DirectoryPermissionAddDrawer: React.FC<
     );
   }
 
+  function renderShareStep() {
+    return (
+      <div style={{ padding: "12px 0" }}>
+        <div style={{ marginBottom: 24 }}>
+          <label>
+            <Tooltip title="Copy this link to share">
+              <Space>
+                Share This Link <InfoCircleOutlined style={{ color: "#aaa" }} />
+              </Space>
+            </Tooltip>
+          </label>
+          <div style={{ marginTop: 8 }}>
+            <Input
+              value={window.location.href}
+              readOnly
+              suffix={
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    message.success("Link copied to clipboard");
+                  }}
+                >
+                  Copy
+                </Button>
+              }
+            />
+          </div>
+          <p style={{ color: "rgba(0,0,0,0.3)" }}>
+            Simply share this one-time magic link with anyone. Recipient will
+            attach their profile to it. Convinient but be careful sharing.
+            <br />
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Get the next button text based on current step
   const getNextButtonText = () => {
     if (currentStep === steps.length - 1) {
+      return "Close";
+    } else if (currentStep === steps.length - 2) {
       return preExistingStateForEdit ? "Update Permission" : "Add Permission";
     }
     return "Next";
@@ -974,7 +1106,12 @@ const DirectoryPermissionAddDrawer: React.FC<
   // Handle next button click
   const handleNextButtonClick = () => {
     if (currentStep === steps.length - 1) {
+      // At Share step, close the drawer and call callback
+      onClose();
+      onSubmitCallback();
+    } else if (currentStep === steps.length - 2) {
       handleAddPermission();
+      nextStep();
     } else {
       nextStep();
     }
@@ -1034,20 +1171,22 @@ const DirectoryPermissionAddDrawer: React.FC<
       width={700}
       footer={
         <div style={{ textAlign: "right" }}>
-          {currentStep > 0 && (
+          {currentStep > 0 && currentStep < steps.length - 1 && (
+            <Button onClick={onClose} style={{ marginRight: 8 }}>
+              Cancel
+            </Button>
+          )}
+          {currentStep > 0 && currentStep < steps.length - 1 && (
             <Button onClick={prevStep} style={{ marginRight: 8 }}>
               Previous
             </Button>
           )}
-          <Button onClick={onClose} style={{ marginRight: 8 }}>
-            Cancel
-          </Button>
           <Button
             onClick={handleNextButtonClick}
             type="primary"
             loading={loading}
             disabled={
-              (currentStep === steps.length - 1 && !formIsValid) ||
+              (currentStep === steps.length - 2 && !formIsValid) ||
               !isStepValid(currentStep) ||
               loading
             }

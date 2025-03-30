@@ -135,6 +135,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
             name: newFolderName,
             labels: [],
             disk_id: uploadTargetDisk.id,
+            disk_type: uploadTargetDisk.disk_type,
             parent_folder_uuid: uploadTargetFolderID,
           },
         };

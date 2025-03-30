@@ -2,13 +2,14 @@
 
 ## Overview
 
+- [🔵] Share folder & guests can upload properly
 - [🔵] Invite system with smooth onboarding & sharing (1-2 days)
 - [x] Invite contact with redeem feature
 
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
 - [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
-
+- [ ] Add 404 Pages
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 
 1. Directory navigation & interaction (1-2 days)

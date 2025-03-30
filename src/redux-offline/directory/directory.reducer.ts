@@ -178,12 +178,20 @@ export const directoryReducer = (
     case LIST_DIRECTORY: {
       console.log("LIST_DIRECTORY reducer", action);
       let listDirectoryKey = action.meta?.listDirectoryKey;
+
+      const shouldBehaveOfflineDisk =
+        action.meta.offline.effect.headers.shouldBehaveOfflineDiskUI;
+      let hasExistingResults = state.listingDataMap[listDirectoryKey];
+
       if (action.optimistic) {
         return {
           ...state,
           listingDataMap: {
             ...state.listingDataMap,
-            [listDirectoryKey]: action.optimistic,
+            [listDirectoryKey]: {
+              ...action.optimistic,
+              isLoading: !shouldBehaveOfflineDisk && !hasExistingResults,
+            },
           },
         };
       }
@@ -265,6 +273,8 @@ export const directoryReducer = (
     }
 
     case LIST_DIRECTORY_ROLLBACK: {
+      console.log(`LIST_DIRECTORY_ROLLBACK reducer`, action);
+      console.log(`state`, state);
       if (!action.payload.response) return state;
       let errorMessage = "Failed to list directory contents";
 
@@ -277,8 +287,18 @@ export const directoryReducer = (
         console.error("Error parsing error response:", e);
       }
 
+      let listDirectoryKey = action.meta?.listDirectoryKey;
+
       return {
         ...state,
+        listingDataMap: {
+          ...state.listingDataMap,
+          [listDirectoryKey]: {
+            ...state.listingDataMap[listDirectoryKey],
+            isLoading: false,
+            error: errorMessage,
+          },
+        },
         loading: false,
         error: errorMessage,
       };
@@ -310,6 +330,7 @@ export const directoryReducer = (
       let realFile;
 
       // Extract file from payload - handle different response structures
+      // this hydra mutant if statements is AI slop that needs to be cleaned up
       if (action.payload?.ok?.data?.result?.file) {
         realFile = action.payload.ok.data.result.file;
       } else if (
@@ -318,11 +339,19 @@ export const directoryReducer = (
         realFile = action.payload.ok.data.actions[0].response.result.file;
       } else if (action.payload?.ok?.data?.items?.[0]) {
         realFile = action.payload.ok.data.items[0];
+      } else if (action.payload[0].response.result) {
+        realFile = action.payload[0].response.result;
       }
-
+      console.log(`GET_FILE_COMMIT realFile`, realFile);
       if (!realFile) {
+        const newFileMap = state.fileMap;
+        delete newFileMap[optimisticID];
         return {
           ...state,
+          files: state.files.filter((file) => {
+            return file.id !== optimisticID;
+          }),
+          fileMap: newFileMap,
           loading: false,
         };
       }

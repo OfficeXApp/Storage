@@ -108,6 +108,8 @@ export const listDirectoryAction = (
   // Generate a unique ID for this request
   const listDirectoryKey = generateListDirectoryKey(payload);
 
+  console.log(`shouldBehaveOfflineDiskUI`, shouldBehaveOfflineDiskUI);
+
   return {
     type: LIST_DIRECTORY,
     payload,

@@ -42,28 +42,58 @@ import {
   GranteeID,
   IRequestCreateDirectoryPermission,
   DirectoryPermissionType,
+  IRequestUpdateDirectoryPermission,
 } from "@officexapp/types";
 import { GenerateID } from "@officexapp/types";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { createDirectoryPermissionAction } from "../../redux-offline/permissions/permissions.actions";
+import {
+  createDirectoryPermissionAction,
+  updateDirectoryPermissionAction,
+} from "../../redux-offline/permissions/permissions.actions";
 import dayjs from "dayjs";
 import { shortenAddress } from "../../framework/identity/constants";
+import TagCopy from "../TagCopy";
+import { areArraysEqual } from "../../api/helpers";
 
 const { Text } = Typography;
 const { TextArea } = Input;
 const { TabPane } = Tabs;
 const { RangePicker } = DatePicker;
 
+export interface PreExistingStateForEdit {
+  id: string; // The permission ID
+  resource_id: DirectoryResourceID; // The resource ID
+  grantee_name: string; // The grantee's name
+  granted_to: GranteeID; // The grantee's ID
+  grantee_type: "contact" | "group" | "userId"; // Type of grantee
+  permission_types: DirectoryPermissionType[]; // Array of permission types
+  begin_date_ms: number; // Begin date timestamp
+  expiry_date_ms: number; // Expiry date timestamp
+  inheritable: boolean; // Whether permission is inheritable
+  note: string; // Optional notes
+  external_id?: string; // Optional external ID
+  external_payload?: string; // Optional external payload
+}
+
 interface DirectoryPermissionAddDrawerProps {
   open: boolean;
   onClose: () => void;
-  onAddPermission: (permissionData: IRequestCreateDirectoryPermission) => void;
+  onSubmitCallback: () => void;
   resourceID: DirectoryResourceID;
+  preExistingStateForEdit?: PreExistingStateForEdit;
 }
 
 const DirectoryPermissionAddDrawer: React.FC<
   DirectoryPermissionAddDrawerProps
-> = ({ open, onClose, onAddPermission, resourceID }) => {
+> = ({
+  open,
+  onClose,
+  onSubmitCallback,
+  resourceID,
+  preExistingStateForEdit,
+}) => {
+  console.log(`preExistingStateForEdit`, preExistingStateForEdit);
+
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const contacts = useSelector(
@@ -76,9 +106,19 @@ const DirectoryPermissionAddDrawer: React.FC<
   const [resourceType, setResourceType] = useState<"file" | "folder">("folder");
   const [granteeTab, setGranteeTab] = useState<string>("contacts");
   const targetResourceId = resourceID;
+  const [granteeId, setGranteeId] = useState("");
+  const [inheritable, setInheritable] = useState(true);
+  const [note, setNote] = useState("");
+  const [externalId, setExternalId] = useState("");
+  const [externalPayload, setExternalPayload] = useState("");
+  const [dateRange, setDateRange] = useState<
+    [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
+  >(null);
 
   // Current step state
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(
+    preExistingStateForEdit ? 1 : 0
+  );
 
   // Responsive design state
   const [isMobile, setIsMobile] = useState(false);
@@ -145,6 +185,42 @@ const DirectoryPermissionAddDrawer: React.FC<
     }, 0);
   };
 
+  // Add this useEffect hook to initialize edit mode
+  useEffect(() => {
+    if (preExistingStateForEdit && open) {
+      // Set all state values directly
+      setGranteeId(preExistingStateForEdit.granted_to);
+      setInheritable(preExistingStateForEdit.inheritable);
+      setNote(preExistingStateForEdit.note || "");
+      setExternalId(preExistingStateForEdit.external_id || "");
+      setExternalPayload(preExistingStateForEdit.external_payload || "");
+      setPermissionTypes(preExistingStateForEdit.permission_types);
+
+      // Set selected grantee
+      setSelectedGrantee({
+        id: preExistingStateForEdit.granted_to,
+        type: preExistingStateForEdit.grantee_type,
+        validated: true,
+      });
+
+      // Set date range if provided
+      if (
+        preExistingStateForEdit.begin_date_ms > 0 &&
+        preExistingStateForEdit.expiry_date_ms > 0
+      ) {
+        setDateRange([
+          dayjs(preExistingStateForEdit.begin_date_ms),
+          dayjs(preExistingStateForEdit.expiry_date_ms),
+        ]);
+      }
+
+      // Check form validity after initialization
+      setTimeout(() => {
+        checkFormValidity();
+      }, 0);
+    }
+  }, [preExistingStateForEdit, open]);
+
   // Define steps content and validation requirements
   const steps = [
     {
@@ -174,6 +250,7 @@ const DirectoryPermissionAddDrawer: React.FC<
 
   // Check if a step is valid
   const isStepValid = (stepIndex: number) => {
+    if (preExistingStateForEdit && stepIndex === 0) return true;
     return steps[stepIndex].isValid();
   };
 
@@ -210,20 +287,28 @@ const DirectoryPermissionAddDrawer: React.FC<
   // Reset form when drawer opens
   useEffect(() => {
     if (open) {
-      form.resetFields();
-      setResourceType("folder");
-      setSelectedGrantee(null);
-      setGranteeTab("contacts");
-      setUserIdInput("");
-      setContactSearchQuery("");
-      setGroupSearchQuery("");
-      setIsUserIdValid(false);
-      setExtractedUserId("");
-      setPermissionTypes([DirectoryPermissionType.VIEW]);
-      setCurrentStep(0);
+      if (!preExistingStateForEdit) {
+        // Only reset if not in edit mode
+        setGranteeId("");
+        setInheritable(true);
+        setNote("");
+        setExternalId("");
+        setExternalPayload("");
+        setDateRange(null);
+        setResourceType("folder");
+        setSelectedGrantee(null);
+        setGranteeTab("contacts");
+        setUserIdInput("");
+        setContactSearchQuery("");
+        setGroupSearchQuery("");
+        setIsUserIdValid(false);
+        setExtractedUserId("");
+        setPermissionTypes([DirectoryPermissionType.VIEW]);
+      }
+      setCurrentStep(preExistingStateForEdit ? 1 : 0);
       checkFormValidity();
     }
-  }, [open, form]);
+  }, [open, preExistingStateForEdit]);
 
   // Check form validity when relevant state changes
   useEffect(() => {
@@ -378,65 +463,120 @@ const DirectoryPermissionAddDrawer: React.FC<
 
   // Handle form submission
   const handleAddPermission = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        if (!selectedGrantee?.id) {
-          message.error("Please select a grantee");
-          return;
-        }
+    setLoading(true);
 
-        console.log(`values----`, values);
+    const now = dayjs().valueOf();
+    let beginDate = now;
+    let expiryDate = -1; // Never expires by default
 
-        setLoading(true);
+    if (dateRange && dateRange.length === 2 && dateRange[0] && dateRange[1]) {
+      beginDate = dateRange[0].valueOf();
+      expiryDate = dateRange[1].valueOf();
+    }
 
-        const now = dayjs().valueOf();
-        let beginDate = now;
-        let expiryDate = -1; // Never expires by default
+    if (preExistingStateForEdit) {
+      // We're in edit mode - only include fields that changed
+      const updatePayload: IRequestUpdateDirectoryPermission = {
+        id: preExistingStateForEdit.id,
+      };
 
-        if (values.dateRange && values.dateRange.length === 2) {
-          beginDate = values.dateRange[0].valueOf();
-          expiryDate = values.dateRange[1].valueOf();
-        }
+      // Check if permission_types changed
+      const hasPermissionTypesChanged = !areArraysEqual(
+        permissionTypes,
+        preExistingStateForEdit.permission_types
+      );
 
-        // Create directory permission
-        const directoryPermissionData: IRequestCreateDirectoryPermission = {
-          id: GenerateID.DirectoryPermission(),
-          resource_id: resourceID,
-          granted_to: selectedGrantee.id,
-          permission_types: permissionTypes,
-          begin_date_ms: beginDate,
-          expiry_date_ms: expiryDate,
-          inheritable: values.inheritable || false,
-          note: values.note || "",
-          external_id: values.externalId,
-          external_payload: values.externalPayload,
-        };
+      if (hasPermissionTypesChanged) {
+        updatePayload.permission_types = permissionTypes;
+      }
 
-        console.log(`directoryPermissionData----`, directoryPermissionData);
+      // Check if dates changed
+      const hasBeginDateChanged =
+        beginDate !== preExistingStateForEdit.begin_date_ms;
+      const hasExpiryDateChanged =
+        expiryDate !== preExistingStateForEdit.expiry_date_ms;
 
-        dispatch(createDirectoryPermissionAction(directoryPermissionData));
-        onAddPermission(directoryPermissionData);
+      if (hasBeginDateChanged) {
+        updatePayload.begin_date_ms = beginDate;
+      }
 
+      if (hasExpiryDateChanged) {
+        updatePayload.expiry_date_ms = expiryDate;
+      }
+
+      // Check if inheritable flag changed
+      if (inheritable !== preExistingStateForEdit.inheritable) {
+        updatePayload.inheritable = inheritable;
+      }
+
+      // Check if note changed
+      if (note !== preExistingStateForEdit.note) {
+        updatePayload.note = note;
+      }
+
+      // Check if external_id changed
+      if (externalId !== preExistingStateForEdit.external_id) {
+        updatePayload.external_id = externalId;
+      }
+
+      // Check if external_payload changed
+      if (externalPayload !== preExistingStateForEdit.external_payload) {
+        updatePayload.external_payload = externalPayload;
+      }
+
+      // Only dispatch if there are changes
+      if (Object.keys(updatePayload).length > 1) {
+        // More than just ID
+        dispatch(updateDirectoryPermissionAction(updatePayload));
+        onSubmitCallback();
         message.success(
           isOnline
-            ? "Creating directory permission..."
-            : "Queued directory permission creation for when you're back online"
+            ? "Updating directory permission..."
+            : "Queued directory permission update for when you're back online"
         );
-
         onClose();
         setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Validation failed:", error);
-        setLoading(false);
-      });
-  };
+      } else {
+        message.info("No changes detected");
+      }
+    } else {
+      if (!selectedGrantee?.id) {
+        message.error("Please select a grantee");
+        return;
+      }
+      // Create directory permission
+      const directoryPermissionData: IRequestCreateDirectoryPermission = {
+        id: GenerateID.DirectoryPermission(),
+        resource_id: resourceID,
+        granted_to: selectedGrantee.id,
+        permission_types: permissionTypes,
+        begin_date_ms: beginDate,
+        expiry_date_ms: expiryDate,
+        inheritable: inheritable,
+        note: note || "",
+        external_id: externalId,
+        external_payload: externalPayload,
+      };
 
-  // RENDER FUNCTIONS FOR EACH STEP
+      console.log(`directoryPermissionData----`, directoryPermissionData);
+
+      dispatch(createDirectoryPermissionAction(directoryPermissionData));
+      onSubmitCallback();
+
+      message.success(
+        isOnline
+          ? "Creating directory permission..."
+          : "Queued directory permission creation for when you're back online"
+      );
+
+      onClose();
+      setLoading(false);
+    }
+  };
 
   // Step 1: Grantee Selection (Who)
   function renderGranteeSelection() {
+    const isEditMode = !!preExistingStateForEdit;
     return (
       <Form.Item
         label={
@@ -448,168 +588,177 @@ const DirectoryPermissionAddDrawer: React.FC<
         }
         required
       >
-        <Tabs activeKey={granteeTab} onChange={handleGranteeTabChange}>
-          <TabPane
-            tab={
-              <span>
-                <UserOutlined /> Contacts
-              </span>
-            }
-            key="contacts"
-          >
-            <Input
-              placeholder={getContactPlaceholderText()}
-              prefix={<SearchOutlined />}
-              value={contactSearchQuery}
-              onChange={(e) => setContactSearchQuery(e.target.value)}
-              style={{ marginBottom: 16 }}
-            />
-
-            <List
-              dataSource={filteredContacts}
-              renderItem={(contact) => {
-                const isSelected =
-                  selectedGrantee?.type === "contact" &&
-                  selectedGrantee.id === contact.id;
-
-                return (
-                  <List.Item
-                    key={contact.id}
-                    onClick={() => handleContactSelect(contact.id)}
-                    className={isSelected ? "selected-contact" : ""}
-                    style={{
-                      cursor: "pointer",
-                      padding: "8px 16px",
-                      background: isSelected ? "#f0f7ff" : "transparent",
-                    }}
-                  >
-                    <Space
-                      size="middle"
-                      align="center"
-                      style={{ width: "100%" }}
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={() => handleContactSelect(contact.id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <Avatar src={contact.avatar} />
-                      <div style={{ flex: 1 }}>
-                        <div>{contact.name}</div>
-                        <div style={{ color: "#888", fontSize: "12px" }}>
-                          {contact.email}
-                        </div>
-                      </div>
-                      <Tag>
-                        {shortenAddress(contact.id.replace("UserID_", ""))}
-                      </Tag>
-                    </Space>
-                  </List.Item>
-                );
-              }}
-              style={{
-                maxHeight: "40vh",
-                overflow: "auto",
-                border: "1px solid #f0f0f0",
-                borderRadius: "4px",
-              }}
-            />
-          </TabPane>
-          <TabPane
-            tab={
-              <span>
-                <TeamOutlined /> Groups
-              </span>
-            }
-            key="groups"
-          >
-            <Input
-              placeholder={getGroupPlaceholderText()}
-              prefix={<SearchOutlined />}
-              value={groupSearchQuery}
-              onChange={(e) => setGroupSearchQuery(e.target.value)}
-              style={{ marginBottom: 16 }}
-            />
-
-            <List
-              dataSource={filteredGroups}
-              renderItem={(group) => {
-                const isSelected =
-                  selectedGrantee?.type === "group" &&
-                  selectedGrantee.id === group.id;
-
-                return (
-                  <List.Item
-                    key={group.id}
-                    onClick={() => handleGroupSelect(group.id)}
-                    className={isSelected ? "selected-group" : ""}
-                    style={{
-                      cursor: "pointer",
-                      padding: "8px 16px",
-                      background: isSelected ? "#f0f7ff" : "transparent",
-                    }}
-                  >
-                    <Space
-                      size="middle"
-                      align="center"
-                      style={{ width: "100%" }}
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={() => handleGroupSelect(group.id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <Avatar src={group.avatar} />
-                      <div style={{ flex: 1 }}>
-                        <div>{group.name}</div>
-                        <div style={{ color: "#888", fontSize: "12px" }}>
-                          {group.member_previews?.length || 0} members
-                        </div>
-                      </div>
-                      <Tag>
-                        {shortenAddress(group.id.replace("GroupID_", ""))}
-                      </Tag>
-                    </Space>
-                  </List.Item>
-                );
-              }}
-              style={{
-                maxHeight: "40vh",
-                overflow: "auto",
-                border: "1px solid #f0f0f0",
-                borderRadius: "4px",
-              }}
-            />
-          </TabPane>
-          <TabPane
-            tab={
-              <span>
-                <UserOutlined /> By UserID
-              </span>
-            }
-            key="userid"
-          >
-            <Form.Item>
+        {isEditMode ? (
+          // Read-only view for edit mode
+          <div style={{ padding: "8px 0" }}>
+            <Text strong>{preExistingStateForEdit.grantee_name}</Text>
+            {` `}
+            <TagCopy id={preExistingStateForEdit.granted_to} />
+          </div>
+        ) : (
+          <Tabs activeKey={granteeTab} onChange={handleGranteeTabChange}>
+            <TabPane
+              tab={
+                <span>
+                  <UserOutlined /> Contacts
+                </span>
+              }
+              key="contacts"
+            >
               <Input
-                placeholder="Enter name@userid or paste UserID"
-                value={userIdInput}
-                onChange={handleUserIdChange}
-                suffix={
-                  isUserIdValid ? (
-                    <CheckCircleFilled style={{ color: "#52c41a" }} />
-                  ) : (
-                    <InfoCircleOutlined style={{ color: "#aaa" }} />
-                  )
-                }
+                placeholder={getContactPlaceholderText()}
+                prefix={<SearchOutlined />}
+                value={contactSearchQuery}
+                onChange={(e) => setContactSearchQuery(e.target.value)}
+                style={{ marginBottom: 16 }}
               />
-              {isUserIdValid && (
-                <div style={{ color: "#52c41a", marginTop: 4 }}>
-                  Valid User ID: {extractedUserId}
-                </div>
-              )}
-            </Form.Item>
-          </TabPane>
-        </Tabs>
+
+              <List
+                dataSource={filteredContacts}
+                renderItem={(contact) => {
+                  const isSelected =
+                    selectedGrantee?.type === "contact" &&
+                    selectedGrantee.id === contact.id;
+
+                  return (
+                    <List.Item
+                      key={contact.id}
+                      onClick={() => handleContactSelect(contact.id)}
+                      className={isSelected ? "selected-contact" : ""}
+                      style={{
+                        cursor: "pointer",
+                        padding: "8px 16px",
+                        background: isSelected ? "#f0f7ff" : "transparent",
+                      }}
+                    >
+                      <Space
+                        size="middle"
+                        align="center"
+                        style={{ width: "100%" }}
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => handleContactSelect(contact.id)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <Avatar src={contact.avatar} />
+                        <div style={{ flex: 1 }}>
+                          <div>{contact.name}</div>
+                          <div style={{ color: "#888", fontSize: "12px" }}>
+                            {contact.email}
+                          </div>
+                        </div>
+                        <Tag>
+                          {shortenAddress(contact.id.replace("UserID_", ""))}
+                        </Tag>
+                      </Space>
+                    </List.Item>
+                  );
+                }}
+                style={{
+                  maxHeight: "40vh",
+                  overflow: "auto",
+                  border: "1px solid #f0f0f0",
+                  borderRadius: "4px",
+                }}
+              />
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
+                  <TeamOutlined /> Groups
+                </span>
+              }
+              key="groups"
+            >
+              <Input
+                placeholder={getGroupPlaceholderText()}
+                prefix={<SearchOutlined />}
+                value={groupSearchQuery}
+                onChange={(e) => setGroupSearchQuery(e.target.value)}
+                style={{ marginBottom: 16 }}
+              />
+
+              <List
+                dataSource={filteredGroups}
+                renderItem={(group) => {
+                  const isSelected =
+                    selectedGrantee?.type === "group" &&
+                    selectedGrantee.id === group.id;
+
+                  return (
+                    <List.Item
+                      key={group.id}
+                      onClick={() => handleGroupSelect(group.id)}
+                      className={isSelected ? "selected-group" : ""}
+                      style={{
+                        cursor: "pointer",
+                        padding: "8px 16px",
+                        background: isSelected ? "#f0f7ff" : "transparent",
+                      }}
+                    >
+                      <Space
+                        size="middle"
+                        align="center"
+                        style={{ width: "100%" }}
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => handleGroupSelect(group.id)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <Avatar src={group.avatar} />
+                        <div style={{ flex: 1 }}>
+                          <div>{group.name}</div>
+                          <div style={{ color: "#888", fontSize: "12px" }}>
+                            {group.member_previews?.length || 0} members
+                          </div>
+                        </div>
+                        <Tag>
+                          {shortenAddress(group.id.replace("GroupID_", ""))}
+                        </Tag>
+                      </Space>
+                    </List.Item>
+                  );
+                }}
+                style={{
+                  maxHeight: "40vh",
+                  overflow: "auto",
+                  border: "1px solid #f0f0f0",
+                  borderRadius: "4px",
+                }}
+              />
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
+                  <UserOutlined /> By UserID
+                </span>
+              }
+              key="userid"
+            >
+              <Form.Item>
+                <Input
+                  placeholder="Enter name@userid or paste UserID"
+                  value={userIdInput}
+                  onChange={handleUserIdChange}
+                  suffix={
+                    isUserIdValid ? (
+                      <CheckCircleFilled style={{ color: "#52c41a" }} />
+                    ) : (
+                      <InfoCircleOutlined style={{ color: "#aaa" }} />
+                    )
+                  }
+                />
+                {isUserIdValid && (
+                  <div style={{ color: "#52c41a", marginTop: 4 }}>
+                    Valid User ID: {extractedUserId}
+                  </div>
+                )}
+              </Form.Item>
+            </TabPane>
+          </Tabs>
+        )}
 
         {/* Hidden form field to store the grantee ID */}
         <Form.Item
@@ -741,94 +890,70 @@ const DirectoryPermissionAddDrawer: React.FC<
       <div style={{ padding: "12px 0" }}>
         {/* Inheritable option */}
         {resourceID.startsWith("FolderID_") && (
-          <Form.Item
-            name="inheritable"
-            valuePropName="checked"
-            label={
+          <div style={{ marginBottom: 24 }}>
+            <label>
               <Tooltip title="Whether this permission applies to subfolders and files">
                 <Space>
                   Inheritable <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
               </Tooltip>
-            }
-          >
-            <Switch
-              onChange={checkFormValidity}
-              checked={form.getFieldValue("inheritable")}
-            />
-          </Form.Item>
+            </label>
+            <div style={{ marginTop: 8 }}>
+              <Switch
+                checked={inheritable}
+                onChange={(checked) => {
+                  setInheritable(checked);
+                  checkFormValidity();
+                }}
+              />
+            </div>
+          </div>
         )}
 
         {/* Date Range */}
-        <Form.Item
-          name="dateRange"
-          label={
+        <div style={{ marginBottom: 24 }}>
+          <label>
             <Tooltip title="Set optional date range for when this permission is active">
               <Space>
                 Date Range <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
             </Tooltip>
-          }
-        >
-          <RangePicker
-            showTime
-            style={{ width: "100%" }}
-            placeholder={["Begin Date", "Expiry Date"]}
-            onChange={checkFormValidity}
-          />
-        </Form.Item>
+          </label>
+          <div style={{ marginTop: 8 }}>
+            <RangePicker
+              showTime
+              style={{ width: "100%" }}
+              placeholder={["Begin Date", "Expiry Date"]}
+              value={dateRange}
+              onChange={(dates) => {
+                setDateRange(dates);
+                checkFormValidity();
+              }}
+            />
+          </div>
+        </div>
 
         {/* Notes */}
-        <Form.Item
-          name="note"
-          label={
+        <div style={{ marginBottom: 24 }}>
+          <label>
             <Tooltip title="Optional notes about this permission">
               <Space>
                 Notes <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
             </Tooltip>
-          }
-        >
-          <TextArea
-            placeholder="Additional information about this permission"
-            rows={3}
-            onChange={checkFormValidity}
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="externalId"
-          label={
-            <Tooltip title="External identifier for integration with other systems">
-              <Space>
-                External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Space>
-            </Tooltip>
-          }
-        >
-          <Input
-            placeholder="External identifier"
-            onChange={checkFormValidity}
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="externalPayload"
-          label={
-            <Tooltip title="Additional data for external systems (JSON)">
-              <Space>
-                External Payload{" "}
-                <InfoCircleOutlined style={{ color: "#aaa" }} />
-              </Space>
-            </Tooltip>
-          }
-        >
-          <TextArea
-            placeholder='{"key": "value"}'
-            rows={2}
-            onChange={checkFormValidity}
-          />
-        </Form.Item>
+          </label>
+          <div style={{ marginTop: 8 }}>
+            <TextArea
+              placeholder="Additional information about this permission"
+              rows={3}
+              value={note}
+              onChange={(e) => {
+                setNote(e.target.value);
+                checkFormValidity();
+              }}
+            />
+          </div>
+        </div>
       </div>
     );
   }
@@ -836,7 +961,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   // Get the next button text based on current step
   const getNextButtonText = () => {
     if (currentStep === steps.length - 1) {
-      return "Add Permission";
+      return preExistingStateForEdit ? "Update Permission" : "Add Permission";
     }
     return "Next";
   };
@@ -890,7 +1015,19 @@ const DirectoryPermissionAddDrawer: React.FC<
 
   return (
     <Drawer
-      title="Add Directory Permission"
+      title={
+        preExistingStateForEdit ? (
+          <span>
+            {`Edit Directory Permission for ${preExistingStateForEdit.grantee_name}`}{" "}
+            <TagCopy
+              id={preExistingStateForEdit.granted_to}
+              style={{ marginLeft: 8 }}
+            />
+          </span>
+        ) : (
+          "Add Directory Permission"
+        )
+      }
       placement="right"
       onClose={onClose}
       open={open}
@@ -924,7 +1061,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         form={form}
         layout="vertical"
         initialValues={{
-          inheritable: false,
+          inheritable: true,
         }}
       >
         <div

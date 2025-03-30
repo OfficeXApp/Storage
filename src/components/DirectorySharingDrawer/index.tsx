@@ -11,6 +11,7 @@ import {
   Tooltip,
   message,
   Typography,
+  Popconfirm,
 } from "antd";
 import {
   CheckOutlined,
@@ -25,15 +26,25 @@ import {
 import type { MenuProps } from "antd";
 import { Permission } from "@aws-sdk/client-s3";
 import dayjs from "dayjs";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
+  DirectoryPermissionID,
   DirectoryPermissionType,
   DirectoryResourceID,
+  IRequestListDirectoryPermissions,
 } from "@officexapp/types";
-import DirectoryPermissionAddDrawer from "../../pages/PermissionsPage/directory-permission.add";
+import DirectoryPermissionAddDrawer, {
+  PreExistingStateForEdit,
+} from "./directory-permission.add";
 import { LOCAL_STORAGE_DIRECTORY_PERMISSIONS_ADVANCED_OPEN } from "../../framework/identity/constants";
 import TagCopy from "../TagCopy";
+import { set } from "lodash";
+import {
+  deleteDirectoryPermissionAction,
+  listDirectoryPermissionsAction,
+} from "../../redux-offline/permissions/permissions.actions";
+import { DirectoryPermissionFEO } from "../../redux-offline/permissions/permissions.reducer";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
@@ -56,6 +67,7 @@ interface PermissionRecord {
   whenStart: number | null;
   whenEnd: number | null;
   isEditing: boolean;
+  original: DirectoryPermissionFEO;
 }
 
 const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
@@ -78,7 +90,14 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   const permissions = useMemo(() => {
     return permissionIDs.map((pid) => permissionMap[pid]);
   }, [permissionIDs, permissionMap]);
-  console.log(`permissions`, permissions);
+
+  const [permissionForEdit, setPermissionForEdit] =
+    useState<PreExistingStateForEdit>();
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, [resourceID]);
 
   useEffect(() => {
     const should_default_advanced_open = localStorage.getItem(
@@ -94,19 +113,28 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
 
   useEffect(() => {
     if (permissions.length > 0) {
-      const data = permissions.map((p) => ({
-        key: p.id,
-        who: p.grantee_name || p.granted_to,
-        who_id: p.granted_to,
-        canView: p.permission_types.includes(DirectoryPermissionType.VIEW),
-        canEdit: p.permission_types.includes(DirectoryPermissionType.EDIT),
-        canDelete: p.permission_types.includes(DirectoryPermissionType.DELETE),
-        canInvite: p.permission_types.includes(DirectoryPermissionType.INVITE),
-        canUpload: p.permission_types.includes(DirectoryPermissionType.UPLOAD),
-        whenStart: p.begin_date_ms,
-        whenEnd: p.expiry_date_ms,
-        isEditing: false,
-      }));
+      const data = permissions
+        .filter((p) => p)
+        .map((p) => ({
+          key: p.id,
+          who: p.grantee_name || p.granted_to,
+          who_id: p.granted_to,
+          canView: p.permission_types.includes(DirectoryPermissionType.VIEW),
+          canEdit: p.permission_types.includes(DirectoryPermissionType.EDIT),
+          canDelete: p.permission_types.includes(
+            DirectoryPermissionType.DELETE
+          ),
+          canInvite: p.permission_types.includes(
+            DirectoryPermissionType.INVITE
+          ),
+          canUpload: p.permission_types.includes(
+            DirectoryPermissionType.UPLOAD
+          ),
+          whenStart: p.begin_date_ms,
+          whenEnd: p.expiry_date_ms,
+          isEditing: false,
+          original: p,
+        }));
 
       setDataSource(data);
     }
@@ -152,16 +180,44 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     setDataSource(newData);
   };
 
-  const toggleEditMode = (key: string) => {
-    // const newData = [...dataSource];
-    // const index = newData.findIndex((item) => item.key === key);
-    // newData[index].isEditing = !newData[index].isEditing;
-    // setDataSource(newData);
+  const toggleEditMode = (record: PermissionRecord) => {
+    const grantee_type = record.original.granted_to.startsWith("GroupID_")
+      ? "group"
+      : "contact";
+    setPermissionForEdit({
+      id: record.original.id,
+      resource_id: record.original.resource_id,
+      granted_to: record.original.granted_to,
+      grantee_type: grantee_type,
+      grantee_name: record.original.grantee_name || record.original.granted_to,
+      permission_types: record.original.permission_types,
+      begin_date_ms: record.original.begin_date_ms,
+      expiry_date_ms: record.original.expiry_date_ms,
+      inheritable: record.original.inheritable,
+      note: record.original.note,
+      external_id: record.original.external_id,
+      external_payload: record.original.external_payload,
+    });
+    setIsAddDrawerOpen(true);
   };
 
-  const handleRemove = (key: string) => {
-    // const newData = dataSource.filter((item) => item.key !== key);
-    // setDataSource(newData);
+  const handleRemove = (id: DirectoryPermissionID) => {
+    // Dispatch delete action
+    dispatch(
+      deleteDirectoryPermissionAction({
+        permission_id: id,
+      })
+    );
+
+    // Reload permissions list after a short delay to allow the delete to process
+    setTimeout(() => {
+      const payload: IRequestListDirectoryPermissions = {
+        filters: {
+          resource_id: resourceID,
+        },
+      };
+      dispatch(listDirectoryPermissionsAction(payload));
+    }, 500);
   };
 
   const handleAddPermission = () => {
@@ -210,59 +266,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       key: "can",
       width: "25%",
       render: (_: any, record: PermissionRecord) => {
-        if (record.isEditing) {
-          return (
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-            >
-              <Checkbox
-                checked={record.canView}
-                onChange={(e) =>
-                  handleCheckboxChange(record.key, "canView", e.target.checked)
-                }
-                disabled={record.key === "1"}
-              >
-                <Text style={{ fontSize: "14px" }}>View</Text>
-              </Checkbox>
-              <Checkbox
-                checked={record.canEdit}
-                onChange={(e) =>
-                  handleCheckboxChange(record.key, "canEdit", e.target.checked)
-                }
-                disabled={record.key === "1"}
-              >
-                <Text style={{ fontSize: "14px" }}>Edit</Text>
-              </Checkbox>
-              <Checkbox
-                checked={record.canDelete}
-                onChange={(e) =>
-                  handleCheckboxChange(
-                    record.key,
-                    "canDelete",
-                    e.target.checked
-                  )
-                }
-                disabled={record.key === "1"}
-              >
-                <Text style={{ fontSize: "14px" }}>Delete</Text>
-              </Checkbox>
-              <Checkbox
-                checked={record.canInvite}
-                onChange={(e) =>
-                  handleCheckboxChange(
-                    record.key,
-                    "canInvite",
-                    e.target.checked
-                  )
-                }
-                disabled={record.key === "1"}
-              >
-                <Text style={{ fontSize: "14px" }}>Invite</Text>
-              </Checkbox>
-            </div>
-          );
-        }
-
         return (
           <span style={{ fontSize: "14px" }}>
             {getPermissionSummary(record)}
@@ -275,42 +278,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       key: "when",
       width: "20%",
       render: (_: any, record: PermissionRecord) => {
-        if (record.isEditing) {
-          if (record.key === "1") {
-            return <span style={{ fontSize: "16px" }}>Always</span>;
-          }
-
-          const startDate = record.whenStart ? dayjs(record.whenStart) : null;
-          const endDate = record.whenEnd ? dayjs(record.whenEnd) : null;
-
-          return (
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-            >
-              <DatePicker
-                style={{ width: "100%" }}
-                placeholder="Start date"
-                value={startDate}
-                onChange={(date) => {
-                  const endValue = endDate ? endDate.toDate() : null;
-                  const startValue = date ? date.toDate() : null;
-                  handleDateRangeChange(record.key, [startValue, endValue]);
-                }}
-              />
-              <DatePicker
-                style={{ width: "100%" }}
-                placeholder="End date"
-                value={endDate}
-                onChange={(date) => {
-                  const startValue = startDate ? startDate.toDate() : null;
-                  const endValue = date ? date.toDate() : null;
-                  handleDateRangeChange(record.key, [startValue, endValue]);
-                }}
-              />
-            </div>
-          );
-        }
-
         return (
           <span style={{ fontSize: "14px" }}>
             {getDateRangeSummary(record)}
@@ -347,7 +314,14 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           },
           {
             key: "3",
-            label: <a onClick={() => handleRemove(record.key)}>Remove</a>,
+            label: (
+              <Popconfirm
+                title="Are you sure you want to remove this permission? This cannot be undone"
+                onConfirm={() => handleRemove(record.original.id)}
+              >
+                <span>Remove</span>
+              </Popconfirm>
+            ),
           },
         ];
 
@@ -362,26 +336,14 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                   <EditOutlined style={{ fontSize: "20px" }} />
                 )
               }
-              onClick={() => toggleEditMode(record.key)}
-              disabled={record.key === "1"}
+              onClick={() => toggleEditMode(record)}
             />
-            {record.isEditing ? (
-              <CloseOutlined
-                style={{ fontSize: "20px" }}
-                onClick={() => toggleEditMode(record.key)}
+            <Dropdown menu={{ items }} trigger={["click"]}>
+              <Button
+                type="text"
+                icon={<MoreOutlined style={{ fontSize: "20px" }} />}
               />
-            ) : (
-              <Dropdown
-                menu={{ items }}
-                trigger={["click"]}
-                disabled={record.key === "1"}
-              >
-                <Button
-                  type="text"
-                  icon={<MoreOutlined style={{ fontSize: "20px" }} />}
-                />
-              </Dropdown>
-            )}
+            </Dropdown>
           </Space>
         );
       },
@@ -488,11 +450,22 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       </style>
       <DirectoryPermissionAddDrawer
         open={isAddDrawerOpen}
-        onClose={() => setIsAddDrawerOpen(false)}
-        onAddPermission={(p) =>
-          console.log("directory permission to b created", p)
-        }
+        onClose={() => {
+          setIsAddDrawerOpen(false);
+          setPermissionForEdit(undefined);
+        }}
+        onSubmitCallback={() => {
+          setTimeout(() => {
+            const payload: IRequestListDirectoryPermissions = {
+              filters: {
+                resource_id: resourceID,
+              },
+            };
+            dispatch(listDirectoryPermissionsAction(payload));
+          }, 500);
+        }}
         resourceID={resourceID}
+        preExistingStateForEdit={permissionForEdit}
       />
     </Drawer>
   );

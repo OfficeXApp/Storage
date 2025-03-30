@@ -111,6 +111,8 @@ import {
   LIST_DIRECTORY_PERMISSIONS,
   listDirectoryPermissionsAction,
 } from "../../redux-offline/permissions/permissions.actions";
+import DirectorySharingDrawer from "../DirectorySharingDrawer";
+import DirectoryGuard from "./DirectoryGuard";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -153,6 +155,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
   );
 
+  console.log(`>>> currentFileId`, currentFileId);
+  console.log(`>>> listDirectoryResults`, listDirectoryResults);
+  console.log(`>>> getFileResult`, getFileResult);
+
   const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
 
   const [content, setContent] = useState<{
@@ -162,11 +168,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [renamingItems, setRenamingItems] = useState<{ [key: string]: string }>(
     {}
   );
+  const [shareFolderDrawerVisible, setShareFolderDrawerVisible] =
+    useState(false);
   const [isStorjModalVisible, setIsStorjModalVisible] = useState(false);
   const [singleFile, setSingleFile] = useState<FileFEO | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     console.log(`listDirectoryResults`, listDirectoryResults);
     if (listDirectoryResults) {
@@ -260,7 +269,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         targetFolderId: folderId,
       });
     } else if (folderFileID.startsWith("FolderID_")) {
-      console.log(`we are in folder`);
+      console.log(`we are in folder`, folderFileID);
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
@@ -283,7 +292,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
     //   setIsStorjModalVisible(true);
     // }
-  }, [location, encodedPath, disks]);
+  }, [location, encodedPath, currentDiskId]);
 
   const fetchFileById = (fileId: FileID) => {
     console.log("Fetching file by ID:", fileId);
@@ -379,6 +388,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         return;
       }
 
+      console.log(`fetchContent targetFolderId`, targetFolderId);
+      console.log(`currentDiskId`, currentDiskId);
+
       // We're inside a folder, so we need to fetch its contents
       if (targetFolderId) {
         const listParams: IRequestListDirectory = {
@@ -390,12 +402,26 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         setListDirectoryKey(_listDirectoryKey);
 
         // Dispatch the action to fetch the directory listing
+        console.log(
+          `shouldBehaveOfflineDiskUIIntent(currentDiskId) = ${currentDiskId}`,
+          shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
+        );
         dispatch(
           listDirectoryAction(
             listParams,
-            currentDisk ? shouldBehaveOfflineDiskUIIntent(currentDisk.id) : true
+            currentDiskId
+              ? shouldBehaveOfflineDiskUIIntent(currentDiskId)
+              : false
           )
         );
+
+        const payload: IRequestListDirectoryPermissions = {
+          filters: {
+            resource_id: targetFolderId as DirectoryResourceID,
+          },
+        };
+        dispatch(listDirectoryPermissionsAction(payload));
+
         // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
         return;
       }
@@ -686,7 +712,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
-    console.log(`====content`, content);
     return [
       ...content.folders.map((f) => ({
         id: f.id,
@@ -770,6 +795,25 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     setIsStorjModalVisible(false);
   };
 
+  // Unacceptable loading on every drive page view, would rather have first impact be jarry than every subsequent be frustrating slow
+  // if (
+  //   currentFolderId &&
+  //   listDirectoryResults &&
+  //   listDirectoryResults.isLoading
+  // ) {
+  //   return "loading...";
+  // }
+
+  // unauthorized access to folder
+  if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
+    return <DirectoryGuard />;
+  }
+
+  // unauthorized access to file
+  if (currentFileId && !getFileResult) {
+    return <DirectoryGuard />;
+  }
+
   return (
     <div
       style={{
@@ -802,7 +846,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               optimisticListDirectoryKey={listDirectoryKey}
             />
 
-            <Button type="primary">Share</Button>
+            <Button
+              onClick={() => setShareFolderDrawerVisible(true)}
+              type="primary"
+            >
+              Share
+            </Button>
           </div>
         )}
       </div>
@@ -1032,6 +1081,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           onCancel={handleStorjSettingsCancel}
         />
       </Modal>
+
+      {currentFolderId && (
+        <DirectorySharingDrawer
+          open={shareFolderDrawerVisible}
+          onClose={() => setShareFolderDrawerVisible(false)}
+          resourceID={currentFolderId as DirectoryResourceID}
+        />
+      )}
     </div>
   );
 };

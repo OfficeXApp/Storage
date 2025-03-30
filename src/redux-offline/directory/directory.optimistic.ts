@@ -318,6 +318,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_COMMIT: {
+            console.log(`LIST_DIRECTORY_COMMIT middleware`, action);
             const response = action.payload?.ok?.data;
 
             if (response) {
@@ -364,6 +365,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_ROLLBACK: {
+            console.log(`LIST_DIRECTORY_ROLLBACK middleware`, action);
             if (!action.payload.response) break;
             // No local IndexedDB state to roll back since we're not caching the directory listings anymore
             break;
@@ -410,7 +412,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               // Handle array response format
               realFile = action.payload.ok.data.items[0];
             }
-
+            console.log(`did we find real file?`, realFile);
             if (realFile) {
               await filesTable.put({
                 ...realFile,
@@ -419,7 +421,10 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 _syncConflict: false,
                 _syncWarning: "",
               });
+            } else {
+              await filesTable.delete(optimisticID);
             }
+
             break;
           }
 
@@ -431,6 +436,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               if (optimisticID) {
                 const error_message = `Failed to get file - a sync conflict occurred between your offline local copy & the official cloud record. Error message: ${err.err.message}`;
                 await markSyncConflict(filesTable, optimisticID, error_message);
+
                 enhancedAction = {
                   ...action,
                   error_message,

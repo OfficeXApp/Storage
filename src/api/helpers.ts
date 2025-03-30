@@ -187,3 +187,13 @@ export function urlSafeBase64Decode(str: string) {
   // Decode UTF-8
   return new TextDecoder().decode(bytes);
 }
+
+export function areArraysEqual(array1: any[], array2: any[]) {
+  if (array1.length !== array2.length) return false;
+
+  // Sort both arrays to ensure consistent comparison
+  const sorted1 = [...array1].sort();
+  const sorted2 = [...array2].sort();
+
+  return sorted1.every((value, index) => value === sorted2[index]);
+}

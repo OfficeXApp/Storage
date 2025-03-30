@@ -76,6 +76,7 @@ import {
 import { useSelector } from "react-redux";
 import { ReduxAppState } from "./redux-offline/ReduxProvider";
 import { useIdentitySystem } from "./framework/identity";
+import { DiskTypeEnum } from "@officexapp/types";
 
 const { Sider, Content } = Layout;
 
@@ -335,7 +336,7 @@ const RouterUI = () => {
                 path="/"
                 element={
                   <Navigate
-                    to={`/org/current/drive/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingRootFolderID}/`}
+                    to={`/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingRootFolderID}/`}
                   />
                 }
               />

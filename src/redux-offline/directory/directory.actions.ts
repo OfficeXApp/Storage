@@ -23,6 +23,12 @@ import {
   IRequestListDirectory,
   DriveID,
 } from "@officexapp/types";
+import {
+  defaultBrowserCacheDiskID,
+  defaultBrowserCacheRootFolderID,
+  defaultTempCloudSharingDiskID,
+  defaultTempCloudSharingRootFolderID,
+} from "../../api/dexie-database";
 
 // Action Types
 
@@ -108,7 +114,11 @@ export const listDirectoryAction = (
   // Generate a unique ID for this request
   const listDirectoryKey = generateListDirectoryKey(payload);
 
-  console.log(`shouldBehaveOfflineDiskUI`, shouldBehaveOfflineDiskUI);
+  console.log(`shouldBehaveOfflineDiskUI payload`, payload);
+
+  const isDefaultDisk =
+    payload.folder_id === defaultBrowserCacheRootFolderID ||
+    payload.folder_id === defaultTempCloudSharingRootFolderID;
 
   return {
     type: LIST_DIRECTORY,
@@ -121,7 +131,8 @@ export const listDirectoryAction = (
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            shouldBehaveOfflineDiskUI,
+            shouldBehaveOfflineDiskUI:
+              isDefaultDisk || shouldBehaveOfflineDiskUI,
             // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: payload,

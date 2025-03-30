@@ -122,6 +122,7 @@ interface DriveItemRow {
   fullPath: DriveFullFilePath;
   diskID: DiskID;
   isDisabled: boolean;
+  diskType: DiskTypeEnum;
 }
 
 interface DriveUIProps {
@@ -192,6 +193,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setIsLoading(false);
       setSingleFile(null);
     } else if (currentFileId && getFileResult) {
+      console.log(`currentFileId=${currentFileId}`, getFileResult);
       setIs404NotFound(false);
       setIsLoading(false);
       setSingleFile(getFileResult);
@@ -202,20 +204,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   useEffect(() => {
     // const path = encodedPath ? decodeURIComponent(encodedPath) : "";
     const pathParts = location.pathname.split("/").filter(Boolean);
-
+    console.log(`driveui pathParts`, pathParts);
     if (pathParts.length < 3) {
       return;
     }
-
-    // console.log("Path parts:", pathParts);
-    const diskID = pathParts[3];
-    const folderFileID = pathParts[4];
-
-    setCurrentDiskId(diskID);
-
-    console.log(`====pathParts`, pathParts);
-    console.log(`====location`, location);
-    console.log(`====folderFileID`, folderFileID);
 
     if (pathParts[2] === "drive" && pathParts.length === 3) {
       console.log(`we are in root`);
@@ -226,7 +218,21 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setIs404NotFound(false);
       fetchContent({});
       setSingleFile(null);
-    } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
+      return;
+    }
+
+    // console.log("Path parts:", pathParts);
+    const diskType = pathParts[3];
+    const diskID = pathParts[4];
+    const folderFileID = pathParts[5];
+
+    setCurrentDiskId(diskID);
+
+    console.log(`====pathParts`, pathParts);
+    console.log(`====location`, location);
+    console.log(`====folderFileID`, folderFileID);
+
+    if (folderFileID === defaultTempCloudSharingRootFolderID) {
       console.log(`we are in public sharing`);
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
@@ -431,7 +437,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         fetchFileById(targetFileId);
       }
     },
-    [currentFolderId, disks, currentOrg]
+    [currentFolderId, disks, currentOrg, currentDiskId]
   );
 
   const handleBack = () => {
@@ -460,9 +466,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const handleFileFolderClick = (item: DriveItemRow) => {
     if (item.isDisabled) return;
     if (item.isFolder) {
-      navigate(wrapOrgCode(`/drive/${item.diskID}/${item.id}/`));
+      navigate(
+        wrapOrgCode(`/drive/${item.diskType}/${item.diskID}/${item.id}/`)
+      );
     } else {
-      navigate(wrapOrgCode(`/drive/${item.diskID}/${item.id}`));
+      navigate(
+        wrapOrgCode(`/drive/${item.diskType}/${item.diskID}/${item.id}`)
+      );
     }
   };
 
@@ -720,6 +730,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         isFolder: true,
         fullPath: f.full_directory_path,
         diskID: f.disk_id,
+        diskType: f.disk_type,
         isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
       })),
       ...content.files.map((f) => ({
@@ -729,6 +740,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         isFolder: false,
         fullPath: f.full_directory_path,
         diskID: f.disk_id,
+        diskType: f.disk_type,
         isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
       })),
     ];

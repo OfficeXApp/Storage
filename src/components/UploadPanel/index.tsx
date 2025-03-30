@@ -32,6 +32,7 @@ import mixpanel from "mixpanel-browser";
 import { DiskTypeEnum, FileID, UserID } from "@officexapp/types";
 import { useDispatch } from "react-redux";
 import { generateListDirectoryKey } from "../../redux-offline/directory/directory.actions";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Text } = Typography;
 
@@ -49,6 +50,7 @@ const UploadPanel: React.FC<{
     uploadTargetDisk,
     uploadTargetFolderID,
   } = useMultiUploader();
+  const { wrapOrgCode } = useIdentitySystem();
   const dispatch = useDispatch();
   const screenType = useScreenType();
   const [selectedFiles, setSelectedFiles] = useState<UploadFile[]>([]);
@@ -136,19 +138,25 @@ const UploadPanel: React.FC<{
     setSelectedFiles([]);
   };
 
-  const handleViewFile = (fileID: FileID, diskID: string) => {
-    const path = `/drive/${diskID}/${fileID}`;
+  const handleViewFile = (
+    fileID: FileID,
+    diskType: DiskTypeEnum,
+    diskID: string
+  ) => {
+    const path = wrapOrgCode(`/drive/${diskType}/${diskID}/${fileID}`);
     return path;
   };
 
   const menuItems = (
     filePath: string,
-    storageLocation: DiskTypeEnum,
+    diskType: DiskTypeEnum,
     diskID: string
   ) => [
     {
       key: "1",
-      label: <Link to={handleViewFile(filePath, diskID)}>View File</Link>,
+      label: (
+        <Link to={handleViewFile(filePath, diskType, diskID)}>View File</Link>
+      ),
     },
   ];
 
@@ -301,12 +309,20 @@ const UploadPanel: React.FC<{
               dataSource={currentUploads}
               renderItem={(item) => (
                 <Link
-                  to={handleViewFile(item.config.fileID, item.config.diskID)}
+                  to={handleViewFile(
+                    item.config.fileID,
+                    item.config.diskType,
+                    item.config.diskID
+                  )}
                 >
                   <List.Item
                     key={item.id}
                     onClick={() =>
-                      handleViewFile(item.config.fileID, item.config.diskID)
+                      handleViewFile(
+                        item.config.fileID,
+                        item.config.diskType,
+                        item.config.diskID
+                      )
                     }
                     actions={[
                       <Dropdown

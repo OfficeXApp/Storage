@@ -111,6 +111,10 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   };
 
   useEffect(() => {
+    setFileUrl("");
+  }, [file]);
+
+  useEffect(() => {
     if (currentOrg && currentProfile) {
       dbNameRef.current = `OFFICEX-browser-cache-storage-${currentOrg.driveID}-${currentProfile.userID}`;
     }

@@ -19,16 +19,30 @@ const UploadDropZone: React.FC<UploadDropZoneProps> = ({
   children,
   toggleUploadPanel,
 }) => {
-  const { uploadFiles, uploadTargetFolderID, uploadTargetDisk } =
-    useMultiUploader();
+  const {
+    uploadFiles,
+    uploadTargetFolderID,
+    uploadTargetDisk,
+    uploadTargetDiskID,
+    uploadTargetDiskType,
+  } = useMultiUploader();
   const dispatch = useDispatch();
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       console.log(`Accepted files: ${acceptedFiles.length}`, acceptedFiles);
+      console.log(
+        `uploadTargetDisk & uploadTargetFolderID`,
+        uploadTargetDisk,
+        uploadTargetFolderID
+      );
+      console.log(
+        `uploadTargetDiskID=${uploadTargetDiskID}, uploadTargetDiskType = ${uploadTargetDiskType}`
+      );
       if (
         acceptedFiles.length > 0 &&
-        uploadTargetDisk &&
+        uploadTargetDiskID &&
+        uploadTargetDiskType &&
         uploadTargetFolderID
       ) {
         mixpanel.track("Upload Files");
@@ -43,8 +57,8 @@ const UploadDropZone: React.FC<UploadDropZoneProps> = ({
         uploadFiles(
           uploadFilesArray,
           uploadTargetFolderID,
-          uploadTargetDisk.disk_type as DiskTypeEnum,
-          uploadTargetDisk.id,
+          uploadTargetDiskType as DiskTypeEnum,
+          uploadTargetDiskID,
           {
             onFileComplete: (fileUUID) => {
               console.log(`Local callback: File ${fileUUID} upload completed`);
@@ -63,7 +77,13 @@ const UploadDropZone: React.FC<UploadDropZoneProps> = ({
         toggleUploadPanel(true);
       }
     },
-    [uploadFiles, uploadTargetFolderID, uploadTargetDisk, toggleUploadPanel]
+    [
+      uploadFiles,
+      uploadTargetFolderID,
+      uploadTargetDiskID,
+      uploadTargetDiskType,
+      toggleUploadPanel,
+    ]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

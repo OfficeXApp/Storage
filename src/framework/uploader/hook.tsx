@@ -51,6 +51,7 @@ interface CanisterAdapterConfig {
 
 interface MultiUploaderContextType {
   uploadTargetDiskID: DiskID | null;
+  uploadTargetDiskType: DiskTypeEnum | null;
   uploadTargetDisk: DiskFEO | null;
   uploadTargetFolderID: FolderID | null;
   currentFileID: FileID | null;
@@ -94,6 +95,7 @@ interface MultiUploaderContextType {
 // Default context values
 const defaultContextValue: MultiUploaderContextType = {
   uploadTargetDiskID: null,
+  uploadTargetDiskType: null,
   uploadTargetDisk: null,
   uploadTargetFolderID: null,
   currentFileID: null,
@@ -164,6 +166,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   const [uploadTargetDiskID, setUploadTargetDiskID] = useState<DiskID | null>(
     defaultBrowserCacheDiskID
   );
+  const [uploadTargetDiskType, setUploadTargetDiskType] =
+    useState<DiskTypeEnum | null>(null);
   const [uploadTargetFolderID, setUploadTargetFolderID] =
     useState<FolderID | null>(defaultBrowserCacheRootFolderID);
   const [currentFileID, setCurrentFileID] = useState<FileID | null>(
@@ -196,15 +200,19 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   useEffect(() => {
     const pathParts = window.location.pathname.split("/").filter(Boolean);
 
+    console.log(`uploader pathParts`, pathParts);
+
     if (pathParts.includes("drive")) {
-      if (pathParts.length >= 4) {
-        // We're at /drive/diskID or deeper
-        const diskID = pathParts[3];
+      if (pathParts.length >= 5) {
+        // We're at /drive/diskType/diskID or deeper
+        const diskType = pathParts[3];
+        const diskID = pathParts[4];
+        setUploadTargetDiskType(diskType as DiskTypeEnum);
         setUploadTargetDiskID(diskID);
 
         // Check if we have a folder or file ID in the path
-        if (pathParts.length >= 3) {
-          const resourceId = pathParts[4];
+        if (pathParts.length >= 6) {
+          const resourceId = pathParts[5];
 
           if (resourceId && resourceId.startsWith("FolderID_")) {
             // console.log(`setting the parent folder`, resourceId);
@@ -225,6 +233,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
         }
       } else {
         // At /drive root
+        setUploadTargetDiskType(DiskTypeEnum.BrowserCache);
         setUploadTargetDiskID(defaultBrowserCacheDiskID);
         setUploadTargetFolderID(defaultBrowserCacheRootFolderID);
         setCurrentFileID(null);
@@ -255,8 +264,19 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
         registeredAdapters.map((adapter) => adapter.diskID)
       );
 
+      const allDisks = disks.map((d) => d.id).includes(uploadTargetDiskID || "")
+        ? disks
+        : [
+            ...disks,
+            {
+              id: uploadTargetDiskID,
+              disk_type: uploadTargetDiskType,
+            } as DiskFEO,
+          ].filter((d) => d.id && d.disk_type);
+
+      console.log(`allDisks`, allDisks);
       // Process all disks from the Redux store
-      for (const disk of disks) {
+      for (const disk of allDisks) {
         const diskId = disk.id;
         const diskType = disk.disk_type as DiskTypeEnum;
 
@@ -473,6 +493,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   // Create context value
   const contextValue: MultiUploaderContextType = {
     uploadTargetDiskID,
+    uploadTargetDiskType,
     uploadTargetDisk,
     uploadTargetFolderID,
     currentFileID,

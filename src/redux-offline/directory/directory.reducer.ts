@@ -330,6 +330,7 @@ export const directoryReducer = (
       let realFile;
 
       // Extract file from payload - handle different response structures
+      // this hydra mutant if statements is AI slop that needs to be cleaned up
       if (action.payload?.ok?.data?.result?.file) {
         realFile = action.payload.ok.data.result.file;
       } else if (

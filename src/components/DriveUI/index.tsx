@@ -112,6 +112,7 @@ import {
   listDirectoryPermissionsAction,
 } from "../../redux-offline/permissions/permissions.actions";
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
+import DirectoryGuard from "./DirectoryGuard";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -154,6 +155,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
   );
 
+  console.log(`>>> currentFileId`, currentFileId);
+  console.log(`>>> listDirectoryResults`, listDirectoryResults);
+  console.log(`>>> getFileResult`, getFileResult);
+
   const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
 
   const [content, setContent] = useState<{
@@ -170,8 +175,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
   const [isLoading, setIsLoading] = useState(true);
-
-  console.log(`currentDiskId`, currentDiskId);
 
   useEffect(() => {
     console.log(`listDirectoryResults`, listDirectoryResults);
@@ -289,7 +292,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
     //   setIsStorjModalVisible(true);
     // }
-  }, [location, encodedPath, disks, currentDiskId]);
+  }, [location, encodedPath, currentDiskId]);
 
   const fetchFileById = (fileId: FileID) => {
     console.log("Fetching file by ID:", fileId);
@@ -400,7 +403,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
         // Dispatch the action to fetch the directory listing
         console.log(
-          `shouldBehaveOfflineDiskUIIntent(currentDiskId)`,
+          `shouldBehaveOfflineDiskUIIntent(currentDiskId) = ${currentDiskId}`,
           shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
         );
         dispatch(
@@ -408,7 +411,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             listParams,
             currentDiskId
               ? shouldBehaveOfflineDiskUIIntent(currentDiskId)
-              : true
+              : false
           )
         );
 
@@ -709,7 +712,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
-    console.log(`====content`, content);
     return [
       ...content.folders.map((f) => ({
         id: f.id,
@@ -792,6 +794,25 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     }
     setIsStorjModalVisible(false);
   };
+
+  // Unacceptable loading on every drive page view, would rather have first impact be jarry than every subsequent be frustrating slow
+  // if (
+  //   currentFolderId &&
+  //   listDirectoryResults &&
+  //   listDirectoryResults.isLoading
+  // ) {
+  //   return "loading...";
+  // }
+
+  // unauthorized access to folder
+  if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
+    return <DirectoryGuard />;
+  }
+
+  // unauthorized access to file
+  if (currentFileId && !getFileResult) {
+    return <DirectoryGuard />;
+  }
 
   return (
     <div

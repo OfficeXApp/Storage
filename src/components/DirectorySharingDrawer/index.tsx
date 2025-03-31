@@ -52,6 +52,7 @@ interface DirectorySharingDrawerProps {
   open: boolean;
   onClose: () => void;
   resourceID: DirectoryResourceID;
+  resourceName: string;
 }
 
 const { RangePicker } = DatePicker;
@@ -76,6 +77,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   open,
   onClose,
   resourceID,
+  resourceName,
 }) => {
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -466,6 +468,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           }, 500);
         }}
         resourceID={resourceID}
+        resourceName={resourceName}
         preExistingStateForEdit={permissionForEdit}
       />
     </Drawer>

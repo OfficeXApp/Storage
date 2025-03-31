@@ -35,6 +35,7 @@ import { FileFEO } from "../../redux-offline/directory/directory.reducer";
 import { DirectoryResourceID, DiskTypeEnum, FileID } from "@officexapp/types";
 import SheetJSPreview from "../SheetJSPreview";
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
+import { sleep } from "../../api/helpers";
 
 const { Text } = Typography;
 
@@ -317,6 +318,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   useEffect(() => {
     const loadFileContent = async () => {
+      if (!file || !fileType) return;
       setIsLoading(true);
       try {
         if (file.disk_type === DiskTypeEnum.BrowserCache) {
@@ -332,6 +334,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           setFileUrl(url as string);
         } else if (file.disk_type === DiskTypeEnum.IcpCanister) {
           // Handle IcpCanister files using the raw download endpoints
+          // wait 3 seconds
+          await sleep(3000);
           const blobUrl = await fetchFileContentFromCanister(file.id as string);
           if (blobUrl) {
             setFileUrl(blobUrl);
@@ -693,6 +697,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         open={isShareDrawerOpen}
         onClose={() => setIsShareDrawerOpen(false)}
         resourceID={file.id as DirectoryResourceID}
+        resourceName={file.name}
       />
     </>
   );

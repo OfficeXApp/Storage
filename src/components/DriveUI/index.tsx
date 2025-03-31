@@ -1099,6 +1099,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           open={shareFolderDrawerVisible}
           onClose={() => setShareFolderDrawerVisible(false)}
           resourceID={currentFolderId as DirectoryResourceID}
+          resourceName={"Placeholder Title"}
         />
       )}
     </div>

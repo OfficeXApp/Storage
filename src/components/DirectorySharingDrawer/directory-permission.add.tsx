@@ -58,6 +58,8 @@ import dayjs from "dayjs";
 import { shortenAddress } from "../../framework/identity/constants";
 import TagCopy from "../TagCopy";
 import { areArraysEqual } from "../../api/helpers";
+import { generateRedeemDirectoryPermitURL } from "./directory-permission.redeem";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -84,6 +86,7 @@ interface DirectoryPermissionAddDrawerProps {
   onClose: () => void;
   onSubmitCallback: () => void;
   resourceID: DirectoryResourceID;
+  resourceName: string;
   preExistingStateForEdit?: PreExistingStateForEdit;
 }
 
@@ -95,6 +98,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   onSubmitCallback,
   resourceID,
   preExistingStateForEdit,
+  resourceName,
 }) => {
   console.log(`preExistingStateForEdit`, preExistingStateForEdit);
 
@@ -108,6 +112,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   const [isMagicLink, setIsMagicLink] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const [directoryPermissionID, setDirectoryPermissionID] = useState("");
   const [resourceType, setResourceType] = useState<"file" | "folder">("folder");
   const [granteeTab, setGranteeTab] = useState<string>("magiclink");
   const targetResourceId = resourceID;
@@ -119,6 +124,8 @@ const DirectoryPermissionAddDrawer: React.FC<
   const [dateRange, setDateRange] = useState<
     [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
   >(null);
+  const [shareableURL, setShareableURL] = useState("");
+  const { currentOrg, wrapOrgCode } = useIdentitySystem();
 
   // Current step state
   const [currentStep, setCurrentStep] = useState(
@@ -200,6 +207,7 @@ const DirectoryPermissionAddDrawer: React.FC<
       setExternalId(preExistingStateForEdit.external_id || "");
       setExternalPayload(preExistingStateForEdit.external_payload || "");
       setPermissionTypes(preExistingStateForEdit.permission_types);
+      setDirectoryPermissionID(preExistingStateForEdit.id);
 
       // Set selected grantee
       setSelectedGrantee({
@@ -303,6 +311,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     if (open) {
       if (!preExistingStateForEdit) {
         // Only reset if not in edit mode
+        setDirectoryPermissionID("");
         setGranteeId("");
         setInheritable(true);
         setNote("");
@@ -320,6 +329,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         setIsUserIdValid(false);
         setExtractedUserId("");
         setPermissionTypes([DirectoryPermissionType.VIEW]);
+        setShareableURL(window.location.href);
       }
       setCurrentStep(preExistingStateForEdit ? 1 : 0);
       checkFormValidity();
@@ -566,13 +576,30 @@ const DirectoryPermissionAddDrawer: React.FC<
             : "Queued directory permission update for when you're back online"
         );
         setLoading(false);
+        if (isMagicLink && currentOrg) {
+          const url = generateRedeemDirectoryPermitURL({
+            fileURL: window.location.href,
+            wrapOrgCode,
+            permissionID: preExistingStateForEdit.id,
+            resourceName: resourceName,
+            orgName: currentOrg.nickname,
+            permissionTypes: preExistingStateForEdit.permission_types,
+            resourceID: preExistingStateForEdit.resource_id,
+            daterange: { begins_at: beginDate, expires_at: expiryDate },
+          });
+          setShareableURL(url);
+        } else {
+          setShareableURL(window.location.href);
+        }
       } else {
         message.info("No changes detected");
       }
     } else {
       // Create directory permission
+      let _directoryPermissionID = GenerateID.DirectoryPermission();
+      setDirectoryPermissionID(_directoryPermissionID);
       const directoryPermissionData: IRequestCreateDirectoryPermission = {
-        id: GenerateID.DirectoryPermission(),
+        id: _directoryPermissionID,
         resource_id: resourceID,
         permission_types: permissionTypes,
         begin_date_ms: beginDate,
@@ -582,16 +609,31 @@ const DirectoryPermissionAddDrawer: React.FC<
         external_id: externalId,
         external_payload: externalPayload,
       };
-      if (isMagicLink) {
+      console.log(`isMagicLink=${isMagicLink}`);
+      if (isMagicLink && currentOrg) {
         directoryPermissionData.granted_to = undefined;
+        const url = generateRedeemDirectoryPermitURL({
+          fileURL: window.location.href,
+          wrapOrgCode,
+          permissionID: _directoryPermissionID,
+          resourceName: resourceName,
+          orgName: currentOrg.nickname,
+          permissionTypes,
+          resourceID,
+          daterange: { begins_at: beginDate, expires_at: expiryDate },
+        });
+        console.log(`url=${url}`);
+        setShareableURL(url);
       } else if (isPublic) {
         directoryPermissionData.granted_to = "PUBLIC";
+        setShareableURL(window.location.href);
       } else {
         if (!selectedGrantee?.id) {
           message.error("Please select a grantee");
           return;
         }
         directoryPermissionData.granted_to = selectedGrantee.id;
+        setShareableURL(window.location.href);
       }
 
       console.log(`directoryPermissionData----`, directoryPermissionData);
@@ -1077,13 +1119,13 @@ const DirectoryPermissionAddDrawer: React.FC<
           </label>
           <div style={{ marginTop: 8 }}>
             <Input
-              value={window.location.href}
+              value={shareableURL}
               readOnly
               suffix={
                 <Button
                   type="primary"
                   onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
+                    navigator.clipboard.writeText(shareableURL);
                     message.success("Link copied to clipboard");
                   }}
                 >
@@ -1197,7 +1239,11 @@ const DirectoryPermissionAddDrawer: React.FC<
           )}
           <Button
             onClick={handleNextButtonClick}
-            type="primary"
+            type={
+              currentStep > 0 && currentStep === steps.length - 1
+                ? "default"
+                : "primary"
+            }
             loading={loading}
             disabled={
               (currentStep === steps.length - 2 && !formIsValid) ||
@@ -1207,6 +1253,18 @@ const DirectoryPermissionAddDrawer: React.FC<
           >
             {getNextButtonText()}
           </Button>
+          {currentStep > 0 && currentStep === steps.length - 1 ? (
+            <Button
+              type="primary"
+              onClick={() => {
+                navigator.clipboard.writeText(shareableURL);
+                message.success("Link copied to clipboard");
+              }}
+              style={{ marginLeft: 8 }}
+            >
+              Copy Magic Link
+            </Button>
+          ) : null}
         </div>
       }
     >

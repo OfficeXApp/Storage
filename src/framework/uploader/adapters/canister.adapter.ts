@@ -283,7 +283,7 @@ export class CanisterAdapter implements IUploadAdapter {
       dispatch(createFileAction(createAction, config.listDirectoryKey, false));
 
       // Wait for the record to be created
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
 
       return fileID;
     } catch (error) {

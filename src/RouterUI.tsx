@@ -69,6 +69,7 @@ import WebhookPage from "./pages/WebhooksPage/webhook.page";
 import DrivePage from "./pages/DrivesPage/drive.page";
 import ApiKeyPage from "./pages/ApiKeysPage/api-key.page";
 import PermissionPage from "./pages/PermissionsPage/permission.page";
+import RedeemDirectoryPermitPage from "./components/DirectorySharingDrawer/directory-permission.redeem";
 import {
   defaultTempCloudSharingDiskID,
   defaultTempCloudSharingRootFolderID,
@@ -380,6 +381,7 @@ const RouterUI = () => {
               <Route path="/gift" element={<GiftPage />} />
 
               {/* Organization Level Routes */}
+
               <Route
                 path="/org/:orgcode/resources/contacts"
                 element={<ContactsPage />}
@@ -404,6 +406,12 @@ const RouterUI = () => {
                 path="/org/:orgcode/resources/permissions"
                 element={<PermissionsPage />}
               />
+
+              <Route
+                path="/org/:orgcode/redeem/directory-permit"
+                element={<RedeemDirectoryPermitPage />}
+              />
+
               <Route
                 path="/org/:orgcode/resources/permissions/:permissionVariant/:permissionID"
                 element={<PermissionPage />}

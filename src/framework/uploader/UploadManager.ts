@@ -1248,6 +1248,7 @@ export class UploadManager {
           name: folderName,
           parent_folder_uuid: parentFolderID,
           disk_id: config.diskID,
+          disk_type: config.diskType,
           labels: [],
           file_conflict_resolution: FileConflictResolutionEnum.KEEP_ORIGINAL,
         },
@@ -1320,6 +1321,7 @@ export class UploadManager {
         parent_folder_uuid: folderConfig.parent_folder_uuid,
         labels: folderConfig.labels || [],
         disk_id: folderConfig.disk_id,
+        disk_type: folderConfig.disk_type,
         expires_at: folderConfig.expires_at || -1,
         file_conflict_resolution:
           folderConfig.file_conflict_resolution || undefined,

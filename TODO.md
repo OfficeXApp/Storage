@@ -2,9 +2,15 @@
 
 ## Overview
 
-- [🔵] Share folder & guests can upload properly
+- [🔵] Implement magic link directory permission
 - [🔵] Invite system with smooth onboarding & sharing (1-2 days)
+- [ ] Implement magic link groups
+- [ ] Implement password directory permission
 - [x] Invite contact with redeem feature
+- [x] Share folder & guests can upload properly
+- [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
+- [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
+- [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
 
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
@@ -22,7 +28,6 @@
 ## Polish Checklist
 
 - [ ] Implement "Default Disk"
-- [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
 - [ ] Back button on /drive for when new user arrives
 - [ ] When adding a new org, dont just refresh page, go to /contacts just in case
 - [ ] Trash bin functionality

@@ -138,7 +138,6 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
       onClose={onClose}
       open={open}
       width={500}
-      mask={false}
       footer={
         <div style={{ textAlign: "right" }}>
           <Button size="large" onClick={onClose} style={{ marginRight: 8 }}>

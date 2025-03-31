@@ -674,7 +674,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 last_updated_date_ms: Date.now(),
                 last_updated_by: userID,
                 disk_id: folderData.payload.disk_id,
-                disk_type: DiskTypeEnum.BrowserCache,
+                disk_type: folderData.payload.disk_type,
                 deleted: false,
                 expires_at: folderData.payload.expires_at || -1,
                 drive_id: orgID,
@@ -721,6 +721,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             const optimisticID = action.meta?.optimisticID;
             const listDirectoryKey = action.meta?.listDirectoryKey;
             let realFolder: FolderRecordFE | undefined;
+
+            console.log(`CREATE_FOLDER_COMMIT optimistic`, action);
 
             // Extract the folder from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.folder) {
@@ -797,6 +799,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_FOLDER_ROLLBACK: {
+            console.log(`CREATE_FOLDER_ROLLBACK optimistic`, action);
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();

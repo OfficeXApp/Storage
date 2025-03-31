@@ -8,6 +8,7 @@
 - [ ] Implement password directory permission
 - [x] Invite contact with redeem feature
 - [x] Share folder & guests can upload properly
+- [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)

@@ -104,6 +104,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     (state: ReduxAppState) => state.contacts.contacts
   );
   const groups = useSelector((state: ReduxAppState) => state.groups.groups);
+  const [isPublic, setIsPublic] = useState(false);
   const [isMagicLink, setIsMagicLink] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
@@ -263,6 +264,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   const isStepValid = (stepIndex: number) => {
     if (preExistingStateForEdit && stepIndex === 0) return true;
     if (stepIndex === 0 && isMagicLink) return true;
+    if (stepIndex === 0 && isPublic) return true;
     return steps[stepIndex].isValid();
   };
 
@@ -271,7 +273,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     try {
       debugFormValues(); // For debugging
 
-      const step0Valid = isMagicLink || isStepValid(0);
+      const step0Valid = isPublic || isMagicLink || isStepValid(0);
       const step1Valid = permissionTypes.length > 0;
       const step2Valid = isStepValid(2);
 
@@ -311,6 +313,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         setSelectedGrantee(null);
         setGranteeTab("magiclink");
         setIsMagicLink(true);
+        setIsPublic(false);
         setUserIdInput("");
         setContactSearchQuery("");
         setGroupSearchQuery("");
@@ -435,6 +438,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     form.setFieldsValue({ granteeId: contactId });
     checkFormValidity();
     setIsMagicLink(false);
+    setIsPublic(false);
   };
 
   // Handle group selection
@@ -447,6 +451,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     form.setFieldsValue({ granteeId: groupId });
     checkFormValidity();
     setIsMagicLink(false);
+    setIsPublic(false);
   };
 
   // Handle userID input
@@ -464,6 +469,7 @@ const DirectoryPermissionAddDrawer: React.FC<
       });
       form.setFieldsValue({ granteeId: extractedId });
       setIsMagicLink(false);
+      setIsPublic(false);
     } else {
       setSelectedGrantee(null);
       form.setFieldsValue({ granteeId: undefined });
@@ -576,7 +582,11 @@ const DirectoryPermissionAddDrawer: React.FC<
         external_id: externalId,
         external_payload: externalPayload,
       };
-      if (!isMagicLink) {
+      if (isMagicLink) {
+        directoryPermissionData.granted_to = undefined;
+      } else if (isPublic) {
+        directoryPermissionData.granted_to = "PUBLIC";
+      } else {
         if (!selectedGrantee?.id) {
           message.error("Please select a grantee");
           return;
@@ -617,8 +627,10 @@ const DirectoryPermissionAddDrawer: React.FC<
           // Read-only view for edit mode
           <div style={{ padding: "8px 0" }}>
             <Text strong>{preExistingStateForEdit.grantee_name}</Text>
-            {` `}
-            <TagCopy id={preExistingStateForEdit.granted_to} />
+            <TagCopy
+              id={preExistingStateForEdit.granted_to}
+              style={{ marginLeft: 8 }}
+            />
           </div>
         ) : (
           <Tabs
@@ -636,11 +648,12 @@ const DirectoryPermissionAddDrawer: React.FC<
             >
               <Space>
                 <Switch
-                  checked={isMagicLink}
+                  checked={isPublic}
                   onChange={(checked) => {
-                    setIsMagicLink(checked);
+                    setIsPublic(checked);
                     if (checked) {
                       setSelectedGrantee(null);
+                      setIsMagicLink(false);
                     }
                     checkFormValidity();
                   }}
@@ -666,6 +679,7 @@ const DirectoryPermissionAddDrawer: React.FC<
                     setIsMagicLink(checked);
                     if (checked) {
                       setSelectedGrantee(null);
+                      setIsPublic(false);
                     }
                     checkFormValidity();
                   }}

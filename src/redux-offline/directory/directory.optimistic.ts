@@ -674,7 +674,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 last_updated_date_ms: Date.now(),
                 last_updated_by: userID,
                 disk_id: folderData.payload.disk_id,
-                disk_type: DiskTypeEnum.BrowserCache,
+                disk_type: folderData.payload.disk_type,
                 deleted: false,
                 expires_at: folderData.payload.expires_at || -1,
                 drive_id: orgID,

@@ -46,6 +46,7 @@ import {
   listDirectoryPermissionsAction,
 } from "../../redux-offline/permissions/permissions.actions";
 import { DirectoryPermissionFEO } from "../../redux-offline/permissions/permissions.reducer";
+import PermissionStatusMessage from "./directory-warning";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
@@ -261,7 +262,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           <Popover content={record.original.note || "Add Custom Notes"}>
             {text}
           </Popover>
-          <TagCopy id={record.who_id} />
+          {record.who_id !== "PUBLIC" && (
+            <TagCopy id={record.who_id} style={{ marginLeft: 8 }} />
+          )}
         </span>
       ),
     },
@@ -363,16 +366,10 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       width={700}
       footer={null}
     >
-      <div style={{ marginBottom: "8px" }}>
-        <Tooltip title="Link that can be shared with others to access this directory">
-          <Space>
-            <span style={{ color: "green" }}>
-              This file is PUBLIC on the internet
-            </span>{" "}
-            <InfoCircleOutlined style={{ color: "#aaa" }} />
-          </Space>
-        </Tooltip>
-      </div>
+      <PermissionStatusMessage
+        resource_id={resourceID}
+        permissions={permissions}
+      />
       <div style={{ marginBottom: "16px" }}>
         <Input
           value={shareUrl}

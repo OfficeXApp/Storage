@@ -36,6 +36,11 @@ import { DirectoryResourceID, DiskTypeEnum, FileID } from "@officexapp/types";
 import SheetJSPreview from "../SheetJSPreview";
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
 import { sleep } from "../../api/helpers";
+import {
+  UPDATE_FILE,
+  updateFileAction,
+} from "../../redux-offline/directory/directory.actions";
+import { useDispatch } from "react-redux";
 
 const { Text } = Typography;
 
@@ -53,11 +58,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const { currentProfile, currentOrg, currentAPIKey, generateSignature } =
     useIdentitySystem();
   const { evmPublicKey, icpAccount } = currentProfile || {};
-
-  const renameFilePath = async (fileID: FileID, newName: string) => {
-    return;
-  };
-
+  const dispatch = useDispatch();
   // State for file content and UI
   const [fileUrl, setFileUrl] = useState<string>("");
   const [isModalVisible, setIsModalVisible] = useState<boolean>(true);
@@ -463,25 +464,31 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   };
 
   const handleRename = async (newName: string) => {
-    // setIsUpdatingName(true);
-    // try {
-    //   const oldName = file.name;
-    //   await renameFilePath(file.id as FileUUID, newName);
-    //   setFileName(newName);
-    //   message.success("File renamed successfully");
-    //   // Update URL using window.history.replaceState
-    //   const currentPath = window.location.pathname;
-    //   const newPath = currentPath.replace(
-    //     encodeURIComponent(oldName),
-    //     encodeURIComponent(newName)
-    //   );
-    //   window.history.replaceState(null, "", newPath);
-    // } catch (error) {
-    //   message.error("Failed to rename file");
-    // } finally {
-    //   setIsUpdatingName(false);
-    //   setIsEditing(false);
-    // }
+    const oldName = file.name;
+    if (oldName === newName) return;
+    if (newName.split(".").length === 1) {
+      message.error(`Filename must include extension`);
+      return;
+    }
+    setIsUpdatingName(true);
+    try {
+      // update file action
+      const updateAction = {
+        action: UPDATE_FILE as "UPDATE_FILE",
+        payload: {
+          id: file.id,
+          name: newName,
+        },
+      };
+
+      dispatch(updateFileAction(updateAction));
+      message.success("File renamed successfully");
+    } catch (error) {
+      message.error("Failed to rename file");
+    } finally {
+      setIsUpdatingName(false);
+      setIsEditing(false);
+    }
   };
 
   const handleShare = async (url: string) => {
@@ -622,9 +629,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             <Button
               type="primary"
               onClick={() => handleShare(file.raw_url)}
-              disabled={
-                !file.raw_url || file.disk_type === DiskTypeEnum.BrowserCache
-              }
+              disabled={file.disk_type === DiskTypeEnum.BrowserCache}
               loading={isGeneratingShareLink}
             >
               Share

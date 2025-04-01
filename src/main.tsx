@@ -12,6 +12,10 @@ import { IdentitySystemProvider } from "./framework/identity/index.tsx";
 import { ReduxOfflineProvider } from "./redux-offline/ReduxProvider.tsx";
 import { MultiUploaderProvider } from "./framework/uploader/hook.tsx";
 import { BrowserRouter } from "react-router-dom";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 mixpanel.init("cae2fd45d17ff2cdf642b1d8afd80aa8", {
   debug: true,

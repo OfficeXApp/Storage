@@ -651,7 +651,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         );
 
         const res = await create_response.json();
-        console.log(`>>> create dir permit res`, res);
+
         if (res.ok.data.permission.redeem_code) {
           const url = generateRedeemDirectoryPermitURL({
             fileURL: window.location.href,
@@ -1251,13 +1251,13 @@ const DirectoryPermissionAddDrawer: React.FC<
   };
 
   // Handle next button click
-  const handleNextButtonClick = () => {
+  const handleNextButtonClick = async () => {
     if (currentStep === steps.length - 1) {
       // At Share step, close the drawer and call callback
       onClose();
       onSubmitCallback();
     } else if (currentStep === steps.length - 2) {
-      handleAddPermission();
+      await handleAddPermission();
       nextStep();
     } else {
       nextStep();

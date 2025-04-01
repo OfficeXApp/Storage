@@ -229,7 +229,6 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
       }
     );
     const res = await create_group_response.json();
-    console.log(`>>> create_group_response res`, res);
 
     if (res.ok.data.redeem_code) {
       const groupInviteRedeemLink = generateRedeemGroupInviteURL(

@@ -70,6 +70,8 @@ export const shouldBehaveOfflineDiskUIIntent = (diskID: DiskID) => {
     diskID === defaultTempCloudSharingDiskID
   ) {
     return true;
+  } else if (!diskID) {
+    return true;
   } else {
     return false;
   }

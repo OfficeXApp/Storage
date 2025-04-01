@@ -155,11 +155,17 @@ export const getFileAction = (
   action: GetFileAction,
   shouldBehaveOfflineDiskUI = true
 ) => {
+  console.log(
+    `shouldBehaveOfflineDiskUI==${shouldBehaveOfflineDiskUI}`,
+    action
+  );
   const resourceId = action.payload.id as FileID;
   return {
     type: GET_FILE,
+    shouldBehaveOfflineDiskUI, // Make sure this is set properly
     meta: {
       optimisticID: resourceId,
+      isOfflineDrive: shouldBehaveOfflineDiskUI,
       offline: {
         effect: {
           url: `/directory/action`,
@@ -167,16 +173,18 @@ export const getFileAction = (
           headers: {
             "Content-Type": "application/json",
             shouldBehaveOfflineDiskUI,
-            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
           },
           data: {
             actions: [action],
           },
         },
-        commit: { type: GET_FILE_COMMIT, meta: { optimisticID: resourceId } },
+        commit: {
+          type: GET_FILE_COMMIT,
+          meta: { optimisticID: resourceId, shouldBehaveOfflineDiskUI },
+        },
         rollback: {
           type: GET_FILE_ROLLBACK,
-          meta: { optimisticID: resourceId },
+          meta: { optimisticID: resourceId, shouldBehaveOfflineDiskUI },
         },
       },
     },

@@ -226,7 +226,7 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
         external_id: values.externalId,
         external_payload: values.externalPayload,
       };
-      console.log(`>>> Dispatching updateSystemPermissionAction`, updateData);
+
       dispatch(updateSystemPermissionAction(updateData));
 
       message.success(

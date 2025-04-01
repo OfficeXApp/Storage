@@ -59,7 +59,7 @@ import UploadDropZone from "../UploadDropZone";
 import StorjSettingsCard from "../StorjSettingsCard";
 import FilePage from "../FilePage";
 import { isMobile } from "react-device-detect";
-import { getFileType } from "../../api/helpers";
+import { getFileType, sleep } from "../../api/helpers";
 import { freeTrialStorjCreds } from "../../api/storj";
 import mixpanel from "mixpanel-browser";
 import {
@@ -101,7 +101,12 @@ import {
   listDirectoryAction,
   generateListDirectoryKey,
 } from "../../redux-offline/directory/directory.actions";
-import { defaultTempCloudSharingRootFolderID } from "../../api/dexie-database";
+import dayjs from "dayjs";
+import {
+  defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDiskID,
+  defaultTempCloudSharingRootFolderID,
+} from "../../api/dexie-database";
 import {
   FileFEO,
   FolderFEO,
@@ -113,6 +118,7 @@ import {
 } from "../../redux-offline/permissions/permissions.actions";
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
 import DirectoryGuard from "./DirectoryGuard";
+import { useMultiUploader } from "../../framework/uploader/hook";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -123,6 +129,7 @@ interface DriveItemRow {
   diskID: DiskID;
   isDisabled: boolean;
   diskType: DiskTypeEnum;
+  expires_at: number;
 }
 
 interface DriveUIProps {
@@ -152,13 +159,15 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
 
+  const { uploadTargetDiskID } = useMultiUploader();
+
+  const isOfflineDisk =
+    uploadTargetDiskID === defaultTempCloudSharingDiskID ||
+    uploadTargetDiskID === defaultBrowserCacheDiskID;
+
   const getFileResult: FileFEO | undefined = useSelector(
     (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
   );
-
-  console.log(`>>> currentFileId`, currentFileId);
-  console.log(`>>> listDirectoryResults`, listDirectoryResults);
-  console.log(`>>> getFileResult`, getFileResult);
 
   const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
 
@@ -302,6 +311,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const fetchFileById = (fileId: FileID) => {
     console.log("Fetching file by ID:", fileId);
+    if (!currentDiskId) return;
     try {
       // Create the get file action
       const getAction = {
@@ -312,10 +322,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       };
 
       // Dispatch the action
+      console.log(`currentDiskId=${currentDiskId}`);
+      console.log(`disk`, currentDisk);
+
       dispatch(
         getFileAction(
           getAction,
-          shouldBehaveOfflineDiskUIIntent(currentDisk?.id || "")
+          shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
         )
       );
 
@@ -328,6 +341,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
       // We'll rely on the useEffect that watches filesFromRedux to set the file
       // when it arrives from the Redux store after the action completes
+
+      if (!shouldBehaveOfflineDiskUIIntent(currentDiskId || "")) {
+        appendRefreshParam();
+      }
     } catch (error) {
       console.error("Error fetching file by ID:", error);
       setIs404NotFound(true);
@@ -491,7 +508,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         dataIndex: "title",
         key: "title",
         render: (text: string, record: DriveItemRow) => {
-          // console.log(`record`, record);
+          console.log(`record`, record);
           return (
             <div
               onClick={() => {
@@ -557,7 +574,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               </span>
             );
           } else {
-            return null;
+            return (
+              <span style={{ color: "gray", cursor: "not-allowed" }}>
+                {record.expires_at === -1
+                  ? null
+                  : `Expires ${dayjs(record.expires_at).fromNow()}`}
+              </span>
+            );
           }
         },
         responsive: ["md"] as Breakpoint[],
@@ -732,6 +755,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         diskID: f.disk_id,
         diskType: f.disk_type,
         isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
+        expires_at: f.expires_at,
       })),
       ...content.files.map((f) => ({
         id: f.id,
@@ -742,6 +766,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         diskID: f.disk_id,
         diskType: f.disk_type,
         isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
+        expires_at: f.expires_at,
       })),
     ];
   }, [content, currentFolderId, disks]);
@@ -753,10 +778,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   // Handle rename using Redux actions
   const handleRenameSubmit = async (record: DriveItemRow) => {
     const newName = renamingItems[record.id];
+    console.log(`newName--`, newName);
     if (newName && newName !== record.title) {
       try {
         if (record.isFolder) {
-          // Create update folder action
+          // update folder action
           const updateAction = {
             action: UPDATE_FOLDER as "UPDATE_FOLDER",
             payload: {
@@ -766,8 +792,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           };
 
           dispatch(updateFolderAction(updateAction));
+          // Refresh content to show the update
+          await sleep(1000);
+          fetchContent({
+            targetFolderId: currentFolderId || "",
+          });
         } else {
-          // Create update file action
+          if (newName.split(".").length === 1) {
+            message.error(`Filename must include extension`);
+            return;
+          }
+          // update file action
           const updateAction = {
             action: UPDATE_FILE as "UPDATE_FILE",
             payload: {
@@ -777,14 +812,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           };
 
           dispatch(updateFileAction(updateAction));
+          // Refresh content to show the update
+          await sleep(1000);
+          fetchContent({
+            targetFolderId: currentFolderId || "",
+          });
         }
 
         message.success(
           `${record.isFolder ? "Folder" : "File"} renamed successfully`
         );
-
-        // Refresh content to show the update
-        fetchContent({});
       } catch (error) {
         console.log(error);
         message.error(
@@ -823,6 +860,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // unauthorized access to file
   if (currentFileId && !getFileResult) {
+    console.log(`currentFileID= ${currentFileId}`, getFileResult);
     return <DirectoryGuard resourceID={currentFileId} />;
   }
 
@@ -861,6 +899,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             <Button
               onClick={() => setShareFolderDrawerVisible(true)}
               type="primary"
+              disabled={isOfflineDisk}
             >
               Share
             </Button>

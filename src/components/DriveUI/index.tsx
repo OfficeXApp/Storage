@@ -818,12 +818,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
-    return <DirectoryGuard />;
+    return <DirectoryGuard resourceID={currentFolderId} />;
   }
 
   // unauthorized access to file
   if (currentFileId && !getFileResult) {
-    return <DirectoryGuard />;
+    return <DirectoryGuard resourceID={currentFileId} />;
   }
 
   return (

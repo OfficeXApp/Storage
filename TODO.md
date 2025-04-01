@@ -2,19 +2,18 @@
 
 ## Overview
 
-- [🔵] Implement magic link directory permission
+- [🔵] Implement password directory permission
 - [🔵] Invite system with smooth onboarding & sharing (1-2 days)
+
 - [ ] Implement magic link groups
-- [ ] Implement password directory permission
-- [x] Invite contact with redeem feature
-- [x] Share folder & guests can upload properly
+- [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
+
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 - [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
 - [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
 
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
-- [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
 - [ ] Add 404 Pages
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 
@@ -27,7 +26,7 @@
 
 ## Polish Checklist
 
-- [ ] Implement "Default Disk"
+- [ ] Implement "Default Disk" and hide disks
 - [ ] Back button on /drive for when new user arrives
 - [ ] When adding a new org, dont just refresh page, go to /contacts just in case
 - [ ] Trash bin functionality
@@ -84,3 +83,6 @@
 - [x] Fix the lack of duplicate handling for files & folders
 - [x] Implement actual file uploading & panel showing progress (from DriveUI too!)
 - [x] Add FilePage UI
+- [x] Implement magic link directory permission
+- [x] Invite contact with redeem feature
+- [x] Share folder & guests can upload properly

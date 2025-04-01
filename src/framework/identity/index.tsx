@@ -137,8 +137,11 @@ interface IdentitySystemContextType {
 
   syncLatestIdentities: () => Promise<void>;
   deriveProfileFromSeed: (seedPhrase: string) => Promise<IndexDB_Profile>;
-  generateSignature: () => Promise<string>;
-
+  generateSignature: (auth_profile?: AuthProfile) => Promise<string>;
+  hydrateFullAuthProfile: (
+    profile: IndexDB_Profile,
+    ephemeral?: boolean
+  ) => Promise<AuthProfile>;
   wrapOrgCode: (route: string) => string;
 }
 
@@ -258,7 +261,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             const existingProfile = await readProfile(local_storage_profile_id);
             if (localStorageICPPublicAddress && existingProfile) {
               // select profile
-              hydrateFullAuthProfile(existingProfile);
+              await hydrateFullAuthProfile(existingProfile);
               initial_profile_id = existingProfile.userID;
             } else {
               // Create initial profile
@@ -266,7 +269,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
               const newProfile = await deriveProfileFromSeed(seedPhrase);
               newProfile.nickname = "Anonymous";
               await createProfile(newProfile);
-              hydrateFullAuthProfile(newProfile);
+              await hydrateFullAuthProfile(newProfile);
               overwriteLocalStorageProfile(newProfile);
               initial_profile_id = newProfile.userID;
             }
@@ -340,8 +343,13 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Internal
-  const hydrateFullAuthProfile = async (profile: IndexDB_Profile) => {
-    _setCurrentProfile(profile);
+  const hydrateFullAuthProfile = async (
+    profile: IndexDB_Profile,
+    ephemeral = false
+  ) => {
+    if (!ephemeral) {
+      _setCurrentProfile(profile);
+    }
     if (profile.seedPhrase) {
       const derivedKey = await deriveEd25519KeyFromSeed(
         mnemonicToSeedSync(profile.seedPhrase || "")
@@ -363,7 +371,10 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           principal,
         },
       };
-      setCurrentProfile(auth_profile);
+      if (!ephemeral) {
+        setCurrentProfile(auth_profile);
+      }
+      return auth_profile;
     } else {
       const auth_profile = {
         evmPublicKey: profile.evmPublicAddress || "",
@@ -373,7 +384,10 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         userID: profile.userID || "",
         icpAccount: null,
       };
-      setCurrentProfile(auth_profile);
+      if (!ephemeral) {
+        setCurrentProfile(auth_profile);
+      }
+      return auth_profile;
     }
   };
   const overwriteLocalStorageProfile = useCallback(
@@ -491,64 +505,72 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     []
   );
   // Generate signature using ICP identity
-  const generateSignature = useCallback(async (): Promise<string> => {
-    try {
-      if (!currentProfileRef.current) {
-        console.error("ICP account not initialized");
-        return "";
-      }
-      if (!currentProfileRef.current.icpAccount) {
-        console.error(
-          "No ICP Account via private key, this is likely an API user"
+  const generateSignature = useCallback(
+    async (auth_profile?: AuthProfile): Promise<string> => {
+      try {
+        if (!auth_profile) {
+          if (!currentProfileRef.current) {
+            console.error("ICP account not initialized");
+            return "";
+          }
+          if (!currentProfileRef.current.icpAccount) {
+            console.error(
+              "No ICP Account via private key, this is likely an API user"
+            );
+            return "";
+          }
+        }
+
+        const target_profile = auth_profile || currentProfileRef.current;
+        if (!target_profile || !target_profile.icpAccount) {
+          throw Error("No target profile for signature generation");
+        }
+
+        console.log(`Generating signature for ${target_profile.nickname}`);
+
+        const identity = target_profile.icpAccount.identity;
+
+        // Use the raw public key for signature verification
+        const rawPublicKey = identity.getPublicKey().toRaw();
+        const publicKeyArray = Array.from(new Uint8Array(rawPublicKey));
+
+        // Get the canonical principal
+        const canonicalPrincipal = identity.getPrincipal().toString();
+
+        const now = Date.now();
+
+        // Build the challenge
+        const challenge = {
+          timestamp_ms: now,
+          drive_canister_id: currentOrg?.icpPublicAddress,
+          self_auth_principal: publicKeyArray,
+          canonical_principal: canonicalPrincipal,
+        };
+
+        // Serialize and sign the challenge
+        const challengeBytes = new TextEncoder().encode(
+          JSON.stringify(challenge)
         );
+        const signature = await identity.sign(challengeBytes);
+        const signatureArray = Array.from(new Uint8Array(signature));
+
+        // Build and encode the proof
+        const proof = {
+          auth_type: "SIGNATURE",
+          challenge,
+          signature: signatureArray,
+        };
+
+        const sig_token = btoa(JSON.stringify(proof));
+
+        return sig_token;
+      } catch (error) {
+        console.error("Signature generation error:", error);
         return "";
       }
-
-      console.log(
-        `Generating signature for ${currentProfileRef.current.nickname}`
-      );
-
-      const identity = currentProfileRef.current.icpAccount.identity;
-
-      // Use the raw public key for signature verification
-      const rawPublicKey = identity.getPublicKey().toRaw();
-      const publicKeyArray = Array.from(new Uint8Array(rawPublicKey));
-
-      // Get the canonical principal
-      const canonicalPrincipal = identity.getPrincipal().toString();
-
-      const now = Date.now();
-
-      // Build the challenge
-      const challenge = {
-        timestamp_ms: now,
-        drive_canister_id: currentOrg?.icpPublicAddress,
-        self_auth_principal: publicKeyArray,
-        canonical_principal: canonicalPrincipal,
-      };
-
-      // Serialize and sign the challenge
-      const challengeBytes = new TextEncoder().encode(
-        JSON.stringify(challenge)
-      );
-      const signature = await identity.sign(challengeBytes);
-      const signatureArray = Array.from(new Uint8Array(signature));
-
-      // Build and encode the proof
-      const proof = {
-        auth_type: "SIGNATURE",
-        challenge,
-        signature: signatureArray,
-      };
-
-      const sig_token = btoa(JSON.stringify(proof));
-
-      return sig_token;
-    } catch (error) {
-      console.error("Signature generation error:", error);
-      return "";
-    }
-  }, [currentProfile]);
+    },
+    [currentProfile]
+  );
 
   // Profiles
   const listProfiles = async (): Promise<IndexDB_Profile[]> => {
@@ -637,7 +659,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
 
         // Update current profile if it's the one being updated
         if (_currentProfile && _currentProfile.userID === profile.userID) {
-          hydrateFullAuthProfile(profile);
+          await hydrateFullAuthProfile(profile);
         }
       } catch (err) {
         console.error("Error updating profile:", err);
@@ -683,7 +705,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             (profile) => profile.userID !== userID
           );
           if (remainingProfiles.length > 0) {
-            hydrateFullAuthProfile(remainingProfiles[0]);
+            await hydrateFullAuthProfile(remainingProfiles[0]);
           }
         }
       } catch (err) {
@@ -1089,7 +1111,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     syncLatestIdentities,
     deriveProfileFromSeed,
     generateSignature,
-
+    hydrateFullAuthProfile,
     wrapOrgCode,
   };
 

@@ -47,6 +47,8 @@ import {
 } from "../../redux-offline/permissions/permissions.actions";
 import { DirectoryPermissionFEO } from "../../redux-offline/permissions/permissions.reducer";
 import PermissionStatusMessage from "./directory-warning";
+import { generateRedeemDirectoryPermitURL } from "./directory-permission.redeem";
+import { useIdentitySystem } from "../../framework/identity";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
@@ -94,7 +96,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   const permissions = useMemo(() => {
     return permissionIDs.map((pid) => permissionMap[pid]);
   }, [permissionIDs, permissionMap]);
-
+  const { wrapOrgCode, currentOrg } = useIdentitySystem();
   const [permissionForEdit, setPermissionForEdit] =
     useState<PreExistingStateForEdit>();
 
@@ -119,26 +121,32 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     if (permissions.length > 0) {
       const data = permissions
         .filter((p) => p)
-        .map((p) => ({
-          key: p.id,
-          who: p.grantee_name || p.granted_to || "",
-          who_id: p.granted_to || "",
-          canView: p.permission_types.includes(DirectoryPermissionType.VIEW),
-          canEdit: p.permission_types.includes(DirectoryPermissionType.EDIT),
-          canDelete: p.permission_types.includes(
-            DirectoryPermissionType.DELETE
-          ),
-          canInvite: p.permission_types.includes(
-            DirectoryPermissionType.INVITE
-          ),
-          canUpload: p.permission_types.includes(
-            DirectoryPermissionType.UPLOAD
-          ),
-          whenStart: p.begin_date_ms,
-          whenEnd: p.expiry_date_ms,
-          isEditing: false,
-          original: p,
-        }));
+        .map((p) => {
+          let who = p.grantee_name || p.granted_to || "";
+          if (p.metadata?.metadata_type === "DIRECTORY_PASSWORD") {
+            who = "Password";
+          }
+          return {
+            key: p.id,
+            who,
+            who_id: p.granted_to || "",
+            canView: p.permission_types.includes(DirectoryPermissionType.VIEW),
+            canEdit: p.permission_types.includes(DirectoryPermissionType.EDIT),
+            canDelete: p.permission_types.includes(
+              DirectoryPermissionType.DELETE
+            ),
+            canInvite: p.permission_types.includes(
+              DirectoryPermissionType.INVITE
+            ),
+            canUpload: p.permission_types.includes(
+              DirectoryPermissionType.UPLOAD
+            ),
+            whenStart: p.begin_date_ms,
+            whenEnd: p.expiry_date_ms,
+            isEditing: false,
+            original: p,
+          };
+        });
 
       setDataSource(data);
     }
@@ -201,6 +209,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       note: record.original.note,
       external_id: record.original.external_id,
       external_payload: record.original.external_payload,
+      password: record.original.metadata.content.DirectoryPassword,
     });
     setIsAddDrawerOpen(true);
   };
@@ -259,10 +268,10 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       dataIndex: "who",
       key: "who",
       width: "45%",
-      render: (text: string, record: PermissionRecord) => (
+      render: (name: string, record: PermissionRecord) => (
         <span style={{ fontSize: "16px" }}>
           <Popover content={record.original.note || "Add Custom Notes"}>
-            {text}
+            {name}
           </Popover>
           {record.who_id !== "PUBLIC" && (
             <TagCopy id={record.who_id} style={{ marginLeft: 8 }} />
@@ -308,31 +317,67 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       key: "action",
       width: "10%",
       render: (_: any, record: PermissionRecord) => {
-        const items: MenuProps["items"] = [
-          {
-            key: "1",
+        const items: MenuProps["items"] = [];
+        if (
+          record.original.granted_to.startsWith(
+            "PlaceholderPermissionGranteeID_"
+          )
+        ) {
+          items.push({
+            key: "magiclink",
             label: (
-              <a onClick={() => handleRemove(record.key)}>Copy Password</a>
-            ),
-          },
-          {
-            key: "2",
-            label: (
-              <a onClick={() => handleRemove(record.key)}>Copy Magic Link</a>
-            ),
-          },
-          {
-            key: "3",
-            label: (
-              <Popconfirm
-                title="Are you sure you want to remove this permission? This cannot be undone"
-                onConfirm={() => handleRemove(record.original.id)}
+              <a
+                onClick={() => {
+                  const magicLink = generateRedeemDirectoryPermitURL({
+                    fileURL: window.location.href,
+                    wrapOrgCode,
+                    permissionID: record.original.id,
+                    resourceName: resourceName,
+                    orgName: currentOrg?.nickname || "",
+                    permissionTypes: record.original.permission_types,
+                    resourceID: resourceID,
+                    daterange: {
+                      begins_at: record.original.begin_date_ms,
+                      expires_at: record.original.expiry_date_ms,
+                    },
+                  });
+                  navigator.clipboard.writeText(magicLink);
+                  message.success("Copied magic link!");
+                }}
               >
-                <span>Remove</span>
-              </Popconfirm>
+                Copy Magic Link
+              </a>
             ),
-          },
-        ];
+          });
+        }
+        if (record.original.metadata?.metadata_type === "DIRECTORY_PASSWORD") {
+          items.push({
+            key: "password",
+            label: (
+              <a
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    record.original.metadata.content.DirectoryPassword
+                  );
+                  message.success("Copied password!");
+                }}
+              >
+                Copy Password
+              </a>
+            ),
+          });
+        }
+        items.push({
+          key: "remove",
+          label: (
+            <Popconfirm
+              title="Are you sure you want to remove this permission? This cannot be undone"
+              onConfirm={() => handleRemove(record.original.id)}
+            >
+              <span>Remove</span>
+            </Popconfirm>
+          ),
+        });
 
         return (
           <Space>

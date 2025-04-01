@@ -60,6 +60,7 @@ import TagCopy from "../TagCopy";
 import { areArraysEqual } from "../../api/helpers";
 import { generateRedeemDirectoryPermitURL } from "./directory-permission.redeem";
 import { useIdentitySystem } from "../../framework/identity";
+import { passwordToSeedPhrase } from "../../api/icp";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -79,6 +80,7 @@ export interface PreExistingStateForEdit {
   note: string; // Optional notes
   external_id?: string; // Optional external ID
   external_payload?: string; // Optional external payload
+  password?: string;
 }
 
 interface DirectoryPermissionAddDrawerProps {
@@ -125,7 +127,8 @@ const DirectoryPermissionAddDrawer: React.FC<
     [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
   >(null);
   const [shareableURL, setShareableURL] = useState("");
-  const { currentOrg, wrapOrgCode } = useIdentitySystem();
+  const { currentOrg, wrapOrgCode, deriveProfileFromSeed } =
+    useIdentitySystem();
 
   // Current step state
   const [currentStep, setCurrentStep] = useState(
@@ -159,6 +162,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   const [userIdInput, setUserIdInput] = useState("");
   const [isUserIdValid, setIsUserIdValid] = useState(false);
   const [extractedUserId, setExtractedUserId] = useState("");
+  const [passwordForGrantee, setPasswordForGrantee] = useState("");
   const [filteredContacts, setFilteredContacts] = useState(contacts);
   const [filteredGroups, setFilteredGroups] = useState(groups);
   const [permissionTypes, setPermissionTypes] = useState<
@@ -323,6 +327,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         setGranteeTab("magiclink");
         setIsMagicLink(true);
         setIsPublic(false);
+        setPasswordForGrantee("");
         setUserIdInput("");
         setContactSearchQuery("");
         setGroupSearchQuery("");
@@ -449,6 +454,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     checkFormValidity();
     setIsMagicLink(false);
     setIsPublic(false);
+    setPasswordForGrantee("");
   };
 
   // Handle group selection
@@ -462,6 +468,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     checkFormValidity();
     setIsMagicLink(false);
     setIsPublic(false);
+    setPasswordForGrantee("");
   };
 
   // Handle userID input
@@ -480,6 +487,7 @@ const DirectoryPermissionAddDrawer: React.FC<
       form.setFieldsValue({ granteeId: extractedId });
       setIsMagicLink(false);
       setIsPublic(false);
+      setPasswordForGrantee("");
     } else {
       setSelectedGrantee(null);
       form.setFieldsValue({ granteeId: undefined });
@@ -609,6 +617,15 @@ const DirectoryPermissionAddDrawer: React.FC<
         external_id: externalId,
         external_payload: externalPayload,
       };
+      if (passwordForGrantee) {
+        const metadata = {
+          metadata_type: "DIRECTORY_PASSWORD",
+          content: {
+            DirectoryPassword: passwordForGrantee,
+          },
+        };
+        directoryPermissionData.metadata = metadata;
+      }
       console.log(`isMagicLink=${isMagicLink}`);
       if (isMagicLink && currentOrg) {
         directoryPermissionData.granted_to = undefined;
@@ -673,6 +690,27 @@ const DirectoryPermissionAddDrawer: React.FC<
               id={preExistingStateForEdit.granted_to}
               style={{ marginLeft: 8 }}
             />
+            {preExistingStateForEdit.password && (
+              <Input.Password
+                readOnly
+                value={preExistingStateForEdit.password}
+                style={{ marginTop: 16, padding: 8 }}
+                prefix={
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        preExistingStateForEdit.password || ""
+                      );
+                      message.success(`Copied Password`);
+                    }}
+                    size="small"
+                    style={{ marginRight: 8 }}
+                  >
+                    Copy Password
+                  </Button>
+                }
+              />
+            )}
           </div>
         ) : (
           <Tabs
@@ -696,6 +734,7 @@ const DirectoryPermissionAddDrawer: React.FC<
                     if (checked) {
                       setSelectedGrantee(null);
                       setIsMagicLink(false);
+                      setPasswordForGrantee("");
                     }
                     checkFormValidity();
                   }}
@@ -722,6 +761,7 @@ const DirectoryPermissionAddDrawer: React.FC<
                     if (checked) {
                       setSelectedGrantee(null);
                       setIsPublic(false);
+                      setPasswordForGrantee("");
                     }
                     checkFormValidity();
                   }}
@@ -902,8 +942,32 @@ const DirectoryPermissionAddDrawer: React.FC<
               key="password"
             >
               <Form.Item>
-                <Input.Password placeholder="Password" />
+                <Input.Password
+                  placeholder="Password"
+                  value={passwordForGrantee}
+                  onChange={async (e) => {
+                    const password = e.target.value.replace(" ", "");
+                    setPasswordForGrantee(password);
+                    const deterministic_seed_phrase = passwordToSeedPhrase(
+                      `${password}-${resourceID}`
+                    );
+                    const newProfile = await deriveProfileFromSeed(
+                      deterministic_seed_phrase
+                    );
+                    console.log(`newProfile`, newProfile.userID);
+                    setIsMagicLink(false);
+                    setIsPublic(false);
+                    setSelectedGrantee({
+                      id: newProfile.userID,
+                      type: "userId",
+                      validated: true,
+                    });
+                  }}
+                />
               </Form.Item>
+              <span style={{ color: "rgba(0,0,0,0.4)", marginTop: 0 }}>
+                Anyone with the password can share it with anyone.
+              </span>
             </TabPane>
           </Tabs>
         )}
@@ -1211,7 +1275,7 @@ const DirectoryPermissionAddDrawer: React.FC<
       title={
         preExistingStateForEdit ? (
           <span>
-            {`Edit Directory Permission for ${preExistingStateForEdit.grantee_name}`}{" "}
+            {`Edit Directory Permission for ${preExistingStateForEdit.password ? "Password" : preExistingStateForEdit.grantee_name}`}{" "}
             <TagCopy
               id={preExistingStateForEdit.granted_to}
               style={{ marginLeft: 8 }}

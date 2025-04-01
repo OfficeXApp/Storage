@@ -651,7 +651,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         );
 
         const res = await create_response.json();
-        console.log(`>>> create dir permit res`, res);
+
         if (res.ok.data.permission.redeem_code) {
           const url = generateRedeemDirectoryPermitURL({
             fileURL: window.location.href,

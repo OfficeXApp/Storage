@@ -101,7 +101,12 @@ import {
   listDirectoryAction,
   generateListDirectoryKey,
 } from "../../redux-offline/directory/directory.actions";
-import { defaultTempCloudSharingRootFolderID } from "../../api/dexie-database";
+import dayjs from "dayjs";
+import {
+  defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDiskID,
+  defaultTempCloudSharingRootFolderID,
+} from "../../api/dexie-database";
 import {
   FileFEO,
   FolderFEO,
@@ -113,6 +118,7 @@ import {
 } from "../../redux-offline/permissions/permissions.actions";
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
 import DirectoryGuard from "./DirectoryGuard";
+import { useMultiUploader } from "../../framework/uploader/hook";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -123,6 +129,7 @@ interface DriveItemRow {
   diskID: DiskID;
   isDisabled: boolean;
   diskType: DiskTypeEnum;
+  expires_at: number;
 }
 
 interface DriveUIProps {
@@ -152,13 +159,15 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
 
+  const { uploadTargetDiskID } = useMultiUploader();
+
+  const isOfflineDisk =
+    uploadTargetDiskID === defaultTempCloudSharingDiskID ||
+    uploadTargetDiskID === defaultBrowserCacheDiskID;
+
   const getFileResult: FileFEO | undefined = useSelector(
     (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
   );
-
-  console.log(`>>> currentFileId`, currentFileId);
-  console.log(`>>> listDirectoryResults`, listDirectoryResults);
-  console.log(`>>> getFileResult`, getFileResult);
 
   const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
 
@@ -491,7 +500,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         dataIndex: "title",
         key: "title",
         render: (text: string, record: DriveItemRow) => {
-          // console.log(`record`, record);
+          console.log(`record`, record);
           return (
             <div
               onClick={() => {
@@ -557,7 +566,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               </span>
             );
           } else {
-            return null;
+            return (
+              <span style={{ color: "gray", cursor: "not-allowed" }}>
+                {record.expires_at === -1
+                  ? null
+                  : `Expires ${dayjs(record.expires_at).fromNow()}`}
+              </span>
+            );
           }
         },
         responsive: ["md"] as Breakpoint[],
@@ -732,6 +747,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         diskID: f.disk_id,
         diskType: f.disk_type,
         isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
+        expires_at: f.expires_at,
       })),
       ...content.files.map((f) => ({
         id: f.id,
@@ -742,6 +758,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         diskID: f.disk_id,
         diskType: f.disk_type,
         isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
+        expires_at: f.expires_at,
       })),
     ];
   }, [content, currentFolderId, disks]);
@@ -861,6 +878,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             <Button
               onClick={() => setShareFolderDrawerVisible(true)}
               type="primary"
+              disabled={isOfflineDisk}
             >
               Share
             </Button>

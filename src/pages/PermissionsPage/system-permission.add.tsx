@@ -944,7 +944,6 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
 
   // Handle next button click
   const handleNextButtonClick = () => {
-    console.log(">>> handleNextButtonClick");
     if (currentStep === steps.length - 1) {
       handleAddPermission();
     } else {

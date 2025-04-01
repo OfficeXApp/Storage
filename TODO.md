@@ -2,15 +2,13 @@
 
 ## Overview
 
-- [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
-
-- [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
-- [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
-- [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
-
 - [ ] Trash bin functionality
 - [ ] Edit file/folder name
 - [ ] Delete file folder / Restore trash / Delete forever
+
+- [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
+- [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
+- [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
@@ -86,3 +84,4 @@
 - [x] Implement password directory permission
 - [x] Invite system with smooth onboarding & sharing (1-2 days)
 - [x] Implement magic link groups
+- [x] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding

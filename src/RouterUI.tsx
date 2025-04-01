@@ -79,6 +79,7 @@ import { useSelector } from "react-redux";
 import { ReduxAppState } from "./redux-offline/ReduxProvider";
 import { useIdentitySystem } from "./framework/identity";
 import { DiskTypeEnum } from "@officexapp/types";
+import FreeFileSharePreview from "./components/FreeFileSharePreview";
 
 const { Sider, Content } = Layout;
 
@@ -416,6 +417,11 @@ const RouterUI = () => {
               <Route
                 path="/org/:orgcode/redeem/group-invite"
                 element={<RedeemGroupInvite />}
+              />
+
+              <Route
+                path="/org/:orgcode/share/free-cloud-filesharing"
+                element={<FreeFileSharePreview />}
               />
 
               <Route

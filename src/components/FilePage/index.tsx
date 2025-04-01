@@ -698,6 +698,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         onClose={() => setIsShareDrawerOpen(false)}
         resourceID={file.id as DirectoryResourceID}
         resourceName={file.name}
+        resource={file}
       />
     </>
   );

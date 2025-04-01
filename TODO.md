@@ -2,7 +2,6 @@
 
 ## Overview
 
-- [🔵] Implement magic link groups
 - [ ] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
 
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
@@ -86,3 +85,4 @@
 - [x] Share folder & guests can upload properly
 - [x] Implement password directory permission
 - [x] Invite system with smooth onboarding & sharing (1-2 days)
+- [x] Implement magic link groups

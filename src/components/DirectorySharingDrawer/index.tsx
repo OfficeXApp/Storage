@@ -33,6 +33,7 @@ import {
   DirectoryPermissionID,
   DirectoryPermissionType,
   DirectoryResourceID,
+  FileRecordFE,
   IRequestListDirectoryPermissions,
 } from "@officexapp/types";
 import DirectoryPermissionAddDrawer, {
@@ -49,12 +50,24 @@ import { DirectoryPermissionFEO } from "../../redux-offline/permissions/permissi
 import PermissionStatusMessage from "./directory-warning";
 import { generateRedeemDirectoryPermitURL } from "./directory-permission.redeem";
 import { useIdentitySystem } from "../../framework/identity";
+import { useMultiUploader } from "../../framework/uploader/hook";
+import {
+  defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDiskID,
+} from "../../api/dexie-database";
+import { fileRawUrl_BTOA } from "../FreeFileSharePreview";
+import {
+  FileFEO,
+  FolderFEO,
+} from "../../redux-offline/directory/directory.reducer";
+import { getNextUtcMidnight, urlSafeBase64Encode } from "../../api/helpers";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
   onClose: () => void;
   resourceID: DirectoryResourceID;
   resourceName: string;
+  resource?: FileFEO | FolderFEO;
 }
 
 const { RangePicker } = DatePicker;
@@ -80,6 +93,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   onClose,
   resourceID,
   resourceName,
+  resource,
 }) => {
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -96,13 +110,31 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   const permissions = useMemo(() => {
     return permissionIDs.map((pid) => permissionMap[pid]);
   }, [permissionIDs, permissionMap]);
-  const { wrapOrgCode, currentOrg } = useIdentitySystem();
+  const { wrapOrgCode, currentOrg, currentProfile } = useIdentitySystem();
   const [permissionForEdit, setPermissionForEdit] =
     useState<PreExistingStateForEdit>();
 
+  const { uploadTargetDiskID } = useMultiUploader();
+  const isOfflineDisk =
+    uploadTargetDiskID === defaultTempCloudSharingDiskID ||
+    uploadTargetDiskID === defaultBrowserCacheDiskID;
+
   const dispatch = useDispatch();
   useEffect(() => {
-    setShareUrl(window.location.href);
+    if (uploadTargetDiskID === defaultTempCloudSharingDiskID && resource) {
+      const _file = resource as FileRecordFE;
+      const payload: fileRawUrl_BTOA = {
+        note: `${currentProfile?.userID} shared a file with you`,
+        original: _file,
+      };
+      setShareUrl(
+        `${window.location.origin}${wrapOrgCode("/share/free-cloud-filesharing")}?redeem=${urlSafeBase64Encode(
+          JSON.stringify(payload)
+        )}`
+      );
+    } else {
+      setShareUrl(window.location.href);
+    }
   }, [resourceID]);
 
   useEffect(() => {
@@ -118,7 +150,46 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   const [dataSource, setDataSource] = useState<PermissionRecord[]>([]);
 
   useEffect(() => {
-    if (permissions.length > 0) {
+    if (isOfflineDisk && dataSource.length === 0) {
+      console.log(`uploadTargetDiskID=${uploadTargetDiskID}`);
+      setDataSource([
+        {
+          key: "public",
+          who: "Public",
+          who_id: "Public",
+          canView: uploadTargetDiskID === defaultTempCloudSharingDiskID,
+          canEdit: false,
+          canDelete: false,
+          canInvite: false,
+          canUpload: false,
+          whenStart: 0,
+          whenEnd: getNextUtcMidnight(),
+          isEditing: false,
+          original: {
+            id: "public",
+            resource_id: resourceID,
+            resource_path: "",
+            granted_to: "Public",
+            granted_by: "Public",
+            permission_types:
+              uploadTargetDiskID === defaultTempCloudSharingDiskID
+                ? [DirectoryPermissionType.VIEW]
+                : [],
+            begin_date_ms: 0,
+            expiry_date_ms: getNextUtcMidnight(),
+            inheritable: false,
+            note: "",
+            created_at: 0,
+            last_modified_at: 0,
+            labels: [],
+            metadata: {},
+            grantee_name: "Public",
+            granter_name: "Public",
+            permission_previews: [],
+          },
+        },
+      ]);
+    } else if (permissions.length > 0) {
       const data = permissions
         .filter((p) => p)
         .map((p) => {
@@ -310,6 +381,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           <Button
             onClick={handleAddPermission}
             icon={<PlusOutlined style={{ fontSize: "20px" }} />}
+            disabled={isOfflineDisk}
           >
             Add
           </Button>
@@ -393,8 +465,13 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                 )
               }
               onClick={() => toggleEditMode(record)}
+              disabled={isOfflineDisk}
             />
-            <Dropdown menu={{ items }} trigger={["click"]}>
+            <Dropdown
+              disabled={isOfflineDisk}
+              menu={{ items }}
+              trigger={["click"]}
+            >
               <Button
                 type="text"
                 icon={<MoreOutlined style={{ fontSize: "20px" }} />}

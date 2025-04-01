@@ -197,3 +197,24 @@ export function areArraysEqual(array1: any[], array2: any[]) {
 
   return sorted1.every((value, index) => value === sorted2[index]);
 }
+
+export const getNextUtcMidnight = () => {
+  // Get current date in UTC
+  const now = new Date();
+
+  // Create a new Date object for the next day at midnight UTC
+  const nextMidnight = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + 1, // Add 1 day to get tomorrow
+      0, // Hour: 00
+      0, // Minute: 00
+      0, // Second: 00
+      0 // Millisecond: 000
+    )
+  );
+
+  // Return the Unix timestamp in milliseconds
+  return nextMidnight.getTime();
+};

@@ -70,6 +70,7 @@ import DrivePage from "./pages/DrivesPage/drive.page";
 import ApiKeyPage from "./pages/ApiKeysPage/api-key.page";
 import PermissionPage from "./pages/PermissionsPage/permission.page";
 import RedeemDirectoryPermitPage from "./components/DirectorySharingDrawer/directory-permission.redeem";
+import RedeemGroupInvite from "./pages/GroupsPage/invite.redeem";
 import {
   defaultTempCloudSharingDiskID,
   defaultTempCloudSharingRootFolderID,
@@ -410,6 +411,11 @@ const RouterUI = () => {
               <Route
                 path="/org/:orgcode/redeem/directory-permit"
                 element={<RedeemDirectoryPermitPage />}
+              />
+
+              <Route
+                path="/org/:orgcode/redeem/group-invite"
+                element={<RedeemGroupInvite />}
               />
 
               <Route

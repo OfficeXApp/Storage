@@ -44,27 +44,13 @@ const { Title, Paragraph, Text } = Typography;
 export interface RedeemDirectoryPermission_BTOA {
   resource_id: DirectoryResourceID;
   permission_id: DirectoryPermissionID;
+  redeem_code: string;
   redirect_url: string;
   resource_name: string;
   org_name: string;
   permissions: DirectoryPermissionType[];
   daterange: { begins_at: number; expires_at: number };
 }
-
-const getPermissionTypesLabel = (
-  permissionTypes: DirectoryPermissionType[]
-) => {
-  const mappings = {
-    [DirectoryPermissionType.VIEW]: "View",
-    [DirectoryPermissionType.UPLOAD]: "Upload",
-    [DirectoryPermissionType.EDIT]: "Edit",
-    [DirectoryPermissionType.DELETE]: "Delete",
-    [DirectoryPermissionType.INVITE]: "Invite",
-    [DirectoryPermissionType.MANAGE]: "Manage",
-  };
-
-  return permissionTypes.map((type) => mappings[type] || type).join(", ");
-};
 
 const RedeemDirectoryPermitPage = () => {
   const params = useParams();
@@ -165,6 +151,7 @@ const RedeemDirectoryPermitPage = () => {
     const redeem_payload: IRequestRedeemDirectoryPermission = {
       permission_id: data.permission_id,
       user_id: selectedProfile.userID,
+      redeem_code: data.redeem_code,
       note: `Redeemed by ${selectedProfile.nickname || "user"} on ${new Date().toLocaleString()}`,
     };
 
@@ -453,6 +440,7 @@ export const generateRedeemDirectoryPermitURL = ({
   fileURL,
   wrapOrgCode,
   permissionID,
+  redeemCode,
   resourceName,
   orgName,
   permissionTypes,
@@ -460,6 +448,7 @@ export const generateRedeemDirectoryPermitURL = ({
 }: {
   resourceID: DirectoryResourceID;
   fileURL: string;
+  redeemCode: string;
   wrapOrgCode: (route: string) => string;
   permissionID: DirectoryPermissionID;
   resourceName: string;
@@ -470,6 +459,7 @@ export const generateRedeemDirectoryPermitURL = ({
   const payload: RedeemDirectoryPermission_BTOA = {
     resource_id: resourceID,
     permission_id: permissionID,
+    redeem_code: redeemCode,
     redirect_url: fileURL,
     resource_name: resourceName,
     org_name: orgName,

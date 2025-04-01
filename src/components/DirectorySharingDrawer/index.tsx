@@ -210,6 +210,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       external_id: record.original.external_id,
       external_payload: record.original.external_payload,
       password: record.original.metadata.content.DirectoryPassword,
+      redeem_code: record.original.redeem_code,
     });
     setIsAddDrawerOpen(true);
   };
@@ -336,6 +337,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                     orgName: currentOrg?.nickname || "",
                     permissionTypes: record.original.permission_types,
                     resourceID: resourceID,
+                    redeemCode: record.original.redeem_code || "",
                     daterange: {
                       begins_at: record.original.begin_date_ms,
                       expires_at: record.original.expiry_date_ms,

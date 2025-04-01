@@ -78,6 +78,7 @@ export interface PreExistingStateForEdit {
   expiry_date_ms: number; // Expiry date timestamp
   inheritable: boolean; // Whether permission is inheritable
   note: string; // Optional notes
+  redeem_code?: string;
   external_id?: string; // Optional external ID
   external_payload?: string; // Optional external payload
   password?: string;
@@ -127,8 +128,13 @@ const DirectoryPermissionAddDrawer: React.FC<
     [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
   >(null);
   const [shareableURL, setShareableURL] = useState("");
-  const { currentOrg, wrapOrgCode, deriveProfileFromSeed } =
-    useIdentitySystem();
+  const {
+    currentOrg,
+    wrapOrgCode,
+    deriveProfileFromSeed,
+    currentAPIKey,
+    generateSignature,
+  } = useIdentitySystem();
 
   // Current step state
   const [currentStep, setCurrentStep] = useState(
@@ -511,7 +517,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   };
 
   // Handle form submission
-  const handleAddPermission = () => {
+  const handleAddPermission = async () => {
     setLoading(true);
 
     const now = dayjs().valueOf();
@@ -591,6 +597,7 @@ const DirectoryPermissionAddDrawer: React.FC<
             permissionID: preExistingStateForEdit.id,
             resourceName: resourceName,
             orgName: currentOrg.nickname,
+            redeemCode: preExistingStateForEdit.redeem_code || "",
             permissionTypes: preExistingStateForEdit.permission_types,
             resourceID: preExistingStateForEdit.resource_id,
             daterange: { begins_at: beginDate, expires_at: expiryDate },
@@ -629,21 +636,41 @@ const DirectoryPermissionAddDrawer: React.FC<
       console.log(`isMagicLink=${isMagicLink}`);
       if (isMagicLink && currentOrg) {
         directoryPermissionData.granted_to = undefined;
-        const url = generateRedeemDirectoryPermitURL({
-          fileURL: window.location.href,
-          wrapOrgCode,
-          permissionID: _directoryPermissionID,
-          resourceName: resourceName,
-          orgName: currentOrg.nickname,
-          permissionTypes,
-          resourceID,
-          daterange: { begins_at: beginDate, expires_at: expiryDate },
-        });
-        console.log(`url=${url}`);
-        setShareableURL(url);
+
+        const auth_token = currentAPIKey?.value || (await generateSignature());
+        const create_response = await fetch(
+          `${currentOrg.endpoint}/v1/${currentOrg.driveID}/permissions/directory/create`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${auth_token}`,
+            },
+            body: JSON.stringify(directoryPermissionData),
+          }
+        );
+
+        const res = await create_response.json();
+        console.log(`>>> create dir permit res`, res);
+        if (res.ok.data.permission.redeem_code) {
+          const url = generateRedeemDirectoryPermitURL({
+            fileURL: window.location.href,
+            wrapOrgCode,
+            permissionID: _directoryPermissionID,
+            resourceName: resourceName,
+            orgName: currentOrg.nickname,
+            permissionTypes,
+            resourceID,
+            redeemCode: res.ok.data.permission.redeem_code,
+            daterange: { begins_at: beginDate, expires_at: expiryDate },
+          });
+          console.log(`url=${url}`);
+          setShareableURL(url);
+        }
       } else if (isPublic) {
         directoryPermissionData.granted_to = "PUBLIC";
         setShareableURL(window.location.href);
+        dispatch(createDirectoryPermissionAction(directoryPermissionData));
       } else {
         if (!selectedGrantee?.id) {
           message.error("Please select a grantee");
@@ -651,11 +678,11 @@ const DirectoryPermissionAddDrawer: React.FC<
         }
         directoryPermissionData.granted_to = selectedGrantee.id;
         setShareableURL(window.location.href);
+        dispatch(createDirectoryPermissionAction(directoryPermissionData));
       }
 
       console.log(`directoryPermissionData----`, directoryPermissionData);
 
-      dispatch(createDirectoryPermissionAction(directoryPermissionData));
       onSubmitCallback();
 
       message.success(

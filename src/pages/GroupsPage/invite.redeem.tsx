@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   Button,
-  Form,
   Layout,
   message,
   Select,
@@ -11,28 +10,14 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import {
-  DirectoryPermissionFE,
-  DirectoryPermissionID,
-  DirectoryPermissionType,
-  DirectoryResourceID,
-  DriveID,
-  IRequestRedeemDirectoryPermission,
-  IResponseRedeemDirectoryPermission,
-  IResponseWhoAmI,
-  UserID,
-} from "@officexapp/types";
+import { GroupInviteID, GroupRole } from "@officexapp/types";
+import { urlSafeBase64Decode, urlSafeBase64Encode } from "../../api/helpers";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { IndexDB_Profile, useIdentitySystem } from "../../framework/identity";
-import {
-  sleep,
-  urlSafeBase64Decode,
-  urlSafeBase64Encode,
-} from "../../api/helpers";
+import { sleep } from "../../api/helpers";
 import {
   CheckCircleOutlined,
   QuestionCircleOutlined,
-  TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import TagCopy from "../../components/TagCopy";
@@ -41,26 +26,26 @@ import { shortenAddress } from "../../framework/identity/constants";
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
-export interface RedeemDirectoryPermission_BTOA {
-  resource_id: DirectoryResourceID;
-  permission_id: DirectoryPermissionID;
+export interface RedeemGroupInvite_BTOA {
+  invite_id: GroupInviteID;
   redeem_code: string;
   redirect_url: string;
-  resource_name: string;
+  group_name: string;
+  role: GroupRole;
   org_name: string;
-  permissions: DirectoryPermissionType[];
   daterange: { begins_at: number; expires_at: number };
 }
 
-const RedeemDirectoryPermitPage = () => {
+const RedeemGroupInvite = () => {
   const params = useParams();
   const orgcode = params.orgcode;
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [redeemData, setRedeemData] =
-    useState<RedeemDirectoryPermission_BTOA | null>(null);
+  const [redeemData, setRedeemData] = useState<RedeemGroupInvite_BTOA | null>(
+    null
+  );
   const [selectedProfile, setSelectedProfile] =
     useState<IndexDB_Profile | null>(null);
 
@@ -91,10 +76,10 @@ const RedeemDirectoryPermitPage = () => {
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
-          message.error("Invalid resource access link");
+          message.error("Invalid group invite link");
         }
       } else {
-        message.error("No resource access data found");
+        message.error("No group invite data found");
       }
       setLoading(false);
     };
@@ -125,20 +110,18 @@ const RedeemDirectoryPermitPage = () => {
 
     setIsProcessing(true);
     try {
-      await processDirectoryPermissionRedeem(redeemData);
-      message.success("Successfully gained access to resource!");
+      await processGroupInviteRedeem(redeemData);
+      message.success("Successfully joined the group!");
     } catch (error) {
-      console.error("Error processing resource access:", error);
-      message.error("Failed to process resource access");
+      console.error("Error processing group invite:", error);
+      message.error("Failed to process group invite");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const processDirectoryPermissionRedeem = async (
-    data: RedeemDirectoryPermission_BTOA
-  ) => {
-    console.log("Processing redeem directory permission", data);
+  const processGroupInviteRedeem = async (data: RedeemGroupInvite_BTOA) => {
+    console.log("Processing redeem group invite", data);
 
     if (!currentOrg || !selectedProfile) {
       console.error("No current organization or selected profile found");
@@ -148,16 +131,16 @@ const RedeemDirectoryPermitPage = () => {
     const auth_token = currentAPIKey?.value || (await generateSignature());
 
     // Prepare redemption payload
-    const redeem_payload: IRequestRedeemDirectoryPermission = {
-      permission_id: data.permission_id,
+    const redeem_payload = {
+      invite_id: data.invite_id,
       user_id: selectedProfile.userID,
       redeem_code: data.redeem_code,
       note: `Redeemed by ${selectedProfile.nickname || "user"} on ${new Date().toLocaleString()}`,
     };
 
-    // Call the API to redeem the directory permission
+    // Call the API to redeem the group invite
     const redeem_response = await fetch(
-      `${currentOrg.endpoint}/v1/${currentOrg.driveID}/permissions/directory/redeem`,
+      `${currentOrg.endpoint}/v1/${currentOrg.driveID}/groups/invites/redeem`,
       {
         method: "POST",
         headers: {
@@ -168,40 +151,43 @@ const RedeemDirectoryPermitPage = () => {
       }
     );
 
-    if (!redeem_response.ok) {
-      const errorData = await redeem_response.json();
-      console.error("Redeem directory permission error:", errorData);
-      throw new Error(
-        `Failed to redeem directory permission: ${errorData.err?.message || "Unknown error"}`
-      );
+    const redeem_data = await redeem_response.json();
+
+    console.log(`>> res`, redeem_data);
+
+    if (!redeem_data.invite) {
+      console.error("Redeem group invite error");
+      throw new Error(`Failed to redeem group invite`);
+      return;
     }
 
-    const redeem_data: IResponseRedeemDirectoryPermission =
-      await redeem_response.json();
-    console.log("Redeem directory permission response:", redeem_data);
-
     // Verify the redemption was successful
-    if (
-      redeem_data.ok &&
-      redeem_data.ok.data &&
-      redeem_data.ok.data.permission
-    ) {
-      // Redirect to the resource page
+    if (redeem_data.invite) {
+      // Redirect to the specified URL or groups page
       console.log(`redeem_data`, redeem_data);
-      message.success(
-        `Successfully accepted file sharing! Redirecting to the file...`
-      );
-      await sleep(2000);
+      message.success(`Successfully joined the group! Redirecting...`);
+      await sleep(5000);
       if (data.redirect_url) {
         window.location.href = data.redirect_url;
       } else {
-        navigate(wrapOrgCode(`/drive`));
+        navigate(wrapOrgCode(`/groups`));
       }
     } else {
-      throw new Error(
-        "Failed to redeem directory permission: Invalid response format"
-      );
+      throw new Error("Failed to redeem group invite: Invalid response format");
     }
+  };
+
+  // Check if invite is within valid time range
+  const isInTimeRange = () => {
+    if (!redeemData?.daterange) return true;
+
+    const now = Date.now();
+    const isAfterStart = now >= redeemData.daterange.begins_at;
+    const isBeforeExpiry =
+      redeemData.daterange.expires_at === -1 ||
+      now <= redeemData.daterange.expires_at;
+
+    return isAfterStart && isBeforeExpiry;
   };
 
   return (
@@ -221,20 +207,18 @@ const RedeemDirectoryPermitPage = () => {
           <div style={{ textAlign: "center", padding: "50px 0" }}>
             <Spin size="large" />
             <Paragraph style={{ marginTop: 16 }}>
-              Processing resource access...
+              Processing group invite...
             </Paragraph>
           </div>
         ) : (
           <>
             <div style={{ textAlign: "center", marginBottom: 48 }}>
               <Title level={1} style={{ marginBottom: 24 }}>
-                {redeemData?.resource_id.startsWith("FolderID_")
-                  ? `Accept Folder Permit`
-                  : `Accept File Permit`}
+                Accept Group Invite
               </Title>
               <Paragraph>
-                You've been invited to access a resource. Please review the
-                details before continuing.
+                You've been invited to join a group. Please review the details
+                before continuing.
               </Paragraph>
             </div>
 
@@ -251,15 +235,12 @@ const RedeemDirectoryPermitPage = () => {
               >
                 <div style={{ marginBottom: 24 }}>
                   <Text type="secondary">
-                    {redeemData.resource_id.startsWith("FolderID_")
-                      ? "Folder"
-                      : "File"}{" "}
-                    from {` `}
+                    Join Group in {` `}
                     {redeemData.org_name || "Organization"}
                     {currentOrg && (
                       <TagCopy
                         id={currentOrg.driveID || ""}
-                        style={{ fontSize: "0.7rem" }}
+                        style={{ fontSize: "0.7rem", marginLeft: 8 }}
                       />
                     )}
                   </Text>
@@ -272,29 +253,21 @@ const RedeemDirectoryPermitPage = () => {
                       marginTop: 8,
                     }}
                   >
-                    {redeemData.resource_name || "Unnamed Resource"}
+                    {redeemData.group_name || "Unnamed Group"}
                   </Paragraph>
                 </div>
 
                 <div style={{ marginBottom: 24 }}>
-                  <Text type="secondary">Permissions</Text>
+                  <Text type="secondary">Role</Text>
                   <div style={{ marginTop: 8 }}>
-                    {redeemData.permissions &&
-                    redeemData.permissions.length > 0 ? (
-                      redeemData.permissions.map((permission) => (
-                        <Tag
-                          key={permission}
-                          color="blue"
-                          icon={<CheckCircleOutlined />}
-                          style={{ marginBottom: "4px" }}
-                        >
-                          {permission}
-                        </Tag>
-                      ))
-                    ) : (
-                      <Tag color="blue">No specific permissions</Tag>
-                    )}
-                    <Tooltip title="This determines what actions you can perform with this resource.">
+                    <Tag
+                      color="blue"
+                      icon={<CheckCircleOutlined />}
+                      style={{ marginBottom: "4px" }}
+                    >
+                      {redeemData.role || "Member"}
+                    </Tag>
+                    <Tooltip title="This determines what actions you can perform within this group.">
                       <QuestionCircleOutlined
                         style={{ marginLeft: 8, color: "#1890ff" }}
                       />
@@ -374,14 +347,7 @@ const RedeemDirectoryPermitPage = () => {
                   size="large"
                   loading={isProcessing}
                   onClick={handleRedeem}
-                  disabled={
-                    !selectedProfile ||
-                    !currentOrg ||
-                    (redeemData?.daterange &&
-                      (Date.now() < redeemData.daterange.begins_at ||
-                        (redeemData.daterange.expires_at !== -1 &&
-                          Date.now() > redeemData.daterange.expires_at)))
-                  }
+                  disabled={!selectedProfile || !currentOrg || !isInTimeRange()}
                   block
                 >
                   {!selectedProfile || !currentOrg
@@ -393,7 +359,7 @@ const RedeemDirectoryPermitPage = () => {
                           redeemData.daterange.expires_at !== -1 &&
                           Date.now() > redeemData.daterange.expires_at
                         ? `Expired on ${formatDate(redeemData.daterange.expires_at)}`
-                        : "Accept and Access Resource"}
+                        : "Accept and Join Group"}
                 </Button>
 
                 {redeemData?.daterange && (
@@ -423,7 +389,7 @@ const RedeemDirectoryPermitPage = () => {
   );
 };
 
-export default RedeemDirectoryPermitPage;
+export default RedeemGroupInvite;
 
 const formatDate = (timestamp: number) => {
   if (timestamp === -1) return "no expiry date";
@@ -435,38 +401,28 @@ const formatDate = (timestamp: number) => {
 };
 
 // Export the helper function to generate redemption URLs
-export const generateRedeemDirectoryPermitURL = ({
-  resourceID,
-  fileURL,
-  wrapOrgCode,
-  permissionID,
-  redeemCode,
-  resourceName,
-  orgName,
-  permissionTypes,
-  daterange,
-}: {
-  resourceID: DirectoryResourceID;
-  fileURL: string;
-  redeemCode: string;
-  wrapOrgCode: (route: string) => string;
-  permissionID: DirectoryPermissionID;
-  resourceName: string;
-  orgName: string;
-  permissionTypes: DirectoryPermissionType[];
-  daterange: { begins_at: number; expires_at: number };
-}) => {
-  const payload: RedeemDirectoryPermission_BTOA = {
-    resource_id: resourceID,
-    permission_id: permissionID,
-    redeem_code: redeemCode,
-    redirect_url: fileURL,
-    resource_name: resourceName,
-    org_name: orgName,
-    permissions: permissionTypes,
+export const generateRedeemGroupInviteURL = (
+  {
+    invite_id,
+    redeem_code,
+    redirect_url,
+    group_name,
+    org_name,
+    role,
+    daterange,
+  }: RedeemGroupInvite_BTOA,
+  wrapOrgCode: (route: string) => string
+) => {
+  const payload: RedeemGroupInvite_BTOA = {
+    invite_id,
+    redeem_code,
+    redirect_url,
+    group_name,
+    org_name,
+    role,
     daterange,
   };
 
-  const finalUrl = `${window.location.origin}${wrapOrgCode("/redeem/directory-permit")}?redeem=${urlSafeBase64Encode(JSON.stringify(payload))}`;
+  const finalUrl = `${window.location.origin}${wrapOrgCode("/redeem/group-invite")}?redeem=${urlSafeBase64Encode(JSON.stringify(payload))}`;
   return finalUrl;
 };

@@ -40,10 +40,14 @@ import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { shortenAddress } from "../../framework/identity/constants";
 import { useIdentitySystem } from "../../framework/identity";
 import { GroupFEO } from "../../redux-offline/groups/groups.reducer";
+import { urlSafeBase64Encode } from "../../api/helpers";
+import { generateRedeemGroupInviteURL } from "./invite.redeem";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 interface AddGroupInviteDrawerProps {
   open: boolean;
@@ -91,7 +95,19 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
   const contacts = useSelector(
     (state: ReduxAppState) => state.contacts.contacts
   );
-  const { currentProfile } = useIdentitySystem();
+  const {
+    currentProfile,
+    wrapOrgCode,
+    currentOrg,
+    currentAPIKey,
+    generateSignature,
+  } = useIdentitySystem();
+
+  const [dateRange, setDateRange] = useState<
+    [dayjs.Dayjs | null, dayjs.Dayjs | null] | null
+  >(null);
+  const [selectedRole, setSelectedRole] = useState<GroupRole>(GroupRole.MEMBER);
+  const [note, setNote] = useState("");
 
   const [form] = Form.useForm();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -121,6 +137,9 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
       setUserInput("");
       setValidUserID(null);
       setFormChanged(false);
+      setDateRange(null);
+      setNote("");
+      setSelectedRole(GroupRole.MEMBER);
     }
   }, [open, form]);
 
@@ -169,35 +188,76 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
     }
   };
 
-  const generateMagicLink = () => {
+  const generateMagicLink = async () => {
+    if (!currentOrg || !currentAPIKey) return;
+
     setGeneratingLink(true);
 
+    let activeFrom = 0; // Default value if not set
+    let expiresAt = -1; // Default value if not set (never expires)
+
+    if (dateRange && dateRange[0] && dateRange[1]) {
+      activeFrom = dateRange[0].valueOf();
+      expiresAt = dateRange[1].valueOf();
+    } else if (!dateRange || !dateRange[0]) {
+      // If no start date is set, use current time
+      activeFrom = Date.now();
+    }
+
     // Create a group invite with blank invitee_id
+    const groupInviteID = GenerateID.GroupInvite();
     const groupInviteData: IRequestCreateGroupInvite = {
-      id: GenerateID.GroupInvite(),
+      id: groupInviteID,
       group_id: group.id,
-      role: GroupRole.MEMBER,
-      active_from: Date.now(),
-      expires_at: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days from now
+      role: selectedRole,
+      active_from: activeFrom,
+      expires_at: expiresAt,
     };
 
-    // Simulate API call
-    setTimeout(() => {
-      // Generate a mock invite link
-      const mockInviteLink = `https://officex.app/invite/${groupInviteData.id}`;
-      setInviteLink(mockInviteLink);
+    console.log(`generating invite link...`);
+
+    const auth_token = currentAPIKey?.value || (await generateSignature());
+    const create_group_response = await fetch(
+      `${currentOrg.endpoint}/v1/${currentOrg.driveID}/groups/invites/create`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth_token}`,
+        },
+        body: JSON.stringify(groupInviteData),
+      }
+    );
+    const res = await create_group_response.json();
+    console.log(`>>> create_group_response res`, res);
+
+    if (res.ok.data.redeem_code) {
+      const groupInviteRedeemLink = generateRedeemGroupInviteURL(
+        {
+          invite_id: groupInviteID,
+          redeem_code: res.ok.data.redeem_code,
+          redirect_url: `${window.location.origin}${wrapOrgCode(`/resources/groups/${group.id}`)}`,
+          group_name: group.name,
+          org_name: currentOrg.nickname,
+          role: selectedRole,
+          daterange: {
+            begins_at: activeFrom,
+            expires_at: expiresAt,
+          },
+        },
+        wrapOrgCode
+      );
+      console.log(`groupInviteRedeemLink`, groupInviteRedeemLink);
+      setInviteLink(groupInviteRedeemLink);
       setLinkGenerated(true);
       setGeneratingLink(false);
-
-      // Dispatch createGroupInviteAction
-      dispatch(createGroupInviteAction(groupInviteData));
 
       message.success(
         isOnline
           ? "Magic invite link generated!"
           : "Queued invite creation for when you're back online"
       );
-    }, 1500);
+    }
   };
 
   const handleInviteTypeChange = (value: InviteType) => {
@@ -211,7 +271,6 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
     form
       .validateFields()
       .then((values) => {
-        const role = values.role || GroupRole.MEMBER;
         let inviteeId: string | undefined;
 
         switch (inviteType) {
@@ -239,16 +298,26 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             return;
         }
 
+        // Get date values from dateRange
+        let activeFrom = 0; // Default value if not set
+        let expiresAt = -1; // Default value if not set (never expires)
+
+        if (dateRange && dateRange[0] && dateRange[1]) {
+          activeFrom = dateRange[0].valueOf();
+          expiresAt = dateRange[1].valueOf();
+        } else if (!dateRange || !dateRange[0]) {
+          // If no start date is set, use current time
+          activeFrom = Date.now();
+        }
+
         const groupInviteData: IRequestCreateGroupInvite = {
           id: GenerateID.GroupInvite(),
           group_id: group.id,
           invitee_id: inviteeId,
-          role: role,
-          active_from: values.activeFrom
-            ? values.activeFrom.valueOf()
-            : undefined,
-          expires_at: values.expiresAt ? values.expiresAt.valueOf() : undefined,
-          note: values.note,
+          role: selectedRole,
+          active_from: activeFrom,
+          expires_at: expiresAt,
+          note: note,
         };
 
         // Dispatch action to create group invite
@@ -266,20 +335,6 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
       .catch((error) => {
         console.error("Validation failed:", error);
       });
-  };
-
-  const copyToClipboard = () => {
-    if (inviteLink) {
-      navigator.clipboard
-        .writeText(inviteLink)
-        .then(() => {
-          message.success("Invite link copied to clipboard");
-        })
-        .catch((err) => {
-          message.error("Failed to copy invite link");
-          console.error("Could not copy text: ", err);
-        });
-    }
   };
 
   const renderContactOption = (contact: ContactFE) => ({
@@ -339,11 +394,14 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
         <Form.Item label="Magic Invite Link">
           <Input
             prefix={
-              <span style={{ cursor: "pointer", paddingRight: "8px" }}>
-                <CopyOutlined
-                  onClick={copyToClipboard}
-                  style={{ marginRight: "4px" }}
-                />
+              <span
+                onClick={() => {
+                  navigator.clipboard.writeText(inviteLink);
+                  message.success(`Copied link`);
+                }}
+                style={{ cursor: "pointer", paddingRight: "8px" }}
+              >
+                <CopyOutlined style={{ marginRight: "4px" }} />
                 Copy
               </span>
             }
@@ -559,7 +617,6 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             )}
 
             <Form.Item
-              name="role"
               label={
                 <Tooltip title="Role to assign to the invited user">
                   <Space>
@@ -568,44 +625,35 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
                 </Tooltip>
               }
             >
-              <Select defaultValue={GroupRole.MEMBER}>
+              <Select
+                value={selectedRole}
+                onChange={(value: GroupRole) => setSelectedRole(value)}
+              >
                 <Option value={GroupRole.MEMBER}>Regular Member</Option>
                 <Option value={GroupRole.ADMIN}>Admin</Option>
               </Select>
             </Form.Item>
 
             <Form.Item
-              name="activeFrom"
               label={
-                <Tooltip title="When this invite becomes active">
+                <Tooltip title="When this invite becomes active and expires">
                   <Space>
-                    <InfoCircleOutlined style={{ color: "#aaa" }} /> Start Date
+                    <InfoCircleOutlined style={{ color: "#aaa" }} /> Date Range
                   </Space>
                 </Tooltip>
               }
             >
-              <DatePicker
-                placeholder="Starts Now"
+              <RangePicker
                 showTime
                 style={{ width: "100%" }}
+                placeholder={["Start Date", "End Date"]}
+                value={dateRange}
+                onChange={(dates) => setDateRange(dates)}
               />
-            </Form.Item>
-
-            <Form.Item
-              name="expiresAt"
-              label={
-                <Tooltip title="When this invite expires">
-                  <Space>
-                    <InfoCircleOutlined style={{ color: "#aaa" }} /> End Date
-                  </Space>
-                </Tooltip>
-              }
-            >
-              <DatePicker
-                placeholder="Ongoing"
-                showTime
-                style={{ width: "100%" }}
-              />
+              <div style={{ marginTop: 4, fontSize: 12, color: "#888" }}>
+                Leave start empty for immediate activation. Leave end empty for
+                no expiration.
+              </div>
             </Form.Item>
 
             <Form.Item

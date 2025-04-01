@@ -143,7 +143,10 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         storeName: "offline-data",
       });
 
-      const effectWithAuth = async (effect: any) => {
+      const effectWithAuth = async (effect: any, action: any) => {
+        console.log("Full effect object:", effect);
+        console.log("Full action object:", action);
+
         if (
           !currentOrgRef.current ||
           !currentOrgRef.current.endpoint ||
@@ -153,8 +156,13 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Extract request details from the effect
         const { url, method = "GET", headers = {}, data } = effect;
+        console.log(`>>effect`, effect);
 
-        if (headers["shouldBehaveOfflineDiskUI"]) return;
+        const shouldBehaveOffline =
+          headers.shouldBehaveOfflineDiskUI === true ||
+          data?.shouldBehaveOfflineDiskUI === true;
+
+        if (shouldBehaveOffline) return;
 
         const sanitizedHeaders = { ...headers };
         delete sanitizedHeaders["shouldBehaveOfflineDiskUI"];

@@ -184,6 +184,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     null
   );
   const currentProfileRef = useRef(currentProfile);
+  const currentOrgRef = useRef(currentOrg);
   const isOfflineOrg = currentOrg?.endpoint === "";
   const [listOfOrgs, setListOfOrgs] = useState<IndexDB_Organization[]>([]);
   const [listOfProfiles, setListOfProfiles] = useState<IndexDB_Profile[]>([]);
@@ -283,6 +284,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             );
             if (existingOrg) {
               setCurrentOrg(existingOrg);
+              currentOrgRef.current = existingOrg;
               initial_org_id = existingOrg.driveID;
             } else {
               const seedPhrase = generateRandomSeed();
@@ -297,6 +299,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
                 note: "",
               });
               setCurrentOrg(newOrg);
+              currentOrgRef.current = newOrg;
               localStorage.setItem(
                 LOCAL_STORAGE_ORGANIZATION_DRIVE_ID,
                 newOrg.driveID
@@ -507,6 +510,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   // Generate signature using ICP identity
   const generateSignature = useCallback(
     async (auth_profile?: AuthProfile): Promise<string> => {
+      console.log(`generating signature...`);
       try {
         if (!auth_profile) {
           if (!currentProfileRef.current) {
@@ -542,15 +546,19 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         // Build the challenge
         const challenge = {
           timestamp_ms: now,
-          drive_canister_id: currentOrg?.icpPublicAddress,
+          drive_canister_id:
+            currentOrg?.icpPublicAddress ||
+            currentOrgRef.current?.icpPublicAddress,
           self_auth_principal: publicKeyArray,
           canonical_principal: canonicalPrincipal,
         };
+        console.log(`challenge`, challenge);
 
         // Serialize and sign the challenge
         const challengeBytes = new TextEncoder().encode(
           JSON.stringify(challenge)
         );
+
         const signature = await identity.sign(challengeBytes);
         const signatureArray = Array.from(new Uint8Array(signature));
 
@@ -844,6 +852,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         // Update current org if it's the one being updated
         if (currentOrg && currentOrg.driveID === org.driveID) {
           setCurrentOrg(org);
+          currentOrgRef.current = org;
         }
       } catch (err) {
         console.error("Error updating organization:", err);
@@ -889,6 +898,8 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
             (org) => org.driveID !== driveID
           );
           setCurrentOrg(remainingOrgs.length > 0 ? remainingOrgs[0] : null);
+          currentOrgRef.current =
+            remainingOrgs.length > 0 ? remainingOrgs[0] : null;
         }
       } catch (err) {
         console.error("Error removing organization:", err);
@@ -908,6 +919,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       await updateOrganization(updated_org);
 
       setCurrentOrg(updated_org);
+      currentOrgRef.current = updated_org;
       localStorage.setItem(LOCAL_STORAGE_ORGANIZATION_DRIVE_ID, org.driveID);
       closeDexieDb();
       if (currentProfile) {

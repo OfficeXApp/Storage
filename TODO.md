@@ -2,8 +2,8 @@
 
 ## Overview
 
+- [🔵] Edit file/folder name
 - [ ] Trash bin functionality
-- [ ] Edit file/folder name
 - [ ] Delete file folder / Restore trash / Delete forever
 
 - [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck

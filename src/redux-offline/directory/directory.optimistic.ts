@@ -373,13 +373,25 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ GET FILE --------------------------------- //
           case GET_FILE: {
-            console.log(`GET_FILE`, action);
+            console.log(`GET_FILE optimistic`, action);
+            const shouldBehaveOffline =
+              action.shouldBehaveOfflineDiskUI === true ||
+              action.meta?.isOfflineDrive === true ||
+              action.meta?.shouldBehaveOfflineDiskUI === true ||
+              action.meta?.offline?.effect?.headers
+                ?.shouldBehaveOfflineDiskUI === true;
+
+            console.log(`shouldBehaveOffline?=${shouldBehaveOffline}`);
+
             // Get cached data from IndexedDB
             const optimisticID = action.meta.optimisticID;
             const cachedFile = await filesTable.get(optimisticID);
+            console.log(`found cachedFile`, cachedFile);
+
             if (cachedFile) {
               enhancedAction = {
                 ...action,
+                shouldBehaveOfflineDiskUI: shouldBehaveOffline,
                 optimistic: {
                   ...cachedFile,
                   _isOptimistic: true,
@@ -389,8 +401,15 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncWarning: `Awaiting Sync. This file was fetched offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be refetched.`,
                 },
               };
+              break;
+            } else {
+              enhancedAction = {
+                ...action,
+                shouldBehaveOfflineDiskUI: shouldBehaveOffline,
+              };
+              console.log(`subsequent enhancedAction`, enhancedAction);
             }
-            if (action.meta?.isOfflineDrive) {
+            if (shouldBehaveOffline) {
               return;
             }
             break;
@@ -398,6 +417,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case GET_FILE_COMMIT: {
             console.log(`GET_FILE_COMMIT middleware`, action);
+            if (!action.payload.response) break;
             const optimisticID = action.meta?.optimisticID;
             let realFile: FileRecordFE | undefined;
 
@@ -2241,6 +2261,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
         }
 
         // Pass the (potentially enhanced) action to the next middleware
+        console.log("Final enhanced action before next():", enhancedAction);
         return next(enhancedAction);
       } catch (error) {
         console.error(

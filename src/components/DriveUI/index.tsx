@@ -59,7 +59,7 @@ import UploadDropZone from "../UploadDropZone";
 import StorjSettingsCard from "../StorjSettingsCard";
 import FilePage from "../FilePage";
 import { isMobile } from "react-device-detect";
-import { getFileType } from "../../api/helpers";
+import { getFileType, sleep } from "../../api/helpers";
 import { freeTrialStorjCreds } from "../../api/storj";
 import mixpanel from "mixpanel-browser";
 import {
@@ -311,6 +311,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const fetchFileById = (fileId: FileID) => {
     console.log("Fetching file by ID:", fileId);
+    if (!currentDiskId) return;
     try {
       // Create the get file action
       const getAction = {
@@ -321,10 +322,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       };
 
       // Dispatch the action
+      console.log(`currentDiskId=${currentDiskId}`);
+      console.log(`disk`, currentDisk);
+
       dispatch(
         getFileAction(
           getAction,
-          shouldBehaveOfflineDiskUIIntent(currentDisk?.id || "")
+          shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
         )
       );
 
@@ -337,6 +341,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
       // We'll rely on the useEffect that watches filesFromRedux to set the file
       // when it arrives from the Redux store after the action completes
+
+      if (!shouldBehaveOfflineDiskUIIntent(currentDiskId || "")) {
+        appendRefreshParam();
+      }
     } catch (error) {
       console.error("Error fetching file by ID:", error);
       setIs404NotFound(true);
@@ -770,10 +778,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   // Handle rename using Redux actions
   const handleRenameSubmit = async (record: DriveItemRow) => {
     const newName = renamingItems[record.id];
+    console.log(`newName--`, newName);
     if (newName && newName !== record.title) {
       try {
         if (record.isFolder) {
-          // Create update folder action
+          // update folder action
           const updateAction = {
             action: UPDATE_FOLDER as "UPDATE_FOLDER",
             payload: {
@@ -783,8 +792,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           };
 
           dispatch(updateFolderAction(updateAction));
+          // Refresh content to show the update
+          await sleep(1000);
+          fetchContent({
+            targetFolderId: currentFolderId || "",
+          });
         } else {
-          // Create update file action
+          if (newName.split(".").length === 1) {
+            message.error(`Filename must include extension`);
+            return;
+          }
+          // update file action
           const updateAction = {
             action: UPDATE_FILE as "UPDATE_FILE",
             payload: {
@@ -794,14 +812,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           };
 
           dispatch(updateFileAction(updateAction));
+          // Refresh content to show the update
+          await sleep(1000);
+          fetchContent({
+            targetFolderId: currentFolderId || "",
+          });
         }
 
         message.success(
           `${record.isFolder ? "Folder" : "File"} renamed successfully`
         );
-
-        // Refresh content to show the update
-        fetchContent({});
       } catch (error) {
         console.log(error);
         message.error(
@@ -840,6 +860,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // unauthorized access to file
   if (currentFileId && !getFileResult) {
+    console.log(`currentFileID= ${currentFileId}`, getFileResult);
     return <DirectoryGuard resourceID={currentFileId} />;
   }
 

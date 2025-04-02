@@ -741,6 +741,10 @@ export const directoryReducer = (
         files: optimisticFile
           ? updateOrAddFile(state.files, optimisticFile)
           : state.files,
+        fileMap: {
+          ...state.fileMap,
+          [optimisticFile.id]: optimisticFile,
+        },
         loading: true,
         error: null,
       };
@@ -827,6 +831,10 @@ export const directoryReducer = (
         folders: optimisticFolder
           ? updateOrAddFolder(state.folders, optimisticFolder)
           : state.folders,
+        folderMap: {
+          ...state.folderMap,
+          [optimisticFolder.id]: optimisticFolder,
+        },
         loading: true,
         error: null,
       };

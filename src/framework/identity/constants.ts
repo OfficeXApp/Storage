@@ -51,6 +51,7 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
 };
 
 // LOCAL vs. PROD
-// "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000/v1/default/giftcards/redeem"
+// export const FACTORY_CANISTER_ENDPOINT =
+//   "http://be2us-64aaa-aaaaa-qaabq-cai.e131-42-115-249-36.ngrok-free.app/v1/default/giftcards/redeem";
 export const FACTORY_CANISTER_ENDPOINT =
   "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000";

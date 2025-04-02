@@ -2,9 +2,8 @@
 
 ## Overview
 
-- [🔵] Edit file/folder name
-- [ ] Trash bin functionality
-- [ ] Delete file folder / Restore trash / Delete forever
+- [🔵] Trash bin functionality
+- [🔵] Delete file folder / Restore trash / Delete forever
 
 - [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
 - [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
@@ -85,3 +84,4 @@
 - [x] Invite system with smooth onboarding & sharing (1-2 days)
 - [x] Implement magic link groups
 - [x] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
+- [x] Edit file/folder name

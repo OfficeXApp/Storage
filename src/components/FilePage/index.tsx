@@ -31,7 +31,10 @@ import { createPseudoShareLink } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
 import { isFreeTrialStorj } from "../../api/storj";
 import { useIdentitySystem } from "../../framework/identity";
-import { FileFEO } from "../../redux-offline/directory/directory.reducer";
+import {
+  FileFEO,
+  shouldBehaveOfflineDiskUIIntent,
+} from "../../redux-offline/directory/directory.reducer";
 import { DirectoryResourceID, DiskTypeEnum, FileID } from "@officexapp/types";
 import SheetJSPreview from "../SheetJSPreview";
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
@@ -481,7 +484,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         },
       };
 
-      dispatch(updateFileAction(updateAction));
+      dispatch(
+        updateFileAction(
+          updateAction,
+          undefined,
+          shouldBehaveOfflineDiskUIIntent(file.disk_id)
+        )
+      );
       message.success("File renamed successfully");
     } catch (error) {
       message.error("Failed to rename file");

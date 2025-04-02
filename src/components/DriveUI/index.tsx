@@ -159,6 +159,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
 
+  console.log(
+    `currentDiskId=${currentDiskId}, currentFolderId=${currentFolderId}, currentFileId=${currentFileId}`
+  );
   const { uploadTargetDiskID } = useMultiUploader();
 
   const isOfflineDisk =
@@ -294,11 +297,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         targetFolderId: folderId,
       });
     } else if (folderFileID.startsWith("FileID_")) {
-      console.log(`we are in file`);
       let fileId = folderFileID;
+      console.log(
+        `we are in file with fileId=${fileId}, currentFileId=${currentFileId}, and getFileResult.id=${getFileResult?.id}`
+      );
       setCurrentFolderId(null);
-      setCurrentFileId(fileId);
-      fetchFileById(fileId);
+      // Only set currentFileId if it's different
+      if (fileId !== currentFileId) {
+        setCurrentFileId(fileId);
+        fetchFileById(fileId, diskID);
+      }
       setIsLoading(true);
     } else {
       console.log(`we nowhere known`);
@@ -307,11 +315,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
     //   setIsStorjModalVisible(true);
     // }
-  }, [location, encodedPath, currentDiskId]);
+  }, [location]);
 
-  const fetchFileById = (fileId: FileID) => {
+  const fetchFileById = (fileId: FileID, diskID: DiskID) => {
     console.log("Fetching file by ID:", fileId);
-    if (!currentDiskId) return;
+    console.log(`currentDiskId`, currentDiskId);
+    // return;
+    if (!diskID) return;
     try {
       // Create the get file action
       const getAction = {
@@ -322,14 +332,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       };
 
       // Dispatch the action
-      console.log(`currentDiskId=${currentDiskId}`);
+      console.log(`currentDiskId=${diskID}`);
       console.log(`disk`, currentDisk);
 
       dispatch(
-        getFileAction(
-          getAction,
-          shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
-        )
+        getFileAction(getAction, shouldBehaveOfflineDiskUIIntent(diskID || ""))
       );
 
       const payload: IRequestListDirectoryPermissions = {
@@ -342,9 +349,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       // We'll rely on the useEffect that watches filesFromRedux to set the file
       // when it arrives from the Redux store after the action completes
 
-      if (!shouldBehaveOfflineDiskUIIntent(currentDiskId || "")) {
-        appendRefreshParam();
-      }
+      // if (!shouldBehaveOfflineDiskUIIntent(currentDiskId || "")) {
+      //   appendRefreshParam();
+      // }
     } catch (error) {
       console.error("Error fetching file by ID:", error);
       setIs404NotFound(true);
@@ -379,7 +386,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       targetFolderId?: FolderID;
       targetFileId?: FileID;
     }) => {
-      if (!targetFolderId) {
+      console.log(`fetchContent..`);
+
+      if (!targetFolderId && !targetFileId) {
         // Root level showing disks from Redux
 
         setContent({
@@ -448,10 +457,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
         return;
       }
-
+      console.log(`targetFileId=${targetFileId}`);
       if (targetFileId) {
         // Fetch the file
-        fetchFileById(targetFileId);
+        fetchFileById(targetFileId, currentDiskId || "");
       }
     },
     [currentFolderId, disks, currentOrg, currentDiskId]
@@ -791,7 +800,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             },
           };
 
-          dispatch(updateFolderAction(updateAction));
+          dispatch(
+            updateFolderAction(
+              updateAction,
+              listDirectoryKey,
+              shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
+            )
+          );
           // Refresh content to show the update
           await sleep(1000);
           fetchContent({
@@ -811,12 +826,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             },
           };
 
-          dispatch(updateFileAction(updateAction));
-          // Refresh content to show the update
-          await sleep(1000);
-          fetchContent({
-            targetFolderId: currentFolderId || "",
-          });
+          dispatch(
+            updateFileAction(
+              updateAction,
+              listDirectoryKey,
+              shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
+            )
+          );
         }
 
         message.success(

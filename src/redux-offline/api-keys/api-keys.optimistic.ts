@@ -215,6 +215,7 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
                 labels: [],
                 permission_previews: [],
                 created_at: Date.now(),
+                begins_at: apiKeyData.begins_at || 0,
                 expires_at: apiKeyData.expires_at || -1,
                 is_revoked: false,
                 external_id: apiKeyData.external_id,

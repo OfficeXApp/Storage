@@ -28,7 +28,7 @@ import {
   SelfCustodySuperswapLogin_BTOA,
   SovereignStrangerLogin_BTOA,
 } from "./contact.redeem";
-import { urlSafeBase64Encode } from "../../api/helpers";
+import { urlSafeBase64Encode, wrapAuthStringOrHeader } from "../../api/helpers";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -84,17 +84,18 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
       console.log("Creating API key with request:", request);
       const auth_token = currentAPIKey?.value || (await generateSignature());
       // Make the actual API call to create an API key
-      const response = await fetch(
+      const { url, headers } = wrapAuthStringOrHeader(
         `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/api_keys/create`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
-          },
-          body: JSON.stringify(request),
-        }
+          "Content-Type": "application/json",
+        },
+        auth_token
       );
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(request),
+      });
 
       if (!response.ok) {
         throw new Error(`API request failed with status: ${response.status}`);

@@ -57,7 +57,7 @@ import {
 import dayjs from "dayjs";
 import { shortenAddress } from "../../framework/identity/constants";
 import TagCopy from "../TagCopy";
-import { areArraysEqual } from "../../api/helpers";
+import { areArraysEqual, wrapAuthStringOrHeader } from "../../api/helpers";
 import { generateRedeemDirectoryPermitURL } from "./directory-permission.redeem";
 import { useIdentitySystem } from "../../framework/identity";
 import { passwordToSeedPhrase } from "../../api/icp";
@@ -638,17 +638,18 @@ const DirectoryPermissionAddDrawer: React.FC<
         directoryPermissionData.granted_to = undefined;
 
         const auth_token = currentAPIKey?.value || (await generateSignature());
-        const create_response = await fetch(
+        const { url, headers } = wrapAuthStringOrHeader(
           `${currentOrg.endpoint}/v1/${currentOrg.driveID}/permissions/directory/create`,
           {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${auth_token}`,
-            },
-            body: JSON.stringify(directoryPermissionData),
-          }
+            "Content-Type": "application/json",
+          },
+          auth_token
         );
+        const create_response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(directoryPermissionData),
+        });
 
         const res = await create_response.json();
 

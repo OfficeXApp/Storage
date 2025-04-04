@@ -130,6 +130,7 @@ interface DriveItemRow {
   isDisabled: boolean;
   diskType: DiskTypeEnum;
   expires_at: number;
+  hasDiskTrash?: FolderID;
 }
 
 interface DriveUIProps {
@@ -142,7 +143,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const location = useLocation();
   const screenType = useScreenType();
   const dispatch = useDispatch();
-
+  const isTrashBin = location.search.includes("isTrashBin=1");
   const { currentOrg, wrapOrgCode } = useIdentitySystem();
 
   const [listDirectoryKey, setListDirectoryKey] = useState("");
@@ -345,13 +346,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         },
       };
       dispatch(listDirectoryPermissionsAction(payload));
-
-      // We'll rely on the useEffect that watches filesFromRedux to set the file
-      // when it arrives from the Redux store after the action completes
-
-      // if (!shouldBehaveOfflineDiskUIIntent(currentDiskId || "")) {
-      //   appendRefreshParam();
-      // }
     } catch (error) {
       console.error("Error fetching file by ID:", error);
       setIs404NotFound(true);
@@ -392,28 +386,32 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         // Root level showing disks from Redux
 
         setContent({
-          folders: disks.map((disk) => ({
-            id: disk.root_folder as FolderID,
-            name: disk.name,
-            parent_folder_uuid: "",
-            subfolder_uuids: [],
-            file_uuids: [],
-            full_directory_path: `${disk.disk_type}::/` as DriveFullFilePath,
-            labels: [],
-            created_by: "Owner" as UserID,
-            created_at: Date.now(),
-            last_updated_date_ms: disk.created_at || 0,
-            last_updated_by: "Owner" as UserID,
-            disk_id: disk.id,
-            disk_type: disk.disk_type,
-            deleted: false,
-            expires_at: -1,
-            drive_id: currentOrg?.driveID || "",
-            has_sovereign_permissions: false,
-            clipped_directory_path:
-              `${disk.disk_type}::/` as DriveClippedFilePath,
-            permission_previews: [],
-          })),
+          folders: disks.map((disk) => {
+            console.log(`.... disk`, disk);
+            return {
+              id: disk.root_folder as FolderID,
+              name: disk.name,
+              parent_folder_uuid: "",
+              subfolder_uuids: [],
+              file_uuids: [],
+              full_directory_path: `${disk.disk_type}::/` as DriveFullFilePath,
+              labels: [],
+              created_by: "Owner" as UserID,
+              created_at: Date.now(),
+              last_updated_date_ms: disk.created_at || 0,
+              last_updated_by: "Owner" as UserID,
+              disk_id: disk.id,
+              disk_type: disk.disk_type,
+              deleted: false,
+              expires_at: -1,
+              drive_id: currentOrg?.driveID || "",
+              has_sovereign_permissions: false,
+              clipped_directory_path:
+                `${disk.disk_type}::/` as DriveClippedFilePath,
+              permission_previews: [],
+              hasDiskTrash: disk.trash_folder,
+            };
+          }),
           files: [],
         });
         setIsLoading(false);
@@ -524,7 +522,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 if (record.isDisabled) {
                   return;
                 } else {
-                  handleFileFolderClick(record);
+                  if (isTrashBin) {
+                    message.error(
+                      "You cannot access files in the Trash. Restore it first."
+                    );
+                  } else {
+                    handleFileFolderClick(record);
+                  }
                 }
               }}
               style={{
@@ -618,35 +622,69 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     [renamingItems, listDirectoryKey]
   );
 
-  const getRowMenuItems = (record: DriveItemRow): MenuProps["items"] => [
-    {
-      key: "rename",
-      label: "Rename",
-      onClick: () => {
-        setRenamingItems((prev) => ({ ...prev, [record.id]: record.title }));
+  const getRowMenuItems = (record: DriveItemRow): MenuProps["items"] => {
+    const menuItems = [
+      {
+        key: "rename",
+        label: "Rename",
+        onClick: () => {
+          setRenamingItems((prev) => ({ ...prev, [record.id]: record.title }));
+        },
       },
-    },
-    {
-      key: "move",
-      label: "Move",
-      onClick: () => message.info(`Move ${record.title}`),
-      disabled: true,
-    },
-    {
-      key: "delete",
-      label: (
-        <Popconfirm
-          title={`Are you sure you want to delete this ${record.isFolder ? "folder" : "file"}?`}
-          description="This action cannot be undone."
-          onConfirm={() => handleDelete(record)}
-          okText="Yes"
-          cancelText="No"
-        >
-          Delete
-        </Popconfirm>
-      ),
-    },
-  ];
+      {
+        key: "move",
+        label: "Move",
+        onClick: () => message.info(`Move ${record.title}`),
+        disabled: true,
+      },
+      {
+        key: "delete",
+        label: (
+          <Popconfirm
+            title={`Are you sure you want to delete this ${record.isFolder ? "folder" : "file"}?`}
+            description="This action cannot be undone."
+            onConfirm={() => handleDelete(record)}
+            okText="Yes"
+            cancelText="No"
+          >
+            Delete
+          </Popconfirm>
+        ),
+      },
+    ];
+    console.log(`record.hasDiskTrash`, record.hasDiskTrash);
+    if (record.hasDiskTrash) {
+      console.log(`inserting trash disk folder`);
+      menuItems.unshift({
+        key: "trash",
+        label: "Open Trash",
+        onClick: () => {
+          navigate(
+            wrapOrgCode(
+              `/drive/${record.diskType}/${record.diskID}/${record.hasDiskTrash}?isTrashBin=1`
+            )
+          );
+        },
+      });
+    }
+    if (isTrashBin) {
+      menuItems.unshift({
+        key: "restore",
+        label: (
+          <Popconfirm
+            title="Confirm Restore"
+            description="Are you sure you want to restore trash?"
+            onConfirm={() => {
+              console.log(`I would like to restore trash`);
+            }}
+          >
+            Restore Trash
+          </Popconfirm>
+        ),
+      });
+    }
+    return menuItems;
+  };
 
   // Handle delete using Redux actions
   const handleDelete = async (record: DriveItemRow) => {
@@ -657,22 +695,34 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           action: DELETE_FOLDER as "DELETE_FOLDER",
           payload: {
             id: record.id,
-            permanent: true,
+            permanent: isTrashBin,
           },
         };
         // console.log(`====listDirectoryKey`, listDirectoryKey);
-        dispatch(deleteFolderAction(deleteAction, listDirectoryKey));
+        dispatch(
+          deleteFolderAction(
+            deleteAction,
+            listDirectoryKey,
+            shouldBehaveOfflineDiskUIIntent(record.diskID)
+          )
+        );
       } else {
         // Create the delete file action
         const deleteAction = {
           action: DELETE_FILE as "DELETE_FILE",
           payload: {
             id: record.id,
-            permanent: true,
+            permanent: isTrashBin,
           },
         };
 
-        dispatch(deleteFileAction(deleteAction, listDirectoryKey));
+        dispatch(
+          deleteFileAction(
+            deleteAction,
+            listDirectoryKey,
+            shouldBehaveOfflineDiskUIIntent(record.diskID)
+          )
+        );
       }
 
       message.success(
@@ -765,6 +815,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         diskType: f.disk_type,
         isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
         expires_at: f.expires_at,
+        hasDiskTrash: (f as any).hasDiskTrash,
       })),
       ...content.files.map((f) => ({
         id: f.id,
@@ -787,7 +838,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   // Handle rename using Redux actions
   const handleRenameSubmit = async (record: DriveItemRow) => {
     const newName = renamingItems[record.id];
-    console.log(`newName--`, newName);
     if (newName && newName !== record.title) {
       try {
         if (record.isFolder) {

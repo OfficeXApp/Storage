@@ -17,6 +17,7 @@ import {
   createFileAction,
 } from "../../../redux-offline/directory/directory.actions";
 import { FileFEO } from "../../../redux-offline/directory/directory.reducer";
+import { wrapAuthStringOrHeader } from "../../../api/helpers";
 
 /**
  * Adapter for uploading files to Canister storage
@@ -303,23 +304,24 @@ export class CanisterAdapter implements IUploadAdapter {
     signal: AbortSignal
   ): Promise<boolean> {
     try {
-      const response = await fetch(
+      const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/raw_upload/chunk`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-          body: JSON.stringify({
-            file_id: fileId,
-            chunk_index: chunkIndex,
-            chunk_data: Array.from(chunkData),
-            total_chunks: totalChunks,
-          }),
-          signal,
-        }
+          "Content-Type": "application/json",
+        },
+        this.apiKey
       );
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          file_id: fileId,
+          chunk_index: chunkIndex,
+          chunk_data: Array.from(chunkData),
+          total_chunks: totalChunks,
+        }),
+        signal,
+      });
 
       if (!response.ok) {
         throw new Error(`Upload failed: ${response.statusText}`);
@@ -346,21 +348,22 @@ export class CanisterAdapter implements IUploadAdapter {
     signal: AbortSignal
   ): Promise<boolean> {
     try {
-      const response = await fetch(
+      const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/raw_upload/complete`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-          body: JSON.stringify({
-            file_id: fileId,
-            filename,
-          }),
-          signal,
-        }
+          "Content-Type": "application/json",
+        },
+        this.apiKey
       );
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          file_id: fileId,
+          filename,
+        }),
+        signal,
+      });
 
       if (!response.ok) {
         throw new Error(`Complete upload failed: ${response.statusText}`);
@@ -631,20 +634,20 @@ export class CanisterAdapter implements IUploadAdapter {
     // Call the API to cancel the upload
     try {
       const fileId = metadata.customMetadata.fileId as string;
-
-      const response = await fetch(
+      const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/raw_upload/cancel`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-          body: JSON.stringify({
-            file_id: fileId,
-          }),
-        }
+          "Content-Type": "application/json",
+        },
+        this.apiKey
       );
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          file_id: fileId,
+        }),
+      });
 
       // Even if the API call fails, we still want to clean up locally
       this.resumableUploads.delete(id);

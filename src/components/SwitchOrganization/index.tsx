@@ -41,7 +41,7 @@ import { debounce } from "lodash";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { UserID } from "@officexapp/types";
 import { v4 as uuidv4 } from "uuid";
-import { sleep } from "../../api/helpers";
+import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
 import EarnProgressOverview from "../EarnProgressOverview";
 import { generateRandomSeed } from "../../api/icp";
 import { useReduxOfflineMultiTenant } from "../../redux-offline/ReduxProvider";
@@ -162,6 +162,7 @@ const OrganizationSwitcher = () => {
 
   const debouncedFetchWhoAmI = useCallback(
     debounce(async (passwordInput: string) => {
+      console.log(`debouncedFetchWhoAmI`);
       if (!passwordInput || passwordInput.trim() === "") {
         setImportApiPreviewData({
           icpAddress: "",
@@ -214,14 +215,17 @@ const OrganizationSwitcher = () => {
         const orgIcp = driveID.replace("DriveID_", "");
 
         // Construct the whoami URL with the specific drive ID
-        const whoamiUrl = `${endpoint}/v1/${driveID}/organization/whoami`;
-
+        // const whoamiUrl = `${endpoint}/v1/${driveID}/organization/whoami`;
+        const whoamiUrl = `https://is5sx-kqaaa-aaaak-apcoa-cai.icp0.io/v1/${driveID}/organization/whoami`;
         // Only the password part should go in the Authorization header
-        const response = await fetch(whoamiUrl, {
+        const { url, headers } = wrapAuthStringOrHeader(
+          whoamiUrl,
+          {},
+          password
+        );
+        const response = await fetch(url, {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${password}`,
-          },
+          headers,
         });
 
         if (!response.ok) {
@@ -281,6 +285,7 @@ const OrganizationSwitcher = () => {
   );
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    console.log(`handlePasswordChange`);
     const newPassword = e.target.value;
     setImportApiKey(newPassword);
 
@@ -687,6 +692,8 @@ const OrganizationSwitcher = () => {
                 organization_name: newOrgNickname,
                 owner_name: profile.nickname || "Anonymous Owner",
               }),
+              // @ts-ignore
+              timeout: 120000,
             }
           );
 
@@ -703,12 +710,16 @@ const OrganizationSwitcher = () => {
             throw new Error("Invalid response from voucher redemption");
           }
 
+          await sleep(5000);
+
           message.info("Minting Anonymous Blockchain...");
 
           // wait 5 seconds
           await sleep(5000);
 
           message.info("Promoting you to Admin...");
+
+          await sleep(5000);
 
           const { drive_id, endpoint, redeem_code } = redeemData.ok.data;
 

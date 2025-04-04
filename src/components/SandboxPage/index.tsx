@@ -37,55 +37,70 @@ const SandboxPage = () => {
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const disks = useSelector((state: ReduxAppState) => state.disks.disks);
 
-  const handleCreateDisk = () => {
-    dispatch(
-      createDiskAction({
-        name: diskName,
-        disk_type: DiskTypeEnum.LocalSSD,
-        public_note: "Storage for group project files",
-        private_note: "Contains sensitive project data",
-        auth_json: JSON.stringify({
-          access_key: "AKIAIOSFODNN7EXAMPLE",
-          secret_key: "redacted",
-          region: "us-west-2",
-          bucket: "my-project-files",
-        }),
-        external_id: "ext-disk-001",
-        external_payload: JSON.stringify({
-          department: "engineering",
-          cost_center: "cc-12345",
-          project_id: "p-987654",
-        }),
-      })
-    );
+  const handleTestBackendRoute = async () => {
+    const url = `https://is5sx-kqaaa-aaaak-apcoa-cai.icp0.io/v1/default/organization/snapshot`;
+    console.log(`firing at url test backend`, url);
+    const password = "123";
+    // Only the password part should go in the Authorization header
+    const response = await fetch(url, {
+      method: "GET",
+      mode: "cors",
+      // credentials: "include",
+      headers: {
+        // Authorization: `Bearer ${password}`,
+      },
+    });
 
-    message.success(
-      isOnline
-        ? "Creating disk..."
-        : "Queued disk creation for when you're back online"
-    );
-  };
-  const handleListDisks = () => {
-    dispatch(listDisksAction({}));
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
 
-    message.success(
-      isOnline
-        ? "Listing disk..."
-        : "Queued disk listing for when you're back online"
-    );
+    const data = await response.json();
+    console.log("Received data:", data);
   };
-  const handleUpdateDisk = () => {
-    dispatch(
-      updateDiskAction({
-        id: updateDiskID,
-        name: `${diskName} Updated`,
-      })
-    );
-    message.success(
-      isOnline
-        ? "Updating disk..."
-        : "Queued disk edit update for when you're back online"
-    );
+  const handleWhoAmIRoute = async () => {
+    const url = `https://is5sx-kqaaa-aaaak-apcoa-cai.icp0.io/v1/default/organization/whoami`;
+    console.log(`firing at url test backend`, url);
+    const password = "_______";
+    // Only the password part should go in the Authorization header
+    const response = await fetch(`${url}?auth=${password}`, {
+      method: "GET",
+      mode: "cors",
+      // credentials: "include",
+      headers: {
+        // Authorization: `Bearer ${password}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Received data:", data);
+  };
+  const handleTestFactoryRoute = async () => {
+    const url = `https://lfp6f-3iaaa-aaaak-apcgq-cai.icp0.io/v1/default/factory/snapshot`;
+    console.log(`firing at url test factory`, url);
+    const password = "123";
+    // Only the password part should go in the Authorization header
+    const response = await fetch(url, {
+      method: "GET",
+      // mode: "no-cors",
+      // credentials: "include",
+      headers: {
+        // Authorization: `Bearer ${password}`,
+      },
+    });
+
+    console.log(`response`, response);
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Received data:", data);
   };
   const handleDeleteDisk = () => {
     dispatch(deleteDiskAction({ id: deleteDiskID }));
@@ -123,8 +138,8 @@ const SandboxPage = () => {
         <Input value={sig}></Input>
         <br />
         <br />
-        <Button type="primary" block onClick={handleListDisks}>
-          List Disks
+        <Button type="primary" block onClick={handleWhoAmIRoute}>
+          Who Am I
         </Button>
         <br />
         <br />
@@ -144,8 +159,8 @@ const SandboxPage = () => {
           placeholder="Disk Name"
           onChange={(e) => setDiskName(e.target.value)}
           suffix={
-            <Button type="primary" onClick={handleCreateDisk}>
-              Create Disk
+            <Button type="primary" onClick={handleTestBackendRoute}>
+              Test Backend Route
             </Button>
           }
         ></Input>
@@ -155,8 +170,8 @@ const SandboxPage = () => {
           placeholder="DiskID"
           onChange={(e) => setUpdateDiskID(e.target.value)}
           suffix={
-            <Button type="primary" onClick={handleUpdateDisk}>
-              Update Disk
+            <Button type="primary" onClick={handleTestFactoryRoute}>
+              Test Factory Route
             </Button>
           }
         ></Input>

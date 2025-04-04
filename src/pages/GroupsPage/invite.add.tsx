@@ -40,7 +40,7 @@ import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { shortenAddress } from "../../framework/identity/constants";
 import { useIdentitySystem } from "../../framework/identity";
 import { GroupFEO } from "../../redux-offline/groups/groups.reducer";
-import { urlSafeBase64Encode } from "../../api/helpers";
+import { urlSafeBase64Encode, wrapAuthStringOrHeader } from "../../api/helpers";
 import { generateRedeemGroupInviteURL } from "./invite.redeem";
 import dayjs from "dayjs";
 
@@ -217,17 +217,18 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
     console.log(`generating invite link...`);
 
     const auth_token = currentAPIKey?.value || (await generateSignature());
-    const create_group_response = await fetch(
+    const { url, headers } = wrapAuthStringOrHeader(
       `${currentOrg.endpoint}/v1/${currentOrg.driveID}/groups/invites/create`,
       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
-        },
-        body: JSON.stringify(groupInviteData),
-      }
+        "Content-Type": "application/json",
+      },
+      auth_token
     );
+    const create_group_response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(groupInviteData),
+    });
     const res = await create_group_response.json();
 
     if (res.ok.data.redeem_code) {

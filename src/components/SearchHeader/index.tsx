@@ -35,7 +35,11 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { FileMetadata, FolderMetadata, useDrive } from "../../framework";
 import { Link, useNavigate } from "react-router-dom";
-import { trimToFolderPath, truncateMiddlePath } from "../../api/helpers";
+import {
+  trimToFolderPath,
+  truncateMiddlePath,
+  wrapAuthStringOrHeader,
+} from "../../api/helpers";
 import useScreenType from "react-screentype-hook";
 import { generate } from "random-words"; // Import random-words library
 import { useIdentitySystem } from "../../framework/identity"; // Import corrected useIdentity hook
@@ -841,11 +845,14 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
         const whoamiUrl = `${endpoint}/v1/${driveID}/organization/whoami`;
 
         // Important: Only the password part should go in the Authorization header, not the driveID
-        const response = await fetch(whoamiUrl, {
+        const { url, headers } = wrapAuthStringOrHeader(
+          whoamiUrl,
+          {},
+          password
+        );
+        const response = await fetch(url, {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${password}`,
-          },
+          headers,
         });
 
         if (!response.ok) {

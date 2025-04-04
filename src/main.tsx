@@ -12,6 +12,7 @@ import { IdentitySystemProvider } from "./framework/identity/index.tsx";
 import { ReduxOfflineProvider } from "./redux-offline/ReduxProvider.tsx";
 import { MultiUploaderProvider } from "./framework/uploader/hook.tsx";
 import { BrowserRouter } from "react-router-dom";
+import "./fetch";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 

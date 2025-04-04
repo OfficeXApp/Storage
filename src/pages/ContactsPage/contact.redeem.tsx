@@ -21,7 +21,7 @@ import {
 } from "@officexapp/types";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { IndexDB_Profile, useIdentitySystem } from "../../framework/identity";
-import { urlSafeBase64Decode } from "../../api/helpers";
+import { urlSafeBase64Decode, wrapAuthStringOrHeader } from "../../api/helpers";
 import {
   CheckCircleOutlined,
   EditOutlined,
@@ -213,29 +213,29 @@ const ContactRedeem = () => {
         redeem_code: data.redeem_code,
       };
       const auth_token = currentAPIKey?.value || (await generateSignature());
-      const redeem_response = await fetch(
+      const { url, headers } = wrapAuthStringOrHeader(
         `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/contacts/redeem`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
-          },
-          body: JSON.stringify(superswap_payload),
-        }
+          "Content-Type": "application/json",
+        },
+        auth_token
       );
+      const redeem_response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(superswap_payload),
+      });
       console.log(`redeem_response`, redeem_response);
 
       const redeem_data: IResponseRedeemContact = await redeem_response.json();
-
-      const check = await fetch(
+      const { url: url2, headers: headers2 } = wrapAuthStringOrHeader(
         `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`,
-        {
-          headers: {
-            Authorization: `Bearer ${redeem_data.ok.data.api_key}`,
-          },
-        }
+        {},
+        redeem_data.ok.data.api_key
       );
+      const check = await fetch(url2, {
+        headers: headers2,
+      });
       const checkData: IResponseWhoAmI = (await check.json()).ok.data;
 
       console.log("checkData", checkData);
@@ -298,15 +298,14 @@ const ContactRedeem = () => {
       return;
     }
     console.log("Processing auto login contact", data);
-
-    const check = await fetch(
+    const { url, headers } = wrapAuthStringOrHeader(
       `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`,
-      {
-        headers: {
-          Authorization: `Bearer ${data.api_key}`,
-        },
-      }
+      {},
+      data.api_key
     );
+    const check = await fetch(url, {
+      headers,
+    });
     const checkData: IResponseWhoAmI = (await check.json()).ok.data;
 
     console.log("checkData", checkData);
@@ -366,14 +365,14 @@ const ContactRedeem = () => {
       return;
     }
     const auth_token = data.api_key || (await generateSignature());
-    const check = await fetch(
+    const { url, headers } = wrapAuthStringOrHeader(
       `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`,
-      {
-        headers: {
-          Authorization: `Bearer ${auth_token}`,
-        },
-      }
+      {},
+      auth_token
     );
+    const check = await fetch(url, {
+      headers,
+    });
     const checkData: IResponseWhoAmI = (await check.json()).ok.data;
 
     console.log("checkData", checkData);

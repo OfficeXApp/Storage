@@ -24,6 +24,7 @@ import {
   UPDATE_FILE,
   UPDATE_FILE_COMMIT,
 } from "../../../redux-offline/directory/directory.actions";
+import { wrapAuthStringOrHeader } from "../../../api/helpers";
 
 /**
  * Adapter for uploading files to Cloud S3 using presigned URLs
@@ -315,12 +316,16 @@ export class CloudS3Adapter implements IUploadAdapter {
       // console.log("Creating file record with action:", createAction);
 
       // Make direct API call following the /directory/action pattern
-      const response = await fetch(`${this.apiEndpoint}/directory/action`, {
-        method: "POST",
-        headers: {
+      const { url, headers } = wrapAuthStringOrHeader(
+        `${this.apiEndpoint}/directory/action`,
+        {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.apiKey}`,
         },
+        this.apiKey
+      );
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
         body: JSON.stringify({
           actions: [createAction],
         }),
@@ -399,12 +404,16 @@ export class CloudS3Adapter implements IUploadAdapter {
       // console.log("Updating file status with action:", updateAction);
 
       // Make direct API call following the /directory/action pattern
-      const response = await fetch(`${this.apiEndpoint}/directory/action`, {
-        method: "POST",
-        headers: {
+      const { url, headers } = wrapAuthStringOrHeader(
+        `${this.apiEndpoint}/directory/action`,
+        {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.apiKey}`,
         },
+        this.apiKey
+      );
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
         body: JSON.stringify({
           actions: [updateAction],
         }),

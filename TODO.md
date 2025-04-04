@@ -2,6 +2,7 @@
 
 ## Overview
 
+- [🔵] Deploy to staging, might need to refactor auth to use query string since ICP boundary nodes are being weird about CORS authorization headers even though postman works
 - [🔵] Trash bin functionality
 - [🔵] Delete file folder / Restore trash / Delete forever
 

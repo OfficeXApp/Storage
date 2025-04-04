@@ -28,6 +28,7 @@ import {
   sleep,
   urlSafeBase64Decode,
   urlSafeBase64Encode,
+  wrapAuthStringOrHeader,
 } from "../../api/helpers";
 import {
   CheckCircleOutlined,
@@ -156,17 +157,18 @@ const RedeemDirectoryPermitPage = () => {
     };
 
     // Call the API to redeem the directory permission
-    const redeem_response = await fetch(
+    const { url, headers } = wrapAuthStringOrHeader(
       `${currentOrg.endpoint}/v1/${currentOrg.driveID}/permissions/directory/redeem`,
       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
-        },
-        body: JSON.stringify(redeem_payload),
-      }
+        "Content-Type": "application/json",
+      },
+      auth_token
     );
+    const redeem_response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(redeem_payload),
+    });
 
     if (!redeem_response.ok) {
       const errorData = await redeem_response.json();

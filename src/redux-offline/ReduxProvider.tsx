@@ -36,6 +36,7 @@ import { webhooksOptimisticDexieMiddleware } from "./webhooks/webhooks.optimisti
 import { apiKeysOptimisticDexieMiddleware } from "./api-keys/api-keys.optimistic";
 import { permissionsOptimisticDexieMiddleware } from "./permissions/permissions.optimistic";
 import { directoryOptimisticDexieMiddleware } from "./directory/directory.optimistic";
+import { wrapAuthStringOrHeader } from "../api/helpers";
 
 // Custom discard function
 const discard = (error: any) => {
@@ -182,14 +183,19 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           throw new Error("Failed to obtain authentication token");
         }
 
+        const { url: _url, headers: _headers } = wrapAuthStringOrHeader(
+          fullUrl,
+          {
+            "Content-Type": "application/json",
+            ...sanitizedHeaders,
+          },
+          authToken
+        );
+
         // Configure fetch options with fresh auth token
         const fetchOptions: RequestInit = {
           method,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-            ...sanitizedHeaders,
-          },
+          headers: _headers,
           // Only include body for non-GET requests
           ...(method !== "GET" && {
             body: data ? JSON.stringify(data) : undefined,
@@ -197,7 +203,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         };
 
         // Execute the fetch
-        return fetch(fullUrl, fetchOptions).then(async (response) => {
+        return fetch(_url, fetchOptions).then(async (response) => {
           if (!response.ok) {
             const error: any = new Error(
               `HTTP error! Status: ${response.status}`

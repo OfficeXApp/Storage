@@ -218,3 +218,28 @@ export const getNextUtcMidnight = () => {
   // Return the Unix timestamp in milliseconds
   return nextMidnight.getTime();
 };
+
+export const wrapAuthStringOrHeader = (
+  _url: string,
+  _headers: HeadersInit,
+  auth: string
+) => {
+  let url = _url;
+  let headers = _headers;
+  if (_url.includes("icp0.io")) {
+    // if no question mark already in url, then add ?auth=, otherwise &auth=
+    if (_url.includes("?")) {
+      url = `${_url}&auth=${auth}`;
+    } else {
+      url = `${_url}?auth=${auth}`;
+    }
+    headers = _headers;
+    return { url, headers };
+  } else {
+    headers = {
+      ..._headers,
+      Authorization: `Bearer ${auth}`,
+    };
+    return { url, headers };
+  }
+};

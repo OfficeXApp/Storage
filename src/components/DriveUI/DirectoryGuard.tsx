@@ -3,6 +3,7 @@ import { Result, Input, Button, Space, Typography, message } from "antd";
 import { LockOutlined } from "@ant-design/icons";
 import { useIdentitySystem } from "../../framework/identity";
 import { passwordToSeedPhrase } from "../../api/icp";
+import { wrapAuthStringOrHeader } from "../../api/helpers";
 
 const { Text } = Typography;
 const { Password } = Input;
@@ -44,19 +45,20 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({ resourceID }) => {
           id: resourceID,
         },
       };
-      const check_response = await fetch(
+      const { url, headers } = wrapAuthStringOrHeader(
         `${currentOrg.endpoint}/v1/${currentOrg.driveID}/directory/action`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
-          },
-          body: JSON.stringify({
-            actions: [action],
-          }),
-        }
+          "Content-Type": "application/json",
+        },
+        auth_token
       );
+      const check_response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          actions: [action],
+        }),
+      });
       const res = await check_response.json();
       console.log("Check get file response:", res);
       if (!res || !res[0].response.result) {

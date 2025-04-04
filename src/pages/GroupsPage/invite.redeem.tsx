@@ -11,7 +11,11 @@ import {
   Typography,
 } from "antd";
 import { GroupInviteID, GroupRole } from "@officexapp/types";
-import { urlSafeBase64Decode, urlSafeBase64Encode } from "../../api/helpers";
+import {
+  urlSafeBase64Decode,
+  urlSafeBase64Encode,
+  wrapAuthStringOrHeader,
+} from "../../api/helpers";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { IndexDB_Profile, useIdentitySystem } from "../../framework/identity";
 import { sleep } from "../../api/helpers";
@@ -139,17 +143,18 @@ const RedeemGroupInvite = () => {
     };
 
     // Call the API to redeem the group invite
-    const redeem_response = await fetch(
+    const { url, headers } = wrapAuthStringOrHeader(
       `${currentOrg.endpoint}/v1/${currentOrg.driveID}/groups/invites/redeem`,
       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
-        },
-        body: JSON.stringify(redeem_payload),
-      }
+        "Content-Type": "application/json",
+      },
+      auth_token
     );
+    const redeem_response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(redeem_payload),
+    });
 
     const redeem_data = await redeem_response.json();
 

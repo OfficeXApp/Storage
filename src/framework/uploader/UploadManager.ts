@@ -51,6 +51,7 @@ import {
   createFolderAction,
 } from "../../redux-offline/directory/directory.actions";
 import { shouldBehaveOfflineDiskUIIntent } from "../../redux-offline/directory/directory.reducer";
+import { wrapAuthStringOrHeader } from "../../api/helpers";
 
 /**
  * Manager for coordinating uploads across different adapters
@@ -1339,12 +1340,16 @@ export class UploadManager {
     ) {
       const auth_token = await this.apiKey();
       // Make direct API call following the /directory/action pattern
-      const response = await fetch(`${this.endpoint}/directory/action`, {
-        method: "POST",
-        headers: {
+      const { url, headers } = wrapAuthStringOrHeader(
+        `${this.endpoint}/directory/action`,
+        {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${auth_token}`,
         },
+        auth_token
+      );
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
         body: JSON.stringify({
           actions: [createAction],
         }),

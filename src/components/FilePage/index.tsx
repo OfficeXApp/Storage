@@ -38,7 +38,7 @@ import {
 import { DirectoryResourceID, DiskTypeEnum, FileID } from "@officexapp/types";
 import SheetJSPreview from "../SheetJSPreview";
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
-import { sleep } from "../../api/helpers";
+import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
 import {
   UPDATE_FILE,
   updateFileAction,
@@ -389,19 +389,20 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   }
 
   const fetchFileContentFromCanister = async (fileId: string) => {
-    let auth_token = currentAPIKey?.value || generateSignature();
+    let auth_token = currentAPIKey?.value || (await generateSignature());
     try {
       // 1. Fetch metadata
-      const metaRes = await fetch(
+      const { url, headers } = wrapAuthStringOrHeader(
         `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/directory/raw_download/meta?file_id=${fileId}`,
         {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
-          },
-        }
+          "Content-Type": "application/json",
+        },
+        auth_token
       );
+      const metaRes = await fetch(url, {
+        method: "GET",
+        headers,
+      });
 
       if (!metaRes.ok) {
         throw new Error(`Metadata request failed: ${metaRes.statusText}`);
@@ -415,16 +416,17 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       let offset = 0;
 
       for (let i = 0; i < total_chunks; i++) {
-        const chunkRes = await fetch(
+        const { url, headers } = wrapAuthStringOrHeader(
           `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
           {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${auth_token}`,
-            },
-          }
+            "Content-Type": "application/json",
+          },
+          auth_token
         );
+        const chunkRes = await fetch(url, {
+          method: "GET",
+          headers,
+        });
 
         if (!chunkRes.ok) {
           throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);

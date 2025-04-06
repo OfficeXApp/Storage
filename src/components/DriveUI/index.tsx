@@ -13,6 +13,7 @@ import {
   Breakpoint,
   Modal,
   notification,
+  Checkbox,
 } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -145,6 +146,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const dispatch = useDispatch();
   const isTrashBin = location.search.includes("isTrashBin=1");
   const { currentOrg, wrapOrgCode } = useIdentitySystem();
+  const [showAncillary, setShowAncillary] = useState(false);
 
   const [listDirectoryKey, setListDirectoryKey] = useState("");
 
@@ -316,7 +318,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
     //   setIsStorjModalVisible(true);
     // }
-  }, [location]);
+  }, [location, showAncillary]);
 
   const fetchFileById = (fileId: FileID, diskID: DiskID) => {
     console.log("Fetching file by ID:", fileId);
@@ -387,7 +389,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
         setContent({
           folders: disks.map((disk) => {
-            console.log(`.... disk`, disk);
             return {
               id: disk.root_folder as FolderID,
               name: disk.name,
@@ -410,6 +411,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 `${disk.disk_type}::/` as DriveClippedFilePath,
               permission_previews: [],
               hasDiskTrash: disk.trash_folder,
+              isAncillary:
+                disks.length > 3 &&
+                (disk.id === defaultBrowserCacheDiskID ||
+                  disk.id === defaultTempCloudSharingDiskID ||
+                  disk.disk_type === DiskTypeEnum.IcpCanister),
             };
           }),
           files: [],
@@ -758,7 +764,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // Generate breadcrumb items
   const generateBreadcrumbItems = () => {
-    const items = [{ title: <Link to="/drive">Drive</Link> }];
+    const items = [{ title: <Link to={wrapOrgCode("/drive")}>Drive</Link> }];
 
     // // Add disk if present
     // if (currentDiskId) {
@@ -805,18 +811,24 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const tableRows: DriveItemRow[] = useMemo(() => {
     return [
-      ...content.folders.map((f) => ({
-        id: f.id,
-        title: f.name,
-        owner: f.created_by,
-        isFolder: true,
-        fullPath: f.full_directory_path,
-        diskID: f.disk_id,
-        diskType: f.disk_type,
-        isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
-        expires_at: f.expires_at,
-        hasDiskTrash: (f as any).hasDiskTrash,
-      })),
+      ...content.folders
+        .filter((f) => {
+          if (showAncillary) return true;
+          // @ts-ignore
+          return !f.isAncillary;
+        })
+        .map((f) => ({
+          id: f.id,
+          title: f.name,
+          owner: f.created_by,
+          isFolder: true,
+          fullPath: f.full_directory_path,
+          diskID: f.disk_id,
+          diskType: f.disk_type,
+          isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
+          expires_at: f.expires_at,
+          hasDiskTrash: (f as any).hasDiskTrash,
+        })),
       ...content.files.map((f) => ({
         id: f.id,
         title: f.name,
@@ -930,6 +942,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     return <DirectoryGuard resourceID={currentFileId} />;
   }
 
+  console.log(`disks`, disks);
+
   return (
     <div
       style={{
@@ -953,7 +967,28 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           flexWrap: "wrap",
         }}
       >
-        <Breadcrumb items={breadcrumbItems} />
+        {!currentFolderId && !currentFileId && disks.length > 3 ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}
+          >
+            <Checkbox
+              checked={showAncillary}
+              onChange={(e) => {
+                setShowAncillary(e.target.checked);
+              }}
+              style={{ color: "rgba(0,0,0,0.3)", fontWeight: "normal" }}
+            >
+              Show All Disks
+            </Checkbox>
+          </div>
+        ) : (
+          <Breadcrumb items={breadcrumbItems} />
+        )}
         {currentFolderId && !currentFileId && (
           <div style={{ display: "flex", flexDirection: "row", gap: 8 }}>
             <ActionMenuButton
@@ -972,6 +1007,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           </div>
         )}
       </div>
+
       <div
         style={{
           display: "flex",
@@ -990,19 +1026,21 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 overflowX: "scroll",
               }}
             >
-              <Button
-                onClick={handleBack}
-                type="link"
-                icon={<ArrowLeftOutlined />}
-                style={{
-                  padding: 0,
-                  color: "inherit",
-                  textDecoration: "none",
-                  margin: "0px 8px 0px 0px",
-                }}
-              >
-                Back
-              </Button>
+              {
+                <Button
+                  onClick={handleBack}
+                  type="link"
+                  icon={<ArrowLeftOutlined />}
+                  style={{
+                    padding: 0,
+                    color: "inherit",
+                    textDecoration: "none",
+                    margin: "0px 8px 0px 0px",
+                  }}
+                >
+                  Back
+                </Button>
+              }
 
               <div
                 style={{ display: "flex", gap: "20px", alignItems: "center" }}
@@ -1060,7 +1098,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 </Dropdown>
               </div>
             </div>
-          ) : (
+          ) : !currentFileId && !currentFolderId ? null : (
             <Button
               onClick={handleBack}
               size="small"
@@ -1084,7 +1122,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 subTitle="The file you are looking for does not exist or has been deleted."
                 extra={[
                   <div key="home">
-                    <Link to="/drive">
+                    <Link to={wrapOrgCode("/drive")}>
                       <Button
                         key="back"
                         onClick={() => setIs404NotFound(false)}

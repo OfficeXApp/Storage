@@ -21,6 +21,9 @@ import {
   REDEEM_CONTACT,
   REDEEM_CONTACT_COMMIT,
   REDEEM_CONTACT_ROLLBACK,
+  CHECK_CONTACT_TABLE_PERMISSIONS,
+  CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT,
+  CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK,
 } from "../contacts/contacts.actions";
 import {
   AuthProfile,
@@ -33,6 +36,7 @@ import {
   CONTACTS_DEXIE_TABLE,
   CONTACTS_REDUX_KEY,
 } from "./contacts.reducer";
+import { SYSTEM_PERMISSIONS_DEXIE_TABLE } from "../permissions/permissions.reducer";
 import _ from "lodash";
 
 /**
@@ -70,6 +74,9 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           REDEEM_CONTACT,
           REDEEM_CONTACT_COMMIT,
           REDEEM_CONTACT_ROLLBACK,
+          CHECK_CONTACT_TABLE_PERMISSIONS,
+          CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT,
+          CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK,
         ].includes(action.type)
       ) {
         return next(action);
@@ -410,6 +417,71 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
                 const error_message = `Failed to delete contact - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                await markSyncConflict(table, optimisticID, error_message);
+                enhancedAction = {
+                  ...action,
+                  error_message,
+                };
+              }
+            } catch (e) {
+              console.log(e);
+            }
+            break;
+          }
+
+          case CHECK_CONTACT_TABLE_PERMISSIONS: {
+            console.log(
+              `Firing checkContactTablePermissionsAction for user`,
+              action
+            );
+            // check dexie
+            const systemPermissionsTable = db.table(
+              SYSTEM_PERMISSIONS_DEXIE_TABLE
+            );
+            const permissions = await systemPermissionsTable.get(
+              action.meta?.optimisticID
+            );
+            if (permissions) {
+              enhancedAction = {
+                ...action,
+                optimistic: Object.values(permissions),
+              };
+            }
+            break;
+          }
+
+          case CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT: {
+            console.log(
+              `Handling CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT`,
+              action
+            );
+            const optimisticID = action.meta?.optimisticID;
+            const permissions = action.payload?.ok?.data?.permissions;
+
+            if (permissions) {
+              // Save to system permissions table
+              const systemPermissionsTable = db.table(
+                SYSTEM_PERMISSIONS_DEXIE_TABLE
+              );
+              await systemPermissionsTable.put({
+                ...permissions,
+                id: optimisticID,
+                _optimisticID: optimisticID,
+                _isOptimistic: false,
+                _syncSuccess: true,
+                _syncConflict: false,
+              });
+            }
+            break;
+          }
+
+          case CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK: {
+            if (!action.payload.response) break;
+            try {
+              const err = await action.payload.response.json();
+              const optimisticID = action.meta?.optimisticID;
+              if (optimisticID) {
+                const error_message = `Failed to check contact table permissions - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,

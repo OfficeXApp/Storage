@@ -1,5 +1,5 @@
 // src/redux-offline/contacts/contacts.reducer.ts
-import { ContactFE, UserID } from "@officexapp/types";
+import { ContactFE, SystemPermissionType, UserID } from "@officexapp/types";
 import {
   CREATE_CONTACT,
   CREATE_CONTACT_COMMIT,
@@ -19,6 +19,9 @@ import {
   REDEEM_CONTACT,
   REDEEM_CONTACT_COMMIT,
   REDEEM_CONTACT_ROLLBACK,
+  CHECK_CONTACT_TABLE_PERMISSIONS,
+  CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT,
+  CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK,
 } from "./contacts.actions";
 
 export const CONTACTS_REDUX_KEY = "contacts";
@@ -38,6 +41,7 @@ interface ContactsState {
   contactMap: Record<UserID, ContactFEO>;
   loading: boolean;
   error: string | null;
+  tablePermissions: SystemPermissionType[];
 }
 
 const initialState: ContactsState = {
@@ -45,6 +49,7 @@ const initialState: ContactsState = {
   contactMap: {},
   loading: false,
   error: null,
+  tablePermissions: [],
 };
 
 const updateOrAddContact = (
@@ -147,11 +152,13 @@ export const contactsReducer = (
     }
 
     case LIST_CONTACTS_COMMIT: {
-      // find & replace optimisticFetchContact with action.payload.ok.data.items
-      // or even replace entire contacts
       return {
         ...state,
-        contacts: action.payload.ok.data.items,
+        contacts: action.payload.ok.data.items.reduce(
+          (acc: ContactFEO[], item: ContactFEO) =>
+            updateOrAddContact(acc, item),
+          state.contacts
+        ),
         loading: false,
       };
     }
@@ -330,6 +337,36 @@ export const contactsReducer = (
         }),
         loading: false,
         error: action.payload.message || "Failed to delete contact",
+      };
+    }
+
+    // ------------------------------ CHECK CONTACT TABLE PERMISSIONS --------------------------------- //
+
+    case CHECK_CONTACT_TABLE_PERMISSIONS: {
+      console.log(`Firing checkContactTablePermissionsAction for user`, action);
+      const optimistic = action.optimistic || [];
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        tablePermissions: optimistic,
+      };
+    }
+
+    case CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT: {
+      return {
+        ...state,
+        loading: false,
+        tablePermissions: action.payload.ok.data.permissions,
+      };
+    }
+
+    case CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK: {
+      return {
+        ...state,
+        loading: false,
+        error:
+          action.payload.message || "Failed to check contact table permissions",
       };
     }
 

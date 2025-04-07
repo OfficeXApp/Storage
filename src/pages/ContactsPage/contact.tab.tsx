@@ -351,6 +351,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   onClick={() => setIsInviteModalOpen(true)}
                   type="primary"
                   size={screenType.isMobile ? "small" : "middle"}
+                  disabled={contact._isOptimistic}
                 >
                   Share Login
                 </Button>

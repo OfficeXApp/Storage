@@ -225,7 +225,6 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
       onClose={onClose}
       open={open}
       width={500}
-      mask={false}
       footer={
         <div style={{ textAlign: "right" }}>
           <Button size="large" onClick={onClose} style={{ marginRight: 8 }}>

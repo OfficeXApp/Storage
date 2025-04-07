@@ -23,22 +23,21 @@ export const customNetworkDetector = (callback: NetworkCallback) => {
   // Optional: Perform additional periodic checks to handle cases where
   // browser events are unreliable
   const checkNetworkStatus = async () => {
-    try {
-      // Attempt to fetch a small resource to verify connection
-      // Use a timestamp to prevent caching
-      const response = await fetch(`/api/health-check?_=${Date.now()}`, {
-        method: "HEAD",
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache",
-        },
-      });
-
-      callback(response.ok);
-    } catch (error) {
-      // If fetch fails, we're offline
-      callback(false);
-    }
+    // try {
+    //   // Attempt to fetch a small resource to verify connection
+    //   // Use a timestamp to prevent caching
+    //   const response = await fetch(`/api/health-check?_=${Date.now()}`, {
+    //     method: "HEAD",
+    //     cache: "no-store",
+    //     headers: {
+    //       "Cache-Control": "no-cache",
+    //     },
+    //   });
+    //   callback(response.ok);
+    // } catch (error) {
+    //   // If fetch fails, we're offline
+    //   callback(false);
+    // }
   };
 
   // Check every 30 seconds

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Switch,
@@ -19,7 +19,11 @@ import {
 } from "@ant-design/icons";
 import { Tooltip } from "antd";
 import { ContactFEO } from "../../redux-offline/contacts/contacts.reducer";
-import { ApiKey, IRequestCreateApiKey } from "@officexapp/types";
+import {
+  ApiKey,
+  IRequestCreateApiKey,
+  SystemPermissionType,
+} from "@officexapp/types";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import { useIdentitySystem } from "../../framework/identity";
 import TagCopy from "../../components/TagCopy";
@@ -51,14 +55,79 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
     // @ts-ignore
     contact.is_placeholder || contact.from_placeholder_user_id
   );
-  const [enableAutoLogin, setEnableAutoLogin] = useState<boolean>(true);
+  const [initialCheckLoading, setInitialCheckLoading] = useState<boolean>(true);
+  const [enableAutoLogin, setEnableAutoLogin] = useState<boolean>(false);
+  const [hasApiCreationAuth, setHasApiCreationAuth] = useState<boolean>(false);
   const [redirectUrl, setRedirectUrl] = useState<string>("");
   const [apiKeyDates, setApiKeyDates] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState<boolean>(false);
   const [generatedLink, setGeneratedLink] = useState<string>("");
-  const { currentOrg, currentAPIKey, generateSignature, wrapOrgCode } =
-    useIdentitySystem();
+  const {
+    currentProfile,
+    currentOrg,
+    currentAPIKey,
+    generateSignature,
+    wrapOrgCode,
+  } = useIdentitySystem();
+
+  // Check permissions on component mount
+  useEffect(() => {
+    if (isVisible && currentProfile?.userID) {
+      checkApiKeyPermissions();
+    }
+  }, [isVisible, currentProfile]);
+
+  // Function to check API key permissions
+  const checkApiKeyPermissions = async () => {
+    try {
+      const auth_token = currentAPIKey?.value || (await generateSignature());
+
+      // Prepare the request payload
+      const permissionCheckPayload = {
+        resource_id: "TABLE_API_KEYS",
+        grantee_id: currentProfile?.userID,
+      };
+
+      // Make the API call to check permissions
+      const { url, headers } = wrapAuthStringOrHeader(
+        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/permissions/system/check`,
+        {
+          "Content-Type": "application/json",
+        },
+        auth_token
+      );
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(permissionCheckPayload),
+      });
+
+      if (!response.ok) {
+        console.log(`Permission check failed with status: ${response.status}`);
+        setInitialCheckLoading(false);
+      }
+
+      const data = await response.json();
+      console.log("API Key permissions check result:", data);
+
+      if (
+        data &&
+        data.ok &&
+        data.ok.data &&
+        data.ok.data.permissions &&
+        data.ok.data.permissions.includes(SystemPermissionType.CREATE)
+      ) {
+        setEnableAutoLogin(true);
+        setHasApiCreationAuth(true);
+      }
+      setInitialCheckLoading(false);
+    } catch (error) {
+      console.error("Error checking API key permissions:", error);
+      setInitialCheckLoading(false);
+    }
+  };
 
   // Prepare API key request payload
   const createApiKeyRequest = (): IRequestCreateApiKey => {
@@ -263,6 +332,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 ) : (
                   <Button
                     type="primary"
+                    disabled={initialCheckLoading}
                     loading={isLoading}
                     onClick={handleGenerateLink}
                   >
@@ -307,7 +377,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 label={
                   <span>
                     Login with API Key{" "}
-                    <Tooltip title="This will generate a new API key for the user">
+                    <Tooltip title="This will generate a new API key for the user. Disabled if you don't have authorization to create API keys on behalf of other users. Speak with your org admin.">
                       <InfoCircleOutlined style={{ color: "#aaa" }} />
                     </Tooltip>
                   </span>
@@ -318,6 +388,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                   onChange={setEnableAutoLogin}
                   checkedChildren="Auto-Login"
                   unCheckedChildren="Manual Login"
+                  disabled={!hasApiCreationAuth}
                 />
               </Form.Item>
               {enableAutoLogin && (

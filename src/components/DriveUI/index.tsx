@@ -193,6 +193,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (
+      !currentDiskId &&
+      !currentFileId &&
+      !currentFolderId &&
+      disks.length > 0
+    ) {
+      fetchContent({});
+    }
+  }, [currentDiskId, currentFolderId, currentFileId, disks]);
+
+  useEffect(() => {
     console.log(`listDirectoryResults`, listDirectoryResults);
     if (listDirectoryResults) {
       const { folders, files } = listDirectoryResults;
@@ -412,10 +423,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               permission_previews: [],
               hasDiskTrash: disk.trash_folder,
               isAncillary:
-                disks.length > 3 &&
-                (disk.id === defaultBrowserCacheDiskID ||
-                  disk.id === defaultTempCloudSharingDiskID ||
-                  disk.disk_type === DiskTypeEnum.IcpCanister),
+                disks.length > 3
+                  ? disk.id === defaultBrowserCacheDiskID ||
+                    disk.id === defaultTempCloudSharingDiskID ||
+                    disk.disk_type === DiskTypeEnum.IcpCanister
+                  : disks.length === 3
+                    ? disk.id === defaultBrowserCacheDiskID ||
+                      disk.disk_type === DiskTypeEnum.IcpCanister
+                    : false,
             };
           }),
           files: [],
@@ -942,7 +957,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     return <DirectoryGuard resourceID={currentFileId} />;
   }
 
-  console.log(`disks`, disks);
+  console.log(
+    `disks, currentDiskId=${currentDiskId}, currentFolderId=${currentFolderId}, currentFileId=${currentFileId}`,
+    disks
+  );
 
   return (
     <div
@@ -967,7 +985,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           flexWrap: "wrap",
         }}
       >
-        {!currentFolderId && !currentFileId && disks.length > 3 ? (
+        {!currentFolderId && !currentFileId && disks.length > 2 ? (
           <div
             style={{
               display: "flex",

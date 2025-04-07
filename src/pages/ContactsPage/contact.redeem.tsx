@@ -434,7 +434,7 @@ const ContactRedeem = () => {
             Self-Custody Profile{" "}
             <Tooltip title="You own this profile and its keys are stored on your device.">
               <QuestionCircleOutlined />
-            </Tooltip>
+            </Tooltip>{" "}
           </span>
         );
       case "OrgOwnedContactApiKeyLogin_BTOA":
@@ -680,22 +680,35 @@ const ContactRedeem = () => {
                 </Button>
 
                 {redeemData.type === "OrgOwnedContactApiKeyLogin_BTOA" &&
-                  redeemData.daterange && (
-                    <div
-                      style={{
-                        marginTop: 8,
-                        fontSize: "0.8rem",
-                        color: "rgba(0,0,0,0.3)",
-                        textAlign: "center",
-                        width: "100%",
-                        fontStyle: "italic",
-                      }}
-                    >
-                      {Date.now() < redeemData.daterange.begins_at
-                        ? `Available soon, from ${formatDate(redeemData.daterange.begins_at)} to ${formatDate(redeemData.daterange.expires_at)}`
-                        : `Available now, from ${formatDate(redeemData.daterange.begins_at)} to ${formatDate(redeemData.daterange.expires_at)}`}
-                    </div>
-                  )}
+                redeemData.daterange ? (
+                  <div
+                    style={{
+                      marginTop: 8,
+                      fontSize: "0.8rem",
+                      color: "rgba(0,0,0,0.3)",
+                      textAlign: "center",
+                      width: "100%",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {Date.now() < redeemData.daterange.begins_at
+                      ? `Available soon, from ${formatDate(redeemData.daterange.begins_at)} to ${formatDate(redeemData.daterange.expires_at)}`
+                      : `Available now, from ${formatDate(redeemData.daterange.begins_at)} to ${formatDate(redeemData.daterange.expires_at)}`}
+                  </div>
+                ) : redeemData.type === "SelfCustodySuperswapLogin_BTOA" ? (
+                  <div
+                    style={{
+                      marginTop: 8,
+                      fontSize: "0.8rem",
+                      color: "rgba(0,0,0,0.3)",
+                      textAlign: "center",
+                      width: "100%",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Organization knows you as {redeemData?.profile_name}
+                  </div>
+                ) : null}
               </div>
             )}
           </>

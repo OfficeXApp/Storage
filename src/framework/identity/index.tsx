@@ -943,8 +943,21 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         const btoaEndpoint = urlSafeBase64Encode(org.endpoint || "");
         const newOrgCode = `${org.driveID}__${btoaEndpoint}`;
 
+        console.log(
+          `window.location.href.split("?")`,
+          window.location.href.split("?")
+        );
+
         // Create new path with updated org code
-        const newPath = `/org/${newOrgCode}${routeSuffix}?${window.location.href.split("?").pop()}`;
+        const winLocSplit = window.location.href.split("?");
+        const lastParamsElement =
+          winLocSplit.length > 1 ? winLocSplit.pop() : "";
+        const newPath = `/org/${newOrgCode}${routeSuffix}?${lastParamsElement}`;
+
+        console.log(
+          `check out this newPath with lastParamsElement = ${lastParamsElement}`,
+          newPath
+        );
 
         // Update browser history without refreshing the page
         window.history.pushState({}, "", newPath);

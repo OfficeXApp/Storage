@@ -344,12 +344,12 @@ export const contactsReducer = (
 
     case CHECK_CONTACT_TABLE_PERMISSIONS: {
       console.log(`Firing checkContactTablePermissionsAction for user`, action);
-      const optimistic = action.optimistic || [];
+      const permission_types = action.optimistic.permission_types || [];
       return {
         ...state,
         loading: true,
         error: null,
-        tablePermissions: optimistic,
+        tablePermissions: permission_types,
       };
     }
 

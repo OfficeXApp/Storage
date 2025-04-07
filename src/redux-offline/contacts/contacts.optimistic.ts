@@ -195,8 +195,12 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncWarning: "",
                   _syncSuccess: true,
                 });
+                if (contact.from_placeholder_user_id) {
+                  await table.delete(contact.from_placeholder_user_id);
+                }
               }
             });
+
             break;
           }
 
@@ -438,13 +442,13 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
             const systemPermissionsTable = db.table(
               SYSTEM_PERMISSIONS_DEXIE_TABLE
             );
-            const permissions = await systemPermissionsTable.get(
+            const permission = await systemPermissionsTable.get(
               action.meta?.optimisticID
             );
-            if (permissions) {
+            if (permission) {
               enhancedAction = {
                 ...action,
-                optimistic: Object.values(permissions),
+                optimistic: permission,
               };
             }
             break;
@@ -464,8 +468,33 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
                 SYSTEM_PERMISSIONS_DEXIE_TABLE
               );
               await systemPermissionsTable.put({
-                ...permissions,
                 id: optimisticID,
+                resource_id: "TABLE_CONTACTS",
+                granted_to: optimisticID.replace(
+                  "contact_table_permissions_",
+                  ""
+                ),
+                granted_by: optimisticID.replace(
+                  "contact_table_permissions_",
+                  ""
+                ),
+                permission_types: permissions,
+                begin_date_ms: 0,
+                expiry_date_ms: -1,
+                note: "Table permission",
+                created_at: 0,
+                last_modified_at: 0,
+                from_placeholder_grantee: null,
+                labels: [],
+                redeem_code: null,
+                metadata: null,
+                external_id: null,
+                external_payload: null,
+                resource_name: "Contacts Table",
+                grantee_name: "You",
+                grantee_avatar: null,
+                granter_name: "System",
+                permission_previews: [],
                 _optimisticID: optimisticID,
                 _isOptimistic: false,
                 _syncSuccess: true,

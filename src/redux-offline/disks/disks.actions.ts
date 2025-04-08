@@ -9,6 +9,7 @@ import {
   IRequestDeleteDisk,
   IRequestListDisks,
   IRequestUpdateDisk,
+  UserID,
 } from "@officexapp/types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -31,6 +32,12 @@ export const UPDATE_DISK_ROLLBACK = "UPDATE_DISK_ROLLBACK";
 export const DELETE_DISK = "DELETE_DISK";
 export const DELETE_DISK_COMMIT = "DELETE_DISK_COMMIT";
 export const DELETE_DISK_ROLLBACK = "DELETE_DISK_ROLLBACK";
+
+export const CHECK_DISKS_TABLE_PERMISSIONS = "CHECK_DISKS_TABLE_PERMISSIONS";
+export const CHECK_DISKS_TABLE_PERMISSIONS_COMMIT =
+  "CHECK_DISKS_TABLE_PERMISSIONS_COMMIT";
+export const CHECK_DISKS_TABLE_PERMISSIONS_ROLLBACK =
+  "CHECK_DISKS_TABLE_PERMISSIONS_ROLLBACK";
 
 // Get Disk
 export const getDiskAction = (id: DiskID) => ({
@@ -160,6 +167,44 @@ export const deleteDiskAction = (payload: IRequestDeleteDisk) => {
         // Action to dispatch on failure
         rollback: {
           type: DELETE_DISK_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+      },
+    },
+  };
+};
+
+// Check Disk Table Permissions
+export const checkDiskTablePermissionsAction = (userID: UserID) => {
+  const id = `disk_table_permissions_${userID}`;
+  console.log(`Firing checkDiskTablePermissionsAction for user ${userID}`);
+  const payload = {
+    resource_id: "TABLE_DISKS",
+    grantee_id: userID,
+  };
+
+  return {
+    type: CHECK_DISKS_TABLE_PERMISSIONS,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/permissions/system/check`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: {
+          type: CHECK_DISKS_TABLE_PERMISSIONS_COMMIT,
+          meta: { optimisticID: id },
+        },
+        // Action to dispatch on failure
+        rollback: {
+          type: CHECK_DISKS_TABLE_PERMISSIONS_ROLLBACK,
           meta: { optimisticID: id },
         },
       },

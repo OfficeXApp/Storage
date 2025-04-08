@@ -1,5 +1,5 @@
 // src/redux-offline/disks/disks.reducer.ts
-import { Disk, DiskFE, DiskID } from "@officexapp/types";
+import { Disk, DiskFE, DiskID, SystemPermissionType } from "@officexapp/types";
 import {
   CREATE_DISK,
   CREATE_DISK_COMMIT,
@@ -13,6 +13,9 @@ import {
   UPDATE_DISK,
   UPDATE_DISK_COMMIT,
   UPDATE_DISK_ROLLBACK,
+  CHECK_DISKS_TABLE_PERMISSIONS,
+  CHECK_DISKS_TABLE_PERMISSIONS_COMMIT,
+  CHECK_DISKS_TABLE_PERMISSIONS_ROLLBACK,
 } from "./disks.actions";
 import {
   defaultBrowserCacheDiskID,
@@ -38,6 +41,7 @@ interface DisksState {
   diskMap: Record<DiskID, DiskFEO>;
   loading: boolean;
   error: string | null;
+  tablePermissions: SystemPermissionType[];
 }
 
 const initialState: DisksState = {
@@ -46,6 +50,7 @@ const initialState: DisksState = {
   diskMap: {},
   loading: false,
   error: null,
+  tablePermissions: [],
 };
 
 const updateOrAddDisk = (
@@ -363,6 +368,34 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
         }),
         loading: false,
         error: action.payload.message || "Failed to delete disk",
+      };
+    }
+
+    case CHECK_DISKS_TABLE_PERMISSIONS: {
+      console.log(`Firing checkDisksTablePermissionsAction for user`, action);
+      const permission_types = action.optimistic?.permission_types || [];
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        tablePermissions: permission_types,
+      };
+    }
+
+    case CHECK_DISKS_TABLE_PERMISSIONS_COMMIT: {
+      return {
+        ...state,
+        loading: false,
+        tablePermissions: action.payload.ok.data.permissions,
+      };
+    }
+
+    case CHECK_DISKS_TABLE_PERMISSIONS_ROLLBACK: {
+      return {
+        ...state,
+        loading: false,
+        error:
+          action.payload.message || "Failed to check disks table permissions",
       };
     }
 

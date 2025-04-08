@@ -1,5 +1,10 @@
 // src/redux-offline/drives/drives.reducer.ts
-import { DriveFE, DriveID, Drive } from "@officexapp/types";
+import {
+  DriveFE,
+  DriveID,
+  Drive,
+  SystemPermissionType,
+} from "@officexapp/types";
 import {
   CREATE_DRIVE,
   CREATE_DRIVE_COMMIT,
@@ -16,6 +21,9 @@ import {
   DELETE_DRIVE,
   DELETE_DRIVE_COMMIT,
   DELETE_DRIVE_ROLLBACK,
+  CHECK_DRIVE_TABLE_PERMISSIONS,
+  CHECK_DRIVE_TABLE_PERMISSIONS_COMMIT,
+  CHECK_DRIVE_TABLE_PERMISSIONS_ROLLBACK,
 } from "./drives.actions";
 
 export const DRIVES_REDUX_KEY = "drives";
@@ -35,6 +43,7 @@ interface DrivesState {
   driveMap: Record<DriveID, DriveFEO>;
   loading: boolean;
   error: string | null;
+  tablePermissions: SystemPermissionType[];
 }
 
 const initialState: DrivesState = {
@@ -42,6 +51,7 @@ const initialState: DrivesState = {
   driveMap: {},
   loading: false,
   error: null,
+  tablePermissions: [],
 };
 
 const updateOrAddDrive = (
@@ -326,6 +336,34 @@ export const drivesReducer = (
         }),
         loading: false,
         error: action.payload.message || "Failed to delete drive",
+      };
+    }
+
+    case CHECK_DRIVE_TABLE_PERMISSIONS: {
+      console.log(`Firing checkDriveTablePermissionsAction for user`, action);
+      const permission_types = action.optimistic?.permission_types || [];
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        tablePermissions: permission_types,
+      };
+    }
+
+    case CHECK_DRIVE_TABLE_PERMISSIONS_COMMIT: {
+      return {
+        ...state,
+        loading: false,
+        tablePermissions: action.payload.ok.data.permissions,
+      };
+    }
+
+    case CHECK_DRIVE_TABLE_PERMISSIONS_ROLLBACK: {
+      return {
+        ...state,
+        loading: false,
+        error:
+          action.payload.message || "Failed to check drive table permissions",
       };
     }
 

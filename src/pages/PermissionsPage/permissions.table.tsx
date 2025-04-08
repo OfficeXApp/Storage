@@ -98,13 +98,6 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
 
   // Fetch permissions on component mount
   useEffect(() => {
-    try {
-      dispatch(listSystemPermissionsAction({}));
-      // We would also dispatch an action to fetch directory permissions here
-    } catch (e) {
-      console.error(e);
-    }
-
     const handleResize = () => {
       const desktopView = document.getElementById("desktop-view");
       const mobileView = document.getElementById("mobile-view");

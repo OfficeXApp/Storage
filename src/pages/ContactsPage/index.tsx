@@ -25,7 +25,11 @@ import ContactsTableList from "./contacts.table";
 import { SAMPLE_CONTACTS } from "./sample";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
-import { checkContactTablePermissionsAction } from "../../redux-offline/contacts/contacts.actions";
+import {
+  checkContactTablePermissionsAction,
+  listContactsAction,
+} from "../../redux-offline/contacts/contacts.actions";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -44,8 +48,11 @@ const ContactsPage: React.FC = () => {
   const screenType = useScreenType();
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
-  const tablePermissions = useSelector(
-    (state: ReduxAppState) => state.contacts.tablePermissions
+  const { tablePermissions, lastChecked } = useSelector(
+    (state: ReduxAppState) => ({
+      tablePermissions: state.contacts.tablePermissions,
+      lastChecked: state.contacts.lastChecked,
+    })
   );
   const dispatch = useDispatch();
 
@@ -75,10 +82,11 @@ const ContactsPage: React.FC = () => {
   const tabItemsRef = useRef(tabItems);
 
   useEffect(() => {
-    if (currentProfile) {
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkContactTablePermissionsAction(currentProfile.userID));
+      // dispatch(listContactsAction({}));
     }
-  }, [currentProfile]);
+  }, [currentProfile, lastChecked]);
 
   // Keep the ref updated with the latest tabItems state
   useEffect(() => {

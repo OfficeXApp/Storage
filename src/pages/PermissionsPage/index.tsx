@@ -15,7 +15,11 @@ import PermissionTab from "./permission.tab";
 import PermissionsTableList from "./permissions.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
-import { checkSystemPermissionTablePermissionsAction } from "../../redux-offline/permissions/permissions.actions";
+import {
+  checkSystemPermissionTablePermissionsAction,
+  listSystemPermissionsAction,
+} from "../../redux-offline/permissions/permissions.actions";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -34,8 +38,11 @@ const PermissionsPage: React.FC = () => {
   const screenType = useScreenType();
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
-  const tablePermissions = useSelector(
-    (state: ReduxAppState) => state.systemPermissions.tablePermissions
+  const { tablePermissions, lastChecked } = useSelector(
+    (state: ReduxAppState) => ({
+      tablePermissions: state.systemPermissions.tablePermissions,
+      lastChecked: state.systemPermissions.lastChecked,
+    })
   );
   const dispatch = useDispatch();
 
@@ -51,12 +58,13 @@ const PermissionsPage: React.FC = () => {
   );
 
   useEffect(() => {
-    if (currentProfile) {
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(
         checkSystemPermissionTablePermissionsAction(currentProfile.userID)
       );
+      dispatch(listSystemPermissionsAction({}));
     }
-  }, [currentProfile]);
+  }, [currentProfile, lastChecked]);
 
   // Tab state management
   const [activeKey, setActiveKey] = useState<string>("list");

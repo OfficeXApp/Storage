@@ -16,7 +16,11 @@ import GroupTab from "./group.tab";
 import GroupsTableList from "./groups.table";
 import { useIdentitySystem } from "../../framework/identity";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { checkGroupTablePermissionsAction } from "../../redux-offline/groups/groups.actions";
+import {
+  checkGroupTablePermissionsAction,
+  listGroupsAction,
+} from "../../redux-offline/groups/groups.actions";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -35,8 +39,11 @@ const GroupsPage: React.FC = () => {
   const screenType = useScreenType();
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
-  const tablePermissions = useSelector(
-    (state: ReduxAppState) => state.groups.tablePermissions
+  const { tablePermissions, lastChecked } = useSelector(
+    (state: ReduxAppState) => ({
+      tablePermissions: state.groups.tablePermissions,
+      lastChecked: state.groups.lastChecked,
+    })
   );
   const dispatch = useDispatch();
 
@@ -74,10 +81,11 @@ const GroupsPage: React.FC = () => {
   }, [tabItems]);
 
   useEffect(() => {
-    if (currentProfile) {
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkGroupTablePermissionsAction(currentProfile.userID));
+      dispatch(listGroupsAction({}));
     }
-  }, [currentProfile]);
+  }, [currentProfile, lastChecked]);
 
   // Function to handle clicking on a group
   const handleClickContentTab = useCallback(

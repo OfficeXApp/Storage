@@ -66,18 +66,6 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
 
   // Handle responsive layout
   useEffect(() => {
-    try {
-      dispatch(listContactsAction({}));
-    } catch (e) {
-      console.error(e);
-    }
-
-    // message.success(
-    //   isOnline
-    //     ? "Fetching contacts..."
-    //     : "Queued fetch contacts for when you're back online"
-    // );
-
     const handleResize = () => {
       const desktopView = document.getElementById("desktop-view");
       const mobileView = document.getElementById("mobile-view");

@@ -62,18 +62,6 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
 
   // Handle responsive layout
   useEffect(() => {
-    try {
-      dispatch(listLabelsAction({}));
-    } catch (e) {
-      console.error(e);
-    }
-
-    // message.success(
-    //   isOnline
-    //     ? "Fetching labels..."
-    //     : "Queued fetch labels for when you're back online"
-    // );
-
     const handleResize = () => {
       const desktopView = document.getElementById("desktop-view");
       const mobileView = document.getElementById("mobile-view");

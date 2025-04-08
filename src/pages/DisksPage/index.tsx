@@ -22,6 +22,7 @@ import DisksTableList from "./disks.table";
 import useScreenType from "react-screentype-hook";
 import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
 import { useIdentitySystem } from "../../framework/identity";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -40,8 +41,11 @@ const DisksPage: React.FC = () => {
   const screenType = useScreenType();
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
-  const tablePermissions = useSelector(
-    (state: ReduxAppState) => state.disks.tablePermissions
+  const { tablePermissions, lastChecked } = useSelector(
+    (state: ReduxAppState) => ({
+      tablePermissions: state.disks.tablePermissions,
+      lastChecked: state.disks.lastChecked,
+    })
   );
 
   // Check if a specific disk tab is open
@@ -171,15 +175,12 @@ const DisksPage: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (currentProfile) {
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
+      const listParams: IRequestListDisks = {};
+      dispatch(listDisksAction(listParams));
     }
-  }, [currentProfile]);
-
-  useEffect(() => {
-    const listParams: IRequestListDisks = {};
-    dispatch(listDisksAction(listParams));
-  }, [dispatch]);
+  }, [currentProfile, lastChecked]);
 
   // The main component render
   return (

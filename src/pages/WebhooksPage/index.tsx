@@ -17,6 +17,7 @@ import WebhooksTableList from "./webhooks.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
 import { checkWebhookTablePermissionsAction } from "../../redux-offline/webhooks/webhooks.actions";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -35,8 +36,11 @@ const WebhooksPage: React.FC = () => {
   const screenType = useScreenType();
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
-  const tablePermissions = useSelector(
-    (state: ReduxAppState) => state.webhooks.tablePermissions
+  const { tablePermissions, lastChecked } = useSelector(
+    (state: ReduxAppState) => ({
+      tablePermissions: state.webhooks.tablePermissions,
+      lastChecked: state.webhooks.lastChecked,
+    })
   );
   const dispatch = useDispatch();
 
@@ -52,10 +56,10 @@ const WebhooksPage: React.FC = () => {
   );
 
   useEffect(() => {
-    if (currentProfile) {
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkWebhookTablePermissionsAction(currentProfile.userID));
     }
-  }, [currentProfile]);
+  }, [currentProfile, lastChecked]);
 
   // Tab state management
   const [activeKey, setActiveKey] = useState<string>("list");

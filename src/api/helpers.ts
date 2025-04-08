@@ -243,3 +243,9 @@ export const wrapAuthStringOrHeader = (
     return { url, headers };
   }
 };
+
+export const pastLastCheckedCacheLimit = (lastChecked: number) => {
+  if (lastChecked === 0) return false;
+  const cacheLimit = 1000 * 60 * 5;
+  return lastChecked + cacheLimit < Date.now();
+};

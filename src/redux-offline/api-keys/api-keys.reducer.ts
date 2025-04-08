@@ -38,6 +38,7 @@ interface ApiKeysState {
   loading: boolean;
   error: string | null;
   tablePermissions: SystemPermissionType[];
+  lastChecked: number;
 }
 
 const initialState: ApiKeysState = {
@@ -46,6 +47,7 @@ const initialState: ApiKeysState = {
   loading: false,
   error: null,
   tablePermissions: [],
+  lastChecked: 0,
 };
 
 const updateOrAddApiKey = (
@@ -152,13 +154,16 @@ export const apiKeysReducer = (
     }
 
     case LIST_APIKEYS_COMMIT: {
-      const apikeys = action.payload?.ok?.data || [];
-      const apikeyMap = apikeys.reduce(
-        (acc: Record<ApiKeyID, ApiKeyFEO>, curr: ApiKeyFEO) => {
-          acc[curr.id] = curr;
+      const apikeys = (action.payload?.ok?.data || []).reduce(
+        (acc: ApiKeyFEO[], item: ApiKeyFEO) => updateOrAddApiKey(acc, item),
+        state.apikeys
+      );
+      const apikeyMap = (action.payload?.ok?.data || []).reduce(
+        (acc: Record<ApiKeyID, ApiKeyFEO>, item: ApiKeyFEO) => {
+          acc[item.id] = item;
           return acc;
         },
-        {}
+        state.apikeyMap
       );
 
       return {
@@ -166,6 +171,7 @@ export const apiKeysReducer = (
         apikeys,
         apikeyMap,
         loading: false,
+        lastChecked: Date.now(),
       };
     }
 
@@ -173,8 +179,6 @@ export const apiKeysReducer = (
       if (!action.payload.response) return state;
       return {
         ...state,
-        apikeys: [],
-        apikeyMap: {},
         loading: false,
         error: action.error_message || "Failed to fetch API keys",
       };

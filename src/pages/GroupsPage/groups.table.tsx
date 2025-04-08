@@ -70,18 +70,6 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
 
   // Handle responsive layout
   useEffect(() => {
-    try {
-      dispatch(listGroupsAction({}));
-    } catch (e) {
-      console.error(e);
-    }
-
-    // message.success(
-    //   isOnline
-    //     ? "Fetching groups..."
-    //     : "Queued fetch groups for when you're back online"
-    // );
-
     const handleResize = () => {
       const desktopView = document.getElementById("desktop-view");
       const mobileView = document.getElementById("mobile-view");

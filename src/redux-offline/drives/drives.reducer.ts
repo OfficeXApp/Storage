@@ -44,6 +44,7 @@ interface DrivesState {
   loading: boolean;
   error: string | null;
   tablePermissions: SystemPermissionType[];
+  lastChecked: number;
 }
 
 const initialState: DrivesState = {
@@ -52,6 +53,7 @@ const initialState: DrivesState = {
   loading: false,
   error: null,
   tablePermissions: [],
+  lastChecked: 0,
 };
 
 const updateOrAddDrive = (
@@ -157,10 +159,24 @@ export const drivesReducer = (
     }
 
     case LIST_DRIVES_COMMIT: {
+      const drives = action.payload.ok.data.items.reduce(
+        (acc: DriveFEO[], item: DriveFEO) => updateOrAddDrive(acc, item),
+        state.drives
+      );
+      const driveMap = action.payload.ok.data.items.reduce(
+        (acc: Record<DriveID, DriveFEO>, item: DriveFEO) => {
+          acc[item.id] = item;
+          return acc;
+        },
+        state.driveMap
+      );
+
       return {
         ...state,
-        drives: action.payload.ok.data.items,
+        drives,
+        driveMap,
         loading: false,
+        lastChecked: Date.now(),
       };
     }
 
@@ -168,7 +184,6 @@ export const drivesReducer = (
       if (!action.payload.response) return state;
       return {
         ...state,
-        drives: [],
         loading: false,
         error: action.error_message || "Failed to fetch drives",
       };

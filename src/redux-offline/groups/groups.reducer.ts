@@ -44,6 +44,7 @@ interface GroupsState {
   loading: boolean;
   error: string | null;
   tablePermissions: SystemPermissionType[];
+  lastChecked: number;
 }
 
 const initialState: GroupsState = {
@@ -52,6 +53,7 @@ const initialState: GroupsState = {
   loading: false,
   error: null,
   tablePermissions: [],
+  lastChecked: 0,
 };
 
 const updateOrAddGroup = (
@@ -157,17 +159,24 @@ export const groupsReducer = (
     }
 
     case LIST_GROUPS_COMMIT: {
-      const groupsData = action.payload.ok.data.items;
-      const groupMap = groupsData.reduce((acc: any, group: any) => {
-        acc[group.id] = group;
-        return acc;
-      }, {});
+      const groupsData = action.payload.ok.data.items.reduce(
+        (acc: GroupFEO[], item: GroupFEO) => updateOrAddGroup(acc, item),
+        state.groups
+      );
+      const groupMap = action.payload.ok.data.items.reduce(
+        (acc: Record<GroupID, GroupFEO>, item: GroupFEO) => {
+          acc[item.id] = item;
+          return acc;
+        },
+        state.groupMap
+      );
 
       return {
         ...state,
         groups: groupsData,
         groupMap,
         loading: false,
+        lastChecked: Date.now(),
       };
     }
 
@@ -175,7 +184,6 @@ export const groupsReducer = (
       if (!action.payload.response) return state;
       return {
         ...state,
-        groups: [],
         loading: false,
         error: action.error_message || "Failed to fetch groups",
       };

@@ -69,12 +69,6 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
 
   // Handle responsive layout
   useEffect(() => {
-    try {
-      dispatch(listWebhooksAction({}));
-    } catch (e) {
-      console.error(e);
-    }
-
     const handleResize = () => {
       const desktopView = document.getElementById("desktop-view");
       const mobileView = document.getElementById("mobile-view");

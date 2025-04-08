@@ -67,12 +67,6 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
 
   // Handle responsive layout
   useEffect(() => {
-    try {
-      dispatch(listDrivesAction({}));
-    } catch (e) {
-      console.error(e);
-    }
-
     const handleResize = () => {
       const desktopView = document.getElementById("desktop-view-drives");
       const mobileView = document.getElementById("mobile-view-drives");

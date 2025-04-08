@@ -249,6 +249,15 @@ export const directoryReducer = (
         updatedFolderMap[folder.id] = folder;
       });
 
+      const files = processedFiles.reduce(
+        (acc: FileFEO[], item: FileFEO) => updateOrAddFile(acc, item),
+        state.files
+      );
+      const folders = processedFolders.reduce(
+        (acc: FolderFEO[], item: FolderFEO) => updateOrAddFolder(acc, item),
+        state.folders
+      );
+
       return {
         ...state,
         listingDataMap: {
@@ -258,22 +267,8 @@ export const directoryReducer = (
             isFirstTime: false,
           },
         },
-        files: [
-          ...state.files.filter(
-            (file) =>
-              !processedFiles.some((newFile: FileFEO) => newFile.id === file.id)
-          ),
-          ...processedFiles,
-        ],
-        folders: [
-          ...state.folders.filter(
-            (folder) =>
-              !processedFolders.some(
-                (newFolder: FolderFEO) => newFolder.id === folder.id
-              )
-          ),
-          ...processedFolders,
-        ],
+        files,
+        folders,
         fileMap: updatedFileMap,
         folderMap: updatedFolderMap,
         loading: false,

@@ -35,6 +35,7 @@ interface LabelsState {
   labelMap: Record<LabelID, LabelFEO>;
   loading: boolean;
   error: string | null;
+  lastChecked: number;
 }
 
 const initialState: LabelsState = {
@@ -42,6 +43,7 @@ const initialState: LabelsState = {
   labelMap: {},
   loading: false,
   error: null,
+  lastChecked: 0,
 };
 
 const updateOrAddLabel = (
@@ -148,14 +150,16 @@ export const labelsReducer = (
     }
 
     case LIST_LABELS_COMMIT: {
-      // Replace entire labels list with response data
-      const labels = action.payload.ok.data.items;
-      const labelMap = labels.reduce(
-        (map: Record<string, LabelFEO>, label: LabelFEO) => {
-          map[label.id] = label;
-          return map;
+      const labels = action.payload.ok.data.items.reduce(
+        (acc: LabelFEO[], item: LabelFEO) => updateOrAddLabel(acc, item),
+        state.labels
+      );
+      const labelMap = action.payload.ok.data.items.reduce(
+        (acc: Record<LabelID, LabelFEO>, item: LabelFEO) => {
+          acc[item.id] = item;
+          return acc;
         },
-        {}
+        state.labelMap
       );
 
       return {
@@ -163,6 +167,7 @@ export const labelsReducer = (
         labels,
         labelMap,
         loading: false,
+        lastChecked: Date.now(),
       };
     }
 

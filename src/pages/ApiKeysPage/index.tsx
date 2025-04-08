@@ -14,6 +14,7 @@ import ApiKeyTab from "./api-key.tab";
 import ApiKeysTableList from "./api-keys.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -33,15 +34,19 @@ const ApiKeysPage: React.FC = () => {
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
   const dispatch = useDispatch();
-  const tablePermissions = useSelector(
-    (state: ReduxAppState) => state.apikeys.tablePermissions
+  const { tablePermissions, lastChecked } = useSelector(
+    (state: ReduxAppState) => ({
+      tablePermissions: state.apikeys.tablePermissions,
+      lastChecked: state.apikeys.lastChecked,
+    })
   );
 
   useEffect(() => {
-    if (currentProfile) {
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkApiKeyTablePermissionsAction(currentProfile.userID));
+      dispatch(listApiKeysAction(currentProfile.userID));
     }
-  }, [currentProfile]);
+  }, [currentProfile, lastChecked]);
 
   // Check if content tab is open
   const isContentTabOpen = useCallback(

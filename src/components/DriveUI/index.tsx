@@ -14,6 +14,7 @@ import {
   Modal,
   notification,
   Checkbox,
+  Spin,
 } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -44,6 +45,7 @@ import {
   FilePdfOutlined,
   FieldTimeOutlined,
   CloudSyncOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -162,9 +164,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
 
-  console.log(
-    `currentDiskId=${currentDiskId}, currentFolderId=${currentFolderId}, currentFileId=${currentFileId}`
-  );
   const { uploadTargetDiskID } = useMultiUploader();
 
   const isOfflineDisk =
@@ -448,6 +447,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           folder_id: targetFolderId,
           page_size: 100,
           direction: SortDirection.ASC,
+          permission_previews: [],
         };
         const _listDirectoryKey = generateListDirectoryKey(listParams);
         setListDirectoryKey(_listDirectoryKey);
@@ -938,13 +938,37 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   };
 
   // Unacceptable loading on every drive page view, would rather have first impact be jarry than every subsequent be frustrating slow
-  // if (
-  //   currentFolderId &&
-  //   listDirectoryResults &&
-  //   listDirectoryResults.isLoading
-  // ) {
-  //   return "loading...";
-  // }
+  if (
+    !shouldBehaveOfflineDiskUIIntent(currentDiskId || "") &&
+    listDirectoryResults?.isFirstTime
+  ) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "80vh",
+        }}
+      >
+        <Spin
+          size="large"
+          indicator={
+            <LoadingOutlined
+              style={{
+                fontSize: 36,
+                color: "#1890ff",
+              }}
+              spin
+            />
+          }
+        />
+        <br />
+        <span>Loading...</span>
+      </div>
+    );
+  }
 
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
@@ -956,11 +980,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     console.log(`currentFileID= ${currentFileId}`, getFileResult);
     return <DirectoryGuard resourceID={currentFileId} />;
   }
-
-  console.log(
-    `disks, currentDiskId=${currentDiskId}, currentFolderId=${currentFolderId}, currentFileId=${currentFileId}`,
-    disks
-  );
 
   return (
     <div

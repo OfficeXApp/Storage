@@ -176,6 +176,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       ),
       key: "newFolder",
       onClick: () => setIsModalVisible(true),
+      disabled: !window.location.pathname.includes("/drive"),
     },
     {
       type: "divider",

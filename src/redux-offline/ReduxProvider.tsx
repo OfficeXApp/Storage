@@ -145,9 +145,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       const effectWithAuth = async (effect: any, action: any) => {
-        console.log("Full effect object:", effect);
-        console.log("Full action object:", action);
-
         if (
           !currentOrgRef.current ||
           !currentOrgRef.current.endpoint ||
@@ -157,7 +154,6 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Extract request details from the effect
         const { url, method = "GET", headers = {}, data } = effect;
-        console.log(`>>effect`, effect);
 
         const shouldBehaveOffline =
           headers.shouldBehaveOfflineDiskUI === true ||

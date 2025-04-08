@@ -7,6 +7,7 @@ import {
   FileRecordFE,
   FolderRecordFE,
   DiskID,
+  DirectoryPermissionType,
 } from "@officexapp/types";
 import {
   GET_FILE,
@@ -113,6 +114,8 @@ interface DirectoryState {
       isLoading: boolean;
       error: string | null;
       lastUpdated: number;
+      permission_previews: DirectoryPermissionType[];
+      isFirstTime?: boolean;
     }
   >;
 }
@@ -193,6 +196,7 @@ export const directoryReducer = (
             [listDirectoryKey]: {
               ...action.optimistic,
               isLoading: !shouldBehaveOfflineDisk && !hasExistingResults,
+              isFirstTime: action.optimistic.isFirstTime || false,
             },
           },
         };
@@ -249,7 +253,10 @@ export const directoryReducer = (
         ...state,
         listingDataMap: {
           ...state.listingDataMap,
-          [listDirectoryKey]: action.payload,
+          [listDirectoryKey]: {
+            ...action.payload,
+            isFirstTime: false,
+          },
         },
         files: [
           ...state.files.filter(
@@ -299,6 +306,7 @@ export const directoryReducer = (
             ...state.listingDataMap[listDirectoryKey],
             isLoading: false,
             error: errorMessage,
+            isFirstTime: false,
           },
         },
         loading: false,

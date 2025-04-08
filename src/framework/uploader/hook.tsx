@@ -200,8 +200,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   useEffect(() => {
     const pathParts = window.location.pathname.split("/").filter(Boolean);
 
-    console.log(`uploader pathParts`, pathParts);
-
     if (pathParts.includes("drive")) {
       if (pathParts.length >= 5) {
         // We're at /drive/diskType/diskID or deeper

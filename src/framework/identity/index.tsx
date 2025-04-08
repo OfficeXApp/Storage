@@ -954,11 +954,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           winLocSplit.length > 1 ? winLocSplit.pop() : "";
         const newPath = `/org/${newOrgCode}${routeSuffix}?${lastParamsElement}`;
 
-        console.log(
-          `check out this newPath with lastParamsElement = ${lastParamsElement}`,
-          newPath
-        );
-
         // Update browser history without refreshing the page
         window.history.pushState({}, "", newPath);
       }

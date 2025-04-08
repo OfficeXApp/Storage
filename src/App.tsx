@@ -10,16 +10,35 @@ import mixpanel from "mixpanel-browser";
 import { useIdentitySystem } from "./framework/identity";
 import { LOCAL_STORAGE_SEED_PHRASE } from "./framework/identity/constants";
 import { useMultiUploader } from "./framework/uploader/hook";
-import { listDisksAction } from "./redux-offline/disks/disks.actions";
+import {
+  checkDiskTablePermissionsAction,
+  listDisksAction,
+} from "./redux-offline/disks/disks.actions";
 import { useDispatch } from "react-redux";
-import { listApiKeysAction } from "./redux-offline/api-keys/api-keys.actions";
-import { listContactsAction } from "./redux-offline/contacts/contacts.actions";
-import { listDrivesAction } from "./redux-offline/drives/drives.actions";
-import { listGroupsAction } from "./redux-offline/groups/groups.actions";
+import {
+  checkApiKeyTablePermissionsAction,
+  listApiKeysAction,
+} from "./redux-offline/api-keys/api-keys.actions";
+import {
+  checkContactTablePermissionsAction,
+  listContactsAction,
+} from "./redux-offline/contacts/contacts.actions";
+import {
+  checkDriveTablePermissionsAction,
+  listDrivesAction,
+} from "./redux-offline/drives/drives.actions";
+import {
+  checkGroupTablePermissionsAction,
+  listGroupsAction,
+} from "./redux-offline/groups/groups.actions";
 import { listGroupInvitesAction } from "./redux-offline/group-invites/group-invites.actions";
 import { listLabelsAction } from "./redux-offline/labels/labels.actions";
-import { listWebhooksAction } from "./redux-offline/webhooks/webhooks.actions";
+import {
+  checkWebhookTablePermissionsAction,
+  listWebhooksAction,
+} from "./redux-offline/webhooks/webhooks.actions";
 import { sleep } from "./api/helpers";
+import { checkSystemPermissionTablePermissionsAction } from "./redux-offline/permissions/permissions.actions";
 
 function App() {
   const [emvMnemonic, setEvmMnemonic] = useState<string | null>(null);
@@ -44,17 +63,26 @@ function App() {
     const incrementalFetchData = async () => {
       if (currentProfile && currentOrg) {
         dispatch(listDisksAction({}));
+        dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
         await sleep(3000);
         dispatch(listContactsAction({}));
+        dispatch(checkContactTablePermissionsAction(currentProfile.userID));
         await sleep(3000);
         dispatch(listGroupsAction({}));
+        dispatch(checkGroupTablePermissionsAction(currentProfile.userID));
         await sleep(3000);
         dispatch(listDrivesAction({}));
+        dispatch(checkDriveTablePermissionsAction(currentProfile.userID));
         await sleep(3000);
+        dispatch(checkWebhookTablePermissionsAction(currentProfile.userID));
+        dispatch(checkApiKeyTablePermissionsAction(currentProfile.userID));
+        dispatch(
+          checkSystemPermissionTablePermissionsAction(currentProfile.userID)
+        );
       }
     };
     incrementalFetchData();
-  }, [currentOrg, currentProfile]);
+  }, [currentOrg?.endpoint, currentProfile?.userID]);
 
   useEffect(() => {
     setupAnalytics();

@@ -76,7 +76,7 @@ export const listDisksAction = (payload: IRequestListDisks) => ({
           "Content-Type": "application/json",
           // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
         },
-        data: {},
+        data: payload,
       },
       // Action to dispatch on success
       commit: { type: LIST_DISKS_COMMIT },

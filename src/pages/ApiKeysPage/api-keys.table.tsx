@@ -63,17 +63,6 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
 
   // Handle responsive layout and fetch API keys
   useEffect(() => {
-    try {
-      // Assuming the current user's ID is needed for fetching API keys
-      // If user ID is stored differently, adjust this accordingly
-
-      if (currentProfile && currentProfile.userID) {
-        dispatch(listApiKeysAction(currentProfile.userID));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-
     const handleResize = () => {
       const desktopView = document.getElementById("desktop-view-apikeys");
       const mobileView = document.getElementById("mobile-view-apikeys");

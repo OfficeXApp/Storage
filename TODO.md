@@ -2,13 +2,12 @@
 
 ## Overview
 
-- [🔵] Proper optimistic rendering for everything
+- [🔵] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
 
 - [🔵] Trash bin functionality
 - [🔵] Delete file folder / Restore trash / Delete forever
 
 - [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
-- [ ] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 - [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
@@ -24,7 +23,6 @@
 
 ## Polish Checklist
 
-- [ ] Implement "Default Disk" and hide disks
 - [ ] Back button on /drive for when new user arrives
 - [ ] When adding a new org, dont just refresh page, go to /contacts just in case
 - [ ] Default offline contacts / api keys
@@ -87,3 +85,5 @@
 - [x] Patch free cloud filesharing to have the presigned s3 url in the share link via btoa encoding
 - [x] Edit file/folder name
 - [x] Deploy to staging, might need to refactor auth to use query string since ICP boundary nodes are being weird about CORS authorization headers even though postman works
+- [x] Proper optimistic rendering for everything
+- [x] Implement "Default Disk" and hide disks

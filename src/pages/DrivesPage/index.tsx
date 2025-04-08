@@ -26,6 +26,7 @@ import DriveTab from "./drive.tab";
 import DrivesTableList from "./drives.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -44,8 +45,11 @@ const DrivesPage: React.FC = () => {
   const screenType = useScreenType();
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
-  const tablePermissions = useSelector(
-    (state: ReduxAppState) => state.drives.tablePermissions
+  const { tablePermissions, lastChecked } = useSelector(
+    (state: ReduxAppState) => ({
+      tablePermissions: state.drives.tablePermissions,
+      lastChecked: state.drives.lastChecked,
+    })
   );
   const dispatch = useDispatch();
 
@@ -61,10 +65,11 @@ const DrivesPage: React.FC = () => {
   );
 
   useEffect(() => {
-    if (currentProfile) {
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkDriveTablePermissionsAction(currentProfile.userID));
+      dispatch(listDrivesAction({}));
     }
-  }, [currentProfile]);
+  }, [currentProfile, lastChecked]);
 
   // Tab state management
   const [activeKey, setActiveKey] = useState<string>("list");

@@ -42,6 +42,7 @@ interface DisksState {
   loading: boolean;
   error: string | null;
   tablePermissions: SystemPermissionType[];
+  lastChecked: number;
 }
 
 const initialState: DisksState = {
@@ -51,15 +52,12 @@ const initialState: DisksState = {
   loading: false,
   error: null,
   tablePermissions: [],
+  lastChecked: 0,
 };
 
-const updateOrAddDisk = (
-  disks: DiskFEO[],
-  newDisk: DiskFEO,
-  identifierKey: keyof DiskFEO = "id"
-): DiskFEO[] => {
+const updateOrAddDisk = (disks: DiskFEO[], newDisk: DiskFEO): DiskFEO[] => {
   const existingIndex = disks.findIndex(
-    (disk) => disk[identifierKey] === newDisk[identifierKey]
+    (disk) => disk.id === newDisk.id || disk._optimisticID === newDisk.id
   );
 
   if (existingIndex !== -1) {
@@ -162,33 +160,17 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
       // Get items from the API response
       const serverDisks = action.payload.ok.data.items || [];
 
-      // Find both default disks in the current state
-      const defaultBrowserDisk = state.disks.find(
-        (disk) => disk.id === defaultBrowserCacheDiskID
+      const newDisks: DiskFEO[] = serverDisks.reduce(
+        (acc: DiskFEO[], item: DiskFEO) => updateOrAddDisk(acc, item),
+        state.disks
       );
-
-      const defaultCloudSharingDisk = state.disks.find(
-        (disk) => disk.id === defaultTempCloudSharingDiskID
+      const newDiskMap = serverDisks.reduce(
+        (acc: Record<DiskID, DiskFEO>, item: DiskFEO) => {
+          acc[item.id] = item;
+          return acc;
+        },
+        state.diskMap
       );
-
-      // Filter out any server disk that has the same ID as our default disks
-      const filteredServerDisks = serverDisks.filter(
-        (disk: DiskFEO) =>
-          disk.id !== defaultBrowserCacheDiskID &&
-          disk.id !== defaultTempCloudSharingDiskID
-      );
-
-      // Create the new disks array - include the default disks if they exist
-      let newDisks = [...filteredServerDisks];
-
-      // Add the default disks at the beginning of the array
-      if (defaultCloudSharingDisk) {
-        newDisks.unshift(defaultCloudSharingDisk);
-      }
-
-      if (defaultBrowserDisk) {
-        newDisks.unshift(defaultBrowserDisk);
-      }
 
       const DEFAULT_DISK_ID = localStorage.getItem(
         LOCALSTORAGE_DEFAULT_DISK_ID
@@ -199,7 +181,9 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
         ...state,
         defaultDisk: defaultDisk || null,
         disks: newDisks,
+        diskMap: newDiskMap,
         loading: false,
+        lastChecked: Date.now(),
       };
     }
 
@@ -219,7 +203,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
       const optimisticDisk = action.optimistic;
       return {
         ...state,
-        disks: updateOrAddDisk(state.disks, optimisticDisk, "_optimisticID"),
+        disks: updateOrAddDisk(state.disks, optimisticDisk),
         loading: true,
         error: null,
       };

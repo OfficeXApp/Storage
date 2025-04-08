@@ -85,6 +85,7 @@ interface SystemPermissionsState {
   loading: boolean;
   error: string | null;
   tablePermissions: SystemPermissionType[];
+  lastChecked: number;
 }
 
 interface DirectoryPermissionsState {
@@ -107,6 +108,7 @@ const initialSystemState: SystemPermissionsState = {
   loading: false,
   error: null,
   tablePermissions: [],
+  lastChecked: 0,
 };
 
 const initialDirectoryState: DirectoryPermissionsState = {
@@ -231,16 +233,20 @@ export const systemPermissionsReducer = (
     }
 
     case LIST_SYSTEM_PERMISSIONS_COMMIT: {
-      const permissions = action.payload.ok.data.items;
-      const permissionMap = permissions.reduce(
+      const permissions = action.payload.ok.data.items.reduce(
+        (acc: SystemPermissionFEO[], item: SystemPermissionFE) =>
+          updateOrAddPermission(acc, item),
+        state.permissions
+      );
+      const permissionMap = action.payload.ok.data.items.reduce(
         (
-          map: Record<string, SystemPermissionFEO>,
-          permission: SystemPermissionFE
+          acc: Record<SystemPermissionID, SystemPermissionFEO>,
+          item: SystemPermissionFE
         ) => {
-          map[permission.id] = permission;
-          return map;
+          acc[item.id] = item;
+          return acc;
         },
-        {}
+        state.permissionMap
       );
 
       return {
@@ -248,6 +254,7 @@ export const systemPermissionsReducer = (
         permissions,
         permissionMap,
         loading: false,
+        lastChecked: Date.now(),
       };
     }
 

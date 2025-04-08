@@ -3,7 +3,7 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Button, Layout, Typography } from "antd";
 import type { LabelFE, LabelID } from "@officexapp/types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import LabelsAddDrawer from "./label.add";
@@ -11,6 +11,8 @@ import LabelTab from "./label.tab";
 import LabelsTableList from "./labels.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -28,8 +30,11 @@ const LabelsPage: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
   const dispatch = useDispatch();
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  const { lastChecked } = useSelector((state: ReduxAppState) => ({
+    lastChecked: state.labels.lastChecked,
+  }));
 
   // Check if a label tab is already open
   const isLabelTabOpen = useCallback(
@@ -66,8 +71,11 @@ const LabelsPage: React.FC = () => {
 
   // Load labels on component mount
   useEffect(() => {
-    dispatch(listLabelsAction({}));
-  }, [dispatch]);
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
+      dispatch(listLabelsAction({}));
+      dispatch(checkLabelTablePermissionsAction(currentProfile.userID));
+    }
+  }, [currentProfile, lastChecked]);
 
   // Function to handle clicking on a label
   const handleClickContentTab = useCallback(
@@ -367,3 +375,6 @@ const LabelsPage: React.FC = () => {
 };
 
 export default LabelsPage;
+function checkLabelTablePermissionsAction(userID: any): any {
+  throw new Error("Function not implemented.");
+}

@@ -42,6 +42,7 @@ interface ContactsState {
   loading: boolean;
   error: string | null;
   tablePermissions: SystemPermissionType[];
+  lastChecked: number;
 }
 
 const initialState: ContactsState = {
@@ -50,6 +51,7 @@ const initialState: ContactsState = {
   loading: false,
   error: null,
   tablePermissions: [],
+  lastChecked: 0,
 };
 
 const updateOrAddContact = (
@@ -159,7 +161,15 @@ export const contactsReducer = (
             updateOrAddContact(acc, item),
           state.contacts
         ),
+        contactMap: action.payload.ok.data.items.reduce(
+          (acc: Record<UserID, ContactFEO>, item: ContactFEO) => {
+            acc[item.id] = item;
+            return acc;
+          },
+          state.contactMap
+        ),
         loading: false,
+        lastChecked: Date.now(),
       };
     }
 

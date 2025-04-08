@@ -38,6 +38,7 @@ interface WebhooksState {
   loading: boolean;
   error: string | null;
   tablePermissions: SystemPermissionType[];
+  lastChecked: number;
 }
 
 const initialState: WebhooksState = {
@@ -46,6 +47,7 @@ const initialState: WebhooksState = {
   loading: false,
   error: null,
   tablePermissions: [],
+  lastChecked: 0,
 };
 
 const updateOrAddWebhook = (
@@ -148,10 +150,24 @@ export const webhooksReducer = (
     }
 
     case LIST_WEBHOOKS_COMMIT: {
+      const webhooks = action.payload.ok.data.items.reduce(
+        (acc: WebhookFEO[], item: WebhookFEO) => updateOrAddWebhook(acc, item),
+        state.webhooks
+      );
+      const webhookMap = action.payload.ok.data.items.reduce(
+        (acc: Record<WebhookID, WebhookFEO>, item: WebhookFEO) => {
+          acc[item.id] = item;
+          return acc;
+        },
+        state.webhookMap
+      );
+
       return {
         ...state,
-        webhooks: action.payload.ok.data.items,
+        webhooks,
+        webhookMap,
         loading: false,
+        lastChecked: Date.now(),
       };
     }
 

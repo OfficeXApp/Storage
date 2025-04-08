@@ -29,7 +29,7 @@ import {
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { GroupFE } from "@officexapp/types";
+import { GroupFE, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
@@ -54,6 +54,9 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
   const [searchText, setSearchText] = useState("");
   const [filteredGroups, setFilteredGroups] = useState(groups);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const tablePermissions = useSelector(
+    (state: ReduxAppState) => state.groups.tablePermissions
+  );
 
   console.log(`groups`, groups);
 
@@ -120,16 +123,19 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
             key: "add-group",
             icon: <UserAddOutlined />,
             label: "Add Group",
+            disabled: !tablePermissions.includes(SystemPermissionType.CREATE),
           },
           {
             key: "manage-permissions",
             icon: <LockOutlined />,
             label: "Permissions",
+            disabled: true,
           },
           {
             key: "manage-webhooks",
             icon: <SisternodeOutlined />,
             label: "Webhooks",
+            disabled: true,
           },
         ]
       : [

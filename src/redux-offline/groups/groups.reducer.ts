@@ -1,5 +1,10 @@
 // src/redux-offline/groups/groups.reducer.ts
-import { GroupFE, UserID, GroupID } from "@officexapp/types";
+import {
+  GroupFE,
+  UserID,
+  GroupID,
+  SystemPermissionType,
+} from "@officexapp/types";
 import {
   CREATE_GROUP,
   CREATE_GROUP_COMMIT,
@@ -16,6 +21,9 @@ import {
   DELETE_GROUP,
   DELETE_GROUP_COMMIT,
   DELETE_GROUP_ROLLBACK,
+  CHECK_GROUP_TABLE_PERMISSIONS,
+  CHECK_GROUP_TABLE_PERMISSIONS_COMMIT,
+  CHECK_GROUP_TABLE_PERMISSIONS_ROLLBACK,
 } from "./groups.actions";
 
 export const GROUPS_REDUX_KEY = "groups";
@@ -35,6 +43,7 @@ interface GroupsState {
   groupMap: Record<GroupID, GroupFEO>;
   loading: boolean;
   error: string | null;
+  tablePermissions: SystemPermissionType[];
 }
 
 const initialState: GroupsState = {
@@ -42,6 +51,7 @@ const initialState: GroupsState = {
   groupMap: {},
   loading: false,
   error: null,
+  tablePermissions: [],
 };
 
 const updateOrAddGroup = (
@@ -371,6 +381,34 @@ export const groupsReducer = (
         }),
         loading: false,
         error: action.payload.message || "Failed to delete group",
+      };
+    }
+
+    case CHECK_GROUP_TABLE_PERMISSIONS: {
+      console.log(`Firing checkGroupTablePermissionsAction for user`, action);
+      const permission_types = action.optimistic?.permission_types || [];
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        tablePermissions: permission_types,
+      };
+    }
+
+    case CHECK_GROUP_TABLE_PERMISSIONS_COMMIT: {
+      return {
+        ...state,
+        loading: false,
+        tablePermissions: action.payload.ok.data.permissions,
+      };
+    }
+
+    case CHECK_GROUP_TABLE_PERMISSIONS_ROLLBACK: {
+      return {
+        ...state,
+        loading: false,
+        error:
+          action.payload.message || "Failed to check group table permissions",
       };
     }
 

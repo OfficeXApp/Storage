@@ -30,6 +30,13 @@ export const DELETE_APIKEY = "DELETE_APIKEY";
 export const DELETE_APIKEY_COMMIT = "DELETE_APIKEY_COMMIT";
 export const DELETE_APIKEY_ROLLBACK = "DELETE_APIKEY_ROLLBACK";
 
+export const CHECK_API_KEY_TABLE_PERMISSIONS =
+  "CHECK_API_KEY_TABLE_PERMISSIONS";
+export const CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT =
+  "CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT";
+export const CHECK_API_KEY_TABLE_PERMISSIONS_ROLLBACK =
+  "CHECK_API_KEY_TABLE_PERMISSIONS_ROLLBACK";
+
 // Get API Key
 export const getApiKeyAction = (api_key_id: ApiKeyID) => ({
   type: GET_APIKEY,
@@ -158,6 +165,44 @@ export const deleteApiKeyAction = (payload: IRequestDeleteApiKey) => {
         // Action to dispatch on failure
         rollback: {
           type: DELETE_APIKEY_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+      },
+    },
+  };
+};
+
+// Check Api Key Table Permissions
+export const checkApiKeyTablePermissionsAction = (userID: UserID) => {
+  const id = `api_key_table_permissions_${userID}`;
+  console.log(`Firing checkApiKeyTablePermissionsAction for user ${userID}`);
+  const payload = {
+    resource_id: "TABLE_API_KEYS",
+    grantee_id: userID,
+  };
+
+  return {
+    type: CHECK_API_KEY_TABLE_PERMISSIONS,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/permissions/system/check`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: {
+          type: CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT,
+          meta: { optimisticID: id },
+        },
+        // Action to dispatch on failure
+        rollback: {
+          type: CHECK_API_KEY_TABLE_PERMISSIONS_ROLLBACK,
           meta: { optimisticID: id },
         },
       },

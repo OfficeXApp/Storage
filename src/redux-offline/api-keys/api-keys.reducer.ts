@@ -1,4 +1,4 @@
-import { ApiKeyFE, ApiKeyID } from "@officexapp/types";
+import { ApiKeyFE, ApiKeyID, SystemPermissionType } from "@officexapp/types";
 import {
   CREATE_APIKEY,
   CREATE_APIKEY_COMMIT,
@@ -15,6 +15,9 @@ import {
   DELETE_APIKEY,
   DELETE_APIKEY_COMMIT,
   DELETE_APIKEY_ROLLBACK,
+  CHECK_API_KEY_TABLE_PERMISSIONS,
+  CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT,
+  CHECK_API_KEY_TABLE_PERMISSIONS_ROLLBACK,
 } from "./api-keys.actions";
 
 export const APIKEYS_REDUX_KEY = "apikeys";
@@ -34,6 +37,7 @@ interface ApiKeysState {
   apikeyMap: Record<ApiKeyID, ApiKeyFEO>;
   loading: boolean;
   error: string | null;
+  tablePermissions: SystemPermissionType[];
 }
 
 const initialState: ApiKeysState = {
@@ -41,6 +45,7 @@ const initialState: ApiKeysState = {
   apikeyMap: {},
   loading: false,
   error: null,
+  tablePermissions: [],
 };
 
 const updateOrAddApiKey = (
@@ -380,6 +385,34 @@ export const apiKeysReducer = (
         }),
         loading: false,
         error: action.payload?.message || "Failed to delete API key",
+      };
+    }
+
+    case CHECK_API_KEY_TABLE_PERMISSIONS: {
+      console.log(`Firing checkContactTablePermissionsAction for user`, action);
+      const permission_types = action.optimistic?.permission_types || [];
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        tablePermissions: permission_types,
+      };
+    }
+
+    case CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT: {
+      return {
+        ...state,
+        loading: false,
+        tablePermissions: action.payload.ok.data.permissions,
+      };
+    }
+
+    case CHECK_API_KEY_TABLE_PERMISSIONS_ROLLBACK: {
+      return {
+        ...state,
+        loading: false,
+        error:
+          action.payload.message || "Failed to check contact table permissions",
       };
     }
 

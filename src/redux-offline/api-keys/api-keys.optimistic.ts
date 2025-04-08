@@ -16,6 +16,9 @@ import {
   DELETE_APIKEY,
   DELETE_APIKEY_COMMIT,
   DELETE_APIKEY_ROLLBACK,
+  CHECK_API_KEY_TABLE_PERMISSIONS,
+  CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT,
+  CHECK_API_KEY_TABLE_PERMISSIONS_ROLLBACK,
 } from "./api-keys.actions";
 import {
   AuthProfile,
@@ -29,6 +32,7 @@ import {
   APIKEYS_REDUX_KEY,
 } from "./api-keys.reducer";
 import _ from "lodash";
+import { SYSTEM_PERMISSIONS_DEXIE_TABLE } from "../permissions/permissions.reducer";
 
 /**
  * Middleware for handling optimistic updates for the apikeys table
@@ -60,6 +64,9 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
           DELETE_APIKEY,
           DELETE_APIKEY_COMMIT,
           DELETE_APIKEY_ROLLBACK,
+          CHECK_API_KEY_TABLE_PERMISSIONS,
+          CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT,
+          CHECK_API_KEY_TABLE_PERMISSIONS_ROLLBACK,
         ].includes(action.type)
       ) {
         return next(action);
@@ -416,6 +423,101 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
             }
             break;
           }
+
+          // ------------------------------ CHECK TABLE PERMISSIONS --------------------------------- //
+
+          case CHECK_API_KEY_TABLE_PERMISSIONS: {
+            console.log(
+              `Firing checkApiKeyTablePermissionsAction for user`,
+              action
+            );
+            // check dexie
+            const systemPermissionsTable = db.table(
+              SYSTEM_PERMISSIONS_DEXIE_TABLE
+            );
+            const permission = await systemPermissionsTable.get(
+              action.meta?.optimisticID
+            );
+            if (permission) {
+              enhancedAction = {
+                ...action,
+                optimistic: permission,
+              };
+            }
+            break;
+          }
+
+          case CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT: {
+            console.log(
+              `Handling CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT`,
+              action
+            );
+            const optimisticID = action.meta?.optimisticID;
+            const permissions = action.payload?.ok?.data?.permissions;
+
+            if (permissions) {
+              // Save to system permissions table
+              const systemPermissionsTable = db.table(
+                SYSTEM_PERMISSIONS_DEXIE_TABLE
+              );
+              await systemPermissionsTable.put({
+                id: optimisticID,
+                resource_id: "TABLE_API_KEYS",
+                granted_to: optimisticID.replace(
+                  "api_key_table_permissions_",
+                  ""
+                ),
+                granted_by: optimisticID.replace(
+                  "api_key_table_permissions_",
+                  ""
+                ),
+                permission_types: permissions,
+                begin_date_ms: 0,
+                expiry_date_ms: -1,
+                note: "Table permission",
+                created_at: 0,
+                last_modified_at: 0,
+                from_placeholder_grantee: null,
+                labels: [],
+                redeem_code: null,
+                metadata: null,
+                external_id: null,
+                external_payload: null,
+                resource_name: "API Keys Table",
+                grantee_name: "You",
+                grantee_avatar: null,
+                granter_name: "System",
+                permission_previews: [],
+                _optimisticID: optimisticID,
+                _isOptimistic: false,
+                _syncSuccess: true,
+                _syncConflict: false,
+              });
+            }
+            break;
+          }
+
+          case CHECK_API_KEY_TABLE_PERMISSIONS_ROLLBACK: {
+            if (!action.payload.response) break;
+            try {
+              const err = await action.payload.response.json();
+              const optimisticID = action.meta?.optimisticID;
+              if (optimisticID) {
+                const error_message = `Failed to check contact table permissions - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                await markSyncConflict(table, optimisticID, error_message);
+                enhancedAction = {
+                  ...action,
+                  error_message,
+                };
+              }
+            } catch (e) {
+              console.log(e);
+            }
+            break;
+          }
+
+          default:
+            return next(enhancedAction);
         }
 
         // Pass the (potentially enhanced) action to the next middleware

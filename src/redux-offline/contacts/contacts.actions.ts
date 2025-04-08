@@ -36,6 +36,15 @@ export const REDEEM_CONTACT = "REDEEM_CONTACT";
 export const REDEEM_CONTACT_COMMIT = "REDEEM_CONTACT_COMMIT";
 export const REDEEM_CONTACT_ROLLBACK = "REDEEM_CONTACT_ROLLBACK";
 
+export const CHECK_CONTACT_TABLE_PERMISSIONS =
+  "CHECK_CONTACT_TABLE_PERMISSIONS";
+
+export const CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT =
+  "CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT";
+
+export const CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK =
+  "CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK";
+
 // Get Contact
 export const getContactAction = (contact_id: UserID) => ({
   type: GET_CONTACT,
@@ -193,6 +202,43 @@ export const redeemContactAction = (payload: IRequestRedeemContact) => {
         // Action to dispatch on failure
         rollback: {
           type: REDEEM_CONTACT_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+      },
+    },
+  };
+};
+
+// Check Contact Table Permissions
+export const checkContactTablePermissionsAction = (userID: UserID) => {
+  const id = `contact_table_permissions_${userID}`;
+  console.log(`Firing checkContactTablePermissionsAction for user ${userID}`);
+  const payload = {
+    resource_id: "TABLE_CONTACTS",
+    grantee_id: userID,
+  };
+  return {
+    type: CHECK_CONTACT_TABLE_PERMISSIONS,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/permissions/system/check`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: {
+          type: CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT,
+          meta: { optimisticID: id },
+        },
+        // Action to dispatch on failure
+        rollback: {
+          type: CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK,
           meta: { optimisticID: id },
         },
       },

@@ -37,6 +37,12 @@ export const DELETE_GROUP = "DELETE_GROUP";
 export const DELETE_GROUP_COMMIT = "DELETE_GROUP_COMMIT";
 export const DELETE_GROUP_ROLLBACK = "DELETE_GROUP_ROLLBACK";
 
+export const CHECK_GROUP_TABLE_PERMISSIONS = "CHECK_GROUP_TABLE_PERMISSIONS";
+export const CHECK_GROUP_TABLE_PERMISSIONS_COMMIT =
+  "CHECK_GROUP_TABLE_PERMISSIONS_COMMIT";
+export const CHECK_GROUP_TABLE_PERMISSIONS_ROLLBACK =
+  "CHECK_GROUP_TABLE_PERMISSIONS_ROLLBACK";
+
 // Get Group
 export const getGroupAction = (group_id: GroupID) => ({
   type: GET_GROUP,
@@ -165,6 +171,44 @@ export const deleteGroupAction = (payload: IRequestDeleteGroup) => {
         // Action to dispatch on failure
         rollback: {
           type: DELETE_GROUP_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+      },
+    },
+  };
+};
+
+// Check Groups Table Permissions
+export const checkGroupTablePermissionsAction = (userID: UserID) => {
+  const id = `group_table_permissions_${userID}`;
+  console.log(`Firing checkGroupTablePermissionsAction for user ${userID}`);
+  const payload = {
+    resource_id: "TABLE_GROUPS",
+    grantee_id: userID,
+  };
+
+  return {
+    type: CHECK_GROUP_TABLE_PERMISSIONS,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/permissions/system/check`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: {
+          type: CHECK_GROUP_TABLE_PERMISSIONS_COMMIT,
+          meta: { optimisticID: id },
+        },
+        // Action to dispatch on failure
+        rollback: {
+          type: CHECK_GROUP_TABLE_PERMISSIONS_ROLLBACK,
           meta: { optimisticID: id },
         },
       },

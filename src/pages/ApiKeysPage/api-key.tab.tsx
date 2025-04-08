@@ -55,6 +55,7 @@ import {
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
+import { wrapAuthStringOrHeader } from "../../api/helpers";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;

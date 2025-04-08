@@ -21,6 +21,9 @@ import {
   REDEEM_CONTACT,
   REDEEM_CONTACT_COMMIT,
   REDEEM_CONTACT_ROLLBACK,
+  CHECK_CONTACT_TABLE_PERMISSIONS,
+  CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT,
+  CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK,
 } from "../contacts/contacts.actions";
 import {
   AuthProfile,
@@ -33,6 +36,7 @@ import {
   CONTACTS_DEXIE_TABLE,
   CONTACTS_REDUX_KEY,
 } from "./contacts.reducer";
+import { SYSTEM_PERMISSIONS_DEXIE_TABLE } from "../permissions/permissions.reducer";
 import _ from "lodash";
 
 /**
@@ -70,6 +74,9 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           REDEEM_CONTACT,
           REDEEM_CONTACT_COMMIT,
           REDEEM_CONTACT_ROLLBACK,
+          CHECK_CONTACT_TABLE_PERMISSIONS,
+          CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT,
+          CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK,
         ].includes(action.type)
       ) {
         return next(action);
@@ -188,8 +195,12 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncWarning: "",
                   _syncSuccess: true,
                 });
+                if (contact.from_placeholder_user_id) {
+                  await table.delete(contact.from_placeholder_user_id);
+                }
               }
             });
+
             break;
           }
 
@@ -410,6 +421,96 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
                 const error_message = `Failed to delete contact - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                await markSyncConflict(table, optimisticID, error_message);
+                enhancedAction = {
+                  ...action,
+                  error_message,
+                };
+              }
+            } catch (e) {
+              console.log(e);
+            }
+            break;
+          }
+
+          case CHECK_CONTACT_TABLE_PERMISSIONS: {
+            console.log(
+              `Firing checkContactTablePermissionsAction for user`,
+              action
+            );
+            // check dexie
+            const systemPermissionsTable = db.table(
+              SYSTEM_PERMISSIONS_DEXIE_TABLE
+            );
+            const permission = await systemPermissionsTable.get(
+              action.meta?.optimisticID
+            );
+            if (permission) {
+              enhancedAction = {
+                ...action,
+                optimistic: permission,
+              };
+            }
+            break;
+          }
+
+          case CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT: {
+            console.log(
+              `Handling CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT`,
+              action
+            );
+            const optimisticID = action.meta?.optimisticID;
+            const permissions = action.payload?.ok?.data?.permissions;
+
+            if (permissions) {
+              // Save to system permissions table
+              const systemPermissionsTable = db.table(
+                SYSTEM_PERMISSIONS_DEXIE_TABLE
+              );
+              await systemPermissionsTable.put({
+                id: optimisticID,
+                resource_id: "TABLE_CONTACTS",
+                granted_to: optimisticID.replace(
+                  "contact_table_permissions_",
+                  ""
+                ),
+                granted_by: optimisticID.replace(
+                  "contact_table_permissions_",
+                  ""
+                ),
+                permission_types: permissions,
+                begin_date_ms: 0,
+                expiry_date_ms: -1,
+                note: "Table permission",
+                created_at: 0,
+                last_modified_at: 0,
+                from_placeholder_grantee: null,
+                labels: [],
+                redeem_code: null,
+                metadata: null,
+                external_id: null,
+                external_payload: null,
+                resource_name: "Contacts Table",
+                grantee_name: "You",
+                grantee_avatar: null,
+                granter_name: "System",
+                permission_previews: [],
+                _optimisticID: optimisticID,
+                _isOptimistic: false,
+                _syncSuccess: true,
+                _syncConflict: false,
+              });
+            }
+            break;
+          }
+
+          case CHECK_CONTACT_TABLE_PERMISSIONS_ROLLBACK: {
+            if (!action.payload.response) break;
+            try {
+              const err = await action.payload.response.json();
+              const optimisticID = action.meta?.optimisticID;
+              if (optimisticID) {
+                const error_message = `Failed to check contact table permissions - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,

@@ -1,4 +1,4 @@
-import { WebhookFE, WebhookID } from "@officexapp/types";
+import { SystemPermissionType, WebhookFE, WebhookID } from "@officexapp/types";
 import {
   CREATE_WEBHOOK,
   CREATE_WEBHOOK_COMMIT,
@@ -15,6 +15,9 @@ import {
   DELETE_WEBHOOK,
   DELETE_WEBHOOK_COMMIT,
   DELETE_WEBHOOK_ROLLBACK,
+  CHECK_WEBHOOK_TABLE_PERMISSIONS,
+  CHECK_WEBHOOK_TABLE_PERMISSIONS_ROLLBACK,
+  CHECK_WEBHOOK_TABLE_PERMISSIONS_COMMIT,
 } from "./webhooks.actions";
 
 export const WEBHOOKS_REDUX_KEY = "webhooks";
@@ -34,6 +37,7 @@ interface WebhooksState {
   webhookMap: Record<WebhookID, WebhookFEO>;
   loading: boolean;
   error: string | null;
+  tablePermissions: SystemPermissionType[];
 }
 
 const initialState: WebhooksState = {
@@ -41,6 +45,7 @@ const initialState: WebhooksState = {
   webhookMap: {},
   loading: false,
   error: null,
+  tablePermissions: [],
 };
 
 const updateOrAddWebhook = (
@@ -327,6 +332,34 @@ export const webhooksReducer = (
         }),
         loading: false,
         error: action.payload.message || "Failed to delete webhook",
+      };
+    }
+
+    case CHECK_WEBHOOK_TABLE_PERMISSIONS: {
+      console.log(`Firing checkContactTablePermissionsAction for user`, action);
+      const permission_types = action.optimistic?.permission_types || [];
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        tablePermissions: permission_types,
+      };
+    }
+
+    case CHECK_WEBHOOK_TABLE_PERMISSIONS_COMMIT: {
+      return {
+        ...state,
+        loading: false,
+        tablePermissions: action.payload.ok.data.permissions,
+      };
+    }
+
+    case CHECK_WEBHOOK_TABLE_PERMISSIONS_ROLLBACK: {
+      return {
+        ...state,
+        loading: false,
+        error:
+          action.payload.message || "Failed to check webhook table permissions",
       };
     }
 

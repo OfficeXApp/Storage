@@ -382,18 +382,21 @@ const data = await response.json();`;
       icon: <LockOutlined />,
       label: "Permissions",
       onClick: () => setViewMode("permissions"),
+      disabled: true,
     },
     {
       key: "webhooks",
       icon: <SisternodeOutlined />,
       label: "Webhooks",
       onClick: () => setViewMode("webhooks"),
+      disabled: true,
     },
     {
-      key: "add-member",
+      key: "invite-member",
       icon: <UserOutlined />,
-      label: "Add Member",
+      label: "Invite Member",
       onClick: () => setInviteDrawerVisible(true),
+      disabled: !group.permission_previews?.includes(SystemPermissionType.EDIT),
     },
   ];
 
@@ -451,6 +454,11 @@ const data = await response.json();`;
                   onClick={() => setInviteDrawerVisible(true)}
                   type="primary"
                   size={screenType.isMobile ? "small" : "middle"}
+                  disabled={
+                    !group.permission_previews?.includes(
+                      SystemPermissionType.EDIT
+                    )
+                  }
                 >
                   Invite Member
                 </Button>
@@ -833,6 +841,11 @@ const data = await response.json();`;
                             size="small"
                             onClick={() => setInviteDrawerVisible(true)}
                             style={{ marginTop: "16px" }}
+                            disabled={
+                              !group.permission_previews?.includes(
+                                SystemPermissionType.EDIT
+                              )
+                            }
                           >
                             Invite
                           </Button>
@@ -925,11 +938,15 @@ const data = await response.json();`;
                                         Admin
                                       </Tag>
                                     )}
-                                    <EditOutlined
-                                      key="edit"
-                                      onClick={() => setInviteForEdit(member)}
-                                      style={{ color: "#1890ff" }}
-                                    />
+                                    {group.permission_previews?.includes(
+                                      SystemPermissionType.EDIT
+                                    ) && (
+                                      <EditOutlined
+                                        key="edit"
+                                        onClick={() => setInviteForEdit(member)}
+                                        style={{ color: "#1890ff" }}
+                                      />
+                                    )}
                                   </div>,
                                 ]}
                               >

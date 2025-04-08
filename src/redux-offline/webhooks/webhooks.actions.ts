@@ -7,6 +7,7 @@ import {
   IRequestUpdateWebhook,
   IRequestDeleteWebhook,
   WebhookFE,
+  UserID,
 } from "@officexapp/types";
 
 export const GET_WEBHOOK = "GET_WEBHOOK";
@@ -28,6 +29,13 @@ export const UPDATE_WEBHOOK_ROLLBACK = "UPDATE_WEBHOOK_ROLLBACK";
 export const DELETE_WEBHOOK = "DELETE_WEBHOOK";
 export const DELETE_WEBHOOK_COMMIT = "DELETE_WEBHOOK_COMMIT";
 export const DELETE_WEBHOOK_ROLLBACK = "DELETE_WEBHOOK_ROLLBACK";
+
+export const CHECK_WEBHOOK_TABLE_PERMISSIONS =
+  "CHECK_WEBHOOK_TABLE_PERMISSIONS";
+export const CHECK_WEBHOOK_TABLE_PERMISSIONS_COMMIT =
+  "CHECK_WEBHOOK_TABLE_PERMISSIONS_COMMIT";
+export const CHECK_WEBHOOK_TABLE_PERMISSIONS_ROLLBACK =
+  "CHECK_WEBHOOK_TABLE_PERMISSIONS_ROLLBACK";
 
 // Get Webhook
 export const getWebhookAction = (webhook_id: WebhookID) => ({
@@ -157,6 +165,44 @@ export const deleteWebhookAction = (payload: IRequestDeleteWebhook) => {
         // Action to dispatch on failure
         rollback: {
           type: DELETE_WEBHOOK_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+      },
+    },
+  };
+};
+
+// Check Webhook Table Permissions
+export const checkWebhookTablePermissionsAction = (userID: UserID) => {
+  const id = `webhook_table_permissions_${userID}`;
+  console.log(`Firing checkWebhookTablePermissionsAction for user ${userID}`);
+  const payload = {
+    resource_id: "TABLE_WEBHOOKS",
+    grantee_id: userID,
+  };
+
+  return {
+    type: CHECK_WEBHOOK_TABLE_PERMISSIONS,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/permissions/system/check`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: {
+          type: CHECK_WEBHOOK_TABLE_PERMISSIONS_COMMIT,
+          meta: { optimisticID: id },
+        },
+        // Action to dispatch on failure
+        rollback: {
+          type: CHECK_WEBHOOK_TABLE_PERMISSIONS_ROLLBACK,
           meta: { optimisticID: id },
         },
       },

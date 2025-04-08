@@ -2,14 +2,21 @@
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Button, Layout, Typography } from "antd";
-import type { GroupFE, GroupID, IRequestCreateGroup } from "@officexapp/types";
-import { useDispatch } from "react-redux";
+import {
+  SystemPermissionType,
+  type GroupFE,
+  type GroupID,
+  type IRequestCreateGroup,
+} from "@officexapp/types";
+import { useDispatch, useSelector } from "react-redux";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import useScreenType from "react-screentype-hook";
 import GroupsAddDrawer from "./group.add";
 import GroupTab from "./group.tab";
 import GroupsTableList from "./groups.table";
 import { useIdentitySystem } from "../../framework/identity";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import { checkGroupTablePermissionsAction } from "../../redux-offline/groups/groups.actions";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -26,8 +33,12 @@ const GroupsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  const tablePermissions = useSelector(
+    (state: ReduxAppState) => state.groups.tablePermissions
+  );
+  const dispatch = useDispatch();
 
   // Check if a group's tab is open
   const isContentTabOpen = useCallback(
@@ -61,6 +72,12 @@ const GroupsPage: React.FC = () => {
       setLastClickedId(null);
     }
   }, [tabItems]);
+
+  useEffect(() => {
+    if (currentProfile) {
+      dispatch(checkGroupTablePermissionsAction(currentProfile.userID));
+    }
+  }, [currentProfile]);
 
   // Function to handle clicking on a group
   const handleClickContentTab = useCallback(
@@ -213,6 +230,7 @@ const GroupsPage: React.FC = () => {
               icon={<PlusOutlined />}
               onClick={toggleDrawer}
               style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
+              disabled={!tablePermissions.includes(SystemPermissionType.CREATE)}
             >
               Add Group
             </Button>

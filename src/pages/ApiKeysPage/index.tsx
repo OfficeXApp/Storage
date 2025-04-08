@@ -4,7 +4,10 @@ import type { ApiKeyFE, ApiKeyID, UserID } from "@officexapp/types";
 import { SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { listApiKeysAction } from "../../redux-offline/api-keys/api-keys.actions";
+import {
+  checkApiKeyTablePermissionsAction,
+  listApiKeysAction,
+} from "../../redux-offline/api-keys/api-keys.actions";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import ApiKeyAddDrawer from "./api-key.add";
 import ApiKeyTab from "./api-key.tab";
@@ -27,8 +30,18 @@ const ApiKeysPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const tablePermissions = useSelector(
+    (state: ReduxAppState) => state.apikeys.tablePermissions
+  );
+
+  useEffect(() => {
+    if (currentProfile) {
+      dispatch(checkApiKeyTablePermissionsAction(currentProfile.userID));
+    }
+  }, [currentProfile]);
 
   // Check if content tab is open
   const isContentTabOpen = useCallback(
@@ -206,6 +219,7 @@ const ApiKeysPage: React.FC = () => {
             icon={<PlusOutlined />}
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
+            disabled={!tablePermissions.includes(SystemPermissionType.CREATE)}
           >
             Create API Key
           </Button>

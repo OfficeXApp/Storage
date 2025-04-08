@@ -10,6 +10,7 @@ import {
   IRequestUpdateDrive,
   IRequestDeleteDrive,
   DriveFE,
+  UserID,
 } from "@officexapp/types";
 
 export const GET_DRIVE = "GET_DRIVE";
@@ -31,6 +32,14 @@ export const UPDATE_DRIVE_ROLLBACK = "UPDATE_DRIVE_ROLLBACK";
 export const DELETE_DRIVE = "DELETE_DRIVE";
 export const DELETE_DRIVE_COMMIT = "DELETE_DRIVE_COMMIT";
 export const DELETE_DRIVE_ROLLBACK = "DELETE_DRIVE_ROLLBACK";
+
+export const CHECK_DRIVE_TABLE_PERMISSIONS = "CHECK_DRIVE_TABLE_PERMISSIONS";
+
+export const CHECK_DRIVE_TABLE_PERMISSIONS_COMMIT =
+  "CHECK_DRIVE_TABLE_PERMISSIONS_COMMIT";
+
+export const CHECK_DRIVE_TABLE_PERMISSIONS_ROLLBACK =
+  "CHECK_DRIVE_TABLE_PERMISSIONS_ROLLBACK";
 
 // Get Drive
 export const getDriveAction = (drive_id: DriveID) => ({
@@ -160,6 +169,44 @@ export const deleteDriveAction = (payload: IRequestDeleteDrive) => {
         // Action to dispatch on failure
         rollback: {
           type: DELETE_DRIVE_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+      },
+    },
+  };
+};
+
+// Check Drive Table Permissions
+export const checkDriveTablePermissionsAction = (userID: UserID) => {
+  const id = `drive_table_permissions_${userID}`;
+  console.log(`Firing checkDriveTablePermissionsAction for user ${userID}`);
+  const payload = {
+    resource_id: "TABLE_DRIVES",
+    grantee_id: userID,
+  };
+
+  return {
+    type: CHECK_DRIVE_TABLE_PERMISSIONS,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/permissions/system/check`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: {
+          type: CHECK_DRIVE_TABLE_PERMISSIONS_COMMIT,
+          meta: { optimisticID: id },
+        },
+        // Action to dispatch on failure
+        rollback: {
+          type: CHECK_DRIVE_TABLE_PERMISSIONS_ROLLBACK,
           meta: { optimisticID: id },
         },
       },

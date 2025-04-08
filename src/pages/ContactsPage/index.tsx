@@ -25,6 +25,7 @@ import ContactsTableList from "./contacts.table";
 import { SAMPLE_CONTACTS } from "./sample";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
+import { checkContactTablePermissionsAction } from "../../redux-offline/contacts/contacts.actions";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -41,8 +42,12 @@ const ContactsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  const tablePermissions = useSelector(
+    (state: ReduxAppState) => state.contacts.tablePermissions
+  );
+  const dispatch = useDispatch();
 
   // Sample contact data - expanded list
   const isContentTabOpen = useCallback(
@@ -68,6 +73,12 @@ const ContactsPage: React.FC = () => {
 
   // Create a ref to track the current tabItems state
   const tabItemsRef = useRef(tabItems);
+
+  useEffect(() => {
+    if (currentProfile) {
+      dispatch(checkContactTablePermissionsAction(currentProfile.userID));
+    }
+  }, [currentProfile]);
 
   // Keep the ref updated with the latest tabItems state
   useEffect(() => {
@@ -223,6 +234,7 @@ const ContactsPage: React.FC = () => {
             icon={<PlusOutlined />}
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
+            disabled={!tablePermissions.includes(SystemPermissionType.CREATE)}
           >
             Add Contact
           </Button>

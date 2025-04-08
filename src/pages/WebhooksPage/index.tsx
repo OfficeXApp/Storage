@@ -2,10 +2,11 @@
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Button, Layout, Typography, Space } from "antd";
-import type {
-  WebhookFE,
-  IRequestCreateWebhook,
-  WebhookID,
+import {
+  type WebhookFE,
+  type IRequestCreateWebhook,
+  type WebhookID,
+  SystemPermissionType,
 } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
@@ -15,6 +16,7 @@ import WebhookTab from "./webhook.tab";
 import WebhooksTableList from "./webhooks.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
+import { checkWebhookTablePermissionsAction } from "../../redux-offline/webhooks/webhooks.actions";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -31,8 +33,12 @@ const WebhooksPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  const tablePermissions = useSelector(
+    (state: ReduxAppState) => state.webhooks.tablePermissions
+  );
+  const dispatch = useDispatch();
 
   // Check if a webhook tab is open
   const isWebhookTabOpen = useCallback(
@@ -44,6 +50,12 @@ const WebhooksPage: React.FC = () => {
     },
     [lastClickedId]
   );
+
+  useEffect(() => {
+    if (currentProfile) {
+      dispatch(checkWebhookTablePermissionsAction(currentProfile.userID));
+    }
+  }, [currentProfile]);
 
   // Tab state management
   const [activeKey, setActiveKey] = useState<string>("list");
@@ -222,6 +234,7 @@ const WebhooksPage: React.FC = () => {
             icon={<PlusOutlined />}
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
+            disabled={!tablePermissions.includes(SystemPermissionType.CREATE)}
           >
             Add Webhook
           </Button>

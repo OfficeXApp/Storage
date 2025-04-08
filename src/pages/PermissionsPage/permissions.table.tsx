@@ -31,7 +31,7 @@ import {
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { DirectoryPermissionFE } from "@officexapp/types";
+import { DirectoryPermissionFE, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
@@ -67,6 +67,9 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const systemPermissions = useSelector(
     (state: ReduxAppState) => state.systemPermissions.permissions
+  );
+  const tablePermissions = useSelector(
+    (state: ReduxAppState) => state.systemPermissions.tablePermissions
   );
   const [systemDrawerOpen, setSystemDrawerOpen] = useState(false);
   const screenType = useScreenType();
@@ -534,6 +537,9 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => setSystemDrawerOpen(true)}
+                disabled={
+                  !tablePermissions.includes(SystemPermissionType.CREATE)
+                }
               >
                 Add System Permission
               </Button>

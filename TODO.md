@@ -2,6 +2,8 @@
 
 ## Overview
 
+- [🔵] Proper optimistic rendering for everything
+
 - [🔵] Trash bin functionality
 - [🔵] Delete file folder / Restore trash / Delete forever
 

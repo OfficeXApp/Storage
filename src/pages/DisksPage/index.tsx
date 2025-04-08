@@ -7,10 +7,11 @@ import type {
   IRequestCreateDisk,
   IRequestListDisks,
 } from "@officexapp/types";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
+  checkDiskTablePermissionsAction,
   createDiskAction,
   listDisksAction,
 } from "../../redux-offline/disks/disks.actions";
@@ -37,8 +38,11 @@ const DisksPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  const tablePermissions = useSelector(
+    (state: ReduxAppState) => state.disks.tablePermissions
+  );
 
   // Check if a specific disk tab is open
   const isContentTabOpen = useCallback(
@@ -167,6 +171,12 @@ const DisksPage: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    if (currentProfile) {
+      dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
+    }
+  }, [currentProfile]);
+
+  useEffect(() => {
     const listParams: IRequestListDisks = {};
     dispatch(listDisksAction(listParams));
   }, [dispatch]);
@@ -223,6 +233,7 @@ const DisksPage: React.FC = () => {
             icon={<PlusOutlined />}
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
+            disabled={!tablePermissions.includes(SystemPermissionType.CREATE)}
           >
             Add Disk
           </Button>

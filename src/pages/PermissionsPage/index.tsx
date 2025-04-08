@@ -15,6 +15,7 @@ import PermissionTab from "./permission.tab";
 import PermissionsTableList from "./permissions.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
+import { checkSystemPermissionTablePermissionsAction } from "../../redux-offline/permissions/permissions.actions";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -31,8 +32,12 @@ const PermissionsPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  const tablePermissions = useSelector(
+    (state: ReduxAppState) => state.systemPermissions.tablePermissions
+  );
+  const dispatch = useDispatch();
 
   // Check if content tab is open
   const isContentTabOpen = useCallback(
@@ -44,6 +49,14 @@ const PermissionsPage: React.FC = () => {
     },
     [lastClickedId]
   );
+
+  useEffect(() => {
+    if (currentProfile) {
+      dispatch(
+        checkSystemPermissionTablePermissionsAction(currentProfile.userID)
+      );
+    }
+  }, [currentProfile]);
 
   // Tab state management
   const [activeKey, setActiveKey] = useState<string>("list");

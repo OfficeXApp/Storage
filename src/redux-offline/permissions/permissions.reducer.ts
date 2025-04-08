@@ -8,6 +8,7 @@ import {
   DirectoryPermissionID,
   SystemPermissionID,
   DirectoryResourceID,
+  SystemPermissionType,
 } from "@officexapp/types";
 
 import {
@@ -47,6 +48,9 @@ import {
   REDEEM_DIRECTORY_PERMISSION,
   REDEEM_DIRECTORY_PERMISSION_COMMIT,
   REDEEM_DIRECTORY_PERMISSION_ROLLBACK,
+  CHECK_PERMISSION_TABLE_PERMISSIONS_ROLLBACK,
+  CHECK_PERMISSION_TABLE_PERMISSIONS_COMMIT,
+  CHECK_PERMISSION_TABLE_PERMISSIONS,
 } from "./permissions.actions";
 
 export const SYSTEM_PERMISSIONS_REDUX_KEY = "systemPermissions";
@@ -80,6 +84,7 @@ interface SystemPermissionsState {
   permissionMap: Record<SystemPermissionID, SystemPermissionFEO>;
   loading: boolean;
   error: string | null;
+  tablePermissions: SystemPermissionType[];
 }
 
 interface DirectoryPermissionsState {
@@ -101,6 +106,7 @@ const initialSystemState: SystemPermissionsState = {
   permissionMap: {},
   loading: false,
   error: null,
+  tablePermissions: [],
 };
 
 const initialDirectoryState: DirectoryPermissionsState = {
@@ -526,6 +532,38 @@ export const systemPermissionsReducer = (
         }),
         loading: false,
         error: action.payload?.message || "Failed to redeem system permission",
+      };
+    }
+
+    case CHECK_PERMISSION_TABLE_PERMISSIONS: {
+      console.log(
+        `Firing checkPermissionTablePermissionsAction for user`,
+        action
+      );
+      const permission_types = action.optimistic?.permission_types || [];
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        tablePermissions: permission_types,
+      };
+    }
+
+    case CHECK_PERMISSION_TABLE_PERMISSIONS_COMMIT: {
+      return {
+        ...state,
+        loading: false,
+        tablePermissions: action.payload.ok.data.permissions,
+      };
+    }
+
+    case CHECK_PERMISSION_TABLE_PERMISSIONS_ROLLBACK: {
+      return {
+        ...state,
+        loading: false,
+        error:
+          action.payload.message ||
+          "Failed to check permission table permissions",
       };
     }
 

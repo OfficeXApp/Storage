@@ -21,6 +21,7 @@ import {
   SystemPermission,
   DirectoryPermission,
   IRequestListDirectoryPermissions,
+  UserID,
 } from "@officexapp/types";
 
 // System Permission action types
@@ -93,6 +94,13 @@ export const REDEEM_DIRECTORY_PERMISSION_COMMIT =
   "REDEEM_DIRECTORY_PERMISSION_COMMIT";
 export const REDEEM_DIRECTORY_PERMISSION_ROLLBACK =
   "REDEEM_DIRECTORY_PERMISSION_ROLLBACK";
+
+export const CHECK_PERMISSION_TABLE_PERMISSIONS =
+  "CHECK_PERMISSION_TABLE_PERMISSIONS";
+export const CHECK_PERMISSION_TABLE_PERMISSIONS_COMMIT =
+  "CHECK_PERMISSION_TABLE_PERMISSIONS_COMMIT";
+export const CHECK_PERMISSION_TABLE_PERMISSIONS_ROLLBACK =
+  "CHECK_PERMISSION_TABLE_PERMISSIONS_ROLLBACK";
 
 // System Permission action creators
 export const getSystemPermissionAction = (
@@ -425,6 +433,46 @@ export const redeemDirectoryPermissionAction = (
         },
         rollback: {
           type: REDEEM_DIRECTORY_PERMISSION_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+      },
+    },
+  };
+};
+
+// Check System Permission Table Permissions
+export const checkSystemPermissionTablePermissionsAction = (userID: UserID) => {
+  const id = `system_permission_table_permissions_${userID}`;
+  console.log(
+    `Firing checkSystemPermissionTablePermissionsAction for user ${userID}`
+  );
+  const payload = {
+    resource_id: "TABLE_PERMISSIONS",
+    grantee_id: userID,
+  };
+
+  return {
+    type: CHECK_PERMISSION_TABLE_PERMISSIONS,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/permissions/system/check`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: {
+          type: CHECK_PERMISSION_TABLE_PERMISSIONS_COMMIT,
+          meta: { optimisticID: id },
+        },
+        // Action to dispatch on failure
+        rollback: {
+          type: CHECK_PERMISSION_TABLE_PERMISSIONS_ROLLBACK,
           meta: { optimisticID: id },
         },
       },

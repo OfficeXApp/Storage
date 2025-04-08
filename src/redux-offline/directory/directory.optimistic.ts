@@ -74,6 +74,10 @@ import {
   DiskTypeEnum,
 } from "@officexapp/types";
 import { DISKS_DEXIE_TABLE } from "../disks/disks.reducer";
+import {
+  DIRECTORY_PERMISSIONS_DEXIE_TABLE,
+  DirectoryPermissionFEO,
+} from "../permissions/permissions.reducer";
 
 export interface DirectoryListCacheEntry {
   listDirectoryKey: string;
@@ -162,6 +166,10 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
       const db = getDexieDb(userID, orgID);
       const filesTable = db.table<FileFEO, string>(FILES_DEXIE_TABLE);
       const foldersTable = db.table<FolderFEO, string>(FOLDERS_DEXIE_TABLE);
+      const directoryPermissionsTable = db.table<
+        DirectoryPermissionFEO,
+        string
+      >(DIRECTORY_PERMISSIONS_DEXIE_TABLE);
       let enhancedAction = action;
 
       try {
@@ -182,7 +190,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               // Get data from IndexedDB directly
               await db.transaction(
                 "r",
-                [filesTable, foldersTable],
+                [filesTable, foldersTable, directoryPermissionsTable],
                 async () => {
                   // Query folders
                   let foldersQuery = foldersTable
@@ -292,6 +300,13 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                       "Retrieved from local IndexedDB. This data may be out of sync with the cloud.",
                   }));
 
+                  // Check for existing permission previews in Dexie
+                  const permissionQuery = await directoryPermissionsTable
+                    .where("id")
+                    .equals(`${folderId}__${userID}`)
+                    .first();
+                  const isFirstTime = !permissionQuery;
+                  // Add permission_previews to optimistic update if they exist
                   enhancedAction = {
                     ...action,
                     optimistic: {
@@ -300,6 +315,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                       totalFiles,
                       totalFolders,
                       cursor: nextCursor,
+                      permission_previews:
+                        permissionQuery?.permission_types || [],
+                      isFirstTime,
                     },
                   };
                 }
@@ -319,16 +337,29 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case LIST_DIRECTORY_COMMIT: {
             console.log(`LIST_DIRECTORY_COMMIT middleware`, action);
-            const response = action.payload?.ok?.data;
+            const response = action.payload;
+
+            let folderId = "root";
+            try {
+              if (action.meta?.listDirectoryKey) {
+                const parsedKey = JSON.parse(action.meta.listDirectoryKey);
+                folderId = parsedKey.folder_id || "root";
+              }
+            } catch (error) {
+              console.error("Error parsing listDirectoryKey:", error);
+            }
+
+            console.log(`folderId`, folderId);
 
             if (response) {
               const files = response.files || [];
               const folders = response.folders || [];
+              const permission_previews = response.permission_previews || [];
 
               try {
                 await db.transaction(
                   "rw",
-                  [filesTable, foldersTable],
+                  [filesTable, foldersTable, directoryPermissionsTable],
                   async () => {
                     // Update files in IndexedDB
                     for (const file of files) {
@@ -351,6 +382,23 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                         _isOptimistic: false,
                       });
                     }
+                    await directoryPermissionsTable.put({
+                      id: `${folderId}__${userID}`,
+                      resource_id: folderId as DirectoryResourceID,
+                      resource_path: "",
+                      granted_to: "",
+                      granted_by: "",
+                      permission_types: permission_previews,
+                      begin_date_ms: 0,
+                      expiry_date_ms: -1,
+                      inheritable: false,
+                      note: "",
+                      created_at: 0,
+                      last_modified_at: 0,
+                      labels: [],
+                      metadata: {},
+                      permission_previews: permission_previews,
+                    });
                   }
                 );
               } catch (error) {

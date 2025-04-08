@@ -19,6 +19,7 @@ import { listGroupsAction } from "./redux-offline/groups/groups.actions";
 import { listGroupInvitesAction } from "./redux-offline/group-invites/group-invites.actions";
 import { listLabelsAction } from "./redux-offline/labels/labels.actions";
 import { listWebhooksAction } from "./redux-offline/webhooks/webhooks.actions";
+import { sleep } from "./api/helpers";
 
 function App() {
   const [emvMnemonic, setEvmMnemonic] = useState<string | null>(null);
@@ -40,13 +41,19 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (currentProfile && currentOrg) {
-      dispatch(listContactsAction({}));
-      dispatch(listDisksAction({}));
-      dispatch(listDrivesAction({}));
-      dispatch(listGroupsAction({}));
-      dispatch(listLabelsAction({}));
-    }
+    const incrementalFetchData = async () => {
+      if (currentProfile && currentOrg) {
+        dispatch(listDisksAction({}));
+        await sleep(3000);
+        dispatch(listContactsAction({}));
+        await sleep(3000);
+        dispatch(listGroupsAction({}));
+        await sleep(3000);
+        dispatch(listDrivesAction({}));
+        await sleep(3000);
+      }
+    };
+    incrementalFetchData();
   }, [currentOrg, currentProfile]);
 
   useEffect(() => {

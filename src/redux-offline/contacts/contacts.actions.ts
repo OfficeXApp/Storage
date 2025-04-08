@@ -217,6 +217,7 @@ export const checkContactTablePermissionsAction = (userID: UserID) => {
     resource_id: "TABLE_CONTACTS",
     grantee_id: userID,
   };
+
   return {
     type: CHECK_CONTACT_TABLE_PERMISSIONS,
     meta: {

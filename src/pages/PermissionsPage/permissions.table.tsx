@@ -271,8 +271,8 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
     },
     {
       title: "Permissions",
-      dataIndex: "permission_previews",
-      key: "permission_previews",
+      dataIndex: "permission_types",
+      key: "permission_types",
       render: (_: any, record: SystemPermissionFEO) => (
         <div
           onClick={(e) => {
@@ -280,7 +280,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
             handleClickContentTab(record);
           }}
         >
-          {record.permission_previews.map((permission) => (
+          {record.permission_types.map((permission) => (
             <Tag key={permission}>{permission}</Tag>
           ))}
         </div>

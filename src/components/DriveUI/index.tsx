@@ -716,7 +716,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             permanent: isTrashBin,
           },
         };
-        // console.log(`====listDirectoryKey`, listDirectoryKey);
         dispatch(
           deleteFolderAction(
             deleteAction,
@@ -756,8 +755,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       message.error(`Failed to delete ${record.isFolder ? "folder" : "file"}`);
     }
   };
-
-  console.log(`listDirectoryKey`, listDirectoryKey);
 
   const handleRestore = async (record: DriveItemRow) => {
     try {

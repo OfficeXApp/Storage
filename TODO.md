@@ -2,12 +2,11 @@
 
 ## Overview
 
-- [🔵] Add directory syncing indicator for when loading files/folders from cloud
+- [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
+- [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
 
 - [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
-- [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
-- [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
 - [ ] Add 404 Pages
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 
@@ -87,3 +86,4 @@
 - [x] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
 - [x] Trash bin functionality
 - [x] Delete file folder / Restore trash / Delete forever
+- [x] Add directory syncing indicator for when loading files/folders from cloud

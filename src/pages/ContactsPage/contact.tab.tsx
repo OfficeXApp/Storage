@@ -341,7 +341,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   disabled={
                     !contact.permission_previews.includes(
                       SystemPermissionType.EDIT
-                    )
+                    ) && !contact._isOptimistic
                   }
                 >
                   Edit
@@ -456,7 +456,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                       disabled={
                         !contact.permission_previews.includes(
                           SystemPermissionType.DELETE
-                        )
+                        ) && !contact._isOptimistic
                       }
                       ghost
                       type="primary"

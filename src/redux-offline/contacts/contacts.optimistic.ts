@@ -377,7 +377,7 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
 
             const cachedContact = await table.get(optimisticID);
 
-            if (cachedContact) {
+            if (cachedContact && !cachedContact._isOptimistic) {
               const optimisticContact: ContactFEO = {
                 ...cachedContact,
                 id: optimisticID,
@@ -397,6 +397,13 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
               enhancedAction = {
                 ...action,
                 optimistic: optimisticContact,
+              };
+            } else if (cachedContact?._isOptimistic) {
+              // delete from indexdb
+              await table.delete(optimisticID);
+              enhancedAction = {
+                ...action,
+                optimistic: cachedContact,
               };
             }
 

@@ -21,7 +21,6 @@ const PermissionsPage = () => {
   const params = useParams();
   const permissionID = params.permissionID;
   const permissionVariant = params.permissionVariant;
-  const [permissionType, setPermissionType] = useState(permissionVariant);
 
   // Get the correct permission based on selected type
   const systemPermission = useSelector(
@@ -30,20 +29,6 @@ const PermissionsPage = () => {
   );
 
   const permission = systemPermission;
-
-  useEffect(() => {
-    if (permissionID) {
-      // Try loading both types if we don't know which it is yet
-      if (!systemPermission) {
-        dispatch(getSystemPermissionAction(permissionID));
-      }
-
-      // Once we have a permission, set the type
-      if (systemPermission) {
-        setPermissionType("system");
-      }
-    }
-  }, [permissionID, systemPermission]);
 
   if (!permission) {
     return null;
@@ -80,18 +65,6 @@ const PermissionsPage = () => {
         >
           Search Permissions
         </Button>
-
-        <div style={{ marginLeft: "auto" }}>
-          <Radio.Group
-            value={permissionType}
-            onChange={(e) => setPermissionType(e.target.value)}
-            buttonStyle="solid"
-            size="small"
-          >
-            <Radio.Button value="system">System</Radio.Button>
-            <Radio.Button value="directory">Directory</Radio.Button>
-          </Radio.Group>
-        </div>
       </div>
       <Content
         style={{

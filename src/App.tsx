@@ -66,6 +66,7 @@ function App() {
     const incrementalFetchData = async () => {
       if (currentProfile && currentOrg) {
         dispatch(listDisksAction({}));
+        await sleep(3000);
         dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
         await sleep(3000);
         dispatch(listContactsAction({}));
@@ -78,10 +79,13 @@ function App() {
         dispatch(checkDriveTablePermissionsAction(currentProfile.userID));
         await sleep(3000);
         dispatch(checkWebhookTablePermissionsAction(currentProfile.userID));
+        await sleep(3000);
         dispatch(checkApiKeyTablePermissionsAction(currentProfile.userID));
+        await sleep(3000);
         dispatch(
           checkSystemPermissionTablePermissionsAction(currentProfile.userID)
         );
+        await sleep(3000);
         dispatch(listSystemPermissionsAction({}));
       }
     };

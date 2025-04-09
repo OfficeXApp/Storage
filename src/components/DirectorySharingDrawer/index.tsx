@@ -95,6 +95,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   resourceName,
   resource,
 }) => {
+  console.log(`the resourceID = ${resourceID}`);
+
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState(window.location.href);
@@ -106,12 +108,18 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         state.directoryPermissions.resourcePermissionsMap[resourceID] || [],
     })
   );
+
+  console.log(`the permissionIDs =`, permissionIDs);
+
   //   const permissions = permissionIDs.map((pid) => permissionMap[pid]);
   const permissions = useMemo(() => {
     return permissionIDs
       .map((pid) => permissionMap[pid])
       .filter((p) => p.id.startsWith("DirectoryPermissionID_"));
   }, [permissionIDs, permissionMap]);
+
+  console.log(`the permissions =`, permissions);
+
   const { wrapOrgCode, currentOrg, currentProfile } = useIdentitySystem();
   const [permissionForEdit, setPermissionForEdit] =
     useState<PreExistingStateForEdit>();
@@ -151,47 +159,11 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
 
   const [dataSource, setDataSource] = useState<PermissionRecord[]>([]);
 
+  console.log(`the dataSource = `, dataSource);
+
   useEffect(() => {
-    if (isOfflineDisk && dataSource.length === 0) {
-      console.log(`uploadTargetDiskID=${uploadTargetDiskID}`);
-      setDataSource([
-        {
-          key: "public",
-          who: "Public",
-          who_id: "Public",
-          canView: uploadTargetDiskID === defaultTempCloudSharingDiskID,
-          canEdit: false,
-          canDelete: false,
-          canInvite: false,
-          canUpload: false,
-          whenStart: 0,
-          whenEnd: getNextUtcMidnight(),
-          isEditing: false,
-          original: {
-            id: "public",
-            resource_id: resourceID,
-            resource_path: "",
-            granted_to: "Public",
-            granted_by: "Public",
-            permission_types:
-              uploadTargetDiskID === defaultTempCloudSharingDiskID
-                ? [DirectoryPermissionType.VIEW]
-                : [],
-            begin_date_ms: 0,
-            expiry_date_ms: getNextUtcMidnight(),
-            inheritable: false,
-            note: "",
-            created_at: 0,
-            last_modified_at: 0,
-            labels: [],
-            metadata: {},
-            grantee_name: "Public",
-            granter_name: "Public",
-            permission_previews: [],
-          },
-        },
-      ]);
-    } else if (permissions.length > 0) {
+    if (isOfflineDisk) return;
+    if (permissions.length > 0) {
       const data = permissions
         .filter((p) => p)
         .map((p) => {
@@ -220,49 +192,16 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
             original: p,
           };
         });
-
+      console.log(`the data = `, data);
       setDataSource(data);
+    } else {
+      setDataSource([]);
     }
   }, [permissions]);
 
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(shareUrl);
     message.success("Share URL copied to clipboard");
-  };
-
-  const handleCheckboxChange = (
-    key: string,
-    field: "canView" | "canEdit" | "canDelete" | "canInvite" | "canUpload",
-    value: boolean
-  ) => {
-    const newData = [...dataSource];
-    const index = newData.findIndex((item) => item.key === key);
-
-    if (field === "canView") newData[index].canView = value;
-    if (field === "canEdit") newData[index].canEdit = value;
-    if (field === "canDelete") newData[index].canDelete = value;
-    if (field === "canInvite") newData[index].canInvite = value;
-    if (field === "canUpload") newData[index].canUpload = value;
-
-    setDataSource(newData);
-  };
-
-  const handleDateRangeChange = (
-    key: string,
-    dates: [Date | null, Date | null] | null
-  ) => {
-    const newData = [...dataSource];
-    const index = newData.findIndex((item) => item.key === key);
-
-    if (dates) {
-      newData[index].whenStart = dates[0] ? dates[0].getTime() : null;
-      newData[index].whenEnd = dates[1] ? dates[1].getTime() : null;
-    } else {
-      newData[index].whenStart = null;
-      newData[index].whenEnd = null;
-    }
-
-    setDataSource(newData);
   };
 
   const toggleEditMode = (record: PermissionRecord) => {

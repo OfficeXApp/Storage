@@ -430,6 +430,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                     ? disk.id === defaultBrowserCacheDiskID ||
                       disk.disk_type === DiskTypeEnum.IcpCanister
                     : false,
+              breadcrumbs: [],
             };
           }),
           files: [],
@@ -486,20 +487,23 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   );
 
   const handleBack = () => {
-    // console.log(`content`, content);
-    // if (content.files.length > 0 && content.files[0]?.parent_folder_uuid) {
-    //   navigate(
-    //     `/drive/${content.files[0].disk_id}/${content.files[0].parent_folder_uuid}`
-    //   );
-    // }
-    // if (content.folders.length > 0 && content.folders[0]?.parent_folder_uuid) {
-    //   navigate(
-    //     `/drive/${content.folders[0].disk_id}/${content.folders[0].parent_folder_uuid}`
-    //   );
-    // } else {
-    // navigate(`/drive`);
-    // }
-    navigate(-1);
+    // Generate breadcrumb items to find the parent folder
+    const breadcrumbItems = generateBreadcrumbItems();
+
+    // If we have at least 2 breadcrumb items (Drive + at least one folder)
+    if (breadcrumbItems.length >= 2) {
+      // Get the second-to-last breadcrumb item (parent folder)
+      const parentBreadcrumb = breadcrumbItems[breadcrumbItems.length - 2];
+
+      // Extract the Link component's to prop to get the navigation path
+      const parentLink = parentBreadcrumb.title.props.to;
+
+      // Navigate to the parent folder path
+      navigate(parentLink);
+    } else {
+      // If we don't have enough breadcrumbs, navigate to drive root
+      navigate(wrapOrgCode("/drive"));
+    }
   };
 
   const appendRefreshParam = () => {
@@ -798,43 +802,37 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const generateBreadcrumbItems = () => {
     const items = [{ title: <Link to={wrapOrgCode("/drive")}>Drive</Link> }];
 
-    // // Add disk if present
-    // if (currentDiskId) {
-    //   const disk = disks.find((d) => d.id === currentDiskId);
-    //   const diskName = disk ? disk.name : currentDiskId.replace("DiskID_", "");
+    if (currentFileId && getFileResult) {
+      getFileResult.breadcrumbs?.forEach((b) => {
+        items.push({
+          title: (
+            <Link
+              to={wrapOrgCode(
+                `/drive/${getFileResult.disk_type}/${getFileResult.disk_id}/${b.resource_id}/`
+              )}
+            >
+              {b.resource_name}
+            </Link>
+          ),
+        });
+      });
+    }
 
-    //   items.push({
-    //     title: <Link to={`/drive/${currentDiskId}`}>{diskName}</Link>,
-    //   });
-
-    //   // If we have a folder, add it
-    //   if (currentFolderId) {
-    //     const folder = foldersFromRedux.find((f) => f.id === currentFolderId);
-    //     const folderName = folder
-    //       ? folder.name
-    //       : currentFolderId.replace("FolderID_", "");
-
-    //     items.push({
-    //       title: (
-    //         <Link to={`/drive/${currentDiskId}/${currentFolderId}`}>
-    //           {folderName}
-    //         </Link>
-    //       ),
-    //     });
-
-    //     // If we have a file, add it
-    //     if (currentFileId) {
-    //       const file = filesFromRedux.find((f) => f.id === currentFileId);
-    //       const fileName = file
-    //         ? file.name
-    //         : currentFileId.replace("FileID_", "");
-
-    //       items.push({
-    //         title: <span>{fileName}</span>, // Not a link when viewing the file
-    //       });
-    //     }
-    //   }
-    // }
+    if (currentFolderId && listDirectoryResults) {
+      listDirectoryResults.breadcrumbs?.forEach((b) => {
+        items.push({
+          title: (
+            <Link
+              to={wrapOrgCode(
+                `/drive/${currentDisk?.disk_type}/${currentDisk?.id}/${b.resource_id}/`
+              )}
+            >
+              {b.resource_name}
+            </Link>
+          ),
+        });
+      });
+    }
 
     return items;
   };
@@ -1085,6 +1083,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   type="link"
                   icon={<ArrowLeftOutlined />}
                   onClick={handleBack}
+                  disabled
                   style={{
                     padding: 0,
                     color: "inherit",

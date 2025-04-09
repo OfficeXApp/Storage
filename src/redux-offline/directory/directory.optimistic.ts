@@ -57,6 +57,8 @@ import {
   FolderFEO,
   FILES_DEXIE_TABLE,
   FOLDERS_DEXIE_TABLE,
+  BREADCRUMBS_TABLE,
+  BreadcrumbsFEO,
 } from "./directory.reducer";
 import _ from "lodash";
 import {
@@ -166,6 +168,10 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
       const db = getDexieDb(userID, orgID);
       const filesTable = db.table<FileFEO, string>(FILES_DEXIE_TABLE);
       const foldersTable = db.table<FolderFEO, string>(FOLDERS_DEXIE_TABLE);
+      const breadcrumbsTable = db.table<BreadcrumbsFEO, string>(
+        BREADCRUMBS_TABLE
+      );
+
       const directoryPermissionsTable = db.table<
         DirectoryPermissionFEO,
         string
@@ -190,7 +196,12 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               // Get data from IndexedDB directly
               await db.transaction(
                 "r",
-                [filesTable, foldersTable, directoryPermissionsTable],
+                [
+                  filesTable,
+                  foldersTable,
+                  directoryPermissionsTable,
+                  breadcrumbsTable,
+                ],
                 async () => {
                   // Query folders
                   let foldersQuery = foldersTable
@@ -306,6 +317,13 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                     .equals(`${folderId}__${userID}`)
                     .first();
                   const isFirstTime = !permissionQuery;
+
+                  const breadcrumbsQuery = await breadcrumbsTable
+                    .where("resource_id")
+                    .equals(folderId)
+                    .first();
+                  const breadcrumbs = breadcrumbsQuery?.breadcrumbs || [];
+
                   // Add permission_previews to optimistic update if they exist
                   enhancedAction = {
                     ...action,
@@ -318,6 +336,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                       permission_previews:
                         permissionQuery?.permission_types || [],
                       isFirstTime,
+                      breadcrumbs,
                     },
                   };
                 }
@@ -349,18 +368,24 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               console.error("Error parsing listDirectoryKey:", error);
             }
 
-            console.log(`folderId`, folderId);
+            console.log(`folderId response`, folderId, response);
 
             if (response) {
               const files = response.files || [];
               const folders = response.folders || [];
               const permission_previews = response.permission_previews || [];
-
+              const breadcrumbs = response.breadcrumbs || [];
               try {
                 await db.transaction(
                   "rw",
-                  [filesTable, foldersTable, directoryPermissionsTable],
+                  [
+                    filesTable,
+                    foldersTable,
+                    directoryPermissionsTable,
+                    breadcrumbsTable,
+                  ],
                   async () => {
+                    console.log(`whats up`);
                     // Update files in IndexedDB
                     for (const file of files) {
                       await filesTable.put({
@@ -399,6 +424,12 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                       metadata: {},
                       permission_previews: permission_previews,
                     });
+                    await breadcrumbsTable.put({
+                      id: folderId as DirectoryResourceID,
+                      resource_id: folderId as DirectoryResourceID,
+                      breadcrumbs,
+                    });
+                    console.log(`saved breadcrumbs`, breadcrumbs);
                   }
                 );
               } catch (error) {
@@ -436,12 +467,19 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             const cachedFile = await filesTable.get(optimisticID);
             console.log(`found cachedFile`, cachedFile);
 
+            const breadcrumbsQuery = await breadcrumbsTable
+              .where("resource_id")
+              .equals(optimisticID)
+              .first();
+            const breadcrumbs = breadcrumbsQuery?.breadcrumbs || [];
+
             if (cachedFile) {
               enhancedAction = {
                 ...action,
                 shouldBehaveOfflineDiskUI: shouldBehaveOffline,
                 optimistic: {
                   ...cachedFile,
+                  breadcrumbs,
                   _isOptimistic: true,
                   _optimisticID: optimisticID,
                   _syncSuccess: false,
@@ -465,31 +503,50 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case GET_FILE_COMMIT: {
             console.log(`GET_FILE_COMMIT middleware`, action);
-            if (!action.payload.response) break;
             const optimisticID = action.meta?.optimisticID;
             let realFile: FileRecordFE | undefined;
+            let breadcrumbs = [];
 
             // Extract the file from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.file) {
               // Handle response with file in result.file structure
               realFile = action.payload.ok.data.result.file;
+              breadcrumbs = action.payload.ok.data.result.breadcrumbs || [];
             } else if (action.payload[0]?.response?.result) {
               // Handle batch action response format
-              realFile = action.payload[0]?.response?.result;
+              realFile = action.payload[0]?.response?.result.file;
+              breadcrumbs =
+                action.payload[0]?.response?.result.breadcrumbs || [];
             } else if (action.payload?.ok?.data?.items?.[0]) {
               // Handle array response format
-              realFile = action.payload.ok.data.items[0];
+              realFile = action.payload.ok.data.items[0].file;
+              breadcrumbs = action.payload.ok.data.items[0].breadcrumbs || [];
             }
             console.log(`did we find real file?`, realFile);
             if (realFile) {
-              await filesTable.put({
-                ...realFile,
-                _isOptimistic: false,
-                _syncSuccess: true,
-                _syncConflict: false,
-                _syncWarning: "",
-                breadcrumbs: [],
-              });
+              await db.transaction(
+                "rw",
+                [filesTable, breadcrumbsTable],
+                async () => {
+                  await filesTable.put({
+                    ...realFile,
+                    breadcrumbs,
+                    _isOptimistic: false,
+                    _syncSuccess: true,
+                    _syncConflict: false,
+                    _syncWarning: "",
+                  });
+
+                  // Save breadcrumbs to the breadcrumbs table
+                  if (breadcrumbs && breadcrumbs.length > 0) {
+                    await breadcrumbsTable.put({
+                      id: optimisticID,
+                      resource_id: optimisticID,
+                      breadcrumbs: breadcrumbs,
+                    });
+                  }
+                }
+              );
             } else {
               await filesTable.delete(optimisticID);
             }
@@ -498,7 +555,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_FILE_ROLLBACK: {
-            if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;

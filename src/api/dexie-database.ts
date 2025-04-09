@@ -22,6 +22,7 @@ import {
   SYSTEM_PERMISSIONS_DEXIE_TABLE,
 } from "../redux-offline/permissions/permissions.reducer";
 import {
+  BREADCRUMBS_TABLE,
   FILES_DEXIE_TABLE,
   FolderFEO,
   FOLDERS_DEXIE_TABLE,
@@ -102,6 +103,7 @@ class DexieManager {
       [SYSTEM_PERMISSIONS_DEXIE_TABLE]: "id, _syncConflict",
       [FILES_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
       [FOLDERS_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
+      [BREADCRUMBS_TABLE]: "id, resource_id",
     });
 
     // Set as current and return
@@ -347,6 +349,12 @@ export const initDexieDb = async (
           _syncConflict: false,
           _syncWarning: "",
           _syncSuccess: true,
+          breadcrumbs: [
+            {
+              resource_id: defaultBrowserCacheRootFolderID,
+              resource_name: "Browser Cache",
+            },
+          ],
         };
 
         await db.table(FOLDERS_DEXIE_TABLE).add(browserCacheRootFolder);
@@ -381,6 +389,16 @@ export const initDexieDb = async (
           _syncConflict: false,
           _syncWarning: "",
           _syncSuccess: true,
+          breadcrumbs: [
+            {
+              resource_id: defaultBrowserCacheRootFolderID,
+              resource_name: "Browser Cache",
+            },
+            {
+              resource_id: defaultBrowserCacheTrashFolderID,
+              resource_name: "Trash",
+            },
+          ],
         };
 
         await db.table(FOLDERS_DEXIE_TABLE).add(browserCacheTrashFolder);
@@ -430,6 +448,12 @@ export const initDexieDb = async (
           _syncConflict: false,
           _syncWarning: "",
           _syncSuccess: true,
+          breadcrumbs: [
+            {
+              resource_id: defaultTempCloudSharingRootFolderID,
+              resource_name: "Free Cloud Sharing",
+            },
+          ],
         };
 
         await db.table(FOLDERS_DEXIE_TABLE).add(cloudSharingRootFolder);
@@ -464,6 +488,16 @@ export const initDexieDb = async (
           _syncConflict: false,
           _syncWarning: "",
           _syncSuccess: true,
+          breadcrumbs: [
+            {
+              resource_id: defaultTempCloudSharingRootFolderID,
+              resource_name: "Free Cloud Sharing",
+            },
+            {
+              resource_id: defaultTempCloudSharingTrashFolderID,
+              resource_name: "Trash",
+            },
+          ],
         };
 
         await db.table(FOLDERS_DEXIE_TABLE).add(cloudSharingTrashFolder);

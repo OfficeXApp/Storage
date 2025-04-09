@@ -606,15 +606,32 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         render: (_: any, record: DriveItemRow) => {
           if (record.isDisabled) {
             return (
-              <span style={{ color: "gray", cursor: "not-allowed" }}>
+              <span
+                style={{ color: "gray", cursor: "not-allowed", width: "100%" }}
+              >
                 Expired
               </span>
             );
           } else {
             return (
-              <span style={{ color: "gray", cursor: "not-allowed" }}>
+              <span
+                onClick={() => {
+                  if (record.isDisabled) {
+                    return;
+                  } else {
+                    if (isTrashBin) {
+                      message.error(
+                        "You cannot access files in the Trash. Restore it first."
+                      );
+                    } else {
+                      handleFileFolderClick(record);
+                    }
+                  }
+                }}
+                style={{ color: "gray", width: "100%" }}
+              >
                 {record.expires_at === -1
-                  ? null
+                  ? `Active`
                   : `Expires ${dayjs(record.expires_at).fromNow()}`}
               </span>
             );
@@ -1078,36 +1095,23 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 overflowX: "scroll",
               }}
             >
-              {listDirectoryResults && listDirectoryResults.isLoading ? (
-                <Button
-                  type="link"
-                  icon={<ArrowLeftOutlined />}
-                  onClick={handleBack}
-                  disabled
-                  style={{
-                    padding: 0,
-                    color: "inherit",
-                    textDecoration: "none",
-                    margin: "0px 8px 0px 0px",
-                  }}
-                >
-                  Back <LoadingOutlined />
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleBack}
-                  type="link"
-                  icon={<ArrowLeftOutlined />}
-                  style={{
-                    padding: 0,
-                    color: "inherit",
-                    textDecoration: "none",
-                    margin: "0px 8px 0px 0px",
-                  }}
-                >
-                  Back
-                </Button>
-              )}
+              <Button
+                onClick={handleBack}
+                type="link"
+                icon={<ArrowLeftOutlined />}
+                style={{
+                  padding: 0,
+                  color: "inherit",
+                  textDecoration: "none",
+                  margin: "0px 8px 0px 0px",
+                }}
+              >
+                Back{" "}
+                {(listDirectoryResults && listDirectoryResults.isLoading) ||
+                (getFileResult && (getFileResult as any).isLoading) ? (
+                  <LoadingOutlined />
+                ) : null}
+              </Button>
 
               <div
                 style={{ display: "flex", gap: "20px", alignItems: "center" }}

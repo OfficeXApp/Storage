@@ -478,6 +478,10 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
             const permission = await systemPermissionsTable.get(
               action.meta?.optimisticID
             );
+            console.log(
+              `CHECK_DISKS_TABLE_PERMISSIONS found in dexie`,
+              permission
+            );
             if (permission) {
               enhancedAction = {
                 ...action,
@@ -499,6 +503,10 @@ export const disksOptimisticDexieMiddleware = (currentIdentitySet: {
               // Save to system permissions table
               const systemPermissionsTable = db.table(
                 SYSTEM_PERMISSIONS_DEXIE_TABLE
+              );
+              console.log(
+                `CHECK_DISKS_TABLE_PERMISSIONS_COMMIT saving to dexie`,
+                permissions
               );
               await systemPermissionsTable.put({
                 id: optimisticID,

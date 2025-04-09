@@ -2,9 +2,9 @@
 
 ## Overview
 
-- [ ] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
-- [ ] Refactor drive ui back button to actually check parent folder to navigate grandfather
+- [ ] Cache the breadcrumbs directory navigation
 
+- [ ] Move/Copy Files/Folders
 - [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 - [ ] Add 404 Pages
@@ -87,3 +87,6 @@
 - [x] Trash bin functionality
 - [x] Delete file folder / Restore trash / Delete forever
 - [x] Add directory syncing indicator for when loading files/folders from cloud
+- [x] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
+- [x] Refactor drive ui back button to actually check parent folder to navigate grandfather
+- [x] Reduce amount of initial REST calls, just contacts, groups & disks needed (we already cache the permission checks)

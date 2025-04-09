@@ -65,10 +65,8 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   const { wrapOrgCode } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const systemPermissions = useSelector((state: ReduxAppState) =>
-    state.systemPermissions.permissions.filter(
-      (p) => p.permission_types.length > 0
-    )
+  const systemPermissions = useSelector(
+    (state: ReduxAppState) => state.systemPermissions.permissions
   );
   const tablePermissions = useSelector(
     (state: ReduxAppState) => state.systemPermissions.tablePermissions
@@ -76,31 +74,42 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   const [systemDrawerOpen, setSystemDrawerOpen] = useState(false);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
-  const [filteredSystemPermissions, setFilteredSystemPermissions] =
-    useState(systemPermissions);
+  const [filteredSystemPermissions, setFilteredSystemPermissions] = useState<
+    SystemPermissionFEO[]
+  >([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  useEffect(() => {
+    if (systemPermissions.length > 0) {
+      setFilteredSystemPermissions(
+        systemPermissions.filter((p) => p.permission_types.length > 0)
+      );
+    }
+  }, []);
 
   // Update filtered permissions whenever search text or permissions change
   useEffect(() => {
-    const filteredSystem = systemPermissions.filter((permission) => {
-      console.log("permission", permission);
-      return (
-        permission.resource_id
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        permission.granted_to
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        (permission.grantee_name || "")
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        (permission.resource_name || "")
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        (permission.note &&
-          permission.note.toLowerCase().includes(searchText.toLowerCase()))
-      );
-    });
+    const filteredSystem = systemPermissions
+      .filter((p) => p.permission_types.length > 0)
+      .filter((permission) => {
+        console.log("permission", permission);
+        return (
+          permission.resource_id
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          permission.granted_to
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (permission.grantee_name || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (permission.resource_name || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (permission.note &&
+            permission.note.toLowerCase().includes(searchText.toLowerCase()))
+        );
+      });
     setFilteredSystemPermissions(filteredSystem);
   }, [searchText, systemPermissions]);
 
@@ -129,7 +138,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
 
     // Cleanup
     return () => window.removeEventListener("resize", handleResize);
-  }, [dispatch]);
+  }, []);
 
   // Handle row selection
   const rowSelection = {

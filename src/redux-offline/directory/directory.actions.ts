@@ -615,6 +615,7 @@ export const moveFolderAction = (
 // Restore Trash
 export const restoreTrashAction = (
   action: RestoreTrashAction,
+  listDirectoryKey?: string,
   shouldBehaveOfflineDiskUI = true
 ) => {
   const resourceId = action.payload.id as DirectoryResourceID;
@@ -623,6 +624,7 @@ export const restoreTrashAction = (
     type: RESTORE_TRASH,
     meta: {
       optimisticID: resourceId,
+      listDirectoryKey,
       offline: {
         effect: {
           url: `/directory/action`,

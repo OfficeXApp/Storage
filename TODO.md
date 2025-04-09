@@ -2,8 +2,6 @@
 
 ## Overview
 
-- [🔵] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
-
 - [🔵] Trash bin functionality
 - [🔵] Delete file folder / Restore trash / Delete forever
 
@@ -87,3 +85,4 @@
 - [x] Deploy to staging, might need to refactor auth to use query string since ICP boundary nodes are being weird about CORS authorization headers even though postman works
 - [x] Proper optimistic rendering for everything
 - [x] Implement "Default Disk" and hide disks
+- [x] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)

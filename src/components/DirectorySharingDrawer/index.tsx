@@ -108,7 +108,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   );
   //   const permissions = permissionIDs.map((pid) => permissionMap[pid]);
   const permissions = useMemo(() => {
-    return permissionIDs.map((pid) => permissionMap[pid]);
+    return permissionIDs
+      .map((pid) => permissionMap[pid])
+      .filter((p) => p.id.startsWith("DirectoryPermissionID_"));
   }, [permissionIDs, permissionMap]);
   const { wrapOrgCode, currentOrg, currentProfile } = useIdentitySystem();
   const [permissionForEdit, setPermissionForEdit] =

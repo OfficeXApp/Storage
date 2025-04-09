@@ -103,6 +103,8 @@ import {
   GET_FILE,
   listDirectoryAction,
   generateListDirectoryKey,
+  restoreTrashAction,
+  RESTORE_TRASH,
 } from "../../redux-offline/directory/directory.actions";
 import dayjs from "dayjs";
 import {
@@ -536,7 +538,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         dataIndex: "title",
         key: "title",
         render: (text: string, record: DriveItemRow) => {
-          console.log(`record`, record);
           return (
             <div
               onClick={() => {
@@ -673,7 +674,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         ),
       },
     ];
-    console.log(`record.hasDiskTrash`, record.hasDiskTrash);
+
     if (record.hasDiskTrash) {
       console.log(`inserting trash disk folder`);
       menuItems.unshift({
@@ -695,9 +696,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           <Popconfirm
             title="Confirm Restore"
             description="Are you sure you want to restore trash?"
-            onConfirm={() => {
-              console.log(`I would like to restore trash`);
-            }}
+            onConfirm={() => handleRestore(record)}
           >
             Restore Trash
           </Popconfirm>
@@ -757,6 +756,29 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       }));
     } catch (error) {
       message.error(`Failed to delete ${record.isFolder ? "folder" : "file"}`);
+    }
+  };
+
+  console.log(`listDirectoryKey`, listDirectoryKey);
+
+  const handleRestore = async (record: DriveItemRow) => {
+    try {
+      const restoreAction = {
+        action: RESTORE_TRASH as "RESTORE_TRASH",
+        payload: {
+          id: record.id,
+        },
+      };
+      dispatch(
+        restoreTrashAction(
+          restoreAction,
+          listDirectoryKey,
+          shouldBehaveOfflineDiskUIIntent(record.diskID)
+        )
+      );
+    } catch (e) {
+      message.error(`Failed to restore ${record.isFolder ? "folder" : "file"}`);
+      console.error(e);
     }
   };
 
@@ -965,7 +987,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           }
         />
         <br />
-        <span>Loading...</span>
+        <span>Decrypting for first time...</span>
       </div>
     );
   }
@@ -1178,6 +1200,18 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             <div style={{ padding: "20px" }}>
               <FilePage file={singleFile} />
             </div>
+          ) : isTrashBin && tableRows.length === 0 ? (
+            <Result
+              icon={<DeleteOutlined style={{ fontSize: 64 }} />}
+              title="Trash is Empty"
+              subTitle="There are no items in your trash bin at the moment."
+              extra={
+                <Link to={wrapOrgCode("/drive")}>
+                  <Button type="primary">Return to Drive</Button>
+                </Link>
+              }
+              style={{ marginTop: "10vh" }}
+            />
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>
               {tableRows.length === 0 ? (

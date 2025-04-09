@@ -2012,6 +2012,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           // Fix for the RESTORE_TRASH case in directory.optimistic.ts
 
           case RESTORE_TRASH: {
+            console.log(`RESTORE_TRASH optimistic`, action);
             const resourceId = action.meta.optimisticID;
             const resourceAction = action.meta.offline.effect.data.actions[0];
 
@@ -2225,6 +2226,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case RESTORE_TRASH_COMMIT: {
+            console.log(`RESTORE_TRASH_COMMIT optimistic`, action);
             const resourceId = action.meta?.optimisticID;
             let restoredItems: {
               restored_files?: FileID[];
@@ -2286,6 +2288,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case RESTORE_TRASH_ROLLBACK: {
+            console.log(`RESTORE_TRASH_ROLLBACK optimistic`, action);
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();

@@ -65,8 +65,10 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   const { wrapOrgCode } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const systemPermissions = useSelector(
-    (state: ReduxAppState) => state.systemPermissions.permissions
+  const systemPermissions = useSelector((state: ReduxAppState) =>
+    state.systemPermissions.permissions.filter(
+      (p) => p.permission_types.length > 0
+    )
   );
   const tablePermissions = useSelector(
     (state: ReduxAppState) => state.systemPermissions.tablePermissions
@@ -87,6 +89,12 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
           .toLowerCase()
           .includes(searchText.toLowerCase()) ||
         permission.granted_to
+          .toLowerCase()
+          .includes(searchText.toLowerCase()) ||
+        (permission.grantee_name || "")
+          .toLowerCase()
+          .includes(searchText.toLowerCase()) ||
+        (permission.resource_name || "")
           .toLowerCase()
           .includes(searchText.toLowerCase()) ||
         (permission.note &&

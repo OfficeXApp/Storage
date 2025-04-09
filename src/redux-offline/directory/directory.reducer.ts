@@ -186,7 +186,6 @@ export const directoryReducer = (
 
       const shouldBehaveOfflineDisk =
         action.meta.offline.effect.headers.shouldBehaveOfflineDiskUI;
-      let hasExistingResults = state.listingDataMap[listDirectoryKey];
 
       if (action.optimistic) {
         return {
@@ -196,7 +195,7 @@ export const directoryReducer = (
             [listDirectoryKey]: {
               ...action.optimistic,
               isFirstTime: action.optimistic.isFirstTime || false,
-              isLoading: true,
+              isLoading: shouldBehaveOfflineDisk ? false : true,
             },
           },
         };

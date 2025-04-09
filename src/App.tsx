@@ -38,7 +38,10 @@ import {
   listWebhooksAction,
 } from "./redux-offline/webhooks/webhooks.actions";
 import { sleep } from "./api/helpers";
-import { checkSystemPermissionTablePermissionsAction } from "./redux-offline/permissions/permissions.actions";
+import {
+  checkSystemPermissionTablePermissionsAction,
+  listSystemPermissionsAction,
+} from "./redux-offline/permissions/permissions.actions";
 
 function App() {
   const [emvMnemonic, setEvmMnemonic] = useState<string | null>(null);
@@ -79,6 +82,7 @@ function App() {
         dispatch(
           checkSystemPermissionTablePermissionsAction(currentProfile.userID)
         );
+        dispatch(listSystemPermissionsAction({}));
       }
     };
     incrementalFetchData();

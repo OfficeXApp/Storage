@@ -9,6 +9,7 @@ import {
   DiskID,
   DirectoryPermissionType,
   FilePathBreadcrumb,
+  DirectoryResourceID,
 } from "@officexapp/types";
 import {
   GET_FILE,
@@ -65,6 +66,7 @@ export const DIRECTORY_REDUX_KEY = "directory";
 
 export const FILES_DEXIE_TABLE = "files";
 export const FOLDERS_DEXIE_TABLE = "folders";
+export const BREADCRUMBS_TABLE = "breadcrumbs";
 
 export const shouldBehaveOfflineDiskUIIntent = (diskID: DiskID) => {
   if (
@@ -98,6 +100,12 @@ export interface FolderFEO extends FolderRecordFE {
   _markedForDeletion?: boolean; // flag for deletion
   breadcrumbs: FilePathBreadcrumb[];
 }
+
+export type BreadcrumbsFEO = {
+  id: DirectoryResourceID;
+  resource_id: DirectoryResourceID;
+  breadcrumbs: FilePathBreadcrumb[];
+};
 
 interface DirectoryState {
   files: FileFEO[];

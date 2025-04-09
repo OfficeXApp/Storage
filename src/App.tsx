@@ -65,27 +65,37 @@ function App() {
   useEffect(() => {
     const incrementalFetchData = async () => {
       if (currentProfile && currentOrg) {
+        let bufferTime = 0;
+        if (currentOrg.endpoint) {
+          bufferTime = 1000;
+          if (window.location.pathname.includes("/drive")) {
+            bufferTime = 2000;
+          }
+        }
         dispatch(listDisksAction({}));
-        await sleep(3000);
+        await sleep(bufferTime);
         dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
-        await sleep(3000);
+        await sleep(bufferTime);
         dispatch(listContactsAction({}));
+        await sleep(bufferTime);
         dispatch(checkContactTablePermissionsAction(currentProfile.userID));
-        await sleep(3000);
+        await sleep(bufferTime);
         dispatch(listGroupsAction({}));
+        await sleep(bufferTime);
         dispatch(checkGroupTablePermissionsAction(currentProfile.userID));
-        await sleep(3000);
+        await sleep(bufferTime);
         dispatch(listDrivesAction({}));
+        await sleep(bufferTime);
         dispatch(checkDriveTablePermissionsAction(currentProfile.userID));
-        await sleep(3000);
+        await sleep(bufferTime);
         dispatch(checkWebhookTablePermissionsAction(currentProfile.userID));
-        await sleep(3000);
+        await sleep(bufferTime);
         dispatch(checkApiKeyTablePermissionsAction(currentProfile.userID));
-        await sleep(3000);
+        await sleep(bufferTime);
         dispatch(
           checkSystemPermissionTablePermissionsAction(currentProfile.userID)
         );
-        await sleep(3000);
+        await sleep(bufferTime);
         dispatch(listSystemPermissionsAction({}));
       }
     };

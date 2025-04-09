@@ -64,7 +64,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const dispatch = useDispatch();
   // State for file content and UI
   const [fileUrl, setFileUrl] = useState<string>("");
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
   const [isShareDrawerOpen, setIsShareDrawerOpen] = useState(false);

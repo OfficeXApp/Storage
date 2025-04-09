@@ -95,8 +95,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   resourceName,
   resource,
 }) => {
-  console.log(`the resourceID = ${resourceID}`);
-
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState(window.location.href);
@@ -109,16 +107,12 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     })
   );
 
-  console.log(`the permissionIDs =`, permissionIDs);
-
   //   const permissions = permissionIDs.map((pid) => permissionMap[pid]);
   const permissions = useMemo(() => {
     return permissionIDs
       .map((pid) => permissionMap[pid])
       .filter((p) => p.id.startsWith("DirectoryPermissionID_"));
   }, [permissionIDs, permissionMap]);
-
-  console.log(`the permissions =`, permissions);
 
   const { wrapOrgCode, currentOrg, currentProfile } = useIdentitySystem();
   const [permissionForEdit, setPermissionForEdit] =
@@ -151,15 +145,13 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     const should_default_advanced_open = localStorage.getItem(
       LOCAL_STORAGE_DIRECTORY_PERMISSIONS_ADVANCED_OPEN
     );
-    console.log(`should_default_advanced_open`, should_default_advanced_open);
+
     if (parseInt(should_default_advanced_open || "0")) {
       setIsAdvancedOpen(true);
     }
   }, []);
 
   const [dataSource, setDataSource] = useState<PermissionRecord[]>([]);
-
-  console.log(`the dataSource = `, dataSource);
 
   useEffect(() => {
     if (isOfflineDisk) return;
@@ -192,9 +184,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
             original: p,
           };
         });
-      console.log(`the data = `, data);
+
       setDataSource(data);
-    } else {
+    } else if (dataSource.length > 0) {
       setDataSource([]);
     }
   }, [permissions]);
@@ -464,7 +456,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         open={isAdvancedOpen}
         onToggle={(e) => {
           setIsAdvancedOpen(e.currentTarget.open);
-          console.log(`toggled open`, e.currentTarget.open);
+
           localStorage.setItem(
             LOCAL_STORAGE_DIRECTORY_PERMISSIONS_ADVANCED_OPEN,
             e.currentTarget.open ? "1" : "0"

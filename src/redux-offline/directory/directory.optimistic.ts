@@ -488,6 +488,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 _syncSuccess: true,
                 _syncConflict: false,
                 _syncWarning: "",
+                breadcrumbs: [],
               });
             } else {
               await filesTable.delete(optimisticID);
@@ -541,6 +542,8 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_FOLDER_COMMIT: {
+            console.log(`GET_FOLDER_COMMIT optimistic`, action);
+
             const optimisticID = action.meta?.optimisticID;
             let realFolder: FolderRecordFE | undefined;
 
@@ -552,11 +555,17 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               action.payload?.ok?.data?.actions?.[0]?.response?.result?.folder
             ) {
               // Handle batch action response format
-              realFolder =
-                action.payload.ok.data.actions[0].response.result.folder;
+              realFolder = {
+                ...action.payload.ok.data.actions[0].response.result.folder,
+                breadcrumbs:
+                  action.payload.ok.data.actions[0].response.result.breadcrumbs,
+              };
             } else if (action.payload?.ok?.data?.items?.[0]) {
               // Handle array response format
-              realFolder = action.payload.ok.data.items[0];
+              realFolder = {
+                ...action.payload.ok.data.items[0].folder,
+                breadcrumbs: action.payload.ok.data.items[0].breadcrumbs,
+              };
             }
 
             if (realFolder) {
@@ -566,6 +575,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 _syncSuccess: true,
                 _syncConflict: false,
                 _syncWarning: "",
+                breadcrumbs: (realFolder as any).breadcrumbs || [],
               });
             }
             break;
@@ -644,6 +654,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 _syncConflict: false,
                 _syncSuccess: false,
                 _isOptimistic: true,
+                breadcrumbs: [],
               };
 
               // Save to IndexedDB
@@ -690,6 +701,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncConflict: false,
                   _syncWarning: "",
                   _isOptimistic: false,
+                  breadcrumbs: [],
                 });
               });
             }
@@ -757,6 +769,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 _syncConflict: false,
                 _syncSuccess: false,
                 _isOptimistic: true,
+                breadcrumbs: [],
               };
 
               // Save to IndexedDB
@@ -820,6 +833,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncConflict: false,
                   _syncWarning: "",
                   _isOptimistic: false,
+                  breadcrumbs: [],
                 };
 
                 await foldersTable.put(realFolderEnhanced);
@@ -959,6 +973,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncConflict: false,
                   _syncWarning: "",
                   _isOptimistic: false,
+                  breadcrumbs: [],
                 });
               });
             }
@@ -1051,6 +1066,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncConflict: false,
                   _syncWarning: "",
                   _isOptimistic: false,
+                  breadcrumbs: [],
                 });
               });
             }
@@ -1434,6 +1450,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                     _syncConflict: false,
                     _syncWarning: "",
                     _isOptimistic: false,
+                    breadcrumbs: [],
                   });
 
                   // Update folder references if needed
@@ -1606,6 +1623,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncConflict: false,
                   _syncWarning: "",
                   _isOptimistic: false,
+                  breadcrumbs: [],
                 });
 
                 // Update parent folder references if needed
@@ -1764,6 +1782,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                     _syncConflict: false,
                     _syncWarning: "",
                     _isOptimistic: false,
+                    breadcrumbs: [],
                   });
 
                   // Update folder reference
@@ -1926,6 +1945,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                     _syncConflict: false,
                     _syncWarning: "",
                     _isOptimistic: false,
+                    breadcrumbs: [],
                   });
 
                   // Update parent folder reference

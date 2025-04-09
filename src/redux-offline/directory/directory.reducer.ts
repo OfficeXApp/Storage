@@ -8,6 +8,7 @@ import {
   FolderRecordFE,
   DiskID,
   DirectoryPermissionType,
+  FilePathBreadcrumb,
 } from "@officexapp/types";
 import {
   GET_FILE,
@@ -85,6 +86,7 @@ export interface FileFEO extends FileRecordFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  breadcrumbs: FilePathBreadcrumb[];
 }
 
 export interface FolderFEO extends FolderRecordFE {
@@ -94,6 +96,7 @@ export interface FolderFEO extends FolderRecordFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  breadcrumbs: FilePathBreadcrumb[];
 }
 
 interface DirectoryState {
@@ -116,6 +119,7 @@ interface DirectoryState {
       lastUpdated: number;
       permission_previews: DirectoryPermissionType[];
       isFirstTime?: boolean;
+      breadcrumbs: FilePathBreadcrumb[];
     }
   >;
 }
@@ -344,8 +348,11 @@ export const directoryReducer = (
         realFile = action.payload.ok.data.actions[0].response.result.file;
       } else if (action.payload?.ok?.data?.items?.[0]) {
         realFile = action.payload.ok.data.items[0];
-      } else if (action.payload[0].response.result) {
-        realFile = action.payload[0].response.result;
+      } else if (action.payload[0].response.result.file) {
+        realFile = {
+          ...action.payload[0].response.result.file,
+          breadcrumbs: action.payload[0].response.result.breadcrumbs,
+        };
       }
       console.log(`GET_FILE_COMMIT realFile`, realFile);
       if (!realFile) {

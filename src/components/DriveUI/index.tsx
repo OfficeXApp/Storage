@@ -191,7 +191,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [singleFile, setSingleFile] = useState<FileFEO | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (
@@ -209,7 +208,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     if (listDirectoryResults) {
       const { folders, files } = listDirectoryResults;
       setContent({ folders, files });
-      setIsLoading(false);
+
       setIs404NotFound(false);
     }
   }, [listDirectoryResults]);
@@ -217,12 +216,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   useEffect(() => {
     if (currentFileId && !getFileResult) {
       setIs404NotFound(true);
-      setIsLoading(false);
+
       setSingleFile(null);
     } else if (currentFileId && getFileResult) {
       console.log(`currentFileId=${currentFileId}`, getFileResult);
       setIs404NotFound(false);
-      setIsLoading(false);
+
       setSingleFile(getFileResult);
     }
   }, [getFileResult, currentFileId]);
@@ -241,7 +240,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setListDirectoryKey("");
       setCurrentFolderId(null);
       setCurrentFileId(null);
-      setIsLoading(false);
+
       setIs404NotFound(false);
       fetchContent({});
       setSingleFile(null);
@@ -307,7 +306,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
       setSingleFile(null);
-      setIsLoading(true);
+
       fetchContent({
         targetFolderId: folderId,
       });
@@ -322,7 +321,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         setCurrentFileId(fileId);
         fetchFileById(fileId, diskID);
       }
-      setIsLoading(true);
     } else {
       console.log(`we nowhere known`);
     }
@@ -436,7 +434,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           }),
           files: [],
         });
-        setIsLoading(false);
+
         return;
       }
 
@@ -1085,7 +1083,21 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 overflowX: "scroll",
               }}
             >
-              {
+              {listDirectoryResults && listDirectoryResults.isLoading ? (
+                <Button
+                  type="link"
+                  icon={<ArrowLeftOutlined />}
+                  onClick={handleBack}
+                  style={{
+                    padding: 0,
+                    color: "inherit",
+                    textDecoration: "none",
+                    margin: "0px 8px 0px 0px",
+                  }}
+                >
+                  Back <LoadingOutlined />
+                </Button>
+              ) : (
                 <Button
                   onClick={handleBack}
                   type="link"
@@ -1099,7 +1111,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 >
                   Back
                 </Button>
-              }
+              )}
 
               <div
                 style={{ display: "flex", gap: "20px", alignItems: "center" }}

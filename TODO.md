@@ -2,8 +2,7 @@
 
 ## Overview
 
-- [🔵] Trash bin functionality
-- [🔵] Delete file folder / Restore trash / Delete forever
+- [🔵] Add directory syncing indicator for when loading files/folders from cloud
 
 - [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
@@ -86,3 +85,5 @@
 - [x] Proper optimistic rendering for everything
 - [x] Implement "Default Disk" and hide disks
 - [x] Fix optimistic vs actual load positioning (order of rows may change and result in jarring experience)
+- [x] Trash bin functionality
+- [x] Delete file folder / Restore trash / Delete forever

@@ -195,8 +195,8 @@ export const directoryReducer = (
             ...state.listingDataMap,
             [listDirectoryKey]: {
               ...action.optimistic,
-              isLoading: !shouldBehaveOfflineDisk && !hasExistingResults,
               isFirstTime: action.optimistic.isFirstTime || false,
+              isLoading: true,
             },
           },
         };
@@ -265,6 +265,7 @@ export const directoryReducer = (
           [listDirectoryKey]: {
             ...action.payload,
             isFirstTime: false,
+            isLoading: false,
           },
         },
         files,
@@ -299,9 +300,9 @@ export const directoryReducer = (
           ...state.listingDataMap,
           [listDirectoryKey]: {
             ...state.listingDataMap[listDirectoryKey],
-            isLoading: false,
             error: errorMessage,
             isFirstTime: false,
+            isLoading: false,
           },
         },
         loading: false,

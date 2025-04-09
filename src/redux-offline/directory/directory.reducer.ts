@@ -657,10 +657,6 @@ export const directoryReducer = (
         const currentListing = state.listingDataMap[listDirectoryKey];
 
         if (currentListing) {
-          const filteredListingFolders = currentListing.folders.filter(
-            (folder) => folder._optimisticID !== optimisticID
-          );
-
           updatedState = {
             ...updatedState,
             listingDataMap: {
@@ -668,7 +664,7 @@ export const directoryReducer = (
               [listDirectoryKey]: {
                 ...currentListing,
                 // Replace the optimistic folder with the real one
-                folders: updateOrAddFolder(filteredListingFolders, newFolder),
+                folders: updateOrAddFolder(currentListing.folders, newFolder),
               },
             },
           };
@@ -1402,16 +1398,213 @@ export const directoryReducer = (
     }
 
     // ------------------------------ RESTORE TRASH --------------------------------- //
+
     case RESTORE_TRASH: {
-      const optimisticFolder = action.optimistic;
-      return {
-        ...state,
-        folders: optimisticFolder
-          ? updateOrAddFolder(state.folders, optimisticFolder)
-          : state.folders,
-        loading: true,
-        error: null,
-      };
+      console.log(`RESTORE_TRASH reducer`, action);
+      const optimisticID = action.meta.optimisticID;
+      if (!optimisticID) {
+        return {
+          ...state,
+          loading: true,
+          error: null,
+        };
+      }
+
+      const isFile = optimisticID.startsWith("FileID_");
+
+      // Update the main files or folders collection
+      if (isFile) {
+        const updatedFiles = state.files.filter((f) => f.id !== optimisticID);
+        const updatedFileMap = {
+          ...state.fileMap,
+        };
+        delete updatedFileMap[optimisticID];
+
+        // Now, find and update the relevant directory listings
+        const updatedListingDataMap = {
+          ...state.listingDataMap,
+          [action.meta?.listDirectoryKey]: {
+            ...state.listingDataMap[action.meta?.listDirectoryKey],
+            // filter it out
+            files: state.listingDataMap[
+              action.meta?.listDirectoryKey
+            ].files.filter((file) => file.id !== optimisticID),
+          },
+        };
+
+        return {
+          ...state,
+          files: updatedFiles,
+          fileMap: updatedFileMap,
+          listingDataMap: updatedListingDataMap,
+          loading: true,
+          error: null,
+        };
+      } else {
+        // Handle folder restoration
+        const updatedFolders = state.folders.filter(
+          (f) => f.id !== optimisticID
+        );
+        const updatedFolderMap = {
+          ...state.folderMap,
+        };
+        delete updatedFolderMap[optimisticID];
+
+        // Now, find and update the relevant directory listings
+        const updatedListingDataMap = {
+          ...state.listingDataMap,
+          [action.meta?.listDirectoryKey]: {
+            ...state.listingDataMap[action.meta?.listDirectoryKey],
+            // filter it out
+            folders: state.listingDataMap[
+              action.meta?.listDirectoryKey
+            ].folders.filter((folder) => folder.id !== optimisticID),
+          },
+        };
+
+        return {
+          ...state,
+          folders: updatedFolders,
+          folderMap: updatedFolderMap,
+          listingDataMap: updatedListingDataMap,
+          loading: true,
+          error: null,
+        };
+      }
+    }
+
+    // Also update the RESTORE_TRASH_COMMIT case to update the listings with the real data
+    case RESTORE_TRASH_COMMIT: {
+      console.log(`RESTORE_TRASH_COMMIT reducer`, action);
+      const optimisticID = action.meta?.optimisticID;
+      const optimistic = action.optimistic;
+      const isFile = optimistic?.id.startsWith("FileID_");
+
+      if (isFile) {
+        return {
+          ...state,
+          files: state.files.map((file) => {
+            if (file._optimisticID === optimisticID) {
+              return {
+                ...file,
+                _syncSuccess: true,
+                _syncConflict: false,
+                _syncWarning: "",
+                _isOptimistic: false,
+              };
+            }
+            return file;
+          }),
+          fileMap: {
+            ...state.fileMap,
+            [optimistic?.id]: {
+              ...optimistic,
+              _syncSuccess: true,
+              _syncConflict: false,
+              _syncWarning: "",
+              _isOptimistic: false,
+            },
+          },
+          loading: false,
+          error: null,
+        };
+      } else {
+        return {
+          ...state,
+          folders: state.folders.map((folder) => {
+            if (folder._optimisticID === optimisticID) {
+              return {
+                ...folder,
+                _syncSuccess: true,
+                _syncConflict: false,
+                _syncWarning: "",
+                _isOptimistic: false,
+              };
+            }
+            return folder;
+          }),
+          folderMap: {
+            ...state.folderMap,
+            [optimistic?.id]: {
+              ...optimistic,
+              _syncSuccess: true,
+              _syncConflict: false,
+              _syncWarning: "",
+              _isOptimistic: false,
+            },
+          },
+          loading: false,
+          error: null,
+        };
+      }
+    }
+
+    // Additionally, update the RESTORE_TRASH_ROLLBACK case to also update the listings
+    case RESTORE_TRASH_ROLLBACK: {
+      console.log(`RESTORE_TRASH_ROLLBACK reducer`, action);
+      if (!action.payload.response) return state;
+
+      const optimisticID = action.meta?.optimisticID;
+      const optimistic = action.optimistic;
+      const isFile = optimistic?.id.startsWith("FileID_");
+
+      if (isFile) {
+        return {
+          ...state,
+          files: state.files.map((file) => {
+            if (file._optimisticID === optimisticID) {
+              return {
+                ...file,
+                _syncWarning: action.error_message,
+                _syncSuccess: false,
+                _syncConflict: true,
+                _isOptimistic: false,
+              };
+            }
+            return file;
+          }),
+          fileMap: {
+            ...state.fileMap,
+            [optimistic?.id]: {
+              ...optimistic,
+              _syncWarning: action.error_message,
+              _syncSuccess: false,
+              _syncConflict: true,
+              _isOptimistic: false,
+            },
+          },
+          loading: false,
+          error: action.error_message || "Failed to restore file",
+        };
+      } else {
+        return {
+          ...state,
+          folders: state.folders.map((folder) => {
+            if (folder._optimisticID === optimisticID) {
+              return {
+                ...folder,
+                _syncWarning: action.error_message,
+                _syncSuccess: false,
+                _syncConflict: true,
+                _isOptimistic: false,
+              };
+            }
+            return folder;
+          }),
+          folderMap: {
+            ...state.folderMap,
+            [optimistic?.id]: {
+              ...optimistic,
+              _syncWarning: action.error_message,
+              _syncSuccess: false,
+              _syncConflict: true,
+              _isOptimistic: false,
+            },
+          },
+          loading: false,
+          error: action.error_message || "Failed to restore folder",
+        };
+      }
     }
 
     default:

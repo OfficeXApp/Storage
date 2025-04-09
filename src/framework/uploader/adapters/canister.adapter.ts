@@ -11,9 +11,15 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskTypeEnum, FileID, GenerateID } from "@officexapp/types";
+import {
+  DiskTypeEnum,
+  FileID,
+  GenerateID,
+  UploadStatus,
+} from "@officexapp/types";
 import {
   CREATE_FILE,
+  CREATE_FILE_COMMIT,
   createFileAction,
 } from "../../../redux-offline/directory/directory.actions";
 import { FileFEO } from "../../../redux-offline/directory/directory.reducer";
@@ -132,7 +138,7 @@ export class CanisterAdapter implements IUploadAdapter {
 
     try {
       // First create a file record in the system
-      const fileId = await this.createFileRecord(file, config, uploadId);
+      const fileId = await this.createFileRecord(file, config);
 
       // Store metadata for resume capability
       const metadata: ResumableUploadMetadata = {
@@ -249,21 +255,13 @@ export class CanisterAdapter implements IUploadAdapter {
    */
   private async createFileRecord(
     file: File,
-    config: UploadConfig,
-    uploadId: UploadID
+    config: UploadConfig
   ): Promise<FileID> {
     try {
       // Generate a file ID or use the one from metadata
       const fileID = config.fileID || GenerateID.File();
 
-      // Need dispatch function to be in metadata for Redux integration
-      if (!config.metadata?.dispatch) {
-        throw new Error("Redux dispatch function is required in the metadata");
-      }
-
-      const dispatch = config.metadata.dispatch;
-
-      // Prepare the create file action
+      // Prepare create file action
       const createAction = {
         action: CREATE_FILE as "CREATE_FILE",
         payload: {
@@ -278,13 +276,50 @@ export class CanisterAdapter implements IUploadAdapter {
         },
       };
 
-      // console.log("Creating file record with action:", createAction);
+      // Make direct API call following the /directory/action pattern
+      const { url, headers } = wrapAuthStringOrHeader(
+        `${this.baseUrl}/directory/action`,
+        {
+          "Content-Type": "application/json",
+        },
+        this.apiKey
+      );
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          actions: [createAction],
+        }),
+      });
 
-      // Dispatch action to create file record
-      dispatch(createFileAction(createAction, config.listDirectoryKey, false));
+      if (!response.ok) {
+        throw new Error(`Failed to create file record: ${response.statusText}`);
+      }
 
-      // Wait for the record to be created
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const result = await response.json();
+
+      // If dispatch is provided, update Redux store with a COMMIT action
+      if (config.metadata?.dispatch) {
+        const dispatch = config.metadata.dispatch;
+
+        // Use CREATE_FILE_COMMIT action directly with the API response
+        dispatch({
+          type: CREATE_FILE_COMMIT as "CREATE_FILE_COMMIT",
+          payload: {
+            ok: {
+              data: {
+                result: {
+                  file: {
+                    ...createAction.payload,
+                    upload_status: UploadStatus.QUEUED,
+                  },
+                },
+              },
+            },
+          },
+          meta: { optimisticID: fileID },
+        });
+      }
 
       return fileID;
     } catch (error) {

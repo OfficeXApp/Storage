@@ -69,6 +69,7 @@ import { getFileType, sleep } from "../../api/helpers";
 import { freeTrialStorjCreds } from "../../api/storj";
 import mixpanel from "mixpanel-browser";
 import {
+  DirectoryPermissionType,
   DirectoryResourceID,
   DiskID,
   DiskTypeEnum,
@@ -140,6 +141,7 @@ interface DriveItemRow {
   diskType: DiskTypeEnum;
   expires_at: number;
   hasDiskTrash?: FolderID;
+  permission_previews: DirectoryPermissionType[];
 }
 
 interface DriveUIProps {
@@ -155,7 +157,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const isTrashBin = location.search.includes("isTrashBin=1");
   const { currentOrg, wrapOrgCode } = useIdentitySystem();
   const [showAncillary, setShowAncillary] = useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<(FileID | FolderID)[]>(
+    []
+  );
+  const [modalMoveCopyOperation, setModalMoveCopyOperation] = useState<
+    "move" | "copy" | null
+  >(null);
 
   const [listDirectoryKey, setListDirectoryKey] = useState("");
 
@@ -213,7 +220,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   }, [currentDiskId, currentFolderId, currentFileId, disks]);
 
   useEffect(() => {
-    console.log(`listDirectoryResults`, listDirectoryResults);
     if (listDirectoryResults) {
       const { folders, files } = listDirectoryResults;
       setContent({ folders, files });
@@ -228,24 +234,22 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
       setSingleFile(null);
     } else if (currentFileId && getFileResult) {
-      console.log(`currentFileId=${currentFileId}`, getFileResult);
       setIs404NotFound(false);
 
       setSingleFile(getFileResult);
     }
   }, [getFileResult, currentFileId]);
 
-  // Show notification for Web3Storj free trial
+  // Main Drive Trigger
   useEffect(() => {
     // const path = encodedPath ? decodeURIComponent(encodedPath) : "";
     const pathParts = location.pathname.split("/").filter(Boolean);
-    console.log(`driveui pathParts`, pathParts);
+
     if (pathParts.length < 3) {
       return;
     }
 
     if (pathParts[2] === "drive" && pathParts.length === 3) {
-      console.log(`we are in root`);
       setListDirectoryKey("");
       setCurrentFolderId(null);
       setCurrentFileId(null);
@@ -256,19 +260,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       return;
     }
 
-    // console.log("Path parts:", pathParts);
     const diskType = pathParts[3];
     const diskID = pathParts[4];
     const folderFileID = pathParts[5];
 
     setCurrentDiskId(diskID);
 
-    console.log(`====pathParts`, pathParts);
-    console.log(`====location`, location);
-    console.log(`====folderFileID`, folderFileID);
-
     if (folderFileID === defaultTempCloudSharingRootFolderID) {
-      console.log(`we are in public sharing`);
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
         freeTrialStorjCreds.access_key;
@@ -310,7 +308,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         targetFolderId: folderId,
       });
     } else if (folderFileID.startsWith("FolderID_")) {
-      console.log(`we are in folder`, folderFileID);
       let folderId = folderFileID;
       setCurrentFolderId(folderId);
       setCurrentFileId(null);
@@ -321,9 +318,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       });
     } else if (folderFileID.startsWith("FileID_")) {
       let fileId = folderFileID;
-      console.log(
-        `we are in file with fileId=${fileId}, currentFileId=${currentFileId}, and getFileResult.id=${getFileResult?.id}`
-      );
       setCurrentFolderId(null);
       // Only set currentFileId if it's different
       if (fileId !== currentFileId) {
@@ -347,8 +341,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   }, [location, showAncillary]);
 
   const fetchFileById = (fileId: FileID, diskID: DiskID) => {
-    console.log("Fetching file by ID:", fileId);
-    console.log(`currentDiskId`, currentDiskId);
     // return;
     if (!diskID) return;
     try {
@@ -359,10 +351,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           id: fileId,
         },
       };
-
-      // Dispatch the action
-      console.log(`currentDiskId=${diskID}`);
-      console.log(`disk`, currentDisk);
 
       dispatch(
         getFileAction(getAction, shouldBehaveOfflineDiskUIIntent(diskID || ""))
@@ -410,8 +398,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       targetFileId?: FileID;
       sharedWithMe?: boolean;
     }) => {
-      console.log(`fetchContent..`);
-
       if (!targetFolderId && !targetFileId && !sharedWithMe) {
         // Root level showing disks from Redux
 
@@ -459,9 +445,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         return;
       }
 
-      console.log(`fetchContent targetFolderId`, targetFolderId);
-      console.log(`currentDiskId`, currentDiskId);
-
       // We're inside a folder, so we need to fetch its contents
       if (targetFolderId) {
         const listParams: IRequestListDirectory = {
@@ -473,11 +456,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         const _listDirectoryKey = generateListDirectoryKey(listParams);
         setListDirectoryKey(_listDirectoryKey);
 
-        // Dispatch the action to fetch the directory listing
-        console.log(
-          `shouldBehaveOfflineDiskUIIntent(currentDiskId) = ${currentDiskId}`,
-          shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
-        );
         dispatch(
           listDirectoryAction(
             listParams,
@@ -498,7 +476,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
         return;
       }
-      console.log(`targetFileId=${targetFileId}`);
       if (targetFileId) {
         // Fetch the file
         fetchFileById(targetFileId, currentDiskId || "");
@@ -506,7 +483,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         setIsSharedWithMePage(false);
       }
       if (sharedWithMe && currentDiskId) {
-        console.log(`Querying shared with me...`, currentDisk, currentDiskId);
         setContent({
           folders: [],
           files: [],
@@ -557,7 +533,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const appendRefreshParam = () => {
     const params = new URLSearchParams(location.search);
     params.set("refresh", uuidv4());
-    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+    navigate(`${location.pathname}?${params.toString()}`);
   };
 
   const handleFileFolderClick = (item: DriveItemRow) => {
@@ -731,14 +707,24 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             label: "Move",
             onClick: () => {
               setIsMoveDirectoryModalVisible(true);
+              setSelectedRowKeys([record.id]);
+              setModalMoveCopyOperation("move");
             },
+            disabled: !record.permission_previews?.includes(
+              DirectoryPermissionType.EDIT
+            ),
           },
           {
             key: "copy",
             label: "Copy",
             onClick: () => {
               setIsMoveDirectoryModalVisible(true);
+              setSelectedRowKeys([record.id]);
+              setModalMoveCopyOperation("copy");
             },
+            disabled: !record.permission_previews?.includes(
+              DirectoryPermissionType.EDIT
+            ),
           },
           {
             key: "delete",
@@ -757,7 +743,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         ];
 
     if (record.hasDiskTrash) {
-      console.log(`inserting trash disk folder`);
       menuItems.unshift({
         key: "trash",
         label: "Open Trash",
@@ -771,7 +756,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       });
       menuItems.push({
         key: "shared-with-me",
-        label: "Shared with me",
+        label: "Shared With Me",
         onClick: () => {
           navigate(
             wrapOrgCode(
@@ -948,6 +933,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
           expires_at: f.expires_at,
           hasDiskTrash: (f as any).hasDiskTrash,
+          permission_previews: f.permission_previews,
         })),
       ...content.files.map((f) => ({
         id: f.id,
@@ -959,6 +945,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         diskType: f.disk_type,
         isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
         expires_at: f.expires_at,
+        permission_previews: f.permission_previews,
       })),
     ];
   }, [content, currentFolderId, disks]);
@@ -1042,39 +1029,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     setIsStorjModalVisible(false);
   };
 
-  // Unacceptable loading on every drive page view, would rather have first impact be jarry than every subsequent be frustrating slow
-  if (
-    !shouldBehaveOfflineDiskUIIntent(currentDiskId || "") &&
-    listDirectoryResults?.isFirstTime
-  ) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "80vh",
-        }}
-      >
-        <Spin
-          size="large"
-          indicator={
-            <LoadingOutlined
-              style={{
-                fontSize: 36,
-                color: "#1890ff",
-              }}
-              spin
-            />
-          }
-        />
-        <br />
-        <span>Decrypting for first time...</span>
-      </div>
-    );
-  }
-
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
     return <DirectoryGuard resourceID={currentFolderId} />;
@@ -1082,7 +1036,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // unauthorized access to file
   if (currentFileId && !getFileResult) {
-    console.log(`currentFileID= ${currentFileId}`, getFileResult);
     return <DirectoryGuard resourceID={currentFileId} />;
   }
 
@@ -1112,9 +1065,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       disabled: true,
     },
   ];
-
-  console.log(`tableRows`, tableRows);
-  console.log(`content`, content);
 
   return (
     <div
@@ -1339,7 +1289,25 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               style={{ marginTop: "10vh" }}
             />
           ) : isSharedWithMePage && tableRows.length === 0 ? (
-            <span>Nothing was shared with you yet</span>
+            <Result
+              icon={<FolderOpenOutlined />}
+              title="Nothing Shared Yet"
+              subTitle="When the organization shares files with you, they can be found as shortcuts here"
+              extra={
+                <Link to={wrapOrgCode("/drive")}>
+                  <Button type="primary">Back to Drive</Button>
+                </Link>
+              }
+              style={{ marginTop: "10vh" }}
+            />
+          ) : !shouldBehaveOfflineDiskUIIntent(currentDiskId || "") &&
+            listDirectoryResults?.isFirstTime ? (
+            <Result
+              icon={<LoadingOutlined />}
+              title="Decrypting for first time..."
+              subTitle="This may take a few seconds, but will be fast after that"
+              style={{ marginTop: "20vh" }}
+            />
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>
               {tableRows.length === 0 ? (
@@ -1412,7 +1380,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       type: "checkbox",
                       selectedRowKeys,
                       onChange: (newSelectedRowKeys: React.Key[]) => {
-                        setSelectedRowKeys(newSelectedRowKeys);
+                        setSelectedRowKeys(
+                          newSelectedRowKeys as (FileID | FolderID)[]
+                        );
                       },
                       columnWidth: 50,
                     },
@@ -1446,14 +1416,19 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         />
       </Modal>
 
-      {currentDisk && (
+      {currentDisk && isMoveDirectoryModalVisible && (
         <MoveDirectorySelector
           visible={isMoveDirectoryModalVisible}
           setVisible={setIsMoveDirectoryModalVisible}
           initialFolderID={(currentFolderId as FolderID) || undefined}
           disk={currentDisk}
-          onSelect={(folderID) => console.log("Selected folder ID:", folderID)}
+          onFinish={() => {
+            setSelectedRowKeys([]);
+            appendRefreshParam();
+          }}
           onCancel={() => setIsMoveDirectoryModalVisible(false)}
+          mode={modalMoveCopyOperation || "copy"}
+          resource_ids={selectedRowKeys}
         />
       )}
 

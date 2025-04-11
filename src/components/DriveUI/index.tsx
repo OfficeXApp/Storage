@@ -167,6 +167,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     (state: ReduxAppState) => state.directory.listingDataMap[listDirectoryKey]
   );
 
+  const [isSharedWithMePage, setIsSharedWithMePage] = useState(false);
   const [isDiskRootPage, setIsDiskRootPage] = useState(false);
   const [currentDiskId, setCurrentDiskId] = useState<DiskID | null>(null);
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
@@ -329,6 +330,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         setCurrentFileId(fileId);
         fetchFileById(fileId, diskID);
       }
+    } else if (folderFileID === "shared-with-me") {
+      setCurrentFolderId(null);
+      setCurrentFileId(null);
+      setSingleFile(null);
+      fetchContent({
+        sharedWithMe: true,
+      });
     } else {
       console.log(`we nowhere known`);
     }
@@ -396,13 +404,15 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     async ({
       targetFolderId,
       targetFileId,
+      sharedWithMe,
     }: {
       targetFolderId?: FolderID;
       targetFileId?: FileID;
+      sharedWithMe?: boolean;
     }) => {
       console.log(`fetchContent..`);
 
-      if (!targetFolderId && !targetFileId) {
+      if (!targetFolderId && !targetFileId && !sharedWithMe) {
         // Root level showing disks from Redux
 
         setContent({
@@ -445,6 +455,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         });
         setSelectedRowKeys([]);
         setIsDiskRootPage(true);
+        setIsSharedWithMePage(false);
         return;
       }
 
@@ -483,6 +494,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         };
         dispatch(listDirectoryPermissionsAction(payload));
         setIsDiskRootPage(false);
+        setIsSharedWithMePage(false);
         // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
         return;
       }
@@ -490,6 +502,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       if (targetFileId) {
         // Fetch the file
         fetchFileById(targetFileId, currentDiskId || "");
+        setIsDiskRootPage(false);
+        setIsSharedWithMePage(false);
+      }
+      if (sharedWithMe) {
+        console.log(`Querying shared with me...`);
+        setContent({
+          folders: [],
+          files: [],
+        });
+        setIsSharedWithMePage(true);
         setIsDiskRootPage(false);
       }
     },
@@ -675,43 +697,48 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   );
 
   const getRowMenuItems = (record: DriveItemRow): MenuProps["items"] => {
-    const menuItems = [
-      {
-        key: "rename",
-        label: "Rename",
-        onClick: () => {
-          setRenamingItems((prev) => ({ ...prev, [record.id]: record.title }));
-        },
-      },
-      {
-        key: "move",
-        label: "Move",
-        onClick: () => {
-          setIsMoveDirectoryModalVisible(true);
-        },
-      },
-      {
-        key: "copy",
-        label: "Copy",
-        onClick: () => {
-          setIsMoveDirectoryModalVisible(true);
-        },
-      },
-      {
-        key: "delete",
-        label: (
-          <Popconfirm
-            title={`Are you sure you want to delete this ${record.isFolder ? "folder" : "file"}?`}
-            description="This action cannot be undone."
-            onConfirm={() => handleDelete(record)}
-            okText="Yes"
-            cancelText="No"
-          >
-            Delete
-          </Popconfirm>
-        ),
-      },
-    ];
+    const menuItems = isDiskRootPage
+      ? []
+      : [
+          {
+            key: "rename",
+            label: "Rename",
+            onClick: () => {
+              setRenamingItems((prev) => ({
+                ...prev,
+                [record.id]: record.title,
+              }));
+            },
+          },
+          {
+            key: "move",
+            label: "Move",
+            onClick: () => {
+              setIsMoveDirectoryModalVisible(true);
+            },
+          },
+          {
+            key: "copy",
+            label: "Copy",
+            onClick: () => {
+              setIsMoveDirectoryModalVisible(true);
+            },
+          },
+          {
+            key: "delete",
+            label: (
+              <Popconfirm
+                title={`Are you sure you want to delete this ${record.isFolder ? "folder" : "file"}?`}
+                description="This action cannot be undone."
+                onConfirm={() => handleDelete(record)}
+                okText="Yes"
+                cancelText="No"
+              >
+                Delete
+              </Popconfirm>
+            ),
+          },
+        ];
 
     if (record.hasDiskTrash) {
       console.log(`inserting trash disk folder`);
@@ -722,6 +749,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           navigate(
             wrapOrgCode(
               `/drive/${record.diskType}/${record.diskID}/${record.hasDiskTrash}?isTrashBin=1`
+            )
+          );
+        },
+      });
+      menuItems.push({
+        key: "shared-with-me",
+        label: "Shared with me",
+        onClick: () => {
+          navigate(
+            wrapOrgCode(
+              `/drive/${record.diskType}/${record.diskID}/shared-with-me`
             )
           );
         },
@@ -1281,6 +1319,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               }
               style={{ marginTop: "10vh" }}
             />
+          ) : isSharedWithMePage && tableRows.length === 0 ? (
+            <span>Nothing was shared with you</span>
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>
               {tableRows.length === 0 ? (

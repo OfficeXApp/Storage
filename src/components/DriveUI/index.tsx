@@ -505,14 +505,30 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         setIsDiskRootPage(false);
         setIsSharedWithMePage(false);
       }
-      if (sharedWithMe) {
-        console.log(`Querying shared with me...`);
+      if (sharedWithMe && currentDiskId) {
+        console.log(`Querying shared with me...`, currentDisk, currentDiskId);
         setContent({
           folders: [],
           files: [],
         });
         setIsSharedWithMePage(true);
         setIsDiskRootPage(false);
+        const listParams: IRequestListDirectory = {
+          disk_id: currentDiskId,
+          page_size: 100,
+          direction: SortDirection.ASC,
+          permission_previews: [],
+        };
+        const _listDirectoryKey = generateListDirectoryKey(listParams);
+        setListDirectoryKey(_listDirectoryKey);
+        dispatch(
+          listDirectoryAction(
+            listParams,
+            currentDiskId
+              ? shouldBehaveOfflineDiskUIIntent(currentDiskId)
+              : false
+          )
+        );
       }
     },
     [currentFolderId, disks, currentOrg, currentDiskId]
@@ -1096,6 +1112,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       disabled: true,
     },
   ];
+
+  console.log(`tableRows`, tableRows);
+  console.log(`content`, content);
 
   return (
     <div

@@ -272,11 +272,11 @@ export const directoryReducer = (
       // use updateOrAddFolder
       const sameOrderFolders = action.payload.folders.reduce(
         (acc: FolderFEO[], item: FolderFEO) => updateOrAddFolder(acc, item),
-        state.listingDataMap[listDirectoryKey].folders
+        state.listingDataMap[listDirectoryKey]?.folders || []
       );
       const sameOrderFiles = action.payload.files.reduce(
         (acc: FileFEO[], item: FileFEO) => updateOrAddFile(acc, item),
-        state.listingDataMap[listDirectoryKey].files
+        state.listingDataMap[listDirectoryKey]?.files || []
       );
 
       return {

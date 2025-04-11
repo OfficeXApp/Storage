@@ -159,7 +159,12 @@ export const contactsReducer = (
         contacts: action.payload.ok.data.items.reduce(
           (acc: ContactFEO[], item: ContactFEO) =>
             updateOrAddContact(acc, item),
-          state.contacts
+          state.contacts.filter(
+            (c) =>
+              !action.payload.ok.data.items
+                .map((i: ContactFEO) => i.from_placeholder_user_id)
+                .includes(c.id)
+          )
         ),
         contactMap: action.payload.ok.data.items.reduce(
           (acc: Record<UserID, ContactFEO>, item: ContactFEO) => {

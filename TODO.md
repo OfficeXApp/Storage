@@ -2,12 +2,12 @@
 
 ## Overview
 
-- [ ] Cache the breadcrumbs directory navigation
+- [🔵] Shared with me results with breadcrumbs
+- [🔵] Multi-Select Files/Folders
+- [🔵] Move/Copy Files/Folders
 
-- [ ] Move/Copy Files/Folders
-- [ ] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck
+- [🔵] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck and incorrect summary
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
-- [ ] Add 404 Pages
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 
 1. Directory navigation & interaction (1-2 days)
@@ -19,7 +19,6 @@
 
 ## Polish Checklist
 
-- [ ] Back button on /drive for when new user arrives
 - [ ] When adding a new org, dont just refresh page, go to /contacts just in case
 - [ ] Default offline contacts / api keys
 - [ ] Fix bugs when removing an org or profile, proper redirects, etc
@@ -34,8 +33,6 @@
 
 - [🔵] Figure out a unified tag framework --> `{nickname}:{id}@`
 - [🔵] Implement permissions on frontend (redux, reuseable ui pickers, crud)
-- [🔵] Blitzkreig the rest of the crud routes?
-- [🔵] Blitzkreig the rest of the crud UI?
 - [🔵] Groups & Group Invite creation routes (with redux-offline)
 - [ ] Handle folder copy logic where subfiles wont have a known ID, so the type FolderFEO.sync_warning = string should help us warn the user
 - [ ] Magic login link with redeem placeholders (both for contacts themselves, and via group invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa
@@ -47,7 +44,7 @@
 
 - [ ] Add onEnter to submit forms
 - [ ] In organization settings, for current user, ability to change the api key
-- [ ] In API keys page, a special modal for generating a signature (for developer convinence such as when they want a temp auth token or call the `/api-keys/create` endpoint)
+- [ ] In settings page, a special modal for generating an auth signature (for developer convinence such as when they want a temp auth token or call the `/api-keys/create` endpoint)
 - [ ] User initiated superswap_userid as a form of account "recovery" when they've lost/compromised their seed phrase. This should be added as a permission with grantee being a user/group etc.
 
 ## Done
@@ -90,3 +87,9 @@
 - [x] Update list directory call with a permissioned full path checker (for driveui breadcrumbs)
 - [x] Refactor drive ui back button to actually check parent folder to navigate grandfather
 - [x] Reduce amount of initial REST calls, just contacts, groups & disks needed (we already cache the permission checks)
+- [x] Cache the breadcrumbs directory navigation
+- [x] Back button on /drive for when new user arrives
+- [x] Blitzkreig the rest of the crud routes?
+- [x] Blitzkreig the rest of the crud UI?
+- [x] Fix frontend optimistic bug where old contact still exists after superswap user redeemed
+- [x] Add 404 Pages

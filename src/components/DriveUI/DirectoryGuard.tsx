@@ -1,9 +1,18 @@
 import React, { useState } from "react";
-import { Result, Input, Button, Space, Typography, message } from "antd";
+import {
+  Result,
+  Input,
+  Button,
+  Space,
+  Typography,
+  message,
+  Divider,
+} from "antd";
 import { LockOutlined } from "@ant-design/icons";
 import { useIdentitySystem } from "../../framework/identity";
 import { passwordToSeedPhrase } from "../../api/icp";
 import { wrapAuthStringOrHeader } from "../../api/helpers";
+import { Link } from "react-router-dom";
 
 const { Text } = Typography;
 const { Password } = Input;
@@ -92,6 +101,33 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({ resourceID }) => {
     }
   };
 
+  function extractDiskInfo() {
+    const url = window.location.href;
+    // Split the URL into parts
+    const parts = new URL(url).pathname.split("/");
+
+    // Find the index of 'drive' in the path
+    const driveIndex = parts.indexOf("drive");
+
+    // If 'drive' is found and there are enough parts after it
+    if (driveIndex !== -1 && parts.length > driveIndex + 2) {
+      const diskTypeEnum = parts[driveIndex + 1];
+      const diskID = parts[driveIndex + 2];
+
+      return {
+        diskTypeEnum,
+        diskID,
+      };
+    }
+
+    // Return null or throw an error if the URL doesn't match the expected format
+    return {
+      diskTypeEnum: "",
+      diskID: "",
+    };
+  }
+  const { diskTypeEnum, diskID } = extractDiskInfo();
+
   return (
     <div style={{ marginTop: 48 }}>
       <Result
@@ -121,6 +157,19 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({ resourceID }) => {
                   Enter
                 </Button>
               </Space.Compact>
+            </Space>
+            <Divider />
+            <Space direction="vertical" size="large" style={{ width: "100%" }}>
+              <Text style={{ color: "rgba(0,0,0,0.3)" }}>
+                Or see what you have access to
+              </Text>
+              <Link
+                to={wrapOrgCode(
+                  `/drive/${diskTypeEnum}/${diskID}/shared-with-me`
+                )}
+              >
+                <Button>View Shared with Me</Button>
+              </Link>
             </Space>
           </div>
         }

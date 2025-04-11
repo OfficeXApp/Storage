@@ -80,6 +80,7 @@ import { ReduxAppState } from "./redux-offline/ReduxProvider";
 import { useIdentitySystem } from "./framework/identity";
 import { DiskTypeEnum } from "@officexapp/types";
 import FreeFileSharePreview from "./components/FreeFileSharePreview";
+import NotFoundPage from "./components/NotFound";
 
 const { Sider, Content } = Layout;
 
@@ -473,7 +474,7 @@ const RouterUI = () => {
                 element={<ApiKeyPage />}
               />
 
-              {/* Add other routes here */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Content>
         </Layout>

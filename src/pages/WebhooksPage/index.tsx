@@ -16,7 +16,10 @@ import WebhookTab from "./webhook.tab";
 import WebhooksTableList from "./webhooks.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
-import { checkWebhookTablePermissionsAction } from "../../redux-offline/webhooks/webhooks.actions";
+import {
+  checkWebhookTablePermissionsAction,
+  listWebhooksAction,
+} from "../../redux-offline/webhooks/webhooks.actions";
 import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 const { Content } = Layout;
@@ -58,6 +61,7 @@ const WebhooksPage: React.FC = () => {
   useEffect(() => {
     if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkWebhookTablePermissionsAction(currentProfile.userID));
+      dispatch(listWebhooksAction({}));
     }
   }, [currentProfile, lastChecked]);
 

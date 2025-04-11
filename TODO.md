@@ -2,6 +2,7 @@
 
 ## Overview
 
+- [🔵] Shared with me results with breadcrumbs
 - [🔵] Multi-Select Files/Folders
 - [🔵] Move/Copy Files/Folders
 

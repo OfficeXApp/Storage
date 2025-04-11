@@ -908,7 +908,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       });
     }
 
-    if (currentFolderId && listDirectoryResults) {
+    if (listDirectoryResults) {
       listDirectoryResults.breadcrumbs?.forEach((b) => {
         items.push({
           title: (
@@ -1139,7 +1139,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           flexWrap: "wrap",
         }}
       >
-        {!currentFolderId && !currentFileId && disks.length > 2 ? (
+        {isDiskRootPage && disks.length > 2 ? (
           <div
             style={{
               display: "flex",
@@ -1199,7 +1199,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         }}
       >
         <div style={{ flexGrow: 1, padding: 16, width: "100%" }}>
-          {currentFolderId && !currentFileId ? (
+          {!isDiskRootPage && !currentFileId ? (
             <div
               className="invisible-scrollbar"
               style={{
@@ -1339,7 +1339,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               style={{ marginTop: "10vh" }}
             />
           ) : isSharedWithMePage && tableRows.length === 0 ? (
-            <span>Nothing was shared with you</span>
+            <span>Nothing was shared with you yet</span>
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>
               {tableRows.length === 0 ? (

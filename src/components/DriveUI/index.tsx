@@ -1446,24 +1446,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         />
       </Modal>
 
-      <Modal
-        title="Select Destination Folder"
-        open={isMoveDirectoryModalVisible}
-        onCancel={() => setIsMoveDirectoryModalVisible(false)}
-        footer={null}
-        width={600}
-      >
-        <span style={{ marginBottom: 32, color: "rgba(0,0,0,0.4)" }}>
-          Choose where to move/copy your files to within the same disk.
-        </span>
-        <br />
-        <br />
+      {currentDisk && (
         <MoveDirectorySelector
+          visible={isMoveDirectoryModalVisible}
+          setVisible={setIsMoveDirectoryModalVisible}
           initialFolderID={(currentFolderId as FolderID) || undefined}
-          diskID={currentDiskId || undefined}
+          disk={currentDisk}
           onSelect={(folderID) => console.log("Selected folder ID:", folderID)}
+          onCancel={() => setIsMoveDirectoryModalVisible(false)}
         />
-      </Modal>
+      )}
 
       {currentFolderId && (
         <DirectorySharingDrawer

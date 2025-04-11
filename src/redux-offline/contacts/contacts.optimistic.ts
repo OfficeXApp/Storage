@@ -180,6 +180,7 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_CONTACTS_COMMIT: {
+            console.log(`LIST_CONTACTS_COMMIT optimistic`, action);
             // Extract contacts from the response
             const contacts = action.payload?.ok?.data?.items || [];
 
@@ -187,6 +188,9 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
             await db.transaction("rw", table, async () => {
               // Update or add each contact
               for (const contact of contacts) {
+                if (contact.from_placeholder_user_id) {
+                  await table.delete(contact.from_placeholder_user_id);
+                }
                 await table.put({
                   ...contact,
                   _optimisticID: contact.id,
@@ -195,9 +199,6 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncWarning: "",
                   _syncSuccess: true,
                 });
-                if (contact.from_placeholder_user_id) {
-                  await table.delete(contact.from_placeholder_user_id);
-                }
               }
             });
 

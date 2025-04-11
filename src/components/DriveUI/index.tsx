@@ -46,6 +46,9 @@ import {
   FieldTimeOutlined,
   CloudSyncOutlined,
   LoadingOutlined,
+  CopyOutlined,
+  DownloadOutlined,
+  ScissorOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -124,6 +127,7 @@ import {
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
 import DirectoryGuard from "./DirectoryGuard";
 import { useMultiUploader } from "../../framework/uploader/hook";
+import MoveDirectorySelector from "../MoveDirectorySelection";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -151,6 +155,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const isTrashBin = location.search.includes("isTrashBin=1");
   const { currentOrg, wrapOrgCode } = useIdentitySystem();
   const [showAncillary, setShowAncillary] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const [listDirectoryKey, setListDirectoryKey] = useState("");
 
@@ -162,6 +167,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     (state: ReduxAppState) => state.directory.listingDataMap[listDirectoryKey]
   );
 
+  const [isDiskRootPage, setIsDiskRootPage] = useState(false);
   const [currentDiskId, setCurrentDiskId] = useState<DiskID | null>(null);
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
@@ -188,6 +194,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [shareFolderDrawerVisible, setShareFolderDrawerVisible] =
     useState(false);
   const [isStorjModalVisible, setIsStorjModalVisible] = useState(false);
+  const [isMoveDirectoryModalVisible, setIsMoveDirectoryModalVisible] =
+    useState(false);
   const [singleFile, setSingleFile] = useState<FileFEO | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
@@ -435,7 +443,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           }),
           files: [],
         });
-
+        setSelectedRowKeys([]);
+        setIsDiskRootPage(true);
         return;
       }
 
@@ -473,7 +482,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           },
         };
         dispatch(listDirectoryPermissionsAction(payload));
-
+        setIsDiskRootPage(false);
         // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
         return;
       }
@@ -481,6 +490,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       if (targetFileId) {
         // Fetch the file
         fetchFileById(targetFileId, currentDiskId || "");
+        setIsDiskRootPage(false);
       }
     },
     [currentFolderId, disks, currentOrg, currentDiskId]
@@ -489,7 +499,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const handleBack = () => {
     // Generate breadcrumb items to find the parent folder
     const breadcrumbItems = generateBreadcrumbItems();
-
+    setSelectedRowKeys([]);
     // If we have at least 2 breadcrumb items (Drive + at least one folder)
     if (breadcrumbItems.length >= 2) {
       // Get the second-to-last breadcrumb item (parent folder)
@@ -514,6 +524,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const handleFileFolderClick = (item: DriveItemRow) => {
     if (item.isDisabled) return;
+    setSelectedRowKeys([]);
     if (item.isFolder) {
       navigate(
         wrapOrgCode(`/drive/${item.diskType}/${item.diskID}/${item.id}/`)
@@ -675,8 +686,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       {
         key: "move",
         label: "Move",
-        onClick: () => message.info(`Move ${record.title}`),
-        disabled: true,
+        onClick: () => {
+          setIsMoveDirectoryModalVisible(true);
+        },
+      },
+      {
+        key: "copy",
+        label: "Copy",
+        onClick: () => {
+          setIsMoveDirectoryModalVisible(true);
+        },
       },
       {
         key: "delete",
@@ -1013,6 +1032,33 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     return <DirectoryGuard resourceID={currentFileId} />;
   }
 
+  const manageMenuItems = [
+    {
+      key: "move",
+      icon: <ScissorOutlined />,
+      label: "Move",
+      disabled: true,
+    },
+    {
+      key: "copy",
+      icon: <CopyOutlined />,
+      label: "Copy",
+      disabled: true,
+    },
+    {
+      key: "delete",
+      icon: <DeleteOutlined />,
+      label: "Delete",
+      disabled: true,
+    },
+    {
+      key: "download",
+      icon: <DownloadOutlined />,
+      label: "Download",
+      disabled: true,
+    },
+  ];
+
   return (
     <div
       style={{
@@ -1058,7 +1104,18 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         ) : (
           <Breadcrumb items={breadcrumbItems} />
         )}
-        {currentFolderId && !currentFileId && (
+        {selectedRowKeys.length > 0 ? (
+          <Dropdown
+            menu={{ items: manageMenuItems }}
+            disabled={selectedRowKeys.length === 0}
+          >
+            <Button>
+              Bulk Manage{" "}
+              {selectedRowKeys.length > 0 ? `(${selectedRowKeys.length})` : ""}
+              <DownOutlined />
+            </Button>
+          </Dropdown>
+        ) : currentFolderId && !currentFileId ? (
           <div style={{ display: "flex", flexDirection: "row", gap: 8 }}>
             <ActionMenuButton
               isBigButton={false}
@@ -1074,7 +1131,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               Share
             </Button>
           </div>
-        )}
+        ) : null}
       </div>
 
       <div
@@ -1291,6 +1348,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 </div>
               ) : (
                 <Table
+                  {...(!isDiskRootPage && {
+                    rowSelection: {
+                      type: "checkbox",
+                      selectedRowKeys,
+                      onChange: (newSelectedRowKeys: React.Key[]) => {
+                        setSelectedRowKeys(newSelectedRowKeys);
+                      },
+                      columnWidth: 50,
+                    },
+                  })}
                   columns={columns}
                   dataSource={tableRows}
                   rowKey="id"
@@ -1317,6 +1384,25 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         <StorjSettingsCard
           onSave={handleStorjSettingsSave}
           onCancel={handleStorjSettingsCancel}
+        />
+      </Modal>
+
+      <Modal
+        title="Select Destination Folder"
+        open={isMoveDirectoryModalVisible}
+        onCancel={() => setIsMoveDirectoryModalVisible(false)}
+        footer={null}
+        width={600}
+      >
+        <span style={{ marginBottom: 32, color: "rgba(0,0,0,0.4)" }}>
+          Choose where to move/copy your files to within the same disk.
+        </span>
+        <br />
+        <br />
+        <MoveDirectorySelector
+          initialFolderID={(currentFolderId as FolderID) || undefined}
+          diskID={currentDiskId || undefined}
+          onSelect={(folderID) => console.log("Selected folder ID:", folderID)}
         />
       </Modal>
 

@@ -31,7 +31,7 @@ import { wrapAuthStringOrHeader } from "../../../api/helpers";
 export class CanisterAdapter implements IUploadAdapter {
   private baseUrl: string = "";
   private apiKey: string = "";
-  private maxChunkSize: number = 0.5 * 1024 * 1024; // 0.5MB chunks by default
+  private maxChunkSize: number = 1 * 1024 * 1024; // 1MB chunks by default
   private diskID: string = "";
 
   // Store active uploads for pause/resume/cancel

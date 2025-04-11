@@ -2,9 +2,10 @@
 
 ## Overview
 
-- [🔵] Shared with me results with breadcrumbs
 - [🔵] Multi-Select Files/Folders
 - [🔵] Move/Copy Files/Folders
+
+- [ ] Audit & Fix all loading states & caches. Add subtle loading indicators across UI pages
 
 - [🔵] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck and incorrect summary
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
@@ -93,3 +94,4 @@
 - [x] Blitzkreig the rest of the crud UI?
 - [x] Fix frontend optimistic bug where old contact still exists after superswap user redeemed
 - [x] Add 404 Pages
+- [x] Shared with me results with breadcrumbs

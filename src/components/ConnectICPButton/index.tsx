@@ -23,7 +23,8 @@ import {
   shortenAddress,
 } from "../../framework/identity/constants";
 import { useIdentitySystem } from "../../framework/identity";
-import { sleep } from "../../api/helpers";
+import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
+import { DiskTypeEnum } from "@officexapp/types";
 
 const { Text, Title } = Typography;
 
@@ -119,7 +120,7 @@ const ConnectICPButton = () => {
       // Extract ICP principal from profile UserID
       const icpPrincipal = profile.userID.replace("UserID_", "");
 
-      message.info("Redeeming Gift Card...");
+      message.info("Redeeming Gift Card...", 0);
 
       // Make the POST request to redeem the voucher
       const redeemResponse = await fetch(
@@ -151,12 +152,13 @@ const ConnectICPButton = () => {
       }
 
       await sleep(5000);
-      message.info("Minting Anonymous Blockchain...");
+      message.info("Minting Anonymous Blockchain...", 0);
       await sleep(5000);
-      message.info("Promoting you to Admin...");
+      message.info("Promoting you to Admin...", 0);
       await sleep(5000);
 
-      const { drive_id, endpoint, redeem_code } = redeemData.ok.data;
+      const { drive_id, endpoint, redeem_code, disk_auth_json } =
+        redeemData.ok.data;
 
       // Complete the organization setup
       const completeRedeemUrl = `${endpoint}/v1/${drive_id}/organization/redeem`;
@@ -238,11 +240,50 @@ const ConnectICPButton = () => {
       await switchOrganization(newOrg, profile.userID);
 
       message.success(
-        `Successfully Created Organization "${orgName}" with Gift Card`
+        `Successfully Created Organization "${orgName}" with Gift Card`,
+        0
       );
+      setGiftCardValue("");
+
+      if (disk_auth_json) {
+        try {
+          message.success("Setting up cloud storage...", 0);
+
+          // Make POST request to create disk
+          const { url, headers } = wrapAuthStringOrHeader(
+            `${adminEndpoint}/v1/${driveID}/disks/create`,
+            {},
+            password
+          );
+          const createDiskResponse = await fetch(url, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              name: "Cloud Filesharing",
+              disk_type: DiskTypeEnum.StorjWeb3,
+              public_note:
+                "Default Cloud Filesharing. Use for everything by default.",
+              private_note: "",
+              auth_json: disk_auth_json,
+            }),
+          });
+
+          if (!createDiskResponse.ok) {
+            console.error(
+              "Failed to create disk:",
+              await createDiskResponse.text()
+            );
+          } else {
+            message.success("Cloud storage configured successfully!", 0);
+          }
+        } catch (error) {
+          console.error("Error creating disk:", error);
+        }
+      }
+      await sleep(3000);
 
       // Refresh the page
-      message.success("Refreshing Page...");
+      message.success("Refreshing Page...", 0);
       window.location.reload();
     } catch (error) {
       console.error("Error connecting to cloud:", error);

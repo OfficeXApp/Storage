@@ -680,7 +680,7 @@ const OrganizationSwitcher = () => {
 
           // Make the first POST request to redeem the voucher
           const redeemResponse = await fetch(
-            `${FACTORY_CANISTER_ENDPOINT}/v1/default/giftcards/redeem`,
+            `${FACTORY_CANISTER_ENDPOINT}/v1/default/giftcards/spawnorg/redeem`,
             {
               method: "POST",
               headers: {

@@ -32,6 +32,7 @@ import EarnProgressOverview from "../EarnProgressOverview/index.js";
 import { wrapAuthStringOrHeader } from "../../api/helpers.js";
 import TagCopy from "../TagCopy/index.js";
 import Title from "antd/es/skeleton/Title.js";
+import { DEFAULT_GIFTCARD_REFUEL_VENDOR } from "../../framework/identity/constants.js";
 const { Text, Link } = Typography;
 
 const ICPCanisterSettingsCard = () => {
@@ -39,16 +40,21 @@ const ICPCanisterSettingsCard = () => {
   const { currentOrg, generateSignature, currentAPIKey } = useIdentitySystem();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [giftCardId, setGiftCardId] = useState("");
-  const [vendorEndpoint, setVendorEndpoint] = useState("");
+  const [vendorEndpoint, setVendorEndpoint] = useState(
+    DEFAULT_GIFTCARD_REFUEL_VENDOR
+  );
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [canisterAddress, setCanisterAddress] = useState("");
+  const [isRedeeming, setIsRedeeming] = useState(false);
   const [driveAbout, setDriveAbout] = useState({
     canister_id: "",
     endpoint: "",
-    gas_cycles: 0,
+    gas_cycles: "0",
     organization_id: "",
     organization_name: "",
     owner: "",
+    daily_idle_cycle_burn_rate: "1",
+    controllers: [],
   });
 
   useEffect(() => {
@@ -78,7 +84,13 @@ const ICPCanisterSettingsCard = () => {
     const billion = BigInt(1_000_000_000);
     setGasBalance(BigInt(data.gas_cycles) / billion);
     setCanisterAddress(data.canister_id);
-    setDriveAbout(data);
+    setDriveAbout({
+      ...data,
+      daily_idle_cycle_burn_rate: data.daily_idle_cycle_burn_rate.replace(
+        /_/g,
+        ""
+      ),
+    });
   };
 
   const showModal = () => {
@@ -100,10 +112,64 @@ const ICPCanisterSettingsCard = () => {
       });
   };
 
-  const handleRedeemGiftCard = () => {
-    console.log("Redeeming gift card with ID:", giftCardId);
-    console.log("Vendor endpoint:", vendorEndpoint);
-    // Logic to be implemented later
+  const handleRedeemGiftCard = async () => {
+    if (!giftCardId.trim() || !driveAbout.canister_id) {
+      message.error("Gift card ID and canister address are required");
+      return;
+    }
+
+    setIsRedeeming(true);
+    message.info("Redeeming Gift Card...");
+
+    try {
+      // Prepare the request payload
+      const payload = {
+        giftcard_id: giftCardId,
+        icp_principal: driveAbout.canister_id,
+      };
+
+      // Call the refuel endpoint
+      const redeemResponse = await fetch(
+        `${vendorEndpoint}/v1/default/giftcards/refuel/redeem`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+          // timeout: 120000 // Uncomment if you want to add a timeout
+        }
+      );
+
+      if (!redeemResponse.ok) {
+        throw new Error(
+          `Failed to redeem gift card: ${redeemResponse.statusText}`
+        );
+      }
+
+      const redeemData = await redeemResponse.json();
+
+      if (!redeemData.ok || !redeemData.ok.data) {
+        throw new Error("Invalid response from gift card redemption");
+      }
+
+      message.success("Gift card redeemed successfully!");
+
+      // Clear the form fields
+      setGiftCardId("");
+
+      // Refresh the gas balance
+      await checkGasBalance();
+
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error("Error redeeming gift card:", error);
+      message.error(
+        `Failed to redeem gift card: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    } finally {
+      setIsRedeeming(false);
+    }
   };
 
   const renderAdvancedDetails = () => {
@@ -263,9 +329,17 @@ const ICPCanisterSettingsCard = () => {
             value={Number(gasBalance)}
             precision={0}
             suffix={
-              <i style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.3)" }}>
-                Billion Cycles
-              </i>
+              <Tooltip
+                title={
+                  gasBalance === 0n
+                    ? "Daily idle burn rate stats will appear here"
+                    : `Daily idle burn rate of ${(BigInt(driveAbout.daily_idle_cycle_burn_rate.replace(/_/g, "")) / 1_000_000n).toString()} million gas cycles. Approximately ${(gasBalance * BigInt(1_000_000_000)) / BigInt(driveAbout.daily_idle_cycle_burn_rate)} days remaining.`
+                }
+              >
+                <i style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.3)" }}>
+                  Billion Cycles <QuestionCircleOutlined />
+                </i>
+              </Tooltip>
             }
           />
 
@@ -336,6 +410,7 @@ const ICPCanisterSettingsCard = () => {
                   type="primary"
                   onClick={handleRedeemGiftCard}
                   disabled={!giftCardId || (showAdvanced && !vendorEndpoint)}
+                  loading={isRedeeming}
                 >
                   Redeem Gift Card
                 </Button>

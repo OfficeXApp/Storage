@@ -173,7 +173,7 @@ const ProfileSettingsCard = () => {
           <Text strong>Local API Key</Text>
           <div style={{ marginTop: 8 }}>
             <Input.Password
-              value={apiKeyValue}
+              value={apiKeyValue || "Offline Organization has no API Key"}
               onChange={(e) => setApiKeyValue(e.target.value)}
               prefix={
                 isEditingApiKey ? (
@@ -181,7 +181,13 @@ const ProfileSettingsCard = () => {
                     onClick={() => setIsEditingApiKey(false)}
                   />
                 ) : (
-                  <CopyOutlined onClick={() => copyToClipboard(apiKeyValue)} />
+                  <CopyOutlined
+                    onClick={() =>
+                      copyToClipboard(
+                        apiKeyValue || "Offline Organization has no API Key"
+                      )
+                    }
+                  />
                 )
               }
               readOnly={!isEditingApiKey}

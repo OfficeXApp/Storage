@@ -371,6 +371,7 @@ const ConnectICPButton = () => {
             type="primary"
             onClick={connectICP}
             style={{ width: "100%" }}
+            disabled={!giftCardValue || !orgName || !selectedProfileId}
           >
             Connect Cloud
           </Button>

@@ -1427,7 +1427,6 @@ const OrganizationSwitcher = () => {
         listItemHeight={40}
         listHeight={256}
       />
-      {/* <EarnProgressOverview /> */}
 
       {renderAddOrgModal()}
       {renderEditEnterOrgModal()}

@@ -62,7 +62,7 @@ import {
 import useScreenType from "react-screentype-hook";
 import ActionMenuButton from "../ActionMenuButton";
 import UploadDropZone from "../UploadDropZone";
-import StorjSettingsCard from "../StorjSettingsCard";
+
 import FilePage from "../FilePage";
 import { isMobile } from "react-device-detect";
 import { getFileType, sleep } from "../../api/helpers";
@@ -156,6 +156,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const dispatch = useDispatch();
   const isTrashBin = location.search.includes("isTrashBin=1");
   const { currentOrg, wrapOrgCode } = useIdentitySystem();
+  const [refreshToken, setRefreshToken] = useState("");
   const [showAncillary, setShowAncillary] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<(FileID | FolderID)[]>(
     []
@@ -201,7 +202,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   );
   const [shareFolderDrawerVisible, setShareFolderDrawerVisible] =
     useState(false);
-  const [isStorjModalVisible, setIsStorjModalVisible] = useState(false);
   const [isMoveDirectoryModalVisible, setIsMoveDirectoryModalVisible] =
     useState(false);
   const [singleFile, setSingleFile] = useState<FileFEO | null>(null);
@@ -338,7 +338,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
     //   setIsStorjModalVisible(true);
     // }
-  }, [location, showAncillary]);
+  }, [location, showAncillary, refreshToken]);
 
   const fetchFileById = (fileId: FileID, diskID: DiskID) => {
     // return;
@@ -376,15 +376,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         ? true
         : false;
     return isSet;
-  };
-
-  const handleStorjSettingsSave = () => {
-    setIsStorjModalVisible(false);
-    if (currentFolderId) {
-      fetchContent({
-        targetFolderId: currentFolderId,
-      });
-    }
   };
 
   // Fetch content based on folder ID
@@ -425,6 +416,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 `${disk.disk_type}::/` as DriveClippedFilePath,
               permission_previews: [],
               hasDiskTrash: disk.trash_folder,
+              public_note: disk.public_note,
               isAncillary:
                 disks.length > 3
                   ? disk.id === defaultBrowserCacheDiskID ||
@@ -451,7 +443,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           folder_id: targetFolderId,
           page_size: 100,
           direction: SortDirection.ASC,
-          permission_previews: [],
         };
         const _listDirectoryKey = generateListDirectoryKey(listParams);
         setListDirectoryKey(_listDirectoryKey);
@@ -493,7 +484,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           disk_id: currentDiskId,
           page_size: 100,
           direction: SortDirection.ASC,
-          permission_previews: [],
         };
         const _listDirectoryKey = generateListDirectoryKey(listParams);
         setListDirectoryKey(_listDirectoryKey);
@@ -532,7 +522,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const appendRefreshParam = () => {
     const params = new URLSearchParams(location.search);
-    params.set("refresh", uuidv4());
+    const refreshToken = uuidv4();
+    params.set("refresh", refreshToken);
+    setRefreshToken(refreshToken);
     navigate(`${location.pathname}?${params.toString()}`);
   };
 
@@ -655,9 +647,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 }}
                 style={{ color: "gray", width: "100%" }}
               >
-                {record.expires_at === -1
-                  ? `Active`
-                  : `Expires ${dayjs(record.expires_at).fromNow()}`}
+                {record.hasDiskTrash
+                  ? (record as any).public_note
+                  : record.expires_at === -1
+                    ? `Active`
+                    : `Expires ${dayjs(record.expires_at).fromNow()}`}
               </span>
             );
           }
@@ -934,6 +928,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           expires_at: f.expires_at,
           hasDiskTrash: (f as any).hasDiskTrash,
           permission_previews: f.permission_previews,
+          public_note: (f as any).public_note,
         })),
       ...content.files.map((f) => ({
         id: f.id,
@@ -1022,13 +1017,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     });
   };
 
-  const handleStorjSettingsCancel = () => {
-    if (!areStorjSettingsSet()) {
-      navigate(wrapOrgCode("/drive"));
-    }
-    setIsStorjModalVisible(false);
-  };
-
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
     return <DirectoryGuard resourceID={currentFolderId} />;
@@ -1044,13 +1032,19 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       key: "move",
       icon: <ScissorOutlined />,
       label: "Move",
-      disabled: true,
+      onClick: () => {
+        setIsMoveDirectoryModalVisible(true);
+        setModalMoveCopyOperation("move");
+      },
     },
     {
       key: "copy",
       icon: <CopyOutlined />,
       label: "Copy",
-      disabled: true,
+      onClick: () => {
+        setIsMoveDirectoryModalVisible(true);
+        setModalMoveCopyOperation("copy");
+      },
     },
     {
       key: "delete",
@@ -1401,20 +1395,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           )}
         </div>
       </div>
-
-      <Modal
-        open={isStorjModalVisible}
-        onCancel={() => setIsStorjModalVisible(false)}
-        footer={null}
-        width={600}
-        maskClosable={areStorjSettingsSet()}
-        closable={areStorjSettingsSet()}
-      >
-        <StorjSettingsCard
-          onSave={handleStorjSettingsSave}
-          onCancel={handleStorjSettingsCancel}
-        />
-      </Modal>
 
       {currentDisk && isMoveDirectoryModalVisible && (
         <MoveDirectorySelector

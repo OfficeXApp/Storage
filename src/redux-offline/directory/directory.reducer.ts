@@ -88,7 +88,7 @@ export interface FileFEO extends FileRecordFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
-  breadcrumbs: FilePathBreadcrumb[];
+  breadcrumbs?: FilePathBreadcrumb[];
 }
 
 export interface FolderFEO extends FolderRecordFE {

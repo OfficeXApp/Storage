@@ -2,14 +2,14 @@
 
 ## Overview
 
-- [🔵] Multi-Select Files/Folders
-- [🔵] Move/Copy Files/Folders
+- [🔵] Refactor settings page, including redeem gas gift card
 
 - [ ] Audit & Fix all loading states & caches. Add subtle loading indicators across UI pages
 
 - [🔵] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck and incorrect summary
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
+- [ ] Add bulk delete & single file page move/copy/delete
 
 1. Directory navigation & interaction (1-2 days)
 1. Offline JS functionality replica (1-2 days)
@@ -23,7 +23,6 @@
 - [ ] When adding a new org, dont just refresh page, go to /contacts just in case
 - [ ] Default offline contacts / api keys
 - [ ] Fix bugs when removing an org or profile, proper redirects, etc
-- [ ] Refactor settings page
 - [ ] Smart sidemenu nav opens closes based on which page
 - [ ] Clear optimistic cache when 401 unauthorized
 - [ ] Cache bug where switching from owner to anon account, the anon seems to copy cache of admin... investigate
@@ -44,8 +43,6 @@
 ## Backlog
 
 - [ ] Add onEnter to submit forms
-- [ ] In organization settings, for current user, ability to change the api key
-- [ ] In settings page, a special modal for generating an auth signature (for developer convinence such as when they want a temp auth token or call the `/api-keys/create` endpoint)
 - [ ] User initiated superswap_userid as a form of account "recovery" when they've lost/compromised their seed phrase. This should be added as a permission with grantee being a user/group etc.
 
 ## Done
@@ -95,3 +92,7 @@
 - [x] Fix frontend optimistic bug where old contact still exists after superswap user redeemed
 - [x] Add 404 Pages
 - [x] Shared with me results with breadcrumbs
+- [x] Multi-Select Files/Folders
+- [x] Move/Copy Files/Folders
+- [x] In organization settings, for current user, ability to change the api key
+- [x] In settings page, a special modal for generating an auth signature (for developer convinence such as when they want a temp auth token or call the `/api-keys/create` endpoint)

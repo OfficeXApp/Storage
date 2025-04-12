@@ -871,6 +871,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const generateBreadcrumbItems = () => {
     const items = [{ title: <Link to={wrapOrgCode("/drive")}>Drive</Link> }];
 
+    // For files, use only the file's breadcrumbs
     if (currentFileId && getFileResult) {
       getFileResult.breadcrumbs?.forEach((b) => {
         items.push({
@@ -885,8 +886,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           ),
         });
       });
+      return items; // Return early to avoid using listDirectoryResults breadcrumbs
     }
 
+    // For folders, use only the directory listing breadcrumbs
     if (listDirectoryResults) {
       listDirectoryResults.breadcrumbs?.forEach((b) => {
         items.push({
@@ -1352,6 +1355,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       <ActionMenuButton
                         isBigButton={false}
                         toggleUploadPanel={toggleUploadPanel}
+                        optimisticListDirectoryKey={listDirectoryKey}
                       />
                     }
                     style={{

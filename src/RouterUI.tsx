@@ -78,9 +78,14 @@ import {
 import { useSelector } from "react-redux";
 import { ReduxAppState } from "./redux-offline/ReduxProvider";
 import { useIdentitySystem } from "./framework/identity";
-import { DiskTypeEnum } from "@officexapp/types";
+import {
+  DiskTypeEnum,
+  IRequestListDirectory,
+  SortDirection,
+} from "@officexapp/types";
 import FreeFileSharePreview from "./components/FreeFileSharePreview";
 import NotFoundPage from "./components/NotFound";
+import { generateListDirectoryKey } from "./redux-offline/directory/directory.actions";
 
 const { Sider, Content } = Layout;
 
@@ -250,6 +255,7 @@ function ExternalRedirect({ url }: { url: string }) {
 const RouterUI = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const screenType = useScreenType();
+  const { currentOrg } = useIdentitySystem();
 
   const [uploadPanelVisible, setUploadPanelVisible] = useState(false);
 
@@ -315,10 +321,12 @@ const RouterUI = () => {
                 >
                   <ConnectICPButton />
 
-                  <ActionMenuButton
-                    isBigButton={true}
-                    toggleUploadPanel={setUploadPanelVisible}
-                  />
+                  {currentOrg && currentOrg.endpoint && (
+                    <ActionMenuButton
+                      isBigButton={true}
+                      toggleUploadPanel={setUploadPanelVisible}
+                    />
+                  )}
                 </section>
                 <SideMenu />
               </div>
@@ -340,7 +348,11 @@ const RouterUI = () => {
                 path="/"
                 element={
                   <Navigate
-                    to={`/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingRootFolderID}/`}
+                    to={
+                      currentOrg && currentOrg.endpoint
+                        ? `/org/current/drive/`
+                        : `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingRootFolderID}/`
+                    }
                   />
                 }
               />

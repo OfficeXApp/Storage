@@ -32,7 +32,7 @@ import {
   IndexDB_Organization,
   useIdentitySystem,
 } from "../../framework/identity";
-import { DriveID } from "@officexapp/types";
+import { DiskTypeEnum, DriveID } from "@officexapp/types";
 import {
   FACTORY_CANISTER_ENDPOINT,
   shortenAddress,
@@ -721,7 +721,10 @@ const OrganizationSwitcher = () => {
 
           await sleep(5000);
 
-          const { drive_id, endpoint, redeem_code } = redeemData.ok.data;
+          console.log(`redeem data spawn org`, redeemData.ok.data);
+
+          const { drive_id, endpoint, redeem_code, disk_auth_json } =
+            redeemData.ok.data;
 
           // Step 2: Make the second POST request to complete the organization setup
           const completeRedeemUrl = `${endpoint}/v1/${drive_id}/organization/redeem`;
@@ -813,11 +816,49 @@ const OrganizationSwitcher = () => {
           await switchOrganization(newOrg, profile.userID);
 
           message.success(
-            `Successfully Created Organization "${orgNickToUse}" with Gift Card`
+            `Successfully Created Organization "${orgNickToUse}" with Gift Card`,
+            0
           );
           setGiftCardValue("");
 
-          message.success("Refreshing Page...");
+          if (disk_auth_json) {
+            try {
+              message.success("Setting up cloud storage...", 0);
+
+              // Make POST request to create disk
+              const { url, headers } = wrapAuthStringOrHeader(
+                `${adminEndpoint}/v1/${driveID}/disks/create`,
+                {},
+                password
+              );
+              const createDiskResponse = await fetch(url, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                  name: "Cloud Filesharing",
+                  disk_type: DiskTypeEnum.StorjWeb3,
+                  public_note:
+                    "Default Cloud Filesharing. Use for everything by default.",
+                  private_note: "",
+                  auth_json: disk_auth_json,
+                }),
+              });
+
+              if (!createDiskResponse.ok) {
+                console.error(
+                  "Failed to create disk:",
+                  await createDiskResponse.text()
+                );
+              } else {
+                message.success("Cloud storage configured successfully!", 0);
+              }
+            } catch (error) {
+              console.error("Error creating disk:", error);
+            }
+          }
+          await sleep(3000);
+
+          message.success("Refreshing Page...", 0);
           window.location.reload();
 
           setIsModalVisible(false);
@@ -848,7 +889,8 @@ const OrganizationSwitcher = () => {
         await switchOrganization(newOrg, selectedProfileId);
 
         message.success(
-          `Organization "${newOrgNickname}" created successfully!`
+          `Organization "${newOrgNickname}" created successfully!`,
+          0
         );
         setIsModalVisible(false);
       }

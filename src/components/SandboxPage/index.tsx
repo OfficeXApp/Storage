@@ -209,7 +209,7 @@ const SandboxPage = () => {
       <br />
       <br />
       <br />
-      <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>
+      <Footer style={{ textAlign: "center" }}>OfficeX ©2025</Footer>
     </Layout>
   );
 };

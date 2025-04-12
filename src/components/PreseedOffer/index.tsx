@@ -671,7 +671,7 @@ const PreseedOffer: React.FC = () => {
           <Divider />
         </div>
       </Content>
-      <Footer style={{ textAlign: "center" }}>OfficeX ©2024</Footer>
+      <Footer style={{ textAlign: "center" }}>OfficeX ©2025</Footer>
     </Layout>
   );
 };

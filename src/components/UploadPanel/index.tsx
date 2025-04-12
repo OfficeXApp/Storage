@@ -115,7 +115,6 @@ const UploadPanel: React.FC<{
           parentFolderID: uploadTargetFolderID || "",
           listDirectoryKey: generateListDirectoryKey({
             folder_id: uploadTargetFolderID || undefined,
-            permission_previews: [],
           }),
         });
       } else {

@@ -56,3 +56,6 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
 
 export const FACTORY_CANISTER_ENDPOINT =
   "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000";
+
+export const DEFAULT_GIFTCARD_REFUEL_VENDOR =
+  "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000";

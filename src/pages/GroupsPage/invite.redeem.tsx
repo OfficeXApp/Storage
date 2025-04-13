@@ -138,8 +138,8 @@ const RedeemGroupInvite = () => {
     const redeem_payload = {
       invite_id: data.invite_id,
       user_id: selectedProfile.userID,
-      redeem_code: data.redeem_code,
-      note: `Redeemed by ${selectedProfile.nickname || "user"} on ${new Date().toLocaleString()}`,
+      redeem_code: data.redeem_code || "",
+      // note: `Redeemed by ${selectedProfile.nickname || "user"} on ${new Date().toLocaleString()}`,
     };
 
     // Call the API to redeem the group invite

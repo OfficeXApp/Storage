@@ -877,6 +877,8 @@ const data = await response.json();`;
                                   )
                                 ) {
                                   alt_display_name = "Awaiting Anon";
+                                } else if (member.user_id === "PUBLIC") {
+                                  alt_display_name = "Public Invite Link";
                                 } else if (!member.name) {
                                   alt_display_name = "Unnamed Contact";
                                 }
@@ -961,6 +963,11 @@ const data = await response.json();`;
                                             {
                                               key: "copy-invite",
                                               label: "Copy Invite",
+                                              disabled:
+                                                member.user_id !== "PUBLIC" &&
+                                                !member.user_id.startsWith(
+                                                  "PlaceholderGroupInviteeID_"
+                                                ),
                                               onClick: async () => {
                                                 console.log("Copy invite");
                                                 if (!currentOrg) return;
@@ -980,51 +987,57 @@ const data = await response.json();`;
                                                     },
                                                     auth_token
                                                   );
-                                                const get_invite_response =
-                                                  await fetch(url, {
-                                                    method: "GET",
-                                                    headers,
-                                                  });
-                                                const res =
-                                                  await get_invite_response.json();
-                                                console.log(
-                                                  "get_invite_response",
-                                                  res
-                                                );
-                                                const invite = res.ok.data;
-                                                // and then create the magic link from FileRecordFE/FolderRecordFE data
-                                                const groupInviteRedeemLink =
-                                                  generateRedeemGroupInviteURL(
-                                                    {
-                                                      invite_id: invite.id,
-                                                      redeem_code:
-                                                        invite.redeem_code,
-                                                      redirect_url: `${window.location.origin}${wrapOrgCode(`/resources/groups/${invite.group_id}`)}`,
-                                                      group_name:
-                                                        invite.group_name,
-                                                      org_name:
-                                                        currentOrg.nickname,
-                                                      role: invite.role,
-                                                      daterange: {
-                                                        begins_at:
-                                                          invite.active_from,
-                                                        expires_at:
-                                                          invite.expires_at,
-                                                      },
-                                                    },
-                                                    wrapOrgCode
+                                                try {
+                                                  const get_invite_response =
+                                                    await fetch(url, {
+                                                      method: "GET",
+                                                      headers,
+                                                    });
+                                                  const res =
+                                                    await get_invite_response.json();
+                                                  console.log(
+                                                    "get_invite_response",
+                                                    res
                                                   );
-                                                console.log(
-                                                  `groupInviteRedeemLink`,
-                                                  groupInviteRedeemLink
-                                                );
-                                                // and auto-copy to clipboard with ant message.success()
-                                                navigator.clipboard.writeText(
-                                                  groupInviteRedeemLink
-                                                );
-                                                message.success(
-                                                  "Copied invite link"
-                                                );
+                                                  const invite = res.ok.data;
+                                                  // and then create the magic link from FileRecordFE/FolderRecordFE data
+                                                  const groupInviteRedeemLink =
+                                                    generateRedeemGroupInviteURL(
+                                                      {
+                                                        invite_id: invite.id,
+                                                        redeem_code:
+                                                          invite.redeem_code,
+                                                        redirect_url: `${window.location.origin}${wrapOrgCode(`/resources/groups/${invite.group_id}`)}`,
+                                                        group_name:
+                                                          invite.group_name,
+                                                        org_name:
+                                                          currentOrg.nickname,
+                                                        role: invite.role,
+                                                        daterange: {
+                                                          begins_at:
+                                                            invite.active_from,
+                                                          expires_at:
+                                                            invite.expires_at,
+                                                        },
+                                                      },
+                                                      wrapOrgCode
+                                                    );
+                                                  console.log(
+                                                    `groupInviteRedeemLink`,
+                                                    groupInviteRedeemLink
+                                                  );
+                                                  // and auto-copy to clipboard with ant message.success()
+                                                  navigator.clipboard.writeText(
+                                                    groupInviteRedeemLink
+                                                  );
+                                                  message.success(
+                                                    "Copied invite link"
+                                                  );
+                                                } catch (e) {
+                                                  message.error(
+                                                    "Failed to get invite link"
+                                                  );
+                                                }
                                               },
                                             },
                                             {
@@ -1065,7 +1078,9 @@ const data = await response.json();`;
                                             "PlaceholderGroupInviteeID_"
                                           )
                                         ? "Awaiting Anon"
-                                        : "Unnamed Contact"}
+                                        : member.user_id === "PUBLIC"
+                                          ? "Public Invite Link"
+                                          : "Unnamed Contact"}
                                   </Text>
                                   {member.user_id.startsWith(
                                     "PlaceholderGroupInviteeID_"

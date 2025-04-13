@@ -43,6 +43,8 @@ import {
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { shortenAddress } from "../../framework/identity/constants";
 import TagCopy from "../../components/TagCopy";
+import { getGroupAction } from "../../redux-offline/groups/groups.actions";
+import { sleep } from "../../api/helpers";
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -137,7 +139,7 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
     setFormChanged(true);
   };
 
-  const handleDeleteInvite = () => {
+  const handleDeleteInvite = async () => {
     if (!currentInvite) return;
 
     const deletePayload: IRequestDeleteGroupInvite = {
@@ -152,6 +154,8 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
         : "Queued group invite deletion for when you're back online"
     );
 
+    dispatch(getGroupAction(currentInvite.group_id));
+    await sleep(1000);
     onClose();
   };
 
@@ -251,7 +255,6 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
       onClose={onClose}
       open={open}
       width={500}
-      mask={false}
       footer={
         <div
           style={{
@@ -336,7 +339,9 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
                     ? member.name
                     : member.user_id.startsWith("PlaceholderGroupInviteeID_")
                       ? "Awaiting Anon"
-                      : "Unnamed Contact"}
+                      : member.user_id === "PUBLIC"
+                        ? "Public Invite Link"
+                        : "Unnamed Contact"}
                 </Text>
                 &nbsp; &nbsp;
                 <Tag>

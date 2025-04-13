@@ -2,7 +2,6 @@
 
 ## Overview
 
-- [🔵] Search results page
 - [ ] Audit & Fix all loading states & caches. Add subtle loading indicators across UI pages
 
 - [🔵] Fix bug where uploading large files to canister/storj/s3 will succeed but appear blue progress bar stuck and incorrect summary
@@ -96,3 +95,4 @@
 - [x] In organization settings, for current user, ability to change the api key
 - [x] In settings page, a special modal for generating an auth signature (for developer convinence such as when they want a temp auth token or call the `/api-keys/create` endpoint)
 - [x] Refactor settings page, including redeem gas gift card
+- [x] Search results page

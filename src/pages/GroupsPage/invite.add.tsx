@@ -40,9 +40,14 @@ import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { shortenAddress } from "../../framework/identity/constants";
 import { useIdentitySystem } from "../../framework/identity";
 import { GroupFEO } from "../../redux-offline/groups/groups.reducer";
-import { urlSafeBase64Encode, wrapAuthStringOrHeader } from "../../api/helpers";
+import {
+  sleep,
+  urlSafeBase64Encode,
+  wrapAuthStringOrHeader,
+} from "../../api/helpers";
 import { generateRedeemGroupInviteURL } from "./invite.redeem";
 import dayjs from "dayjs";
+import { getGroupAction } from "../../redux-offline/groups/groups.actions";
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -108,7 +113,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
   >(null);
   const [selectedRole, setSelectedRole] = useState<GroupRole>(GroupRole.MEMBER);
   const [note, setNote] = useState("");
-
+  const [inviteCreated, setInviteCreated] = useState("");
   const [form] = Form.useForm();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [inviteType, setInviteType] = useState<InviteType>(
@@ -140,6 +145,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
       setDateRange(null);
       setNote("");
       setSelectedRole(GroupRole.MEMBER);
+      setInviteCreated("");
     }
   }, [open, form]);
 
@@ -252,6 +258,8 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
       setLinkGenerated(true);
       setGeneratingLink(false);
 
+      dispatch(getGroupAction(group.id));
+
       message.success(
         isOnline
           ? "Magic invite link generated!"
@@ -268,9 +276,11 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
   };
 
   const handleCreateInvite = () => {
+    if (!currentOrg) return;
     form
       .validateFields()
-      .then((values) => {
+      .then(async (values) => {
+        setGeneratingLink(true);
         let inviteeId: string | undefined;
 
         switch (inviteType) {
@@ -294,7 +304,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
           case InviteType.MAGIC_LINK:
             // For magic link, we'll use the same flow as generateMagicLink
             generateMagicLink();
-            onClose();
+            // onClose();
             return;
         }
 
@@ -321,7 +331,48 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
         };
 
         // Dispatch action to create group invite
-        dispatch(createGroupInviteAction(groupInviteData));
+        // dispatch(createGroupInviteAction(groupInviteData));
+        const auth_token = currentAPIKey?.value || (await generateSignature());
+        const { url, headers } = wrapAuthStringOrHeader(
+          `${currentOrg.endpoint}/v1/${currentOrg.driveID}/groups/invites/create`,
+          {
+            "Content-Type": "application/json",
+          },
+          auth_token
+        );
+        const create_group_response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(groupInviteData),
+        });
+        const res = await create_group_response.json();
+
+        if (res.ok.data) {
+          const data = res.ok.data;
+          const groupInviteRedeemLink = generateRedeemGroupInviteURL(
+            {
+              invite_id: data.id,
+              redeem_code: data.redeem_code,
+              redirect_url: `${window.location.origin}${wrapOrgCode(`/resources/groups/${data.group_id}`)}`,
+              group_name: data.group_name,
+              org_name: currentOrg.nickname,
+              role: data.role,
+              daterange: {
+                begins_at: data.active_from,
+                expires_at: data.expires_at,
+              },
+            },
+            wrapOrgCode
+          );
+          console.log(`groupInviteRedeemLink`, groupInviteRedeemLink);
+          setInviteCreated(groupInviteRedeemLink);
+
+          message.success(
+            isOnline
+              ? "Invite link generated!"
+              : "Queued invite creation for when you're back online"
+          );
+        }
 
         message.success(
           isOnline
@@ -329,8 +380,11 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             : `Queued ${inviteType === InviteType.PUBLIC ? "public" : ""} group invite creation for when you're back online`
         );
 
+        dispatch(getGroupAction(group.id));
+
+        setGeneratingLink(false);
         // Close the drawer
-        onClose();
+        // onClose();
       })
       .catch((error) => {
         console.error("Validation failed:", error);
@@ -363,23 +417,49 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
       open={open}
       width={500}
       footer={
-        <div style={{ textAlign: "right" }}>
-          <Button size="large" onClick={onClose} style={{ marginRight: 8 }}>
-            Cancel
-          </Button>
-          {inviteType !== InviteType.MAGIC_LINK && (
-            <Button
-              onClick={handleCreateInvite}
-              type="primary"
-              size="large"
-              disabled={!isAdvancedOpen}
-            >
-              {inviteType === InviteType.PUBLIC
-                ? "Create Public Invite"
-                : "Create Invite"}
+        inviteCreated ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Button size="large" onClick={onClose}>
+              Close
             </Button>
-          )}
-        </div>
+            <Input
+              size="large"
+              value={inviteCreated}
+              readOnly
+              style={{ flexGrow: 1 }}
+            />
+            <Button
+              size="large"
+              type="primary"
+              icon={<CopyOutlined />}
+              onClick={() => {
+                navigator.clipboard.writeText(inviteCreated);
+                message.success(`Copied link`);
+              }}
+            >
+              Copy Link
+            </Button>
+          </div>
+        ) : (
+          <div style={{ textAlign: "right" }}>
+            <Button size="large" onClick={onClose} style={{ marginRight: 8 }}>
+              Cancel
+            </Button>
+            {inviteType !== InviteType.MAGIC_LINK && (
+              <Button
+                onClick={handleCreateInvite}
+                type="primary"
+                size="large"
+                loading={generatingLink}
+                disabled={!isAdvancedOpen}
+              >
+                {inviteType === InviteType.PUBLIC
+                  ? "Create Public Invite"
+                  : "Create Invite"}
+              </Button>
+            )}
+          </div>
+        )
       }
     >
       <Form
@@ -413,7 +493,8 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
                 onClick={generateMagicLink}
                 loading={generatingLink}
                 disabled={
-                  isAdvancedOpen && inviteType !== InviteType.MAGIC_LINK
+                  (isAdvancedOpen && inviteType !== InviteType.MAGIC_LINK) ||
+                  !!inviteCreated
                 }
               >
                 {linkGenerated ? "Generate Another" : "Generate Magic Link"}

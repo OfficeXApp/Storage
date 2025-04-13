@@ -105,11 +105,16 @@ export const groupsReducer = (
       const optimisticID = action.meta?.optimisticID;
       const groupData = action.payload.ok.data;
 
+      console.log("GET_GROUP_COMMIT reducer", groupData, state.groups);
+
       // Update the optimistic group with the real data
       return {
         ...state,
         groups: state.groups.map((group) => {
-          if (group._optimisticID === optimisticID) {
+          if (
+            group._optimisticID === optimisticID ||
+            group.id === groupData.id
+          ) {
             return groupData;
           }
           return group;

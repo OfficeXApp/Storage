@@ -251,7 +251,6 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
       onClose={onClose}
       open={open}
       width={500}
-      mask={false}
       footer={
         <div
           style={{

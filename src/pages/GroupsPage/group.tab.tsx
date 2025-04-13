@@ -36,6 +36,7 @@ import {
   CodeOutlined,
   LockOutlined,
   SisternodeOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
 import {
   GroupFE,
@@ -57,11 +58,13 @@ import {
   updateGroupAction,
 } from "../../redux-offline/groups/groups.actions";
 import AddGroupInviteDrawer from "./invite.add";
-import { getLastOnlineStatus } from "../../api/helpers";
+import { getLastOnlineStatus, wrapAuthStringOrHeader } from "../../api/helpers";
 import EditGroupInviteDrawer from "./invite.edit";
 import PermissionsManager from "../../components/PermissionsManager";
 import WebhookManager from "../../components/WebhookManager";
 import { useNavigate } from "react-router-dom";
+import { useIdentitySystem } from "../../framework/identity";
+import { generateRedeemGroupInviteURL } from "./invite.redeem";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -90,6 +93,8 @@ const GroupTab: React.FC<GroupTabProps> = ({ group, onSave, onDelete }) => {
   const [inviteForEdit, setInviteForEdit] = useState<GroupMemberPreview | null>(
     null
   );
+  const { currentAPIKey, currentOrg, generateSignature, wrapOrgCode } =
+    useIdentitySystem();
   const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -946,6 +951,100 @@ const data = await response.json();`;
                                         onClick={() => setInviteForEdit(member)}
                                         style={{ color: "#1890ff" }}
                                       />
+                                    )}
+                                    {group.permission_previews?.includes(
+                                      SystemPermissionType.EDIT
+                                    ) && (
+                                      <Dropdown
+                                        menu={{
+                                          items: [
+                                            {
+                                              key: "copy-invite",
+                                              label: "Copy Invite",
+                                              onClick: async () => {
+                                                console.log("Copy invite");
+                                                if (!currentOrg) return;
+                                                // we must make a REST call to /v1/driveid/team-invites/get/{invite_id}
+                                                message.info(
+                                                  "Getting invite link..."
+                                                );
+                                                const auth_token =
+                                                  currentAPIKey?.value ||
+                                                  (await generateSignature());
+                                                const { url, headers } =
+                                                  wrapAuthStringOrHeader(
+                                                    `${currentOrg.endpoint}/v1/${currentOrg.driveID}/groups/invites/get/${member.invite_id}`,
+                                                    {
+                                                      "Content-Type":
+                                                        "application/json",
+                                                    },
+                                                    auth_token
+                                                  );
+                                                const get_invite_response =
+                                                  await fetch(url, {
+                                                    method: "GET",
+                                                    headers,
+                                                  });
+                                                const res =
+                                                  await get_invite_response.json();
+                                                console.log(
+                                                  "get_invite_response",
+                                                  res
+                                                );
+                                                const invite = res.ok.data;
+                                                // and then create the magic link from FileRecordFE/FolderRecordFE data
+                                                const groupInviteRedeemLink =
+                                                  generateRedeemGroupInviteURL(
+                                                    {
+                                                      invite_id: invite.id,
+                                                      redeem_code:
+                                                        invite.redeem_code,
+                                                      redirect_url: `${window.location.origin}${wrapOrgCode(`/resources/groups/${invite.group_id}`)}`,
+                                                      group_name:
+                                                        invite.group_name,
+                                                      org_name:
+                                                        currentOrg.nickname,
+                                                      role: invite.role,
+                                                      daterange: {
+                                                        begins_at:
+                                                          invite.active_from,
+                                                        expires_at:
+                                                          invite.expires_at,
+                                                      },
+                                                    },
+                                                    wrapOrgCode
+                                                  );
+                                                console.log(
+                                                  `groupInviteRedeemLink`,
+                                                  groupInviteRedeemLink
+                                                );
+                                                // and auto-copy to clipboard with ant message.success()
+                                                navigator.clipboard.writeText(
+                                                  groupInviteRedeemLink
+                                                );
+                                                message.success(
+                                                  "Copied invite link"
+                                                );
+                                              },
+                                            },
+                                            {
+                                              key: "delete",
+                                              label: "Delete",
+                                              onClick: () => {
+                                                setInviteForEdit(member);
+                                              },
+                                            },
+                                          ],
+                                        }}
+                                        trigger={["click"]}
+                                      >
+                                        <Button
+                                          type="link"
+                                          icon={<MoreOutlined />}
+                                          size="large"
+                                          style={{ color: "gray" }}
+                                        />
+                                      </Dropdown>
                                     )}
                                   </div>,
                                 ]}

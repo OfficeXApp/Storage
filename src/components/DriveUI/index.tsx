@@ -49,6 +49,8 @@ import {
   CopyOutlined,
   DownloadOutlined,
   ScissorOutlined,
+  SyncOutlined,
+  CloudOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -604,7 +606,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 />
               ) : (
                 <>
-                  {record.isFolder ? (
+                  {(record as any).hasDiskTrash ? (
+                    <CloudOutlined />
+                  ) : record.isFolder ? (
                     <FolderOpenFilled />
                   ) : record ? (
                     renderIconForFile(record.title)
@@ -1157,9 +1161,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               }}
             >
               <Button
-                onClick={handleBack}
                 type="link"
-                icon={<ArrowLeftOutlined />}
+                icon={<ArrowLeftOutlined onClick={handleBack} />}
                 style={{
                   padding: 0,
                   color: "inherit",
@@ -1167,11 +1170,19 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   margin: "0px 8px 0px 0px",
                 }}
               >
-                Back{" "}
+                <span onClick={handleBack}>Back </span>{" "}
                 {(listDirectoryResults && listDirectoryResults.isLoading) ||
                 (getFileResult && (getFileResult as any).isLoading) ? (
                   <LoadingOutlined />
-                ) : null}
+                ) : (
+                  <SyncOutlined
+                    onClick={() => {
+                      message.info("Refetching directory...");
+                      appendRefreshParam();
+                    }}
+                    style={{ color: "rgba(0,0,0,0.2)" }}
+                  />
+                )}
               </Button>
 
               <div

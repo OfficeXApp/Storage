@@ -86,6 +86,7 @@ import {
 import FreeFileSharePreview from "./components/FreeFileSharePreview";
 import NotFoundPage from "./components/NotFound";
 import { generateListDirectoryKey } from "./redux-offline/directory/directory.actions";
+import SearchResultsPage from "./pages/SearchResults";
 
 const { Sider, Content } = Layout;
 
@@ -367,6 +368,11 @@ const RouterUI = () => {
                 }
               />
               <Route path="/org/:orgcode/settings" element={<SettingsPage />} />
+              <Route
+                path="/org/:orgcode/search"
+                element={<SearchResultsPage />}
+              />
+
               <Route path="/sandbox" element={<SandboxPage />} />
               {/* <Route
                   path="/sandbox_indexdb_uploader"

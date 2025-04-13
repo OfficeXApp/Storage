@@ -92,7 +92,6 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
       hasMore: false,
     };
   };
-  const reindexFuzzySearch = () => {};
 
   const navigate = useNavigate();
   const screenType = useScreenType();
@@ -152,59 +151,6 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     switchProfile,
   } = useIdentitySystem();
   const { deleteReduxOfflineStore } = useReduxOfflineMultiTenant();
-
-  // Search functionality
-  const handleSearch = useCallback(
-    async (value: string) => {
-      if (value.trim()) {
-        const result = await searchFilesQuery(value, 10, 0);
-        const newOptions = [
-          ...result.folders.map((folder: FolderMetadata) => ({
-            value: folder.fullFolderPath,
-            label: (
-              <Link
-                to={`/drive/${encodeURIComponent(folder.fullFolderPath.replace("::", "/"))}`}
-              >
-                <FolderOutlined style={{ marginRight: 5 }} />
-                {truncateMiddlePath(
-                  folder.fullFolderPath.replace("::", "/"),
-                  10,
-                  20
-                )}
-              </Link>
-            ),
-          })),
-          ...result.files.map((file: FileMetadata) => ({
-            value: file.fullFilePath,
-            label: (
-              <Link
-                to={`/drive/${encodeURIComponent(file.fullFilePath.replace("::", "/"))}`}
-              >
-                <FileOutlined />{" "}
-                {truncateMiddlePath(
-                  file.fullFilePath.replace("::", "/"),
-                  10,
-                  20
-                )}
-              </Link>
-            ),
-          })),
-        ];
-        setOptions(newOptions);
-      } else {
-        setOptions([]);
-      }
-    },
-    [searchFilesQuery]
-  );
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleSearch(searchValue);
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchValue, handleSearch]);
 
   // Effect to preview addresses based on current tab and seed phrase - now updated to use separate states
   useEffect(() => {
@@ -266,30 +212,23 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     );
   };
 
+  const handleSearch = (query: string) => {
+    const encodedQuery = encodeURIComponent(query);
+    navigate(wrapOrgCode(`/search?query=${encodedQuery}`));
+    setSearchValue("");
+  };
+
   const renderSearchBar = () => {
     return (
-      <AutoComplete
-        options={options}
-        onSelect={onSelect}
-        onSearch={(value) => setSearchValue(value)}
-        style={{ width: "100%", maxWidth: "500px" }}
+      <Input
+        placeholder="Search Organization"
+        value={searchValue}
+        onChange={(e) => setSearchValue(e.target.value)}
+        suffix={<SearchOutlined onClick={() => handleSearch(searchValue)} />}
+        onPressEnter={() => handleSearch(searchValue)}
         allowClear
-      >
-        <Input
-          placeholder="Search Organization"
-          prefix={<SearchOutlined />}
-          suffix={
-            searchValue ? null : (
-              <SyncOutlined
-                onClick={() => {
-                  message.info("Reindexing search data...");
-                  reindexFuzzySearch();
-                }}
-              />
-            )
-          }
-        />
-      </AutoComplete>
+        style={{ width: "100%", maxWidth: "500px" }}
+      />
     );
   };
 
@@ -1449,7 +1388,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
 
       <div className="header-right">
         {UserSwitcher()}
-        <Link to="/settings">
+        <Link to={wrapOrgCode("/settings")}>
           <Avatar icon={<UserOutlined />} size="large" />
         </Link>
       </div>

@@ -2,9 +2,10 @@
 
 ## Overview
 
+- [🔵] Search results page
 - [ ] Audit & Fix all loading states & caches. Add subtle loading indicators across UI pages
 
-- [🔵] Fix bug where uploading large files to canister will succeed but appear blue progress bar stuck and incorrect summary
+- [🔵] Fix bug where uploading large files to canister/storj/s3 will succeed but appear blue progress bar stuck and incorrect summary
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 - [ ] Add bulk delete & single file page move/copy/delete

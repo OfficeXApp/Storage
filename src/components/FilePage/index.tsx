@@ -633,6 +633,18 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               justifyContent: isMobile ? "flex-end" : "flex-end",
             }}
           >
+            {fileUrl && (
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(file.raw_url || fileUrl);
+                  message.success("Copied to clipboard");
+                }}
+                type="link"
+                style={{ color: "rgba(0,0,0,0.3)" }}
+              >
+                Copy Raw
+              </Button>
+            )}
             <Button onClick={handleDownload} disabled={!fileUrl || isLoading}>
               Download
             </Button>

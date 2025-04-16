@@ -43,6 +43,8 @@ import {
   UnlockOutlined,
   CalendarOutlined,
   FolderOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   DirectoryPermissionID,
@@ -569,33 +571,6 @@ const deletePermission = async (permissionId) => {
             bordered={false}
             style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
           >
-            {/* Optimistic update warning */}
-            {isOptimistic && (
-              <div style={{ marginBottom: 16 }}>
-                <Card
-                  style={{
-                    borderColor: syncConflict ? "#ff4d4f" : "#faad14",
-                  }}
-                >
-                  <Space align="start">
-                    <InfoCircleOutlined
-                      style={{ color: syncConflict ? "#ff4d4f" : "#faad14" }}
-                    />
-                    <div>
-                      <Text
-                        strong
-                        style={{ color: syncConflict ? "#ff4d4f" : "#faad14" }}
-                      >
-                        {syncConflict ? "Sync Conflict" : "Pending Sync"}
-                      </Text>
-                      <br />
-                      <Text>{syncWarning}</Text>
-                    </div>
-                  </Space>
-                </Card>
-              </div>
-            )}
-
             {isEditing ? (
               <Form form={form} layout="vertical">
                 <Form.Item
@@ -729,6 +704,29 @@ const deletePermission = async (permissionId) => {
                               {getPermissionTitle(permission)}
                             </Title>
                             <TagCopy id={permission.id} />
+                            <div style={{ marginTop: "0px" }}>
+                              {false ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 32,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    // appendRefreshParam();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Badge

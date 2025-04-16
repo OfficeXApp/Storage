@@ -28,6 +28,8 @@ import {
   UserOutlined,
   CalendarOutlined,
   PlusOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
@@ -35,7 +37,10 @@ import { DirectoryPermissionFE, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listSystemPermissionsAction } from "../../redux-offline/permissions/permissions.actions";
+import {
+  checkSystemPermissionTablePermissionsAction,
+  listSystemPermissionsAction,
+} from "../../redux-offline/permissions/permissions.actions";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -62,11 +67,14 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   isContentTabOpen,
   handleClickContentTab,
 }) => {
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const systemPermissions = useSelector(
-    (state: ReduxAppState) => state.systemPermissions.permissions
+  const { systemPermissions, loading } = useSelector(
+    (state: ReduxAppState) => ({
+      systemPermissions: state.systemPermissions.permissions,
+      loading: state.systemPermissions.loading,
+    })
   );
   const tablePermissions = useSelector(
     (state: ReduxAppState) => state.systemPermissions.tablePermissions
@@ -479,6 +487,14 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
     }
   };
 
+  const syncLatest = () => {
+    if (!currentProfile) return;
+    dispatch(listSystemPermissionsAction({}));
+    dispatch(
+      checkSystemPermissionTablePermissionsAction(currentProfile.userID)
+    );
+  };
+
   return (
     <div
       style={{
@@ -502,13 +518,32 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
             }}
           >
             {/* Search input */}
-            <Input
-              placeholder="Search permissions..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: "240px" }}
-            />
+
+            <Space direction="horizontal">
+              <Input
+                placeholder="Search permissions..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: "240px" }}
+              />
+              {loading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Syncing latest...");
+                    syncLatest();
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)" }}
+                />
+              )}
+            </Space>
 
             {/* Filter options and manage button */}
             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>

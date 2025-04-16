@@ -89,6 +89,8 @@ export interface FileFEO extends FileRecordFE {
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
   breadcrumbs?: FilePathBreadcrumb[];
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 export interface FolderFEO extends FolderRecordFE {
@@ -289,6 +291,7 @@ export const directoryReducer = (
             files: sameOrderFiles,
             isFirstTime: false,
             isLoading: false,
+            lastUpdated: Date.now(),
           },
         },
         files,

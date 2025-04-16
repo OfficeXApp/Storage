@@ -36,6 +36,8 @@ import {
   UpOutlined,
   CodeOutlined,
   LockOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   IRequestUpdateContact,
@@ -58,6 +60,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { ContactFEO } from "../../redux-offline/contacts/contacts.reducer";
 import InviteContactModal from "./contact.invite";
+import TagCopy from "../../components/TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -510,28 +513,30 @@ const ContactTab: React.FC<ContactTabProps> = ({
                             >
                               {contact.name}
                             </Title>
-                            <Tag
-                              color="blue"
-                              onClick={() => {
-                                const userstring = `${contact.name.replace(" ", "_")}@${contact.id}`;
-                                navigator.clipboard
-                                  .writeText(userstring)
-                                  .then(() => {
-                                    message.success("Copied to clipboard!");
-                                  })
-                                  .catch(() => {
-                                    message.error(
-                                      "Failed to copy to clipboard."
-                                    );
-                                  });
-                              }}
-                              style={{
-                                cursor: "pointer",
-                                marginTop: "24px",
-                              }}
-                            >
-                              {shortenAddress(contact.icp_principal)}
-                            </Tag>
+                            <TagCopy id={contact.id} />
+                            <div style={{ marginTop: "24px" }}>
+                              {false ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 32,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    // appendRefreshParam();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Badge

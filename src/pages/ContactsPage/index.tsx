@@ -84,7 +84,7 @@ const ContactsPage: React.FC = () => {
   useEffect(() => {
     if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkContactTablePermissionsAction(currentProfile.userID));
-      // dispatch(listContactsAction({}));
+      dispatch(listContactsAction({}));
     }
   }, [currentProfile, lastChecked]);
 

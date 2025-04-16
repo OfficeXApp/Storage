@@ -24,6 +24,8 @@ import {
   DeleteOutlined,
   RightOutlined,
   EditOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
@@ -44,9 +46,12 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
   handleClickContentTab,
 }) => {
   const dispatch = useDispatch();
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const labels = useSelector((state: ReduxAppState) => state.labels.labels);
+  const { labels, loading } = useSelector((state: ReduxAppState) => ({
+    labels: state.labels.labels,
+    loading: state.labels.loading,
+  }));
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredLabels, setFilteredLabels] = useState(labels);
@@ -246,6 +251,11 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
     );
   };
 
+  const syncLatest = () => {
+    if (!currentProfile) return;
+    dispatch(listLabelsAction({}));
+  };
+
   return (
     <div
       style={{
@@ -270,13 +280,32 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
             }}
           >
             {/* Search input */}
-            <Input
-              placeholder="Search labels..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: "240px" }}
-            />
+
+            <Space direction="horizontal">
+              <Input
+                placeholder="Search labels..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: "240px" }}
+              />
+              {loading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Syncing latest...");
+                    syncLatest();
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)" }}
+                />
+              )}
+            </Space>
 
             {/* Filter options and manage button */}
             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>

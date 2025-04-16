@@ -24,6 +24,8 @@ import {
   MailOutlined,
   DeleteOutlined,
   RightOutlined,
+  SyncOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
@@ -31,7 +33,10 @@ import { ContactFE } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
+import {
+  checkContactTablePermissionsAction,
+  listContactsAction,
+} from "../../redux-offline/contacts/contacts.actions";
 import { formatUserString, getLastOnlineStatus } from "../../api/helpers";
 import { useIdentitySystem } from "../../framework/identity";
 
@@ -46,10 +51,11 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const contacts = useSelector(
-    (state: ReduxAppState) => state.contacts.contacts
-  );
-  const { wrapOrgCode } = useIdentitySystem();
+  const { contacts, loading } = useSelector((state: ReduxAppState) => ({
+    contacts: state.contacts.contacts,
+    loading: state.contacts.loading,
+  }));
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   console.log(`look at contacts`, contacts);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
@@ -279,6 +285,12 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     );
   };
 
+  const syncLatest = () => {
+    if (!currentProfile) return;
+    dispatch(listContactsAction({}));
+    dispatch(checkContactTablePermissionsAction(currentProfile.userID));
+  };
+
   return (
     <div
       style={{
@@ -303,14 +315,31 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
             }}
           >
             {/* Search input */}
-            <Input
-              placeholder="Search contacts..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: "240px" }}
-            />
-
+            <Space direction="horizontal">
+              <Input
+                placeholder="Search Contacts..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: "240px" }}
+              />
+              {loading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Syncing latest...");
+                    syncLatest();
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)" }}
+                />
+              )}
+            </Space>
             {/* Filter options and manage button */}
             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
               <Dropdown menu={{ items: filterItems, onClick: () => {} }}>

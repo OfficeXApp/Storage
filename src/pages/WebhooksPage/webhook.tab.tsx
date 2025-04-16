@@ -38,6 +38,8 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   AimOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   WebhookFE,
@@ -646,6 +648,30 @@ async function listWebhooks(page = 1, limit = 10) {
                               {webhook.name || shortenUrl(webhook.url)}
                             </Title>
                             <TagCopy id={webhook.id} />
+
+                            <div style={{ marginTop: "0px" }}>
+                              {false ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 32,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    // appendRefreshParam();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Badge

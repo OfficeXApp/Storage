@@ -33,6 +33,8 @@ import {
   UpOutlined,
   CodeOutlined,
   LockOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   ApiKeyFE,
@@ -56,6 +58,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
 import { wrapAuthStringOrHeader } from "../../api/helpers";
+import TagCopy from "../../components/TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -636,12 +639,32 @@ const data = await response.json();`;
                             >
                               {apiKey.name}
                             </Title>
-                            <Tag>
-                              {shortenAddress(
-                                apiKey.id.replace("ApiKeyID_", "")
-                              )}
-                            </Tag>
+                            <TagCopy id={apiKey.id} />
                             {getStatusLabel()}
+
+                            <div style={{ marginTop: "0px" }}>
+                              {false ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 32,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    // appendRefreshParam();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space style={{ marginTop: "4px" }}>
                             {apiKey.user_name && (

@@ -25,13 +25,18 @@ import {
   DeleteOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { WebhookFE } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listWebhooksAction } from "../../redux-offline/webhooks/webhooks.actions";
+import {
+  checkWebhookTablePermissionsAction,
+  listWebhooksAction,
+} from "../../redux-offline/webhooks/webhooks.actions";
 import TagCopy from "../../components/TagCopy";
 import { useIdentitySystem } from "../../framework/identity";
 
@@ -44,12 +49,13 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
   isWebhookTabOpen,
   handleClickContentTab,
 }) => {
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const webhooks = useSelector(
-    (state: ReduxAppState) => state.webhooks.webhooks
-  );
+  const { webhooks, loading } = useSelector((state: ReduxAppState) => ({
+    webhooks: state.webhooks.webhooks,
+    loading: state.webhooks.loading,
+  }));
   console.log(`look at webhooks`, webhooks);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
@@ -291,6 +297,12 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
     );
   };
 
+  const syncLatest = () => {
+    if (!currentProfile) return;
+    dispatch(listWebhooksAction({}));
+    dispatch(checkWebhookTablePermissionsAction(currentProfile.userID));
+  };
+
   return (
     <div
       style={{
@@ -315,13 +327,33 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
             }}
           >
             {/* Search input */}
-            <Input
-              placeholder="Search webhooks..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: "240px" }}
-            />
+
+            <Space direction="horizontal">
+              <Input
+                placeholder="Search webhooks..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: "240px" }}
+              />
+
+              {loading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Syncing latest...");
+                    syncLatest();
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)" }}
+                />
+              )}
+            </Space>
 
             {/* Filter options and manage button */}
             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>

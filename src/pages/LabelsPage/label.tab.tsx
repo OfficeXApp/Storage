@@ -32,6 +32,8 @@ import {
   UpOutlined,
   CodeOutlined,
   AppstoreOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   LabelFE,
@@ -484,6 +486,29 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
                               {label.value}
                             </Title>
                             <TagCopy id={label.id} />
+                            <div style={{ marginTop: "0px" }}>
+                              {false ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 32,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    // appendRefreshParam();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Text type="secondary">

@@ -32,6 +32,8 @@ import {
   UpOutlined,
   CodeOutlined,
   KeyOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   IRequestUpdateDisk,
@@ -558,8 +560,31 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                             disk.id === defaultTempCloudSharingDiskID ? (
                               <Tag color="blue">Temp</Tag>
                             ) : (
-                              <TagCopy id={disk.id} color="blue" />
+                              <TagCopy id={disk.id} />
                             )}
+                            <div style={{ marginTop: "0px" }}>
+                              {false ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 32,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    // appendRefreshParam();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Text type="secondary">

@@ -34,6 +34,8 @@ export interface ContactFEO extends ContactFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 interface ContactsState {
@@ -111,7 +113,10 @@ export const contactsReducer = (
         }),
         contactMap: {
           ...state.contactMap,
-          [action.payload.ok.data.id]: action.payload.ok.data,
+          [action.payload.ok.data.id]: {
+            ...action.payload.ok.data,
+            lastChecked: Date.now(),
+          },
         },
         loading: false,
       };
@@ -168,7 +173,7 @@ export const contactsReducer = (
         ),
         contactMap: action.payload.ok.data.items.reduce(
           (acc: Record<UserID, ContactFEO>, item: ContactFEO) => {
-            acc[item.id] = item;
+            acc[item.id] = { ...item, lastChecked: Date.now() };
             return acc;
           },
           state.contactMap
@@ -198,6 +203,10 @@ export const contactsReducer = (
           optimisticContact,
           "_optimisticID"
         ),
+        contactMap: {
+          ...state.contactMap,
+          [optimisticContact.id]: { ...optimisticContact, isLoading: true },
+        },
         loading: true,
         error: null,
       };
@@ -223,7 +232,11 @@ export const contactsReducer = (
         contacts: updateOrAddContact(filteredContacts, newContact),
         contactMap: {
           ...state.contactMap,
-          [newContact.id]: newContact,
+          [newContact.id]: {
+            ...newContact,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
         loading: false,
       };
@@ -240,6 +253,7 @@ export const contactsReducer = (
             _syncSuccess: false,
             _syncConflict: true,
             _isOptimistic: false,
+            isLoading: false,
           };
         }
         return contact;

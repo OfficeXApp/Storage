@@ -19,8 +19,10 @@ import {
   EyeTwoTone,
   HomeFilled,
   LinkOutlined,
+  LoadingOutlined,
   QuestionCircleOutlined,
   ReloadOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 
 import { Actor } from "@dfinity/agent";
@@ -322,7 +324,24 @@ const ICPCanisterSettingsCard = () => {
             title={
               <span>
                 <Tooltip title="Gas cycles power your canister on the Internet World Computer, guaranteeing computational sovereignty and keeping your data private.">
-                  Canister Gas Balance <QuestionCircleOutlined />
+                  Canister Gas Balance{" "}
+                  <QuestionCircleOutlined style={{ marginRight: 8 }} />
+                  {false ? (
+                    <span>
+                      <LoadingOutlined />
+                      <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                        Syncing
+                      </i>
+                    </span>
+                  ) : (
+                    <SyncOutlined
+                      onClick={() => {
+                        message.info("Syncing latest...");
+                        // appendRefreshParam();
+                      }}
+                      style={{ color: "rgba(0,0,0,0.2)" }}
+                    />
+                  )}
                 </Tooltip>
               </span>
             }

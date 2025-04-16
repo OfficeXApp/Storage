@@ -36,6 +36,8 @@ export interface GroupFEO extends GroupFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 interface GroupsState {
@@ -121,7 +123,7 @@ export const groupsReducer = (
         }),
         groupMap: {
           ...state.groupMap,
-          [groupData.id]: groupData,
+          [groupData.id]: { ...groupData, lastChecked: Date.now() },
         },
         loading: false,
       };
@@ -170,7 +172,7 @@ export const groupsReducer = (
       );
       const groupMap = action.payload.ok.data.items.reduce(
         (acc: Record<GroupID, GroupFEO>, item: GroupFEO) => {
-          acc[item.id] = item;
+          acc[item.id] = { ...item, lastChecked: Date.now() };
           return acc;
         },
         state.groupMap

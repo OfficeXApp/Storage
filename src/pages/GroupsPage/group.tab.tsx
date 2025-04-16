@@ -37,6 +37,8 @@ import {
   LockOutlined,
   SisternodeOutlined,
   MoreOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   GroupFE,
@@ -65,14 +67,16 @@ import WebhookManager from "../../components/WebhookManager";
 import { useNavigate } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
 import { generateRedeemGroupInviteURL } from "./invite.redeem";
+import { GroupFEO } from "../../redux-offline/groups/groups.reducer";
+import TagCopy from "../../components/TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
 // Define the props for the GroupTab component
 interface GroupTabProps {
-  group: GroupFE;
-  onSave?: (updatedGroup: Partial<GroupFE>) => void;
+  group: GroupFEO;
+  onSave?: (updatedGroup: Partial<GroupFEO>) => void;
   onDelete?: (groupID: GroupID) => void;
 }
 
@@ -640,28 +644,30 @@ const data = await response.json();`;
                             >
                               {group.name}
                             </Title>
-                            <Tag
-                              color="blue"
-                              onClick={() => {
-                                const groupstring = `${group.name.replace(" ", "_")}@${group.id}`;
-                                navigator.clipboard
-                                  .writeText(groupstring)
-                                  .then(() => {
-                                    message.success("Copied to clipboard!");
-                                  })
-                                  .catch(() => {
-                                    message.error(
-                                      "Failed to copy to clipboard."
-                                    );
-                                  });
-                              }}
-                              style={{
-                                cursor: "pointer",
-                                marginTop: "24px",
-                              }}
-                            >
-                              {shortenAddress(group.id.replace("GroupID_", ""))}
-                            </Tag>
+                            <TagCopy id={group.id} />
+                            <div style={{ marginTop: "24px" }}>
+                              {false ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 32,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    // appendRefreshParam();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Badge status="processing" />

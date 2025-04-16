@@ -35,6 +35,8 @@ import {
   UpOutlined,
   CodeOutlined,
   TeamOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   DriveFE,
@@ -55,6 +57,7 @@ import {
 } from "../../redux-offline/drives/drives.actions";
 import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
 import { useNavigate } from "react-router-dom";
+import TagCopy from "../../components/TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -525,28 +528,31 @@ const listDrives = async (page = 1, limit = 10) => {
                             >
                               {drive.name}
                             </Title>
-                            <Tag
-                              color="blue"
-                              onClick={() => {
-                                const drivestring = `${drive.name.replace(" ", "_")}@${drive.id}`;
-                                navigator.clipboard
-                                  .writeText(drivestring)
-                                  .then(() => {
-                                    message.success("Copied to clipboard!");
-                                  })
-                                  .catch(() => {
-                                    message.error(
-                                      "Failed to copy to clipboard."
-                                    );
-                                  });
-                              }}
-                              style={{
-                                cursor: "pointer",
-                                marginTop: "24px",
-                              }}
-                            >
-                              {shortenAddress(drive.icp_principal)}
-                            </Tag>
+                            <TagCopy id={drive.id} />
+
+                            <div style={{ marginTop: "24px" }}>
+                              {false ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 32,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    // appendRefreshParam();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           {drive.last_indexed_ms && (
                             <Space>

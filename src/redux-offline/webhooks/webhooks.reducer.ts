@@ -30,6 +30,8 @@ export interface WebhookFEO extends WebhookFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 interface WebhooksState {
@@ -107,7 +109,11 @@ export const webhooksReducer = (
         }),
         webhookMap: {
           ...state.webhookMap,
-          [action.payload.ok.data.id]: action.payload.ok.data,
+          [action.payload.ok.data.id]: {
+            ...action.payload.ok.data,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
         loading: false,
       };
@@ -156,7 +162,7 @@ export const webhooksReducer = (
       );
       const webhookMap = action.payload.ok.data.items.reduce(
         (acc: Record<WebhookID, WebhookFEO>, item: WebhookFEO) => {
-          acc[item.id] = item;
+          acc[item.id] = { ...item, lastChecked: Date.now(), isLoading: false };
           return acc;
         },
         state.webhookMap

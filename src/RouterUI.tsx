@@ -7,6 +7,7 @@ import {
   useNavigate,
   Navigate,
   Link,
+  useLocation,
 } from "react-router-dom";
 import {
   Layout,
@@ -99,7 +100,63 @@ const SideMenu = ({
   setSidebarVisible?: (visible: boolean) => void;
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { wrapOrgCode } = useIdentitySystem();
+
+  // State for selected and open keys
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [openKeys, setOpenKeys] = useState<string[]>(["navigate-storage"]);
+
+  // Update selected and open keys based on current route
+  useEffect(() => {
+    const path = location.pathname;
+
+    if (path.includes("/drive-shared")) {
+      setSelectedKeys(["drive-shared"]);
+      setOpenKeys(["navigate-storage"]);
+    } else if (path.includes("/drive-trash")) {
+      setSelectedKeys(["drive-trash"]);
+      setOpenKeys(["navigate-storage"]);
+    } else if (path.includes("/drive")) {
+      setSelectedKeys(["drive"]);
+      setOpenKeys(["navigate-storage"]);
+    } else if (path.includes("/resources/contacts")) {
+      setSelectedKeys(["contacts"]);
+      setOpenKeys(["organization"]);
+    } else if (path.includes("/resources/groups")) {
+      setSelectedKeys(["groups"]);
+      setOpenKeys(["organization"]);
+    } else if (path.includes("/resources/permissions")) {
+      setSelectedKeys(["permissions"]);
+      setOpenKeys(["organization"]);
+    } else if (path.includes("/resources/labels")) {
+      setSelectedKeys(["labels"]);
+      setOpenKeys(["organization"]);
+    } else if (path.includes("/resources/disks")) {
+      setSelectedKeys(["disks"]);
+      setOpenKeys(["organization"]);
+    } else if (path.includes("/resources/drives")) {
+      setSelectedKeys(["drives"]);
+      setOpenKeys(["organization"]);
+    } else if (path.includes("/resources/webhooks")) {
+      setSelectedKeys(["webhooks"]);
+      setOpenKeys(["organization"]);
+    } else if (path.includes("/resources/api-keys")) {
+      setSelectedKeys(["api-keys"]);
+      setOpenKeys(["organization"]);
+    } else if (path.includes("/settings")) {
+      setSelectedKeys(["settings"]);
+    }
+  }, [location]);
+
+  // Handle menu click for items that don't use Link
+  const handleMenuClick = (key: string, route: string) => {
+    navigate(wrapOrgCode(route));
+    if (setSidebarVisible) {
+      setSidebarVisible(false);
+    }
+  };
+
   const menuItems = [
     {
       key: "navigate-storage",
@@ -111,32 +168,32 @@ const SideMenu = ({
           label: <Link to={wrapOrgCode("/drive")}>My Drive</Link>,
         },
         {
-          key: "shared",
-          label: "Shared with me",
-          type: "item",
-          disabled: true,
-          // icon: <UserOutlined />,
-        },
-        {
           key: "recent",
           label: "Recent",
           type: "item",
           disabled: true,
-          // icon: <ClockCircleOutlined />,
         },
         {
-          key: "starred",
-          label: "Labeled",
-          type: "item",
-          disabled: true,
-          // icon: <StarOutlined />,
+          key: "drive-shared",
+          label: (
+            <Link to={wrapOrgCode("/drive-shared?default_disk_action=shared")}>
+              Shared with Me
+            </Link>
+          ),
         },
+        // {
+        //   key: "starred",
+        //   label: "Labeled",
+        //   type: "item",
+        //   disabled: true,
+        // },
         {
-          key: "trash",
-          label: "Trash",
-          type: "item",
-          disabled: true,
-          // icon: <DeleteOutlined />,
+          key: "drive-trash",
+          label: (
+            <Link to={wrapOrgCode("/drive-trash?default_disk_action=trash")}>
+              Trash
+            </Link>
+          ),
         },
       ],
     },
@@ -206,16 +263,16 @@ const SideMenu = ({
                 <Link to={wrapOrgCode("/resources/api-keys")}>API Keys</Link>
               ),
             },
-            {
-              key: "sandbox",
-              label: "Sandbox",
-              onClick: () => {
-                navigate("/sandbox");
-                if (setSidebarVisible) {
-                  setSidebarVisible(false);
-                }
-              },
-            },
+            // {
+            //   key: "sandbox",
+            //   label: "Sandbox",
+            //   onClick: () => {
+            //     navigate("/sandbox");
+            //     if (setSidebarVisible) {
+            //       setSidebarVisible(false);
+            //     }
+            //   },
+            // },
           ],
         },
       ],
@@ -238,7 +295,9 @@ const SideMenu = ({
       <Menu
         mode="inline"
         items={menuItems}
-        defaultOpenKeys={["navigate-storage"]}
+        selectedKeys={selectedKeys}
+        openKeys={openKeys}
+        onOpenChange={setOpenKeys}
         style={{ backgroundColor: "inherit", border: 0 }}
       />
     </div>
@@ -359,6 +418,14 @@ const RouterUI = () => {
               />
               <Route
                 path="/org/:orgcode/drive/*"
+                element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
+              />
+              <Route
+                path="/org/:orgcode/drive-shared/*"
+                element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
+              />
+              <Route
+                path="/org/:orgcode/drive-trash/*"
                 element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
               />
               <Route

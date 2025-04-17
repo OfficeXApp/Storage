@@ -2,9 +2,7 @@
 
 ## Overview
 
-- [ ] Implement recents tab with its own dexie table of recent files/folders opened, update driveui & filepage to append recents
-
-- [ ] Fix bug where uploading large files to canister/storj/s3 will succeed but appear blue progress bar stuck and incorrect summary
+- [🔵] Fix bug where uploading large files to canister/storj/s3 will succeed but appear blue progress bar stuck and incorrect summary
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 - [ ] Add bulk delete & single file page move/copy/delete
@@ -96,3 +94,4 @@
 - [x] Switching orgs doesnt immediately load resources despite listening for it in useEffect App.tsx. check cache issues
 - [x] Smart smooth sidemenu nav opens closes based on which page
 - [x] Implement /drive with disk_default_action to determine if we show Trash, Shared, Regular Directory
+- [x] Implement recents tab with its own dexie table of recent files/folders opened, update driveui & filepage to append recents

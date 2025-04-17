@@ -42,7 +42,7 @@ import { listGroupsAction } from "../../redux-offline/groups/groups.actions";
 import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
 import { useParams } from "react-router-dom";
 import { urlSafeBase64Decode, urlSafeBase64Encode } from "../../api/helpers";
-import { Button, notification, Space } from "antd";
+import { Button, message, notification, Space } from "antd";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -268,7 +268,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
               // Create initial profile
               const seedPhrase = (generate(12) as string[]).join(" ");
               const newProfile = await deriveProfileFromSeed(seedPhrase);
-              newProfile.nickname = "Anonymous";
+              newProfile.nickname = "Anon";
               await createProfile(newProfile);
               await hydrateFullAuthProfile(newProfile);
               overwriteLocalStorageProfile(newProfile);

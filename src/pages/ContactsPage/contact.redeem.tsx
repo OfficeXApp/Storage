@@ -566,7 +566,7 @@ const ContactRedeem = () => {
                         );
                         if (profile) {
                           const nickname = (
-                            profile.nickname || "Anonymous"
+                            profile.nickname || "Anon"
                           ).toLowerCase();
                           const icpAddress =
                             profile.icpPublicAddress.toLowerCase();
@@ -593,7 +593,7 @@ const ContactRedeem = () => {
                           >
                             <Space>
                               <UserOutlined />
-                              <span>{profile.nickname || "Anonymous"}</span>
+                              <span>{profile.nickname || "Anon"}</span>
                             </Space>
                             <Tag>
                               {shortenAddress(profile.icpPublicAddress)}
@@ -607,7 +607,7 @@ const ContactRedeem = () => {
                           key={profile.userID}
                           value={profile.userID}
                         >
-                          {profile.nickname || "Anonymous"}{" "}
+                          {profile.nickname || "Anon"}{" "}
                           <Tag>{shortenAddress(profile.icpPublicAddress)}</Tag>
                         </Select.Option>
                       ))}

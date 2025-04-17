@@ -36,6 +36,7 @@ import { v4 as uuidv4 } from "uuid";
 import { FileMetadata, FolderMetadata, useDrive } from "../../framework";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  sleep,
   trimToFolderPath,
   truncateMiddlePath,
   wrapAuthStringOrHeader,
@@ -48,6 +49,7 @@ import { shortenAddress } from "../../framework/identity/constants";
 import { UserID } from "@officexapp/types";
 import { debounce } from "lodash";
 import { useReduxOfflineMultiTenant } from "../../redux-offline/ReduxProvider";
+import TagCopy from "../TagCopy";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -115,7 +117,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   });
 
   // Separate state for each tab
-  const [newUserNickname, setNewUserNickname] = useState("Anonymous");
+  const [newUserNickname, setNewUserNickname] = useState("Anon");
   const [newSeedPhrase, setNewSeedPhrase] = useState(generateRandomSeed());
 
   const [importUserNickname, setImportUserNickname] = useState("A Past Life");
@@ -243,7 +245,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           <Space style={{ width: "100%", justifyContent: "space-between" }}>
             <Space>
               <UserOutlined />
-              <span>{currentProfile.nickname || "Anonymous"}</span>
+              <span>{currentProfile.nickname || "Anon"}</span>
             </Space>
             <Tag
               color="blue"
@@ -281,7 +283,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             <Space style={{ width: "100%", justifyContent: "space-between" }}>
               <Space>
                 <UserOutlined />
-                <span>{profile.nickname || "Anonymous"}</span>
+                <span>{profile.nickname || "Anon"}</span>
               </Space>
               <Tag color="default">
                 {shortenAddress(profile.icpPublicAddress)}
@@ -328,7 +330,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
 
           // If we have a profile, check if input matches nickname or address
           if (profile) {
-            const nickname = (profile.nickname || "Anonymous").toLowerCase();
+            const nickname = (profile.nickname || "Anon").toLowerCase();
             const icpAddress = profile.icpPublicAddress.toLowerCase();
             const inputLower = input.toLowerCase();
 
@@ -348,7 +350,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
         onChange={(value: UserID) => {
           console.log(`Clicked on `, value);
           if (value === "add-currentProfile") {
-            setNewUserNickname("Anonymous");
+            setNewUserNickname("Anon");
             setImportUserNickname("A Past Life");
             setNewSeedPhrase(generateRandomSeed());
             setImportSeedPhrase("");
@@ -361,7 +363,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
             );
             if (currentProfile) {
               setSelectedProfileId(value);
-              setExistingUserNickname(currentProfile.nickname || "Anonymous");
+              setExistingUserNickname(currentProfile.nickname || "Anon");
               setModalMode("existing");
               setIsModalVisible(true);
             }
@@ -1018,6 +1020,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
               }
 
               setIsModalVisible(false);
+              window.location.reload();
             } catch (error) {
               console.error("Error adding user:", error);
               message.error("Failed to add user. Please try again.");
@@ -1193,7 +1196,12 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
 
     return (
       <Modal
-        title="Switch Profile"
+        title={
+          <span>
+            Switch Profile{" "}
+            <TagCopy id={selectedProfile.userID} style={{ marginLeft: 8 }} />
+          </span>
+        }
         open={isModalVisible && modalMode === "existing"}
         onCancel={() => setIsModalVisible(false)}
         closeIcon={<CloseOutlined />}
@@ -1240,6 +1248,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                       }
                       message.success("Profile removed successfully!");
                       setIsModalVisible(false);
+                      window.location.reload();
                     }
                   } catch (error) {
                     console.error("Error removing currentProfile:", error);
@@ -1318,11 +1327,13 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
                         console.log(`switching to `, selectedProfile);
                         await switchProfile(selectedProfile);
 
+                        await sleep(1000);
                         message.success(
-                          `Switched to ${existingUserNickname || "Anonymous"} (${shortenAddress(
+                          `Switched to ${existingUserNickname || "Anon"} (${shortenAddress(
                             selectedProfile.icpPublicAddress
                           )})`
                         );
+                        window.location.reload();
                       } catch (error) {
                         console.error("Error switching currentProfile:", error);
                         message.error(

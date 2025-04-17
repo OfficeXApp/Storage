@@ -45,6 +45,7 @@ import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
 import EarnProgressOverview from "../EarnProgressOverview";
 import { generateRandomSeed } from "../../api/icp";
 import { useReduxOfflineMultiTenant } from "../../redux-offline/ReduxProvider";
+import { useNavigate } from "react-router-dom";
 
 const { TabPane } = Tabs;
 
@@ -73,6 +74,7 @@ const OrganizationSwitcher = () => {
 
   // Selected profile for organization entry
   const [selectedProfileId, setSelectedProfileId] = useState("");
+  const navigate = useNavigate();
 
   // Form states for new organization
   const [newOrgNickname, setNewOrgNickname] = useState("");
@@ -635,6 +637,11 @@ const OrganizationSwitcher = () => {
         driveNickname: "",
       });
       setIsModalVisible(false);
+
+      // Refresh the page
+      message.success("Entering Organization...", 0);
+      navigate("/");
+      window.location.reload();
     } catch (error) {
       console.error("Error logging in to organization:", error);
       message.error("Failed to log in to organization. Please try again.");
@@ -690,7 +697,7 @@ const OrganizationSwitcher = () => {
                 giftcard_id: giftCardValue,
                 owner_icp_principal: icpPrincipal,
                 organization_name: newOrgNickname,
-                owner_name: profile.nickname || "Anonymous Owner",
+                owner_name: profile.nickname || "Anon Owner",
               }),
               // @ts-ignore
               timeout: 120000,
@@ -859,6 +866,7 @@ const OrganizationSwitcher = () => {
           await sleep(3000);
 
           message.success("Refreshing Page...", 0);
+          navigate("/");
           window.location.reload();
 
           setIsModalVisible(false);
@@ -894,6 +902,7 @@ const OrganizationSwitcher = () => {
         );
         setIsModalVisible(false);
       }
+      window.location.reload();
     } catch (error) {
       console.error("Error creating organization:", error);
       message.error("Failed to create organization. Please try again.");
@@ -957,6 +966,7 @@ const OrganizationSwitcher = () => {
 
         message.success("Organization removed successfully!");
         setIsModalVisible(false);
+        window.location.reload();
       }
     } catch (error) {
       console.error("Error deleting organization:", error);
@@ -985,8 +995,12 @@ const OrganizationSwitcher = () => {
 
       // Switch to the organization
       await switchOrganization(org, profile?.userID);
-      message.success(`Entered "${org.nickname}" organization`);
       setIsModalVisible(false);
+
+      // Refresh the page
+      message.success(`Entering "${org.nickname}" organization`);
+      navigate("/");
+      window.location.reload();
     }
   };
 
@@ -1237,7 +1251,7 @@ const OrganizationSwitcher = () => {
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
           <Space>
             <UserOutlined />
-            <span>{profile.nickname || "Anonymous"}</span>
+            <span>{profile.nickname || "Anon"}</span>
           </Space>
           <Tag
             color={

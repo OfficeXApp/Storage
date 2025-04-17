@@ -151,6 +151,7 @@ interface DriveItemRow {
   hasDiskTrash?: FolderID;
   isRecentShortcut?: boolean;
   permission_previews: DirectoryPermissionType[];
+  key: string;
 }
 
 interface DriveUIProps {
@@ -902,7 +903,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         ),
       },
     ],
-    [renamingItems, listDirectoryKey]
+    [renamingItems, listDirectoryKey, default_disk_action]
   );
 
   const getRowMenuItems = (record: DriveItemRow): MenuProps["items"] => {
@@ -1160,6 +1161,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           permission_previews: f.permission_previews,
           public_note: (f as any).public_note,
           isRecentShortcut: (f as any).isRecentShortcut,
+          key: `${f.id}-${f.disk_id}`,
         })),
       ...content.files.map((f) => ({
         id: f.id,
@@ -1172,6 +1174,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         isDisabled: f.expires_at === -1 ? false : f.expires_at < Date.now(),
         expires_at: f.expires_at,
         permission_previews: f.permission_previews,
+        key: `${f.id}-${f.disk_id}`,
       })),
     ];
   }, [content, currentFolderId, disks]);
@@ -1307,7 +1310,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           <h2 style={{ margin: 0, fontSize: 24, fontWeight: 500 }}>
             Trashbins
           </h2>
-          <p style={{ margin: 0, color: "rgba(0,0,0,0.45)" }}>
+          <p style={{ margin: 0, color: "rgba(0,0,0,0.45)", marginTop: 8 }}>
             Files and folders that have been deleted
           </p>
         </div>
@@ -1320,7 +1323,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           <h2 style={{ margin: 0, fontSize: 24, fontWeight: 500 }}>
             Shared with Me
           </h2>
-          <p style={{ margin: 0, color: "rgba(0,0,0,0.45)" }}>
+          <p style={{ margin: 0, color: "rgba(0,0,0,0.45)", marginTop: 8 }}>
             Files and folders that others have shared with you
           </p>
         </div>
@@ -1331,7 +1334,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       return (
         <div style={{ position: "relative", padding: "36px 0px 0px 36px" }}>
           <h2 style={{ margin: 0, fontSize: 24, fontWeight: 500 }}>Recents</h2>
-          <p style={{ margin: 0, color: "rgba(0,0,0,0.45)" }}>
+          <p style={{ margin: 0, color: "rgba(0,0,0,0.45)", marginTop: 8 }}>
             Files and folders you've accessed recently
           </p>
         </div>
@@ -1386,7 +1389,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               </Checkbox>
             )}
           </div>
-        ) : (
+        ) : default_disk_action === "trash" ||
+          default_disk_action === "shared" ||
+          window.location.pathname.includes("/recent") ? null : (
           <Breadcrumb items={breadcrumbItems} />
         )}
         {selectedRowKeys.length > 0 ? (
@@ -1697,7 +1702,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   })}
                   columns={columns}
                   dataSource={tableRows}
-                  rowKey="id"
+                  rowKey="key"
                   locale={{ emptyText: "This folder is empty" }}
                   pagination={false}
                   scroll={{ y: "calc(80vh - 150px)", x: "scroll" }}

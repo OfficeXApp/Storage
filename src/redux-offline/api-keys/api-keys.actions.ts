@@ -175,7 +175,7 @@ export const deleteApiKeyAction = (payload: IRequestDeleteApiKey) => {
 // Check Api Key Table Permissions
 export const checkApiKeyTablePermissionsAction = (userID: UserID) => {
   const id = `api_key_table_permissions_${userID}`;
-  console.log(`Firing checkApiKeyTablePermissionsAction for user ${userID}`);
+
   const payload = {
     resource_id: "TABLE_API_KEYS",
     grantee_id: userID,

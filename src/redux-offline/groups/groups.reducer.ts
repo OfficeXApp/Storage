@@ -104,8 +104,6 @@ export const groupsReducer = (
     case GET_GROUP_COMMIT: {
       const groupData = action.payload.ok.data;
 
-      console.log("GET_GROUP_COMMIT reducer", groupData, state.groups);
-
       // Update the optimistic group with the real data
       return {
         ...state,
@@ -399,7 +397,6 @@ export const groupsReducer = (
     }
 
     case CHECK_GROUP_TABLE_PERMISSIONS: {
-      console.log(`Firing checkGroupTablePermissionsAction for user`, action);
       const permission_types = action.optimistic?.permission_types || [];
       return {
         ...state,

@@ -76,7 +76,6 @@ const updateOrAddDisk = (disks: DiskFEO[], newDisk: DiskFEO): DiskFEO[] => {
 };
 
 export const disksReducer = (state = initialState, action: any): DisksState => {
-  // console.log(`Now in official reducer`, action, state);
   switch (action.type) {
     // ------------------------------ GET DISKS --------------------------------- //
 
@@ -142,7 +141,6 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     // ------------------------------ LIST DISKS --------------------------------- //
 
     case LIST_DISKS: {
-      // console.log(`LIST_DISKS reducer`, action);
       const DEFAULT_DISK_ID = localStorage.getItem(
         LOCALSTORAGE_DEFAULT_DISK_ID
       );
@@ -159,7 +157,6 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case LIST_DISKS_COMMIT: {
-      // console.log(`LIST_DISKS_COMMIT reducer`, action);
       // Get items from the API response
       const serverDisks = action.payload.ok.data.items || [];
 
@@ -191,7 +188,6 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case LIST_DISKS_ROLLBACK: {
-      // console.log(`LIST_DISKS_ROLLBACK reducer`, action);
       if (!action.payload.response) return state;
       return {
         ...state,
@@ -225,6 +221,10 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
         (disk) => disk._optimisticID !== optimisticID
       );
       // removal from dexie is already handled in optimistic middleware which can handle async, whereas reducers are pure sync functions
+      setTimeout(() => {
+        // we refresh to ensure the new disk upload manager is initialized
+        window.location.reload();
+      }, 2000);
       return {
         ...state,
         // Add the newly created disk to our items array
@@ -359,7 +359,6 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     }
 
     case CHECK_DISKS_TABLE_PERMISSIONS: {
-      console.log(`Firing checkDisksTablePermissionsAction for user`, action);
       const permission_types = action.optimistic?.permission_types || [];
       return {
         ...state,

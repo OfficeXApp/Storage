@@ -26,6 +26,8 @@ import { useIdentitySystem } from "../../framework/identity";
 import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
 import { DiskTypeEnum } from "@officexapp/types";
 import { useNavigate } from "react-router-dom";
+import { listDisksAction } from "../../redux-offline/disks/disks.actions";
+import { useDispatch } from "react-redux";
 
 const { Text, Title } = Typography;
 
@@ -39,7 +41,7 @@ const ConnectICPButton = () => {
     listOfProfiles,
     currentOrg,
   } = useIdentitySystem();
-
+  const dispatch = useDispatch();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [giftCardValue, setGiftCardValue] = useState("");
@@ -282,10 +284,11 @@ const ConnectICPButton = () => {
           console.error("Error creating disk:", error);
         }
       }
-      await sleep(3000);
 
       // Refresh the page
-      message.success("Refreshing Page...", 0);
+      message.success("Syncing... please wait", 0);
+      await sleep(3000);
+      message.success(`Success! Entering new organization...`);
       navigate("/");
       window.location.reload();
     } catch (error) {

@@ -443,9 +443,6 @@ export const redeemDirectoryPermissionAction = (
 // Check System Permission Table Permissions
 export const checkSystemPermissionTablePermissionsAction = (userID: UserID) => {
   const id = `system_permission_table_permissions_${userID}`;
-  console.log(
-    `Firing checkSystemPermissionTablePermissionsAction for user ${userID}`
-  );
   const payload = {
     resource_id: "TABLE_PERMISSIONS",
     grantee_id: userID,

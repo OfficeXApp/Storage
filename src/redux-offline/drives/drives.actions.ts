@@ -179,7 +179,7 @@ export const deleteDriveAction = (payload: IRequestDeleteDrive) => {
 // Check Drive Table Permissions
 export const checkDriveTablePermissionsAction = (userID: UserID) => {
   const id = `drive_table_permissions_${userID}`;
-  console.log(`Firing checkDriveTablePermissionsAction for user ${userID}`);
+
   const payload = {
     resource_id: "TABLE_DRIVES",
     grantee_id: userID,

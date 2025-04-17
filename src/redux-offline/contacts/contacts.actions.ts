@@ -212,7 +212,7 @@ export const redeemContactAction = (payload: IRequestRedeemContact) => {
 // Check Contact Table Permissions
 export const checkContactTablePermissionsAction = (userID: UserID) => {
   const id = `contact_table_permissions_${userID}`;
-  console.log(`Firing checkContactTablePermissionsAction for user ${userID}`);
+
   const payload = {
     resource_id: "TABLE_CONTACTS",
     grantee_id: userID,

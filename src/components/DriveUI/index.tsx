@@ -184,8 +184,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     "move" | "copy" | null
   >(null);
 
-  console.log(`default_disk_action=`, default_disk_action);
-
   const [listDirectoryKey, setListDirectoryKey] = useState("");
 
   const { disks, defaultDisk } = useSelector((state: ReduxAppState) => ({
@@ -228,8 +226,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [singleFile, setSingleFile] = useState<FileFEO | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
-
-  console.log("getFileResult", getFileResult);
 
   useEffect(() => {
     if (
@@ -604,9 +600,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           folders: disks.map((disk) => {
             let name = disk.name;
             let id = disk.root_folder as FolderID;
-            console.log(
-              `default_disk_action=${default_disk_action} vs ${DiskUIDefaultAction.shared} vs ${DiskUIDefaultAction.trash}`
-            );
+
             if (default_disk_action === DiskUIDefaultAction.shared) {
               name = `Shared with Me  |  ${name}`;
               id = `shared-with-me` as FolderID;
@@ -780,7 +774,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         dataIndex: "title",
         key: "title",
         render: (text: string, record: DriveItemRow) => {
-          console.log(`record`, record);
           return (
             <div
               onClick={() => {
@@ -1146,7 +1139,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
-    console.log(`content`, content);
     return [
       ...content.folders
         .filter((f) => {

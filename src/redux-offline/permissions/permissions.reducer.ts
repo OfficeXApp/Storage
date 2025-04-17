@@ -548,10 +548,6 @@ export const systemPermissionsReducer = (
     }
 
     case CHECK_PERMISSION_TABLE_PERMISSIONS: {
-      console.log(
-        `Firing checkPermissionTablePermissionsAction for user`,
-        action
-      );
       const permission_types = action.optimistic?.permission_types || [];
       return {
         ...state,
@@ -643,7 +639,6 @@ export const directoryPermissionsReducer = (
 
     // LIST DIRECTORY PERMISSIONS
     case LIST_DIRECTORY_PERMISSIONS: {
-      console.log("LIST_DIRECTORY_PERMISSIONS reducer", action);
       const resourceId =
         action.meta?.offline?.effect?.data?.filters?.resource_id;
 
@@ -677,7 +672,6 @@ export const directoryPermissionsReducer = (
     }
 
     case LIST_DIRECTORY_PERMISSIONS_COMMIT: {
-      console.log("LIST_DIRECTORY_PERMISSIONS_COMMIT reducer", action);
       const permissions = action.payload.ok.data.items;
       const permissionMap = permissions.reduce(
         (
@@ -705,8 +699,6 @@ export const directoryPermissionsReducer = (
     }
 
     case LIST_DIRECTORY_PERMISSIONS_ROLLBACK: {
-      console.log("LIST_DIRECTORY_PERMISSIONS_ROLLBACK reducer", action);
-
       if (!action.payload.response) return state;
 
       return {
@@ -732,7 +724,6 @@ export const directoryPermissionsReducer = (
     }
 
     case CREATE_DIRECTORY_PERMISSION_COMMIT: {
-      console.log(`CREATE_DIRECTORY_PERMISSION_COMMIT reducer`, action);
       const optimisticID = action.meta?.optimisticID;
       const newPermission = {
         ...action.payload.ok.data.permission,

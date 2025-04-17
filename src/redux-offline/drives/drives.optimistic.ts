@@ -423,10 +423,6 @@ export const drivesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_DRIVE_TABLE_PERMISSIONS: {
-            console.log(
-              `Firing checkDriveTablePermissionsAction for user`,
-              action
-            );
             // check dexie
             const systemPermissionsTable = db.table(
               SYSTEM_PERMISSIONS_DEXIE_TABLE
@@ -444,10 +440,6 @@ export const drivesOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_DRIVE_TABLE_PERMISSIONS_COMMIT: {
-            console.log(
-              `Handling CHECK_DRIVE_TABLE_PERMISSIONS_COMMIT`,
-              action
-            );
             const optimisticID = action.meta?.optimisticID;
             const permissions = action.payload?.ok?.data?.permissions;
 

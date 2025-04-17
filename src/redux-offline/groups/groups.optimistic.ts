@@ -437,10 +437,6 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
           // ------------------------------ CHECK GROUP TABLE PERMISSIONS --------------------------------- //
 
           case CHECK_GROUP_TABLE_PERMISSIONS: {
-            console.log(
-              `Firing checkGroupTablePermissionsAction for user`,
-              action
-            );
             // check dexie
             const systemPermissionsTable = db.table(
               SYSTEM_PERMISSIONS_DEXIE_TABLE
@@ -458,10 +454,6 @@ export const groupsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_GROUP_TABLE_PERMISSIONS_COMMIT: {
-            console.log(
-              `Handling CHECK_GROUP_TABLE_PERMISSIONS_COMMIT`,
-              action
-            );
             const optimisticID = action.meta?.optimisticID;
             const permissions = action.payload?.ok?.data?.permissions;
 

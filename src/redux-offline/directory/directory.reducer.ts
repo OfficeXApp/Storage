@@ -210,7 +210,6 @@ export const directoryReducer = (
 ): DirectoryState => {
   switch (action.type) {
     case LIST_DIRECTORY: {
-      console.log("LIST_DIRECTORY reducer", action);
       let listDirectoryKey = action.meta?.listDirectoryKey;
 
       const shouldBehaveOfflineDisk =
@@ -238,7 +237,6 @@ export const directoryReducer = (
     }
 
     case LIST_DIRECTORY_COMMIT: {
-      console.log(`LIST_DIRECTORY_COMMIT reducer`, action);
       let listDirectoryKey = action.meta?.listDirectoryKey;
       const response = action.payload;
 
@@ -319,8 +317,6 @@ export const directoryReducer = (
     }
 
     case LIST_DIRECTORY_ROLLBACK: {
-      console.log(`LIST_DIRECTORY_ROLLBACK reducer`, action);
-      console.log(`state`, state);
       if (!action.payload.response) return state;
       let errorMessage = "Failed to list directory contents";
 
@@ -353,7 +349,6 @@ export const directoryReducer = (
 
     // ------------------------------ GET FILE --------------------------------- //
     case GET_FILE: {
-      console.log(`GET_FILE reducer`, action);
       return {
         ...state,
         files: action.optimistic
@@ -375,8 +370,6 @@ export const directoryReducer = (
     }
 
     case GET_FILE_COMMIT: {
-      console.log(`GET_FILE_COMMIT reducer`, action);
-
       const optimisticID = action.meta?.optimisticID;
       let realFile;
 
@@ -396,7 +389,7 @@ export const directoryReducer = (
           breadcrumbs: action.payload[0].response.result.breadcrumbs,
         };
       }
-      console.log(`GET_FILE_COMMIT realFile`, realFile);
+
       if (!realFile) {
         const newFileMap = state.fileMap;
         delete newFileMap[optimisticID];
@@ -533,7 +526,6 @@ export const directoryReducer = (
 
     // ------------------------------ CREATE FILE --------------------------------- //
     case CREATE_FILE: {
-      console.log(`CREATE_FILE reducer`, action);
       const optimisticFile = action.optimistic;
       return {
         ...state,
@@ -583,8 +575,6 @@ export const directoryReducer = (
         (file) => file._optimisticID !== optimisticID
       );
 
-      console.log(`newFile COMMIT`, newFile);
-
       return {
         ...state,
         files: updateOrAddFile(filteredFiles, newFile),
@@ -620,7 +610,6 @@ export const directoryReducer = (
 
     // ------------------------------ CREATE FOLDER --------------------------------- //
     case CREATE_FOLDER: {
-      console.log(`CREATE_FOLDER reducer`, action);
       const optimisticFolder = action.optimistic;
       const listDirectoryKey = action.meta?.listDirectoryKey;
 
@@ -661,7 +650,6 @@ export const directoryReducer = (
     }
 
     case CREATE_FOLDER_COMMIT: {
-      console.log(`CREATE_FOLDER_COMMIT reducer`, action);
       const optimisticID = action.meta?.optimisticID;
       const listDirectoryKey = action.meta?.listDirectoryKey;
       let realFolder;
@@ -729,7 +717,6 @@ export const directoryReducer = (
     }
 
     case CREATE_FOLDER_ROLLBACK: {
-      console.log(`CREATE_FOLDER_ROLLBACK reducer`, action);
       if (!action.payload.response) return state;
 
       const optimisticID = action.meta?.optimisticID;
@@ -804,7 +791,6 @@ export const directoryReducer = (
     }
 
     case UPDATE_FILE_COMMIT: {
-      console.log(`UPDATE_FILE_COMMIT reducer`, action);
       const optimisticID = action.meta?.optimisticID;
       let realFile;
 
@@ -1454,7 +1440,6 @@ export const directoryReducer = (
     // ------------------------------ RESTORE TRASH --------------------------------- //
 
     case RESTORE_TRASH: {
-      console.log(`RESTORE_TRASH reducer`, action);
       const optimisticID = action.meta.optimisticID;
       if (!optimisticID) {
         return {
@@ -1529,7 +1514,6 @@ export const directoryReducer = (
 
     // Also update the RESTORE_TRASH_COMMIT case to update the listings with the real data
     case RESTORE_TRASH_COMMIT: {
-      console.log(`RESTORE_TRASH_COMMIT reducer`, action);
       const optimisticID = action.meta?.optimisticID;
       const optimistic = action.optimistic;
       const isFile = optimistic?.id.startsWith("FileID_");
@@ -1595,7 +1579,6 @@ export const directoryReducer = (
 
     // Additionally, update the RESTORE_TRASH_ROLLBACK case to also update the listings
     case RESTORE_TRASH_ROLLBACK: {
-      console.log(`RESTORE_TRASH_ROLLBACK reducer`, action);
       if (!action.payload.response) return state;
 
       const optimisticID = action.meta?.optimisticID;

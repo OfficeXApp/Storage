@@ -117,8 +117,6 @@ export const listDirectoryAction = (
   // Generate a unique ID for this request
   const listDirectoryKey = generateListDirectoryKey(payload);
 
-  console.log(`shouldBehaveOfflineDiskUI payload`, payload);
-
   const isDefaultDisk =
     payload.folder_id === defaultBrowserCacheRootFolderID ||
     payload.folder_id === defaultTempCloudSharingRootFolderID;
@@ -158,10 +156,6 @@ export const getFileAction = (
   action: GetFileAction,
   shouldBehaveOfflineDiskUI = true
 ) => {
-  console.log(
-    `shouldBehaveOfflineDiskUI==${shouldBehaveOfflineDiskUI}`,
-    action
-  );
   const resourceId = action.payload.id as FileID;
   return {
     type: GET_FILE,

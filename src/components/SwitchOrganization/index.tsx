@@ -39,13 +39,15 @@ import {
 } from "../../framework/identity/constants";
 import { debounce } from "lodash";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { UserID } from "@officexapp/types";
+
 import { v4 as uuidv4 } from "uuid";
 import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
-import EarnProgressOverview from "../EarnProgressOverview";
+
 import { generateRandomSeed } from "../../api/icp";
 import { useReduxOfflineMultiTenant } from "../../redux-offline/ReduxProvider";
 import { useNavigate } from "react-router-dom";
+
+import { useDispatch } from "react-redux";
 
 const { TabPane } = Tabs;
 
@@ -71,6 +73,7 @@ const OrganizationSwitcher = () => {
   const [selectedOrgId, setSelectedOrgId] = useState<string>("");
   const [activeTabKey, setActiveTabKey] = useState("newOrg");
   const [enterOrgTabKey, setEnterOrgTabKey] = useState("enterOrg");
+  const dispatch = useDispatch();
 
   // Selected profile for organization entry
   const [selectedProfileId, setSelectedProfileId] = useState("");
@@ -639,7 +642,7 @@ const OrganizationSwitcher = () => {
       setIsModalVisible(false);
 
       // Refresh the page
-      message.success("Entering Organization...", 0);
+      message.success(`Success! Entering organization...`);
       navigate("/");
       window.location.reload();
     } catch (error) {
@@ -863,13 +866,11 @@ const OrganizationSwitcher = () => {
               console.error("Error creating disk:", error);
             }
           }
+          message.success("Syncing... please wait", 0);
           await sleep(3000);
-
-          message.success("Refreshing Page...", 0);
+          message.success(`Success! Entering new organization...`);
           navigate("/");
           window.location.reload();
-
-          setIsModalVisible(false);
         } catch (error) {
           console.error("Error redeeming gift card:", error);
           message.error(
@@ -900,9 +901,9 @@ const OrganizationSwitcher = () => {
           `Organization "${newOrgNickname}" created successfully!`,
           0
         );
-        setIsModalVisible(false);
+        navigate("/");
+        window.location.reload();
       }
-      window.location.reload();
     } catch (error) {
       console.error("Error creating organization:", error);
       message.error("Failed to create organization. Please try again.");
@@ -995,10 +996,7 @@ const OrganizationSwitcher = () => {
 
       // Switch to the organization
       await switchOrganization(org, profile?.userID);
-      setIsModalVisible(false);
-
-      // Refresh the page
-      message.success(`Entering "${org.nickname}" organization`);
+      message.success(`Entering "${org.nickname}" organization...`);
       navigate("/");
       window.location.reload();
     }

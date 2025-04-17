@@ -515,7 +515,6 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_PERMISSIONS: {
-            console.log("LIST_DIRECTORY_PERMISSIONS", action);
             const resourceId =
               action.meta?.offline?.effect?.data?.filters?.resource_id;
             const cachedPermissions = await directoryTable
@@ -536,7 +535,6 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_PERMISSIONS_COMMIT: {
-            console.log("LIST_DIRECTORY_PERMISSIONS_COMMIT", action);
             const permissions = action.payload?.ok?.data?.items || [];
             await db.transaction("rw", directoryTable, async () => {
               for (const permission of permissions) {
@@ -554,7 +552,6 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_PERMISSIONS_ROLLBACK: {
-            console.log("LIST_DIRECTORY_PERMISSIONS_ROLLBACK", action);
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
@@ -602,10 +599,6 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_DIRECTORY_PERMISSION_COMMIT: {
-            console.log(
-              "CREATE_DIRECTORY_PERMISSION_COMMIT middleware",
-              action
-            );
             const optimisticID = action.meta?.optimisticID;
             const realPermission = action.payload?.ok?.data.permission;
             if (optimisticID && realPermission) {
@@ -923,10 +916,6 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_PERMISSION_TABLE_PERMISSIONS: {
-            console.log(
-              `Firing checkPermissionTablePermissionsAction for user`,
-              action
-            );
             // check dexie
             const systemPermissionsTable = db.table(
               SYSTEM_PERMISSIONS_DEXIE_TABLE
@@ -944,10 +933,6 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_PERMISSION_TABLE_PERMISSIONS_COMMIT: {
-            console.log(
-              `Handling CHECK_PERMISSION_TABLE_PERMISSIONS_COMMIT`,
-              action
-            );
             const optimisticID = action.meta?.optimisticID;
             const permissions = action.payload?.ok?.data?.permissions;
 

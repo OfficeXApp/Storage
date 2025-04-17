@@ -181,10 +181,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     (state: ReduxAppState) => state.directory.listingDataMap[listDirectoryKey]
   );
   console.log("listDirectoryResults", listDirectoryResults);
-  const shouldBlockResync =
-    listDirectoryResults &&
-    !pastLastCheckedCacheLimit(listDirectoryResults.lastUpdated) &&
-    refreshToken === "block-resync";
 
   const [isSharedWithMePage, setIsSharedWithMePage] = useState(false);
   const [isDiskRootPage, setIsDiskRootPage] = useState(false);
@@ -352,7 +348,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   }, [location, showAncillary, refreshToken]);
 
   const fetchFileById = (fileId: FileID, diskID: DiskID) => {
-    if (shouldBlockResync) return;
     if (!diskID) return;
     try {
       // Create the get file action
@@ -400,7 +395,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       targetFileId?: FileID;
       sharedWithMe?: boolean;
     }) => {
-      if (shouldBlockResync) return;
       if (!targetFolderId && !targetFileId && !sharedWithMe) {
         // Root level showing disks from Redux
 
@@ -538,9 +532,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     params.set("refresh", refreshToken);
     setRefreshToken(refreshToken);
     navigate(`${location.pathname}?${params.toString()}`);
-    setTimeout(() => {
-      setRefreshToken("block-resync");
-    }, 1000);
   };
 
   const handleFileFolderClick = (item: DriveItemRow) => {
@@ -1184,8 +1175,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 }}
               >
                 <span onClick={handleBack}>Back </span>{" "}
-                {(listDirectoryResults && listDirectoryResults.isLoading) ||
-                (getFileResult && (getFileResult as any).isLoading) ? (
+                {listDirectoryResults && listDirectoryResults.isLoading ? (
                   <span>
                     <LoadingOutlined />
                     <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
@@ -1261,10 +1251,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             </div>
           ) : !currentFileId && !currentFolderId ? null : (
             <Button
-              onClick={handleBack}
               size="small"
               type="link"
-              icon={<ArrowLeftOutlined />}
+              icon={<ArrowLeftOutlined onClick={handleBack} />}
               style={{
                 padding: 0,
                 color: "inherit",
@@ -1272,7 +1261,25 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 margin: "0px 8px 0px 24px",
               }}
             >
-              Back
+              <span onClick={handleBack}>Back </span>{" "}
+              {getFileResult && (getFileResult as any).isLoading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Refetching file...");
+                    if (currentFileId && currentDiskId) {
+                      fetchFileById(currentFileId, currentDiskId);
+                    }
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)" }}
+                />
+              )}
             </Button>
           )}
           {is404NotFound ? (

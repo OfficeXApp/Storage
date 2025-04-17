@@ -42,6 +42,7 @@ import {
 } from "../../api/dexie-database";
 import TagCopy from "../../components/TagCopy";
 import { useIdentitySystem } from "../../framework/identity";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 interface DisksTableListProps {
   isContentTabOpen: (id: string) => boolean;
@@ -63,6 +64,9 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
   const [searchText, setSearchText] = useState("");
   const [filteredDisks, setFilteredDisks] = useState(disks);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const { lastChecked } = useSelector((state: ReduxAppState) => ({
+    lastChecked: state.disks.lastChecked,
+  }));
 
   // Update filtered disks whenever search text or disks change
   useEffect(() => {
@@ -74,10 +78,12 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
 
   // Handle responsive layout
   useEffect(() => {
-    try {
-      dispatch(listDisksAction({}));
-    } catch (e) {
-      console.error(e);
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
+      try {
+        dispatch(listDisksAction({}));
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     // message.success(

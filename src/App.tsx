@@ -72,17 +72,18 @@ function App() {
             bufferTime = 2000;
           }
         }
-        // dispatch(listDisksAction({}));
-        // await sleep(bufferTime);
-        // dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
-        // await sleep(bufferTime);
-        // dispatch(listContactsAction({}));
-        // await sleep(bufferTime);
-        // dispatch(checkContactTablePermissionsAction(currentProfile.userID));
-        // await sleep(bufferTime);
-        // dispatch(listGroupsAction({}));
-        // await sleep(bufferTime);
-        // dispatch(checkGroupTablePermissionsAction(currentProfile.userID));
+        dispatch(listDisksAction({}));
+        await sleep(bufferTime);
+        dispatch(listContactsAction({}));
+        await sleep(bufferTime);
+        await sleep(bufferTime);
+        dispatch(listGroupsAction({}));
+        await sleep(bufferTime);
+        dispatch(checkContactTablePermissionsAction(currentProfile.userID));
+        await sleep(bufferTime);
+        dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
+        await sleep(bufferTime);
+        dispatch(checkGroupTablePermissionsAction(currentProfile.userID));
         // await sleep(bufferTime);
         // dispatch(listDrivesAction({}));
         // await sleep(bufferTime);

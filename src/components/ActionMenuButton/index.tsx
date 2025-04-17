@@ -54,12 +54,14 @@ interface ActionMenuButtonProps {
   isBigButton?: boolean; // Determines the button style
   toggleUploadPanel: (bool: boolean) => void; // Callback to toggle UploadPanel visibility
   optimisticListDirectoryKey?: string;
+  disabled?: boolean;
 }
 
 const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   isBigButton = false,
   toggleUploadPanel,
   optimisticListDirectoryKey,
+  disabled = false,
 }) => {
   const { currentOrg, isOfflineOrg } = useIdentitySystem();
   const icpCanisterId = currentOrg?.driveID;
@@ -217,6 +219,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         <Button
           type={isBigButton && icpCanisterId ? "primary" : undefined}
           block={isBigButton}
+          disabled={disabled}
           style={
             isBigButton
               ? { width: "100%" }

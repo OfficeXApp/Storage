@@ -111,7 +111,10 @@ const SideMenu = ({
   useEffect(() => {
     const path = location.pathname;
 
-    if (path.includes("/drive-shared")) {
+    if (path.includes("/recent")) {
+      setSelectedKeys(["recent"]);
+      setOpenKeys(["navigate-storage"]);
+    } else if (path.includes("/drive-shared")) {
       setSelectedKeys(["drive-shared"]);
       setOpenKeys(["navigate-storage"]);
     } else if (path.includes("/drive-trash")) {
@@ -169,9 +172,7 @@ const SideMenu = ({
         },
         {
           key: "recent",
-          label: "Recent",
-          type: "item",
-          disabled: true,
+          label: <Link to={wrapOrgCode("/recent")}>Recent</Link>,
         },
         {
           key: "drive-shared",
@@ -426,6 +427,10 @@ const RouterUI = () => {
               />
               <Route
                 path="/org/:orgcode/drive-trash/*"
+                element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
+              />
+              <Route
+                path="/org/:orgcode/recent"
                 element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
               />
               <Route

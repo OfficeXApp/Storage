@@ -26,6 +26,8 @@ import {
   FILES_DEXIE_TABLE,
   FolderFEO,
   FOLDERS_DEXIE_TABLE,
+  RECENTS_DEXIE_TABLE,
+  RecentFEO,
 } from "../redux-offline/directory/directory.reducer";
 
 /**
@@ -104,6 +106,7 @@ class DexieManager {
       [FILES_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
       [FOLDERS_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
       [BREADCRUMBS_TABLE]: "id, resource_id",
+      [RECENTS_DEXIE_TABLE]: "id, last_opened",
     });
 
     // Set as current and return

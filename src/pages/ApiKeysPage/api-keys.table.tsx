@@ -25,6 +25,8 @@ import {
   RightOutlined,
   KeyOutlined,
   LockOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
@@ -32,8 +34,12 @@ import { ApiKeyFE } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listApiKeysAction } from "../../redux-offline/api-keys/api-keys.actions";
+import {
+  checkApiKeyTablePermissionsAction,
+  listApiKeysAction,
+} from "../../redux-offline/api-keys/api-keys.actions";
 import { useIdentitySystem } from "../../framework/identity";
+import TagCopy from "../../components/TagCopy";
 
 interface ApiKeysTableListProps {
   isContentTabOpen: (id: string) => boolean;
@@ -46,7 +52,10 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const apiKeys = useSelector((state: ReduxAppState) => state.apikeys.apikeys);
+  const { apiKeys, loading } = useSelector((state: ReduxAppState) => ({
+    apiKeys: state.apikeys.apikeys,
+    loading: state.apikeys.loading,
+  }));
   const screenType = useScreenType();
   const { currentProfile, wrapOrgCode } = useIdentitySystem();
   const [searchText, setSearchText] = useState("");
@@ -196,16 +205,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
             />
             <span style={{ marginLeft: "8px" }}>{record.name}</span>
           </div>
-          <Tag
-            color="blue"
-            onClick={() => {
-              navigator.clipboard.writeText(record.value);
-              message.success("API key copied to clipboard");
-            }}
-            style={{ cursor: "pointer" }}
-          >
-            {shortenKey(record.value)}
-          </Tag>
+          <TagCopy id={record.id} />
           {getStatusLabel(record)}
         </Space>
       ),
@@ -322,6 +322,12 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
     );
   };
 
+  const syncLatest = () => {
+    if (!currentProfile) return;
+    dispatch(listApiKeysAction(currentProfile.userID));
+    dispatch(checkApiKeyTablePermissionsAction(currentProfile.userID));
+  };
+
   return (
     <div
       style={{
@@ -346,13 +352,31 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
             }}
           >
             {/* Search input */}
-            <Input
-              placeholder="Search API keys..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: "240px" }}
-            />
+            <Space direction="horizontal">
+              <Input
+                placeholder="Search API keys..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: "240px" }}
+              />
+              {loading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Syncing latest...");
+                    syncLatest();
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)" }}
+                />
+              )}
+            </Space>
 
             {/* Filter options and manage button */}
             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>

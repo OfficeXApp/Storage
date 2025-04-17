@@ -122,7 +122,7 @@ const PermissionsPage: React.FC = () => {
           label: label,
           children: (
             <PermissionTab
-              permission={permission}
+              permissionCache={permission}
               onDelete={handleDeletionCloseTabs}
             />
           ),

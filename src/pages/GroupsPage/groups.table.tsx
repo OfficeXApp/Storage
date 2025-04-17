@@ -26,6 +26,8 @@ import {
   EditOutlined,
   LockOutlined,
   SisternodeOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
@@ -33,7 +35,10 @@ import { GroupFE, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listGroupsAction } from "../../redux-offline/groups/groups.actions";
+import {
+  checkGroupTablePermissionsAction,
+  listGroupsAction,
+} from "../../redux-offline/groups/groups.actions";
 import { formatUserString } from "../../api/helpers";
 import { useIdentitySystem } from "../../framework/identity";
 
@@ -46,10 +51,13 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
   isContentTabOpen,
   handleClickContentTab,
 }) => {
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const groups = useSelector((state: ReduxAppState) => state.groups.groups);
+  const { groups, loading } = useSelector((state: ReduxAppState) => ({
+    groups: state.groups.groups,
+    loading: state.groups.loading,
+  }));
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredGroups, setFilteredGroups] = useState(groups);
@@ -288,6 +296,12 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
     );
   };
 
+  const syncLatest = () => {
+    if (!currentProfile) return;
+    dispatch(listGroupsAction({}));
+    dispatch(checkGroupTablePermissionsAction(currentProfile.userID));
+  };
+
   return (
     <div
       style={{
@@ -312,14 +326,31 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
             }}
           >
             {/* Search input */}
-            <Input
-              placeholder="Search groups..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: "240px" }}
-            />
-
+            <Space direction="horizontal">
+              <Input
+                placeholder="Search Groups..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: "240px" }}
+              />
+              {loading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Syncing latest...");
+                    syncLatest();
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)" }}
+                />
+              )}
+            </Space>
             {/* Filter options and manage button */}
             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
               <Dropdown menu={{ items: filterItems, onClick: () => {} }}>

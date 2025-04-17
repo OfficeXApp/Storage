@@ -22,6 +22,8 @@ import {
   DeleteOutlined,
   RightOutlined,
   CloudOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
@@ -29,7 +31,10 @@ import { DiskTypeEnum } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listDisksAction } from "../../redux-offline/disks/disks.actions";
+import {
+  checkDiskTablePermissionsAction,
+  listDisksAction,
+} from "../../redux-offline/disks/disks.actions";
 import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
 import {
   defaultBrowserCacheDiskID,
@@ -37,6 +42,7 @@ import {
 } from "../../api/dexie-database";
 import TagCopy from "../../components/TagCopy";
 import { useIdentitySystem } from "../../framework/identity";
+import { pastLastCheckedCacheLimit } from "../../api/helpers";
 
 interface DisksTableListProps {
   isContentTabOpen: (id: string) => boolean;
@@ -49,12 +55,18 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const disks = useSelector((state: ReduxAppState) => state.disks.disks);
-  const { wrapOrgCode } = useIdentitySystem();
+  const { disks, loading } = useSelector((state: ReduxAppState) => ({
+    disks: state.disks.disks,
+    loading: state.disks.loading,
+  }));
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredDisks, setFilteredDisks] = useState(disks);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const { lastChecked } = useSelector((state: ReduxAppState) => ({
+    lastChecked: state.disks.lastChecked,
+  }));
 
   // Update filtered disks whenever search text or disks change
   useEffect(() => {
@@ -66,10 +78,12 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
 
   // Handle responsive layout
   useEffect(() => {
-    try {
-      dispatch(listDisksAction({}));
-    } catch (e) {
-      console.error(e);
+    if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
+      try {
+        dispatch(listDisksAction({}));
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     // message.success(
@@ -295,6 +309,12 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
     );
   };
 
+  const syncLatest = () => {
+    if (!currentProfile) return;
+    dispatch(listDisksAction({}));
+    dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
+  };
+
   return (
     <div
       style={{
@@ -319,13 +339,33 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
             }}
           >
             {/* Search input */}
-            <Input
-              placeholder="Search disks..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: "240px" }}
-            />
+
+            <Space direction="horizontal">
+              <Input
+                placeholder="Search disks..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: "240px" }}
+              />
+
+              {loading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Syncing latest...");
+                    syncLatest();
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)" }}
+                />
+              )}
+            </Space>
 
             {/* Filter options and manage button */}
             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>

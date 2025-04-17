@@ -70,7 +70,7 @@ const DiskPage = () => {
         }}
       >
         <DiskTab
-          disk={disk}
+          diskCache={disk}
           onDelete={() => {
             navigate(wrapOrgCode(`/resources/disks`));
           }}

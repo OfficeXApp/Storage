@@ -33,6 +33,8 @@ export interface DiskFEO extends DiskFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 interface DisksState {
@@ -85,29 +87,30 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
         disks: updateOrAddDisk(state.disks, action.optimistic),
         diskMap: {
           ...state.diskMap,
-          [action.optimistic.id]: action.optimistic,
+          [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_DISK_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
+      const realDisk = action.payload.ok.data;
       // Update the optimistic disk with the real data
       return {
         ...state,
         disks: state.disks.map((disk) => {
-          if (disk._optimisticID === optimisticID) {
-            return action.payload.ok.data;
+          if (disk._optimisticID === realDisk.id || disk.id === realDisk.id) {
+            return realDisk;
           }
           return disk;
         }),
         diskMap: {
           ...state.diskMap,
-          [action.payload.ok.data.id]: action.payload.ok.data,
+          [action.payload.ok.data.id]: {
+            ...action.payload.ok.data,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
-        loading: false,
       };
     }
 
@@ -126,12 +129,12 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return disk;
         }),
         diskMap: newDiskMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch disk",
       };
     }
@@ -166,7 +169,7 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
       );
       const newDiskMap = serverDisks.reduce(
         (acc: Record<DiskID, DiskFEO>, item: DiskFEO) => {
-          acc[item.id] = item;
+          acc[item.id] = { ...item, lastChecked: Date.now() };
           return acc;
         },
         state.diskMap

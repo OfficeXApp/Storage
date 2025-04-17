@@ -117,7 +117,10 @@ const WebhooksPage: React.FC = () => {
           key: webhook.id,
           label: shortenUrl(webhook.url),
           children: (
-            <WebhookTab webhook={webhook} onDelete={handleDeletionCloseTabs} />
+            <WebhookTab
+              webhookCache={webhook}
+              onDelete={handleDeletionCloseTabs}
+            />
           ),
           closable: true,
         };

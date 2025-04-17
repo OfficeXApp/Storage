@@ -108,7 +108,9 @@ const DisksPage: React.FC = () => {
         const newTab: TabItem = {
           key: disk.id,
           label: disk.name,
-          children: <DiskTab disk={disk} onDelete={handleDeletionCloseTabs} />,
+          children: (
+            <DiskTab diskCache={disk} onDelete={handleDeletionCloseTabs} />
+          ),
           closable: true,
         };
 

@@ -70,7 +70,7 @@ const LabelPage = () => {
         }}
       >
         <LabelTab
-          label={label}
+          labelID={label.id}
           onDelete={() => {
             navigate(wrapOrgCode(`/resources/labels`));
           }}

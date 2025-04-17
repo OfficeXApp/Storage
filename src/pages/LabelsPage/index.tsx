@@ -73,7 +73,7 @@ const LabelsPage: React.FC = () => {
   useEffect(() => {
     if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(listLabelsAction({}));
-      dispatch(checkLabelTablePermissionsAction(currentProfile.userID));
+      // dispatch(checkLabelTablePermissionsAction(currentProfile.userID));
     }
   }, [currentProfile, lastChecked]);
 
@@ -105,7 +105,7 @@ const LabelsPage: React.FC = () => {
           key: label.id,
           label: label.value,
           children: (
-            <LabelTab label={label} onDelete={handleDeletionCloseTabs} />
+            <LabelTab labelCache={label} onDelete={handleDeletionCloseTabs} />
           ),
           closable: true,
         };
@@ -375,6 +375,3 @@ const LabelsPage: React.FC = () => {
 };
 
 export default LabelsPage;
-function checkLabelTablePermissionsAction(userID: any): any {
-  throw new Error("Function not implemented.");
-}

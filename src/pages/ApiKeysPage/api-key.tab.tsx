@@ -33,6 +33,8 @@ import {
   UpOutlined,
   CodeOutlined,
   LockOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   ApiKeyFE,
@@ -50,30 +52,43 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteApiKeyAction,
+  getApiKeyAction,
   updateApiKeyAction,
 } from "../../redux-offline/api-keys/api-keys.actions";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
 import { wrapAuthStringOrHeader } from "../../api/helpers";
+import TagCopy from "../../components/TagCopy";
+import { ApiKeyFEO } from "../../redux-offline/api-keys/api-keys.reducer";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
 // Define the props for the ApiKeyTab component
 interface ApiKeyTabProps {
-  apiKey: ApiKeyFE;
+  apiKeyCache: ApiKeyFEO;
   onSave?: (updatedApiKey: Partial<ApiKeyFE>) => void;
   onDelete?: (apiKeyID: ApiKeyID) => void;
 }
 
-const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
+const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
+  apiKeyCache,
+  onSave,
+  onDelete,
+}) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [showCodeSnippets, setShowCodeSnippets] = useState(false);
-  const [neverExpires, setNeverExpires] = useState(apiKey.expires_at === -1);
+  const apiKey =
+    useSelector(
+      (state: ReduxAppState) => state.apikeys.apikeyMap[apiKeyCache.id]
+    ) || apiKeyCache;
+  const [neverExpires, setNeverExpires] = useState(
+    apiKey && apiKey.expires_at === -1
+  );
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
@@ -230,6 +245,8 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({ apiKey, onSave, onDelete }) => {
     return `${key.slice(0, 6)}...${key.slice(-4)}`;
   };
 
+  if (!apiKey) return null;
+
   const initialValues = {
     name: apiKey.name,
     is_revoked: apiKey.is_revoked,
@@ -368,6 +385,10 @@ const data = await response.json();`;
         </Tabs>
       </Card>
     );
+  };
+
+  const syncLatest = () => {
+    dispatch(getApiKeyAction(apiKey.id));
   };
 
   return (
@@ -636,12 +657,32 @@ const data = await response.json();`;
                             >
                               {apiKey.name}
                             </Title>
-                            <Tag>
-                              {shortenAddress(
-                                apiKey.id.replace("ApiKeyID_", "")
-                              )}
-                            </Tag>
+                            <TagCopy id={apiKey.id} />
                             {getStatusLabel()}
+
+                            <div style={{ marginTop: "0px" }}>
+                              {apiKey.isLoading ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 32,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    syncLatest();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space style={{ marginTop: "4px" }}>
                             {apiKey.user_name && (

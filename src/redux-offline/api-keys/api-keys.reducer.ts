@@ -30,6 +30,8 @@ export interface ApiKeyFEO extends ApiKeyFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 interface ApiKeysState {
@@ -87,15 +89,12 @@ export const apiKeysReducer = (
         apikeys: updateOrAddApiKey(state.apikeys, action.optimistic),
         apikeyMap: {
           ...state.apikeyMap,
-          [action.optimistic.id]: action.optimistic,
+          [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_APIKEY_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
       const apiKeyData = action.payload?.ok?.data;
 
       if (!apiKeyData) return { ...state, loading: false };
@@ -104,16 +103,22 @@ export const apiKeysReducer = (
       return {
         ...state,
         apikeys: state.apikeys.map((apikey) => {
-          if (apikey._optimisticID === optimisticID) {
+          if (
+            apikey._optimisticID === apiKeyData.id ||
+            apikey.id === apiKeyData.id
+          ) {
             return apiKeyData;
           }
           return apikey;
         }),
         apikeyMap: {
           ...state.apikeyMap,
-          [apiKeyData.id]: apiKeyData,
+          [apiKeyData.id]: {
+            ...apiKeyData,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
-        loading: false,
       };
     }
 
@@ -132,12 +137,12 @@ export const apiKeysReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return apikey;
         }),
         apikeyMap: newApiKeyMap,
-        loading: false,
         error: action.payload?.message || "Failed to fetch API key",
       };
     }
@@ -160,7 +165,7 @@ export const apiKeysReducer = (
       );
       const apikeyMap = (action.payload?.ok?.data || []).reduce(
         (acc: Record<ApiKeyID, ApiKeyFEO>, item: ApiKeyFEO) => {
-          acc[item.id] = item;
+          acc[item.id] = { ...item, lastChecked: Date.now() };
           return acc;
         },
         state.apikeyMap

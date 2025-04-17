@@ -36,6 +36,8 @@ export interface GroupFEO extends GroupFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 interface GroupsState {
@@ -94,15 +96,12 @@ export const groupsReducer = (
         groups: updateOrAddGroup(state.groups, action.optimistic),
         groupMap: {
           ...state.groupMap,
-          [action.optimistic.id]: action.optimistic,
+          [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_GROUP_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
       const groupData = action.payload.ok.data;
 
       console.log("GET_GROUP_COMMIT reducer", groupData, state.groups);
@@ -112,7 +111,7 @@ export const groupsReducer = (
         ...state,
         groups: state.groups.map((group) => {
           if (
-            group._optimisticID === optimisticID ||
+            group._optimisticID === groupData.id ||
             group.id === groupData.id
           ) {
             return groupData;
@@ -121,9 +120,12 @@ export const groupsReducer = (
         }),
         groupMap: {
           ...state.groupMap,
-          [groupData.id]: groupData,
+          [groupData.id]: {
+            ...groupData,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
-        loading: false,
       };
     }
 
@@ -147,7 +149,6 @@ export const groupsReducer = (
           return group;
         }),
         groupMap: newGroupMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch group",
       };
     }
@@ -170,7 +171,7 @@ export const groupsReducer = (
       );
       const groupMap = action.payload.ok.data.items.reduce(
         (acc: Record<GroupID, GroupFEO>, item: GroupFEO) => {
-          acc[item.id] = item;
+          acc[item.id] = { ...item, lastChecked: Date.now() };
           return acc;
         },
         state.groupMap

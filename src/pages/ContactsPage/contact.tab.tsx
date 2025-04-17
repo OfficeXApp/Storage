@@ -36,6 +36,8 @@ import {
   UpOutlined,
   CodeOutlined,
   LockOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   IRequestUpdateContact,
@@ -53,24 +55,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteContactAction,
+  getContactAction,
   updateContactAction,
 } from "../../redux-offline/contacts/contacts.actions";
 import { useNavigate } from "react-router-dom";
 import { ContactFEO } from "../../redux-offline/contacts/contacts.reducer";
 import InviteContactModal from "./contact.invite";
+import TagCopy from "../../components/TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
 // Define the props for the ContactTab component
 interface ContactTabProps {
-  contact: ContactFEO;
+  contactCache: ContactFEO;
   onSave?: (updatedContact: Partial<ContactFEO>) => void;
   onDelete?: (contactID: UserID) => void;
 }
 
 const ContactTab: React.FC<ContactTabProps> = ({
-  contact,
+  contactCache,
   onSave,
   onDelete,
 }) => {
@@ -83,6 +87,11 @@ const ContactTab: React.FC<ContactTabProps> = ({
   const screenType = useScreenType();
   const navigate = useNavigate();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const contact =
+    useSelector(
+      (state: ReduxAppState) =>
+        state.contacts?.contactMap[contactCache.id] as ContactFEO
+    ) || contactCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -230,6 +239,8 @@ const ContactTab: React.FC<ContactTabProps> = ({
     );
   };
 
+  if (!contact) return null;
+
   const lastOnlineStatus = getLastOnlineStatus(contact.last_online_ms);
 
   const initialValues = {
@@ -293,6 +304,10 @@ const ContactTab: React.FC<ContactTabProps> = ({
         </Tabs>
       </Card>
     );
+  };
+
+  const syncLatest = () => {
+    dispatch(getContactAction(contact.id));
   };
 
   return (
@@ -510,28 +525,30 @@ const ContactTab: React.FC<ContactTabProps> = ({
                             >
                               {contact.name}
                             </Title>
-                            <Tag
-                              color="blue"
-                              onClick={() => {
-                                const userstring = `${contact.name.replace(" ", "_")}@${contact.id}`;
-                                navigator.clipboard
-                                  .writeText(userstring)
-                                  .then(() => {
-                                    message.success("Copied to clipboard!");
-                                  })
-                                  .catch(() => {
-                                    message.error(
-                                      "Failed to copy to clipboard."
-                                    );
-                                  });
-                              }}
-                              style={{
-                                cursor: "pointer",
-                                marginTop: "24px",
-                              }}
-                            >
-                              {shortenAddress(contact.icp_principal)}
-                            </Tag>
+                            <TagCopy id={contact.id} />
+                            <div style={{ marginTop: "0px" }}>
+                              {contact.isLoading ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 8,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    syncLatest();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Badge

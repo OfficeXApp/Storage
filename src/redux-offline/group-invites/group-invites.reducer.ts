@@ -28,6 +28,7 @@ export interface GroupInviteFEO extends GroupInviteFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
 }
 
 interface GroupInvitesState {
@@ -35,6 +36,7 @@ interface GroupInvitesState {
   inviteMap: Record<GroupInviteID, GroupInviteFEO>;
   loading: boolean;
   error: string | null;
+  lastChecked: number;
 }
 
 const initialState: GroupInvitesState = {
@@ -42,6 +44,7 @@ const initialState: GroupInvitesState = {
   inviteMap: {},
   loading: false,
   error: null,
+  lastChecked: 0,
 };
 
 const updateOrAddInvite = (
@@ -84,8 +87,6 @@ export const groupInvitesReducer = (
           ...state.inviteMap,
           [action.optimistic.id]: action.optimistic,
         },
-        loading: true,
-        error: null,
       };
     }
 
@@ -102,9 +103,11 @@ export const groupInvitesReducer = (
         }),
         inviteMap: {
           ...state.inviteMap,
-          [action.payload.ok.data.id]: action.payload.ok.data,
+          [action.payload.ok.data.id]: {
+            ...action.payload.ok.data,
+            lastChecked: Date.now(),
+          },
         },
-        loading: false,
       };
     }
 
@@ -128,7 +131,6 @@ export const groupInvitesReducer = (
           return invite;
         }),
         inviteMap: newInviteMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch group invite",
       };
     }
@@ -150,7 +152,18 @@ export const groupInvitesReducer = (
       return {
         ...state,
         invites: action.payload.ok.data.items,
+        inviteMap: action.payload.ok.data.items.reduce(
+          (
+            acc: Record<GroupInviteID, GroupInviteFEO>,
+            item: GroupInviteFEO
+          ) => {
+            acc[item.id] = { ...item, lastChecked: Date.now() };
+            return acc;
+          },
+          state.inviteMap
+        ),
         loading: false,
+        lastChecked: Date.now(),
       };
     }
 

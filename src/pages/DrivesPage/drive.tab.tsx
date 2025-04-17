@@ -35,6 +35,8 @@ import {
   UpOutlined,
   CodeOutlined,
   TeamOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   DriveFE,
@@ -51,22 +53,28 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteDriveAction,
+  getDriveAction,
   updateDriveAction,
 } from "../../redux-offline/drives/drives.actions";
 import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
 import { useNavigate } from "react-router-dom";
+import TagCopy from "../../components/TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
 // Define the props for the DriveTab component
 interface DriveTabProps {
-  drive: DriveFEO;
+  driveCache: DriveFEO;
   onSave?: (updatedDrive: Partial<DriveFEO>) => void;
   onDelete?: (driveID: DriveID) => void;
 }
 
-const DriveTab: React.FC<DriveTabProps> = ({ drive, onSave, onDelete }) => {
+const DriveTab: React.FC<DriveTabProps> = ({
+  driveCache,
+  onSave,
+  onDelete,
+}) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
@@ -75,6 +83,10 @@ const DriveTab: React.FC<DriveTabProps> = ({ drive, onSave, onDelete }) => {
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
+  const drive =
+    useSelector(
+      (state: ReduxAppState) => state.drives.driveMap[driveCache.id]
+    ) || driveCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -223,6 +235,8 @@ const DriveTab: React.FC<DriveTabProps> = ({ drive, onSave, onDelete }) => {
     );
   };
 
+  if (!drive) return null;
+
   const initialValues = {
     name: drive.name,
     endpoint_url: drive.endpoint_url,
@@ -319,6 +333,10 @@ const listDrives = async (page = 1, limit = 10) => {
         </Tabs>
       </Card>
     );
+  };
+
+  const syncLatest = () => {
+    dispatch(getDriveAction(drive.id));
   };
 
   return (
@@ -525,28 +543,31 @@ const listDrives = async (page = 1, limit = 10) => {
                             >
                               {drive.name}
                             </Title>
-                            <Tag
-                              color="blue"
-                              onClick={() => {
-                                const drivestring = `${drive.name.replace(" ", "_")}@${drive.id}`;
-                                navigator.clipboard
-                                  .writeText(drivestring)
-                                  .then(() => {
-                                    message.success("Copied to clipboard!");
-                                  })
-                                  .catch(() => {
-                                    message.error(
-                                      "Failed to copy to clipboard."
-                                    );
-                                  });
-                              }}
-                              style={{
-                                cursor: "pointer",
-                                marginTop: "24px",
-                              }}
-                            >
-                              {shortenAddress(drive.icp_principal)}
-                            </Tag>
+                            <TagCopy id={drive.id} />
+
+                            <div style={{ marginTop: "0px" }}>
+                              {drive.isLoading ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 8,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    syncLatest();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           {drive.last_indexed_ms && (
                             <Space>

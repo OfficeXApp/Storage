@@ -32,6 +32,8 @@ import {
   UpOutlined,
   CodeOutlined,
   AppstoreOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   LabelFE,
@@ -49,23 +51,29 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteLabelAction,
+  getLabelAction,
   updateLabelAction,
 } from "../../redux-offline/labels/labels.actions";
 import TagCopy from "../../components/TagCopy";
 import { useNavigate } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
+import { LabelFEO } from "../../redux-offline/labels/labels.reducer";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
 // Define the props for the LabelTab component
 interface LabelTabProps {
-  label: LabelFE;
-  onSave?: (updatedLabel: Partial<LabelFE>) => void;
+  labelCache: LabelFEO;
+  onSave?: (updatedLabel: Partial<LabelFEO>) => void;
   onDelete?: (labelID: LabelID) => void;
 }
 
-const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
+const LabelTab: React.FC<LabelTabProps> = ({
+  labelCache,
+  onSave,
+  onDelete,
+}) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
@@ -75,6 +83,10 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
   const screenType = useScreenType();
   const navigate = useNavigate();
   const { wrapOrgCode } = useIdentitySystem();
+  const label =
+    useSelector(
+      (state: ReduxAppState) => state.labels.labelMap[labelCache.id]
+    ) || labelCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -229,6 +241,8 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
     );
   };
 
+  if (!label) return null;
+
   const initialValues = {
     value: label.value,
     description: label.description || "",
@@ -289,6 +303,10 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
         </Tabs>
       </Card>
     );
+  };
+
+  const syncLatest = () => {
+    dispatch(getLabelAction(label.id));
   };
 
   return (
@@ -484,6 +502,29 @@ const LabelTab: React.FC<LabelTabProps> = ({ label, onSave, onDelete }) => {
                               {label.value}
                             </Title>
                             <TagCopy id={label.id} />
+                            <div style={{ marginTop: "0px" }}>
+                              {label.isLoading ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 8,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    syncLatest();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Text type="secondary">

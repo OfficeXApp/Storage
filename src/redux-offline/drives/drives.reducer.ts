@@ -36,6 +36,8 @@ export interface DriveFEO extends DriveFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 interface DrivesState {
@@ -95,30 +97,34 @@ export const drivesReducer = (
         driveMap: action.optimistic
           ? {
               ...state.driveMap,
-              [action.optimistic.id]: action.optimistic,
+              [action.optimistic.id]: { ...action.optimistic, isLoading: true },
             }
           : state.driveMap,
-        loading: true,
-        error: null,
       };
     }
 
     case GET_DRIVE_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
+      const realDrive = action.payload.ok.data;
       // Update the optimistic drive with the real data
       return {
         ...state,
         drives: state.drives.map((drive) => {
-          if (drive._optimisticID === optimisticID) {
-            return action.payload.ok.data;
+          if (
+            drive._optimisticID === realDrive.id ||
+            drive.id === realDrive.id
+          ) {
+            return realDrive;
           }
           return drive;
         }),
         driveMap: {
           ...state.driveMap,
-          [action.payload.ok.data.id]: action.payload.ok.data,
+          [action.payload.ok.data.id]: {
+            ...action.payload.ok.data,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
-        loading: false,
       };
     }
 
@@ -137,12 +143,12 @@ export const drivesReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return drive;
         }),
         driveMap: newDriveMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch drive",
       };
     }
@@ -165,7 +171,7 @@ export const drivesReducer = (
       );
       const driveMap = action.payload.ok.data.items.reduce(
         (acc: Record<DriveID, DriveFEO>, item: DriveFEO) => {
-          acc[item.id] = item;
+          acc[item.id] = { ...item, lastChecked: Date.now() };
           return acc;
         },
         state.driveMap

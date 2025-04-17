@@ -74,29 +74,34 @@ function App() {
         }
         dispatch(listDisksAction({}));
         await sleep(bufferTime);
-        dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
-        await sleep(bufferTime);
         dispatch(listContactsAction({}));
         await sleep(bufferTime);
-        dispatch(checkContactTablePermissionsAction(currentProfile.userID));
         await sleep(bufferTime);
         dispatch(listGroupsAction({}));
         await sleep(bufferTime);
+        dispatch(checkContactTablePermissionsAction(currentProfile.userID));
+        await sleep(bufferTime);
+        dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
+        await sleep(bufferTime);
         dispatch(checkGroupTablePermissionsAction(currentProfile.userID));
-        await sleep(bufferTime);
-        dispatch(listDrivesAction({}));
-        await sleep(bufferTime);
-        dispatch(checkDriveTablePermissionsAction(currentProfile.userID));
-        await sleep(bufferTime);
-        dispatch(checkWebhookTablePermissionsAction(currentProfile.userID));
-        await sleep(bufferTime);
-        dispatch(checkApiKeyTablePermissionsAction(currentProfile.userID));
-        await sleep(bufferTime);
-        dispatch(
-          checkSystemPermissionTablePermissionsAction(currentProfile.userID)
-        );
-        await sleep(bufferTime);
-        dispatch(listSystemPermissionsAction({}));
+        // await sleep(bufferTime);
+        // dispatch(listDrivesAction({}));
+        // await sleep(bufferTime);
+        // dispatch(checkDriveTablePermissionsAction(currentProfile.userID));
+        // await sleep(bufferTime);
+        // dispatch(listLabelsAction({}));
+        // await sleep(bufferTime);
+        // dispatch(listWebhooksAction({}));
+        // await sleep(bufferTime);
+        // dispatch(checkWebhookTablePermissionsAction(currentProfile.userID));
+        // await sleep(bufferTime);
+        // dispatch(checkApiKeyTablePermissionsAction(currentProfile.userID));
+        // await sleep(bufferTime);
+        // dispatch(
+        //   checkSystemPermissionTablePermissionsAction(currentProfile.userID)
+        // );
+        // await sleep(bufferTime);
+        // dispatch(listSystemPermissionsAction({}));
       }
     };
     incrementalFetchData();

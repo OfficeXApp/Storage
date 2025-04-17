@@ -76,7 +76,7 @@ const PermissionsPage = () => {
         }}
       >
         <PermissionsTab
-          permission={permission}
+          permissionCache={permission}
           onDelete={() => {
             navigate(wrapOrgCode(`/resources/permissions`));
           }}

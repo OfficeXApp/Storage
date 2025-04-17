@@ -28,6 +28,8 @@ export interface LabelFEO extends LabelFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 interface LabelsState {
@@ -84,31 +86,27 @@ export const labelsReducer = (
         labels: updateOrAddLabel(state.labels, action.optimistic),
         labelMap: {
           ...state.labelMap,
-          [action.optimistic.id]: action.optimistic,
+          [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_LABEL_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
       const label = action.payload.ok.data;
 
       // Update the optimistic label with the real data
       return {
         ...state,
         labels: state.labels.map((t) => {
-          if (t._optimisticID === optimisticID) {
-            return label;
+          if (t._optimisticID === label.id || t.id === label.id) {
+            return { ...label, lastChecked: Date.now() };
           }
           return t;
         }),
         labelMap: {
           ...state.labelMap,
-          [label.id]: label,
+          [label.id]: { ...label, lastChecked: Date.now(), isLoading: false },
         },
-        loading: false,
       };
     }
 
@@ -128,12 +126,12 @@ export const labelsReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return label;
         }),
         labelMap: newLabelMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch label",
       };
     }
@@ -156,7 +154,7 @@ export const labelsReducer = (
       );
       const labelMap = action.payload.ok.data.items.reduce(
         (acc: Record<LabelID, LabelFEO>, item: LabelFEO) => {
-          acc[item.id] = item;
+          acc[item.id] = { ...item, lastChecked: Date.now(), isLoading: false };
           return acc;
         },
         state.labelMap

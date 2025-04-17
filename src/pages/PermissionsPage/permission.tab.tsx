@@ -43,6 +43,8 @@ import {
   UnlockOutlined,
   CalendarOutlined,
   FolderOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   DirectoryPermissionID,
@@ -63,6 +65,7 @@ import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteDirectoryPermissionAction,
   deleteSystemPermissionAction,
+  getSystemPermissionAction,
   updateDirectoryPermissionAction,
   updateSystemPermissionAction,
 } from "../../redux-offline/permissions/permissions.actions";
@@ -85,12 +88,12 @@ const LOCAL_STORAGE_TOGGLE_REST_API_DOCS = "TOGGLE_REST_API_DOCS";
 
 // Define the props for the PermissionTab component
 interface PermissionTabProps {
-  permission: SystemPermissionFEO;
+  permissionCache: SystemPermissionFEO;
   onDelete?: (permissionID: SystemPermissionID) => void;
 }
 
 const PermissionTab: React.FC<PermissionTabProps> = ({
-  permission,
+  permissionCache,
   onDelete,
 }) => {
   const dispatch = useDispatch();
@@ -102,10 +105,11 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   const screenType = useScreenType();
   const navigate = useNavigate();
 
-  // Check if permission is optimistic
-  const isOptimistic = Boolean(permission._isOptimistic);
-  const syncWarning = permission._syncWarning || "";
-  const syncConflict = Boolean(permission._syncConflict);
+  const permission =
+    useSelector(
+      (state: ReduxAppState) =>
+        state.systemPermissions.permissionMap[permissionCache.id]
+    ) || permissionCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -500,6 +504,19 @@ const deletePermission = async (permissionId) => {
     );
   };
 
+  if (!permission) {
+    return null;
+  }
+
+  // Check if permission is optimistic
+  const isOptimistic = Boolean(permission._isOptimistic);
+  const syncWarning = permission._syncWarning || "";
+  const syncConflict = Boolean(permission._syncConflict);
+
+  const syncLatest = () => {
+    dispatch(getSystemPermissionAction(permission.id));
+  };
+
   return (
     <div
       style={{
@@ -569,33 +586,6 @@ const deletePermission = async (permissionId) => {
             bordered={false}
             style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
           >
-            {/* Optimistic update warning */}
-            {isOptimistic && (
-              <div style={{ marginBottom: 16 }}>
-                <Card
-                  style={{
-                    borderColor: syncConflict ? "#ff4d4f" : "#faad14",
-                  }}
-                >
-                  <Space align="start">
-                    <InfoCircleOutlined
-                      style={{ color: syncConflict ? "#ff4d4f" : "#faad14" }}
-                    />
-                    <div>
-                      <Text
-                        strong
-                        style={{ color: syncConflict ? "#ff4d4f" : "#faad14" }}
-                      >
-                        {syncConflict ? "Sync Conflict" : "Pending Sync"}
-                      </Text>
-                      <br />
-                      <Text>{syncWarning}</Text>
-                    </div>
-                  </Space>
-                </Card>
-              </div>
-            )}
-
             {isEditing ? (
               <Form form={form} layout="vertical">
                 <Form.Item
@@ -729,6 +719,29 @@ const deletePermission = async (permissionId) => {
                               {getPermissionTitle(permission)}
                             </Title>
                             <TagCopy id={permission.id} />
+                            <div style={{ marginTop: "0px" }}>
+                              {permission.isLoading ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 8,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    syncLatest();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Badge

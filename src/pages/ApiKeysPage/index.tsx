@@ -109,7 +109,10 @@ const ApiKeysPage: React.FC = () => {
           key: apiKey.id,
           label: apiKey.name,
           children: (
-            <ApiKeyTab apiKey={apiKey} onDelete={handleDeletionCloseTabs} />
+            <ApiKeyTab
+              apiKeyCache={apiKey}
+              onDelete={handleDeletionCloseTabs}
+            />
           ),
           closable: true,
         };

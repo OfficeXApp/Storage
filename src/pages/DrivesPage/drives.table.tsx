@@ -27,6 +27,8 @@ import {
   RightOutlined,
   DatabaseOutlined,
   GlobalOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from ".";
@@ -34,7 +36,10 @@ import { DriveFE, Drive } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listDrivesAction } from "../../redux-offline/drives/drives.actions";
+import {
+  checkDriveTablePermissionsAction,
+  listDrivesAction,
+} from "../../redux-offline/drives/drives.actions";
 import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
 import { useIdentitySystem } from "../../framework/identity";
 
@@ -49,13 +54,16 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const drives = useSelector((state: ReduxAppState) => state.drives.drives);
+  const { drives, loading } = useSelector((state: ReduxAppState) => ({
+    drives: state.drives.drives,
+    loading: state.drives.loading,
+  }));
   console.log(`look at drives`, drives);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredDrives, setFilteredDrives] = useState(drives);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile } = useIdentitySystem();
 
   // Update filtered drives whenever search text or drives change
   useEffect(() => {
@@ -294,6 +302,12 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
     );
   };
 
+  const syncLatest = () => {
+    if (!currentProfile) return;
+    dispatch(listDrivesAction({}));
+    dispatch(checkDriveTablePermissionsAction(currentProfile.userID));
+  };
+
   return (
     <div
       style={{
@@ -318,13 +332,33 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
             }}
           >
             {/* Search input */}
-            <Input
-              placeholder="Search drives..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: "240px" }}
-            />
+
+            <Space direction="horizontal">
+              <Input
+                placeholder="Search drives..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: "240px" }}
+              />
+
+              {loading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Syncing latest...");
+                    syncLatest();
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)" }}
+                />
+              )}
+            </Space>
 
             {/* Filter options and manage button */}
             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>

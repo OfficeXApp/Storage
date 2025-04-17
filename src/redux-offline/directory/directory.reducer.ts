@@ -89,6 +89,8 @@ export interface FileFEO extends FileRecordFE {
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
   breadcrumbs?: FilePathBreadcrumb[];
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 export interface FolderFEO extends FolderRecordFE {
@@ -99,6 +101,8 @@ export interface FolderFEO extends FolderRecordFE {
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
   breadcrumbs: FilePathBreadcrumb[];
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 export type BreadcrumbsFEO = {
@@ -289,6 +293,7 @@ export const directoryReducer = (
             files: sameOrderFiles,
             isFirstTime: false,
             isLoading: false,
+            lastUpdated: Date.now(),
           },
         },
         files,
@@ -344,7 +349,11 @@ export const directoryReducer = (
         fileMap: action.optimistic
           ? {
               ...state.fileMap,
-              [action.optimistic.id]: action.optimistic,
+              [action.optimistic.id]: {
+                ...action.optimistic,
+                lastChecked: Date.now(),
+                isLoading: true,
+              },
             }
           : state.fileMap,
         loading: true,
@@ -398,7 +407,11 @@ export const directoryReducer = (
         }),
         fileMap: {
           ...state.fileMap,
-          [realFile.id]: realFile,
+          [realFile.id]: {
+            ...realFile,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
         loading: false,
       };
@@ -417,6 +430,7 @@ export const directoryReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return file;

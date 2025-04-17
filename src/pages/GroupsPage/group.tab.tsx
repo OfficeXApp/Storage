@@ -37,6 +37,8 @@ import {
   LockOutlined,
   SisternodeOutlined,
   MoreOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import {
   GroupFE,
@@ -55,6 +57,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteGroupAction,
+  getGroupAction,
   updateGroupAction,
 } from "../../redux-offline/groups/groups.actions";
 import AddGroupInviteDrawer from "./invite.add";
@@ -65,20 +68,30 @@ import WebhookManager from "../../components/WebhookManager";
 import { useNavigate } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
 import { generateRedeemGroupInviteURL } from "./invite.redeem";
+import { GroupFEO } from "../../redux-offline/groups/groups.reducer";
+import TagCopy from "../../components/TagCopy";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 
 // Define the props for the GroupTab component
 interface GroupTabProps {
-  group: GroupFE;
-  onSave?: (updatedGroup: Partial<GroupFE>) => void;
+  groupCache: GroupFEO;
+  onSave?: (updatedGroup: Partial<GroupFEO>) => void;
   onDelete?: (groupID: GroupID) => void;
 }
 
-const GroupTab: React.FC<GroupTabProps> = ({ group, onSave, onDelete }) => {
+const GroupTab: React.FC<GroupTabProps> = ({
+  groupCache,
+  onSave,
+  onDelete,
+}) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
+  const group =
+    useSelector(
+      (state: ReduxAppState) => state.groups.groupMap[groupCache.id]
+    ) || groupCache;
   const [viewMode, setViewMode] = useState<
     "view" | "edit" | "permissions" | "webhooks"
   >("view");
@@ -245,6 +258,8 @@ const GroupTab: React.FC<GroupTabProps> = ({ group, onSave, onDelete }) => {
     );
   };
 
+  if (!group) return null;
+
   const initialValues = {
     name: group.name,
     public_note: group.public_note,
@@ -404,6 +419,10 @@ const data = await response.json();`;
       disabled: !group.permission_previews?.includes(SystemPermissionType.EDIT),
     },
   ];
+
+  const syncLatest = () => {
+    dispatch(getGroupAction(group.id));
+  };
 
   return (
     <div
@@ -640,28 +659,30 @@ const data = await response.json();`;
                             >
                               {group.name}
                             </Title>
-                            <Tag
-                              color="blue"
-                              onClick={() => {
-                                const groupstring = `${group.name.replace(" ", "_")}@${group.id}`;
-                                navigator.clipboard
-                                  .writeText(groupstring)
-                                  .then(() => {
-                                    message.success("Copied to clipboard!");
-                                  })
-                                  .catch(() => {
-                                    message.error(
-                                      "Failed to copy to clipboard."
-                                    );
-                                  });
-                              }}
-                              style={{
-                                cursor: "pointer",
-                                marginTop: "24px",
-                              }}
-                            >
-                              {shortenAddress(group.id.replace("GroupID_", ""))}
-                            </Tag>
+                            <TagCopy id={group.id} />
+                            <div style={{ marginTop: "0px" }}>
+                              {group.isLoading ? (
+                                <span>
+                                  <LoadingOutlined />
+                                  <i
+                                    style={{
+                                      marginLeft: 8,
+                                      color: "rgba(0,0,0,0.2)",
+                                    }}
+                                  >
+                                    Syncing
+                                  </i>
+                                </span>
+                              ) : (
+                                <SyncOutlined
+                                  onClick={() => {
+                                    message.info("Syncing latest...");
+                                    syncLatest();
+                                  }}
+                                  style={{ color: "rgba(0,0,0,0.2)" }}
+                                />
+                              )}
+                            </div>
                           </div>
                           <Space>
                             <Badge status="processing" />

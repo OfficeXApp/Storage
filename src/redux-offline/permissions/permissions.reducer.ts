@@ -67,6 +67,8 @@ export interface SystemPermissionFEO extends SystemPermissionFE {
   _syncConflict?: boolean;
   _syncSuccess?: boolean;
   _markedForDeletion?: boolean;
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 export interface DirectoryPermissionFEO extends DirectoryPermissionFE {
@@ -76,6 +78,7 @@ export interface DirectoryPermissionFEO extends DirectoryPermissionFE {
   _syncConflict?: boolean;
   _syncSuccess?: boolean;
   _markedForDeletion?: boolean;
+  lastChecked: number;
 }
 
 // State interfaces
@@ -93,6 +96,7 @@ interface DirectoryPermissionsState {
   resourcePermissionsMap: Record<DirectoryResourceID, DirectoryPermissionID[]>;
   loading: boolean;
   error: string | null;
+  lastChecked: number;
 }
 
 // Combined state interface
@@ -116,6 +120,7 @@ const initialDirectoryState: DirectoryPermissionsState = {
   resourcePermissionsMap: {},
   loading: false,
   error: null,
+  lastChecked: 0,
 };
 
 const initialState: PermissionsState = {
@@ -166,30 +171,30 @@ export const systemPermissionsReducer = (
         ),
         permissionMap: {
           ...state.permissionMap,
-          [action.optimistic.id]: action.optimistic,
+          [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_SYSTEM_PERMISSION_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
       const permission = action.payload.ok.data;
 
       return {
         ...state,
         permissions: state.permissions.map((p) => {
-          if (p._optimisticID === optimisticID) {
+          if (p._optimisticID === permission.id || p.id === permission.id) {
             return permission;
           }
           return p;
         }),
         permissionMap: {
           ...state.permissionMap,
-          [permission.id]: permission,
+          [permission.id]: {
+            ...permission,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
-        loading: false,
       };
     }
 
@@ -212,12 +217,12 @@ export const systemPermissionsReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return p;
         }),
         permissionMap: newPermissionMap,
-        loading: false,
         error: action.payload?.message || "Failed to fetch system permission",
       };
     }
@@ -243,7 +248,7 @@ export const systemPermissionsReducer = (
           acc: Record<SystemPermissionID, SystemPermissionFEO>,
           item: SystemPermissionFE
         ) => {
-          acc[item.id] = item;
+          acc[item.id] = { ...item, lastChecked: Date.now() };
           return acc;
         },
         state.permissionMap
@@ -592,7 +597,7 @@ export const directoryPermissionsReducer = (
         ...state,
         permissionMap: {
           ...state.permissionMap,
-          [action.optimistic.id]: action.optimistic,
+          [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
         loading: true,
         error: null,
@@ -605,9 +610,14 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
+
         permissionMap: {
           ...state.permissionMap,
-          [permission.id]: permission,
+          [permission.id]: {
+            ...permission,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
         loading: false,
       };
@@ -645,7 +655,7 @@ export const directoryPermissionsReducer = (
           map: Record<string, DirectoryPermissionFEO>,
           permission: DirectoryPermissionFE
         ) => {
-          map[permission.id] = permission;
+          map[permission.id] = { ...permission, lastChecked: Date.now() };
           return map;
         },
         state.permissionMap
@@ -674,7 +684,7 @@ export const directoryPermissionsReducer = (
           map: Record<string, DirectoryPermissionFEO>,
           permission: DirectoryPermissionFE
         ) => {
-          map[permission.id] = permission;
+          map[permission.id] = { ...permission, lastChecked: Date.now() };
           return map;
         },
         state.permissionMap

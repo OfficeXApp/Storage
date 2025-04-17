@@ -34,6 +34,8 @@ export interface ContactFEO extends ContactFE {
   _syncConflict?: boolean; // flag for corrupted data due to sync failures
   _syncSuccess?: boolean; // flag for successful sync
   _markedForDeletion?: boolean; // flag for deletion
+  lastChecked?: number;
+  isLoading?: boolean;
 }
 
 interface ContactsState {
@@ -56,11 +58,11 @@ const initialState: ContactsState = {
 
 const updateOrAddContact = (
   contacts: ContactFEO[],
-  newContact: ContactFEO,
-  identifierKey: keyof ContactFEO = "id"
+  newContact: ContactFEO
 ): ContactFEO[] => {
   const existingIndex = contacts.findIndex(
-    (contact) => contact[identifierKey] === newContact[identifierKey]
+    (contact) =>
+      contact.id === newContact.id || contact._optimisticID === newContact.id
   );
 
   if (existingIndex !== -1) {
@@ -91,29 +93,36 @@ export const contactsReducer = (
         contacts: updateOrAddContact(state.contacts, action.optimistic),
         contactMap: {
           ...state.contactMap,
-          [action.optimistic.id]: action.optimistic,
+          [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_CONTACT_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
-      // Update the optimistic contact with the real data
+      const realData = action.payload.ok.data;
+
+      // First update any matching contacts
+      const updatedContacts = state.contacts.map((contact) => {
+        if (
+          contact._optimisticID === realData.id ||
+          contact.id === realData.id
+        ) {
+          return realData;
+        }
+        return contact;
+      });
+
       return {
         ...state,
-        contacts: state.contacts.map((contact) => {
-          if (contact._optimisticID === optimisticID) {
-            return action.payload.ok.data;
-          }
-          return contact;
-        }),
+        contacts: updatedContacts,
         contactMap: {
           ...state.contactMap,
-          [action.payload.ok.data.id]: action.payload.ok.data,
+          [realData.id]: {
+            ...realData,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
-        loading: false,
       };
     }
 
@@ -132,12 +141,12 @@ export const contactsReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return contact;
         }),
         contactMap: newContactMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch contact",
       };
     }
@@ -148,6 +157,14 @@ export const contactsReducer = (
       return {
         ...state,
         contacts: action.optimistic || [],
+        contactMap:
+          action.optimistic?.reduce(
+            (acc: Record<UserID, ContactFEO>, item: ContactFEO) => {
+              acc[item.id] = { ...item, isLoading: true };
+              return acc;
+            },
+            {}
+          ) || {},
         loading: true,
         error: null,
       };
@@ -168,7 +185,11 @@ export const contactsReducer = (
         ),
         contactMap: action.payload.ok.data.items.reduce(
           (acc: Record<UserID, ContactFEO>, item: ContactFEO) => {
-            acc[item.id] = item;
+            acc[item.id] = {
+              ...item,
+              lastChecked: Date.now(),
+              isLoading: false,
+            };
             return acc;
           },
           state.contactMap
@@ -193,11 +214,11 @@ export const contactsReducer = (
       const optimisticContact = action.optimistic;
       return {
         ...state,
-        contacts: updateOrAddContact(
-          state.contacts,
-          optimisticContact,
-          "_optimisticID"
-        ),
+        contacts: updateOrAddContact(state.contacts, optimisticContact),
+        contactMap: {
+          ...state.contactMap,
+          [optimisticContact.id]: { ...optimisticContact, isLoading: true },
+        },
         loading: true,
         error: null,
       };
@@ -223,7 +244,11 @@ export const contactsReducer = (
         contacts: updateOrAddContact(filteredContacts, newContact),
         contactMap: {
           ...state.contactMap,
-          [newContact.id]: newContact,
+          [newContact.id]: {
+            ...newContact,
+            lastChecked: Date.now(),
+            isLoading: false,
+          },
         },
         loading: false,
       };
@@ -240,6 +265,7 @@ export const contactsReducer = (
             _syncSuccess: false,
             _syncConflict: true,
             _isOptimistic: false,
+            isLoading: false,
           };
         }
         return contact;

@@ -123,7 +123,7 @@ const DrivesPage: React.FC = () => {
           key: drive.id,
           label: drive.name,
           children: (
-            <DriveTab drive={drive} onDelete={handleDeletionCloseTabs} />
+            <DriveTab driveCache={drive} onDelete={handleDeletionCloseTabs} />
           ),
           closable: true,
         };

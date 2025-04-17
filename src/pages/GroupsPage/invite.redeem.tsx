@@ -60,6 +60,7 @@ const RedeemGroupInvite = () => {
     wrapOrgCode,
     generateSignature,
     listOfProfiles,
+    updateOrganization,
   } = useIdentitySystem();
 
   console.log(`redeemData`, redeemData);
@@ -171,7 +172,13 @@ const RedeemGroupInvite = () => {
       // Redirect to the specified URL or groups page
       console.log(`redeem_data`, redeem_data);
       message.success(`Successfully joined the group! Redirecting...`);
-      await sleep(5000);
+      if (redeemData && redeemData.org_name) {
+        updateOrganization({
+          ...currentOrg,
+          nickname: redeemData.org_name,
+        });
+      }
+      await sleep(3000);
       if (data.redirect_url) {
         window.location.href = data.redirect_url;
       } else {
@@ -301,7 +308,7 @@ const RedeemGroupInvite = () => {
                       );
                       if (profile) {
                         const nickname = (
-                          profile.nickname || "Anonymous"
+                          profile.nickname || "Anon"
                         ).toLowerCase();
                         const icpAddress =
                           profile.icpPublicAddress.toLowerCase();
@@ -328,7 +335,7 @@ const RedeemGroupInvite = () => {
                         >
                           <Space>
                             <UserOutlined />
-                            <span>{profile.nickname || "Anonymous"}</span>
+                            <span>{profile.nickname || "Anon"}</span>
                           </Space>
                           <Tag>{shortenAddress(profile.icpPublicAddress)}</Tag>
                         </Space>
@@ -340,7 +347,7 @@ const RedeemGroupInvite = () => {
                         key={profile.userID}
                         value={profile.userID}
                       >
-                        {profile.nickname || "Anonymous"}{" "}
+                        {profile.nickname || "Anon"}{" "}
                         <Tag>{shortenAddress(profile.icpPublicAddress)}</Tag>
                       </Select.Option>
                     ))}

@@ -2,9 +2,7 @@
 
 ## Overview
 
-- [ ] Audit & Fix all loading states & caches. Add subtle loading indicators across UI pages
-
-- [🔵] Fix bug where uploading large files to canister/storj/s3 will succeed but appear blue progress bar stuck and incorrect summary
+- [ ] Fix bug where uploading large files to canister/storj/s3 will succeed but appear blue progress bar stuck and incorrect summary
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 - [ ] Add bulk delete & single file page move/copy/delete
@@ -18,9 +16,6 @@
 
 ## Polish Checklist
 
-- [ ] When adding a new org, dont just refresh page, go to /contacts just in case
-- [ ] Default offline contacts / api keys
-- [ ] Fix bugs when removing an org or profile, proper redirects, etc
 - [ ] Smart sidemenu nav opens closes based on which page
 - [ ] Clear optimistic cache when 401 unauthorized
 - [ ] Cache bug where switching from owner to anon account, the anon seems to copy cache of admin... investigate
@@ -29,9 +24,9 @@
 
 ## Todo
 
-- [🔵] Figure out a unified tag framework --> `{nickname}:{id}@`
-- [🔵] Implement permissions on frontend (redux, reuseable ui pickers, crud)
-- [🔵] Groups & Group Invite creation routes (with redux-offline)
+- [ ] Figure out a unified tag framework --> `{nickname}:{id}@`
+- [ ] Implement permissions on frontend (redux, reuseable ui pickers, crud)
+- [ ] Groups & Group Invite creation routes (with redux-offline)
 - [ ] Handle folder copy logic where subfiles wont have a known ID, so the type FolderFEO.sync_warning = string should help us warn the user
 - [ ] Magic login link with redeem placeholders (both for contacts themselves, and via group invite, also FactorySpawnOrgResponseData). replace password login scheme string, with a btoa password (before: "DriveID_abc123:password123@https://endpoint.com", after: RHJpdmVJRF9...dC5jb20) url safe ?password=btoa
 - [ ] Support multi offline organizations
@@ -96,3 +91,7 @@
 - [x] In settings page, a special modal for generating an auth signature (for developer convinence such as when they want a temp auth token or call the `/api-keys/create` endpoint)
 - [x] Refactor settings page, including redeem gas gift card
 - [x] Search results page
+- [x] Audit & Fix all loading states & caches. Add subtle loading indicators across UI pages
+- [x] Default offline contacts / api keys
+- [x] When adding a new org, dont just refresh page, go to /drive just in case
+- [x] Fix bugs when removing an org or profile, proper redirects, etc

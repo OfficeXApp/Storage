@@ -1133,12 +1133,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               isBigButton={false}
               toggleUploadPanel={toggleUploadPanel}
               optimisticListDirectoryKey={listDirectoryKey}
+              disabled={listDirectoryResults?.isFirstTime}
             />
 
             <Button
               onClick={() => setShareFolderDrawerVisible(true)}
               type="primary"
-              disabled={isOfflineDisk}
+              disabled={isOfflineDisk || listDirectoryResults?.isFirstTime}
             >
               Share
             </Button>

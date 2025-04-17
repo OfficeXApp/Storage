@@ -25,10 +25,12 @@ import {
 import { useIdentitySystem } from "../../framework/identity";
 import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
 import { DiskTypeEnum } from "@officexapp/types";
+import { useNavigate } from "react-router-dom";
 
 const { Text, Title } = Typography;
 
 const ConnectICPButton = () => {
+  const navigate = useNavigate();
   const {
     createOrganization,
     switchOrganization,
@@ -91,7 +93,7 @@ const ConnectICPButton = () => {
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
           <Space>
             <UserOutlined />
-            <span>{profile.nickname || "Anonymous"}</span>
+            <span>{profile.nickname || "Anon"}</span>
           </Space>
           <span style={{ color: "#8c8c8c" }}>
             {shortenAddress(profile.icpPublicAddress)}
@@ -134,7 +136,7 @@ const ConnectICPButton = () => {
             giftcard_id: giftCardValue,
             owner_icp_principal: icpPrincipal,
             organization_name: orgName,
-            owner_name: profile.nickname || "Anonymous Owner",
+            owner_name: profile.nickname || "Anon Owner",
           }),
         }
       );
@@ -284,6 +286,7 @@ const ConnectICPButton = () => {
 
       // Refresh the page
       message.success("Refreshing Page...", 0);
+      navigate("/");
       window.location.reload();
     } catch (error) {
       console.error("Error connecting to cloud:", error);

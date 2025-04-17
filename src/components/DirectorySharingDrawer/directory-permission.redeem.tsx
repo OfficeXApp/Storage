@@ -325,7 +325,7 @@ const RedeemDirectoryPermitPage = () => {
                       );
                       if (profile) {
                         const nickname = (
-                          profile.nickname || "Anonymous"
+                          profile.nickname || "Anon"
                         ).toLowerCase();
                         const icpAddress =
                           profile.icpPublicAddress.toLowerCase();
@@ -352,7 +352,7 @@ const RedeemDirectoryPermitPage = () => {
                         >
                           <Space>
                             <UserOutlined />
-                            <span>{profile.nickname || "Anonymous"}</span>
+                            <span>{profile.nickname || "Anon"}</span>
                           </Space>
                           <Tag>{shortenAddress(profile.icpPublicAddress)}</Tag>
                         </Space>
@@ -364,7 +364,7 @@ const RedeemDirectoryPermitPage = () => {
                         key={profile.userID}
                         value={profile.userID}
                       >
-                        {profile.nickname || "Anonymous"}{" "}
+                        {profile.nickname || "Anon"}{" "}
                         <Tag>{shortenAddress(profile.icpPublicAddress)}</Tag>
                       </Select.Option>
                     ))}

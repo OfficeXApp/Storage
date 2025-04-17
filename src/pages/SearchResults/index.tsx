@@ -427,11 +427,6 @@ const SearchResultsPage: React.FC = () => {
                   <Link to={urlLink}>
                     <List.Item
                       key={`${item.resource_id}`}
-                      extra={
-                        <Tag color={getCategoryColor(item.category)}>
-                          {item.category.replace("_", " ")}
-                        </Tag>
-                      }
                       style={{
                         border: "1px solid #e8e8e8",
                         margin: 0,
@@ -441,11 +436,28 @@ const SearchResultsPage: React.FC = () => {
                       <List.Item.Meta
                         title={
                           <Typography.Text strong>
-                            {item.title} <TagCopy id={item.resource_id} />
+                            <Tag
+                              color={getCategoryColor(item.category)}
+                              style={{
+                                width: "100px",
+                                textAlign: "center",
+                                marginRight: "24px",
+                              }}
+                            >
+                              {item.category.replace("_", " ")}
+                            </Tag>
+                            {item.title} <TagCopy id={item.resource_id} />{" "}
                           </Typography.Text>
                         }
                         description={
-                          <Space direction="vertical">
+                          <Space direction="horizontal">
+                            <div
+                              style={{
+                                width: "100px",
+                                textAlign: "center",
+                                marginRight: "18px",
+                              }}
+                            ></div>
                             <Typography.Text type="secondary">
                               {item.preview}
                             </Typography.Text>

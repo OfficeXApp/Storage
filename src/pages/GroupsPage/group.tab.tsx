@@ -1117,15 +1117,14 @@ const data = await response.json();`;
                                       />
                                     </Popover>
                                   )}
-                                  <Tag>
-                                    {member.user_id.startsWith(
-                                      "PlaceholderGroupInviteeID_"
-                                    )
-                                      ? "unclaimed magic link"
-                                      : shortenAddress(
-                                          member.user_id.replace("UserID_", "")
-                                        )}
-                                  </Tag>
+
+                                  {member.user_id.startsWith(
+                                    "PlaceholderGroupInviteeID_"
+                                  ) ? (
+                                    <Tag>unclaimed magic link</Tag>
+                                  ) : (
+                                    <TagCopy id={member.user_id} />
+                                  )}
 
                                   {!member.user_id.startsWith(
                                     "PlaceholderGroupInviteeID_"

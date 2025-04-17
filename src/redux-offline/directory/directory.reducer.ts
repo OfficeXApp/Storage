@@ -10,6 +10,7 @@ import {
   DirectoryPermissionType,
   FilePathBreadcrumb,
   DirectoryResourceID,
+  DiskTypeEnum,
 } from "@officexapp/types";
 import {
   GET_FILE,
@@ -67,6 +68,18 @@ export const DIRECTORY_REDUX_KEY = "directory";
 export const FILES_DEXIE_TABLE = "files";
 export const FOLDERS_DEXIE_TABLE = "folders";
 export const BREADCRUMBS_TABLE = "breadcrumbs";
+export const RECENTS_DEXIE_TABLE = "recents";
+
+export interface RecentFEO {
+  id: DirectoryResourceID;
+  title: string;
+  disk_id: DiskID;
+  disk_type: DiskTypeEnum;
+  resource_id: DirectoryResourceID;
+  href: string;
+  last_opened: number;
+  description: string;
+}
 
 export const shouldBehaveOfflineDiskUIIntent = (diskID: DiskID) => {
   if (

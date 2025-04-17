@@ -115,6 +115,8 @@ import {
   generateListDirectoryKey,
   restoreTrashAction,
   RESTORE_TRASH,
+  fetchRecentDirectoryBumps,
+  bumpRecentDirectory,
 } from "../../redux-offline/directory/directory.actions";
 import dayjs from "dayjs";
 import {
@@ -147,6 +149,7 @@ interface DriveItemRow {
   diskType: DiskTypeEnum;
   expires_at: number;
   hasDiskTrash?: FolderID;
+  isRecentShortcut?: boolean;
   permission_previews: DirectoryPermissionType[];
 }
 
@@ -171,7 +174,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const default_disk_action = params.get(
     "default_disk_action"
   ) as DiskUIDefaultAction;
-  const { currentOrg, wrapOrgCode } = useIdentitySystem();
+  const { currentOrg, wrapOrgCode, currentProfile } = useIdentitySystem();
   const [refreshToken, setRefreshToken] = useState("");
   const [showAncillary, setShowAncillary] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<(FileID | FolderID)[]>(
@@ -192,7 +195,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const listDirectoryResults = useSelector(
     (state: ReduxAppState) => state.directory.listingDataMap[listDirectoryKey]
   );
-  console.log("listDirectoryResults", listDirectoryResults);
 
   const [isSharedWithMePage, setIsSharedWithMePage] = useState(false);
   const [isDiskRootPage, setIsDiskRootPage] = useState(false);
@@ -227,6 +229,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
 
+  console.log("getFileResult", getFileResult);
+
   useEffect(() => {
     if (
       !currentDiskId &&
@@ -238,14 +242,141 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     }
   }, [currentDiskId, currentFolderId, currentFileId, disks]);
 
+  function extractDiskInfo() {
+    const url = window.location.href;
+    // Split the URL into parts
+    const parts = new URL(url).pathname.split("/");
+
+    // Find the index of 'drive' in the path
+    const driveIndex = parts.indexOf("drive");
+
+    // If 'drive' is found and there are enough parts after it
+    if (driveIndex !== -1 && parts.length > driveIndex + 2) {
+      const diskTypeEnum = parts[driveIndex + 1];
+      const diskID = parts[driveIndex + 2];
+
+      return {
+        diskTypeEnum,
+        diskID,
+      };
+    }
+
+    // Return null or throw an error if the URL doesn't match the expected format
+    return {
+      diskTypeEnum: "",
+      diskID: "",
+    };
+  }
+  const { diskTypeEnum: extractedDiskTypeEnum, diskID: extractedDiskID } =
+    extractDiskInfo();
+
   useEffect(() => {
     if (listDirectoryResults) {
-      const { folders, files } = listDirectoryResults;
+      const { folders, files, breadcrumbs } = listDirectoryResults;
       setContent({ folders, files });
+      if (
+        currentProfile &&
+        currentOrg &&
+        breadcrumbs &&
+        breadcrumbs.length > 0 &&
+        extractedDiskTypeEnum &&
+        extractedDiskID
+      ) {
+        const title = breadcrumbs.at(-1)?.resource_name || "";
+        const resource_id = (breadcrumbs.at(-1)?.resource_id ||
+          "") as DirectoryResourceID;
+        const last_opened = Date.now();
+        // write description as breadcrumb names joined by "/" and omit last breadcrumb, also restrict to 50 chars with prefix `...` (cut off start not end)
+        const pathDescription = breadcrumbs
+          .slice(0, -1)
+          .map((b) => b.resource_name)
+          .join("/");
 
+        const truncatedPathDescription =
+          pathDescription.length > 50
+            ? `...${pathDescription.slice(-47)}`
+            : pathDescription;
+
+        const description = `${truncatedPathDescription}`;
+        const href = `${window.location.origin}${wrapOrgCode(`/drive/${extractedDiskTypeEnum}/${extractedDiskID}/${resource_id}${resource_id.startsWith("FolderID_") ? "/" : ""}`)}`;
+        bumpRecentDirectory(
+          {
+            id: resource_id,
+            title,
+            disk_id: extractedDiskID,
+            disk_type: extractedDiskTypeEnum as DiskTypeEnum,
+            resource_id,
+            href,
+            last_opened,
+            description,
+          },
+          currentProfile.userID || "",
+          currentOrg.driveID || ""
+        );
+      }
       setIs404NotFound(false);
     }
-  }, [listDirectoryResults]);
+  }, [
+    listDirectoryResults,
+    extractedDiskTypeEnum,
+    extractedDiskID,
+    currentProfile,
+    currentOrg,
+    window.location.origin,
+  ]);
+
+  useEffect(() => {
+    if (getFileResult) {
+      if (
+        currentProfile &&
+        currentOrg &&
+        getFileResult.breadcrumbs &&
+        getFileResult.breadcrumbs.length > 0 &&
+        extractedDiskTypeEnum &&
+        extractedDiskID
+      ) {
+        const title = getFileResult.breadcrumbs.at(-1)?.resource_name || "";
+        const resource_id = (getFileResult.breadcrumbs.at(-1)?.resource_id ||
+          "") as DirectoryResourceID;
+        const last_opened = Date.now();
+        // write description as breadcrumb names joined by "/" and omit last breadcrumb, also restrict to 50 chars with prefix `...` (cut off start not end)
+        const pathDescription = getFileResult.breadcrumbs
+          .slice(0, -1)
+          .map((b) => b.resource_name)
+          .join("/");
+
+        const truncatedPathDescription =
+          pathDescription.length > 50
+            ? `...${pathDescription.slice(-47)}`
+            : pathDescription;
+
+        const description = ` ${truncatedPathDescription}`;
+        const href = `${window.location.origin}${wrapOrgCode(`/drive/${extractedDiskTypeEnum}/${extractedDiskID}/${resource_id}${resource_id.startsWith("FolderID_") ? "/" : ""}`)}`;
+        bumpRecentDirectory(
+          {
+            id: resource_id,
+            title,
+            disk_id: extractedDiskID,
+            disk_type: extractedDiskTypeEnum as DiskTypeEnum,
+            resource_id,
+            href,
+            last_opened,
+            description,
+          },
+          currentProfile.userID || "",
+          currentOrg.driveID || ""
+        );
+      }
+      setIs404NotFound(false);
+    }
+  }, [
+    getFileResult,
+    extractedDiskTypeEnum,
+    extractedDiskID,
+    currentProfile,
+    currentOrg,
+    window.location.origin,
+  ]);
 
   useEffect(() => {
     if (currentFileId && !getFileResult) {
@@ -268,7 +399,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       return;
     }
 
-    if (
+    if (pathParts[2] === "recent") {
+      setListDirectoryKey("");
+      setCurrentFolderId(null);
+      setCurrentFileId(null);
+      setIs404NotFound(false);
+      setSingleFile(null);
+    } else if (
       (pathParts[2] === "drive" ||
         pathParts[2] === "drive-shared" ||
         pathParts[2] === "drive-trash") &&
@@ -277,7 +414,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setListDirectoryKey("");
       setCurrentFolderId(null);
       setCurrentFileId(null);
-
       setIs404NotFound(false);
       fetchContent({});
       setSingleFile(null);
@@ -290,7 +426,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
     setCurrentDiskId(diskID);
 
-    if (folderFileID === defaultTempCloudSharingRootFolderID) {
+    console.log(`diskID`, diskID);
+    console.log(`folderFileID`, folderFileID);
+
+    if (pathParts[2] === "recent") {
+      fetchRecentsGlobal();
+    } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
         freeTrialStorjCreds.access_key;
@@ -363,6 +504,50 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     //   setIsStorjModalVisible(true);
     // }
   }, [location, showAncillary, refreshToken]);
+
+  const fetchRecentsGlobal = async () => {
+    if (!currentOrg || !currentProfile) return;
+    const { items: recents } = await fetchRecentDirectoryBumps(
+      {
+        start_ms: 0,
+        end_ms: Date.now(),
+        limit: 100,
+      },
+      currentProfile.userID,
+      currentOrg.driveID
+    );
+    setContent({
+      folders: recents.map((recent) => {
+        const timeAgo = dayjs().to(dayjs(recent.last_opened), true);
+        return {
+          id: recent.resource_id as FolderID,
+          name: `${recent.title}${recent.resource_id.startsWith("FolderID_") ? " /" : ""}`,
+          parent_folder_uuid: "",
+          subfolder_uuids: [],
+          file_uuids: [],
+          full_directory_path: `${recent.disk_type}::/` as DriveFullFilePath,
+          labels: [],
+          created_by: "Owner" as UserID,
+          created_at: Date.now(),
+          last_updated_date_ms: recent.last_opened || 0,
+          last_updated_by: "Owner" as UserID,
+          disk_id: recent.disk_id,
+          disk_type: recent.disk_type,
+          deleted: false,
+          expires_at: -1,
+          drive_id: currentOrg?.driveID || "",
+          has_sovereign_permissions: false,
+          clipped_directory_path:
+            `${recent.disk_type}::/` as DriveClippedFilePath,
+          permission_previews: [],
+          public_note: `Opened ${timeAgo} ago • ${recent.description}`,
+          breadcrumbs: [],
+          isRecentShortcut: true,
+        };
+      }),
+      files: [],
+    });
+  };
 
   const fetchFileById = (fileId: FileID, diskID: DiskID) => {
     if (!diskID) return;
@@ -499,6 +684,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         dispatch(listDirectoryPermissionsAction(payload));
         setIsDiskRootPage(false);
         setIsSharedWithMePage(false);
+
         // Redux will update filesFromRedux and foldersFromRedux, which we handle in a useEffect
         return;
       }
@@ -594,6 +780,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         dataIndex: "title",
         key: "title",
         render: (text: string, record: DriveItemRow) => {
+          console.log(`record`, record);
           return (
             <div
               onClick={() => {
@@ -629,7 +816,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   onBlur={() => handleRenameChange(record.id, "")}
                   onClick={(e) => e.stopPropagation()}
                   prefix={
-                    record.isFolder ? (
+                    (record as any).isRecentShortcut ? (
+                      <ClockCircleOutlined />
+                    ) : record.isFolder ? (
                       <FolderOpenOutlined />
                     ) : (
                       renderIconForFile(record.title)
@@ -641,7 +830,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 />
               ) : (
                 <>
-                  {(record as any).hasDiskTrash ? (
+                  {(record as any).isRecentShortcut ? (
+                    <ClockCircleOutlined />
+                  ) : (record as any).hasDiskTrash ? (
                     <CloudOutlined />
                   ) : record.isFolder ? (
                     <FolderOpenFilled />
@@ -686,7 +877,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 }}
                 style={{ color: "gray", width: "100%" }}
               >
-                {record.hasDiskTrash
+                {record.hasDiskTrash || (record as any).isRecentShortcut
                   ? (record as any).public_note
                   : record.expires_at === -1
                     ? `Active`
@@ -813,6 +1004,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           </Popconfirm>
         ),
       });
+    }
+    if ((record as any).isRecentShortcut) {
+      return [];
     }
     return menuItems;
   };
@@ -952,6 +1146,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
+    console.log(`content`, content);
     return [
       ...content.folders
         .filter((f) => {
@@ -972,6 +1167,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           hasDiskTrash: (f as any).hasDiskTrash,
           permission_previews: f.permission_previews,
           public_note: (f as any).public_note,
+          isRecentShortcut: (f as any).isRecentShortcut,
         })),
       ...content.files.map((f) => ({
         id: f.id,
@@ -1103,6 +1299,56 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     },
   ];
 
+  const renderViewTitle = () => {
+    if (
+      is404NotFound ||
+      singleFile ||
+      (isTrashBin && tableRows.length === 0) ||
+      (isSharedWithMePage && tableRows.length === 0)
+    ) {
+      return null; // Don't show title for error states or empty states that already have messages
+    }
+
+    if (default_disk_action === "trash") {
+      return (
+        <div style={{ position: "relative", padding: "36px 0px 0px 36px" }}>
+          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 500 }}>
+            Trashbins
+          </h2>
+          <p style={{ margin: 0, color: "rgba(0,0,0,0.45)" }}>
+            Files and folders that have been deleted
+          </p>
+        </div>
+      );
+    }
+
+    if (default_disk_action === "shared") {
+      return (
+        <div style={{ position: "relative", padding: "36px 0px 0px 36px" }}>
+          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 500 }}>
+            Shared with Me
+          </h2>
+          <p style={{ margin: 0, color: "rgba(0,0,0,0.45)" }}>
+            Files and folders that others have shared with you
+          </p>
+        </div>
+      );
+    }
+
+    if (location.pathname.includes("/recent")) {
+      return (
+        <div style={{ position: "relative", padding: "36px 0px 0px 36px" }}>
+          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 500 }}>Recents</h2>
+          <p style={{ margin: 0, color: "rgba(0,0,0,0.45)" }}>
+            Files and folders you've accessed recently
+          </p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div
       style={{
@@ -1116,6 +1362,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       }}
     >
       {contextHolder}
+      {renderViewTitle()}
       <div
         style={{
           padding: "16px 24px",
@@ -1135,15 +1382,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               width: "100%",
             }}
           >
-            <Checkbox
-              checked={showAncillary}
-              onChange={(e) => {
-                setShowAncillary(e.target.checked);
-              }}
-              style={{ color: "rgba(0,0,0,0.3)", fontWeight: "normal" }}
-            >
-              Show All Disks
-            </Checkbox>
+            {!location.pathname.includes("/recent") && !default_disk_action && (
+              <Checkbox
+                checked={showAncillary}
+                onChange={(e) => {
+                  setShowAncillary(e.target.checked);
+                }}
+                style={{ color: "rgba(0,0,0,0.3)", fontWeight: "normal" }}
+              >
+                Show All Disks
+              </Checkbox>
+            )}
           </div>
         ) : (
           <Breadcrumb items={breadcrumbItems} />

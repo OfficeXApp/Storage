@@ -22,13 +22,16 @@ import {
   GenerateID,
   IRequestListDirectory,
   DriveID,
+  UserID,
 } from "@officexapp/types";
 import {
   defaultBrowserCacheDiskID,
   defaultBrowserCacheRootFolderID,
   defaultTempCloudSharingDiskID,
   defaultTempCloudSharingRootFolderID,
+  getDexieDb,
 } from "../../api/dexie-database";
+import { RecentFEO, RECENTS_DEXIE_TABLE } from "./directory.reducer";
 
 // Action Types
 
@@ -707,4 +710,77 @@ export const directoryBatchAction = (
       },
     },
   };
+};
+
+export const bumpRecentDirectory = async (
+  recent: RecentFEO,
+  userID: UserID,
+  orgID: DriveID
+): Promise<void> => {
+  try {
+    const db = getDexieDb(userID, orgID);
+    await db.table(RECENTS_DEXIE_TABLE).put({
+      ...recent,
+      last_opened: Date.now(),
+    });
+  } catch (error) {
+    console.error("Error updating recent directory:", error);
+    throw error;
+  }
+};
+
+export const fetchRecentDirectoryBumps = async (
+  {
+    start_ms,
+    end_ms,
+    limit,
+    cursor,
+  }: {
+    start_ms: number;
+    end_ms: number;
+    limit: number;
+    cursor?: number; // Offset cursor (number of items to skip)
+  },
+  userID: UserID,
+  orgID: DriveID
+): Promise<{
+  items: RecentFEO[];
+  nextCursor: number | null;
+  total: number;
+}> => {
+  try {
+    const db = getDexieDb(userID, orgID);
+
+    // Get the query with time range filter
+    const query = db
+      .table(RECENTS_DEXIE_TABLE)
+      .where("last_opened")
+      .between(start_ms, end_ms, true, true);
+
+    // Get total count for the query (without pagination)
+    const total = await query.count();
+
+    // Skip items based on cursor (if provided)
+    const offset = cursor || 0;
+
+    // Get paginated results
+    const items = await query
+      .reverse() // Most recent first
+      .offset(offset)
+      .limit(limit)
+      .toArray();
+
+    // Calculate next cursor
+    const nextOffset = offset + items.length;
+    const nextCursor = nextOffset < total ? nextOffset : null;
+
+    return {
+      items,
+      nextCursor,
+      total,
+    };
+  } catch (error) {
+    console.error("Error fetching recent directory bumps:", error);
+    throw error;
+  }
 };

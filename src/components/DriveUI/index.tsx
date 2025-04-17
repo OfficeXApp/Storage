@@ -691,58 +691,59 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   );
 
   const getRowMenuItems = (record: DriveItemRow): MenuProps["items"] => {
-    const menuItems = isDiskRootPage
-      ? []
-      : [
-          {
-            key: "rename",
-            label: "Rename",
-            onClick: () => {
-              setRenamingItems((prev) => ({
-                ...prev,
-                [record.id]: record.title,
-              }));
+    const menuItems =
+      isDiskRootPage || record.hasDiskTrash
+        ? []
+        : [
+            {
+              key: "rename",
+              label: "Rename",
+              onClick: () => {
+                setRenamingItems((prev) => ({
+                  ...prev,
+                  [record.id]: record.title,
+                }));
+              },
             },
-          },
-          {
-            key: "move",
-            label: "Move",
-            onClick: () => {
-              setIsMoveDirectoryModalVisible(true);
-              setSelectedRowKeys([record.id]);
-              setModalMoveCopyOperation("move");
+            {
+              key: "move",
+              label: "Move",
+              onClick: () => {
+                setIsMoveDirectoryModalVisible(true);
+                setSelectedRowKeys([record.id]);
+                setModalMoveCopyOperation("move");
+              },
+              disabled: !record.permission_previews?.includes(
+                DirectoryPermissionType.EDIT
+              ),
             },
-            disabled: !record.permission_previews?.includes(
-              DirectoryPermissionType.EDIT
-            ),
-          },
-          {
-            key: "copy",
-            label: "Copy",
-            onClick: () => {
-              setIsMoveDirectoryModalVisible(true);
-              setSelectedRowKeys([record.id]);
-              setModalMoveCopyOperation("copy");
+            {
+              key: "copy",
+              label: "Copy",
+              onClick: () => {
+                setIsMoveDirectoryModalVisible(true);
+                setSelectedRowKeys([record.id]);
+                setModalMoveCopyOperation("copy");
+              },
+              disabled: !record.permission_previews?.includes(
+                DirectoryPermissionType.EDIT
+              ),
             },
-            disabled: !record.permission_previews?.includes(
-              DirectoryPermissionType.EDIT
-            ),
-          },
-          {
-            key: "delete",
-            label: (
-              <Popconfirm
-                title={`Are you sure you want to delete this ${record.isFolder ? "folder" : "file"}?`}
-                description="This action cannot be undone."
-                onConfirm={() => handleDelete(record)}
-                okText="Yes"
-                cancelText="No"
-              >
-                Delete
-              </Popconfirm>
-            ),
-          },
-        ];
+            {
+              key: "delete",
+              label: (
+                <Popconfirm
+                  title={`Are you sure you want to delete this ${record.isFolder ? "folder" : "file"}?`}
+                  description="This action cannot be undone."
+                  onConfirm={() => handleDelete(record)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  Delete
+                </Popconfirm>
+              ),
+            },
+          ];
 
     if (record.hasDiskTrash) {
       menuItems.unshift({

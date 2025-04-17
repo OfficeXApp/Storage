@@ -111,7 +111,13 @@ const SideMenu = ({
   useEffect(() => {
     const path = location.pathname;
 
-    if (path.includes("/drive")) {
+    if (path.includes("/drive-shared")) {
+      setSelectedKeys(["drive-shared"]);
+      setOpenKeys(["navigate-storage"]);
+    } else if (path.includes("/drive-trash")) {
+      setSelectedKeys(["drive-trash"]);
+      setOpenKeys(["navigate-storage"]);
+    } else if (path.includes("/drive")) {
       setSelectedKeys(["drive"]);
       setOpenKeys(["navigate-storage"]);
     } else if (path.includes("/resources/contacts")) {
@@ -162,28 +168,32 @@ const SideMenu = ({
           label: <Link to={wrapOrgCode("/drive")}>My Drive</Link>,
         },
         {
-          key: "shared",
-          label: "Shared with me",
-          type: "item",
-          disabled: true,
-        },
-        {
           key: "recent",
           label: "Recent",
           type: "item",
           disabled: true,
         },
         {
-          key: "starred",
-          label: "Labeled",
-          type: "item",
-          disabled: true,
+          key: "drive-shared",
+          label: (
+            <Link to={wrapOrgCode("/drive-shared?default_disk_action=shared")}>
+              Shared with Me
+            </Link>
+          ),
         },
+        // {
+        //   key: "starred",
+        //   label: "Labeled",
+        //   type: "item",
+        //   disabled: true,
+        // },
         {
-          key: "trash",
-          label: "Trash",
-          type: "item",
-          disabled: true,
+          key: "drive-trash",
+          label: (
+            <Link to={wrapOrgCode("/drive-trash?default_disk_action=trash")}>
+              Trash
+            </Link>
+          ),
         },
       ],
     },
@@ -408,6 +418,14 @@ const RouterUI = () => {
               />
               <Route
                 path="/org/:orgcode/drive/*"
+                element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
+              />
+              <Route
+                path="/org/:orgcode/drive-shared/*"
+                element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
+              />
+              <Route
+                path="/org/:orgcode/drive-trash/*"
                 element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
               />
               <Route

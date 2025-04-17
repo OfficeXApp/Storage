@@ -154,6 +154,12 @@ interface DriveUIProps {
   toggleUploadPanel: (bool: boolean) => void; // Callback to toggle UploadPanel visibility
 }
 
+enum DiskUIDefaultAction {
+  shared = "shared",
+  trash = "trash",
+  directory = "directory",
+}
+
 const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const { "*": encodedPath } = useParams<{ "*": string }>();
   const navigate = useNavigate();
@@ -161,6 +167,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const screenType = useScreenType();
   const dispatch = useDispatch();
   const isTrashBin = location.search.includes("isTrashBin=1");
+  const params = new URLSearchParams(location.search);
+  const default_disk_action = params.get(
+    "default_disk_action"
+  ) as DiskUIDefaultAction;
   const { currentOrg, wrapOrgCode } = useIdentitySystem();
   const [refreshToken, setRefreshToken] = useState("");
   const [showAncillary, setShowAncillary] = useState(false);
@@ -170,6 +180,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [modalMoveCopyOperation, setModalMoveCopyOperation] = useState<
     "move" | "copy" | null
   >(null);
+
+  console.log(`default_disk_action=`, default_disk_action);
 
   const [listDirectoryKey, setListDirectoryKey] = useState("");
 
@@ -256,7 +268,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       return;
     }
 
-    if (pathParts[2] === "drive" && pathParts.length === 3) {
+    if (
+      (pathParts[2] === "drive" ||
+        pathParts[2] === "drive-shared" ||
+        pathParts[2] === "drive-trash") &&
+      pathParts.length === 3
+    ) {
       setListDirectoryKey("");
       setCurrentFolderId(null);
       setCurrentFileId(null);
@@ -400,9 +417,21 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
         setContent({
           folders: disks.map((disk) => {
+            let name = disk.name;
+            let id = disk.root_folder as FolderID;
+            console.log(
+              `default_disk_action=${default_disk_action} vs ${DiskUIDefaultAction.shared} vs ${DiskUIDefaultAction.trash}`
+            );
+            if (default_disk_action === DiskUIDefaultAction.shared) {
+              name = `Shared with Me  |  ${name}`;
+              id = `shared-with-me` as FolderID;
+            } else if (default_disk_action === DiskUIDefaultAction.trash) {
+              name = `Trash  |  ${name}`;
+              id = disk.trash_folder as FolderID;
+            }
             return {
-              id: disk.root_folder as FolderID,
-              name: disk.name,
+              id: id as FolderID,
+              name: name,
               parent_folder_uuid: "",
               subfolder_uuids: [],
               file_uuids: [],
@@ -503,7 +532,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         );
       }
     },
-    [currentFolderId, disks, currentOrg, currentDiskId]
+    [currentFolderId, disks, currentOrg, currentDiskId, default_disk_action]
   );
 
   const handleBack = () => {
@@ -539,7 +568,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     setSelectedRowKeys([]);
     if (item.isFolder) {
       navigate(
-        wrapOrgCode(`/drive/${item.diskType}/${item.diskID}/${item.id}/`)
+        wrapOrgCode(
+          `/drive/${item.diskType}/${item.diskID}/${item.id}/${default_disk_action === DiskUIDefaultAction.trash ? "?isTrashBin=1" : ""}`
+        )
       );
     } else {
       navigate(
@@ -746,7 +777,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           ];
 
     if (record.hasDiskTrash) {
-      menuItems.unshift({
+      menuItems.push({
         key: "trash",
         label: "Open Trash",
         onClick: () => {

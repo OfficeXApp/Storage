@@ -55,11 +55,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteWebhookAction,
+  getWebhookAction,
   updateWebhookAction,
 } from "../../redux-offline/webhooks/webhooks.actions";
 import TagCopy from "../../components/TagCopy";
 import { useNavigate } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
+import { WebhookFEO } from "../../redux-offline/webhooks/webhooks.reducer";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -77,13 +79,13 @@ const WEBHOOK_EVENT_TYPES = [
 
 // Define the props for the WebhookTab component
 interface WebhookTabProps {
-  webhook: WebhookFE;
+  webhookCache: WebhookFEO;
   onSave?: (updatedWebhook: Partial<WebhookFE>) => void;
   onDelete?: (webhookID: WebhookID) => void;
 }
 
 const WebhookTab: React.FC<WebhookTabProps> = ({
-  webhook,
+  webhookCache,
   onSave,
   onDelete,
 }) => {
@@ -96,6 +98,10 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
   const screenType = useScreenType();
   const navigate = useNavigate();
   const { wrapOrgCode } = useIdentitySystem();
+  const webhook =
+    useSelector(
+      (state: ReduxAppState) => state.webhooks.webhookMap[webhookCache.id]
+    ) || webhookCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -257,6 +263,8 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
     );
   };
 
+  if (!webhook) return null;
+
   const initialValues = {
     url: webhook.url,
     name: webhook.name,
@@ -406,6 +414,10 @@ async function listWebhooks(page = 1, limit = 10) {
     } else {
       return undefined;
     }
+  };
+
+  const syncLatest = () => {
+    dispatch(getWebhookAction(webhook.id));
   };
 
   return (
@@ -650,12 +662,12 @@ async function listWebhooks(page = 1, limit = 10) {
                             <TagCopy id={webhook.id} />
 
                             <div style={{ marginTop: "0px" }}>
-                              {false ? (
+                              {webhook.isLoading ? (
                                 <span>
                                   <LoadingOutlined />
                                   <i
                                     style={{
-                                      marginLeft: 32,
+                                      marginLeft: 8,
                                       color: "rgba(0,0,0,0.2)",
                                     }}
                                   >
@@ -666,7 +678,7 @@ async function listWebhooks(page = 1, limit = 10) {
                                 <SyncOutlined
                                   onClick={() => {
                                     message.info("Syncing latest...");
-                                    // appendRefreshParam();
+                                    syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
                                 />

@@ -112,7 +112,7 @@ const GroupsPage: React.FC = () => {
           key: group.id,
           label: group.name,
           children: (
-            <GroupTab group={group} onDelete={handleDeletionCloseTabs} />
+            <GroupTab groupCache={group} onDelete={handleDeletionCloseTabs} />
           ),
           closable: true,
         };

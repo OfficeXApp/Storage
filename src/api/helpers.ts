@@ -227,7 +227,7 @@ export const wrapAuthStringOrHeader = (
 };
 
 export const pastLastCheckedCacheLimit = (lastChecked: number) => {
-  if (lastChecked === 0) return false;
+  if (lastChecked === 0) return true;
   const cacheLimit = 1000 * 60 * 2;
   return lastChecked + cacheLimit < Date.now();
 };

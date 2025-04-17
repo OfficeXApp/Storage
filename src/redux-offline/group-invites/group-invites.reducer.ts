@@ -87,8 +87,6 @@ export const groupInvitesReducer = (
           ...state.inviteMap,
           [action.optimistic.id]: action.optimistic,
         },
-        loading: true,
-        error: null,
       };
     }
 
@@ -110,7 +108,6 @@ export const groupInvitesReducer = (
             lastChecked: Date.now(),
           },
         },
-        loading: false,
       };
     }
 
@@ -134,7 +131,6 @@ export const groupInvitesReducer = (
           return invite;
         }),
         inviteMap: newInviteMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch group invite",
       };
     }

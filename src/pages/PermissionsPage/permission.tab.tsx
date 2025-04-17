@@ -65,6 +65,7 @@ import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteDirectoryPermissionAction,
   deleteSystemPermissionAction,
+  getSystemPermissionAction,
   updateDirectoryPermissionAction,
   updateSystemPermissionAction,
 } from "../../redux-offline/permissions/permissions.actions";
@@ -87,12 +88,12 @@ const LOCAL_STORAGE_TOGGLE_REST_API_DOCS = "TOGGLE_REST_API_DOCS";
 
 // Define the props for the PermissionTab component
 interface PermissionTabProps {
-  permission: SystemPermissionFEO;
+  permissionCache: SystemPermissionFEO;
   onDelete?: (permissionID: SystemPermissionID) => void;
 }
 
 const PermissionTab: React.FC<PermissionTabProps> = ({
-  permission,
+  permissionCache,
   onDelete,
 }) => {
   const dispatch = useDispatch();
@@ -104,10 +105,11 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   const screenType = useScreenType();
   const navigate = useNavigate();
 
-  // Check if permission is optimistic
-  const isOptimistic = Boolean(permission._isOptimistic);
-  const syncWarning = permission._syncWarning || "";
-  const syncConflict = Boolean(permission._syncConflict);
+  const permission =
+    useSelector(
+      (state: ReduxAppState) =>
+        state.systemPermissions.permissionMap[permissionCache.id]
+    ) || permissionCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -502,6 +504,19 @@ const deletePermission = async (permissionId) => {
     );
   };
 
+  if (!permission) {
+    return null;
+  }
+
+  // Check if permission is optimistic
+  const isOptimistic = Boolean(permission._isOptimistic);
+  const syncWarning = permission._syncWarning || "";
+  const syncConflict = Boolean(permission._syncConflict);
+
+  const syncLatest = () => {
+    dispatch(getSystemPermissionAction(permission.id));
+  };
+
   return (
     <div
       style={{
@@ -705,12 +720,12 @@ const deletePermission = async (permissionId) => {
                             </Title>
                             <TagCopy id={permission.id} />
                             <div style={{ marginTop: "0px" }}>
-                              {false ? (
+                              {permission.isLoading ? (
                                 <span>
                                   <LoadingOutlined />
                                   <i
                                     style={{
-                                      marginLeft: 32,
+                                      marginLeft: 8,
                                       color: "rgba(0,0,0,0.2)",
                                     }}
                                   >
@@ -721,7 +736,7 @@ const deletePermission = async (permissionId) => {
                                 <SyncOutlined
                                   onClick={() => {
                                     message.info("Syncing latest...");
-                                    // appendRefreshParam();
+                                    syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
                                 />

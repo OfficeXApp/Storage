@@ -48,6 +48,7 @@ const ICPCanisterSettingsCard = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [canisterAddress, setCanisterAddress] = useState("");
   const [isRedeeming, setIsRedeeming] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [driveAbout, setDriveAbout] = useState({
     canister_id: "",
     endpoint: "",
@@ -67,6 +68,7 @@ const ICPCanisterSettingsCard = () => {
 
   const checkGasBalance = async () => {
     if (!currentOrg) return;
+    setIsLoading(true);
     let auth_token = currentAPIKey?.value || (await generateSignature());
     const { url, headers } = wrapAuthStringOrHeader(
       `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/about`,
@@ -93,6 +95,7 @@ const ICPCanisterSettingsCard = () => {
         ""
       ),
     });
+    setIsLoading(false);
   };
 
   const showModal = () => {
@@ -326,7 +329,7 @@ const ICPCanisterSettingsCard = () => {
                 <Tooltip title="Gas cycles power your canister on the Internet World Computer, guaranteeing computational sovereignty and keeping your data private.">
                   Canister Gas Balance{" "}
                   <QuestionCircleOutlined style={{ marginRight: 8 }} />
-                  {false ? (
+                  {isLoading ? (
                     <span>
                       <LoadingOutlined />
                       <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
@@ -337,7 +340,7 @@ const ICPCanisterSettingsCard = () => {
                     <SyncOutlined
                       onClick={() => {
                         message.info("Syncing latest...");
-                        // appendRefreshParam();
+                        checkGasBalance();
                       }}
                       style={{ color: "rgba(0,0,0,0.2)" }}
                     />

@@ -73,7 +73,7 @@ const ApiKeyPage = () => {
         }}
       >
         <ApiKeyTab
-          apiKey={apiKey}
+          apiKeyCache={apiKey}
           onDelete={() => {
             navigate(wrapOrgCode(`/resources/apikeys`));
           }}

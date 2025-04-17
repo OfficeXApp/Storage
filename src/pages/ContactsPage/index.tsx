@@ -82,6 +82,7 @@ const ContactsPage: React.FC = () => {
   const tabItemsRef = useRef(tabItems);
 
   useEffect(() => {
+    console.log(`contactspage last checked`, lastChecked);
     if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkContactTablePermissionsAction(currentProfile.userID));
       dispatch(listContactsAction({}));
@@ -126,7 +127,10 @@ const ContactsPage: React.FC = () => {
           key: contact.id,
           label: contact.name,
           children: (
-            <ContactTab contact={contact} onDelete={handleDeletionCloseTabs} />
+            <ContactTab
+              contactCache={contact}
+              onDelete={handleDeletionCloseTabs}
+            />
           ),
           closable: true,
         };

@@ -70,7 +70,7 @@ const ContactPage = () => {
         }}
       >
         <ContactTab
-          contact={contact}
+          contactCache={contact}
           onDelete={() => {
             navigate(wrapOrgCode(`/resources/contacts`));
           }}

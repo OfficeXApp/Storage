@@ -86,22 +86,19 @@ export const labelsReducer = (
         labels: updateOrAddLabel(state.labels, action.optimistic),
         labelMap: {
           ...state.labelMap,
-          [action.optimistic.id]: action.optimistic,
+          [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_LABEL_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
       const label = action.payload.ok.data;
 
       // Update the optimistic label with the real data
       return {
         ...state,
         labels: state.labels.map((t) => {
-          if (t._optimisticID === optimisticID) {
+          if (t._optimisticID === label.id || t.id === label.id) {
             return { ...label, lastChecked: Date.now() };
           }
           return t;
@@ -110,7 +107,6 @@ export const labelsReducer = (
           ...state.labelMap,
           [label.id]: { ...label, lastChecked: Date.now(), isLoading: false },
         },
-        loading: false,
       };
     }
 
@@ -130,12 +126,12 @@ export const labelsReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return label;
         }),
         labelMap: newLabelMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch label",
       };
     }

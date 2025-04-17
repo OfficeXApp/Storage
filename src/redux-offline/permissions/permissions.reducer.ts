@@ -173,19 +173,16 @@ export const systemPermissionsReducer = (
           ...state.permissionMap,
           [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_SYSTEM_PERMISSION_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
       const permission = action.payload.ok.data;
 
       return {
         ...state,
         permissions: state.permissions.map((p) => {
-          if (p._optimisticID === optimisticID) {
+          if (p._optimisticID === permission.id || p.id === permission.id) {
             return permission;
           }
           return p;
@@ -198,7 +195,6 @@ export const systemPermissionsReducer = (
             isLoading: false,
           },
         },
-        loading: false,
       };
     }
 
@@ -227,7 +223,6 @@ export const systemPermissionsReducer = (
           return p;
         }),
         permissionMap: newPermissionMap,
-        loading: false,
         error: action.payload?.message || "Failed to fetch system permission",
       };
     }
@@ -615,6 +610,7 @@ export const directoryPermissionsReducer = (
 
       return {
         ...state,
+
         permissionMap: {
           ...state.permissionMap,
           [permission.id]: {

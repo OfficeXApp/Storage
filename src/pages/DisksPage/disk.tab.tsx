@@ -51,6 +51,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteDiskAction,
+  getDiskAction,
   updateDiskAction,
 } from "../../redux-offline/disks/disks.actions";
 import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
@@ -67,12 +68,12 @@ const { Option } = Select;
 
 // Define the props for the DiskTab component
 interface DiskTabProps {
-  disk: DiskFEO;
+  diskCache: DiskFEO;
   onSave?: (updatedDisk: Partial<DiskFEO>) => void;
   onDelete?: (diskID: DiskID) => void;
 }
 
-const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
+const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
@@ -81,6 +82,9 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
+  const disk =
+    useSelector((state: ReduxAppState) => state.disks.diskMap[diskCache.id]) ||
+    diskCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -246,6 +250,8 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
     }
   };
 
+  if (!disk) return null;
+
   const initialValues = {
     name: disk.name,
     disk_type: disk.disk_type,
@@ -308,6 +314,10 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
         </Tabs>
       </Card>
     );
+  };
+
+  const syncLatest = () => {
+    dispatch(getDiskAction(disk.id));
   };
 
   return (
@@ -563,12 +573,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                               <TagCopy id={disk.id} />
                             )}
                             <div style={{ marginTop: "0px" }}>
-                              {false ? (
+                              {disk.isLoading ? (
                                 <span>
                                   <LoadingOutlined />
                                   <i
                                     style={{
-                                      marginLeft: 32,
+                                      marginLeft: 8,
                                       color: "rgba(0,0,0,0.2)",
                                     }}
                                   >
@@ -579,7 +589,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ disk, onSave, onDelete }) => {
                                 <SyncOutlined
                                   onClick={() => {
                                     message.info("Syncing latest...");
-                                    // appendRefreshParam();
+                                    syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
                                 />

@@ -73,7 +73,7 @@ const WebhookPage = () => {
         }}
       >
         <WebhookTab
-          webhook={webhook}
+          webhookCache={webhook}
           onDelete={() => {
             navigate(wrapOrgCode(`/resources/webhooks`));
           }}

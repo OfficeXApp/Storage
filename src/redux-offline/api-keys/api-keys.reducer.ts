@@ -91,13 +91,10 @@ export const apiKeysReducer = (
           ...state.apikeyMap,
           [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_APIKEY_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
       const apiKeyData = action.payload?.ok?.data;
 
       if (!apiKeyData) return { ...state, loading: false };
@@ -106,7 +103,10 @@ export const apiKeysReducer = (
       return {
         ...state,
         apikeys: state.apikeys.map((apikey) => {
-          if (apikey._optimisticID === optimisticID) {
+          if (
+            apikey._optimisticID === apiKeyData.id ||
+            apikey.id === apiKeyData.id
+          ) {
             return apiKeyData;
           }
           return apikey;
@@ -119,7 +119,6 @@ export const apiKeysReducer = (
             isLoading: false,
           },
         },
-        loading: false,
       };
     }
 
@@ -138,12 +137,12 @@ export const apiKeysReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return apikey;
         }),
         apikeyMap: newApiKeyMap,
-        loading: false,
         error: action.payload?.message || "Failed to fetch API key",
       };
     }

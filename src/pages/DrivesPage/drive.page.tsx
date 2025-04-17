@@ -73,7 +73,7 @@ const DrivePage = () => {
         }}
       >
         <DriveTab
-          drive={drive}
+          driveCache={drive}
           onDelete={() => {
             navigate(wrapOrgCode(`/resources/drives`));
           }}

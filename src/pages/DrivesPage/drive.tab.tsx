@@ -53,6 +53,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteDriveAction,
+  getDriveAction,
   updateDriveAction,
 } from "../../redux-offline/drives/drives.actions";
 import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
@@ -64,12 +65,16 @@ const { TextArea } = Input;
 
 // Define the props for the DriveTab component
 interface DriveTabProps {
-  drive: DriveFEO;
+  driveCache: DriveFEO;
   onSave?: (updatedDrive: Partial<DriveFEO>) => void;
   onDelete?: (driveID: DriveID) => void;
 }
 
-const DriveTab: React.FC<DriveTabProps> = ({ drive, onSave, onDelete }) => {
+const DriveTab: React.FC<DriveTabProps> = ({
+  driveCache,
+  onSave,
+  onDelete,
+}) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
@@ -78,6 +83,10 @@ const DriveTab: React.FC<DriveTabProps> = ({ drive, onSave, onDelete }) => {
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
+  const drive =
+    useSelector(
+      (state: ReduxAppState) => state.drives.driveMap[driveCache.id]
+    ) || driveCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -226,6 +235,8 @@ const DriveTab: React.FC<DriveTabProps> = ({ drive, onSave, onDelete }) => {
     );
   };
 
+  if (!drive) return null;
+
   const initialValues = {
     name: drive.name,
     endpoint_url: drive.endpoint_url,
@@ -322,6 +333,10 @@ const listDrives = async (page = 1, limit = 10) => {
         </Tabs>
       </Card>
     );
+  };
+
+  const syncLatest = () => {
+    dispatch(getDriveAction(drive.id));
   };
 
   return (
@@ -530,13 +545,13 @@ const listDrives = async (page = 1, limit = 10) => {
                             </Title>
                             <TagCopy id={drive.id} />
 
-                            <div style={{ marginTop: "24px" }}>
-                              {false ? (
+                            <div style={{ marginTop: "0px" }}>
+                              {drive.isLoading ? (
                                 <span>
                                   <LoadingOutlined />
                                   <i
                                     style={{
-                                      marginLeft: 32,
+                                      marginLeft: 8,
                                       color: "rgba(0,0,0,0.2)",
                                     }}
                                   >
@@ -547,7 +562,7 @@ const listDrives = async (page = 1, limit = 10) => {
                                 <SyncOutlined
                                   onClick={() => {
                                     message.info("Syncing latest...");
-                                    // appendRefreshParam();
+                                    syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
                                 />

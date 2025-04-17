@@ -89,19 +89,17 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
           ...state.diskMap,
           [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_DISK_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
+      const realDisk = action.payload.ok.data;
       // Update the optimistic disk with the real data
       return {
         ...state,
         disks: state.disks.map((disk) => {
-          if (disk._optimisticID === optimisticID) {
-            return action.payload.ok.data;
+          if (disk._optimisticID === realDisk.id || disk.id === realDisk.id) {
+            return realDisk;
           }
           return disk;
         }),
@@ -113,7 +111,6 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
             isLoading: false,
           },
         },
-        loading: false,
       };
     }
 
@@ -138,7 +135,6 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
           return disk;
         }),
         diskMap: newDiskMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch disk",
       };
     }

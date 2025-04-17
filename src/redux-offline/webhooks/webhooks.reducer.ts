@@ -89,33 +89,33 @@ export const webhooksReducer = (
         webhooks: updateOrAddWebhook(state.webhooks, action.optimistic),
         webhookMap: {
           ...state.webhookMap,
-          [action.optimistic.id]: action.optimistic,
+          [action.optimistic.id]: { ...action.optimistic, isLoading: true },
         },
-        loading: true,
-        error: null,
       };
     }
 
     case GET_WEBHOOK_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
+      const realWebhook = action.payload.ok.data;
       // Update the optimistic webhook with the real data
       return {
         ...state,
         webhooks: state.webhooks.map((webhook) => {
-          if (webhook._optimisticID === optimisticID) {
-            return action.payload.ok.data;
+          if (
+            webhook._optimisticID === realWebhook.id ||
+            webhook.id === realWebhook.id
+          ) {
+            return realWebhook;
           }
           return webhook;
         }),
         webhookMap: {
           ...state.webhookMap,
-          [action.payload.ok.data.id]: {
-            ...action.payload.ok.data,
+          [realWebhook.id]: {
+            ...realWebhook,
             lastChecked: Date.now(),
             isLoading: false,
           },
         },
-        loading: false,
       };
     }
 
@@ -134,12 +134,12 @@ export const webhooksReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              isLoading: false,
             };
           }
           return webhook;
         }),
         webhookMap: newWebhookMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch webhook",
       };
     }

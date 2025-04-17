@@ -57,6 +57,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
   deleteGroupAction,
+  getGroupAction,
   updateGroupAction,
 } from "../../redux-offline/groups/groups.actions";
 import AddGroupInviteDrawer from "./invite.add";
@@ -75,14 +76,22 @@ const { TextArea } = Input;
 
 // Define the props for the GroupTab component
 interface GroupTabProps {
-  group: GroupFEO;
+  groupCache: GroupFEO;
   onSave?: (updatedGroup: Partial<GroupFEO>) => void;
   onDelete?: (groupID: GroupID) => void;
 }
 
-const GroupTab: React.FC<GroupTabProps> = ({ group, onSave, onDelete }) => {
+const GroupTab: React.FC<GroupTabProps> = ({
+  groupCache,
+  onSave,
+  onDelete,
+}) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
+  const group =
+    useSelector(
+      (state: ReduxAppState) => state.groups.groupMap[groupCache.id]
+    ) || groupCache;
   const [viewMode, setViewMode] = useState<
     "view" | "edit" | "permissions" | "webhooks"
   >("view");
@@ -249,6 +258,8 @@ const GroupTab: React.FC<GroupTabProps> = ({ group, onSave, onDelete }) => {
     );
   };
 
+  if (!group) return null;
+
   const initialValues = {
     name: group.name,
     public_note: group.public_note,
@@ -408,6 +419,10 @@ const data = await response.json();`;
       disabled: !group.permission_previews?.includes(SystemPermissionType.EDIT),
     },
   ];
+
+  const syncLatest = () => {
+    dispatch(getGroupAction(group.id));
+  };
 
   return (
     <div
@@ -645,13 +660,13 @@ const data = await response.json();`;
                               {group.name}
                             </Title>
                             <TagCopy id={group.id} />
-                            <div style={{ marginTop: "24px" }}>
-                              {false ? (
+                            <div style={{ marginTop: "0px" }}>
+                              {group.isLoading ? (
                                 <span>
                                   <LoadingOutlined />
                                   <i
                                     style={{
-                                      marginLeft: 32,
+                                      marginLeft: 8,
                                       color: "rgba(0,0,0,0.2)",
                                     }}
                                   >
@@ -662,7 +677,7 @@ const data = await response.json();`;
                                 <SyncOutlined
                                   onClick={() => {
                                     message.info("Syncing latest...");
-                                    // appendRefreshParam();
+                                    syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
                                 />

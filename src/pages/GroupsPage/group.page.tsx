@@ -75,7 +75,7 @@ const GroupPage = () => {
         }}
       >
         <GroupTab
-          group={group}
+          groupCache={group}
           onDelete={() => {
             navigate(wrapOrgCode(`/resources/groups`));
           }}

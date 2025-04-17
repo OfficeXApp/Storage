@@ -100,19 +100,20 @@ export const drivesReducer = (
               [action.optimistic.id]: { ...action.optimistic, isLoading: true },
             }
           : state.driveMap,
-        loading: true,
-        error: null,
       };
     }
 
     case GET_DRIVE_COMMIT: {
-      const optimisticID = action.meta?.optimisticID;
+      const realDrive = action.payload.ok.data;
       // Update the optimistic drive with the real data
       return {
         ...state,
         drives: state.drives.map((drive) => {
-          if (drive._optimisticID === optimisticID) {
-            return action.payload.ok.data;
+          if (
+            drive._optimisticID === realDrive.id ||
+            drive.id === realDrive.id
+          ) {
+            return realDrive;
           }
           return drive;
         }),
@@ -124,7 +125,6 @@ export const drivesReducer = (
             isLoading: false,
           },
         },
-        loading: false,
       };
     }
 
@@ -149,7 +149,6 @@ export const drivesReducer = (
           return drive;
         }),
         driveMap: newDriveMap,
-        loading: false,
         error: action.payload.message || "Failed to fetch drive",
       };
     }

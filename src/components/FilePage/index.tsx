@@ -11,6 +11,7 @@ import {
   Spin,
   Tooltip,
   Popconfirm,
+  Alert,
 } from "antd";
 import {
   FileOutlined,
@@ -54,7 +55,8 @@ interface FilePreviewProps {
 const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const screenType = useScreenType();
   const isMobile = screenType.isMobile;
-  const [lastRememberedFile, setLastRememberedFile] = useState("");
+  const currentLoadingFileRef = useRef<string | null>(null);
+  const lastLoadedFileRef = useRef<string>("");
   const [fileName, setFileName] = useState(file.name || "Unknown File");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -73,6 +75,24 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   );
 
   const objectStoreNameRef = useRef<string>("files");
+
+  const isFileSizeValidForPreview = (file: FileFEO) => {
+    const sizeInMB = file.file_size / (1024 * 1024);
+    const sizeInGB = sizeInMB / 1024;
+
+    if (
+      file.disk_type === DiskTypeEnum.BrowserCache ||
+      file.disk_type === DiskTypeEnum.IcpCanister
+    ) {
+      return isMobile ? sizeInMB < 200 : sizeInGB < 1;
+    } else if (
+      file.disk_type === DiskTypeEnum.StorjWeb3 ||
+      file.disk_type === DiskTypeEnum.AwsBucket
+    ) {
+      return sizeInGB < 2;
+    }
+    return true;
+  };
 
   const getFileType = ():
     | "image"
@@ -114,13 +134,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         return "other";
     }
   };
-
-  useEffect(() => {
-    if (file.id !== lastRememberedFile) {
-      setLastRememberedFile(file.id);
-      setFileUrl("");
-    }
-  }, [file.id]);
 
   useEffect(() => {
     if (currentOrg && currentProfile) {
@@ -320,9 +333,39 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   };
 
   useEffect(() => {
+    // If file ID hasn't changed, don't reload
+    if (file.id === lastLoadedFileRef.current) {
+      return;
+    }
+
+    // If we're already loading this file, don't start a new load
+    if (currentLoadingFileRef.current === file.id) {
+      return;
+    }
+
+    // Clear previous URL when switching to a new file
+    if (fileUrl && file.id !== lastLoadedFileRef.current) {
+      URL.revokeObjectURL(fileUrl);
+      setFileUrl("");
+    }
     const loadFileContent = async () => {
       if (!file || !fileType) return;
+
+      // Check if file is fully uploaded
+      if (file.upload_status !== "COMPLETED") {
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if file size is valid for preview
+      if (!isFileSizeValidForPreview(file)) {
+        setIsLoading(false);
+        return;
+      }
+
+      currentLoadingFileRef.current = file.id;
       setIsLoading(true);
+      console.log(`file --> `, file);
       try {
         if (file.disk_type === DiskTypeEnum.BrowserCache) {
           // Use IndexedDB approach instead of indexdbGetFileUrl
@@ -346,11 +389,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             throw new Error("Failed to load file from Canister");
           }
         }
+        lastLoadedFileRef.current = file.id;
       } catch (error) {
         console.error("Error loading file content", error);
         message.error("Failed to load file content");
       } finally {
         setIsLoading(false);
+        currentLoadingFileRef.current = null;
       }
     };
 
@@ -659,78 +704,109 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           </div>
         </div>
       </div>
-      <div style={{ display: "flex" }}>
-        {fileType === "image" && fileUrl && (
-          <img
-            src={fileUrl}
-            alt={file.name}
-            style={{
-              width: "100%",
-              maxWidth: "800px",
-              maxHeight: "calc(80vh)",
-              objectFit: "contain",
-            }}
+      {file.upload_status !== "COMPLETED" && (
+        <Alert
+          type="warning"
+          message="File Uploading"
+          description="File is still uploading and cannot be previewed yet. Please wait for the upload to complete or try uploading again."
+          style={{ marginBottom: "16px" }}
+        />
+      )}
+
+      {file.upload_status === "COMPLETED" &&
+        !isFileSizeValidForPreview(file) && (
+          <Alert
+            type="info"
+            message="File Too Large for Preview"
+            description={`This file is too large to preview (${formatFileSize(file.file_size)}). ${
+              isMobile &&
+              (file.disk_type === DiskTypeEnum.BrowserCache ||
+                file.disk_type === DiskTypeEnum.IcpCanister)
+                ? "Mobile preview is limited to 200MB for browser storage and ICP canister files."
+                : file.disk_type === DiskTypeEnum.BrowserCache ||
+                    file.disk_type === DiskTypeEnum.IcpCanister
+                  ? "Preview is limited to 1GB for browser storage and ICP canister files."
+                  : "Preview is limited to 2GB for cloud storage files."
+            } Please download the file instead.`}
+            style={{ marginBottom: "16px" }}
           />
         )}
-        {fileType === "video" && fileUrl && (
-          <video
-            src={fileUrl}
-            controls
-            style={{
-              width: "100%",
-              maxWidth: "800px",
-              maxHeight: "calc(80vh)",
-            }}
-          >
-            Your browser does not support the video tag.
-          </video>
-        )}
-        {fileType === "audio" && fileUrl && (
-          <audio
-            src={fileUrl}
-            controls
-            style={{ width: "100%", marginTop: "20px" }}
-          >
-            Your browser does not support the audio tag.
-          </audio>
-        )}
-        {fileType === "spreadsheet" && fileUrl && (
-          <SheetJSPreview file={file} showButtons={true} />
-        )}
-        {fileType === "pdf" && fileUrl && (
-          <iframe
-            src={fileUrl}
-            title={file.name}
-            style={{
-              width: "100%",
-              height: "calc(80vh)",
-              border: "none",
-            }}
-          />
-        )}
-        {fileType === "other" && fileUrl && (
-          <div
-            style={{
-              width: "100%",
-              justifyContent: "center",
-              marginTop: "32px",
-            }}
-          >
-            <Result
-              icon={<FileExcelOutlined />}
-              title="Preview Unavailable"
-              extra={
-                <Button
-                  type="primary"
-                  onClick={() => window.open(fileUrl, "_blank")}
-                >
-                  Download
-                </Button>
-              }
-            />
+
+      {file.upload_status === "COMPLETED" &&
+        isFileSizeValidForPreview(file) && (
+          <div style={{ display: "flex" }}>
+            {fileType === "image" && fileUrl && (
+              <img
+                src={fileUrl}
+                alt={file.name}
+                style={{
+                  width: "100%",
+                  maxWidth: "800px",
+                  maxHeight: "calc(80vh)",
+                  objectFit: "contain",
+                }}
+              />
+            )}
+            {fileType === "video" && fileUrl && (
+              <video
+                src={fileUrl}
+                controls
+                style={{
+                  width: "100%",
+                  maxWidth: "800px",
+                  maxHeight: "calc(80vh)",
+                }}
+              >
+                Your browser does not support the video tag.
+              </video>
+            )}
+            {fileType === "audio" && fileUrl && (
+              <audio
+                src={fileUrl}
+                controls
+                style={{ width: "100%", marginTop: "20px" }}
+              >
+                Your browser does not support the audio tag.
+              </audio>
+            )}
+            {fileType === "spreadsheet" && fileUrl && (
+              <SheetJSPreview file={file} showButtons={true} />
+            )}
+            {fileType === "pdf" && fileUrl && (
+              <iframe
+                src={fileUrl}
+                title={file.name}
+                style={{
+                  width: "100%",
+                  height: "calc(80vh)",
+                  border: "none",
+                }}
+              />
+            )}
+            {fileType === "other" && fileUrl && (
+              <div
+                style={{
+                  width: "100%",
+                  justifyContent: "center",
+                  marginTop: "32px",
+                }}
+              >
+                <Result
+                  icon={<FileExcelOutlined />}
+                  title="Preview Unavailable"
+                  extra={
+                    <Button
+                      type="primary"
+                      onClick={() => window.open(fileUrl, "_blank")}
+                    >
+                      Download
+                    </Button>
+                  }
+                />
+              </div>
+            )}
           </div>
         )}
-      </div>
       <DirectorySharingDrawer
         open={isShareDrawerOpen}
         onClose={() => setIsShareDrawerOpen(false)}

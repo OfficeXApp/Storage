@@ -603,10 +603,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             let id = disk.root_folder as FolderID;
 
             if (default_disk_action === DiskUIDefaultAction.shared) {
-              name = `Shared with Me  |  ${name}`;
+              name = `${name}`;
               id = `shared-with-me` as FolderID;
             } else if (default_disk_action === DiskUIDefaultAction.trash) {
-              name = `Trash  |  ${name}`;
+              name = `${name}`;
               id = disk.trash_folder as FolderID;
             }
             return {
@@ -1378,7 +1378,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               width: "100%",
             }}
           >
-            {!location.pathname.includes("/recent") && !default_disk_action && (
+            {!location.pathname.includes("/recent") && (
               <Checkbox
                 checked={showAncillary}
                 onChange={(e) => {

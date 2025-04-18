@@ -417,10 +417,6 @@ export const webhooksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_WEBHOOK_TABLE_PERMISSIONS: {
-            console.log(
-              `Firing checkWebhookTablePermissionsAction for user`,
-              action
-            );
             // check dexie
             const systemPermissionsTable = db.table(
               SYSTEM_PERMISSIONS_DEXIE_TABLE
@@ -438,10 +434,6 @@ export const webhooksOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_WEBHOOK_TABLE_PERMISSIONS_COMMIT: {
-            console.log(
-              `Handling CHECK_WEBHOOK_TABLE_PERMISSIONS_COMMIT`,
-              action
-            );
             const optimisticID = action.meta?.optimisticID;
             const permissions = action.payload?.ok?.data?.permissions;
 

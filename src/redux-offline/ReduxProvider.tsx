@@ -358,9 +358,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
     const updateStore = async () => {
       if (currentOrg && currentProfile) {
         // Get the appropriate store
-        console.log(
-          `about to create stores with user = ${currentProfile.nickname}`
-        );
+
         const store = await getOrCreateStore(
           currentOrg.driveID,
           currentProfile.userID

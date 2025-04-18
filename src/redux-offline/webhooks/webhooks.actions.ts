@@ -175,7 +175,7 @@ export const deleteWebhookAction = (payload: IRequestDeleteWebhook) => {
 // Check Webhook Table Permissions
 export const checkWebhookTablePermissionsAction = (userID: UserID) => {
   const id = `webhook_table_permissions_${userID}`;
-  console.log(`Firing checkWebhookTablePermissionsAction for user ${userID}`);
+
   const payload = {
     resource_id: "TABLE_WEBHOOKS",
     grantee_id: userID,

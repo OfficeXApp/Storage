@@ -33,6 +33,7 @@ import { DiskTypeEnum, FileID, UserID } from "@officexapp/types";
 import { useDispatch } from "react-redux";
 import { generateListDirectoryKey } from "../../redux-offline/directory/directory.actions";
 import { useIdentitySystem } from "../../framework/identity";
+import { UploadState } from "../../framework/uploader/types";
 
 const { Text } = Typography;
 
@@ -308,52 +309,86 @@ const UploadPanel: React.FC<{
               size="small"
               dataSource={currentUploads}
               renderItem={(item) => (
-                <Link
-                  to={handleViewFile(
-                    item.config.fileID,
-                    item.config.diskType,
-                    item.config.diskID
-                  )}
+                <List.Item
+                  key={item.id}
+                  actions={[
+                    <Dropdown
+                      menu={{
+                        items: [
+                          {
+                            key: "view-file",
+                            label: (
+                              <Link
+                                to={handleViewFile(
+                                  item.config.fileID,
+                                  item.config.diskType,
+                                  item.config.diskID
+                                )}
+                              >
+                                View File
+                              </Link>
+                            ),
+                          },
+                          {
+                            key: "clear-upload",
+                            label: <span>Clear</span>,
+                          },
+                        ],
+                      }}
+                      trigger={["click"]}
+                    >
+                      <Button
+                        type="link"
+                        icon={<EllipsisOutlined />}
+                        size="large"
+                        style={{ color: "black", marginRight: "-30px" }}
+                      />
+                    </Dropdown>,
+                  ]}
                 >
-                  <List.Item
-                    key={item.id}
-                    onClick={() =>
-                      handleViewFile(
-                        item.config.fileID,
-                        item.config.diskType,
-                        item.config.diskID
-                      )
-                    }
-                    actions={[
-                      <Dropdown
-                        menu={{
-                          items: [], // menuItems(item.config.uploadPath, item.config.diskType, item.config.diskID),
-                        }}
-                        trigger={["click"]}
+                  <List.Item.Meta
+                    avatar={<FileOutlined />}
+                    title={
+                      <Link
+                        to={handleViewFile(
+                          item.config.fileID,
+                          item.config.diskType,
+                          item.config.diskID
+                        )}
+                        style={{ cursor: "pointer" }}
                       >
-                        <Button
-                          type="link"
-                          icon={<EllipsisOutlined />}
-                          size="large"
-                          style={{ color: "black", marginRight: "-30px" }}
-                        />
-                      </Dropdown>,
-                    ]}
-                  >
-                    <List.Item.Meta
-                      avatar={<FileOutlined />}
-                      title={item.file.name}
-                      description={
-                        <Progress
-                          percent={
-                            item.lastProgress ? item.lastProgress.progress : 0
-                          }
-                          size="small"
-                        />
-                      }
-                    />
-                  </List.Item>
-                </Link>
+                        {item.file.name}
+                      </Link>
+                    }
+                    // description={
+                    //   <Progress
+                    //     percent={
+                    //       item.lastProgress ? item.lastProgress.progress : 0
+                    //     }
+                    //     size="small"
+                    //   />
+                    // }
+                    description={
+                      <Progress
+                        percent={
+                          item.state === UploadState.COMPLETED
+                            ? 100
+                            : item.lastProgress
+                              ? item.lastProgress.progress
+                              : 0
+                        }
+                        size="small"
+                        status={
+                          item.state === UploadState.COMPLETED
+                            ? "success"
+                            : item.state === UploadState.FAILED
+                              ? "exception"
+                              : "active"
+                        }
+                      />
+                    }
+                  />
+                </List.Item>
               )}
             />
             <br />

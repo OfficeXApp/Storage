@@ -183,7 +183,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
         switch (action.type) {
           // ------------------------------ LIST DIRECTORY --------------------------------- //
           case LIST_DIRECTORY: {
-            console.log(`action.payload`, action);
             try {
               const queryParams = action.payload;
               const folderId = queryParams.folder_id || "root";
@@ -355,7 +354,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_COMMIT: {
-            console.log(`LIST_DIRECTORY_COMMIT middleware`, action);
             const response = action.payload;
 
             let folderId = "root";
@@ -367,8 +365,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             } catch (error) {
               console.error("Error parsing listDirectoryKey:", error);
             }
-
-            console.log(`folderId response`, folderId, response);
 
             if (response) {
               const files = response.files || [];
@@ -385,7 +381,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                     breadcrumbsTable,
                   ],
                   async () => {
-                    console.log(`whats up`);
                     // Update files in IndexedDB
                     for (const file of files) {
                       await filesTable.put({
@@ -423,13 +418,13 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                       labels: [],
                       metadata: {},
                       permission_previews: permission_previews,
+                      lastChecked: Date.now(),
                     });
                     await breadcrumbsTable.put({
                       id: folderId as DirectoryResourceID,
                       resource_id: folderId as DirectoryResourceID,
                       breadcrumbs,
                     });
-                    console.log(`saved breadcrumbs`, breadcrumbs);
                   }
                 );
               } catch (error) {
@@ -444,7 +439,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_DIRECTORY_ROLLBACK: {
-            console.log(`LIST_DIRECTORY_ROLLBACK middleware`, action);
             if (!action.payload.response) break;
             // No local IndexedDB state to roll back since we're not caching the directory listings anymore
             break;
@@ -452,7 +446,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ GET FILE --------------------------------- //
           case GET_FILE: {
-            console.log(`GET_FILE optimistic`, action);
             const shouldBehaveOffline =
               action.shouldBehaveOfflineDiskUI === true ||
               action.meta?.isOfflineDrive === true ||
@@ -460,12 +453,9 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               action.meta?.offline?.effect?.headers
                 ?.shouldBehaveOfflineDiskUI === true;
 
-            console.log(`shouldBehaveOffline?=${shouldBehaveOffline}`);
-
             // Get cached data from IndexedDB
             const optimisticID = action.meta.optimisticID;
             const cachedFile = await filesTable.get(optimisticID);
-            console.log(`found cachedFile`, cachedFile);
 
             const breadcrumbsQuery = await breadcrumbsTable
               .where("resource_id")
@@ -493,7 +483,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 ...action,
                 shouldBehaveOfflineDiskUI: shouldBehaveOffline,
               };
-              console.log(`subsequent enhancedAction`, enhancedAction);
             }
             if (shouldBehaveOffline) {
               return;
@@ -502,7 +491,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_FILE_COMMIT: {
-            console.log(`GET_FILE_COMMIT middleware`, action);
             const optimisticID = action.meta?.optimisticID;
             let realFile: FileRecordFE | undefined;
             let breadcrumbs = [];
@@ -522,7 +510,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
               realFile = action.payload.ok.data.items[0].file;
               breadcrumbs = action.payload.ok.data.items[0].breadcrumbs || [];
             }
-            console.log(`did we find real file?`, realFile);
+
             if (realFile) {
               await db.transaction(
                 "rw",
@@ -598,8 +586,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case GET_FOLDER_COMMIT: {
-            console.log(`GET_FOLDER_COMMIT optimistic`, action);
-
             const optimisticID = action.meta?.optimisticID;
             let realFolder: FolderRecordFE | undefined;
 
@@ -662,7 +648,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ CREATE FILE --------------------------------- //
           case CREATE_FILE: {
-            console.log(`CREATE_FILE`, action);
             const listDirectoryKey = action.meta?.listDirectoryKey;
             // Only handle actions with file data
             if (action.meta?.offline?.effect?.data) {
@@ -731,8 +716,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           case CREATE_FILE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
             let realFile: FileRecordFE | undefined;
-
-            console.log(`CREATE_FILE_COMMIT`, action);
 
             // Extract the file from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.file) {
@@ -859,8 +842,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
             const listDirectoryKey = action.meta?.listDirectoryKey;
             let realFolder: FolderRecordFE | undefined;
 
-            console.log(`CREATE_FOLDER_COMMIT optimistic`, action);
-
             // Extract the folder from the response - handle different response structures
             if (action.payload?.ok?.data?.result?.folder) {
               realFolder = action.payload.ok.data.result.folder;
@@ -937,7 +918,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CREATE_FOLDER_ROLLBACK: {
-            console.log(`CREATE_FOLDER_ROLLBACK optimistic`, action);
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
@@ -1003,7 +983,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case UPDATE_FILE_COMMIT: {
-            console.log(`UPDATE_FILE_COMMIT`, action);
             const optimisticID = action.meta?.optimisticID;
             let realFile: FileRecordFE | undefined;
 
@@ -2088,7 +2067,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           // Fix for the RESTORE_TRASH case in directory.optimistic.ts
 
           case RESTORE_TRASH: {
-            console.log(`RESTORE_TRASH optimistic`, action);
             const resourceId = action.meta.optimisticID;
             const resourceAction = action.meta.offline.effect.data.actions[0];
 
@@ -2302,7 +2280,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case RESTORE_TRASH_COMMIT: {
-            console.log(`RESTORE_TRASH_COMMIT optimistic`, action);
             const resourceId = action.meta?.optimisticID;
             let restoredItems: {
               restored_files?: FileID[];
@@ -2364,7 +2341,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case RESTORE_TRASH_ROLLBACK: {
-            console.log(`RESTORE_TRASH_ROLLBACK optimistic`, action);
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
@@ -2388,7 +2364,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
         }
 
         // Pass the (potentially enhanced) action to the next middleware
-        console.log("Final enhanced action before next():", enhancedAction);
+
         return next(enhancedAction);
       } catch (error) {
         console.error(

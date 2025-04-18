@@ -177,7 +177,7 @@ export const deleteDiskAction = (payload: IRequestDeleteDisk) => {
 // Check Disk Table Permissions
 export const checkDiskTablePermissionsAction = (userID: UserID) => {
   const id = `disk_table_permissions_${userID}`;
-  console.log(`Firing checkDiskTablePermissionsAction for user ${userID}`);
+
   const payload = {
     resource_id: "TABLE_DISKS",
     grantee_id: userID,

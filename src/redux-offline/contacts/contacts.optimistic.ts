@@ -180,7 +180,6 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case LIST_CONTACTS_COMMIT: {
-            console.log(`LIST_CONTACTS_COMMIT optimistic`, action);
             // Extract contacts from the response
             const contacts = action.payload?.ok?.data?.items || [];
 
@@ -442,10 +441,6 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_CONTACT_TABLE_PERMISSIONS: {
-            console.log(
-              `Firing checkContactTablePermissionsAction for user`,
-              action
-            );
             // check dexie
             const systemPermissionsTable = db.table(
               SYSTEM_PERMISSIONS_DEXIE_TABLE
@@ -463,10 +458,6 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT: {
-            console.log(
-              `Handling CHECK_CONTACT_TABLE_PERMISSIONS_COMMIT`,
-              action
-            );
             const optimisticID = action.meta?.optimisticID;
             const permissions = action.payload?.ok?.data?.permissions;
 

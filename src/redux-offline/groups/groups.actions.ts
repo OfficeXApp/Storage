@@ -181,7 +181,7 @@ export const deleteGroupAction = (payload: IRequestDeleteGroup) => {
 // Check Groups Table Permissions
 export const checkGroupTablePermissionsAction = (userID: UserID) => {
   const id = `group_table_permissions_${userID}`;
-  console.log(`Firing checkGroupTablePermissionsAction for user ${userID}`);
+
   const payload = {
     resource_id: "TABLE_GROUPS",
     grantee_id: userID,

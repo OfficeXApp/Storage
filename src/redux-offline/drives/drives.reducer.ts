@@ -361,7 +361,6 @@ export const drivesReducer = (
     }
 
     case CHECK_DRIVE_TABLE_PERMISSIONS: {
-      console.log(`Firing checkDriveTablePermissionsAction for user`, action);
       const permission_types = action.optimistic?.permission_types || [];
       return {
         ...state,

@@ -2,7 +2,12 @@
 
 ## Overview
 
-- [🔵] Fix bug where uploading large files to canister/storj/s3 will succeed but appear blue progress bar stuck and incorrect summary
+- [🔵] Show warning message on file page if file status was not completed uploading
+- [🔵] Clear download / Pause download
+- [🔵] Delete files will delete from storj/s3/canister
+- [🔵] Fix the dangerous duplicate downloading on FilePage (2GB file gets downloaded 4x right away)
+- [ ] Searchbar in driveui
+- [ ] Thumbnails for files/images/video + driveui tile mode
 - [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 - [ ] Add bulk delete & single file page move/copy/delete
@@ -95,3 +100,5 @@
 - [x] Smart smooth sidemenu nav opens closes based on which page
 - [x] Implement /drive with disk_default_action to determine if we show Trash, Shared, Regular Directory
 - [x] Implement recents tab with its own dexie table of recent files/folders opened, update driveui & filepage to append recents
+- [x] Investigate why uploading large files doesnt work (2GB+) --> onvisibilitychange was force stopping uploads on tab unfocus
+- [x] Fix upload progress bar bug where uploading large files to canister/storj/s3 will succeed but appear blue progress bar stuck and incorrect summary

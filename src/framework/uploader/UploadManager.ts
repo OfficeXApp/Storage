@@ -105,9 +105,6 @@ export class UploadManager {
       if (document.visibilityState === "visible") {
         // Tab became visible again
         this.checkAndResumeUploads();
-      } else {
-        // Tab hidden - might be system sleep
-        this.pauseAllUploads(PauseReason.TAB_HIDDEN);
       }
     });
 
@@ -870,6 +867,13 @@ export class UploadManager {
 
     // Store latest progress in the queue item
     item.lastProgress = progress;
+
+    // Update state if progress indicates completion
+    if (progress.state === UploadState.COMPLETED) {
+      item.state = UploadState.COMPLETED;
+      item.completedAt = Date.now();
+    }
+
     this.uploadQueue.set(id, item);
 
     // Update overall progress tracking
@@ -930,7 +934,16 @@ export class UploadManager {
         uploadedBytes += item.lastProgress.bytesUploaded;
 
         // Add to currently uploading list
-        currentlyUploading.push(item.lastProgress);
+        currentlyUploading.push({
+          ...item.lastProgress,
+          state: item.state, // Ensure state is in sync with queue item
+        });
+      } else if (item.lastProgress) {
+        // Include non-active items that have progress info
+        currentlyUploading.push({
+          ...item.lastProgress,
+          state: item.state, // Ensure state is in sync with queue item
+        });
       }
     }
 

@@ -103,6 +103,11 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
           icon={<FileExcelOutlined />}
           title="Preview Unavailable"
           subTitle={`File size exceeded the max preview size of ${maxPreviewSize} mb`}
+          extra={
+            <Button type="primary" onClick={() => window.open(url, "_blank")}>
+              Download
+            </Button>
+          }
         />
       </div>
     );

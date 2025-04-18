@@ -427,10 +427,6 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
           // ------------------------------ CHECK TABLE PERMISSIONS --------------------------------- //
 
           case CHECK_API_KEY_TABLE_PERMISSIONS: {
-            console.log(
-              `Firing checkApiKeyTablePermissionsAction for user`,
-              action
-            );
             // check dexie
             const systemPermissionsTable = db.table(
               SYSTEM_PERMISSIONS_DEXIE_TABLE
@@ -448,10 +444,6 @@ export const apiKeysOptimisticDexieMiddleware = (currentIdentitySet: {
           }
 
           case CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT: {
-            console.log(
-              `Handling CHECK_API_KEY_TABLE_PERMISSIONS_COMMIT`,
-              action
-            );
             const optimisticID = action.meta?.optimisticID;
             const permissions = action.payload?.ok?.data?.permissions;
 

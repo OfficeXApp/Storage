@@ -82,7 +82,6 @@ export const contactsReducer = (
   state = initialState,
   action: any
 ): ContactsState => {
-  // console.log(`Now in official reducer`, action, state);
   switch (action.type) {
     // ------------------------------ GET CONTACT --------------------------------- //
 
@@ -384,7 +383,6 @@ export const contactsReducer = (
     // ------------------------------ CHECK CONTACT TABLE PERMISSIONS --------------------------------- //
 
     case CHECK_CONTACT_TABLE_PERMISSIONS: {
-      console.log(`Firing checkContactTablePermissionsAction for user`, action);
       const permission_types = action.optimistic?.permission_types || [];
       return {
         ...state,

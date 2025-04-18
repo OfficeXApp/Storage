@@ -21,7 +21,11 @@ import {
 } from "@officexapp/types";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { IndexDB_Profile, useIdentitySystem } from "../../framework/identity";
-import { urlSafeBase64Decode, wrapAuthStringOrHeader } from "../../api/helpers";
+import {
+  sleep,
+  urlSafeBase64Decode,
+  wrapAuthStringOrHeader,
+} from "../../api/helpers";
 import {
   CheckCircleOutlined,
   EditOutlined,
@@ -32,6 +36,7 @@ import {
 } from "@ant-design/icons";
 import TagCopy from "../../components/TagCopy";
 import { shortenAddress } from "../../framework/identity/constants";
+import { windowWhen } from "rxjs";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -185,8 +190,6 @@ const ContactRedeem = () => {
       } else if (redeemData.type === "SovereignStrangerLogin_BTOA") {
         await processSovereignStrangerLogin(redeemData);
       }
-
-      message.success("Successfully joined organization!");
     } catch (error) {
       console.error("Error processing invitation:", error);
       message.error("Failed to process invitation");
@@ -285,6 +288,8 @@ const ContactRedeem = () => {
       } else {
         navigate(wrapOrgCode(`/drive`));
       }
+      await sleep(1000);
+      window.location.reload();
     } else {
       console.log("No profile selected, using default values");
     }
@@ -348,12 +353,13 @@ const ContactRedeem = () => {
     await switchOrganization(org);
     await switchProfile(profile);
     message.success("Successfully joined organization!");
-    console.log(`wrapOrgCode(/drive)`, wrapOrgCode(`/drive`));
     if (data.redirect_url) {
       window.location.href = data.redirect_url;
     } else {
       navigate(wrapOrgCode(`/drive`));
     }
+    await sleep(1000);
+    window.location.reload();
   };
 
   const processSovereignStrangerLogin = async (
@@ -422,6 +428,8 @@ const ContactRedeem = () => {
     } else {
       navigate(wrapOrgCode(`/drive`));
     }
+    await sleep(1000);
+    window.location.reload();
   };
 
   const getInvitationType = () => {

@@ -116,7 +116,6 @@ const RedeemGroupInvite = () => {
     setIsProcessing(true);
     try {
       await processGroupInviteRedeem(redeemData);
-      message.success("Successfully joined the group!");
     } catch (error) {
       console.error("Error processing group invite:", error);
       message.error("Failed to process group invite");
@@ -178,12 +177,14 @@ const RedeemGroupInvite = () => {
           nickname: redeemData.org_name,
         });
       }
-      await sleep(3000);
+      await sleep(1000);
       if (data.redirect_url) {
         window.location.href = data.redirect_url;
       } else {
         navigate(wrapOrgCode(`/groups`));
       }
+      await sleep(1000);
+      window.location.reload();
     } else {
       throw new Error("Failed to redeem group invite: Invalid response format");
     }

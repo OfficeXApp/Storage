@@ -2,15 +2,9 @@
 
 ## Overview
 
-- [🔵] Show warning message on file page if file status was not completed uploading
 - [🔵] Clear download / Pause download
-- [🔵] Delete files will delete from storj/s3/canister
-- [🔵] Fix the dangerous duplicate downloading on FilePage (2GB file gets downloaded 4x right away)
 - [ ] Searchbar in driveui
 - [ ] Thumbnails for files/images/video + driveui tile mode
-- [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
-- [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
-- [ ] Add bulk delete & single file page move/copy/delete
 
 1. Directory navigation & interaction (1-2 days)
 1. Offline JS functionality replica (1-2 days)
@@ -32,10 +26,16 @@
 - [ ] Investigate & consolidate auth cookies
 - [ ] Investigate & consolidate all indexdb databases
 
+## Nice Updates after Prod
+
+- [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
+- [ ] Add bulk delete & single file page move/copy/delete
+
 ## Backlog
 
 - [ ] Add onEnter to submit forms
 - [ ] User initiated superswap_userid as a form of account "recovery" when they've lost/compromised their seed phrase. This should be added as a permission with grantee being a user/group etc.
+- [ ] Pretty short links `drive.officex.app/r/uuid-redirects-to-long-form`
 
 ## Done
 
@@ -102,3 +102,6 @@
 - [x] Implement recents tab with its own dexie table of recent files/folders opened, update driveui & filepage to append recents
 - [x] Investigate why uploading large files doesnt work (2GB+) --> onvisibilitychange was force stopping uploads on tab unfocus
 - [x] Fix upload progress bar bug where uploading large files to canister/storj/s3 will succeed but appear blue progress bar stuck and incorrect summary
+- [x] Show warning message on file page if file status was not completed uploading
+- [x] Fix the dangerous duplicate downloading on FilePage (2GB file gets downloaded 4x right away)
+- [x] Delete files will delete from storj/s3/canister

@@ -716,7 +716,18 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               marginTop: "32px",
             }}
           >
-            <Result icon={<FileExcelOutlined />} title="Preview Unavailable" />
+            <Result
+              icon={<FileExcelOutlined />}
+              title="Preview Unavailable"
+              extra={
+                <Button
+                  type="primary"
+                  onClick={() => window.open(fileUrl, "_blank")}
+                >
+                  Download
+                </Button>
+              }
+            />
           </div>
         )}
       </div>

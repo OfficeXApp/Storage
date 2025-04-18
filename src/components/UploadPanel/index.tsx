@@ -33,6 +33,7 @@ import { DiskTypeEnum, FileID, UserID } from "@officexapp/types";
 import { useDispatch } from "react-redux";
 import { generateListDirectoryKey } from "../../redux-offline/directory/directory.actions";
 import { useIdentitySystem } from "../../framework/identity";
+import { UploadState } from "../../framework/uploader/types";
 
 const { Text } = Typography;
 
@@ -354,16 +355,36 @@ const UploadPanel: React.FC<{
                           item.config.diskType,
                           item.config.diskID
                         )}
+                        style={{ cursor: "pointer" }}
                       >
                         {item.file.name}
                       </Link>
                     }
+                    // description={
+                    //   <Progress
+                    //     percent={
+                    //       item.lastProgress ? item.lastProgress.progress : 0
+                    //     }
+                    //     size="small"
+                    //   />
+                    // }
                     description={
                       <Progress
                         percent={
-                          item.lastProgress ? item.lastProgress.progress : 0
+                          item.state === UploadState.COMPLETED
+                            ? 100
+                            : item.lastProgress
+                              ? item.lastProgress.progress
+                              : 0
                         }
                         size="small"
+                        status={
+                          item.state === UploadState.COMPLETED
+                            ? "success"
+                            : item.state === UploadState.FAILED
+                              ? "exception"
+                              : "active"
+                        }
                       />
                     }
                   />

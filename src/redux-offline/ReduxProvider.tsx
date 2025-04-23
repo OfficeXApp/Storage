@@ -37,6 +37,7 @@ import { apiKeysOptimisticDexieMiddleware } from "./api-keys/api-keys.optimistic
 import { permissionsOptimisticDexieMiddleware } from "./permissions/permissions.optimistic";
 import { directoryOptimisticDexieMiddleware } from "./directory/directory.optimistic";
 import { wrapAuthStringOrHeader } from "../api/helpers";
+import LoadingAnimation from "../components/NotFound/LoadingAnimation";
 
 // Custom discard function
 const discard = (error: any) => {
@@ -393,7 +394,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Show loading state if no store is available yet
   if (!storeRef.current) {
-    return <div>"Loading store..."</div>;
+    return <LoadingAnimation />;
   }
 
   // Provide the context and current store to the application

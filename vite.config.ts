@@ -4,6 +4,9 @@ import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
+import { visualizer } from "rollup-plugin-visualizer";
+
+const isProduction = true;
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,7 +16,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      mode: "development",
+      mode: isProduction ? "production" : "development", //
       strategies: "injectManifest",
       srcDir: "src",
       // @ts-ignore
@@ -22,6 +25,7 @@ export default defineConfig({
         injectionPoint: "self.__WB_MANIFEST",
         // Add additional configuration to ensure proper compilation
         rollupFormat: "es",
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
       // WebManifest options
       manifest: {
@@ -49,18 +53,25 @@ export default defineConfig({
         ],
       },
       devOptions: {
-        enabled: true,
+        enabled: isProduction ? false : true,
         type: "module",
       },
+    }),
+    visualizer({
+      open: isProduction ? false : true,
+      filename: "dist/stats.html",
+      gzipSize: true,
+      brotliSize: true,
     }),
   ],
   build: {
     minify: "terser",
     terserOptions: {
       compress: {
-        drop_console: false, // Keep console logs for debugging
+        drop_console: isProduction ? true : false, // Keep console logs for debugging
       },
     },
+    cssCodeSplit: true,
     // Ensure correct entry points and output
     rollupOptions: {
       input: {
@@ -70,6 +81,7 @@ export default defineConfig({
         entryFileNames: "[name].[hash].js",
         chunkFileNames: "[name].[hash].js",
         assetFileNames: "[name].[hash].[ext]",
+        format: "es",
       },
     },
   },

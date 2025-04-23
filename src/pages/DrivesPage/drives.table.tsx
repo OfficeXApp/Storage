@@ -169,7 +169,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleClickContentTab(record, true);
-                const newUrl = wrapOrgCode(`/resources/drives/${record.id}`);
+                const newUrl = wrapOrgCode(`/resources/canisters/${record.id}`);
                 window.history.pushState({}, "", newUrl);
               }}
             >

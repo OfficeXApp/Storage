@@ -155,10 +155,10 @@ const DrivesPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = wrapOrgCode(`/resources/drives`);
+      const newUrl = wrapOrgCode(`/resources/canisters`);
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = wrapOrgCode(`/resources/drives/${newActiveKey}`);
+      const newUrl = wrapOrgCode(`/resources/canisters/${newActiveKey}`);
       window.history.pushState({}, "", newUrl);
     }
   };

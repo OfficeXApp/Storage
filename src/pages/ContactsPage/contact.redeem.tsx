@@ -286,7 +286,7 @@ const ContactRedeem = () => {
       if (data.redirect_url) {
         window.location.href = data.redirect_url;
       } else {
-        navigate(wrapOrgCode(`/drive`));
+        navigate(wrapOrgCode(`/org/current/welcome`));
       }
       await sleep(1000);
       window.location.reload();
@@ -356,7 +356,7 @@ const ContactRedeem = () => {
     if (data.redirect_url) {
       window.location.href = data.redirect_url;
     } else {
-      navigate(wrapOrgCode(`/drive`));
+      navigate(wrapOrgCode(`/org/current/welcome`));
     }
     await sleep(1000);
     window.location.reload();
@@ -426,7 +426,7 @@ const ContactRedeem = () => {
     if (data.redirect_url) {
       window.location.href = data.redirect_url;
     } else {
-      navigate(wrapOrgCode(`/drive`));
+      navigate(wrapOrgCode(`/org/current/welcome`));
     }
     await sleep(1000);
     window.location.reload();

@@ -25,8 +25,6 @@ import {
   SyncOutlined,
 } from "@ant-design/icons";
 
-import { Actor } from "@dfinity/agent";
-import { idlFactory as idlFactory_Drive } from "../../declarations/officex-canisters-backend/officex-canisters-backend.did.js";
 import { formatCycles } from "../../api/icp.js";
 import ConnectICPButton from "../ConnectICPButton/index.js";
 import { useIdentitySystem } from "../../framework/identity/index.js";

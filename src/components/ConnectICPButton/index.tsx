@@ -289,7 +289,7 @@ const ConnectICPButton = () => {
       message.success("Syncing... please wait", 0);
       await sleep(3000);
       message.success(`Success! Entering new organization...`);
-      navigate("/");
+      navigate("/org/current/welcome");
       window.location.reload();
     } catch (error) {
       console.error("Error connecting to cloud:", error);

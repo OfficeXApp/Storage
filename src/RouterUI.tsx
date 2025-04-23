@@ -88,6 +88,7 @@ import FreeFileSharePreview from "./components/FreeFileSharePreview";
 import NotFoundPage from "./components/NotFound";
 import { generateListDirectoryKey } from "./redux-offline/directory/directory.actions";
 import SearchResultsPage from "./pages/SearchResults";
+import WelcomePage from "./components/WelcomePage";
 
 const { Sider, Content } = Layout;
 
@@ -242,8 +243,10 @@ const SideMenu = ({
               label: <Link to={wrapOrgCode("/resources/disks")}>Disks</Link>,
             },
             {
-              key: "drives",
-              label: <Link to={wrapOrgCode("/resources/drives")}>Drives</Link>,
+              key: "canister",
+              label: (
+                <Link to={wrapOrgCode("/resources/canisters")}>Drives</Link>
+              ),
             },
           ],
         },
@@ -344,7 +347,7 @@ const RouterUI = () => {
               }}
             >
               <div style={{ flex: 1 }}>
-                <Link to="/org/current/drive">
+                <Link to="/org/current/welcome">
                   <div
                     style={{
                       padding: "32px",
@@ -440,6 +443,7 @@ const RouterUI = () => {
                 }
               />
               <Route path="/org/:orgcode/settings" element={<SettingsPage />} />
+              <Route path="/org/:orgcode/welcome" element={<WelcomePage />} />
               <Route
                 path="/org/:orgcode/search"
                 element={<SearchResultsPage />}
@@ -536,11 +540,11 @@ const RouterUI = () => {
                 element={<DiskPage />}
               />
               <Route
-                path="/org/:orgcode/resources/drives"
+                path="/org/:orgcode/resources/canisters"
                 element={<DrivesPage />}
               />
               <Route
-                path="/org/:orgcode/resources/drives/:driveID"
+                path="/org/:orgcode/resources/canisters/:driveID"
                 element={<DrivePage />}
               />
               <Route

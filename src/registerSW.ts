@@ -35,8 +35,16 @@ export function registerServiceWorker(options: RegisterSWOptions = {}) {
   // Register the service worker
   const updateSW = registerSW({
     immediate: true,
-    onNeedRefresh,
-    onOfflineReady,
+    onNeedRefresh() {
+      // Show UI to the user
+      if (confirm("New version available. Update now?")) {
+        // This is critical - it will unregister the old SW and activate the new one
+        updateSW(true);
+      }
+    },
+    onOfflineReady() {
+      console.log("App ready to work offline");
+    },
     onRegistered(registration) {
       // Initialize workbox for additional control
       console.log("Service worker registered:", registration);

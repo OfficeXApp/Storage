@@ -504,6 +504,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const fetchRecentsGlobal = async () => {
     if (!currentOrg || !currentProfile) return;
+    if (!currentOrg.endpoint) {
+      fetchContent({});
+      return;
+    }
     const { items: recents } = await fetchRecentDirectoryBumps(
       {
         start_ms: 0,
@@ -513,6 +517,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       currentProfile.userID,
       currentOrg.driveID
     );
+    if (recents.length === 0) {
+      fetchContent({});
+      return;
+    }
     setContent({
       folders: recents.map((recent) => {
         const timeAgo = dayjs().to(dayjs(recent.last_opened), true);
@@ -566,6 +574,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           resource_id: fileId as DirectoryResourceID,
         },
       };
+
       dispatch(listDirectoryPermissionsAction(payload));
     } catch (error) {
       console.error("Error fetching file by ID:", error);
@@ -676,6 +685,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             resource_id: targetFolderId as DirectoryResourceID,
           },
         };
+
         dispatch(listDirectoryPermissionsAction(payload));
         setIsDiskRootPage(false);
         setIsSharedWithMePage(false);
@@ -703,6 +713,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         };
         const _listDirectoryKey = generateListDirectoryKey(listParams);
         setListDirectoryKey(_listDirectoryKey);
+
         dispatch(
           listDirectoryAction(
             listParams,

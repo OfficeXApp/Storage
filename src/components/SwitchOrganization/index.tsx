@@ -643,7 +643,7 @@ const OrganizationSwitcher = () => {
 
       // Refresh the page
       message.success(`Success! Entering organization...`);
-      navigate("/");
+      navigate("/org/current/welcome");
       window.location.reload();
     } catch (error) {
       console.error("Error logging in to organization:", error);
@@ -869,7 +869,8 @@ const OrganizationSwitcher = () => {
           message.success("Syncing... please wait", 0);
           await sleep(3000);
           message.success(`Success! Entering new organization...`);
-          navigate("/");
+
+          navigate("/org/current/welcome");
           window.location.reload();
         } catch (error) {
           console.error("Error redeeming gift card:", error);
@@ -901,7 +902,7 @@ const OrganizationSwitcher = () => {
           `Organization "${newOrgNickname}" created successfully!`,
           0
         );
-        navigate("/");
+        navigate("/org/current/welcome");
         window.location.reload();
       }
     } catch (error) {
@@ -997,7 +998,7 @@ const OrganizationSwitcher = () => {
       // Switch to the organization
       await switchOrganization(org, profile?.userID);
       message.success(`Entering "${org.nickname}" organization...`);
-      navigate("/");
+      navigate("/org/current/welcome");
       window.location.reload();
     }
   };

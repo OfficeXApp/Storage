@@ -53,7 +53,7 @@ const DrivePage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate(wrapOrgCode("/resources/drives"))}
+          onClick={() => navigate(wrapOrgCode("/resources/canisters"))}
           style={{
             display: "flex",
             alignItems: "center",
@@ -75,7 +75,7 @@ const DrivePage = () => {
         <DriveTab
           driveCache={drive}
           onDelete={() => {
-            navigate(wrapOrgCode(`/resources/drives`));
+            navigate(wrapOrgCode(`/resources/canisters`));
           }}
         />
       </Content>

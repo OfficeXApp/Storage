@@ -89,6 +89,16 @@ registerRoute(
   })
 );
 
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 // // Optional: Handle push events for notifications
 // self.addEventListener("push", (event) => {
 //   const data = event.data?.json() ?? {};

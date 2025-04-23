@@ -43,6 +43,7 @@ import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
 import { useParams } from "react-router-dom";
 import { urlSafeBase64Decode, urlSafeBase64Encode } from "../../api/helpers";
 import { Button, message, notification, Space } from "antd";
+import LoadingAnimation from "../../components/NotFound/LoadingAnimation";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -1136,7 +1137,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   };
 
   if (!isInitialized) {
-    return "Loading...";
+    return <LoadingAnimation />;
   }
 
   return (

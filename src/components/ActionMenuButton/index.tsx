@@ -35,18 +35,7 @@ import {
   CREATE_FOLDER,
   createFolderAction,
   generateListDirectoryKey,
-  listDirectoryAction,
 } from "../../redux-offline/directory/directory.actions";
-import {
-  defaultTempCloudSharingDiskID,
-  defaultTempCloudSharingRootFolderID,
-} from "../../api/dexie-database";
-import {
-  DiskFEO,
-  LOCALSTORAGE_DEFAULT_DISK_ID,
-} from "../../redux-offline/disks/disks.reducer";
-import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { J } from "vitest/dist/chunks/reporters.D7Jzd9GS.js";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import { shouldBehaveOfflineDiskUIIntent } from "../../redux-offline/directory/directory.reducer";
 
@@ -63,7 +52,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   optimisticListDirectoryKey,
   disabled = false,
 }) => {
-  const { currentOrg, isOfflineOrg } = useIdentitySystem();
+  const { currentOrg, isOfflineOrg, wrapOrgCode } = useIdentitySystem();
   const icpCanisterId = currentOrg?.driveID;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
@@ -73,8 +62,12 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { "*": encodedPath } = useParams<{ "*": string }>();
-  const { uploadTargetFolderID, uploadTargetDisk, uploadFiles } =
-    useMultiUploader();
+  const {
+    uploadTargetFolderID,
+    uploadTargetDiskType,
+    uploadTargetDisk,
+    uploadFiles,
+  } = useMultiUploader();
 
   const handleFileSelect = (files: FileList | null) => {
     if (files && uploadTargetDisk && uploadTargetFolderID) {
@@ -177,8 +170,16 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         </Space>
       ),
       key: "newFolder",
-      onClick: () => setIsModalVisible(true),
-      disabled: !window.location.pathname.includes("/drive"),
+      onClick: () => {
+        if (window.location.pathname.includes("/drive/")) {
+          setIsModalVisible(true);
+        } else if (window.location.pathname === wrapOrgCode("/drive")) {
+          message.info("Select a disk first");
+        } else {
+          navigate(wrapOrgCode("/drive"));
+          message.info("Select a disk");
+        }
+      },
     },
     {
       type: "divider",
@@ -191,7 +192,13 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         </Space>
       ),
       key: "uploadFile",
-      onClick: handleUploadFiles,
+      onClick: () => {
+        if (window.location.pathname.includes("/drive/")) {
+          handleUploadFiles();
+        } else if (window.location.pathname === wrapOrgCode("/drive")) {
+          message.info("Select a disk first");
+        }
+      },
     },
     {
       label: (
@@ -201,7 +208,16 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         </Space>
       ),
       key: "uploadFolder",
-      onClick: handleUploadFolder,
+      onClick: () => {
+        if (window.location.pathname.includes("/drive/")) {
+          handleUploadFolder();
+        } else if (window.location.pathname === wrapOrgCode("/drive")) {
+          message.info("Select a disk first");
+        } else {
+          navigate(wrapOrgCode("/drive"));
+          message.info("Select a disk");
+        }
+      },
     },
     {
       type: "divider",

@@ -12,6 +12,7 @@ import {
   List,
   message,
   Popover,
+  Result,
 } from "antd";
 import {
   BarsOutlined,
@@ -26,15 +27,20 @@ import {
   EditOutlined,
   LoadingOutlined,
   SyncOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { LabelFE } from "@officexapp/types";
+import { LabelFE, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
-import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
+import {
+  listLabelsAction,
+  checkLabelTablePermissionsAction,
+} from "../../redux-offline/labels/labels.actions";
 import { useIdentitySystem } from "../../framework/identity";
+import { Link } from "react-router-dom";
 
 interface LabelsTableListProps {
   isLabelTabOpen: (id: string) => boolean;
@@ -48,10 +54,13 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
   const dispatch = useDispatch();
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const { labels, loading } = useSelector((state: ReduxAppState) => ({
-    labels: state.labels.labels,
-    loading: state.labels.loading,
-  }));
+  const { labels, loading, tablePermissions } = useSelector(
+    (state: ReduxAppState) => ({
+      labels: state.labels.labels,
+      loading: state.labels.loading,
+      tablePermissions: state.labels.tablePermissions,
+    })
+  );
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredLabels, setFilteredLabels] = useState(labels);
@@ -173,9 +182,9 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Option 1" },
-    { key: "2", label: "Option 2" },
-    { key: "3", label: "Option 3" },
+    { key: "1", label: "Coming Soon" },
+    { key: "2", label: "Coming Soon" },
+    { key: "3", label: "Coming Soon" },
   ];
 
   const renderMobileList = () => {
@@ -254,6 +263,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
   const syncLatest = () => {
     if (!currentProfile) return;
     dispatch(listLabelsAction({}));
+    dispatch(checkLabelTablePermissionsAction(currentProfile.userID));
   };
 
   return (
@@ -417,37 +427,63 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
       </div>
 
       {/* Labels Table */}
-      <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
-        {screenType.isMobile ? (
-          renderMobileList()
-        ) : (
-          <Table
-            rowSelection={{
-              type: "checkbox",
-              ...rowSelection,
-              columnWidth: 50,
-            }}
-            columns={columns}
-            dataSource={filteredLabels}
-            rowKey="id"
-            pagination={false}
-            onRow={(record) => ({
-              onClick: () => {
-                handleClickContentTab(record, false);
-              },
-              style: {
-                backgroundColor: isLabelTabOpen(record.id)
-                  ? "#e6f7ff"
-                  : "transparent",
-                cursor: "pointer",
-              },
-            })}
-            size="middle"
-          />
-        )}
-        <br />
-        <br />
-      </div>
+      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      labels.length > 0 ? (
+        <div
+          style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}
+        >
+          {screenType.isMobile ? (
+            renderMobileList()
+          ) : (
+            <Table
+              rowSelection={{
+                type: "checkbox",
+                ...rowSelection,
+                columnWidth: 50,
+              }}
+              columns={columns}
+              dataSource={filteredLabels}
+              rowKey="id"
+              pagination={false}
+              onRow={(record) => ({
+                onClick: () => {
+                  handleClickContentTab(record, false);
+                },
+                style: {
+                  backgroundColor: isLabelTabOpen(record.id)
+                    ? "#e6f7ff"
+                    : "transparent",
+                  cursor: "pointer",
+                },
+              })}
+              size="middle"
+            />
+          )}
+          <br />
+          <br />
+        </div>
+      ) : (
+        <Result
+          icon={<LockOutlined />}
+          title="Unauthorized"
+          subTitle={
+            <div>
+              <span>Sorry, you are not authorized to view labels.</span>
+              <br />
+              <span>Contact your organization administrator.</span>
+            </div>
+          }
+          extra={
+            <Link to={wrapOrgCode("/welcome")}>
+              <Button type="primary">Back Home</Button>
+            </Link>
+          }
+          style={{
+            marginTop: screenType.isMobile ? "0vh" : "10vh",
+            marginBottom: "20vh",
+          }}
+        />
+      )}
     </div>
   );
 };

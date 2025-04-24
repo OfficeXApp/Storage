@@ -33,6 +33,7 @@ const LoadingAnimation = () => {
       }}
     >
       <Progress
+        type="dashboard"
         percent={percent}
         status="active"
         showInfo={false}

@@ -13,6 +13,7 @@ import {
   List,
   message,
   Popover,
+  Result,
 } from "antd";
 import {
   BarsOutlined,
@@ -29,10 +30,11 @@ import {
   GlobalOutlined,
   LoadingOutlined,
   SyncOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from ".";
-import { DriveFE, Drive } from "@officexapp/types";
+import { DriveFE, Drive, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,6 +44,7 @@ import {
 } from "../../redux-offline/drives/drives.actions";
 import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
 import { useIdentitySystem } from "../../framework/identity";
+import { Link } from "react-router-dom";
 
 interface DrivesTableListProps {
   isDriveTabOpen: (id: string) => boolean;
@@ -54,10 +57,13 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const { drives, loading } = useSelector((state: ReduxAppState) => ({
-    drives: state.drives.drives,
-    loading: state.drives.loading,
-  }));
+  const { drives, loading, tablePermissions } = useSelector(
+    (state: ReduxAppState) => ({
+      drives: state.drives.drives,
+      loading: state.drives.loading,
+      tablePermissions: state.drives.tablePermissions,
+    })
+  );
   console.log(`look at drives`, drives);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
@@ -205,9 +211,9 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Option 1" },
-    { key: "2", label: "Option 2" },
-    { key: "3", label: "Option 3" },
+    { key: "1", label: "Coming Soon" },
+    { key: "2", label: "Coming Soon" },
+    { key: "3", label: "Coming Soon" },
   ];
 
   const renderMobileList = () => {
@@ -493,37 +499,63 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
       </div>
 
       {/* Drives Table */}
-      <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
-        {screenType.isMobile ? (
-          renderMobileList()
-        ) : (
-          <Table
-            rowSelection={{
-              type: "checkbox",
-              ...rowSelection,
-              columnWidth: 50,
-            }}
-            columns={columns}
-            dataSource={filteredDrives}
-            rowKey="id"
-            pagination={false}
-            onRow={(record) => ({
-              onClick: () => {
-                handleClickContentTab(record, false);
-              },
-              style: {
-                backgroundColor: isDriveTabOpen(record.id)
-                  ? "#e6f7ff"
-                  : "transparent",
-                cursor: "pointer",
-              },
-            })}
-            size="middle"
-          />
-        )}
-        <br />
-        <br />
-      </div>
+      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      drives.length > 0 ? (
+        <div
+          style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}
+        >
+          {screenType.isMobile ? (
+            renderMobileList()
+          ) : (
+            <Table
+              rowSelection={{
+                type: "checkbox",
+                ...rowSelection,
+                columnWidth: 50,
+              }}
+              columns={columns}
+              dataSource={filteredDrives}
+              rowKey="id"
+              pagination={false}
+              onRow={(record) => ({
+                onClick: () => {
+                  handleClickContentTab(record, false);
+                },
+                style: {
+                  backgroundColor: isDriveTabOpen(record.id)
+                    ? "#e6f7ff"
+                    : "transparent",
+                  cursor: "pointer",
+                },
+              })}
+              size="middle"
+            />
+          )}
+          <br />
+          <br />
+        </div>
+      ) : (
+        <Result
+          icon={<LockOutlined />}
+          title="Unauthorized"
+          subTitle={
+            <div>
+              <span>Sorry, you are not authorized to view drives.</span>
+              <br />
+              <span>Contact your organization administrator.</span>
+            </div>
+          }
+          extra={
+            <Link to={wrapOrgCode("/welcome")}>
+              <Button type="primary">Back Home</Button>
+            </Link>
+          }
+          style={{
+            marginTop: screenType.isMobile ? "0vh" : "10vh",
+            marginBottom: "20vh",
+          }}
+        />
+      )}
     </div>
   );
 };

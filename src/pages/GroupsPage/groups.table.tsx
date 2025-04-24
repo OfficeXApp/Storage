@@ -11,6 +11,7 @@ import {
   List,
   message,
   Popover,
+  Result,
 } from "antd";
 import {
   BarsOutlined,
@@ -41,6 +42,7 @@ import {
 } from "../../redux-offline/groups/groups.actions";
 import { formatUserString } from "../../api/helpers";
 import { useIdentitySystem } from "../../framework/identity";
+import { Link } from "react-router-dom";
 
 interface GroupsTableProps {
   isContentTabOpen: (id: string) => boolean;
@@ -54,17 +56,17 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const { groups, loading } = useSelector((state: ReduxAppState) => ({
-    groups: state.groups.groups,
-    loading: state.groups.loading,
-  }));
+  const { groups, loading, tablePermissions } = useSelector(
+    (state: ReduxAppState) => ({
+      groups: state.groups.groups,
+      loading: state.groups.loading,
+      tablePermissions: state.groups.tablePermissions,
+    })
+  );
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredGroups, setFilteredGroups] = useState(groups);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const tablePermissions = useSelector(
-    (state: ReduxAppState) => state.groups.tablePermissions
-  );
 
   // Update filtered groups whenever search text or groups change
   useEffect(() => {
@@ -462,37 +464,63 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
       </div>
 
       {/* Groups Table */}
-      <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
-        {screenType.isMobile ? (
-          renderMobileList()
-        ) : (
-          <Table
-            rowSelection={{
-              type: "checkbox",
-              ...rowSelection,
-              columnWidth: 50,
-            }}
-            columns={columns}
-            dataSource={filteredGroups}
-            rowKey="id"
-            pagination={false}
-            onRow={(record) => ({
-              onClick: () => {
-                handleClickContentTab(record, false);
-              },
-              style: {
-                backgroundColor: isContentTabOpen(record.id)
-                  ? "#e6f7ff"
-                  : "transparent",
-                cursor: "pointer",
-              },
-            })}
-            size="middle"
-          />
-        )}
-        <br />
-        <br />
-      </div>
+      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      groups.length > 0 ? (
+        <div
+          style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}
+        >
+          {screenType.isMobile ? (
+            renderMobileList()
+          ) : (
+            <Table
+              rowSelection={{
+                type: "checkbox",
+                ...rowSelection,
+                columnWidth: 50,
+              }}
+              columns={columns}
+              dataSource={filteredGroups}
+              rowKey="id"
+              pagination={false}
+              onRow={(record) => ({
+                onClick: () => {
+                  handleClickContentTab(record, false);
+                },
+                style: {
+                  backgroundColor: isContentTabOpen(record.id)
+                    ? "#e6f7ff"
+                    : "transparent",
+                  cursor: "pointer",
+                },
+              })}
+              size="middle"
+            />
+          )}
+          <br />
+          <br />
+        </div>
+      ) : (
+        <Result
+          icon={<LockOutlined />}
+          title="Unauthorized"
+          subTitle={
+            <div>
+              <span>Sorry, you are not authorized to view groups.</span>
+              <br />
+              <span>Contact your organization administrator.</span>
+            </div>
+          }
+          extra={
+            <Link to={wrapOrgCode("/welcome")}>
+              <Button type="primary">Back Home</Button>
+            </Link>
+          }
+          style={{
+            marginTop: screenType.isMobile ? "0vh" : "10vh",
+            marginBottom: "20vh",
+          }}
+        />
+      )}
     </div>
   );
 };

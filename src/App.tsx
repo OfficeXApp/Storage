@@ -43,6 +43,12 @@ import {
   listSystemPermissionsAction,
 } from "./redux-offline/permissions/permissions.actions";
 
+import { DiskTypeEnum } from "@officexapp/types";
+import {
+  defaultTempCloudSharingDiskID,
+  defaultTempCloudSharingRootFolderID,
+} from "./api/dexie-database";
+
 function App() {
   const [emvMnemonic, setEvmMnemonic] = useState<string | null>(null);
   const [icpMnemonic, setIcpMnemonic] = useState<string | null>(null);

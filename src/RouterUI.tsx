@@ -139,8 +139,8 @@ const SideMenu = ({
     } else if (path.includes("/resources/disks")) {
       setSelectedKeys(["disks"]);
       setOpenKeys(["organization"]);
-    } else if (path.includes("/resources/drives")) {
-      setSelectedKeys(["drives"]);
+    } else if (path.includes("/resources/canisters")) {
+      setSelectedKeys(["canisters"]);
       setOpenKeys(["organization"]);
     } else if (path.includes("/resources/webhooks")) {
       setSelectedKeys(["webhooks"]);
@@ -169,16 +169,45 @@ const SideMenu = ({
       children: [
         {
           key: "drive",
-          label: <Link to={wrapOrgCode("/drive")}>My Drive</Link>,
+          label: (
+            <Link
+              to={wrapOrgCode("/drive")}
+              onClick={() => {
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              }}
+            >
+              My Drive
+            </Link>
+          ),
         },
         {
           key: "recent",
-          label: <Link to={wrapOrgCode("/recent")}>Recent</Link>,
+          label: (
+            <Link
+              to={wrapOrgCode("/recent")}
+              onClick={() => {
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              }}
+            >
+              Recent
+            </Link>
+          ),
         },
         {
           key: "drive-shared",
           label: (
-            <Link to={wrapOrgCode("/drive-shared?default_disk_action=shared")}>
+            <Link
+              to={wrapOrgCode("/drive-shared?default_disk_action=shared")}
+              onClick={() => {
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              }}
+            >
               Shared with Me
             </Link>
           ),
@@ -192,7 +221,14 @@ const SideMenu = ({
         {
           key: "drive-trash",
           label: (
-            <Link to={wrapOrgCode("/drive-trash?default_disk_action=trash")}>
+            <Link
+              to={wrapOrgCode("/drive-trash?default_disk_action=trash")}
+              onClick={() => {
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              }}
+            >
               Trash
             </Link>
           ),
@@ -212,24 +248,62 @@ const SideMenu = ({
             {
               key: "contacts",
               label: (
-                <Link to={wrapOrgCode("/resources/contacts")}>Contacts</Link>
+                <Link
+                  to={wrapOrgCode("/resources/contacts")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
+                  Contacts
+                </Link>
               ),
             },
             {
               key: "groups",
-              label: <Link to={wrapOrgCode("/resources/groups")}>Groups</Link>,
+              label: (
+                <Link
+                  to={wrapOrgCode("/resources/groups")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
+                  Groups
+                </Link>
+              ),
             },
             {
               key: "permissions",
               label: (
-                <Link to={wrapOrgCode("/resources/permissions")}>
+                <Link
+                  to={wrapOrgCode("/resources/permissions")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
                   Permissions
                 </Link>
               ),
             },
             {
               key: "labels",
-              label: <Link to={wrapOrgCode("/resources/labels")}>Labels</Link>,
+              label: (
+                <Link
+                  to={wrapOrgCode("/resources/labels")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
+                  Labels
+                </Link>
+              ),
             },
           ],
         },
@@ -240,12 +314,32 @@ const SideMenu = ({
           children: [
             {
               key: "disks",
-              label: <Link to={wrapOrgCode("/resources/disks")}>Disks</Link>,
+              label: (
+                <Link
+                  to={wrapOrgCode("/resources/disks")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
+                  Disks
+                </Link>
+              ),
             },
             {
               key: "canister",
               label: (
-                <Link to={wrapOrgCode("/resources/canisters")}>Drives</Link>
+                <Link
+                  to={wrapOrgCode("/resources/canisters")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
+                  Drives
+                </Link>
               ),
             },
           ],
@@ -258,13 +352,31 @@ const SideMenu = ({
             {
               key: "webhooks",
               label: (
-                <Link to={wrapOrgCode("/resources/webhooks")}>Webhooks</Link>
+                <Link
+                  to={wrapOrgCode("/resources/webhooks")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
+                  Webhooks
+                </Link>
               ),
             },
             {
               key: "api-keys",
               label: (
-                <Link to={wrapOrgCode("/resources/api-keys")}>API Keys</Link>
+                <Link
+                  to={wrapOrgCode("/resources/api-keys")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
+                  API Keys
+                </Link>
               ),
             },
             // {

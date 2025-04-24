@@ -11,6 +11,7 @@ import {
   List,
   message,
   Popover,
+  Result,
 } from "antd";
 import {
   BarsOutlined,
@@ -30,7 +31,7 @@ import {
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { ApiKeyFE } from "@officexapp/types";
+import { ApiKeyFE, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,6 +41,7 @@ import {
 } from "../../redux-offline/api-keys/api-keys.actions";
 import { useIdentitySystem } from "../../framework/identity";
 import TagCopy from "../../components/TagCopy";
+import { Link } from "react-router-dom";
 
 interface ApiKeysTableListProps {
   isContentTabOpen: (id: string) => boolean;
@@ -52,10 +54,13 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const { apiKeys, loading } = useSelector((state: ReduxAppState) => ({
-    apiKeys: state.apikeys.apikeys,
-    loading: state.apikeys.loading,
-  }));
+  const { apiKeys, loading, tablePermissions } = useSelector(
+    (state: ReduxAppState) => ({
+      apiKeys: state.apikeys.apikeys,
+      loading: state.apikeys.loading,
+      tablePermissions: state.apikeys.tablePermissions,
+    })
+  );
   const screenType = useScreenType();
   const { currentProfile, wrapOrgCode } = useIdentitySystem();
   const [searchText, setSearchText] = useState("");
@@ -488,37 +493,63 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
       </div>
 
       {/* API Keys Table */}
-      <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
-        {screenType.isMobile ? (
-          renderMobileList()
-        ) : (
-          <Table
-            rowSelection={{
-              type: "checkbox",
-              ...rowSelection,
-              columnWidth: 50,
-            }}
-            columns={columns}
-            dataSource={filteredApiKeys}
-            rowKey="id"
-            pagination={false}
-            onRow={(record) => ({
-              onClick: () => {
-                handleClickContentTab(record, false);
-              },
-              style: {
-                backgroundColor: isContentTabOpen(record.id)
-                  ? "#e6f7ff"
-                  : "transparent",
-                cursor: "pointer",
-              },
-            })}
-            size="middle"
-          />
-        )}
-        <br />
-        <br />
-      </div>
+      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      apiKeys.length > 0 ? (
+        <div
+          style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}
+        >
+          {screenType.isMobile ? (
+            renderMobileList()
+          ) : (
+            <Table
+              rowSelection={{
+                type: "checkbox",
+                ...rowSelection,
+                columnWidth: 50,
+              }}
+              columns={columns}
+              dataSource={filteredApiKeys}
+              rowKey="id"
+              pagination={false}
+              onRow={(record) => ({
+                onClick: () => {
+                  handleClickContentTab(record, false);
+                },
+                style: {
+                  backgroundColor: isContentTabOpen(record.id)
+                    ? "#e6f7ff"
+                    : "transparent",
+                  cursor: "pointer",
+                },
+              })}
+              size="middle"
+            />
+          )}
+          <br />
+          <br />
+        </div>
+      ) : (
+        <Result
+          icon={<LockOutlined />}
+          title="Unauthorized"
+          subTitle={
+            <div>
+              <span>Sorry, you are not authorized to view api keys.</span>
+              <br />
+              <span>Contact your organization administrator.</span>
+            </div>
+          }
+          extra={
+            <Link to={wrapOrgCode("/welcome")}>
+              <Button type="primary">Back Home</Button>
+            </Link>
+          }
+          style={{
+            marginTop: screenType.isMobile ? "0vh" : "10vh",
+            marginBottom: "20vh",
+          }}
+        />
+      )}
     </div>
   );
 };

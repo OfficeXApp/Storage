@@ -36,6 +36,7 @@ import {
   SortDirection,
 } from "@officexapp/types";
 import TagCopy from "../../components/TagCopy";
+import useScreenType from "react-screentype-hook";
 
 // Category tag color map
 const getCategoryColor = (category: SearchCategoryEnum): string => {
@@ -59,6 +60,7 @@ const SearchResultsPage: React.FC = () => {
   // React Router hooks
   const navigate = useNavigate();
   const location = useLocation();
+  const screenType = useScreenType();
 
   // State
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -302,7 +304,9 @@ const SearchResultsPage: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
-      <Content style={{ padding: "0 32px", gap: 16 }}>
+      <Content
+        style={{ padding: screenType.isMobile ? "0 16px" : "0 32px", gap: 16 }}
+      >
         <Typography.Title level={3}>Search Results</Typography.Title>
 
         {/* Main Search Bar */}
@@ -341,13 +345,16 @@ const SearchResultsPage: React.FC = () => {
               width: "100%",
             }}
           >
-            <Space direction="horizontal">
+            <Space direction={screenType.isMobile ? "vertical" : "horizontal"}>
               <Input
                 placeholder="Filter by title or content"
                 prefix={<FilterOutlined />}
                 value={filterQuery}
                 onChange={handleFilterQueryChange}
-                style={{ width: "300px", maxWidth: "300px" }}
+                style={{
+                  width: screenType.isMobile ? "100%" : "300px",
+                  maxWidth: screenType.isMobile ? "100%" : "300px",
+                }}
               />
 
               <Typography.Text style={{ marginLeft: "16px" }}>
@@ -436,28 +443,46 @@ const SearchResultsPage: React.FC = () => {
                       <List.Item.Meta
                         title={
                           <Typography.Text strong>
-                            <Tag
-                              color={getCategoryColor(item.category)}
-                              style={{
-                                width: "100px",
-                                textAlign: "center",
-                                marginRight: "24px",
-                              }}
-                            >
-                              {item.category.replace("_", " ")}
-                            </Tag>
-                            {item.title} <TagCopy id={item.resource_id} />{" "}
+                            {!screenType.isMobile && (
+                              <Tag
+                                color={getCategoryColor(item.category)}
+                                style={{
+                                  width: "100px",
+                                  textAlign: "center",
+                                  marginRight: "24px",
+                                }}
+                              >
+                                {item.category.replace("_", " ")}
+                              </Tag>
+                            )}
+                            {item.title}{" "}
+                            <TagCopy
+                              id={item.resource_id}
+                              style={{ marginLeft: 8 }}
+                            />{" "}
+                            {screenType.isMobile && (
+                              <Tag
+                                color={getCategoryColor(item.category)}
+                                style={{
+                                  textAlign: "center",
+                                }}
+                              >
+                                {item.category.replace("_", " ")}
+                              </Tag>
+                            )}
                           </Typography.Text>
                         }
                         description={
                           <Space direction="horizontal">
-                            <div
-                              style={{
-                                width: "100px",
-                                textAlign: "center",
-                                marginRight: "18px",
-                              }}
-                            ></div>
+                            {!screenType.isMobile && (
+                              <div
+                                style={{
+                                  width: "100px",
+                                  textAlign: "center",
+                                  marginRight: "18px",
+                                }}
+                              ></div>
+                            )}
                             <Typography.Text type="secondary">
                               {item.preview}
                             </Typography.Text>

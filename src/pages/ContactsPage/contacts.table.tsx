@@ -12,6 +12,7 @@ import {
   List,
   message,
   Popover,
+  Result,
 } from "antd";
 import {
   BarsOutlined,
@@ -26,10 +27,11 @@ import {
   RightOutlined,
   SyncOutlined,
   LoadingOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { ContactFE } from "@officexapp/types";
+import { ContactFE, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,6 +41,7 @@ import {
 } from "../../redux-offline/contacts/contacts.actions";
 import { formatUserString, getLastOnlineStatus } from "../../api/helpers";
 import { useIdentitySystem } from "../../framework/identity";
+import { Link } from "react-router-dom";
 
 interface ContactsTableListProps {
   isContentTabOpen: (id: string) => boolean;
@@ -51,10 +54,13 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const { contacts, loading } = useSelector((state: ReduxAppState) => ({
-    contacts: state.contacts.contacts,
-    loading: state.contacts.loading,
-  }));
+  const { contacts, loading, tablePermissions } = useSelector(
+    (state: ReduxAppState) => ({
+      contacts: state.contacts.contacts,
+      loading: state.contacts.loading,
+      tablePermissions: state.contacts.tablePermissions,
+    })
+  );
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   console.log(`look at contacts`, contacts);
   const screenType = useScreenType();
@@ -213,9 +219,9 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Option 1" },
-    { key: "2", label: "Option 2" },
-    { key: "3", label: "Option 3" },
+    { key: "1", label: "Coming Soon" },
+    { key: "2", label: "Coming Soon" },
+    { key: "3", label: "Coming Soon" },
   ];
 
   const renderMobileList = () => {
@@ -473,37 +479,63 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
       </div>
 
       {/* Contacts Table */}
-      <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
-        {screenType.isMobile ? (
-          renderMobileList()
-        ) : (
-          <Table
-            rowSelection={{
-              type: "checkbox",
-              ...rowSelection,
-              columnWidth: 50,
-            }}
-            columns={columns}
-            dataSource={filteredContacts}
-            rowKey="id"
-            pagination={false}
-            onRow={(record) => ({
-              onClick: () => {
-                handleClickContentTab(record, false);
-              },
-              style: {
-                backgroundColor: isContentTabOpen(record.id)
-                  ? "#e6f7ff"
-                  : "transparent",
-                cursor: "pointer",
-              },
-            })}
-            size="middle"
-          />
-        )}
-        <br />
-        <br />
-      </div>
+      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      contacts.length > 0 ? (
+        <div
+          style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}
+        >
+          {screenType.isMobile ? (
+            renderMobileList()
+          ) : (
+            <Table
+              rowSelection={{
+                type: "checkbox",
+                ...rowSelection,
+                columnWidth: 50,
+              }}
+              columns={columns}
+              dataSource={filteredContacts}
+              rowKey="id"
+              pagination={false}
+              onRow={(record) => ({
+                onClick: () => {
+                  handleClickContentTab(record, false);
+                },
+                style: {
+                  backgroundColor: isContentTabOpen(record.id)
+                    ? "#e6f7ff"
+                    : "transparent",
+                  cursor: "pointer",
+                },
+              })}
+              size="middle"
+            />
+          )}
+          <br />
+          <br />
+        </div>
+      ) : (
+        <Result
+          icon={<LockOutlined />}
+          title="Unauthorized"
+          subTitle={
+            <div>
+              <span>Sorry, you are not authorized to view contacts.</span>
+              <br />
+              <span>Contact your organization administrator.</span>
+            </div>
+          }
+          extra={
+            <Link to={wrapOrgCode("/welcome")}>
+              <Button type="primary">Back Home</Button>
+            </Link>
+          }
+          style={{
+            marginTop: screenType.isMobile ? "0vh" : "10vh",
+            marginBottom: "20vh",
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -10,6 +10,7 @@ import {
   List,
   message,
   Popover,
+  Result,
 } from "antd";
 import {
   BarsOutlined,
@@ -24,10 +25,11 @@ import {
   CloudOutlined,
   LoadingOutlined,
   SyncOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
-import { DiskTypeEnum } from "@officexapp/types";
+import { DiskTypeEnum, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,6 +45,7 @@ import {
 import TagCopy from "../../components/TagCopy";
 import { useIdentitySystem } from "../../framework/identity";
 import { pastLastCheckedCacheLimit } from "../../api/helpers";
+import { Link } from "react-router-dom";
 
 interface DisksTableListProps {
   isContentTabOpen: (id: string) => boolean;
@@ -55,10 +58,13 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const { disks, loading } = useSelector((state: ReduxAppState) => ({
-    disks: state.disks.disks,
-    loading: state.disks.loading,
-  }));
+  const { disks, loading, tablePermissions } = useSelector(
+    (state: ReduxAppState) => ({
+      disks: state.disks.disks,
+      loading: state.disks.loading,
+      tablePermissions: state.disks.tablePermissions,
+    })
+  );
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
@@ -208,6 +214,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
             ) : (
               <TagCopy id={record.id} />
             )}
+
             {record._syncWarning && <Badge status="error" />}
           </Space>
         );
@@ -233,9 +240,9 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Option 1" },
-    { key: "2", label: "Option 2" },
-    { key: "3", label: "Option 3" },
+    { key: "1", label: "Coming Soon" },
+    { key: "2", label: "Coming Soon" },
+    { key: "3", label: "Coming Soon" },
   ];
 
   const renderMobileList = () => {
@@ -500,37 +507,63 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
       </div>
 
       {/* Disks Table */}
-      <div style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}>
-        {screenType.isMobile ? (
-          renderMobileList()
-        ) : (
-          <Table
-            rowSelection={{
-              type: "checkbox",
-              ...rowSelection,
-              columnWidth: 50,
-            }}
-            columns={columns}
-            dataSource={filteredDisks}
-            rowKey="id"
-            pagination={false}
-            onRow={(record) => ({
-              onClick: () => {
-                handleClickContentTab(record, false);
-              },
-              style: {
-                backgroundColor: isContentTabOpen(record.id)
-                  ? "#e6f7ff"
-                  : "transparent",
-                cursor: "pointer",
-              },
-            })}
-            size="middle"
-          />
-        )}
-        <br />
-        <br />
-      </div>
+      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      disks.length > 0 ? (
+        <div
+          style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}
+        >
+          {screenType.isMobile ? (
+            renderMobileList()
+          ) : (
+            <Table
+              rowSelection={{
+                type: "checkbox",
+                ...rowSelection,
+                columnWidth: 50,
+              }}
+              columns={columns}
+              dataSource={filteredDisks}
+              rowKey="id"
+              pagination={false}
+              onRow={(record) => ({
+                onClick: () => {
+                  handleClickContentTab(record, false);
+                },
+                style: {
+                  backgroundColor: isContentTabOpen(record.id)
+                    ? "#e6f7ff"
+                    : "transparent",
+                  cursor: "pointer",
+                },
+              })}
+              size="middle"
+            />
+          )}
+          <br />
+          <br />
+        </div>
+      ) : (
+        <Result
+          icon={<LockOutlined />}
+          title="Unauthorized"
+          subTitle={
+            <div>
+              <span>Sorry, you are not authorized to view disks.</span>
+              <br />
+              <span>Contact your organization administrator.</span>
+            </div>
+          }
+          extra={
+            <Link to={wrapOrgCode("/welcome")}>
+              <Button type="primary">Back Home</Button>
+            </Link>
+          }
+          style={{
+            marginTop: screenType.isMobile ? "0vh" : "10vh",
+            marginBottom: "20vh",
+          }}
+        />
+      )}
     </div>
   );
 };

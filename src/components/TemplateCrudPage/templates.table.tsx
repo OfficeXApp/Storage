@@ -163,9 +163,9 @@ const TemplatesTableList: React.FC<TemplatesTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Option 1" },
-    { key: "2", label: "Option 2" },
-    { key: "3", label: "Option 3" },
+    { key: "1", label: "Coming Soon" },
+    { key: "2", label: "Coming Soon" },
+    { key: "3", label: "Coming Soon" },
   ];
 
   return (

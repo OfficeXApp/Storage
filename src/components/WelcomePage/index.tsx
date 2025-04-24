@@ -12,10 +12,12 @@ import {
 import { Link } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
 import TagCopy from "../TagCopy";
+import useScreenType from "react-screentype-hook";
 
 const { Title, Paragraph } = Typography;
 
 const WelcomePage = () => {
+  const screenType = useScreenType();
   const { wrapOrgCode, currentOrg } = useIdentitySystem();
   const [tasks, setTasks] = useState([
     {
@@ -59,7 +61,13 @@ const WelcomePage = () => {
   };
 
   return (
-    <div style={{ padding: 32, maxWidth: "768px", margin: "0 auto" }}>
+    <div
+      style={{
+        padding: screenType.isMobile ? 8 : 32,
+        maxWidth: "768px",
+        margin: "0 auto",
+      }}
+    >
       <Card style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}>
         <Typography>
           <Title level={2} style={{ textAlign: "center", marginBottom: 16 }}>

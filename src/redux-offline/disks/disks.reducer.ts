@@ -24,7 +24,6 @@ import {
 
 export const DISKS_REDUX_KEY = "disks";
 export const DISKS_DEXIE_TABLE = DISKS_REDUX_KEY;
-export const LOCALSTORAGE_DEFAULT_DISK_ID = "LOCALSTORAGE_DEFAULT_DISK_ID";
 
 export interface DiskFEO extends DiskFE {
   _isOptimistic?: boolean; // flag for optimistic updates
@@ -141,15 +140,9 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
     // ------------------------------ LIST DISKS --------------------------------- //
 
     case LIST_DISKS: {
-      const DEFAULT_DISK_ID = localStorage.getItem(
-        LOCALSTORAGE_DEFAULT_DISK_ID
-      );
-      const defaultDisk = (action.optimistic || []).find(
-        (disk: DiskFEO) => disk.id === DEFAULT_DISK_ID
-      );
       return {
         ...state,
-        defaultDisk: defaultDisk || null,
+        defaultDisk: null,
         disks: action.optimistic || [],
         loading: true,
         error: null,
@@ -172,14 +165,9 @@ export const disksReducer = (state = initialState, action: any): DisksState => {
         state.diskMap
       );
 
-      const DEFAULT_DISK_ID = localStorage.getItem(
-        LOCALSTORAGE_DEFAULT_DISK_ID
-      );
-      const defaultDisk = newDisks.find((disk) => disk.id === DEFAULT_DISK_ID);
-
       return {
         ...state,
-        defaultDisk: defaultDisk || null,
+        defaultDisk: null,
         disks: newDisks,
         diskMap: newDiskMap,
         loading: false,

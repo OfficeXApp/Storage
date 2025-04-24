@@ -1,5 +1,5 @@
 // src/redux-offline/labels/labels.reducer.ts
-import { LabelFE, LabelID } from "@officexapp/types";
+import { LabelFE, LabelID, SystemPermissionType } from "@officexapp/types";
 import {
   CREATE_LABEL,
   CREATE_LABEL_COMMIT,
@@ -16,6 +16,9 @@ import {
   DELETE_LABEL,
   DELETE_LABEL_COMMIT,
   DELETE_LABEL_ROLLBACK,
+  CHECK_LABELS_TABLE_PERMISSIONS_ROLLBACK,
+  CHECK_LABELS_TABLE_PERMISSIONS_COMMIT,
+  CHECK_LABELS_TABLE_PERMISSIONS,
 } from "./labels.actions";
 
 export const LABELS_REDUX_KEY = "labels";
@@ -38,6 +41,7 @@ interface LabelsState {
   loading: boolean;
   error: string | null;
   lastChecked: number;
+  tablePermissions: SystemPermissionType[];
 }
 
 const initialState: LabelsState = {
@@ -46,6 +50,7 @@ const initialState: LabelsState = {
   loading: false,
   error: null,
   lastChecked: 0,
+  tablePermissions: [],
 };
 
 const updateOrAddLabel = (
@@ -382,6 +387,33 @@ export const labelsReducer = (
         }),
         loading: false,
         error: action.payload.message || "Failed to delete label",
+      };
+    }
+
+    case CHECK_LABELS_TABLE_PERMISSIONS: {
+      const permission_types = action.optimistic?.permission_types || [];
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        tablePermissions: permission_types,
+      };
+    }
+
+    case CHECK_LABELS_TABLE_PERMISSIONS_COMMIT: {
+      return {
+        ...state,
+        loading: false,
+        tablePermissions: action.payload.ok.data.permissions,
+      };
+    }
+
+    case CHECK_LABELS_TABLE_PERMISSIONS_ROLLBACK: {
+      return {
+        ...state,
+        loading: false,
+        error:
+          action.payload.message || "Failed to check labels table permissions",
       };
     }
 

@@ -51,6 +51,7 @@ import {
   ScissorOutlined,
   SyncOutlined,
   CloudOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -184,6 +185,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [modalMoveCopyOperation, setModalMoveCopyOperation] = useState<
     "move" | "copy" | null
   >(null);
+
+  const [searchString, setSearchString] = useState("");
 
   const [listDirectoryKey, setListDirectoryKey] = useState("");
 
@@ -798,6 +801,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                     );
                   } else {
                     handleFileFolderClick(record);
+                    setSearchString("");
                   }
                 }
               }}
@@ -1152,7 +1156,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const breadcrumbItems = generateBreadcrumbItems();
 
   const tableRows: DriveItemRow[] = useMemo(() => {
-    return [
+    const rows = [
       ...content.folders
         .filter((f) => {
           if (showAncillary) return true;
@@ -1189,7 +1193,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         key: `${f.id}-${f.disk_id}`,
       })),
     ];
-  }, [content, currentFolderId, disks]);
+    const filteredRows = rows.filter((row) => {
+      return (
+        row.title.toLowerCase().includes(searchString.toLowerCase()) ||
+        row.id.toLowerCase().includes(searchString.toLowerCase())
+      );
+    });
+    return filteredRows;
+  }, [content, currentFolderId, disks, searchString]);
 
   const handleRenameChange = (id: string, newName: string) => {
     setRenamingItems((prev) => ({ ...prev, [id]: newName }));
@@ -1649,7 +1660,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             />
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>
-              {tableRows.length === 0 ? (
+              {content.folders.length === 0 && content.files.length === 0 ? (
                 <div
                   style={{
                     display: "flex",
@@ -1714,28 +1725,38 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   />
                 </div>
               ) : (
-                <Table
-                  {...(!isDiskRootPage && {
-                    rowSelection: {
-                      type: "checkbox",
-                      selectedRowKeys,
-                      onChange: (newSelectedRowKeys: React.Key[]) => {
-                        setSelectedRowKeys(
-                          newSelectedRowKeys as (FileID | FolderID)[]
-                        );
+                <div>
+                  <Input
+                    placeholder="Filter Results"
+                    size="small"
+                    value={searchString}
+                    onChange={(e) => setSearchString(e.target.value)}
+                    prefix={<SearchOutlined />}
+                    style={{ marginBottom: 8 }}
+                  />
+                  <Table
+                    {...(!isDiskRootPage && {
+                      rowSelection: {
+                        type: "checkbox",
+                        selectedRowKeys,
+                        onChange: (newSelectedRowKeys: React.Key[]) => {
+                          setSelectedRowKeys(
+                            newSelectedRowKeys as (FileID | FolderID)[]
+                          );
+                        },
+                        columnWidth: 50,
                       },
-                      columnWidth: 50,
-                    },
-                  })}
-                  columns={columns}
-                  dataSource={tableRows}
-                  rowKey="key"
-                  locale={{ emptyText: "This folder is empty" }}
-                  pagination={false}
-                  scroll={{ y: "calc(80vh - 150px)", x: "scroll" }}
-                  sticky={true}
-                  style={{ width: "100%" }}
-                />
+                    })}
+                    columns={columns}
+                    dataSource={tableRows}
+                    rowKey="key"
+                    locale={{ emptyText: "No Matching Results" }}
+                    pagination={false}
+                    scroll={{ y: "calc(80vh - 150px)", x: "scroll" }}
+                    sticky={true}
+                    style={{ width: "100%" }}
+                  />
+                </div>
               )}
             </UploadDropZone>
           )}

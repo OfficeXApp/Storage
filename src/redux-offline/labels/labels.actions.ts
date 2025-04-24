@@ -9,6 +9,7 @@ import {
   IRequestUpdateLabel,
   IRequestDeleteLabel,
   LabelFE,
+  UserID,
 } from "@officexapp/types";
 
 export const GET_LABEL = "GET_LABEL";
@@ -30,6 +31,12 @@ export const UPDATE_LABEL_ROLLBACK = "UPDATE_LABEL_ROLLBACK";
 export const DELETE_LABEL = "DELETE_LABEL";
 export const DELETE_LABEL_COMMIT = "DELETE_LABEL_COMMIT";
 export const DELETE_LABEL_ROLLBACK = "DELETE_LABEL_ROLLBACK";
+
+export const CHECK_LABELS_TABLE_PERMISSIONS = "CHECK_LABELS_TABLE_PERMISSIONS";
+export const CHECK_LABELS_TABLE_PERMISSIONS_COMMIT =
+  "CHECK_LABELS_TABLE_PERMISSIONS_COMMIT";
+export const CHECK_LABELS_TABLE_PERMISSIONS_ROLLBACK =
+  "CHECK_LABELS_TABLE_PERMISSIONS_ROLLBACK";
 
 // Get Label
 export const getLabelAction = (label_id: LabelID) => ({
@@ -159,6 +166,44 @@ export const deleteLabelAction = (payload: IRequestDeleteLabel) => {
         // Action to dispatch on failure
         rollback: {
           type: DELETE_LABEL_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+      },
+    },
+  };
+};
+
+// Check Disk Table Permissions
+export const checkLabelTablePermissionsAction = (userID: UserID) => {
+  const id = `label_table_permissions_${userID}`;
+
+  const payload = {
+    resource_id: "TABLE_LABELS",
+    grantee_id: userID,
+  };
+
+  return {
+    type: CHECK_LABELS_TABLE_PERMISSIONS,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/permissions/system/check`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: {
+          type: CHECK_LABELS_TABLE_PERMISSIONS_COMMIT,
+          meta: { optimisticID: id },
+        },
+        // Action to dispatch on failure
+        rollback: {
+          type: CHECK_LABELS_TABLE_PERMISSIONS_ROLLBACK,
           meta: { optimisticID: id },
         },
       },

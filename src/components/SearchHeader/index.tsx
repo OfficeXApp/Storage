@@ -80,7 +80,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const [options, setOptions] = useState<
     { value: string; label: React.ReactNode }[]
   >([]);
-
+  const screenType = useScreenType();
   // dummy mock
   const searchFilesQuery = async (
     searchString: string,
@@ -96,7 +96,6 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   };
 
   const navigate = useNavigate();
-  const screenType = useScreenType();
 
   // User currentProfile management states
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -375,7 +374,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           margin: "0px 8px",
           backgroundColor: "rgba(255, 255, 255, 1)",
           borderRadius: "8px",
-          minWidth: "250px",
+          minWidth: screenType.isMobile ? "200px" : "250px",
         }}
         optionRender={(option) => option.label}
       />
@@ -1373,10 +1372,11 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           <Button
             icon={<MenuOutlined />}
             onClick={() => setSidebarVisible(true)}
-            style={{ margin: "0px 8px 0px 8px" }}
+            style={{ margin: "0px 8px 0px 8px", padding: "4px 8px" }}
           />
         )}
         {renderSearchBar()}
+        {UserSwitcher()}
         {renderAddNewUserModal()}
         {renderExistingUserModal()}
       </div>

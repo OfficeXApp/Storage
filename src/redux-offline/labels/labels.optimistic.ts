@@ -18,6 +18,9 @@ import {
   DELETE_LABEL,
   DELETE_LABEL_COMMIT,
   DELETE_LABEL_ROLLBACK,
+  CHECK_LABELS_TABLE_PERMISSIONS,
+  CHECK_LABELS_TABLE_PERMISSIONS_ROLLBACK,
+  CHECK_LABELS_TABLE_PERMISSIONS_COMMIT,
 } from "./labels.actions";
 import {
   AuthProfile,
@@ -31,6 +34,7 @@ import {
   LABELS_REDUX_KEY,
 } from "./labels.reducer";
 import _ from "lodash";
+import { SYSTEM_PERMISSIONS_DEXIE_TABLE } from "../permissions/permissions.reducer";
 
 /**
  * Middleware for handling optimistic updates for the labels table
@@ -418,6 +422,90 @@ export const labelsOptimisticDexieMiddleware = (currentIdentitySet: {
                   });
                 }
 
+                enhancedAction = {
+                  ...action,
+                  error_message,
+                };
+              }
+            } catch (e) {
+              console.log(e);
+            }
+            break;
+          }
+
+          // ------------------------------ CHECK LABEL TABLE PERMISSIONS --------------------------------- //
+
+          case CHECK_LABELS_TABLE_PERMISSIONS: {
+            // check dexie
+            const systemPermissionsTable = db.table(
+              SYSTEM_PERMISSIONS_DEXIE_TABLE
+            );
+            const permission = await systemPermissionsTable.get(
+              action.meta?.optimisticID
+            );
+            if (permission) {
+              enhancedAction = {
+                ...action,
+                optimistic: permission,
+              };
+            }
+            break;
+          }
+
+          case CHECK_LABELS_TABLE_PERMISSIONS_COMMIT: {
+            const optimisticID = action.meta?.optimisticID;
+            const permissions = action.payload?.ok?.data?.permissions;
+
+            if (permissions) {
+              // Save to system permissions table
+              const systemPermissionsTable = db.table(
+                SYSTEM_PERMISSIONS_DEXIE_TABLE
+              );
+              await systemPermissionsTable.put({
+                id: optimisticID,
+                resource_id: "TABLE_LABELS",
+                granted_to: optimisticID.replace(
+                  "label_table_permissions_",
+                  ""
+                ),
+                granted_by: optimisticID.replace(
+                  "label_table_permissions_",
+                  ""
+                ),
+                permission_types: permissions,
+                begin_date_ms: 0,
+                expiry_date_ms: -1,
+                note: "Table permission",
+                created_at: 0,
+                last_modified_at: 0,
+                from_placeholder_grantee: null,
+                labels: [],
+                redeem_code: null,
+                metadata: null,
+                external_id: null,
+                external_payload: null,
+                resource_name: "Labels Table",
+                grantee_name: "You",
+                grantee_avatar: null,
+                granter_name: "System",
+                permission_previews: [],
+                _optimisticID: optimisticID,
+                _isOptimistic: false,
+                _syncSuccess: true,
+                _syncConflict: false,
+              });
+            }
+            break;
+          }
+
+          case CHECK_LABELS_TABLE_PERMISSIONS_ROLLBACK: {
+            if (!action.payload.response) break;
+            try {
+              const err = await action.payload.response.json();
+              const optimisticID = action.meta?.optimisticID;
+              if (optimisticID) {
+                const error_message = `Failed to check labels table permissions - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,
                   error_message,

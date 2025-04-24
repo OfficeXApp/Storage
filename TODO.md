@@ -3,20 +3,16 @@
 ## Overview
 
 - [🔵] Clear download / Pause download
-- [ ] Searchbar in driveui
 - [ ] Thumbnails for files/images/video + driveui tile mode
 
 ## UX Confusion Fixes
 
-- [ ] Upload file will default upload to offline browser cache and appear error, confusing users. lets just navigate to /drive instead
-- [ ] Can't easily see userID on mobile
+- [ ] Users expect autocopy to clipboard when generating magic links
+
 - [ ] Accept group invite/contact should inherit the name, instead of "unnamed contact"
 
-- [ ] Its confusing when contacts dont have access to disks, we should by default give the "All Contacts" group read access to the disk root folder
-- [ ] Users expect autocopy to clipboard when generating magic links
 - [ ] Playing large video files appear to be broken due to needing to download entire file upfront
 - [ ] It appears that ancestor breadcrumbs are exposing private ancestor folders
-- [ ] Show error message for strangers when they go to anywhere/drive that they dont have access (right now it appears that they can use it)
 - [ ] After agree to join group or individual, its showing 404 not found
 
 ## Polish Checklist
@@ -118,3 +114,8 @@
 - [x] If a disk root is unauthorized to view, perhaps we can auto-redirect to "shared with me" to avoid user confusion --> resolved by making "Shared with Me" button primary blue
 - [x] Its not obvious when a file is public via parents, it will say private but then still be public if ancestor folder is public. but no ui warning users
 - [x] Website turned blank when remove public permission
+- [x] Upload file will default upload to offline browser cache and appear error, confusing users. lets just navigate to /drive instead
+- [x] Can't easily see userID on mobile
+- [x] Searchbar in driveui
+- [x] Its confusing when contacts dont have access to disks, we should by default give the "All Contacts" group read access to the disk root folder --> resolved by making "Shared with Me" button blue primary. users would get annoyed if their entire disk was public/semi-public by default as they would assume a blacklist paradigm instead of whitelist
+- [x] Show error message for strangers when they go to anywhere/drive that they dont have access (right now it appears that they can use it)

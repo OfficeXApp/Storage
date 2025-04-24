@@ -813,6 +813,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         resourceID={file.id as DirectoryResourceID}
         resourceName={file.name}
         resource={file}
+        breadcrumbs={file?.breadcrumbs || []}
       />
     </>
   );

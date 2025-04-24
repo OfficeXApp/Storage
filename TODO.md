@@ -6,12 +6,18 @@
 - [ ] Searchbar in driveui
 - [ ] Thumbnails for files/images/video + driveui tile mode
 
-1. Directory navigation & interaction (1-2 days)
-1. Offline JS functionality replica (1-2 days)
-1. Cleaning & testing all the crud routes together (2-3 days)
-1. UI polish before prod (1-2 days)
-   - api key tab, change edit to manage and put inside edit & revoke. the current place where revoke it, change to "Login As"
-   - hyperlink resources on UI for ease of navigation
+## UX Confusion Fixes
+
+- [ ] Upload file will default upload to offline browser cache and appear error, confusing users. lets just navigate to /drive instead
+- [ ] Can't easily see userID on mobile
+- [ ] Accept group invite/contact should inherit the name, instead of "unnamed contact"
+
+- [ ] Its confusing when contacts dont have access to disks, we should by default give the "All Contacts" group read access to the disk root folder
+- [ ] Users expect autocopy to clipboard when generating magic links
+- [ ] Playing large video files appear to be broken due to needing to download entire file upfront
+- [ ] It appears that ancestor breadcrumbs are exposing private ancestor folders
+- [ ] Show error message for strangers when they go to anywhere/drive that they dont have access (right now it appears that they can use it)
+- [ ] After agree to join group or individual, its showing 404 not found
 
 ## Polish Checklist
 
@@ -30,6 +36,7 @@
 
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 - [ ] Add bulk delete & single file page move/copy/delete
+- [ ] Api key tab, change edit to manage and put inside edit & revoke. the current place where revoke it, change to "Login As"
 
 ## Backlog
 
@@ -105,3 +112,9 @@
 - [x] Show warning message on file page if file status was not completed uploading
 - [x] Fix the dangerous duplicate downloading on FilePage (2GB file gets downloaded 4x right away)
 - [x] Delete files will delete from storj/s3/canister
+- [x] Add a loading state indicator to the unauthorized page as sometimes it just takes time to load
+- [x] Not obvious how to add permissions to directory (hidden behind advanced, maybe we should make everything public by default?) --> resolved by making advanced table visible and add button blue primary
+- [x] Make it easier to share public links --> resolved by making public the default selection when creating a new directory permission
+- [x] If a disk root is unauthorized to view, perhaps we can auto-redirect to "shared with me" to avoid user confusion --> resolved by making "Shared with Me" button primary blue
+- [x] Its not obvious when a file is public via parents, it will say private but then still be public if ancestor folder is public. but no ui warning users
+- [x] Website turned blank when remove public permission

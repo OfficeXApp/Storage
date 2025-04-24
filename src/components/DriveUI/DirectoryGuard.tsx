@@ -8,11 +8,17 @@ import {
   message,
   Divider,
 } from "antd";
-import { LockOutlined } from "@ant-design/icons";
+import {
+  LoadingOutlined,
+  LockOutlined,
+  LockTwoTone,
+  SyncOutlined,
+} from "@ant-design/icons";
 import { useIdentitySystem } from "../../framework/identity";
 import { passwordToSeedPhrase } from "../../api/icp";
 import { wrapAuthStringOrHeader } from "../../api/helpers";
 import { Link } from "react-router-dom";
+import useScreenType from "react-screentype-hook";
 
 const { Text } = Typography;
 const { Password } = Input;
@@ -20,11 +26,18 @@ const { Password } = Input;
 interface DirectoryGuardProps {
   onPasswordSubmit?: (password: string) => void;
   resourceID: string;
+  loading: boolean;
+  fetchResource: () => void;
 }
 
-const DirectoryGuard: React.FC<DirectoryGuardProps> = ({ resourceID }) => {
+const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
+  resourceID,
+  loading,
+  fetchResource,
+}) => {
   const [password, setPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const screenType = useScreenType();
   const {
     currentOrg,
     wrapOrgCode,
@@ -129,10 +142,37 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({ resourceID }) => {
   const { diskTypeEnum, diskID } = extractDiskInfo();
 
   return (
-    <div style={{ marginTop: 48 }}>
+    <div style={{ marginTop: screenType.isMobile ? 16 : 48 }}>
       <Result
-        status="403"
-        title="Unauthorized"
+        icon={
+          screenType.isMobile ? (
+            <LockTwoTone style={{ fontSize: "64px" }} />
+          ) : undefined
+        }
+        status={screenType.isMobile ? undefined : "403"}
+        title={
+          <Space direction="vertical" size="large" style={{ gap: 8 }}>
+            <span style={{ fontSize: "0.9rem" }}>
+              {loading ? (
+                <span>
+                  <LoadingOutlined />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Syncing
+                  </i>
+                </span>
+              ) : (
+                <SyncOutlined
+                  onClick={() => {
+                    message.info("Refetching...");
+                    fetchResource();
+                  }}
+                  style={{ color: "rgba(0,0,0,0.2)", fontSize: "1.1rem" }}
+                />
+              )}
+            </span>
+            <span style={{ fontSize: "1.7rem" }}>Unauthorized</span>
+          </Space>
+        }
         subTitle={`You do not have permission to view this ${resourceID.startsWith("FolderID_") ? "folder" : "file"}`}
         extra={
           <div style={{ maxWidth: 400, margin: "0 auto" }}>
@@ -168,9 +208,16 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({ resourceID }) => {
                   `/drive/${diskTypeEnum}/${diskID}/shared-with-me`
                 )}
               >
-                <Button>View Shared with Me</Button>
+                <Button type="primary">View Shared with Me</Button>
               </Link>
             </Space>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <span style={{ color: "rgba(0,0,0,0.1)" }}>OfficeX</span>
           </div>
         }
       />

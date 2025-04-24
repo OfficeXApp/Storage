@@ -214,6 +214,7 @@ const ContactRedeem = () => {
         current_user_id: data.current_user_id,
         new_user_id: selectedProfile.userID,
         redeem_code: data.redeem_code,
+        note: `Redeemed by "${currentProfile?.nickname || "Anon"}" on ${new Date().toLocaleString()}`,
       };
       const auth_token = currentAPIKey?.value || (await generateSignature());
       const { url, headers } = wrapAuthStringOrHeader(

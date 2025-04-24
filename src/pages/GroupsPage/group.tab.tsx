@@ -1092,17 +1092,19 @@ const data = await response.json();`;
                                         : undefined
                                     }
                                   />
-                                  <Text>
-                                    {member.name
-                                      ? member.name
-                                      : member.user_id.startsWith(
-                                            "PlaceholderGroupInviteeID_"
-                                          )
-                                        ? "Awaiting Anon"
-                                        : member.user_id === "PUBLIC"
-                                          ? "Public Invite Link"
-                                          : "Unnamed Contact"}
-                                  </Text>
+                                  <Popover content={member.note || ""}>
+                                    <Text>
+                                      {member.name
+                                        ? member.name
+                                        : member.user_id.startsWith(
+                                              "PlaceholderGroupInviteeID_"
+                                            )
+                                          ? "Awaiting Anon"
+                                          : member.user_id === "PUBLIC"
+                                            ? "Public Invite Link"
+                                            : "Unnamed Contact"}
+                                    </Text>
+                                  </Popover>
                                   {member.user_id.startsWith(
                                     "PlaceholderGroupInviteeID_"
                                   ) && (

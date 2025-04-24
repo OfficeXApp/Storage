@@ -9,11 +9,10 @@
 
 - [ ] Users expect autocopy to clipboard when generating magic links
 
-- [ ] Accept group invite/contact should inherit the name, instead of "unnamed contact"
-
 - [ ] Playing large video files appear to be broken due to needing to download entire file upfront
 - [ ] It appears that ancestor breadcrumbs are exposing private ancestor folders
 - [ ] After agree to join group or individual, its showing 404 not found
+- [ ] Fix the create org modals that close too early
 
 ## Polish Checklist
 
@@ -119,3 +118,4 @@
 - [x] Searchbar in driveui
 - [x] Its confusing when contacts dont have access to disks, we should by default give the "All Contacts" group read access to the disk root folder --> resolved by making "Shared with Me" button blue primary. users would get annoyed if their entire disk was public/semi-public by default as they would assume a blacklist paradigm instead of whitelist
 - [x] Show error message for strangers when they go to anywhere/drive that they dont have access (right now it appears that they can use it)
+- [x] Accept group invite/contact should inherit the name, instead of "unnamed contact"

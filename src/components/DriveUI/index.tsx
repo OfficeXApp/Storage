@@ -1265,12 +1265,27 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
-    return <DirectoryGuard resourceID={currentFolderId} />;
+    return (
+      <DirectoryGuard
+        resourceID={"currentFolderId"}
+        loading={listDirectoryResults.isLoading}
+        fetchResource={() => appendRefreshParam()}
+      />
+    );
   }
 
   // unauthorized access to file
   if (currentFileId && !getFileResult) {
-    return <DirectoryGuard resourceID={currentFileId} />;
+    return (
+      <DirectoryGuard
+        resourceID={currentFileId}
+        loading={(getFileResult as any)?.isLoading}
+        fetchResource={() => {
+          if (!currentFileId || !currentDiskId) return;
+          fetchFileById(currentFileId, currentDiskId);
+        }}
+      />
+    );
   }
 
   const manageMenuItems = [
@@ -1630,7 +1645,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               icon={<LoadingOutlined />}
               title="Decrypting for first time..."
               subTitle="This may take a few seconds, but will be fast after that"
-              style={{ marginTop: "20vh" }}
+              style={{ marginTop: screenType.isMobile ? "10vh" : "20vh" }}
             />
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>
@@ -1748,7 +1763,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           open={shareFolderDrawerVisible}
           onClose={() => setShareFolderDrawerVisible(false)}
           resourceID={currentFolderId as DirectoryResourceID}
-          resourceName={"Placeholder Title"}
+          resourceName={"Folder"}
+          breadcrumbs={listDirectoryResults?.breadcrumbs || []}
         />
       )}
     </div>

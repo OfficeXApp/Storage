@@ -17,6 +17,7 @@ import {
   Avatar,
   Tag,
   Steps,
+  Divider,
 } from "antd";
 import {
   InfoCircleOutlined,
@@ -117,7 +118,7 @@ const DirectoryPermissionAddDrawer: React.FC<
   const [form] = Form.useForm();
   const [directoryPermissionID, setDirectoryPermissionID] = useState("");
   const [resourceType, setResourceType] = useState<"file" | "folder">("folder");
-  const [granteeTab, setGranteeTab] = useState<string>("magiclink");
+  const [granteeTab, setGranteeTab] = useState<string>("public");
   const targetResourceId = resourceID;
   const [granteeId, setGranteeId] = useState("");
   const [inheritable, setInheritable] = useState(true);
@@ -330,9 +331,9 @@ const DirectoryPermissionAddDrawer: React.FC<
         setDateRange(null);
         setResourceType("folder");
         setSelectedGrantee(null);
-        setGranteeTab("magiclink");
-        setIsMagicLink(true);
-        setIsPublic(false);
+        setGranteeTab("public");
+        setIsMagicLink(false);
+        setIsPublic(true);
         setPasswordForGrantee("");
         setUserIdInput("");
         setContactSearchQuery("");
@@ -1041,56 +1042,119 @@ const DirectoryPermissionAddDrawer: React.FC<
             </span>
           </Space>
 
-          {resourceID.startsWith("FolderID_") && (
+          <Space style={{ display: "flex" }}>
+            <Switch
+              onChange={(checked) => {
+                if (checked) {
+                  setPermissionTypes([
+                    DirectoryPermissionType.VIEW,
+                    DirectoryPermissionType.EDIT,
+                    DirectoryPermissionType.DELETE,
+                    DirectoryPermissionType.UPLOAD,
+                  ]);
+                } else {
+                  setPermissionTypes((prev) => {
+                    return prev.filter(
+                      (type) => type === DirectoryPermissionType.VIEW
+                    );
+                  });
+                }
+                // Force update form validation after a short delay to ensure form state is updated
+                setTimeout(() => {
+                  checkFormValidity();
+                }, 0);
+              }}
+              checked={
+                permissionTypes.includes(DirectoryPermissionType.VIEW) &&
+                permissionTypes.includes(DirectoryPermissionType.EDIT) &&
+                permissionTypes.includes(DirectoryPermissionType.DELETE) &&
+                permissionTypes.includes(DirectoryPermissionType.UPLOAD)
+              }
+            />
+            <span style={{ marginLeft: 8 }}>
+              <EditOutlined /> Manage
+            </span>
+          </Space>
+
+          <Divider />
+
+          <details
+            open={
+              (permissionTypes.includes(DirectoryPermissionType.EDIT) ||
+                permissionTypes.includes(DirectoryPermissionType.DELETE) ||
+                permissionTypes.includes(DirectoryPermissionType.UPLOAD)) &&
+              !(
+                permissionTypes.includes(DirectoryPermissionType.EDIT) &&
+                permissionTypes.includes(DirectoryPermissionType.DELETE) &&
+                permissionTypes.includes(DirectoryPermissionType.UPLOAD)
+              )
+            }
+          >
+            <summary
+              style={{
+                cursor: "pointer",
+                color: "#595959",
+                fontSize: "14px",
+                marginBottom: "4px",
+                userSelect: "none",
+              }}
+            >
+              Advanced
+            </summary>
+            <div style={{ height: "8px" }}></div>
+            {resourceID.startsWith("FolderID_") && (
+              <Space style={{ display: "flex" }}>
+                <Switch
+                  onChange={(checked) =>
+                    handlePermissionTypeChange(
+                      checked,
+                      DirectoryPermissionType.UPLOAD
+                    )
+                  }
+                  checked={permissionTypes.includes(
+                    DirectoryPermissionType.UPLOAD
+                  )}
+                />
+                <span style={{ marginLeft: 8 }}>
+                  <PlusOutlined /> Upload
+                </span>
+              </Space>
+            )}
+            <div style={{ height: "8px" }}></div>
             <Space style={{ display: "flex" }}>
               <Switch
                 onChange={(checked) =>
                   handlePermissionTypeChange(
                     checked,
-                    DirectoryPermissionType.UPLOAD
+                    DirectoryPermissionType.EDIT
+                  )
+                }
+                checked={permissionTypes.includes(DirectoryPermissionType.EDIT)}
+              />
+              <span style={{ marginLeft: 8 }}>
+                <EditOutlined /> Edit
+              </span>
+            </Space>
+            <div style={{ height: "8px" }}></div>
+            <Space style={{ display: "flex" }}>
+              <Switch
+                onChange={(checked) =>
+                  handlePermissionTypeChange(
+                    checked,
+                    DirectoryPermissionType.DELETE
                   )
                 }
                 checked={permissionTypes.includes(
-                  DirectoryPermissionType.UPLOAD
+                  DirectoryPermissionType.DELETE
                 )}
               />
               <span style={{ marginLeft: 8 }}>
-                <PlusOutlined /> Upload
+                <DeleteOutlined /> Delete
               </span>
             </Space>
-          )}
+          </details>
 
-          <Space style={{ display: "flex" }}>
-            <Switch
-              onChange={(checked) =>
-                handlePermissionTypeChange(
-                  checked,
-                  DirectoryPermissionType.EDIT
-                )
-              }
-              checked={permissionTypes.includes(DirectoryPermissionType.EDIT)}
-            />
-            <span style={{ marginLeft: 8 }}>
-              <EditOutlined /> Edit
-            </span>
-          </Space>
-
-          <Space style={{ display: "flex" }}>
-            <Switch
-              onChange={(checked) =>
-                handlePermissionTypeChange(
-                  checked,
-                  DirectoryPermissionType.DELETE
-                )
-              }
-              checked={permissionTypes.includes(DirectoryPermissionType.DELETE)}
-            />
-            <span style={{ marginLeft: 8 }}>
-              <DeleteOutlined /> Delete
-            </span>
-          </Space>
-
-          <Space style={{ display: "flex" }}>
+          {/* <Space style={{ display: "flex" }}>
             <Switch
               onChange={(checked) =>
                 handlePermissionTypeChange(
@@ -1103,7 +1167,7 @@ const DirectoryPermissionAddDrawer: React.FC<
             <span style={{ marginLeft: 8 }}>
               <UserAddOutlined /> Invite
             </span>
-          </Space>
+          </Space> */}
 
           {/* <Space style={{ display: "flex" }}>
             <Switch
@@ -1320,12 +1384,12 @@ const DirectoryPermissionAddDrawer: React.FC<
       footer={
         <div style={{ textAlign: "right" }}>
           {currentStep > 0 && currentStep < steps.length - 1 && (
-            <Button onClick={onClose} style={{ marginRight: 8 }}>
+            <Button onClick={onClose} style={{ marginRight: 8 }} size="large">
               Cancel
             </Button>
           )}
           {currentStep > 0 && currentStep < steps.length - 1 && (
-            <Button onClick={prevStep} style={{ marginRight: 8 }}>
+            <Button onClick={prevStep} style={{ marginRight: 8 }} size="large">
               Previous
             </Button>
           )}
@@ -1342,6 +1406,7 @@ const DirectoryPermissionAddDrawer: React.FC<
               !isStepValid(currentStep) ||
               loading
             }
+            size="large"
           >
             {getNextButtonText()}
           </Button>
@@ -1353,6 +1418,7 @@ const DirectoryPermissionAddDrawer: React.FC<
                 message.success("Link copied to clipboard");
               }}
               style={{ marginLeft: 8 }}
+              size="large"
             >
               Copy Magic Link
             </Button>

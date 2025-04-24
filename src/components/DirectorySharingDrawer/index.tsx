@@ -33,6 +33,7 @@ import {
   DirectoryPermissionID,
   DirectoryPermissionType,
   DirectoryResourceID,
+  FilePathBreadcrumb,
   FileRecordFE,
   IRequestListDirectoryPermissions,
 } from "@officexapp/types";
@@ -68,6 +69,7 @@ interface DirectorySharingDrawerProps {
   resourceID: DirectoryResourceID;
   resourceName: string;
   resource?: FileFEO | FolderFEO;
+  breadcrumbs: FilePathBreadcrumb[];
 }
 
 const { RangePicker } = DatePicker;
@@ -94,6 +96,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   resourceID,
   resourceName,
   resource,
+  breadcrumbs,
 }) => {
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -111,7 +114,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   const permissions = useMemo(() => {
     return permissionIDs
       .map((pid) => permissionMap[pid])
-      .filter((p) => p.id.startsWith("DirectoryPermissionID_"));
+      .filter((p) => p?.id.startsWith("DirectoryPermissionID_"));
   }, [permissionIDs, permissionMap]);
 
   const { wrapOrgCode, currentOrg, currentProfile } = useIdentitySystem();
@@ -146,7 +149,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       LOCAL_STORAGE_DIRECTORY_PERMISSIONS_ADVANCED_OPEN
     );
 
-    if (parseInt(should_default_advanced_open || "0")) {
+    if (parseInt(should_default_advanced_open || "1")) {
       setIsAdvancedOpen(true);
     }
   }, []);
@@ -213,7 +216,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       note: record.original.note,
       external_id: record.original.external_id,
       external_payload: record.original.external_payload,
-      password: record.original.metadata.content.DirectoryPassword,
+      password: record.original.metadata?.content?.DirectoryPassword || "",
       redeem_code: record.original.redeem_code,
     });
     setIsAddDrawerOpen(true);
@@ -248,6 +251,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     if (record.canEdit) permissions.push("Edit");
     if (record.canDelete) permissions.push("Delete");
     if (record.canInvite) permissions.push("Invite");
+    if (record.canUpload) permissions.push("Upload");
 
     return permissions.length ? permissions.join(", ") : "No permissions";
   };
@@ -258,10 +262,14 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     if (!record.whenStart && !record.whenEnd) return "No time limit";
 
     const startDate = record.whenStart
-      ? new Date(record.whenStart).toLocaleDateString()
+      ? record.whenStart === 0
+        ? "Immediately"
+        : new Date(record.whenStart).toLocaleDateString()
       : "Any time";
     const endDate = record.whenEnd
-      ? new Date(record.whenEnd).toLocaleDateString()
+      ? record.whenEnd === -1
+        ? "No Expiry"
+        : new Date(record.whenEnd).toLocaleDateString()
       : "No end date";
 
     return `${startDate} to ${endDate}`;
@@ -315,6 +323,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
             onClick={handleAddPermission}
             icon={<PlusOutlined style={{ fontSize: "20px" }} />}
             disabled={isOfflineDisk}
+            type="primary"
           >
             Add
           </Button>
@@ -427,7 +436,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     >
       <PermissionStatusMessage
         resource_id={resourceID}
-        permissions={permissions}
+        breadcrumbs={breadcrumbs}
       />
       <div style={{ marginBottom: "16px" }}>
         <Input

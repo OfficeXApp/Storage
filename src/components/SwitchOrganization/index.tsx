@@ -639,7 +639,6 @@ const OrganizationSwitcher = () => {
         nickname: "",
         driveNickname: "",
       });
-      setIsModalVisible(false);
 
       // Refresh the page
       message.success(`Success! Entering organization...`);
@@ -967,7 +966,6 @@ const OrganizationSwitcher = () => {
         }
 
         message.success("Organization removed successfully!");
-        setIsModalVisible(false);
         window.location.reload();
       }
     } catch (error) {

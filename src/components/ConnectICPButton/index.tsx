@@ -298,7 +298,6 @@ const ConnectICPButton = () => {
       );
     } finally {
       setLoading(false);
-      setIsModalVisible(false);
     }
   };
 

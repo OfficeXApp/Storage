@@ -77,24 +77,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   const objectStoreNameRef = useRef<string>("files");
 
-  const isFileSizeValidForPreview = (file: FileFEO) => {
-    const sizeInMB = file.file_size / (1024 * 1024);
-    const sizeInGB = sizeInMB / 1024;
-
-    if (
-      file.disk_type === DiskTypeEnum.BrowserCache ||
-      file.disk_type === DiskTypeEnum.IcpCanister
-    ) {
-      return isMobile ? sizeInMB < 200 : sizeInGB < 1;
-    } else if (
-      file.disk_type === DiskTypeEnum.StorjWeb3 ||
-      file.disk_type === DiskTypeEnum.AwsBucket
-    ) {
-      return sizeInGB < 2;
-    }
-    return true;
-  };
-
   const getFileType = ():
     | "image"
     | "video"
@@ -134,6 +116,25 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       default:
         return "other";
     }
+  };
+
+  const isFileSizeValidForPreview = (file: FileFEO) => {
+    const sizeInMB = file.file_size / (1024 * 1024);
+    const sizeInGB = sizeInMB / 1024;
+
+    if (
+      file.disk_type === DiskTypeEnum.BrowserCache ||
+      file.disk_type === DiskTypeEnum.IcpCanister
+    ) {
+      return isMobile ? sizeInMB < 200 : sizeInGB < 1;
+    } else if (
+      (file.disk_type === DiskTypeEnum.StorjWeb3 ||
+        file.disk_type === DiskTypeEnum.AwsBucket) &&
+      getFileType() !== "video"
+    ) {
+      return sizeInGB < 2;
+    }
+    return true;
   };
 
   useEffect(() => {
@@ -816,6 +817,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         resourceName={file.name}
         resource={file}
         breadcrumbs={file?.breadcrumbs || []}
+        currentUserPermissions={file?.permission_previews || []}
       />
     </>
   );

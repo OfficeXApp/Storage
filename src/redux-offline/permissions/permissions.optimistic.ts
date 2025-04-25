@@ -536,6 +536,12 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
 
           case LIST_DIRECTORY_PERMISSIONS_COMMIT: {
             const permissions = action.payload?.ok?.data?.items || [];
+            const resource_id = permissions[0]?.resource_id;
+            const cachedPermissions = await directoryTable
+              .where("resource_id")
+              .equals(resource_id)
+              .toArray();
+            await directoryTable.bulkDelete(cachedPermissions.map((p) => p.id));
             await db.transaction("rw", directoryTable, async () => {
               for (const permission of permissions) {
                 await directoryTable.put({

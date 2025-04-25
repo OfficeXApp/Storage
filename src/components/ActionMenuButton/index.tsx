@@ -151,7 +151,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         message.error(`Failed to create folder: ${error}`);
       }
     } else {
-      message.warning("Please enter a folder name");
+      message.warning("Not Allowed, please check permissions");
     }
   };
 
@@ -170,6 +170,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         </Space>
       ),
       key: "newFolder",
+      disabled,
       onClick: () => {
         if (window.location.pathname.includes("/drive/")) {
           setIsModalVisible(true);
@@ -192,6 +193,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         </Space>
       ),
       key: "uploadFile",
+      disabled,
       onClick: () => {
         if (window.location.pathname.includes("/drive/")) {
           handleUploadFiles();
@@ -208,6 +210,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         </Space>
       ),
       key: "uploadFolder",
+      disabled,
       onClick: () => {
         if (window.location.pathname.includes("/drive/")) {
           handleUploadFolder();

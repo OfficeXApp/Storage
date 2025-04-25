@@ -1449,7 +1449,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               isBigButton={false}
               toggleUploadPanel={toggleUploadPanel}
               optimisticListDirectoryKey={listDirectoryKey}
-              disabled={listDirectoryResults?.isFirstTime}
+              disabled={
+                listDirectoryResults?.isFirstTime ||
+                !listDirectoryResults?.permission_previews.includes(
+                  DirectoryPermissionType.UPLOAD
+                )
+              }
             />
 
             <Button
@@ -1709,6 +1714,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                         isBigButton={false}
                         toggleUploadPanel={toggleUploadPanel}
                         optimisticListDirectoryKey={listDirectoryKey}
+                        disabled={
+                          listDirectoryResults?.isFirstTime ||
+                          !listDirectoryResults?.permission_previews.includes(
+                            DirectoryPermissionType.UPLOAD
+                          )
+                        }
                       />
                     }
                     style={{
@@ -1789,6 +1800,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           resourceID={currentFolderId as DirectoryResourceID}
           resourceName={"Folder"}
           breadcrumbs={listDirectoryResults?.breadcrumbs || []}
+          currentUserPermissions={
+            listDirectoryResults?.permission_previews || []
+          }
         />
       )}
     </div>

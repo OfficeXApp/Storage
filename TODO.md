@@ -6,7 +6,6 @@
 
 ## UX Confusion Fixes
 
-- [ ] Cannot preview file more than 100mb, lets remove this limitation or make it much higher
 - [ ] Clicked back button on File page goes to "my drives" page rather go back to the previous or mother folder. this is a breadcrumbs loading issue and users say its really annoying.
 - [ ] Cannot give a soveriegn stranger permission via userid, while adding permit by contact works. Also cant view the group table as that contact/stranger since they dont have table wide permit, but should still have view access on their 1 specific resource
 - [ ] Ability to preview text files at least
@@ -128,3 +127,4 @@
 - [x] Accept group invite/contact should inherit the name, instead of "unnamed contact"
 - [x] Playing large video files appear to be broken due to needing to download entire file upfront. Refactor video player to use streaming player instead of native html video tag. We dont need to make any changes to backend file storage. --> changed from native html to a dedicated videojs library for streaming
 - [x] Upload larger video file from public anon will result in final UPDATE_FILE COMPLETE /directory/action to fail 401 unauthorized. likely this is due to an expired auth signature.
+- [x] Sharing directory permissions with invite permit

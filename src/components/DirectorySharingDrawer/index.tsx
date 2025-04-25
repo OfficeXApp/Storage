@@ -20,9 +20,11 @@ import {
   CopyOutlined,
   EditOutlined,
   InfoCircleOutlined,
+  LoadingOutlined,
   MoreOutlined,
   PlusOutlined,
   SaveOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Permission } from "@aws-sdk/client-s3";
@@ -70,6 +72,7 @@ interface DirectorySharingDrawerProps {
   resourceName: string;
   resource?: FileFEO | FolderFEO;
   breadcrumbs: FilePathBreadcrumb[];
+  currentUserPermissions: DirectoryPermissionType[];
 }
 
 const { RangePicker } = DatePicker;
@@ -97,6 +100,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   resourceName,
   resource,
   breadcrumbs,
+  currentUserPermissions,
 }) => {
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
@@ -109,6 +113,13 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         state.directoryPermissions.resourcePermissionsMap[resourceID] || [],
     })
   );
+  const { permissionsLoading } = useSelector((state: ReduxAppState) => ({
+    permissionsLoading: state.directoryPermissions.loading,
+  }));
+
+  const canInvite =
+    currentUserPermissions.includes(DirectoryPermissionType.INVITE) ||
+    currentUserPermissions.includes(DirectoryPermissionType.MANAGE);
 
   //   const permissions = permissionIDs.map((pid) => permissionMap[pid]);
   const permissions = useMemo(() => {
@@ -275,9 +286,45 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     return `${startDate} to ${endDate}`;
   };
 
+  const refetchPermissions = () => {
+    const payload: IRequestListDirectoryPermissions = {
+      filters: {
+        resource_id: resourceID,
+      },
+    };
+    dispatch(listDirectoryPermissionsAction(payload));
+  };
+
   const columns = [
     {
-      title: "Who",
+      title: (
+        <div>
+          <span style={{ marginRight: 8 }}>Who</span>
+          {permissionsLoading ? (
+            <span>
+              <LoadingOutlined />
+              <i
+                style={{
+                  marginLeft: 8,
+                  color: "rgba(0,0,0,0.2)",
+                  fontWeight: 400,
+                  fontSize: "0.9rem",
+                }}
+              >
+                Syncing
+              </i>
+            </span>
+          ) : (
+            <SyncOutlined
+              onClick={() => {
+                message.info("Refetching permissions...");
+                refetchPermissions();
+              }}
+              style={{ color: "rgba(0,0,0,0.2)" }}
+            />
+          )}
+        </div>
+      ),
       dataIndex: "who",
       key: "who",
       width: "45%",
@@ -322,7 +369,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           <Button
             onClick={handleAddPermission}
             icon={<PlusOutlined style={{ fontSize: "20px" }} />}
-            disabled={isOfflineDisk}
+            disabled={isOfflineDisk || !canInvite}
             type="primary"
           >
             Add
@@ -388,11 +435,15 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           label: (
             <Popconfirm
               title="Are you sure you want to remove this permission? This cannot be undone"
-              onConfirm={() => handleRemove(record.original.id)}
+              onConfirm={() => {
+                if (!canInvite) return;
+                handleRemove(record.original.id);
+              }}
             >
               <span>Remove</span>
             </Popconfirm>
           ),
+          disabled: isOfflineDisk || !canInvite,
         });
 
         return (
@@ -407,7 +458,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                 )
               }
               onClick={() => toggleEditMode(record)}
-              disabled={isOfflineDisk}
+              disabled={isOfflineDisk || !canInvite}
             />
             <Dropdown
               disabled={isOfflineDisk}

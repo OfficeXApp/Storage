@@ -788,6 +788,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         title: "Name",
         dataIndex: "title",
         key: "title",
+        width: "60%",
         render: (text: string, record: DriveItemRow) => {
           return (
             <div
@@ -813,7 +814,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                minWidth: "30%",
               }}
             >
               {renamingItems[record.id] ? (

@@ -1728,11 +1728,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 <div>
                   <Input
                     placeholder="Filter Results"
-                    size="small"
                     value={searchString}
                     onChange={(e) => setSearchString(e.target.value)}
                     prefix={<SearchOutlined />}
-                    style={{ marginBottom: 8 }}
+                    style={{
+                      marginBottom: 8,
+                      border: "0px solid white",
+                      backgroundColor: "rgba(0,0,0,0.01)",
+                    }}
                   />
                   <Table
                     {...(!isDiskRootPage && {

@@ -760,11 +760,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               // >
               //   Your browser does not support the video tag.
               // </video>
-              <VideoPlayer
-                url={
-                  "https://gateway.storjshare.io/officex-persistent-demo/FileID_d170f49d-1c68-4e11-b7f4-0929f1413467/FileID_d170f49d-1c68-4e11-b7f4-0929f1413467.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=jw74dqtsyzdesi5ubgoc3jd72g6a%2F20250425%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250425T052330Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22%2500%25E3%2514%2586%25E32024%2574%2584%2568%2503%25CF%254E%2520%25282%2529.mp4.mp4%22&X-Amz-Signature=91a7bb36dae2082874447dd27d8e041706e35a458bf00cccf8affd98fccb8f19"
-                }
-              />
+              <VideoPlayer url={fileUrl} />
             )}
             {fileType === "audio" && fileUrl && (
               <audio

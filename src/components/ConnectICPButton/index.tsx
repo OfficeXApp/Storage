@@ -121,6 +121,8 @@ const ConnectICPButton = () => {
         throw new Error("Selected profile not found");
       }
 
+      message.info("Please wait up to 2 minutes...");
+
       // Extract ICP principal from profile UserID
       const icpPrincipal = profile.userID.replace("UserID_", "");
 

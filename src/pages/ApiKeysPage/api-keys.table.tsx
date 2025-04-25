@@ -493,7 +493,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
       </div>
 
       {/* API Keys Table */}
-      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      {tablePermissions.includes(SystemPermissionType.VIEW) ||
       apiKeys.length > 0 ? (
         <div
           style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}

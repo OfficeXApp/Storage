@@ -353,7 +353,7 @@ const ICPCanisterSettingsCard = () => {
                 title={
                   gasBalance === 0n
                     ? "Daily idle burn rate stats will appear here"
-                    : `Daily idle burn rate of ${(BigInt(driveAbout.daily_idle_cycle_burn_rate.replace(/_/g, "")) / 1_000_000n).toString()} million gas cycles. Approximately ${(gasBalance * BigInt(1_000_000_000)) / BigInt(driveAbout.daily_idle_cycle_burn_rate)} days remaining.`
+                    : `Daily idle burn rate of ${(BigInt(driveAbout.daily_idle_cycle_burn_rate.replace(/_/g, "") || "1") / 1_000_000n).toString()} million gas cycles. Approximately ${(gasBalance * BigInt(1_000_000_000)) / BigInt(driveAbout.daily_idle_cycle_burn_rate || 1)} days remaining.`
                 }
               >
                 <i style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.3)" }}>

@@ -220,8 +220,7 @@ const OrganizationSwitcher = () => {
         const orgIcp = driveID.replace("DriveID_", "");
 
         // Construct the whoami URL with the specific drive ID
-        // const whoamiUrl = `${endpoint}/v1/${driveID}/organization/whoami`;
-        const whoamiUrl = `https://is5sx-kqaaa-aaaak-apcoa-cai.icp0.io/v1/${driveID}/organization/whoami`;
+        const whoamiUrl = `${endpoint}/v1/${driveID}/organization/whoami`;
         // Only the password part should go in the Authorization header
         const { url, headers } = wrapAuthStringOrHeader(
           whoamiUrl,
@@ -673,6 +672,8 @@ const OrganizationSwitcher = () => {
       // Check if gift card is provided
       if (giftCardValue && giftCardValue.trim() !== "") {
         try {
+          message.info("Please wait up to 2 minutes...");
+
           // Step 1: Redeem the gift card at the factory endpoint
           const profile = listOfProfiles.find(
             (profile) => profile.userID === selectedProfileId

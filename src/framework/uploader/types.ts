@@ -133,6 +133,7 @@ export interface BatchUploadConfig {
 export interface IndexDBAdapterConfig {
   databaseName?: string;
   objectStoreName?: string;
+  generateSignature?: () => Promise<string>;
 }
 
 // S3 specific config
@@ -146,6 +147,7 @@ export interface LocalS3AdapterConfig {
   acl?: ObjectCannedACL;
   useMultipartUpload?: boolean;
   partSize?: number;
+  generateSignature?: () => Promise<string>;
 }
 
 // Canister specific config
@@ -154,6 +156,7 @@ export interface CanisterAdapterConfig {
   endpoint: string;
   maxChunkSize?: number;
   apiKey: string;
+  generateSignature?: () => Promise<string>;
 }
 
 /**
@@ -164,6 +167,7 @@ export interface CloudS3AdapterConfig {
   endpoint: string;
   apiKey: string;
   maxChunkSize?: number;
+  generateSignature?: () => Promise<string>;
 }
 
 /**

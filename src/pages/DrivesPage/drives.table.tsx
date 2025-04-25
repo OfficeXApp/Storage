@@ -499,7 +499,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
       </div>
 
       {/* Drives Table */}
-      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      {tablePermissions.includes(SystemPermissionType.VIEW) ||
       drives.length > 0 ? (
         <div
           style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}

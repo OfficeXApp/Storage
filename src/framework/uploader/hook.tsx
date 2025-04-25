@@ -336,6 +336,10 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               apiKey: auth_token,
               maxChunkSize: (1 * 1024 * 1024) / 2, // 0.5MB
             };
+            if (currentProfile.icpAccount) {
+              // @ts-ignore
+              canisterConfig.generateSignature = generateSignature;
+            }
             await registerAdapter(
               canisterAdapter,
               DiskTypeEnum.IcpCanister,
@@ -355,6 +359,10 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               rawUrlProxyPath: `/v1/${currentOrg.driveID}/directory/asset/`,
               apiKey: auth_token,
             };
+            if (currentProfile.icpAccount) {
+              // @ts-ignore
+              cloudS3Config.generateSignature = generateSignature;
+            }
             // Register the adapter
             await registerAdapter(
               cloudS3Adapter,
@@ -375,6 +383,10 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               rawUrlProxyPath: `/v1/${currentOrg.driveID}/directory/asset/`,
               apiKey: auth_token,
             };
+            if (currentProfile.icpAccount) {
+              // @ts-ignore
+              cloudS3Config.generateSignature = generateSignature;
+            }
             // Register the adapter
             await registerAdapter(
               cloudS3Adapter,

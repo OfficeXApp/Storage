@@ -33,6 +33,7 @@ export class CloudS3Adapter implements IUploadAdapter {
   private apiEndpoint: string = "";
   private apiKey: string = "";
   private uploadedFileUrls: Record<UploadID, string> = {};
+  private generateSignature?: () => Promise<string>;
 
   // Store active uploads for pause/resume/cancel
   private activeUploads: Map<
@@ -56,6 +57,7 @@ export class CloudS3Adapter implements IUploadAdapter {
 
     this.apiEndpoint = config.endpoint;
     this.apiKey = config.apiKey || "";
+    this.generateSignature = config.generateSignature;
 
     // console.log(
     //   `Initialized Cloud S3 adapter with endpoint: ${this.apiEndpoint}`
@@ -316,12 +318,15 @@ export class CloudS3Adapter implements IUploadAdapter {
       // console.log("Creating file record with action:", createAction);
 
       // Make direct API call following the /directory/action pattern
+      const auth_token = this.generateSignature
+        ? await this.generateSignature()
+        : this.apiKey;
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.apiEndpoint}/directory/action`,
         {
           "Content-Type": "application/json",
         },
-        this.apiKey
+        auth_token
       );
       const response = await fetch(url, {
         method: "POST",
@@ -404,12 +409,16 @@ export class CloudS3Adapter implements IUploadAdapter {
       // console.log("Updating file status with action:", updateAction);
 
       // Make direct API call following the /directory/action pattern
+
+      const auth_token = this.generateSignature
+        ? await this.generateSignature()
+        : this.apiKey;
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.apiEndpoint}/directory/action`,
         {
           "Content-Type": "application/json",
         },
-        this.apiKey
+        auth_token
       );
       const response = await fetch(url, {
         method: "POST",

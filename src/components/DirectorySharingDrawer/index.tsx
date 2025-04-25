@@ -530,7 +530,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                 resource_id: resourceID,
               },
             };
-            dispatch(listDirectoryPermissionsAction(payload));
+            // UNDO
+            // dispatch(listDirectoryPermissionsAction(payload));
           }, 500);
         }}
         resourceID={resourceID}

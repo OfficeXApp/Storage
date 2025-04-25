@@ -15,6 +15,7 @@ import {
   notification,
   Checkbox,
   Spin,
+  Popover,
 } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -52,6 +53,7 @@ import {
   SyncOutlined,
   CloudOutlined,
   SearchOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -65,6 +67,8 @@ import {
 import useScreenType from "react-screentype-hook";
 import ActionMenuButton from "../ActionMenuButton";
 import UploadDropZone from "../UploadDropZone";
+
+export const LOCAL_STORAGE_ROW_GRID_VIEW = "LOCAL_STORAGE_ROW_GRID_VIEW";
 
 import FilePage from "../FilePage";
 import { isMobile } from "react-device-detect";
@@ -153,6 +157,7 @@ interface DriveItemRow {
   isRecentShortcut?: boolean;
   permission_previews: DirectoryPermissionType[];
   key: string;
+  thumbnail?: string;
 }
 
 interface DriveUIProps {
@@ -185,6 +190,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [modalMoveCopyOperation, setModalMoveCopyOperation] = useState<
     "move" | "copy" | null
   >(null);
+  const [viewRowTile, setViewRowTile] = useState<"row" | "grid">("grid");
 
   const [searchString, setSearchString] = useState("");
 
@@ -230,6 +236,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [singleFile, setSingleFile] = useState<FileFEO | null>(null);
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
+
+  useEffect(() => {
+    const rowGrid = localStorage.getItem(LOCAL_STORAGE_ROW_GRID_VIEW);
+    if (rowGrid) {
+      setViewRowTile(rowGrid === "grid" ? "grid" : "row");
+    }
+  }, []);
 
   useEffect(() => {
     if (
@@ -835,7 +848,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                     )
                   }
                   suffix={
-                    <CheckOutlined onClick={() => handleRenameSubmit(record)} />
+                    <CheckOutlined
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRenameSubmit(record);
+                      }}
+                    />
                   }
                 />
               ) : (
@@ -1094,6 +1112,25 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     }
   };
 
+  const itemsRowGrid: MenuProps["items"] = [
+    {
+      label: "Row View",
+      key: "row-view",
+      onClick: () => {
+        setViewRowTile("row");
+        localStorage.setItem(LOCAL_STORAGE_ROW_GRID_VIEW, "row");
+      },
+    },
+    {
+      label: "Grid View",
+      key: "grid-view",
+      onClick: () => {
+        setViewRowTile("grid");
+        localStorage.setItem(LOCAL_STORAGE_ROW_GRID_VIEW, "grid");
+      },
+    },
+  ];
+
   const items: MenuProps["items"] = [
     {
       label: "Coming Soon",
@@ -1108,7 +1145,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   ];
 
   const onClick: MenuProps["onClick"] = ({ key }) => {
-    message.info(`Click on item ${key}`);
+    // message.info(`Click on item ${key}`);
   };
 
   // Generate breadcrumb items
@@ -1178,6 +1215,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           public_note: (f as any).public_note,
           isRecentShortcut: (f as any).isRecentShortcut,
           key: `${f.id}-${f.disk_id}`,
+          thumbnail: "",
         })),
       ...content.files.map((f) => ({
         id: f.id,
@@ -1191,6 +1229,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         expires_at: f.expires_at,
         permission_previews: f.permission_previews,
         key: `${f.id}-${f.disk_id}`,
+        thumbnail:
+          getFileType(f.name) === "image" || getFileType(f.name) === "video"
+            ? f.raw_url
+            : "",
       })),
     ];
     const filteredRows = rows.filter((row) => {
@@ -1518,6 +1560,23 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               <div
                 style={{ display: "flex", gap: "20px", alignItems: "center" }}
               >
+                <Dropdown menu={{ items: itemsRowGrid, onClick }}>
+                  <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ color: "rgba(0,0,0,0.4)" }}
+                  >
+                    <Space>
+                      {viewRowTile === "row" ? (
+                        <BarsOutlined />
+                      ) : (
+                        <AppstoreOutlined />
+                      )}
+                      {viewRowTile === "row" ? "Row View" : "Grid View"}
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Dropdown>
+
                 <Dropdown menu={{ items, onClick }}>
                   <a
                     onClick={(e) => e.preventDefault()}
@@ -1552,19 +1611,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                     <Space>
                       <ClockCircleOutlined />
                       Modified
-                      <DownOutlined />
-                    </Space>
-                  </a>
-                </Dropdown>
-
-                <Dropdown menu={{ items, onClick }}>
-                  <a
-                    onClick={(e) => e.preventDefault()}
-                    style={{ color: "rgba(0,0,0,0.4)" }}
-                  >
-                    <Space>
-                      <BarsOutlined />
-                      Row View
                       <DownOutlined />
                     </Space>
                   </a>
@@ -1748,28 +1794,248 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       backgroundColor: "rgba(0,0,0,0.01)",
                     }}
                   />
-                  <Table
-                    {...(!isDiskRootPage && {
-                      rowSelection: {
-                        type: "checkbox",
-                        selectedRowKeys,
-                        onChange: (newSelectedRowKeys: React.Key[]) => {
-                          setSelectedRowKeys(
-                            newSelectedRowKeys as (FileID | FolderID)[]
-                          );
+                  {viewRowTile === "row" ? (
+                    <Table
+                      {...(!isDiskRootPage && {
+                        rowSelection: {
+                          type: "checkbox",
+                          selectedRowKeys,
+                          onChange: (newSelectedRowKeys: React.Key[]) => {
+                            setSelectedRowKeys(
+                              newSelectedRowKeys as (FileID | FolderID)[]
+                            );
+                          },
+                          columnWidth: 50,
                         },
-                        columnWidth: 50,
-                      },
-                    })}
-                    columns={columns}
-                    dataSource={tableRows}
-                    rowKey="key"
-                    locale={{ emptyText: "No Matching Results" }}
-                    pagination={false}
-                    scroll={{ y: "calc(80vh - 150px)", x: "scroll" }}
-                    sticky={true}
-                    style={{ width: "100%" }}
-                  />
+                      })}
+                      columns={columns}
+                      dataSource={tableRows}
+                      rowKey="key"
+                      locale={{ emptyText: "No Matching Results" }}
+                      pagination={false}
+                      scroll={{ y: "calc(80vh - 150px)", x: "scroll" }}
+                      sticky={true}
+                      style={{ width: "100%" }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fill, minmax(180px, 1fr))",
+                        gap: "24px",
+                        padding: "16px",
+                        width: "100%",
+                        overflowY: "auto",
+                        maxHeight: "calc(80vh - 150px)",
+                      }}
+                    >
+                      {tableRows.map((item) => (
+                        <div
+                          key={item.key}
+                          onClick={() => {
+                            if (item.isDisabled) {
+                              return;
+                            } else {
+                              if (isTrashBin) {
+                                message.error(
+                                  "You cannot access files in the Trash. Restore it first."
+                                );
+                              } else {
+                                handleFileFolderClick(item);
+                                setSearchString("");
+                              }
+                            }
+                          }}
+                          style={{
+                            cursor: item.isDisabled ? "not-allowed" : "pointer",
+                            opacity: item.isDisabled ? 0.5 : 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "flex-start",
+                            position: "relative",
+                          }}
+                        >
+                          {/* Checkbox selection */}
+                          {!isDiskRootPage && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "-4px",
+                                left: "-4px",
+                                zIndex: 2,
+                                padding: "8px",
+                              }}
+                            >
+                              <Checkbox
+                                checked={selectedRowKeys.includes(item.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newSelectedKeys =
+                                    selectedRowKeys.includes(item.id)
+                                      ? selectedRowKeys.filter(
+                                          (key) => key !== item.id
+                                        )
+                                      : [...selectedRowKeys, item.id];
+                                  setSelectedRowKeys(newSelectedKeys);
+                                }}
+                              />
+                            </div>
+                          )}
+
+                          {/* Square tile with icon */}
+                          <div
+                            style={{
+                              width: "100%",
+                              paddingBottom: "100%" /* Makes it square */,
+                              background: "#f5f5f5",
+                              borderRadius: "8px",
+                              border: "1px solid #f0f0f0",
+                              position: "relative",
+                            }}
+                          >
+                            {/* Icon based on item type */}
+                            {item.thumbnail ? (
+                              getFileType(item.title) === "video" ? (
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "0",
+                                    left: "0",
+                                    width: "100%",
+                                    height: "100%",
+                                  }}
+                                >
+                                  <video
+                                    src={item.thumbnail}
+                                    preload="metadata"
+                                    style={{
+                                      position: "absolute",
+                                      top: "0",
+                                      left: "0",
+                                      width: "100%",
+                                      height: "100%",
+                                      objectFit: "cover",
+                                    }}
+                                  />
+                                  {/* Play button overlay */}
+                                  <div
+                                    style={{
+                                      position: "absolute",
+                                      inset: "0",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      backgroundColor: "rgba(0,0,0,0.3)",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        width: "48px",
+                                        height: "48px",
+                                        borderRadius: "50%",
+                                        background: "rgba(255,255,255,0.8)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                      }}
+                                    >
+                                      <VideoCameraOutlined
+                                        style={{
+                                          fontSize: "20px",
+                                          color: "#1890ff",
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <img
+                                  src={item.thumbnail}
+                                  alt={item.title}
+                                  style={{
+                                    position: "absolute",
+                                    top: "0",
+                                    left: "0",
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                  }}
+                                />
+                              )
+                            ) : (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "50%",
+                                  left: "50%",
+                                  transform: "translate(-50%, -50%)",
+                                  fontSize: "48px",
+                                  color: "#1890ff",
+                                }}
+                              >
+                                {(item as any).isRecentShortcut ? (
+                                  <ClockCircleOutlined />
+                                ) : (item as any).hasDiskTrash ? (
+                                  <CloudOutlined />
+                                ) : item.isFolder ? (
+                                  <FolderFilled />
+                                ) : (
+                                  renderIconForFile(item.title)
+                                )}
+                              </div>
+                            )}
+
+                            {/* Actions menu (three dots) */}
+                            <div
+                              style={{
+                                position: "absolute",
+                                top: "0",
+                                right: "0",
+                                padding: "8px",
+                              }}
+                            >
+                              <Dropdown
+                                menu={{
+                                  items: getRowMenuItems(item),
+                                  onClick: (e) => {
+                                    e.domEvent.stopPropagation();
+                                  },
+                                }}
+                                trigger={["click"]}
+                              >
+                                <Button
+                                  type="text"
+                                  icon={<MoreOutlined />}
+                                  size="small"
+                                  onClick={(e) => e.stopPropagation()}
+                                  style={{ background: "transparent" }}
+                                />
+                              </Dropdown>
+                            </div>
+                          </div>
+
+                          {/* Title at bottom */}
+                          <Popover content={item.title}>
+                            <div
+                              style={{
+                                marginTop: "8px",
+                                width: "100%",
+                                textAlign: "center",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                fontSize: "14px",
+                                color: "#000",
+                              }}
+                            >
+                              {item.title}
+                            </div>
+                          </Popover>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </UploadDropZone>

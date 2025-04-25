@@ -464,7 +464,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
       </div>
 
       {/* Groups Table */}
-      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      {tablePermissions.includes(SystemPermissionType.VIEW) ||
       groups.length > 0 ? (
         <div
           style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}

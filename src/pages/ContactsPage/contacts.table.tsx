@@ -479,7 +479,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
       </div>
 
       {/* Contacts Table */}
-      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      {tablePermissions.includes(SystemPermissionType.VIEW) ||
       contacts.length > 0 ? (
         <div
           style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}

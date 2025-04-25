@@ -603,10 +603,16 @@ export const directoryPermissionsReducer = (
     case GET_DIRECTORY_PERMISSION_COMMIT: {
       const optimisticID = action.meta?.optimisticID;
       const permission = action.payload.ok.data;
-
+      const updatedResourcePermissionsList = updateOrAddPermission(
+        state.resourcePermissionsMap[permission.resource_id] || [],
+        permission
+      );
       return {
         ...state,
-
+        resourcePermissionsMap: {
+          ...state.resourcePermissionsMap,
+          [permission.resource_id]: updatedResourcePermissionsList,
+        },
         permissionMap: {
           ...state.permissionMap,
           [permission.id]: {
@@ -672,7 +678,9 @@ export const directoryPermissionsReducer = (
     }
 
     case LIST_DIRECTORY_PERMISSIONS_COMMIT: {
+      console.log(`> LIST_DIRECTORY_PERMISSIONS_COMMIT`, action);
       const permissions = action.payload.ok.data.items;
+      const resource_id = permissions[0]?.resource_id || "";
       const permissionMap = permissions.reduce(
         (
           map: Record<string, DirectoryPermissionFEO>,
@@ -685,10 +693,10 @@ export const directoryPermissionsReducer = (
       );
       const newResourcePermissionsMap = {
         ...state.resourcePermissionsMap,
-        [action.payload.ok.data.resource_id]: permissions.map(
-          (p: DirectoryPermissionFEO) => p.id
-        ),
+        [resource_id]: permissions.map((p: DirectoryPermissionFEO) => p.id),
       };
+
+      console.log(`> newResourcePermissionsMap`, newResourcePermissionsMap);
 
       return {
         ...state,

@@ -649,7 +649,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       </div>
 
       {/* Permissions Tabs & Tables */}
-      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      {tablePermissions.includes(SystemPermissionType.VIEW) ||
       systemPermissions.length > 0 ? (
         <div
           style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}

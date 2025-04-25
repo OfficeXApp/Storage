@@ -1051,6 +1051,7 @@ const DirectoryPermissionAddDrawer: React.FC<
                     DirectoryPermissionType.EDIT,
                     DirectoryPermissionType.DELETE,
                     DirectoryPermissionType.UPLOAD,
+                    DirectoryPermissionType.INVITE,
                   ]);
                 } else {
                   setPermissionTypes((prev) => {
@@ -1068,7 +1069,8 @@ const DirectoryPermissionAddDrawer: React.FC<
                 permissionTypes.includes(DirectoryPermissionType.VIEW) &&
                 permissionTypes.includes(DirectoryPermissionType.EDIT) &&
                 permissionTypes.includes(DirectoryPermissionType.DELETE) &&
-                permissionTypes.includes(DirectoryPermissionType.UPLOAD)
+                permissionTypes.includes(DirectoryPermissionType.UPLOAD) &&
+                permissionTypes.includes(DirectoryPermissionType.INVITE)
               }
             />
             <span style={{ marginLeft: 8 }}>
@@ -1082,11 +1084,13 @@ const DirectoryPermissionAddDrawer: React.FC<
             open={
               (permissionTypes.includes(DirectoryPermissionType.EDIT) ||
                 permissionTypes.includes(DirectoryPermissionType.DELETE) ||
-                permissionTypes.includes(DirectoryPermissionType.UPLOAD)) &&
+                permissionTypes.includes(DirectoryPermissionType.UPLOAD) ||
+                permissionTypes.includes(DirectoryPermissionType.INVITE)) &&
               !(
                 permissionTypes.includes(DirectoryPermissionType.EDIT) &&
                 permissionTypes.includes(DirectoryPermissionType.DELETE) &&
-                permissionTypes.includes(DirectoryPermissionType.UPLOAD)
+                permissionTypes.includes(DirectoryPermissionType.UPLOAD) &&
+                permissionTypes.includes(DirectoryPermissionType.INVITE)
               )
             }
           >
@@ -1150,6 +1154,24 @@ const DirectoryPermissionAddDrawer: React.FC<
               />
               <span style={{ marginLeft: 8 }}>
                 <DeleteOutlined /> Delete
+              </span>
+            </Space>
+
+            <div style={{ height: "8px" }}></div>
+            <Space style={{ display: "flex" }}>
+              <Switch
+                onChange={(checked) =>
+                  handlePermissionTypeChange(
+                    checked,
+                    DirectoryPermissionType.INVITE
+                  )
+                }
+                checked={permissionTypes.includes(
+                  DirectoryPermissionType.INVITE
+                )}
+              />
+              <span style={{ marginLeft: 8 }}>
+                <UserAddOutlined /> Invite
               </span>
             </Space>
           </details>

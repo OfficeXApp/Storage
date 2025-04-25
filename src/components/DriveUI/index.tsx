@@ -788,6 +788,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         title: "Name",
         dataIndex: "title",
         key: "title",
+        width: "60%",
         render: (text: string, record: DriveItemRow) => {
           return (
             <div
@@ -813,7 +814,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                minWidth: "30%",
               }}
             >
               {renamingItems[record.id] ? (
@@ -1449,7 +1449,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               isBigButton={false}
               toggleUploadPanel={toggleUploadPanel}
               optimisticListDirectoryKey={listDirectoryKey}
-              disabled={listDirectoryResults?.isFirstTime}
+              disabled={
+                listDirectoryResults?.isFirstTime ||
+                !listDirectoryResults?.permission_previews.includes(
+                  DirectoryPermissionType.UPLOAD
+                )
+              }
             />
 
             <Button
@@ -1709,6 +1714,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                         isBigButton={false}
                         toggleUploadPanel={toggleUploadPanel}
                         optimisticListDirectoryKey={listDirectoryKey}
+                        disabled={
+                          listDirectoryResults?.isFirstTime ||
+                          !listDirectoryResults?.permission_previews.includes(
+                            DirectoryPermissionType.UPLOAD
+                          )
+                        }
                       />
                     }
                     style={{
@@ -1728,11 +1739,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 <div>
                   <Input
                     placeholder="Filter Results"
-                    size="small"
                     value={searchString}
                     onChange={(e) => setSearchString(e.target.value)}
                     prefix={<SearchOutlined />}
-                    style={{ marginBottom: 8 }}
+                    style={{
+                      marginBottom: 8,
+                      border: "0px solid white",
+                      backgroundColor: "rgba(0,0,0,0.01)",
+                    }}
                   />
                   <Table
                     {...(!isDiskRootPage && {
@@ -1786,6 +1800,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           resourceID={currentFolderId as DirectoryResourceID}
           resourceName={"Folder"}
           breadcrumbs={listDirectoryResults?.breadcrumbs || []}
+          currentUserPermissions={
+            listDirectoryResults?.permission_previews || []
+          }
         />
       )}
     </div>

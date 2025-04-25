@@ -507,7 +507,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
       </div>
 
       {/* Disks Table */}
-      {tablePermissions.includes(SystemPermissionType.VIEW) &&
+      {tablePermissions.includes(SystemPermissionType.VIEW) ||
       disks.length > 0 ? (
         <div
           style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}

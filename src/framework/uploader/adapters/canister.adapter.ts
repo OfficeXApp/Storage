@@ -33,6 +33,7 @@ export class CanisterAdapter implements IUploadAdapter {
   private apiKey: string = "";
   private maxChunkSize: number = 1 * 1024 * 1024; // 1MB chunks by default
   private diskID: string = "";
+  private generateSignature?: () => Promise<string>;
 
   // Store active uploads for pause/resume/cancel
   private activeUploads: Map<
@@ -64,6 +65,7 @@ export class CanisterAdapter implements IUploadAdapter {
     this.baseUrl = config.endpoint;
     this.apiKey = config.apiKey;
     this.diskID = config.diskID;
+    this.generateSignature = config.generateSignature;
 
     if (config.maxChunkSize) {
       this.maxChunkSize = config.maxChunkSize;
@@ -277,12 +279,15 @@ export class CanisterAdapter implements IUploadAdapter {
       };
 
       // Make direct API call following the /directory/action pattern
+      const auth_token = this.generateSignature
+        ? await this.generateSignature()
+        : this.apiKey;
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/action`,
         {
           "Content-Type": "application/json",
         },
-        this.apiKey
+        auth_token
       );
       const response = await fetch(url, {
         method: "POST",
@@ -339,12 +344,15 @@ export class CanisterAdapter implements IUploadAdapter {
     signal: AbortSignal
   ): Promise<boolean> {
     try {
+      const auth_token = this.generateSignature
+        ? await this.generateSignature()
+        : this.apiKey;
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/raw_upload/chunk`,
         {
           "Content-Type": "application/json",
         },
-        this.apiKey
+        auth_token
       );
       const response = await fetch(url, {
         method: "POST",
@@ -383,12 +391,15 @@ export class CanisterAdapter implements IUploadAdapter {
     signal: AbortSignal
   ): Promise<boolean> {
     try {
+      const auth_token = this.generateSignature
+        ? await this.generateSignature()
+        : this.apiKey;
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/raw_upload/complete`,
         {
           "Content-Type": "application/json",
         },
-        this.apiKey
+        auth_token
       );
       const response = await fetch(url, {
         method: "POST",
@@ -668,13 +679,16 @@ export class CanisterAdapter implements IUploadAdapter {
 
     // Call the API to cancel the upload
     try {
+      const auth_token = this.generateSignature
+        ? await this.generateSignature()
+        : this.apiKey;
       const fileId = metadata.customMetadata.fileId as string;
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/raw_upload/cancel`,
         {
           "Content-Type": "application/json",
         },
-        this.apiKey
+        auth_token
       );
       const response = await fetch(url, {
         method: "POST",

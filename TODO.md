@@ -6,8 +6,13 @@
 
 ## UX Confusion Fixes
 
+- [ ] Clicked back button on File page goes to "my drives" page rather go back to the previous or mother folder. this is a breadcrumbs loading issue and users say its really annoying.
+- [ ] Cannot give a soveriegn stranger permission via userid, while adding permit by contact works. Also cant view the group table as that contact/stranger since they dont have table wide permit, but should still have view access on their 1 specific resource
+- [ ] Ability to preview text files at least
+
 - [ ] Setup hoverable thumbnail previews for videos
 - [ ] Thumbnails for files/images/video + driveui tile mode
+- [ ] Auto detected 'you" in the group member details
 
 - [ ] Users expect autocopy to clipboard when generating magic links
 
@@ -121,3 +126,5 @@
 - [x] Show error message for strangers when they go to anywhere/drive that they dont have access (right now it appears that they can use it)
 - [x] Accept group invite/contact should inherit the name, instead of "unnamed contact"
 - [x] Playing large video files appear to be broken due to needing to download entire file upfront. Refactor video player to use streaming player instead of native html video tag. We dont need to make any changes to backend file storage. --> changed from native html to a dedicated videojs library for streaming
+- [x] Upload larger video file from public anon will result in final UPDATE_FILE COMPLETE /directory/action to fail 401 unauthorized. likely this is due to an expired auth signature.
+- [x] Sharing directory permissions with invite permit

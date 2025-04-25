@@ -25,7 +25,7 @@ export default defineConfig({
         injectionPoint: "self.__WB_MANIFEST",
         // Add additional configuration to ensure proper compilation
         rollupFormat: "es",
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       // WebManifest options
       manifest: {

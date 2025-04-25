@@ -161,13 +161,20 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
                   </i>
                 </span>
               ) : (
-                <SyncOutlined
+                <span
                   onClick={() => {
                     message.info("Refetching...");
                     fetchResource();
                   }}
-                  style={{ color: "rgba(0,0,0,0.2)", fontSize: "1.1rem" }}
-                />
+                  style={{ cursor: "pointer" }}
+                >
+                  <SyncOutlined
+                    style={{ color: "rgba(0,0,0,0.2)", fontSize: "1.1rem" }}
+                  />
+                  <i style={{ marginLeft: 8, color: "rgba(0,0,0,0.2)" }}>
+                    Check Again
+                  </i>
+                </span>
               )}
             </span>
             <span style={{ fontSize: "1.7rem" }}>Unauthorized</span>

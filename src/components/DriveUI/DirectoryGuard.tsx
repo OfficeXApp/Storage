@@ -16,7 +16,7 @@ import {
 } from "@ant-design/icons";
 import { useIdentitySystem } from "../../framework/identity";
 import { passwordToSeedPhrase } from "../../api/icp";
-import { wrapAuthStringOrHeader } from "../../api/helpers";
+import { extractDiskInfo, wrapAuthStringOrHeader } from "../../api/helpers";
 import { Link } from "react-router-dom";
 import useScreenType from "react-screentype-hook";
 
@@ -114,31 +114,6 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
     }
   };
 
-  function extractDiskInfo() {
-    const url = window.location.href;
-    // Split the URL into parts
-    const parts = new URL(url).pathname.split("/");
-
-    // Find the index of 'drive' in the path
-    const driveIndex = parts.indexOf("drive");
-
-    // If 'drive' is found and there are enough parts after it
-    if (driveIndex !== -1 && parts.length > driveIndex + 2) {
-      const diskTypeEnum = parts[driveIndex + 1];
-      const diskID = parts[driveIndex + 2];
-
-      return {
-        diskTypeEnum,
-        diskID,
-      };
-    }
-
-    // Return null or throw an error if the URL doesn't match the expected format
-    return {
-      diskTypeEnum: "",
-      diskID: "",
-    };
-  }
   const { diskTypeEnum, diskID } = extractDiskInfo();
 
   return (

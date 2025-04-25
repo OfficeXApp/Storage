@@ -8,10 +8,12 @@ import {
   Space,
   Select,
   Divider,
+  notification,
 } from "antd";
 import {
   CloudSyncOutlined,
   LinkOutlined,
+  LoadingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 
@@ -52,6 +54,7 @@ const ConnectICPButton = () => {
     orgName: "",
     profile: "",
   });
+  const [apiNotifs, contextHolder] = notification.useNotification();
 
   // Set default selected profile when profiles list changes
   useEffect(() => {
@@ -121,12 +124,18 @@ const ConnectICPButton = () => {
         throw new Error("Selected profile not found");
       }
 
-      message.info("Please wait up to 2 minutes...");
+      apiNotifs.open({
+        message: "Creating Organization",
+        description:
+          "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready.",
+        icon: <LoadingOutlined />,
+        duration: 0,
+      });
 
       // Extract ICP principal from profile UserID
       const icpPrincipal = profile.userID.replace("UserID_", "");
 
-      message.info("Redeeming Gift Card...", 0);
+      message.info("Redeeming Gift Card...");
 
       // Make the POST request to redeem the voucher
       const redeemResponse = await fetch(
@@ -158,9 +167,9 @@ const ConnectICPButton = () => {
       }
 
       await sleep(5000);
-      message.info("Minting Anonymous Blockchain...", 0);
+      message.info("Minting Anonymous Blockchain...");
       await sleep(5000);
-      message.info("Promoting you to Admin...", 0);
+      message.info("Promoting you to Admin...");
       await sleep(5000);
 
       const { drive_id, endpoint, redeem_code, disk_auth_json } =
@@ -246,14 +255,13 @@ const ConnectICPButton = () => {
       await switchOrganization(newOrg, profile.userID);
 
       message.success(
-        `Successfully Created Organization "${orgName}" with Gift Card`,
-        0
+        `Successfully Created Organization "${orgName}" with Gift Card`
       );
       setGiftCardValue("");
 
       if (disk_auth_json) {
         try {
-          message.success("Setting up cloud storage...", 0);
+          message.success("Setting up cloud storage...");
 
           // Make POST request to create disk
           const { url, headers } = wrapAuthStringOrHeader(
@@ -280,7 +288,7 @@ const ConnectICPButton = () => {
               await createDiskResponse.text()
             );
           } else {
-            message.success("Cloud storage configured successfully!", 0);
+            message.success("Cloud storage configured successfully!");
           }
         } catch (error) {
           console.error("Error creating disk:", error);
@@ -288,7 +296,7 @@ const ConnectICPButton = () => {
       }
 
       // Refresh the page
-      message.success("Syncing... please wait", 0);
+      message.success("Syncing... please wait");
       await sleep(3000);
       message.success(`Success! Entering new organization...`);
       navigate("/org/current/welcome");
@@ -309,6 +317,7 @@ const ConnectICPButton = () => {
 
   return (
     <>
+      {contextHolder}
       <Button
         block
         type="primary"

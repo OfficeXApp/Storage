@@ -11,6 +11,7 @@ import {
   QuestionCircleOutlined,
   UserOutlined,
   SyncOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import {
   Select,
@@ -27,6 +28,7 @@ import {
   Typography,
   Progress,
   ProgressProps,
+  notification,
 } from "antd";
 import {
   IndexDB_Organization,
@@ -78,6 +80,7 @@ const OrganizationSwitcher = () => {
   // Selected profile for organization entry
   const [selectedProfileId, setSelectedProfileId] = useState("");
   const navigate = useNavigate();
+  const [apiNotifs, contextHolder] = notification.useNotification();
 
   // Form states for new organization
   const [newOrgNickname, setNewOrgNickname] = useState("");
@@ -672,7 +675,13 @@ const OrganizationSwitcher = () => {
       // Check if gift card is provided
       if (giftCardValue && giftCardValue.trim() !== "") {
         try {
-          message.info("Please wait up to 2 minutes...");
+          apiNotifs.open({
+            message: "Creating Organization",
+            description:
+              "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready.",
+            icon: <LoadingOutlined />,
+            duration: 0,
+          });
 
           // Step 1: Redeem the gift card at the factory endpoint
           const profile = listOfProfiles.find(
@@ -826,8 +835,7 @@ const OrganizationSwitcher = () => {
           await switchOrganization(newOrg, profile.userID);
 
           message.success(
-            `Successfully Created Organization "${orgNickToUse}" with Gift Card`,
-            0
+            `Successfully Created Organization "${orgNickToUse}" with Gift Card`
           );
           setGiftCardValue("");
 
@@ -866,7 +874,7 @@ const OrganizationSwitcher = () => {
               console.error("Error creating disk:", error);
             }
           }
-          message.success("Syncing... please wait", 0);
+          message.success("Syncing... please wait");
           await sleep(3000);
           message.success(`Success! Entering new organization...`);
 
@@ -899,8 +907,7 @@ const OrganizationSwitcher = () => {
         await switchOrganization(newOrg, selectedProfileId);
 
         message.success(
-          `Organization "${newOrgNickname}" created successfully!`,
-          0
+          `Organization "${newOrgNickname}" created successfully!`
         );
         navigate("/org/current/welcome");
         window.location.reload();
@@ -1424,6 +1431,7 @@ const OrganizationSwitcher = () => {
 
   return (
     <>
+      {contextHolder}
       <Select
         showSearch
         placeholder="Switch Organization"

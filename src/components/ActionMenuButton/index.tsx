@@ -38,6 +38,7 @@ import {
 } from "../../redux-offline/directory/directory.actions";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import { shouldBehaveOfflineDiskUIIntent } from "../../redux-offline/directory/directory.reducer";
+import { extractDiskInfo } from "../../api/helpers";
 
 interface ActionMenuButtonProps {
   isBigButton?: boolean; // Determines the button style
@@ -115,12 +116,19 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     folderInputRef.current?.click();
   };
 
+  const { diskTypeEnum, diskID } = extractDiskInfo();
+
   const handleCreateFolder = async () => {
     mixpanel.track("Create Folder");
     console.log(
-      `Creating folder: ${newFolderName} in ${uploadTargetFolderID} of ${uploadTargetDisk?.id}`
+      `Creating folder: ${newFolderName} in ${uploadTargetFolderID} of ${diskTypeEnum} ${diskID}`
     );
-    if (newFolderName.trim() && uploadTargetDisk && uploadTargetFolderID) {
+    if (
+      newFolderName.trim() &&
+      diskTypeEnum &&
+      diskID &&
+      uploadTargetFolderID
+    ) {
       try {
         // Create the folder action
         const createAction = {
@@ -129,8 +137,8 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
             id: GenerateID.Folder(),
             name: newFolderName,
             labels: [],
-            disk_id: uploadTargetDisk.id,
-            disk_type: uploadTargetDisk.disk_type,
+            disk_id: diskID,
+            disk_type: diskTypeEnum,
             parent_folder_uuid: uploadTargetFolderID,
           },
         };
@@ -140,7 +148,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           createFolderAction(
             createAction,
             optimisticListDirectoryKey,
-            shouldBehaveOfflineDiskUIIntent(uploadTargetDisk.id)
+            shouldBehaveOfflineDiskUIIntent(diskID)
           )
         );
 

@@ -80,7 +80,7 @@ const SandboxPage = () => {
     console.log("Received data:", data);
   };
   const handleTestFactoryRoute = async () => {
-    const url = `https://lfp6f-3iaaa-aaaak-apcgq-cai.icp0.io/v1/default/factory/snapshot`;
+    const url = `https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io/v1/default/factory/snapshot`;
     console.log(`firing at url test factory`, url);
     const password = "123";
     // Only the password part should go in the Authorization header

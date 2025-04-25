@@ -89,6 +89,7 @@ import NotFoundPage from "./components/NotFound";
 import { generateListDirectoryKey } from "./redux-offline/directory/directory.actions";
 import SearchResultsPage from "./pages/SearchResults";
 import WelcomePage from "./components/WelcomePage";
+import GiftCardOnboarding from "./pages/GiftCardOnboarding";
 
 const { Sider, Content } = Layout;
 
@@ -547,6 +548,10 @@ const RouterUI = () => {
               <Route
                 path="/org/:orgcode/recent"
                 element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
+              />
+              <Route
+                path="/gift-card-onboarding"
+                element={<GiftCardOnboarding />}
               />
               <Route
                 path="/buy"

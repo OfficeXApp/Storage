@@ -1,6 +1,7 @@
 // db/dexie-manager.ts
 import Dexie from "dexie";
 import {
+  BreadcrumbVisibilityPreviewEnum,
   DirectoryPermissionType,
   DiskTypeEnum,
   DriveID,
@@ -356,6 +357,9 @@ export const initDexieDb = async (
             {
               resource_id: defaultBrowserCacheRootFolderID,
               resource_name: "Browser Cache",
+              visibility_preview: [
+                BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
+              ],
             },
           ],
         };
@@ -396,10 +400,16 @@ export const initDexieDb = async (
             {
               resource_id: defaultBrowserCacheRootFolderID,
               resource_name: "Browser Cache",
+              visibility_preview: [
+                BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
+              ],
             },
             {
               resource_id: defaultBrowserCacheTrashFolderID,
               resource_name: "Trash",
+              visibility_preview: [
+                BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
+              ],
             },
           ],
         };
@@ -455,6 +465,9 @@ export const initDexieDb = async (
             {
               resource_id: defaultTempCloudSharingRootFolderID,
               resource_name: "Free Cloud Sharing",
+              visibility_preview: [
+                BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
+              ],
             },
           ],
         };
@@ -495,10 +508,16 @@ export const initDexieDb = async (
             {
               resource_id: defaultTempCloudSharingRootFolderID,
               resource_name: "Free Cloud Sharing",
+              visibility_preview: [
+                BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
+              ],
             },
             {
               resource_id: defaultTempCloudSharingTrashFolderID,
               resource_name: "Trash",
+              visibility_preview: [
+                BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
+              ],
             },
           ],
         };

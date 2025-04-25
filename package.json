@@ -45,6 +45,7 @@
     "tailwind-merge": "^2.5.2",
     "uninstall": "^0.0.0",
     "uuid": "^10.0.0",
+    "video.js": "^8.22.0",
     "viem": "^2.19.4",
     "xlsx": "^0.18.5"
   },

@@ -33,7 +33,6 @@ import {
   LockOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { shortenAddress } from ".";
 import { DriveFE, Drive, SystemPermissionType } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
@@ -45,6 +44,7 @@ import {
 import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
 import { useIdentitySystem } from "../../framework/identity";
 import { Link } from "react-router-dom";
+import { shortenAddress } from "../../framework/identity/constants";
 
 interface DrivesTableListProps {
   isDriveTabOpen: (id: string) => boolean;

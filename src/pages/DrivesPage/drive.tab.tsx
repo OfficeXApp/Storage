@@ -46,7 +46,6 @@ import {
   DriveID,
 } from "@officexapp/types";
 import { LOCAL_STORAGE_TOGGLE_REST_API_DOCS } from "../../framework/identity/constants";
-import { shortenAddress } from ".";
 import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
 import { useDispatch, useSelector } from "react-redux";

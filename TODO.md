@@ -2,18 +2,19 @@
 
 ## Overview
 
-- [🔵] Clear download / Pause download
+- [🔵] Clean up the create org message popups, too messy! perhaps use a notification card + ephemeral toast
+- [ ] Create a gift card onboarding flow that is more intuitive
 
 ## UX Confusion Fixes
 
+- [ ] Clear download / Pause download
 - [ ] Clicked back button on File page goes to "my drives" page rather go back to the previous or mother folder. this is a breadcrumbs loading issue and users say its really annoying.
 - [ ] Cannot give a soveriegn stranger permission via userid, while adding permit by contact works. Also cant view the group table as that contact/stranger since they dont have table wide permit, but should still have view access on their 1 specific resource
 - [ ] Ability to preview text files at least
-
+- [ ] Draggable bulk select files
 - [ ] Setup hoverable thumbnail previews for videos
 - [ ] Thumbnails for files/images/video + driveui tile mode
 - [ ] Auto detected 'you" in the group member details
-
 - [ ] Users expect autocopy to clipboard when generating magic links
 
 - [ ] It appears that ancestor breadcrumbs are exposing private ancestor folders
@@ -38,6 +39,7 @@
 - [ ] Ability to offline create disks, folders, etc (when offline create disk, its missing root folder & trash folder)
 - [ ] Add bulk delete & single file page move/copy/delete
 - [ ] Api key tab, change edit to manage and put inside edit & revoke. the current place where revoke it, change to "Login As"
+- [ ] Download folder as zip
 
 ## Backlog
 

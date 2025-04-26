@@ -54,6 +54,7 @@ import {
   CloudOutlined,
   SearchOutlined,
   AppstoreOutlined,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -73,6 +74,7 @@ export const LOCAL_STORAGE_ROW_GRID_VIEW = "LOCAL_STORAGE_ROW_GRID_VIEW";
 import FilePage from "../FilePage";
 import { isMobile } from "react-device-detect";
 import {
+  extractDiskInfo,
   getFileType,
   pastLastCheckedCacheLimit,
   sleep,
@@ -255,31 +257,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     }
   }, [currentDiskId, currentFolderId, currentFileId, disks]);
 
-  function extractDiskInfo() {
-    const url = window.location.href;
-    // Split the URL into parts
-    const parts = new URL(url).pathname.split("/");
-
-    // Find the index of 'drive' in the path
-    const driveIndex = parts.indexOf("drive");
-
-    // If 'drive' is found and there are enough parts after it
-    if (driveIndex !== -1 && parts.length > driveIndex + 2) {
-      const diskTypeEnum = parts[driveIndex + 1];
-      const diskID = parts[driveIndex + 2];
-
-      return {
-        diskTypeEnum,
-        diskID,
-      };
-    }
-
-    // Return null or throw an error if the URL doesn't match the expected format
-    return {
-      diskTypeEnum: "",
-      diskID: "",
-    };
-  }
   const { diskTypeEnum: extractedDiskTypeEnum, diskID: extractedDiskID } =
     extractDiskInfo();
 
@@ -513,9 +490,39 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       console.log(`we nowhere known`);
     }
 
-    // if (currentDisk.disk_type?.includes("Web3Storj") && !areStorjSettingsSet()) {
-    //   setIsStorjModalVisible(true);
-    // }
+    if (diskType === DiskTypeEnum.IcpCanister) {
+      apiNotifs.open({
+        message: "Canister Warning",
+        description:
+          "Storing files on ICP Canisters is slow and expensive. You are recommended to attach a storage provider - we recommend StorjWeb3",
+        icon: <ExperimentOutlined />,
+        btn: (
+          <Space>
+            <a
+              href="https://storj.io/?utm_source=officex&utm_medium=officex&utm_campaign=officex&utm_content=officex&utm_term=officex"
+              target="_blank"
+            >
+              <Button
+                onClick={() => {
+                  mixpanel.track("Upgrade Intent");
+                }}
+                type="link"
+                size="small"
+              >
+                Upgrade
+              </Button>
+            </a>
+            <Button
+              type="primary"
+              size="small"
+              onClick={() => apiNotifs.destroy()}
+            >
+              Close
+            </Button>
+          </Space>
+        ),
+      });
+    }
   }, [location, showAncillary, refreshToken]);
 
   const fetchRecentsGlobal = async () => {
@@ -1828,6 +1835,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                         width: "100%",
                         overflowY: "auto",
                         maxHeight: "calc(80vh - 150px)",
+                        paddingBottom: "20vh",
                       }}
                     >
                       {tableRows.map((item) => (
@@ -2071,6 +2079,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           }
         />
       )}
+
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
     </div>
   );
 };

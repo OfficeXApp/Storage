@@ -8,6 +8,7 @@ import {
 } from "@officexapp/types";
 import { useIdentitySystem } from "../../framework/identity";
 import { Link } from "react-router-dom";
+import { extractDiskInfo } from "../../api/helpers";
 
 interface PermissionStatusMessageProps {
   resource_id: DirectoryResourceID;
@@ -21,31 +22,6 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
   const resource = resource_id.startsWith("FolderID_") ? "folder" : "file";
   const { wrapOrgCode } = useIdentitySystem();
 
-  function extractDiskInfo() {
-    const url = window.location.href;
-    // Split the URL into parts
-    const parts = new URL(url).pathname.split("/");
-
-    // Find the index of 'drive' in the path
-    const driveIndex = parts.indexOf("drive");
-
-    // If 'drive' is found and there are enough parts after it
-    if (driveIndex !== -1 && parts.length > driveIndex + 2) {
-      const diskTypeEnum = parts[driveIndex + 1];
-      const diskID = parts[driveIndex + 2];
-
-      return {
-        diskTypeEnum,
-        diskID,
-      };
-    }
-
-    // Return null or throw an error if the URL doesn't match the expected format
-    return {
-      diskTypeEnum: "",
-      diskID: "",
-    };
-  }
   const { diskTypeEnum, diskID } = extractDiskInfo();
 
   // Find the current resource in breadcrumbs

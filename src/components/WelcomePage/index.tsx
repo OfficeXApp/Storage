@@ -140,6 +140,14 @@ const WelcomePage = () => {
           </Paragraph>
         </div>
       </Card>
+
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
     </div>
   );
 };

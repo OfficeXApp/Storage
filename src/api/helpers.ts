@@ -1,4 +1,4 @@
-import { UserID } from "@officexapp/types";
+import { DiskID, DiskTypeEnum, UserID } from "@officexapp/types";
 
 export function truncateMiddlePath(
   path: string,
@@ -231,3 +231,29 @@ export const pastLastCheckedCacheLimit = (lastChecked: number) => {
   const cacheLimit = 1000 * 60 * 5; // 5 mins
   return lastChecked + cacheLimit < Date.now();
 };
+
+export function extractDiskInfo() {
+  const url = window.location.href;
+  // Split the URL into parts
+  const parts = new URL(url).pathname.split("/");
+
+  // Find the index of 'drive' in the path
+  const driveIndex = parts.indexOf("drive");
+
+  // If 'drive' is found and there are enough parts after it
+  if (driveIndex !== -1 && parts.length > driveIndex + 2) {
+    const diskTypeEnum = parts[driveIndex + 1] as DiskTypeEnum;
+    const diskID = parts[driveIndex + 2] as DiskID;
+
+    return {
+      diskTypeEnum,
+      diskID,
+    };
+  }
+
+  // Return null or throw an error if the URL doesn't match the expected format
+  return {
+    diskTypeEnum: "" as DiskTypeEnum,
+    diskID: "" as DiskID,
+  };
+}

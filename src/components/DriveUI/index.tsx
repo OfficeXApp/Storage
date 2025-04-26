@@ -2079,6 +2079,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           }
         />
       )}
+
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
     </div>
   );
 };

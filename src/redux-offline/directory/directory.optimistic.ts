@@ -446,6 +446,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ GET FILE --------------------------------- //
           case GET_FILE: {
+            console.log(`GET_FILE action`, action);
             const shouldBehaveOffline =
               action.shouldBehaveOfflineDiskUI === true ||
               action.meta?.isOfflineDrive === true ||

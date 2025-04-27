@@ -26,6 +26,9 @@ import { useIdentitySystem } from "../../framework/identity";
 import TagCopy from "../TagCopy";
 import { urlSafeBase64Encode, wrapAuthStringOrHeader } from "../../api/helpers";
 import { Link } from "react-router-dom";
+import { generateAutoLoginBTOA } from "../../pages/AutoLoginPage";
+import { ApiKey, IRequestCreateApiKey } from "@officexapp/types";
+import { LOCAL_STORAGE_SEED_PHRASE } from "../../framework/identity/constants";
 
 const { Text, Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -45,6 +48,7 @@ const ProfileSettingsCard = () => {
   );
   const [testingApiKey, setTestingApiKey] = useState(false);
   const [testResult, setTestResult] = useState({ status: "", message: "" });
+  const [loadingGenExport, setLoadingGenExport] = useState(false);
 
   // For login modal
   const [expirationTime, setExpirationTime] = useState<number>(0);
@@ -152,6 +156,145 @@ const ProfileSettingsCard = () => {
     }
   };
 
+  const loginMultipleDeviceString = apiKeyValue
+    ? `${currentOrg?.driveID}:${apiKeyValue}@${currentOrg?.endpoint}`
+    : "";
+
+  // Prepare API key request payload
+  const createApiKeyRequest = (): IRequestCreateApiKey => {
+    return {
+      name: `Recovery Backup API-Key for ${currentProfile?.nickname}`,
+      user_id: currentProfile?.userID,
+      begins_at: 0,
+      expires_at: -1,
+      external_id: `backup-recovery-login-${currentProfile?.userID}-${Date.now()}`,
+      external_payload: JSON.stringify({
+        created_for: "profile-backup",
+        organization_id: currentOrg?.driveID,
+      }),
+    };
+  };
+
+  // Real API call for creating an API key
+  const createApiKey = async (): Promise<ApiKey> => {
+    try {
+      const request = createApiKeyRequest();
+      console.log("Creating API key with request:", request);
+      const auth_token = currentAPIKey?.value || (await generateSignature());
+      // Make the actual API call to create an API key
+      const { url, headers } = wrapAuthStringOrHeader(
+        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/api_keys/create`,
+        {
+          "Content-Type": "application/json",
+        },
+        auth_token
+      );
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data && data.ok && data.ok.data) {
+        const apiKey = data.ok.data as ApiKey;
+        console.log("API Key created successfully:", apiKey);
+        return apiKey;
+      } else {
+        throw new Error("Failed to create API key. Invalid response format.");
+      }
+    } catch (error) {
+      console.error("Error creating API key:", error);
+      message.error("Failed to create API key. Please try again.");
+      throw error;
+    }
+  };
+
+  const createAndDownloadTextFile = async () => {
+    if (!currentOrg || !currentProfile) return;
+    setLoadingGenExport(true);
+
+    const currentProfileSeedPhrase = localStorage.getItem(
+      LOCAL_STORAGE_SEED_PHRASE
+    );
+
+    const backupApiKey = await createApiKey();
+    const autoLoginUrl = generateAutoLoginBTOA({
+      org_name: currentOrg.nickname,
+      org_id: currentOrg.driveID,
+      org_endpoint: currentOrg.endpoint,
+      profile_id: currentProfile.userID,
+      profile_name: currentProfile.nickname,
+      profile_api_key: backupApiKey.value,
+      profile_seed_phrase: currentProfileSeedPhrase || "",
+    });
+    // Create a Blob with the text content
+    const content = `# OfficeX Backup
+
+Anonymous OfficeX backup text file for organization + profile. Watch the tutorial: https://officex.app/tutorials/backup-recovery (coming soon)
+
+## Instructions
+Login to OfficeX from any computer using this magic link:
+
+${autoLoginUrl}
+
+
+If that doesn't work, then you manually login like so:
+
+1. Visit ${window.location.origin}  
+2. Click the bottom left organization switcher and select dropdown option "Add Organization"
+3. In the popup modal, select the tab "Login Existing"
+4. Enter the below password string:
+
+${`${currentOrg?.driveID}:${backupApiKey.value}@${currentOrg?.endpoint}`}
+
+5. Wait for it to verify the legitimacy of the password string
+6. Once verified, click "Login Organization" to proceed
+7. You will be logged in and redirected to the dashboard
+
+## Details
+
+Organization ID: ${currentOrg?.driveID}
+Organization Name: ${currentOrg?.nickname}
+Organization Endpoint: ${currentOrg?.endpoint}
+
+Profile ID: ${currentProfile?.userID}
+Profile Name: ${currentProfile?.nickname}
+Profile API Key: ${backupApiKey.value}
+Profile Seed Phrase (if available): ${currentProfileSeedPhrase}
+
+## Learn More
+
+Anonymous OfficeX is where freedom works. Documents, spreadsheets & cloud storage for the sovereign individual. Open source & decentralized.
+Click here to learn more about OfficeX: https://officex.app/learn-more
+`;
+    const blob = new Blob([content], { type: "text/plain" });
+
+    // Create a URL for the Blob
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary link element
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `OfficeX_Export_Org_${currentOrg?.driveID}_Profile_${currentProfile?.userID}.txt`;
+
+    // Append to the document, click it, and remove it
+    document.body.appendChild(a);
+    a.click();
+
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setLoadingGenExport(false);
+    }, 100);
+  };
+
   return (
     <Card title="Current Profile" type="inner">
       <Space direction="vertical" style={{ width: "100%" }}>
@@ -254,15 +397,51 @@ const ProfileSettingsCard = () => {
                 {testResult.message}
               </Text>
             )}
+            <div style={{ marginTop: 8 }}>
+              <Input.Password
+                prefix={
+                  <CopyOutlined
+                    onClick={() =>
+                      copyToClipboard(
+                        loginMultipleDeviceString ||
+                          "Offline Organization has no API Key"
+                      )
+                    }
+                  />
+                }
+                value={
+                  loginMultipleDeviceString ||
+                  "Offline Organization has no API Key"
+                }
+                readOnly
+                style={{
+                  backgroundColor: "#f5f5f5",
+                }}
+                addonAfter={
+                  <Button
+                    type="text"
+                    icon={<CopyOutlined />}
+                    onClick={() => copyToClipboard(loginMultipleDeviceString)}
+                    style={{
+                      border: "none",
+                      background: "transparent",
+                      padding: 0,
+                    }}
+                  >
+                    Login Existing Org
+                  </Button>
+                }
+              />
+            </div>
           </div>
         </div>
 
         <Divider />
 
         <Text>
-          Generate links to login from other devices. Or generate a
-          cryptographic signature for short-lived authentication of 30 seconds.
-          Click here to{" "}
+          Generate separate logins to safely manage multiple devices. Or
+          generate a cryptographic signature for short-lived authentication of
+          30 seconds. Click here to{" "}
           <a href="https://internetcomputer.org/what-is-the-ic" target="_blank">
             learn more
           </a>
@@ -272,10 +451,30 @@ const ProfileSettingsCard = () => {
           <Link
             to={wrapOrgCode(`/resources/contacts/${currentProfile?.userID}`)}
           >
-            <Button type="primary">Generate Login</Button>
+            <Button type="primary">Generate Separate Login</Button>
           </Link>
           <Button onClick={() => setShowModalGenSig(true)}>
             Generate Signature
+          </Button>
+        </Space>
+
+        <Divider />
+
+        <Text>
+          Export your OfficeX profile and organization to a plain text file for
+          download, and restore it anywhere later. Useful for when you need to
+          wipe local computer history. Click here to{" "}
+          <a href="https://internetcomputer.org/what-is-the-ic" target="_blank">
+            learn more
+          </a>
+        </Text>
+
+        <Space direction="horizontal" style={{ marginTop: 8 }}>
+          <Button
+            loading={loadingGenExport}
+            onClick={createAndDownloadTextFile}
+          >
+            Export to Text File
           </Button>
         </Space>
       </Space>

@@ -2,8 +2,7 @@
 
 ## Overview
 
-- [🔵] Clean up the create org message popups, too messy! perhaps use a notification card + ephemeral toast
-- [ ] Create a gift card onboarding flow that is more intuitive
+- [ ] Add download app popup for mobile, and in settings page
 
 ## UX Confusion Fixes
 
@@ -130,3 +129,9 @@
 - [x] Playing large video files appear to be broken due to needing to download entire file upfront. Refactor video player to use streaming player instead of native html video tag. We dont need to make any changes to backend file storage. --> changed from native html to a dedicated videojs library for streaming
 - [x] Upload larger video file from public anon will result in final UPDATE_FILE COMPLETE /directory/action to fail 401 unauthorized. likely this is due to an expired auth signature.
 - [x] Sharing directory permissions with invite permit
+- [x] Clean up the create org message popups, too messy! perhaps use a notification card + ephemeral toast
+- [x] Create a gift card onboarding flow that is more intuitive
+- [x] Auto-login page flow
+- [x] Setup buy giftcard flow
+- [x] Add disk.endpoint to frontend UI
+- [x] Add redeem disk gift card onboarding flow

@@ -1499,10 +1499,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               toggleUploadPanel={toggleUploadPanel}
               optimisticListDirectoryKey={listDirectoryKey}
               disabled={
-                listDirectoryResults?.isFirstTime ||
-                !listDirectoryResults?.permission_previews.includes(
-                  DirectoryPermissionType.UPLOAD
-                )
+                currentOrg?.endpoint
+                  ? listDirectoryResults?.isFirstTime ||
+                    !listDirectoryResults?.permission_previews.includes(
+                      DirectoryPermissionType.UPLOAD
+                    )
+                  : false
               }
             />
 
@@ -1768,10 +1770,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                         toggleUploadPanel={toggleUploadPanel}
                         optimisticListDirectoryKey={listDirectoryKey}
                         disabled={
-                          listDirectoryResults?.isFirstTime ||
-                          !listDirectoryResults?.permission_previews.includes(
-                            DirectoryPermissionType.UPLOAD
-                          )
+                          currentOrg?.endpoint
+                            ? listDirectoryResults?.isFirstTime ||
+                              !listDirectoryResults?.permission_previews.includes(
+                                DirectoryPermissionType.UPLOAD
+                              )
+                            : false
                         }
                       />
                     }
@@ -2080,12 +2084,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         />
       )}
 
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
       <br />
     </div>
   );

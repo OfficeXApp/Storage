@@ -33,6 +33,7 @@ import {
   SovereignStrangerLogin_BTOA,
 } from "./contact.redeem";
 import { urlSafeBase64Encode, wrapAuthStringOrHeader } from "../../api/helpers";
+import { generateAutoLoginBTOA } from "../AutoLoginPage";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -260,15 +261,29 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
 
   const handleGenerateLink = async () => {
     try {
-      setIsLoading(true);
-      const payload = await createInvitePayload();
+      if (contact.last_online_ms > 0) {
+        if (!currentOrg) return;
+        const apiKey = await createApiKey();
+        const link = generateAutoLoginBTOA({
+          org_name: currentOrg.nickname,
+          org_id: currentOrg.driveID,
+          org_endpoint: currentOrg.endpoint,
+          profile_id: contact.id,
+          profile_name: contact.name,
+          profile_api_key: apiKey.value,
+        });
+        setGeneratedLink(link);
+      } else {
+        setIsLoading(true);
+        const payload = await createInvitePayload();
 
-      // Create a properly encoded URL with the payload
-      const baseUrl = `${window.location.origin}${wrapOrgCode(`/resources/contacts/redeem`)}`;
-      const encodedPayload = urlSafeBase64Encode(JSON.stringify(payload));
-      const link = `${baseUrl}?redeem=${encodedPayload}`;
+        // Create a properly encoded URL with the payload
+        const baseUrl = `${window.location.origin}${wrapOrgCode(`/resources/contacts/redeem`)}`;
+        const encodedPayload = urlSafeBase64Encode(JSON.stringify(payload));
+        const link = `${baseUrl}?redeem=${encodedPayload}`;
 
-      setGeneratedLink(link);
+        setGeneratedLink(link);
+      }
       message.success(
         `Invitation link for ${contact.name} generated successfully!`
       );

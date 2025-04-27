@@ -3,6 +3,7 @@
 ## Overview
 
 - [ ] Add download app popup for mobile, and in settings page
+- [ ] Update file/folder record to include thumbnails preview gallery
 
 ## UX Confusion Fixes
 
@@ -135,3 +136,4 @@
 - [x] Setup buy giftcard flow
 - [x] Add disk.endpoint to frontend UI
 - [x] Add redeem disk gift card onboarding flow
+- [x] Cursor hover to preview image on DriveUI

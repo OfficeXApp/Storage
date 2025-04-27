@@ -766,7 +766,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       navigate(parentLink);
     } else {
       // If we don't have enough breadcrumbs, navigate to drive root
-      navigate(wrapOrgCode("/drive"));
+      navigate(-1);
     }
   };
 
@@ -1845,7 +1845,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       {tableRows.map((item) => (
                         <div
                           key={item.key}
-                          onClick={() => {
+                          onClick={(e) => {
                             if (item.isDisabled) {
                               return;
                             } else {
@@ -1854,8 +1854,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                                   "You cannot access files in the Trash. Restore it first."
                                 );
                               } else {
-                                handleFileFolderClick(item);
-                                setSearchString("");
+                                if (e.metaKey || e.ctrlKey) {
+                                  // Handle opening in new tab
+                                  // You need to have a URL or route to open
+                                  const url = `${window.location.origin}${wrapOrgCode(
+                                    `/drive/${item.diskType}/${item.diskID}/${item.id}/${default_disk_action === DiskUIDefaultAction.trash ? "?isTrashBin=1" : ""}`
+                                  )}`; // Create this function to generate proper URL
+                                  window.open(url, "_blank");
+                                } else {
+                                  handleFileFolderClick(item);
+                                  setSearchString("");
+                                }
                               }
                             }
                           }}
@@ -1896,6 +1905,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                           )}
 
                           {/* Square tile with icon */}
+
                           <div
                             style={{
                               width: "100%",
@@ -1962,18 +1972,33 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                                   </div>
                                 </div>
                               ) : (
-                                <img
-                                  src={item.thumbnail}
-                                  alt={item.title}
-                                  style={{
-                                    position: "absolute",
-                                    top: "0",
-                                    left: "0",
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                  }}
-                                />
+                                <Popover
+                                  content={
+                                    <img
+                                      src={item.thumbnail}
+                                      alt={item.title}
+                                      style={{
+                                        width: screenType.isMobile
+                                          ? "70vw"
+                                          : "50vw",
+                                        height: "auto",
+                                      }}
+                                    />
+                                  }
+                                >
+                                  <img
+                                    src={item.thumbnail}
+                                    alt={item.title}
+                                    style={{
+                                      position: "absolute",
+                                      top: "0",
+                                      left: "0",
+                                      width: "100%",
+                                      height: "100%",
+                                      objectFit: "cover",
+                                    }}
+                                  />
+                                </Popover>
                               )
                             ) : (
                               <div

@@ -349,6 +349,7 @@ export const directoryReducer = (
 
     // ------------------------------ GET FILE --------------------------------- //
     case GET_FILE: {
+      console.log(`GET_FILE reducer`, action);
       return {
         ...state,
         files: action.optimistic

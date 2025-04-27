@@ -11,6 +11,8 @@ import {
   Select,
   message,
   Switch,
+  Divider,
+  Popover,
 } from "antd";
 import {
   DatabaseOutlined,
@@ -19,6 +21,7 @@ import {
   GlobalOutlined,
   FileTextOutlined,
   KeyOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
@@ -32,6 +35,7 @@ import {
   listDisksAction,
 } from "../../redux-offline/disks/disks.actions";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import { generateRedeemDiskGiftCardURL } from "./disk.redeem";
 
 const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -54,11 +58,14 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
   const [form] = Form.useForm();
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [displayedName, setDisplayedName] = useState("");
-  const [diskType, setDiskType] = useState<DiskTypeEnum>(DiskTypeEnum.LocalSSD);
+  const [diskType, setDiskType] = useState<DiskTypeEnum>(
+    DiskTypeEnum.AwsBucket
+  );
   const [labels, setLabels] = useState<string[]>([]);
   const [inputVisible, setInputVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [formChanged, setFormChanged] = useState(false);
+  const [giftLink, setGiftLink] = useState("");
 
   // Reset form when drawer opens
   useEffect(() => {
@@ -66,7 +73,7 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
       form.resetFields();
       setIsAdvancedOpen(false);
       setDisplayedName("");
-      setDiskType(DiskTypeEnum.LocalSSD);
+      setDiskType(DiskTypeEnum.AwsBucket);
       setLabels([]);
       setInputVisible(false);
       setInputValue("");
@@ -133,6 +140,7 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
           auth_json: values.authJson || undefined,
           external_id: values.externalId || undefined,
           external_payload: values.externalPayload || undefined,
+          endpoint: values.endpoint || undefined,
         };
 
         setLoading(true);
@@ -160,6 +168,33 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
         console.error("Validation failed:", error);
         setLoading(false);
       });
+  };
+
+  const generateGiftLink = async () => {
+    try {
+      // Get current form values
+      const formValues = await form.validateFields();
+
+      // Construct the gift card parameters from form values
+      const giftParams = {
+        name: formValues.name || displayedName,
+        disk_type: formValues.diskType || diskType,
+        public_note: formValues.publicNote || "",
+        auth_json: formValues.authJson || "",
+        endpoint: formValues.endpoint || "",
+      };
+
+      // Generate the URL
+      const url = generateRedeemDiskGiftCardURL(giftParams);
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(url);
+      message.success(`Gift link copied to clipboard!`);
+      setGiftLink(url);
+    } catch (error) {
+      console.error("Error generating gift link:", error);
+      message.error("Please fill in at least the name and disk type fields");
+    }
   };
 
   return (
@@ -191,12 +226,13 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
         layout="vertical"
         initialValues={{
           name: "",
-          diskType: DiskTypeEnum.LocalSSD,
+          diskType: DiskTypeEnum.AwsBucket,
           publicNote: "",
           privateNote: "",
           authJson: "",
           externalId: "",
           externalPayload: "",
+          endpoint: "",
         }}
       >
         <Form.Item
@@ -364,6 +400,26 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
             </Form.Item>
 
             <Form.Item
+              name="endpoint"
+              label={
+                <Tooltip title="URL for info about this disk, including billing">
+                  <Space>
+                    Endpoint URL{" "}
+                    <InfoCircleOutlined style={{ color: "#aaa" }} />
+                  </Space>
+                </Tooltip>
+              }
+            >
+              <Input
+                prefix={<GlobalOutlined />}
+                placeholder="Service endpoint URL"
+                onChange={() => setFormChanged(true)}
+                variant="borderless"
+                style={{ backgroundColor: "#fafafa" }}
+              />
+            </Form.Item>
+
+            <Form.Item
               name="externalId"
               label={
                 <Tooltip title="External identifier for integration with other systems">
@@ -400,6 +456,32 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
                 style={{ backgroundColor: "#fafafa" }}
               />
             </Form.Item>
+            <Divider />
+            <Popover
+              content={`You can share this link with a friend for them to redeem the disk. You do not need to click "Add Disk"`}
+            >
+              <p style={{ color: "rgba(0, 0, 0, 0.4)" }}>
+                Optional: Instead of adding this disk to your organization, you
+                can gift it to a friend with a magic link to redeem.
+              </p>
+              <Input
+                value={giftLink}
+                readOnly
+                suffix={
+                  <CopyOutlined
+                    onClick={() => {
+                      navigator.clipboard.writeText(giftLink);
+                      message.success("Copied to clipboard");
+                    }}
+                  />
+                }
+                prefix={
+                  <Button size="small" type="dashed" onClick={generateGiftLink}>
+                    Generate Gift Link
+                  </Button>
+                }
+              />
+            </Popover>
           </div>
         </details>
       </Form>

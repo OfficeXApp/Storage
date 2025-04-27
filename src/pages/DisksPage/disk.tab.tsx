@@ -116,6 +116,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
         "auth_json",
         "external_id",
         "external_payload",
+        "endpoint",
       ];
 
       // Only check the fields we care about
@@ -261,6 +262,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
     private_note: disk.private_note || "",
     external_id: disk.external_id || "",
     external_payload: disk.external_payload || "",
+    endpoint: disk.endpoint || "",
   };
 
   const renderCodeSnippets = () => {
@@ -464,6 +466,15 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                         />
                       </Form.Item>
                     )}
+
+                    <Form.Item name="endpoint" label="Endpoint URL">
+                      <Input
+                        prefix={<GlobalOutlined />}
+                        placeholder="URL for disk billing and info"
+                        variant="borderless"
+                        style={{ backgroundColor: "#fafafa" }}
+                      />
+                    </Form.Item>
 
                     <Form.Item name="external_id" label="External ID">
                       <Input
@@ -738,6 +749,13 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                                 {disk.private_note}
                               </Card>
                             </div>
+                          )}
+
+                        {disk.endpoint &&
+                          renderReadOnlyField(
+                            "Endpoint",
+                            disk.endpoint,
+                            <GlobalOutlined />
                           )}
 
                         <div style={{ marginTop: "16px" }}>

@@ -90,6 +90,8 @@ import { generateListDirectoryKey } from "./redux-offline/directory/directory.ac
 import SearchResultsPage from "./pages/SearchResults";
 import WelcomePage from "./components/WelcomePage";
 import GiftCardOnboarding from "./pages/GiftCardOnboarding";
+import AutoLoginPage from "./pages/AutoLoginPage";
+import RedeemDiskGiftCard from "./pages/DisksPage/disk.redeem";
 
 const { Sider, Content } = Layout;
 
@@ -553,6 +555,13 @@ const RouterUI = () => {
                 path="/gift-card-onboarding"
                 element={<GiftCardOnboarding />}
               />
+              <Route
+                path="/org/:orgcode/redeem/disk-giftcard"
+                element={<RedeemDiskGiftCard />}
+              />
+
+              <Route path="/auto-login" element={<AutoLoginPage />} />
+
               <Route
                 path="/buy"
                 element={

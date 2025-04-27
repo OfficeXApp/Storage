@@ -1039,6 +1039,13 @@ const OrganizationSwitcher = () => {
               <Tooltip title="Gift Cards let you connect to the world computer $ICP">
                 <QuestionCircleOutlined />
               </Tooltip>
+              <a
+                href="https://nowpayments.io/payment/?iid=6381454708"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Buy Now
+              </a>
             </Space>
           }
           style={{ marginTop: "-16px" }}

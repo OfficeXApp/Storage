@@ -75,6 +75,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
   );
 
+  console.log(`--- file`, file);
+
   const objectStoreNameRef = useRef<string>("files");
 
   const getFileType = ():
@@ -354,7 +356,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       if (!file || !fileType) return;
 
       // Check if file is fully uploaded
-      if (file.upload_status !== "COMPLETED") {
+      if (file.upload_status !== "COMPLETED" && currentOrg?.endpoint) {
         setIsLoading(false);
         return;
       }
@@ -706,7 +708,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           </div>
         </div>
       </div>
-      {file.upload_status !== "COMPLETED" && (
+      {currentOrg?.endpoint && file.upload_status !== "COMPLETED" && (
         <Alert
           type="warning"
           message="File Uploading"
@@ -715,7 +717,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         />
       )}
 
-      {file.upload_status === "COMPLETED" &&
+      {currentOrg?.endpoint &&
+        file.upload_status === "COMPLETED" &&
         !isFileSizeValidForPreview(file) && (
           <Alert
             type="info"
@@ -734,82 +737,84 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           />
         )}
 
-      {file.upload_status === "COMPLETED" &&
-        isFileSizeValidForPreview(file) && (
-          <div style={{ display: "flex" }}>
-            {fileType === "image" && fileUrl && (
-              <img
-                src={fileUrl}
-                alt={file.name}
-                style={{
-                  width: "100%",
-                  maxWidth: "800px",
-                  maxHeight: "calc(80vh)",
-                  objectFit: "contain",
-                }}
+      {!currentOrg?.endpoint ||
+      (currentOrg?.endpoint &&
+        file.upload_status === "COMPLETED" &&
+        isFileSizeValidForPreview(file)) ? (
+        <div style={{ display: "flex" }}>
+          {fileType === "image" && fileUrl && (
+            <img
+              src={fileUrl}
+              alt={file.name}
+              style={{
+                width: "100%",
+                maxWidth: "800px",
+                maxHeight: "calc(80vh)",
+                objectFit: "contain",
+              }}
+            />
+          )}
+          {fileType === "video" && fileUrl && (
+            // <video
+            //   src={fileUrl}
+            //   controls
+            //   style={{
+            //     width: "100%",
+            //     maxWidth: "800px",
+            //     maxHeight: "calc(80vh)",
+            //   }}
+            // >
+            //   Your browser does not support the video tag.
+            // </video>
+            <VideoPlayer url={fileUrl} />
+          )}
+          {fileType === "audio" && fileUrl && (
+            <audio
+              src={fileUrl}
+              controls
+              style={{ width: "100%", marginTop: "20px" }}
+            >
+              Your browser does not support the audio tag.
+            </audio>
+          )}
+          {fileType === "spreadsheet" && fileUrl && (
+            <SheetJSPreview file={file} showButtons={true} />
+          )}
+          {fileType === "pdf" && fileUrl && (
+            <iframe
+              src={fileUrl}
+              title={file.name}
+              style={{
+                width: "100%",
+                height: "calc(80vh)",
+                border: "none",
+              }}
+            />
+          )}
+          {fileType === "other" && fileUrl && (
+            <div
+              style={{
+                width: "100%",
+                justifyContent: "center",
+                marginTop: "32px",
+              }}
+            >
+              <Result
+                icon={<FileExcelOutlined />}
+                title="Preview Unavailable"
+                extra={
+                  <Button
+                    type="primary"
+                    onClick={() => window.open(fileUrl, "_blank")}
+                  >
+                    Download
+                  </Button>
+                }
               />
-            )}
-            {fileType === "video" && fileUrl && (
-              // <video
-              //   src={fileUrl}
-              //   controls
-              //   style={{
-              //     width: "100%",
-              //     maxWidth: "800px",
-              //     maxHeight: "calc(80vh)",
-              //   }}
-              // >
-              //   Your browser does not support the video tag.
-              // </video>
-              <VideoPlayer url={fileUrl} />
-            )}
-            {fileType === "audio" && fileUrl && (
-              <audio
-                src={fileUrl}
-                controls
-                style={{ width: "100%", marginTop: "20px" }}
-              >
-                Your browser does not support the audio tag.
-              </audio>
-            )}
-            {fileType === "spreadsheet" && fileUrl && (
-              <SheetJSPreview file={file} showButtons={true} />
-            )}
-            {fileType === "pdf" && fileUrl && (
-              <iframe
-                src={fileUrl}
-                title={file.name}
-                style={{
-                  width: "100%",
-                  height: "calc(80vh)",
-                  border: "none",
-                }}
-              />
-            )}
-            {fileType === "other" && fileUrl && (
-              <div
-                style={{
-                  width: "100%",
-                  justifyContent: "center",
-                  marginTop: "32px",
-                }}
-              >
-                <Result
-                  icon={<FileExcelOutlined />}
-                  title="Preview Unavailable"
-                  extra={
-                    <Button
-                      type="primary"
-                      onClick={() => window.open(fileUrl, "_blank")}
-                    >
-                      Download
-                    </Button>
-                  }
-                />
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
+      ) : null}
       <DirectorySharingDrawer
         open={isShareDrawerOpen}
         onClose={() => setIsShareDrawerOpen(false)}

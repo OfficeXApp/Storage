@@ -252,7 +252,7 @@ export const initDexieDb = async (
         // Create the default Browser Cache disk
         const browserCacheDisk: DiskFEO = {
           id: defaultBrowserCacheDiskID,
-          name: "Browser Cache",
+          name: "Offline Browser Cache",
           public_note:
             "Local browser cache for offline access. Files get deleted if you clear browser history for this site.",
           disk_type: DiskTypeEnum.BrowserCache,
@@ -356,7 +356,7 @@ export const initDexieDb = async (
           breadcrumbs: [
             {
               resource_id: defaultBrowserCacheRootFolderID,
-              resource_name: "Browser Cache",
+              resource_name: "Offline Browser Cache",
               visibility_preview: [
                 BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
               ],
@@ -399,7 +399,7 @@ export const initDexieDb = async (
           breadcrumbs: [
             {
               resource_id: defaultBrowserCacheRootFolderID,
-              resource_name: "Browser Cache",
+              resource_name: "Offline Browser Cache",
               visibility_preview: [
                 BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
               ],

@@ -393,7 +393,15 @@ const ConnectICPButton = () => {
                 value={giftCardValue}
                 onChange={(e) => setGiftCardValue(e.target.value)}
                 placeholder="Gift Card ID"
-                prefix={<LinkOutlined />}
+                suffix={
+                  <a
+                    href="https://nowpayments.io/payment/?iid=6381454708"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Buy Now
+                  </a>
+                }
                 style={{ marginBottom: "4px" }}
               />
               {errors.giftCard && (

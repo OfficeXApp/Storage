@@ -107,7 +107,7 @@ const RedeemDiskGiftCard = () => {
         public_note: redeemData.public_note || "",
         private_note: `Redeemed from gift card, claimed by ${currentProfile.userID}`,
         auth_json: redeemData.auth_json || "",
-        endpoint: redeemData.endpoint || "",
+        endpoint: redeemData.endpoint || undefined,
       };
 
       // Get auth token

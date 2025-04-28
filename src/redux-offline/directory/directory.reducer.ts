@@ -527,6 +527,7 @@ export const directoryReducer = (
 
     // ------------------------------ CREATE FILE --------------------------------- //
     case CREATE_FILE: {
+      console.log(`CREATE_FILE reducer`, action);
       const optimisticFile = action.optimistic;
       return {
         ...state,

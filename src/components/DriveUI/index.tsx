@@ -811,73 +811,88 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         width: "60%",
         render: (text: string, record: DriveItemRow) => {
           return (
-            <div
-              onClick={() => {
-                if (record.isDisabled) {
-                  return;
-                } else {
-                  if (isTrashBin) {
-                    message.error(
-                      "You cannot access files in the Trash. Restore it first."
-                    );
-                  } else {
-                    handleFileFolderClick(record);
-                    setSearchString("");
-                  }
-                }
-              }}
-              style={{
-                cursor: record.isDisabled ? "not-allowed" : "pointer",
-                width: "100%",
-                color: record.isDisabled ? "gray" : "black",
-                padding: "8px 0",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
+            <Popover
+              content={
+                record.thumbnail ? (
+                  <img
+                    src={record.thumbnail}
+                    alt={record.title}
+                    style={{
+                      width: screenType.isMobile ? "70vw" : "50vw",
+                      height: "auto",
+                    }}
+                  />
+                ) : null
+              }
             >
-              {renamingItems[record.id] ? (
-                <Input
-                  value={renamingItems[record.id]}
-                  onChange={(e) =>
-                    handleRenameChange(record.id, e.target.value)
+              <div
+                onClick={() => {
+                  if (record.isDisabled) {
+                    return;
+                  } else {
+                    if (isTrashBin) {
+                      message.error(
+                        "You cannot access files in the Trash. Restore it first."
+                      );
+                    } else {
+                      handleFileFolderClick(record);
+                      setSearchString("");
+                    }
                   }
-                  onPressEnter={() => handleRenameSubmit(record)}
-                  onBlur={() => handleRenameChange(record.id, "")}
-                  onClick={(e) => e.stopPropagation()}
-                  prefix={
-                    (record as any).isRecentShortcut ? (
+                }}
+                style={{
+                  cursor: record.isDisabled ? "not-allowed" : "pointer",
+                  width: "100%",
+                  color: record.isDisabled ? "gray" : "black",
+                  padding: "8px 0",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {renamingItems[record.id] ? (
+                  <Input
+                    value={renamingItems[record.id]}
+                    onChange={(e) =>
+                      handleRenameChange(record.id, e.target.value)
+                    }
+                    onPressEnter={() => handleRenameSubmit(record)}
+                    onBlur={() => handleRenameChange(record.id, "")}
+                    onClick={(e) => e.stopPropagation()}
+                    prefix={
+                      (record as any).isRecentShortcut ? (
+                        <ClockCircleOutlined />
+                      ) : record.isFolder ? (
+                        <FolderOpenOutlined />
+                      ) : (
+                        renderIconForFile(record.title)
+                      )
+                    }
+                    suffix={
+                      <CheckOutlined
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRenameSubmit(record);
+                        }}
+                      />
+                    }
+                  />
+                ) : (
+                  <>
+                    {(record as any).isRecentShortcut ? (
                       <ClockCircleOutlined />
+                    ) : (record as any).hasDiskTrash ? (
+                      <CloudOutlined />
                     ) : record.isFolder ? (
-                      <FolderOpenOutlined />
-                    ) : (
+                      <FolderOpenFilled />
+                    ) : record ? (
                       renderIconForFile(record.title)
-                    )
-                  }
-                  suffix={
-                    <CheckOutlined
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRenameSubmit(record);
-                      }}
-                    />
-                  }
-                />
-              ) : (
-                <>
-                  {(record as any).isRecentShortcut ? (
-                    <ClockCircleOutlined />
-                  ) : (record as any).hasDiskTrash ? (
-                    <CloudOutlined />
-                  ) : record.isFolder ? (
-                    <FolderOpenFilled />
-                  ) : record ? (
-                    renderIconForFile(record.title)
-                  ) : null}
-                  <span style={{ marginLeft: 8 }}>{text}</span>
-                </>
-              )}
-            </div>
+                    ) : null}
+                    <span style={{ marginLeft: 8 }}>{text}</span>
+                  </>
+                )}
+              </div>
+            </Popover>
           );
         },
       },

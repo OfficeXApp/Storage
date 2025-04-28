@@ -230,12 +230,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       }
 
       // Set timeout for network operations
-      player.setTimeout(() => {
-        if (isLoading) {
-          setIsLoading(false);
-          setError("Timeout loading video. Please try again.");
-        }
-      }, 30000);
+      //   player.setTimeout(() => {
+      //     if (isLoading) {
+      //       setIsLoading(false);
+      //       setError("Timeout loading video. Please try again.");
+      //     }
+      //   }, 30000);
 
       // Save player reference
       playerRef.current = player;

@@ -344,6 +344,7 @@ export class LocalS3Adapter implements IUploadAdapter {
     let uploadedBytes = 0;
 
     try {
+      const fileID = await this.createFileRecord(file, config, uploadId);
       // Create multipart upload
       const createResponse = await this.s3Client.send(
         new CreateMultipartUploadCommand({
@@ -521,6 +522,21 @@ export class LocalS3Adapter implements IUploadAdapter {
       });
 
       progressSubject.complete();
+
+      const raw_url = await this.getSignedUrl(key, file.name);
+
+      const updateAction = {
+        action: UPDATE_FILE as "UPDATE_FILE",
+        payload: {
+          id: fileID || config.fileID,
+          raw_url,
+        },
+      };
+
+      // Dispatch action to update file record with URL
+      config.metadata?.dispatch(
+        updateFileAction(updateAction, config.listDirectoryKey, true)
+      );
     } catch (error) {
       console.error("Error in multipart upload:", error);
       progressSubject.error(error);

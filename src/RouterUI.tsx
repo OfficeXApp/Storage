@@ -73,6 +73,7 @@ import PermissionPage from "./pages/PermissionsPage/permission.page";
 import RedeemDirectoryPermitPage from "./components/DirectorySharingDrawer/directory-permission.redeem";
 import RedeemGroupInvite from "./pages/GroupsPage/invite.redeem";
 import {
+  defaultTempCloudSharingDefaultUploadFolderID,
   defaultTempCloudSharingDiskID,
   defaultTempCloudSharingRootFolderID,
 } from "./api/dexie-database";
@@ -530,7 +531,7 @@ const RouterUI = () => {
                     to={
                       currentOrg && currentOrg.endpoint
                         ? `/org/current/drive/`
-                        : `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingRootFolderID}/`
+                        : `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/`
                     }
                   />
                 }

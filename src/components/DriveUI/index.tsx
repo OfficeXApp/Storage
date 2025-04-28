@@ -128,6 +128,8 @@ import {
 import dayjs from "dayjs";
 import {
   defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDefaultUploadFolderID,
+  defaultTempCloudSharingDemoGalleryFolderID,
   defaultTempCloudSharingDiskID,
   defaultTempCloudSharingRootFolderID,
 } from "../../api/dexie-database";
@@ -211,6 +213,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentDiskId, setCurrentDiskId] = useState<DiskID | null>(null);
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
+
+  console.log(`<<<<< currentFolderId`, currentFolderId);
 
   const { uploadTargetDiskID } = useMultiUploader();
 
@@ -421,7 +425,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
     if (pathParts[2] === "recent") {
       fetchRecentsGlobal();
-    } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
+    } else if (
+      folderFileID === defaultTempCloudSharingRootFolderID ||
+      folderFileID === defaultTempCloudSharingDefaultUploadFolderID
+    ) {
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
         freeTrialStorjCreds.access_key;
@@ -1779,7 +1786,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                         upload.
                       </span>
                     }
-                    extra={
+                    extra={[
                       <ActionMenuButton
                         isBigButton={false}
                         toggleUploadPanel={toggleUploadPanel}
@@ -1792,8 +1799,22 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               )
                             : false
                         }
-                      />
-                    }
+                      />,
+                      <Link
+                        to={wrapOrgCode(
+                          `/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDemoGalleryFolderID}/`
+                        )}
+                      >
+                        <Button
+                          type="primary"
+                          style={{
+                            marginTop: screenType.isMobile ? "8px" : "0px",
+                          }}
+                        >
+                          View Demo Folder
+                        </Button>
+                      </Link>,
+                    ]}
                     style={{
                       padding: "48px",
                       borderRadius: "12px",

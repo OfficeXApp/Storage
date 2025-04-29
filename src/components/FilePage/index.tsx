@@ -39,7 +39,11 @@ import {
 import { DirectoryResourceID, DiskTypeEnum, FileID } from "@officexapp/types";
 import SheetJSPreview from "../SheetJSPreview";
 import DirectorySharingDrawer from "../DirectorySharingDrawer";
-import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
+import {
+  extractDiskInfo,
+  sleep,
+  wrapAuthStringOrHeader,
+} from "../../api/helpers";
 import {
   UPDATE_FILE,
   updateFileAction,
@@ -356,7 +360,11 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       if (!file || !fileType) return;
 
       // Check if file is fully uploaded
-      if (file.upload_status !== "COMPLETED" && currentOrg?.endpoint) {
+      if (
+        file.upload_status !== "COMPLETED" &&
+        currentOrg?.endpoint &&
+        !offlineDisk
+      ) {
         setIsLoading(false);
         return;
       }
@@ -396,7 +404,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         lastLoadedFileRef.current = file.id;
       } catch (error) {
         console.error("Error loading file content", error);
-        message.error("Failed to load file content");
+        // message.info("Failed to load file content");
       } finally {
         setIsLoading(false);
         currentLoadingFileRef.current = null;
@@ -594,6 +602,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     }
   };
 
+  const { diskTypeEnum, diskID } = extractDiskInfo();
+  const offlineDisk = shouldBehaveOfflineDiskUIIntent(diskID);
+
   if (!currentOrg && !currentProfile) {
     return null;
   }
@@ -708,16 +719,19 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           </div>
         </div>
       </div>
-      {currentOrg?.endpoint && file.upload_status !== "COMPLETED" && (
-        <Alert
-          type="warning"
-          message="File Uploading"
-          description="File is still uploading and cannot be previewed yet. Please wait for the upload to complete or try uploading again."
-          style={{ marginBottom: "16px" }}
-        />
-      )}
+      {currentOrg?.endpoint &&
+        !offlineDisk &&
+        file.upload_status !== "COMPLETED" && (
+          <Alert
+            type="warning"
+            message="File Uploading"
+            description="File is still uploading and cannot be previewed yet. Please wait for the upload to complete or try uploading again."
+            style={{ marginBottom: "16px" }}
+          />
+        )}
 
       {currentOrg?.endpoint &&
+        !offlineDisk &&
         file.upload_status === "COMPLETED" &&
         !isFileSizeValidForPreview(file) && (
           <Alert
@@ -738,6 +752,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         )}
 
       {!currentOrg?.endpoint ||
+      (offlineDisk && fileUrl) ||
       (currentOrg?.endpoint &&
         file.upload_status === "COMPLETED" &&
         isFileSizeValidForPreview(file)) ? (

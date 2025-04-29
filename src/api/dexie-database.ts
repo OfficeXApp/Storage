@@ -30,6 +30,7 @@ import {
   RECENTS_DEXIE_TABLE,
   RecentFEO,
 } from "../redux-offline/directory/directory.reducer";
+import { fetchDemoGalleryFiles, fetchDemoTutorialFiles } from "./demo-gallery";
 
 /**
  * Singleton class to manage Dexie database connections
@@ -302,6 +303,7 @@ export const initDexieDb = async (
         };
 
         await db.table(DISKS_DEXIE_TABLE).add(cloudSharingDisk);
+
         // console.log(
         //   `Initialized default Free Cloud Sharing disk for ${userID}@${orgID}`
         // );
@@ -434,7 +436,10 @@ export const initDexieDb = async (
         const cloudSharingRootFolder: FolderFEO = {
           id: defaultTempCloudSharingRootFolderID,
           name: "Root",
-          subfolder_uuids: [],
+          subfolder_uuids: [
+            defaultTempCloudSharingDefaultUploadFolderID,
+            defaultTempCloudSharingDemoGalleryFolderID,
+          ],
           file_uuids: [],
           full_directory_path: `${defaultTempCloudSharingDiskID}::/`,
           labels: [],
@@ -523,6 +528,163 @@ export const initDexieDb = async (
         };
 
         await db.table(FOLDERS_DEXIE_TABLE).add(cloudSharingTrashFolder);
+
+        const cloudSharingDefaultUploadFolder: FolderFEO = {
+          id: defaultTempCloudSharingDefaultUploadFolderID,
+          name: "Throwaway",
+          subfolder_uuids: [],
+          file_uuids: [],
+          parent_folder_uuid: defaultTempCloudSharingRootFolderID,
+          full_directory_path: `${defaultTempCloudSharingDiskID}::/Throwaway/`,
+          labels: [],
+          created_by: userID,
+          created_at: Date.now(),
+          last_updated_date_ms: Date.now(),
+          last_updated_by: userID,
+          disk_id: defaultTempCloudSharingDiskID,
+          disk_type: DiskTypeEnum.StorjWeb3,
+          deleted: false,
+          expires_at: -1,
+          drive_id: orgID,
+          has_sovereign_permissions: true,
+          clipped_directory_path: `${defaultTempCloudSharingDiskID}::/Throwaway/`,
+          permission_previews: [
+            DirectoryPermissionType.UPLOAD,
+            DirectoryPermissionType.DELETE,
+            DirectoryPermissionType.EDIT,
+            DirectoryPermissionType.INVITE,
+            DirectoryPermissionType.MANAGE,
+            DirectoryPermissionType.VIEW,
+          ],
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+          breadcrumbs: [
+            {
+              resource_id: defaultTempCloudSharingRootFolderID,
+              resource_name: "Free Cloud Sharing",
+              visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
+            },
+            {
+              resource_id: defaultTempCloudSharingDefaultUploadFolderID,
+              resource_name: "Throwaway",
+              visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
+            },
+          ],
+        };
+        await db
+          .table(FOLDERS_DEXIE_TABLE)
+          .add(cloudSharingDefaultUploadFolder);
+
+        // New Demo Gallery folder (child of Cloud Sharing Root)
+
+        // Load Demo Gallery Files
+        const demoGalleryFiles = fetchDemoGalleryFiles(userID, orgID);
+        const filesTable = db.table("files");
+        await filesTable.bulkAdd(demoGalleryFiles);
+
+        const cloudSharingDemoGalleryFolder: FolderFEO = {
+          id: defaultTempCloudSharingDemoGalleryFolderID,
+          name: "Demo Gallery",
+          subfolder_uuids: [defaultTempCloudSharingTutorialVideosFolderID],
+          file_uuids: demoGalleryFiles.map((f) => f.id),
+          parent_folder_uuid: defaultTempCloudSharingRootFolderID,
+          full_directory_path: `${defaultTempCloudSharingDiskID}::/Demo Gallery/`,
+          labels: [],
+          created_by: userID,
+          created_at: Date.now(),
+          last_updated_date_ms: Date.now(),
+          last_updated_by: userID,
+          disk_id: defaultTempCloudSharingDiskID,
+          disk_type: DiskTypeEnum.StorjWeb3,
+          deleted: false,
+          expires_at: -1,
+          drive_id: orgID,
+          has_sovereign_permissions: true,
+          clipped_directory_path: `${defaultTempCloudSharingDiskID}::/Demo Gallery/`,
+          permission_previews: [
+            DirectoryPermissionType.UPLOAD,
+            DirectoryPermissionType.DELETE,
+            DirectoryPermissionType.EDIT,
+            DirectoryPermissionType.INVITE,
+            DirectoryPermissionType.MANAGE,
+            DirectoryPermissionType.VIEW,
+          ],
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+          breadcrumbs: [
+            {
+              resource_id: defaultTempCloudSharingRootFolderID,
+              resource_name: "Free Cloud Sharing",
+              visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
+            },
+            {
+              resource_id: defaultTempCloudSharingDemoGalleryFolderID,
+              resource_name: "Demo Gallery",
+              visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
+            },
+          ],
+        };
+        await db.table(FOLDERS_DEXIE_TABLE).add(cloudSharingDemoGalleryFolder);
+
+        const demoTutorialFiles = fetchDemoTutorialFiles(userID, orgID);
+        await filesTable.bulkAdd(demoTutorialFiles);
+
+        const cloudSharingTutorialVideosFolder: FolderFEO = {
+          id: defaultTempCloudSharingTutorialVideosFolderID,
+          name: "Tutorial Videos",
+          subfolder_uuids: [],
+          file_uuids: demoTutorialFiles.map((f) => f.id),
+          parent_folder_uuid: defaultTempCloudSharingDemoGalleryFolderID,
+          full_directory_path: `${defaultTempCloudSharingDiskID}::/Demo Gallery/Tutorial Videos/`,
+          labels: [],
+          created_by: userID,
+          created_at: Date.now(),
+          last_updated_date_ms: Date.now(),
+          last_updated_by: userID,
+          disk_id: defaultTempCloudSharingDiskID,
+          disk_type: DiskTypeEnum.StorjWeb3,
+          deleted: false,
+          expires_at: -1,
+          drive_id: orgID,
+          has_sovereign_permissions: true,
+          clipped_directory_path: `${defaultTempCloudSharingDiskID}::/Demo Gallery/Tutorial Videos/`,
+          permission_previews: [
+            DirectoryPermissionType.UPLOAD,
+            DirectoryPermissionType.DELETE,
+            DirectoryPermissionType.EDIT,
+            DirectoryPermissionType.INVITE,
+            DirectoryPermissionType.MANAGE,
+            DirectoryPermissionType.VIEW,
+          ],
+          _isOptimistic: false,
+          _syncConflict: false,
+          _syncWarning: "",
+          _syncSuccess: true,
+          breadcrumbs: [
+            {
+              resource_id: defaultTempCloudSharingRootFolderID,
+              resource_name: "Free Cloud Sharing",
+              visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
+            },
+            {
+              resource_id: defaultTempCloudSharingDemoGalleryFolderID,
+              resource_name: "Demo Gallery",
+              visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
+            },
+            {
+              resource_id: defaultTempCloudSharingTutorialVideosFolderID,
+              resource_name: "Tutorial Videos",
+              visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
+            },
+          ],
+        };
+        await db
+          .table(FOLDERS_DEXIE_TABLE)
+          .add(cloudSharingTutorialVideosFolder);
         // console.log(
         //   `Initialized root folder for Free Cloud Sharing disk for ${userID}@${orgID}`
         // );
@@ -549,6 +711,10 @@ export const defaultTempCloudSharingDiskID = `DiskID_${disk_free_cloud_slug}`;
 // Default root folder IDs
 export const defaultBrowserCacheRootFolderID = `FolderID_root-folder-${disk_browser_slug}`;
 export const defaultTempCloudSharingRootFolderID = `FolderID_root-folder-${disk_free_cloud_slug}`;
+
+export const defaultTempCloudSharingDefaultUploadFolderID = `FolderID_default-upload-${disk_free_cloud_slug}`;
+export const defaultTempCloudSharingDemoGalleryFolderID = `FolderID_demo-gallery-${disk_free_cloud_slug}`;
+export const defaultTempCloudSharingTutorialVideosFolderID = `FolderID_tutorial-videos-${disk_free_cloud_slug}`;
 
 export const defaultBrowserCacheTrashFolderID = `FolderID_trash-folder-${disk_browser_slug}`;
 export const defaultTempCloudSharingTrashFolderID = `FolderID_trash-folder-${disk_free_cloud_slug}`;

@@ -649,6 +649,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ CREATE FILE --------------------------------- //
           case CREATE_FILE: {
+            console.log(`CREATE_FILE optimistic`, action);
             const listDirectoryKey = action.meta?.listDirectoryKey;
             // Only handle actions with file data
             if (action.meta?.offline?.effect?.data) {

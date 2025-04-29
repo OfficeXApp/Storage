@@ -128,6 +128,8 @@ import {
 import dayjs from "dayjs";
 import {
   defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDefaultUploadFolderID,
+  defaultTempCloudSharingDemoGalleryFolderID,
   defaultTempCloudSharingDiskID,
   defaultTempCloudSharingRootFolderID,
 } from "../../api/dexie-database";
@@ -211,6 +213,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentDiskId, setCurrentDiskId] = useState<DiskID | null>(null);
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
+
+  console.log(`<<<<< currentFolderId`, currentFolderId);
 
   const { uploadTargetDiskID } = useMultiUploader();
 
@@ -421,7 +425,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
     if (pathParts[2] === "recent") {
       fetchRecentsGlobal();
-    } else if (folderFileID === defaultTempCloudSharingRootFolderID) {
+    } else if (
+      folderFileID === defaultTempCloudSharingRootFolderID ||
+      folderFileID === defaultTempCloudSharingDefaultUploadFolderID
+    ) {
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
         freeTrialStorjCreds.access_key;
@@ -811,73 +818,88 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         width: "60%",
         render: (text: string, record: DriveItemRow) => {
           return (
-            <div
-              onClick={() => {
-                if (record.isDisabled) {
-                  return;
-                } else {
-                  if (isTrashBin) {
-                    message.error(
-                      "You cannot access files in the Trash. Restore it first."
-                    );
-                  } else {
-                    handleFileFolderClick(record);
-                    setSearchString("");
-                  }
-                }
-              }}
-              style={{
-                cursor: record.isDisabled ? "not-allowed" : "pointer",
-                width: "100%",
-                color: record.isDisabled ? "gray" : "black",
-                padding: "8px 0",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
+            <Popover
+              content={
+                record.thumbnail ? (
+                  <img
+                    src={record.thumbnail}
+                    alt={record.title}
+                    style={{
+                      width: screenType.isMobile ? "70vw" : "50vw",
+                      height: "auto",
+                    }}
+                  />
+                ) : null
+              }
             >
-              {renamingItems[record.id] ? (
-                <Input
-                  value={renamingItems[record.id]}
-                  onChange={(e) =>
-                    handleRenameChange(record.id, e.target.value)
+              <div
+                onClick={() => {
+                  if (record.isDisabled) {
+                    return;
+                  } else {
+                    if (isTrashBin) {
+                      message.error(
+                        "You cannot access files in the Trash. Restore it first."
+                      );
+                    } else {
+                      handleFileFolderClick(record);
+                      setSearchString("");
+                    }
                   }
-                  onPressEnter={() => handleRenameSubmit(record)}
-                  onBlur={() => handleRenameChange(record.id, "")}
-                  onClick={(e) => e.stopPropagation()}
-                  prefix={
-                    (record as any).isRecentShortcut ? (
+                }}
+                style={{
+                  cursor: record.isDisabled ? "not-allowed" : "pointer",
+                  width: "100%",
+                  color: record.isDisabled ? "gray" : "black",
+                  padding: "8px 0",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {renamingItems[record.id] ? (
+                  <Input
+                    value={renamingItems[record.id]}
+                    onChange={(e) =>
+                      handleRenameChange(record.id, e.target.value)
+                    }
+                    onPressEnter={() => handleRenameSubmit(record)}
+                    onBlur={() => handleRenameChange(record.id, "")}
+                    onClick={(e) => e.stopPropagation()}
+                    prefix={
+                      (record as any).isRecentShortcut ? (
+                        <ClockCircleOutlined />
+                      ) : record.isFolder ? (
+                        <FolderOpenOutlined />
+                      ) : (
+                        renderIconForFile(record.title)
+                      )
+                    }
+                    suffix={
+                      <CheckOutlined
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRenameSubmit(record);
+                        }}
+                      />
+                    }
+                  />
+                ) : (
+                  <>
+                    {(record as any).isRecentShortcut ? (
                       <ClockCircleOutlined />
+                    ) : (record as any).hasDiskTrash ? (
+                      <CloudOutlined />
                     ) : record.isFolder ? (
-                      <FolderOpenOutlined />
-                    ) : (
+                      <FolderOpenFilled />
+                    ) : record ? (
                       renderIconForFile(record.title)
-                    )
-                  }
-                  suffix={
-                    <CheckOutlined
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRenameSubmit(record);
-                      }}
-                    />
-                  }
-                />
-              ) : (
-                <>
-                  {(record as any).isRecentShortcut ? (
-                    <ClockCircleOutlined />
-                  ) : (record as any).hasDiskTrash ? (
-                    <CloudOutlined />
-                  ) : record.isFolder ? (
-                    <FolderOpenFilled />
-                  ) : record ? (
-                    renderIconForFile(record.title)
-                  ) : null}
-                  <span style={{ marginLeft: 8 }}>{text}</span>
-                </>
-              )}
-            </div>
+                    ) : null}
+                    <span style={{ marginLeft: 8 }}>{text}</span>
+                  </>
+                )}
+              </div>
+            </Popover>
           );
         },
       },
@@ -1764,7 +1786,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                         upload.
                       </span>
                     }
-                    extra={
+                    extra={[
                       <ActionMenuButton
                         isBigButton={false}
                         toggleUploadPanel={toggleUploadPanel}
@@ -1777,8 +1799,22 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               )
                             : false
                         }
-                      />
-                    }
+                      />,
+                      <Link
+                        to={wrapOrgCode(
+                          `/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDemoGalleryFolderID}/`
+                        )}
+                      >
+                        <Button
+                          type="primary"
+                          style={{
+                            marginTop: screenType.isMobile ? "8px" : "0px",
+                          }}
+                        >
+                          View Demo Folder
+                        </Button>
+                      </Link>,
+                    ]}
                     style={{
                       padding: "48px",
                       borderRadius: "12px",

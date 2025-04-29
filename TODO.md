@@ -2,6 +2,7 @@
 
 ## Overview
 
+- [ ] Add Emphemeral disk "Help" for all orgs that uses S3Local adapter, show the OfficeX hype gallery
 - [ ] Add download app popup for mobile, and in settings page
 - [ ] Update file/folder record to include thumbnails preview gallery
 

@@ -84,7 +84,10 @@ const WelcomePage = () => {
             Anonymous OfficeX is where freedom works. Documents, Spreadsheets &
             Cloud Storage for the sovereign individual. Enterprise open source &
             decentralized.{" "}
-            <a href="https://youtube.com/@officexapp" target="_blank">
+            <a
+              href="https://www.youtube.com/watch?v=SYJ2SRJT_hM&list=PLMD7faUP80lfVgU2GnLXuZUJKHrR0hjiw"
+              target="_blank"
+            >
               Watch Tutorials
             </a>
           </Paragraph>

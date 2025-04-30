@@ -14,6 +14,9 @@ import {
   defaultTempCloudSharingTutorialVideosFolderID,
 } from "./dexie-database";
 
+export const LOCALSTORAGE_ALREADY_VIEWED_DEMO_GALLERY =
+  "LOCALSTORAGE_ALREADY_VIEWED_DEMO_GALLERY";
+
 export const fetchDemoGalleryFiles = (
   userID: UserID,
   orgID: DriveID

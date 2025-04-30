@@ -2,9 +2,10 @@
 
 ## Overview
 
-- [ ] Add Emphemeral disk "Help" for all orgs that uses S3Local adapter, show the OfficeX hype gallery
+- [ ] Move frontend to minimal initial REST calls paradigm to prevent accidental temporary canister DDoS
 - [ ] Add download app popup for mobile, and in settings page
 - [ ] Update file/folder record to include thumbnails preview gallery
+- [ ] Vertical images will cause page to go out of view without scroll
 
 ## UX Confusion Fixes
 
@@ -138,3 +139,4 @@
 - [x] Add disk.endpoint to frontend UI
 - [x] Add redeem disk gift card onboarding flow
 - [x] Cursor hover to preview image on DriveUI
+- [x] Add demo folder in free cloud filesharing disk, show the OfficeX hype gallery

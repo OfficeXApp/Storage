@@ -9,6 +9,7 @@ import {
 import { useIdentitySystem } from "../../framework/identity";
 import { Link } from "react-router-dom";
 import { extractDiskInfo } from "../../api/helpers";
+import { defaultTempCloudSharingDiskID } from "../../api/dexie-database";
 
 interface PermissionStatusMessageProps {
   resource_id: DirectoryResourceID;
@@ -198,6 +199,12 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
       // Only direct permissions
       message = `This ${resource} is ${directStatus} directly`;
     }
+  }
+
+  if (diskID === defaultTempCloudSharingDiskID) {
+    message = `This ${resource} is PUBLIC on internet via free public filesharing disk`;
+    messageColor = "red";
+    tooltipText = `This ${resource} is accessible to anyone on the internet because it is stored on a free public filesharing disk`;
   }
 
   return (

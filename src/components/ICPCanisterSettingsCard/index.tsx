@@ -56,6 +56,7 @@ const ICPCanisterSettingsCard = () => {
     owner: "",
     daily_idle_cycle_burn_rate: "1",
     controllers: [],
+    version: "",
   });
 
   useEffect(() => {
@@ -219,6 +220,9 @@ const ICPCanisterSettingsCard = () => {
           {currentOrg?.nickname}
         </Typography.Title>
         <TagCopy id={currentOrg?.driveID || ""} />
+        <i style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.2)" }}>
+          {driveAbout?.version}
+        </i>
       </Space>
       <br />
       <br />

@@ -50,15 +50,13 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
   return result;
 };
 
+const LOCAL_DEV_MODE = false;
+
 // LOCAL vs. PROD
-export const FACTORY_CANISTER_ENDPOINT =
-  "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io";
+export const FACTORY_CANISTER_ENDPOINT = LOCAL_DEV_MODE
+  ? "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000"
+  : "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io";
 
-export const DEFAULT_GIFTCARD_REFUEL_VENDOR =
-  "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io";
-
-// export const FACTORY_CANISTER_ENDPOINT =
-//   "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000";
-
-// export const DEFAULT_GIFTCARD_REFUEL_VENDOR =
-//   "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000";
+export const DEFAULT_GIFTCARD_REFUEL_VENDOR = LOCAL_DEV_MODE
+  ? "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000"
+  : "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io";

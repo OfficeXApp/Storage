@@ -63,7 +63,11 @@ import {
   FileFEO,
   FolderFEO,
 } from "../../redux-offline/directory/directory.reducer";
-import { getNextUtcMidnight, urlSafeBase64Encode } from "../../api/helpers";
+import {
+  extractDiskInfo,
+  getNextUtcMidnight,
+  urlSafeBase64Encode,
+} from "../../api/helpers";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
@@ -516,7 +520,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         open={isAdvancedOpen}
         onToggle={(e) => {
           setIsAdvancedOpen(e.currentTarget.open);
-
           localStorage.setItem(
             LOCAL_STORAGE_DIRECTORY_PERMISSIONS_ADVANCED_OPEN,
             e.currentTarget.open ? "1" : "0"

@@ -146,6 +146,7 @@ import DirectorySharingDrawer from "../DirectorySharingDrawer";
 import DirectoryGuard from "./DirectoryGuard";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import MoveDirectorySelector from "../MoveDirectorySelection";
+import { LOCALSTORAGE_ALREADY_VIEWED_DEMO_GALLERY } from "../../api/demo-gallery";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -173,6 +174,10 @@ enum DiskUIDefaultAction {
   trash = "trash",
   directory = "directory",
 }
+
+const _LOCALSTORAGE_ALREADY_VIEWED_DEMO_GALLERY = localStorage.getItem(
+  "LOCALSTORAGE_ALREADY_VIEWED_DEMO_GALLERY"
+);
 
 const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const { "*": encodedPath } = useParams<{ "*": string }>();
@@ -1503,42 +1508,56 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           window.location.pathname.includes("/recent") ? null : (
           <Breadcrumb items={breadcrumbItems} />
         )}
-        {selectedRowKeys.length > 0 ? (
-          <Dropdown
-            menu={{ items: manageMenuItems }}
-            disabled={selectedRowKeys.length === 0}
-          >
-            <Button>
-              Bulk Manage{" "}
-              {selectedRowKeys.length > 0 ? `(${selectedRowKeys.length})` : ""}
-              <DownOutlined />
-            </Button>
-          </Dropdown>
-        ) : currentFolderId && !currentFileId ? (
-          <div style={{ display: "flex", flexDirection: "row", gap: 8 }}>
-            <ActionMenuButton
-              isBigButton={false}
-              toggleUploadPanel={toggleUploadPanel}
-              optimisticListDirectoryKey={listDirectoryKey}
-              disabled={
-                currentOrg?.endpoint
-                  ? listDirectoryResults?.isFirstTime ||
-                    !listDirectoryResults?.permission_previews.includes(
-                      DirectoryPermissionType.UPLOAD
-                    )
-                  : false
-              }
-            />
-
-            <Button
-              onClick={() => setShareFolderDrawerVisible(true)}
-              type="primary"
-              disabled={isOfflineDisk || listDirectoryResults?.isFirstTime}
+        <div
+          style={{
+            marginTop: screenType.isMobile ? "8px" : "0px",
+          }}
+        >
+          {selectedRowKeys.length > 0 ? (
+            <Dropdown
+              menu={{ items: manageMenuItems }}
+              disabled={selectedRowKeys.length === 0}
             >
-              Share
-            </Button>
-          </div>
-        ) : null}
+              <Button>
+                Bulk Manage{" "}
+                {selectedRowKeys.length > 0
+                  ? `(${selectedRowKeys.length})`
+                  : ""}
+                <DownOutlined />
+              </Button>
+            </Dropdown>
+          ) : currentFolderId && !currentFileId ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: 8,
+              }}
+            >
+              <ActionMenuButton
+                isBigButton={false}
+                toggleUploadPanel={toggleUploadPanel}
+                optimisticListDirectoryKey={listDirectoryKey}
+                disabled={
+                  currentOrg?.endpoint
+                    ? listDirectoryResults?.isFirstTime ||
+                      !listDirectoryResults?.permission_previews.includes(
+                        DirectoryPermissionType.UPLOAD
+                      )
+                    : false
+                }
+              />
+
+              <Button
+                onClick={() => setShareFolderDrawerVisible(true)}
+                type="primary"
+                disabled={isOfflineDisk || listDirectoryResults?.isFirstTime}
+              >
+                Share
+              </Button>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div
@@ -1786,35 +1805,61 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                         upload.
                       </span>
                     }
-                    extra={[
-                      <ActionMenuButton
-                        isBigButton={false}
-                        toggleUploadPanel={toggleUploadPanel}
-                        optimisticListDirectoryKey={listDirectoryKey}
-                        disabled={
-                          currentOrg?.endpoint
-                            ? listDirectoryResults?.isFirstTime ||
-                              !listDirectoryResults?.permission_previews.includes(
-                                DirectoryPermissionType.UPLOAD
-                              )
-                            : false
-                        }
-                      />,
-                      <Link
-                        to={wrapOrgCode(
-                          `/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDemoGalleryFolderID}/`
-                        )}
-                      >
-                        <Button
-                          type="primary"
-                          style={{
-                            marginTop: screenType.isMobile ? "8px" : "0px",
-                          }}
-                        >
-                          View Demo Folder
-                        </Button>
-                      </Link>,
-                    ]}
+                    extra={
+                      _LOCALSTORAGE_ALREADY_VIEWED_DEMO_GALLERY
+                        ? [
+                            <ActionMenuButton
+                              isBigButton={false}
+                              toggleUploadPanel={toggleUploadPanel}
+                              optimisticListDirectoryKey={listDirectoryKey}
+                              disabled={
+                                currentOrg?.endpoint
+                                  ? listDirectoryResults?.isFirstTime ||
+                                    !listDirectoryResults?.permission_previews.includes(
+                                      DirectoryPermissionType.UPLOAD
+                                    )
+                                  : false
+                              }
+                            />,
+                          ]
+                        : [
+                            <ActionMenuButton
+                              isBigButton={false}
+                              toggleUploadPanel={toggleUploadPanel}
+                              optimisticListDirectoryKey={listDirectoryKey}
+                              disabled={
+                                currentOrg?.endpoint
+                                  ? listDirectoryResults?.isFirstTime ||
+                                    !listDirectoryResults?.permission_previews.includes(
+                                      DirectoryPermissionType.UPLOAD
+                                    )
+                                  : false
+                              }
+                            />,
+                            <Link
+                              to={wrapOrgCode(
+                                `/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDemoGalleryFolderID}/`
+                              )}
+                            >
+                              <Button
+                                type="primary"
+                                style={{
+                                  marginTop: screenType.isMobile
+                                    ? "8px"
+                                    : "0px",
+                                }}
+                                onClick={() => {
+                                  localStorage.setItem(
+                                    LOCALSTORAGE_ALREADY_VIEWED_DEMO_GALLERY,
+                                    "true"
+                                  );
+                                }}
+                              >
+                                View Demo Folder
+                              </Button>
+                            </Link>,
+                          ]
+                    }
                     style={{
                       padding: "48px",
                       borderRadius: "12px",

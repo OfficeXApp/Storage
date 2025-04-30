@@ -78,6 +78,7 @@ function App() {
             bufferTime = 2000;
           }
         }
+
         dispatch(listDisksAction({}));
         await sleep(bufferTime);
         dispatch(listContactsAction({}));
@@ -90,6 +91,7 @@ function App() {
         dispatch(checkDiskTablePermissionsAction(currentProfile.userID));
         await sleep(bufferTime);
         dispatch(checkGroupTablePermissionsAction(currentProfile.userID));
+
         // await sleep(bufferTime);
         // dispatch(listDrivesAction({}));
         // await sleep(bufferTime);

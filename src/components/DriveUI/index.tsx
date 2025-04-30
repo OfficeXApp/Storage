@@ -219,8 +219,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
 
-  console.log(`<<<<< currentFolderId`, currentFolderId);
-
   const { uploadTargetDiskID } = useMultiUploader();
 
   const isOfflineDisk =

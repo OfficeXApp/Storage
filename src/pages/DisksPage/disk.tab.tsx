@@ -200,6 +200,41 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
         copyToClipboard(value);
       }
     };
+    if (label === "Auth JSON") {
+      return (
+        <Input.Password
+          readOnly
+          onClick={handleClick}
+          value={value}
+          style={{
+            marginBottom: 8,
+            backgroundColor: "#fafafa",
+            cursor: "pointer",
+          }}
+          variant="borderless"
+          addonBefore={
+            <div
+              style={{
+                width: screenType.isMobile ? 120 : 90,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {icon}
+              <span style={{ marginLeft: 8 }}>{label}</span>
+            </div>
+          }
+          suffix={
+            <Tooltip title="Copy to clipboard">
+              <CopyOutlined
+                onClick={() => copyToClipboard(value)}
+                style={{ cursor: "pointer", color: "#1890ff" }}
+              />
+            </Tooltip>
+          }
+        />
+      );
+    }
     return (
       <Input
         readOnly
@@ -428,7 +463,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
                 <Form.Item name="public_note" label="Public Note">
                   <TextArea
-                    rows={2}
+                    rows={6}
                     placeholder="Public information about this disk"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
@@ -439,13 +474,21 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                   SystemPermissionType.EDIT
                 ) && (
                   <>
+                    <Form.Item name="endpoint" label="Endpoint URL">
+                      <Input
+                        prefix={<GlobalOutlined />}
+                        placeholder="URL for disk billing and info"
+                        variant="borderless"
+                        style={{ backgroundColor: "#fafafa" }}
+                      />
+                    </Form.Item>
                     <Form.Item
                       name="private_note"
                       label="Private Note"
                       extra="Only organization owners and editors can view this note"
                     >
                       <TextArea
-                        rows={3}
+                        rows={6}
                         placeholder="Private notes (only visible to owners and editors)"
                         variant="borderless"
                         style={{ backgroundColor: "#fafafa" }}
@@ -466,15 +509,6 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                         />
                       </Form.Item>
                     )}
-
-                    <Form.Item name="endpoint" label="Endpoint URL">
-                      <Input
-                        prefix={<GlobalOutlined />}
-                        placeholder="URL for disk billing and info"
-                        variant="borderless"
-                        style={{ backgroundColor: "#fafafa" }}
-                      />
-                    </Form.Item>
 
                     <Form.Item name="external_id" label="External ID">
                       <Input
@@ -722,6 +756,13 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                             <KeyOutlined />
                           )}
 
+                        {disk.endpoint &&
+                          renderReadOnlyField(
+                            "Billing",
+                            disk.endpoint,
+                            <GlobalOutlined />
+                          )}
+
                         {disk.private_note &&
                           disk.permission_previews.includes(
                             SystemPermissionType.EDIT
@@ -749,13 +790,6 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                                 {disk.private_note}
                               </Card>
                             </div>
-                          )}
-
-                        {disk.endpoint &&
-                          renderReadOnlyField(
-                            "Endpoint",
-                            disk.endpoint,
-                            <GlobalOutlined />
                           )}
 
                         <div style={{ marginTop: "16px" }}>

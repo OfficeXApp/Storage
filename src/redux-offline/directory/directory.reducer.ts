@@ -182,6 +182,20 @@ const updateOrAddFile = (
   }
 };
 
+const removeStalesIfApplicable = (
+  folders: FolderFEO[],
+  staleKey: FolderID,
+  shouldRemove: boolean
+) => {
+  if (shouldRemove) {
+    return folders.filter(
+      (folder) => folder.id !== staleKey && folder._optimisticID !== staleKey
+    );
+  } else {
+    return folders;
+  }
+};
+
 const updateOrAddFolder = (
   folders: FolderFEO[],
   newFolder: FolderFEO,
@@ -612,6 +626,7 @@ export const directoryReducer = (
 
     // ------------------------------ CREATE FOLDER --------------------------------- //
     case CREATE_FOLDER: {
+      console.log(`CREATE_FOLDER reducer`, action);
       const optimisticFolder = action.optimistic;
       const listDirectoryKey = action.meta?.listDirectoryKey;
 
@@ -652,6 +667,12 @@ export const directoryReducer = (
     }
 
     case CREATE_FOLDER_COMMIT: {
+      const attemptedID = action?.payload?.[0]?.request?.payload?.id;
+      const actualID = action?.payload?.[0]?.response?.result?.folder?.id;
+      console.log(
+        `CREATE_FOLDER_COMMIT reducer attemptedID=${attemptedID}, actualID=${actualID}`,
+        action
+      );
       const optimisticID = action.meta?.optimisticID;
       const listDirectoryKey = action.meta?.listDirectoryKey;
       let realFolder;
@@ -688,7 +709,11 @@ export const directoryReducer = (
 
       let updatedState = {
         ...state,
-        folders: updateOrAddFolder(filteredFolders, newFolder),
+        folders: removeStalesIfApplicable(
+          updateOrAddFolder(filteredFolders, newFolder),
+          attemptedID,
+          attemptedID !== actualID
+        ),
         folderMap: {
           ...state.folderMap,
           [newFolder.id]: newFolder,
@@ -708,7 +733,13 @@ export const directoryReducer = (
               [listDirectoryKey]: {
                 ...currentListing,
                 // Replace the optimistic folder with the real one
-                folders: updateOrAddFolder(currentListing.folders, newFolder),
+                folders: removeStalesIfApplicable(
+                  updateOrAddFolder(currentListing.folders, newFolder).filter(
+                    (f) => f._optimisticID !== optimisticID
+                  ),
+                  attemptedID,
+                  attemptedID !== actualID
+                ),
               },
             },
           };

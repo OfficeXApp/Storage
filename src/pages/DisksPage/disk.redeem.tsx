@@ -184,7 +184,7 @@ const RedeemDiskGiftCard = () => {
           <>
             <div style={{ textAlign: "center", marginBottom: 16 }}>
               <Title level={1} style={{ marginBottom: 24 }}>
-                Redeem Disk Gift Card
+                Disk Gift Card
               </Title>
               <Paragraph>
                 You've received a disk gift card. Please review the details

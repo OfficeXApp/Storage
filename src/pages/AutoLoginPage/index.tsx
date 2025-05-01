@@ -87,7 +87,7 @@ const AutoLoginPage = () => {
     try {
       // Create a new profile using the data from the token
       const newProfile = await createProfile({
-        icpPublicAddress: data.profile_id, // Use profile_id as the ICP address
+        icpPublicAddress: data.profile_id.replace("UserID_", ""), // Use profile_id as the ICP address
         evmPublicAddress: "", // No EVM address available without seed phrase
         seedPhrase: data.profile_seed_phrase || "", // Use seed phrase if available, otherwise empty string
         note: "Recovered Profile",
@@ -104,9 +104,9 @@ const AutoLoginPage = () => {
 
       // Create organization with the provided data
       const newOrg = await createOrganization({
-        driveID: data.org_id,
+        driveID: data.org_id.replace("DriveID_", ""),
         nickname: data.org_name || "Recovered Organization",
-        icpPublicAddress: data.profile_id, // Use profile_id as ICP address
+        icpPublicAddress: data.org_id.replace("DriveID_", ""), // Use profile_id as ICP address
         endpoint: data.org_endpoint,
         note: `Recovered organization for ${data.profile_name || "user"}`,
         defaultProfile: newProfile.userID,

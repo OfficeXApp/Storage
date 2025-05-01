@@ -79,7 +79,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
   );
 
-  console.log(`--- file`, file);
+  console.log(`file,`, file);
+  console.log(`--- fileUrl loading=${isLoading}`, fileUrl);
 
   const objectStoreNameRef = useRef<string>("files");
 
@@ -341,6 +342,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   };
 
   useEffect(() => {
+    console.log(`useEffect loop`);
     // If file ID hasn't changed, don't reload
     if (file.id === lastLoadedFileRef.current) {
       return;
@@ -350,7 +352,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     if (currentLoadingFileRef.current === file.id) {
       return;
     }
-
+    console.log(`about ot start`);
     // Clear previous URL when switching to a new file
     if (fileUrl && file.id !== lastLoadedFileRef.current) {
       URL.revokeObjectURL(fileUrl);
@@ -358,6 +360,12 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     }
     const loadFileContent = async () => {
       if (!file || !fileType) return;
+
+      if (!currentOrg?.endpoint) {
+        setFileUrl(file.raw_url || "");
+        setIsLoading(false);
+        return;
+      }
 
       // Check if file is fully uploaded
       if (
@@ -414,6 +422,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     loadFileContent();
 
     setFileName(file.name || "Unknown File");
+
+    console.log(`just set file name`, file.name);
 
     // Cleanup function
     return () => {

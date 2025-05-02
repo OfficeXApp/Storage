@@ -104,7 +104,7 @@ const AutoLoginPage = () => {
 
       // Create organization with the provided data
       const newOrg = await createOrganization({
-        driveID: data.org_id.replace("DriveID_", ""),
+        driveID: data.org_id,
         nickname: data.org_name || "Recovered Organization",
         icpPublicAddress: data.org_id.replace("DriveID_", ""), // Use profile_id as ICP address
         endpoint: data.org_endpoint,

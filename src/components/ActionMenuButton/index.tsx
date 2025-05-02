@@ -70,8 +70,17 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     uploadFiles,
   } = useMultiUploader();
 
+  const { diskTypeEnum, diskID } = extractDiskInfo();
+
   const handleFileSelect = (files: FileList | null) => {
-    if (files && uploadTargetDisk && uploadTargetFolderID) {
+    console.log(
+      "handleFileSelect",
+      files,
+      uploadTargetFolderID,
+      uploadTargetDiskType,
+      diskID
+    );
+    if (files && diskID && uploadTargetDiskType && uploadTargetFolderID) {
       const fileArray = Array.from(files);
 
       // Create an array of file objects with generated FileIDs
@@ -84,8 +93,8 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       uploadFiles(
         uploadFilesArray,
         uploadTargetFolderID,
-        uploadTargetDisk.disk_type as DiskTypeEnum,
-        uploadTargetDisk.id,
+        uploadTargetDiskType,
+        diskID,
         {
           onFileComplete: (fileUUID) => {
             console.log(`Local callback: File ${fileUUID} upload completed`);
@@ -115,8 +124,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     mixpanel.track("Upload Files");
     folderInputRef.current?.click();
   };
-
-  const { diskTypeEnum, diskID } = extractDiskInfo();
 
   const handleCreateFolder = async () => {
     mixpanel.track("Create Folder");

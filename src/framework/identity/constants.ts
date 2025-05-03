@@ -50,13 +50,36 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
   return result;
 };
 
-const LOCAL_DEV_MODE = false;
+export enum DEPLOYMENT_STAGE {
+  LocalDevelopment,
+  StagingPublicTestnet,
+  Production,
+}
+
+// LOCAL_DEV
+const _DEPLOYMENT_STAGING: DEPLOYMENT_STAGE = DEPLOYMENT_STAGE.LocalDevelopment;
+
+export const FREE_STAGING_CANISTER = `lqy7q-dh777-77777-aaaaq-cai`;
 
 // LOCAL vs. PROD
-export const FACTORY_CANISTER_ENDPOINT = LOCAL_DEV_MODE
-  ? "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000"
-  : "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io";
+export const FACTORY_CANISTER_ENDPOINT =
+  // @ts-ignore
+  _DEPLOYMENT_STAGING === DEPLOYMENT_STAGE.Production
+    ? "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io"
+    : // @ts-ignore
+      _DEPLOYMENT_STAGING === DEPLOYMENT_STAGE.StagingPublicTestnet
+      ? `https://${FREE_STAGING_CANISTER}.icp-testnet.click`
+      : "http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000";
 
-export const DEFAULT_GIFTCARD_REFUEL_VENDOR = LOCAL_DEV_MODE
-  ? "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000"
-  : "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io";
+export const DEFAULT_GIFTCARD_REFUEL_VENDOR =
+  // @ts-ignore
+  _DEPLOYMENT_STAGING === DEPLOYMENT_STAGE.Production
+    ? "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io"
+    : // @ts-ignore
+      _DEPLOYMENT_STAGING === DEPLOYMENT_STAGE.StagingPublicTestnet
+      ? `https://${FREE_STAGING_CANISTER}.icp-testnet.click`
+      : "http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000";
+
+export const FREE_STAGING_ENDPOINT = `https://${FREE_STAGING_CANISTER}.icp-testnet.click`;
+export const FREE_STAGING_AUTH_TOKEN =
+  "eyJhdXRoX3R5cGUiOiJBUElfX0tFWSIsInZhbHVlIjoiMzcxZDYwNzYxMzllNmQ2MDhiNjY5ZWMzMjA2YzQwOWFmMjZlNTBiNjdkMTRlMWNkNjY4YmY2NDMwOGM4YmNlZSJ9";

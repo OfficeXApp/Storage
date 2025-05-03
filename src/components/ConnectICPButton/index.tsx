@@ -9,6 +9,7 @@ import {
   Select,
   Divider,
   notification,
+  Switch,
 } from "antd";
 import {
   CloudSyncOutlined,
@@ -22,6 +23,9 @@ import { v4 as uuidv4 } from "uuid";
 import mixpanel from "mixpanel-browser";
 import {
   FACTORY_CANISTER_ENDPOINT,
+  FREE_STAGING_AUTH_TOKEN,
+  FREE_STAGING_CANISTER,
+  FREE_STAGING_ENDPOINT,
   shortenAddress,
 } from "../../framework/identity/constants";
 import { useIdentitySystem } from "../../framework/identity";
@@ -48,6 +52,7 @@ const ConnectICPButton = () => {
   const [loading, setLoading] = useState(false);
   const [giftCardValue, setGiftCardValue] = useState("");
   const [orgName, setOrgName] = useState("");
+  const [isMainnet, setIsMainnet] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState("");
   const [errors, setErrors] = useState({
     giftCard: "",
@@ -72,7 +77,7 @@ const ConnectICPButton = () => {
 
     let isValid = true;
 
-    if (!giftCardValue.trim()) {
+    if (isMainnet && !giftCardValue.trim()) {
       newErrors.giftCard = "Gift Card ID is required";
       isValid = false;
     }
@@ -138,15 +143,55 @@ const ConnectICPButton = () => {
       message.info("Redeeming Gift Card...");
 
       // Make the POST request to redeem the voucher
+      const endpointToUse = isMainnet
+        ? FACTORY_CANISTER_ENDPOINT
+        : FREE_STAGING_ENDPOINT;
+      let giftCardToUse = isMainnet ? giftCardValue : "";
+      if (!isMainnet) {
+        const freeGiftCardResponse = await fetch(
+          `${endpointToUse}/v1/default/giftcards/spawnorg/upsert`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${FREE_STAGING_AUTH_TOKEN}`,
+            },
+            body: JSON.stringify({
+              action: "CREATE",
+              usd_revenue_cents: 200,
+              note: `Free Tier for UserID_${icpPrincipal}`,
+              gas_cycles_included: 3500000000000,
+              external_id: `UserID_${icpPrincipal}_${Date.now()}`,
+            }),
+          }
+        );
+
+        if (!freeGiftCardResponse.ok) {
+          throw new Error(
+            `Failed to get free gift card: ${freeGiftCardResponse.statusText}`
+          );
+        }
+
+        const freeGiftCardData = await freeGiftCardResponse.json();
+
+        console.log(freeGiftCardData);
+
+        if (!freeGiftCardData.ok || !freeGiftCardData.ok.data) {
+          throw new Error("Invalid response from voucher redemption");
+        }
+
+        const { id: giftcard_id } = freeGiftCardData.ok.data;
+        giftCardToUse = giftcard_id;
+      }
       const redeemResponse = await fetch(
-        `${FACTORY_CANISTER_ENDPOINT}/v1/default/giftcards/spawnorg/redeem`,
+        `${endpointToUse}/v1/default/giftcards/spawnorg/redeem`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            giftcard_id: giftCardValue,
+            giftcard_id: giftCardToUse,
             owner_icp_principal: icpPrincipal,
             organization_name: orgName,
             owner_name: profile.nickname || "Anon Owner",
@@ -392,15 +437,29 @@ const ConnectICPButton = () => {
               <Input
                 value={giftCardValue}
                 onChange={(e) => setGiftCardValue(e.target.value)}
-                placeholder="Gift Card ID"
+                placeholder={
+                  isMainnet ? "Gift Card ID" : "Free Tier - Public Testnet"
+                }
+                disabled={!isMainnet}
                 suffix={
-                  <a
-                    href="https://nowpayments.io/payment/?iid=6381454708"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Buy Now
-                  </a>
+                  <span>
+                    {isMainnet && (
+                      <a
+                        href="https://nowpayments.io/payment/?iid=6381454708"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Buy Now
+                      </a>
+                    )}
+                    <Switch
+                      checked={isMainnet}
+                      onChange={setIsMainnet}
+                      style={{ marginLeft: "8px" }}
+                      unCheckedChildren="Free Tier"
+                      checkedChildren="Mainnet"
+                    />
+                  </span>
                 }
                 style={{ marginBottom: "4px" }}
               />
@@ -436,7 +495,9 @@ const ConnectICPButton = () => {
             type="primary"
             onClick={connectICP}
             style={{ width: "100%" }}
-            disabled={!giftCardValue || !orgName || !selectedProfileId}
+            disabled={
+              (isMainnet && !giftCardValue) || !orgName || !selectedProfileId
+            }
           >
             Connect Cloud
           </Button>

@@ -62,6 +62,7 @@ import {
   defaultTempCloudSharingDiskID,
 } from "../../api/dexie-database";
 import TagCopy from "../../components/TagCopy";
+import { generateRedeemDiskGiftCardURL } from "./disk.redeem";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -83,6 +84,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
+  const [giftLink, setGiftLink] = useState("");
   const disk =
     useSelector((state: ReduxAppState) => state.disks.diskMap[diskCache.id]) ||
     diskCache;
@@ -356,6 +358,30 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
   const syncLatest = () => {
     dispatch(getDiskAction(disk.id));
+  };
+
+  const generateGiftLink = async () => {
+    try {
+      // Construct the gift card parameters from form values
+      const giftParams = {
+        name: `Gift - ${disk.name}`,
+        disk_type: disk.disk_type,
+        public_note: disk.public_note || "",
+        auth_json: disk.auth_json || "",
+        endpoint: disk.endpoint || "",
+      };
+
+      // Generate the URL
+      const url = generateRedeemDiskGiftCardURL(giftParams);
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(url);
+      message.success(`Gift link copied to clipboard!`);
+      setGiftLink(url);
+    } catch (error) {
+      console.error("Error generating gift link:", error);
+      message.error("Please fill in at least the name and disk type fields");
+    }
   };
 
   return (
@@ -790,6 +816,43 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                                 {disk.private_note}
                               </Card>
                             </div>
+                          )}
+
+                        {disk.auth_json &&
+                          disk.permission_previews.includes(
+                            SystemPermissionType.EDIT
+                          ) && (
+                            <Input
+                              value={giftLink}
+                              readOnly
+                              suffix={
+                                <span
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(giftLink);
+                                    message.success("Copied to clipboard");
+                                  }}
+                                  style={{ cursor: "pointer" }}
+                                >
+                                  <CopyOutlined
+                                    style={{
+                                      cursor: "pointer",
+                                      margin: "0px 8px",
+                                    }}
+                                  />
+                                  Copy
+                                </span>
+                              }
+                              prefix={
+                                <Button
+                                  size="small"
+                                  type="dashed"
+                                  onClick={generateGiftLink}
+                                >
+                                  Share Gift Link
+                                </Button>
+                              }
+                              style={{ marginTop: 8, marginBottom: 8 }}
+                            />
                           )}
 
                         <div style={{ marginTop: "16px" }}>

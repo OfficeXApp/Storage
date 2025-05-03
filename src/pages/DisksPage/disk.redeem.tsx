@@ -89,6 +89,13 @@ const RedeemDiskGiftCard = () => {
   }, [location]);
 
   const handleRedeem = async () => {
+    if (!currentOrg?.endpoint) {
+      message.error(
+        "Cannot redeem gift card unless you connect cloud. You are currently in an offline organization."
+      );
+      return;
+    }
+
     if (!redeemData || !currentOrg || !currentProfile) {
       message.error("Missing required data for redemption");
       return;

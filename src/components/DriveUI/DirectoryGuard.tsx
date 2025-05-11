@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Result,
   Input,
@@ -47,6 +47,12 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
     createProfile,
     switchProfile,
   } = useIdentitySystem();
+
+  useEffect(() => {
+    setTimeout(() => {
+      fetchResource();
+    }, 1000);
+  }, []);
 
   const handleSubmit = async () => {
     console.log(`submitting...`, password, currentOrg);

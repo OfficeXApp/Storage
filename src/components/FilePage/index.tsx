@@ -766,15 +766,21 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       (currentOrg?.endpoint &&
         file.upload_status === "COMPLETED" &&
         isFileSizeValidForPreview(file)) ? (
-        <div style={{ display: "flex" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+          }}
+        >
           {fileType === "image" && fileUrl && (
             <img
               src={fileUrl}
               alt={file.name}
               style={{
-                width: "100%",
-                maxWidth: "800px",
-                maxHeight: "calc(80vh)",
+                maxWidth: screenType.isMobile ? "80vw" : "800px",
+                maxHeight: screenType.isMobile ? "auto" : "calc(65vh)",
                 objectFit: "contain",
               }}
             />
@@ -786,19 +792,16 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             //   style={{
             //     width: "100%",
             //     maxWidth: "800px",
-            //     maxHeight: "calc(80vh)",
+            //     maxHeight: "calc(65vh)",
             //   }}
             // >
             //   Your browser does not support the video tag.
             // </video>
+
             <VideoPlayer url={fileUrl} />
           )}
           {fileType === "audio" && fileUrl && (
-            <audio
-              src={fileUrl}
-              controls
-              style={{ width: "100%", marginTop: "20px" }}
-            >
+            <audio src={fileUrl} controls style={{ marginTop: "20px" }}>
               Your browser does not support the audio tag.
             </audio>
           )}
@@ -810,8 +813,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               src={fileUrl}
               title={file.name}
               style={{
-                width: "100%",
-                height: "calc(80vh)",
+                height: "calc(65vh)",
                 border: "none",
               }}
             />
@@ -819,7 +821,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           {fileType === "other" && fileUrl && (
             <div
               style={{
-                width: "100%",
                 justifyContent: "center",
                 marginTop: "32px",
               }}

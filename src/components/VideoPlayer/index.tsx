@@ -4,6 +4,7 @@ import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import { Button, Spin, Alert, Typography } from "antd";
 import { DownloadOutlined, ReloadOutlined } from "@ant-design/icons";
+import useScreenType from "react-screentype-hook";
 
 const { Text } = Typography;
 
@@ -24,6 +25,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     isSeeking: false,
     seekRetries: 0,
   });
+  const screenType = useScreenType();
 
   // Helper function to determine video MIME type from URL
   const getVideoType = (url: string): string => {
@@ -112,7 +114,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         {
           controls: true,
           responsive: true,
-          fluid: true,
+          minHeight: screenType.isMobile ? "auto" : "60vh",
+          height: screenType.isMobile ? "auto" : "500px",
+          maxHeight: screenType.isMobile ? "auto" : "60vh",
+          width: screenType.isMobile ? "300px" : "auto",
+          minWidth: screenType.isMobile ? "80vw" : "auto",
+          maxWidth: screenType.isMobile ? "80vw" : "auto",
+          fluid: false,
           preload: "auto",
           html5: {
             vhs: {
@@ -355,7 +363,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         />
       )}
 
-      <div data-vjs-player style={{ width: "100%" }}>
+      <div
+        data-vjs-player
+        style={{
+          maxWidth: screenType.isMobile ? "80vw" : "800px",
+          maxHeight: screenType.isMobile ? "auto" : "500px",
+          // maxHeight: "calc(65vh)",
+        }}
+      >
         <div ref={videoRef}></div>
       </div>
     </div>

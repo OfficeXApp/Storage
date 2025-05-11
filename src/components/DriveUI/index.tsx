@@ -1722,7 +1722,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               <br />
             </div>
           ) : singleFile ? (
-            <div style={{ padding: "20px" }}>
+            <div
+              style={{
+                padding: screenType.isMobile ? "10px 0px 0px 0px" : "20px",
+              }}
+            >
               <FilePage file={singleFile} />
             </div>
           ) : isTrashBin && tableRows.length === 0 ? (

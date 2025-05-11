@@ -395,7 +395,7 @@ const ConnectICPButton = () => {
                 placeholder="Gift Card ID"
                 suffix={
                   <a
-                    href="https://nowpayments.io/payment/?iid=6381454708"
+                    href="https://nowpayments.io/payment/?iid=4444542097"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

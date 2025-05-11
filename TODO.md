@@ -6,6 +6,7 @@
 - [ ] Add download app popup for mobile, and in settings page
 - [ ] Update file/folder record to include thumbnails preview gallery
 - [ ] Vertical images will cause page to go out of view without scroll
+- [ ] Allow iframes to pass in data payloads to create files/folders in anonymous mode (imagine a website tiktokdownloader.com that can auto-export videos to drive)
 
 ## UX Confusion Fixes
 

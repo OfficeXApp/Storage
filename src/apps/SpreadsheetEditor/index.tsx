@@ -97,6 +97,8 @@ const SpreadsheetEditor = () => {
       />
       <iframe
         src={SPREADSHEET_APP_ENDPOINT}
+        allow="clipboard-read; clipboard-write"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
         style={{ width: "100%", height: "100vh", border: "none" }}
       />
     </div>

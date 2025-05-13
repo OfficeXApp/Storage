@@ -16,7 +16,9 @@ import {
   CloudSyncOutlined,
 } from "@ant-design/icons";
 import { DriveFullFilePath, useDrive } from "../../framework";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import sheetsLogo from "../../assets/sheets-logo.png";
+import docsLogo from "../../assets/docs-logo.png";
 import { v4 as uuidv4 } from "uuid";
 import mixpanel from "mixpanel-browser";
 // import useCloudSync from "../../api/cloud-sync";
@@ -236,6 +238,67 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           message.info("Select a disk");
         }
       },
+    },
+    {
+      type: "divider",
+    },
+    {
+      label: (
+        <Link to={wrapOrgCode("/apps/docs")} target="_blank">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "flex-start",
+              justifyContent: "center",
+            }}
+          >
+            <img
+              alt="Docs"
+              src={docsLogo}
+              style={
+                {
+                  width: 20,
+                  objectFit: "cover",
+                  margin: "0px",
+                  marginRight: "8px",
+                } as React.CSSProperties
+              }
+            />
+            New Document
+          </div>
+        </Link>
+      ),
+      key: "new-docs",
+    },
+    {
+      label: (
+        <Link to={wrapOrgCode("/apps/sheets")} target="_blank">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "flex-start",
+              justifyContent: "center",
+            }}
+          >
+            <img
+              alt="Sheets"
+              src={sheetsLogo}
+              style={
+                {
+                  width: 20,
+                  objectFit: "cover",
+                  margin: "0px",
+                  marginRight: "8px",
+                } as React.CSSProperties
+              }
+            />
+            New Spreadsheet
+          </div>
+        </Link>
+      ),
+      key: "new-sheets",
     },
     {
       type: "divider",

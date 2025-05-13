@@ -1291,7 +1291,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
         {UserSwitcher()}
         {showAvatar && (
           <Link to={wrapOrgCode("/settings")}>
-            <Avatar icon={<UserOutlined />} size="large" />
+            <Avatar icon={<UserOutlined />} size="default" />
           </Link>
         )}
       </div>

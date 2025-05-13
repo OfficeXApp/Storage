@@ -93,6 +93,8 @@ import WelcomePage from "./components/WelcomePage";
 import GiftCardOnboarding from "./pages/GiftCardOnboarding";
 import AutoLoginPage from "./pages/AutoLoginPage";
 import RedeemDiskGiftCard from "./pages/DisksPage/disk.redeem";
+import SpreadsheetEditor from "./apps/SpreadsheetEditor";
+import DocumentEditor from "./apps/DocumentEditor";
 
 const { Sider, Content } = Layout;
 
@@ -440,144 +442,166 @@ const RouterUI = () => {
   const [uploadPanelVisible, setUploadPanelVisible] = useState(false);
 
   return (
-    <UploadPanel
-      uploadPanelVisible={uploadPanelVisible}
-      setUploadPanelVisible={setUploadPanelVisible}
-    >
-      <Layout style={{ minHeight: "100vh", background: "#fbfbfb" }}>
-        {!screenType.isMobile && (
-          <Sider
-            width={SIDEBAR_WIDTH}
-            style={{
-              background: "#fbfbfb",
-              border: "0px solid white",
-            }}
+    <Routes>
+      <Route path="/org/:orgcode/apps/docs" element={<DocumentEditor />} />
+      <Route path="/org/:orgcode/apps/sheets" element={<SpreadsheetEditor />} />
+      <Route
+        path="*"
+        element={
+          <UploadPanel
+            uploadPanelVisible={uploadPanelVisible}
+            setUploadPanelVisible={setUploadPanelVisible}
           >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                height: "100%",
-                paddingBottom: "8px",
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <Link to="/org/current/welcome">
-                  <div
-                    style={{
-                      padding: "32px",
-                      fontWeight: "bold",
-                      height: "80px",
-                      display: "flex",
-                      justifyContent: "flex-start",
-                      alignItems: "center",
-                      color: "#1a1a3a",
-                      fontSize: "1rem",
-                    }}
-                  >
-                    <h1>OfficeX</h1>
-                    <span
-                      style={{
-                        fontWeight: 300,
-                        marginLeft: "10px",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      Beta v0.1
-                    </span>
-                  </div>
-                </Link>
-                <section
+            <Layout style={{ minHeight: "100vh", background: "#fbfbfb" }}>
+              {!screenType.isMobile && (
+                <Sider
+                  width={SIDEBAR_WIDTH}
                   style={{
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    padding: "0px 20px 20px 20px",
-                    overflowY: "scroll",
+                    background: "#fbfbfb",
+                    border: "0px solid white",
                   }}
                 >
-                  <ConnectICPButton />
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      height: "100%",
+                      paddingBottom: "8px",
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <Link to="/org/current/welcome">
+                        <div
+                          style={{
+                            padding: "32px",
+                            fontWeight: "bold",
+                            height: "80px",
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                            color: "#1a1a3a",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          <h1>OfficeX</h1>
+                          <span
+                            style={{
+                              fontWeight: 300,
+                              marginLeft: "10px",
+                              fontSize: "0.8rem",
+                            }}
+                          >
+                            Beta v0.1
+                          </span>
+                        </div>
+                      </Link>
+                      <section
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          padding: "0px 20px 20px 20px",
+                          overflowY: "scroll",
+                        }}
+                      >
+                        <ConnectICPButton />
 
-                  {currentOrg && currentOrg.endpoint && (
-                    <ActionMenuButton
-                      isBigButton={true}
-                      toggleUploadPanel={setUploadPanelVisible}
+                        {currentOrg && currentOrg.endpoint && (
+                          <ActionMenuButton
+                            isBigButton={true}
+                            toggleUploadPanel={setUploadPanelVisible}
+                          />
+                        )}
+                      </section>
+                      <SideMenu />
+                    </div>
+                    <OrganizationSwitcher />
+                  </div>
+                </Sider>
+              )}
+              <Layout
+                style={{ padding: "0px 8px 0px 0px", background: "#fbfbfb" }}
+              >
+                <SearchHeader setSidebarVisible={setSidebarVisible} />
+                <Content
+                  style={{
+                    background: "#fbfbfb",
+                    overflowY: "auto",
+                    maxHeight: "calc(100vh - 64px)",
+                  }}
+                >
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <Navigate
+                          to={
+                            currentOrg && currentOrg.endpoint
+                              ? `/org/current/drive/`
+                              : `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/`
+                          }
+                        />
+                      }
                     />
-                  )}
-                </section>
-                <SideMenu />
-              </div>
-              <OrganizationSwitcher />
-            </div>
-          </Sider>
-        )}
-        <Layout style={{ padding: "0px 8px 0px 0px", background: "#fbfbfb" }}>
-          <SearchHeader setSidebarVisible={setSidebarVisible} />
-          <Content
-            style={{
-              background: "#fbfbfb",
-              overflowY: "auto",
-              maxHeight: "calc(100vh - 64px)",
-            }}
-          >
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <Navigate
-                    to={
-                      currentOrg && currentOrg.endpoint
-                        ? `/org/current/drive/`
-                        : `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/`
-                    }
-                  />
-                }
-              />
-              <Route
-                path="/org/:orgcode/drive/*"
-                element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
-              />
-              <Route
-                path="/org/:orgcode/drive-shared/*"
-                element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
-              />
-              <Route
-                path="/org/:orgcode/drive-trash/*"
-                element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
-              />
-              <Route
-                path="/org/:orgcode/recent"
-                element={<DriveUI toggleUploadPanel={setUploadPanelVisible} />}
-              />
-              <Route
-                path="/gift-card-onboarding"
-                element={<GiftCardOnboarding />}
-              />
-              <Route
-                path="/org/:orgcode/redeem/disk-giftcard"
-                element={<RedeemDiskGiftCard />}
-              />
+                    <Route
+                      path="/org/:orgcode/drive/*"
+                      element={
+                        <DriveUI toggleUploadPanel={setUploadPanelVisible} />
+                      }
+                    />
+                    <Route
+                      path="/org/:orgcode/drive-shared/*"
+                      element={
+                        <DriveUI toggleUploadPanel={setUploadPanelVisible} />
+                      }
+                    />
+                    <Route
+                      path="/org/:orgcode/drive-trash/*"
+                      element={
+                        <DriveUI toggleUploadPanel={setUploadPanelVisible} />
+                      }
+                    />
+                    <Route
+                      path="/org/:orgcode/recent"
+                      element={
+                        <DriveUI toggleUploadPanel={setUploadPanelVisible} />
+                      }
+                    />
+                    <Route
+                      path="/gift-card-onboarding"
+                      element={<GiftCardOnboarding />}
+                    />
+                    <Route
+                      path="/org/:orgcode/redeem/disk-giftcard"
+                      element={<RedeemDiskGiftCard />}
+                    />
 
-              <Route path="/auto-login" element={<AutoLoginPage />} />
+                    <Route path="/auto-login" element={<AutoLoginPage />} />
 
-              <Route
-                path="/buy"
-                element={
-                  <ExternalRedirect url="https://app.uniswap.org/swap?inputCurrency=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&outputCurrency=0x48808407d95f691D076C90337d42eE3836656990" />
-                }
-              />
-              <Route path="/org/:orgcode/settings" element={<SettingsPage />} />
-              <Route path="/org/:orgcode/welcome" element={<WelcomePage />} />
-              <Route
-                path="/org/:orgcode/search"
-                element={<SearchResultsPage />}
-              />
+                    <Route
+                      path="/buy"
+                      element={
+                        <ExternalRedirect url="https://app.uniswap.org/swap?inputCurrency=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&outputCurrency=0x48808407d95f691D076C90337d42eE3836656990" />
+                      }
+                    />
+                    <Route
+                      path="/org/:orgcode/settings"
+                      element={<SettingsPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/welcome"
+                      element={<WelcomePage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/search"
+                      element={<SearchResultsPage />}
+                    />
 
-              <Route path="/sandbox" element={<SandboxPage />} />
-              {/* <Route
+                    <Route path="/sandbox" element={<SandboxPage />} />
+                    {/* <Route
                   path="/sandbox_indexdb_uploader"
                   element={<SandboxIndexdbUploader />}
                 />
@@ -594,138 +618,144 @@ const RouterUI = () => {
                   element={<SandboxCloudStorjUploader />}
                 /> */}
 
-              <Route path="/presale" element={<PreseedOffer />} />
-              <Route path="/preseed" element={<Navigate to="/presale" />} />
-              <Route
-                path="/whitepaper"
-                element={
-                  <ExternalRedirect url="https://tinyurl.com/ofx-whitepaper" />
-                }
-              />
-              <Route path="/gift" element={<GiftPage />} />
+                    <Route path="/presale" element={<PreseedOffer />} />
+                    <Route
+                      path="/preseed"
+                      element={<Navigate to="/presale" />}
+                    />
+                    <Route
+                      path="/whitepaper"
+                      element={
+                        <ExternalRedirect url="https://tinyurl.com/ofx-whitepaper" />
+                      }
+                    />
+                    <Route path="/gift" element={<GiftPage />} />
 
-              {/* Organization Level Routes */}
+                    {/* Organization Level Routes */}
 
-              <Route
-                path="/org/:orgcode/resources/contacts"
-                element={<ContactsPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/contacts/redeem"
-                element={<ContactRedeem />}
-              />
-              <Route
-                path="/org/:orgcode/resources/contacts/:userID"
-                element={<ContactPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/groups"
-                element={<GroupsPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/groups/:groupID"
-                element={<GroupPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/permissions"
-                element={<PermissionsPage />}
-              />
+                    <Route
+                      path="/org/:orgcode/resources/contacts"
+                      element={<ContactsPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/contacts/redeem"
+                      element={<ContactRedeem />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/contacts/:userID"
+                      element={<ContactPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/groups"
+                      element={<GroupsPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/groups/:groupID"
+                      element={<GroupPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/permissions"
+                      element={<PermissionsPage />}
+                    />
 
-              <Route
-                path="/org/:orgcode/redeem/directory-permit"
-                element={<RedeemDirectoryPermitPage />}
-              />
+                    <Route
+                      path="/org/:orgcode/redeem/directory-permit"
+                      element={<RedeemDirectoryPermitPage />}
+                    />
 
-              <Route
-                path="/org/:orgcode/redeem/group-invite"
-                element={<RedeemGroupInvite />}
-              />
+                    <Route
+                      path="/org/:orgcode/redeem/group-invite"
+                      element={<RedeemGroupInvite />}
+                    />
 
-              <Route
-                path="/org/:orgcode/share/free-cloud-filesharing"
-                element={<FreeFileSharePreview />}
-              />
+                    <Route
+                      path="/org/:orgcode/share/free-cloud-filesharing"
+                      element={<FreeFileSharePreview />}
+                    />
 
-              <Route
-                path="/org/:orgcode/resources/permissions/:permissionVariant/:permissionID"
-                element={<PermissionPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/labels"
-                element={<LabelsPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/labels/:labelID"
-                element={<LabelPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/disks"
-                element={<DisksPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/disks/:diskID"
-                element={<DiskPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/canisters"
-                element={<DrivesPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/canisters/:driveID"
-                element={<DrivePage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/templates"
-                element={<TemplateCrudPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/webhooks"
-                element={<WebhooksPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/webhooks/:webhookID"
-                element={<WebhookPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/api-keys"
-                element={<ApiKeysPage />}
-              />
-              <Route
-                path="/org/:orgcode/resources/api-keys/:apiKeyID"
-                element={<ApiKeyPage />}
-              />
+                    <Route
+                      path="/org/:orgcode/resources/permissions/:permissionVariant/:permissionID"
+                      element={<PermissionPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/labels"
+                      element={<LabelsPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/labels/:labelID"
+                      element={<LabelPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/disks"
+                      element={<DisksPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/disks/:diskID"
+                      element={<DiskPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/canisters"
+                      element={<DrivesPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/canisters/:driveID"
+                      element={<DrivePage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/templates"
+                      element={<TemplateCrudPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/webhooks"
+                      element={<WebhooksPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/webhooks/:webhookID"
+                      element={<WebhookPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/api-keys"
+                      element={<ApiKeysPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/api-keys/:apiKeyID"
+                      element={<ApiKeyPage />}
+                    />
 
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Content>
-        </Layout>
-        {screenType.isMobile && (
-          <Drawer
-            title={
-              <div>
-                <b>OfficeX</b>
-                <span style={{ fontWeight: 300, marginLeft: "5px" }}>
-                  Alpha
-                </span>
-              </div>
-            }
-            placement="left"
-            onClose={() => setSidebarVisible(false)}
-            open={sidebarVisible}
-            width={SIDEBAR_WIDTH}
-            footer={
-              <div style={{ padding: "0px" }}>
-                <OrganizationSwitcher />
-              </div>
-            }
-            style={{ overflowY: "auto" }}
-          >
-            <ConnectICPButton />
-            <SideMenu setSidebarVisible={setSidebarVisible} />
-          </Drawer>
-        )}
-      </Layout>
-    </UploadPanel>
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                </Content>
+              </Layout>
+              {screenType.isMobile && (
+                <Drawer
+                  title={
+                    <div>
+                      <b>OfficeX</b>
+                      <span style={{ fontWeight: 300, marginLeft: "5px" }}>
+                        Alpha
+                      </span>
+                    </div>
+                  }
+                  placement="left"
+                  onClose={() => setSidebarVisible(false)}
+                  open={sidebarVisible}
+                  width={SIDEBAR_WIDTH}
+                  footer={
+                    <div style={{ padding: "0px" }}>
+                      <OrganizationSwitcher />
+                    </div>
+                  }
+                  style={{ overflowY: "auto" }}
+                >
+                  <ConnectICPButton />
+                  <SideMenu setSidebarVisible={setSidebarVisible} />
+                </Drawer>
+              )}
+            </Layout>
+          </UploadPanel>
+        }
+      />
+    </Routes>
   );
 };
 

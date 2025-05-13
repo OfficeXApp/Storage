@@ -2,6 +2,7 @@
 
 ## Overview
 
+- [ ] Investigate why S3 bucket isnt loading files in browser but works when direct download at same link. it seems to only be happening on a particular S3 bucket
 - [ ] Move frontend to minimal initial REST calls paradigm to prevent accidental temporary canister DDoS
 - [ ] Add download app popup for mobile, and in settings page
 - [ ] Update file/folder record to include thumbnails preview gallery

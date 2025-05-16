@@ -66,9 +66,6 @@ const DocumentEditor = () => {
       <SlimAppHeader
         title={
           <div
-            onClick={() => {
-              navigate("/");
-            }}
             style={{
               display: "flex",
               justifyContent: "flex-start",
@@ -81,6 +78,9 @@ const DocumentEditor = () => {
             <img
               alt="Docs"
               src={docsLogo}
+              onClick={() => {
+                navigate("/");
+              }}
               style={
                 {
                   width: 30,
@@ -100,7 +100,7 @@ const DocumentEditor = () => {
         src={DOCUMENTS_APP_ENDPOINT}
         allow="clipboard-read; clipboard-write"
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        style={{ width: "100%", height: "100vh", border: "none" }}
+        style={{ width: "100%", height: "90vh", border: "none" }}
       />
     </>
   );

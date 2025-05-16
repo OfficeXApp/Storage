@@ -26,7 +26,7 @@ import {
 } from "@ant-design/icons";
 import { FileUUID, StorageLocationEnum, useDrive } from "../../framework";
 import useScreenType from "react-screentype-hook";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import FilePreview from "../FilePreview";
 import { createPseudoShareLink } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
@@ -42,6 +42,7 @@ import DirectorySharingDrawer from "../DirectorySharingDrawer";
 import {
   extractDiskInfo,
   sleep,
+  urlSafeBase64Encode,
   wrapAuthStringOrHeader,
 } from "../../api/helpers";
 import {
@@ -65,8 +66,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const [fileName, setFileName] = useState(file.name || "Unknown File");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { currentProfile, currentOrg, currentAPIKey, generateSignature } =
-    useIdentitySystem();
+  const {
+    currentProfile,
+    currentOrg,
+    currentAPIKey,
+    generateSignature,
+    wrapOrgCode,
+  } = useIdentitySystem();
   const { evmPublicKey, icpAccount } = currentProfile || {};
   const dispatch = useDispatch();
   // State for file content and UI
@@ -90,10 +96,18 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     | "audio"
     | "pdf"
     | "spreadsheet"
+    | "office-spreadsheet"
+    | "office-document"
     | "other" => {
     const name = file.name || "";
-    const extension =
+    let extension =
       file.extension?.toLowerCase() || name.split(".").pop()?.toLowerCase();
+
+    if (name.endsWith("officex-spreadsheet.json")) {
+      extension = "officex-spreadsheet";
+    } else if (name.endsWith("officex-document.json")) {
+      extension = "officex-document";
+    }
 
     switch (extension) {
       case "jpg":
@@ -120,6 +134,10 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         return "spreadsheet";
       case "pdf":
         return "pdf";
+      case "officex-spreadsheet":
+        return "office-spreadsheet";
+      case "officex-document":
+        return "office-document";
       default:
         return "other";
     }
@@ -838,6 +856,21 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
                 }
               />
             </div>
+          )}
+          {fileType === "office-spreadsheet" && (
+            <Link
+              to={`${wrapOrgCode(`/apps/sheets/${file.id}`)}?file=${urlSafeBase64Encode(
+                JSON.stringify({
+                  file_id: file.id,
+                  file_name: file.name,
+                  parent_folder_id: file.parent_folder_uuid,
+                  disk_type: file.disk_type,
+                  disk_id: file.disk_id,
+                })
+              )}`}
+            >
+              <Button>Open Spreadsheet</Button>
+            </Link>
           )}
         </div>
       ) : null}

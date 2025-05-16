@@ -443,8 +443,11 @@ const RouterUI = () => {
 
   return (
     <Routes>
-      <Route path="/org/:orgcode/apps/docs" element={<DocumentEditor />} />
-      <Route path="/org/:orgcode/apps/sheets" element={<SpreadsheetEditor />} />
+      <Route path="/org/:orgcode/apps/docs/*" element={<DocumentEditor />} />
+      <Route
+        path="/org/:orgcode/apps/sheets/*"
+        element={<SpreadsheetEditor />}
+      />
       <Route
         path="*"
         element={

@@ -1,89 +1,673 @@
-import SlimAppHeader from "../../components/SlimAppHeader";
-import sheetsLogo from "../../assets/sheets-logo.png";
-import { SPREADSHEET_APP_ENDPOINT } from "../../framework/identity/constants";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Alert, message } from "antd";
-import Marquee from "react-fast-marquee";
-import { Helmet } from "react-helmet";
-import { useCallback, useEffect, useRef, useState } from "react";
+// FilePage.tsx
+
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
+  Modal,
+  Button,
+  Result,
+  Typography,
+  message,
+  Input,
+  Spin,
+  Tooltip,
+  Popconfirm,
+  Alert,
+} from "antd";
+import sheetsLogo from "../../assets/sheets-logo.png";
+import {
+  FileOutlined,
+  PictureOutlined,
+  VideoCameraOutlined,
+  AudioOutlined,
+  FilePdfOutlined,
+  FileUnknownOutlined,
+  FileExcelOutlined,
+  EditOutlined,
+  CheckOutlined,
+} from "@ant-design/icons";
+import { v4 as uuidv4 } from "uuid";
+import { FileUUID, StorageLocationEnum, useDrive } from "../../framework";
+import useScreenType from "react-screentype-hook";
+import { Link, useNavigate, useParams } from "react-router-dom";
+// import FilePreview from "../FilePreview";
+import { createPseudoShareLink } from "../../api/pseudo-share";
+import mixpanel from "mixpanel-browser";
+import { isFreeTrialStorj } from "../../api/storj";
+import { useIdentitySystem } from "../../framework/identity";
+import {
+  FileFEO,
+  shouldBehaveOfflineDiskUIIntent,
+} from "../../redux-offline/directory/directory.reducer";
+import {
+  DirectoryResourceID,
+  DiskID,
+  DiskTypeEnum,
+  FileID,
+} from "@officexapp/types";
+import {
+  extractDiskInfo,
+  sleep,
+  urlSafeBase64Encode,
+  wrapAuthStringOrHeader,
+} from "../../api/helpers";
+import {
+  GET_FILE,
+  getFileAction,
+  UPDATE_FILE,
+  updateFileAction,
+} from "../../redux-offline/directory/directory.actions";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  connect,
   Connection,
   Methods,
   RemoteProxy,
   WindowMessenger,
-  connect,
 } from "penpal";
-import { DiskID, DiskTypeEnum, FileID, FolderID } from "@officexapp/types";
-import { useIdentitySystem } from "../../framework/identity";
-import { urlSafeBase64Decode } from "../../api/helpers";
-import { v4 as uuidv4 } from "uuid";
+import DirectorySharingDrawer from "../../components/DirectorySharingDrawer";
+import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import { SPREADSHEET_APP_ENDPOINT } from "../../framework/identity/constants";
+import { Helmet } from "react-helmet";
+import Marquee from "react-fast-marquee";
+import SlimAppHeader from "../../components/SlimAppHeader";
 
-export interface SpreadsheetFile_BTOA {
-  file_id?: FileID;
-  file_name?: string;
-  parent_folder_id?: FolderID;
-  disk_type?: DiskTypeEnum;
-  disk_id?: DiskID;
-}
+const { Text } = Typography;
 
 const SpreadsheetEditor = () => {
-  const { currentOrg, currentProfile } = useIdentitySystem();
+  const { orgcode, fileID } = useParams();
+  const screenType = useScreenType();
   const navigate = useNavigate();
-  const location = useLocation();
+  const isMobile = screenType.isMobile;
+  const currentLoadingFileRef = useRef<string | null>(null);
+  const lastLoadedFileRef = useRef<string>("");
+  const [fileName, setFileName] = useState("");
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const penpalRef = useRef<RemoteProxy<Methods>>(null);
+  const {
+    currentProfile,
+    currentOrg,
+    currentAPIKey,
+    generateSignature,
+    wrapOrgCode,
+  } = useIdentitySystem();
+  const { evmPublicKey, icpAccount } = currentProfile || {};
+  const dispatch = useDispatch();
+  // State for file content and UI
+  const [fileUrl, setFileUrl] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
+  const [isShareDrawerOpen, setIsShareDrawerOpen] = useState(false);
+  // IndexedDB specific state and methods
+  const dbNameRef = useRef<string>(
+    `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
+  );
+  const fileFromRedux: FileFEO | undefined = useSelector(
+    (state: ReduxAppState) => state.directory.fileMap[fileID || ""]
+  );
+  const fileContentRef = useRef<any>(null);
+  const [fileContentVersion, setFileContentVersion] = useState(0);
+  const [fileContentLoading, setFileContentLoading] = useState(false);
+  const [fileContentError, setFileContentError] = useState<string | null>(null);
 
-  const [fileData, setFileData] = useState<SpreadsheetFile_BTOA | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [emptyFile, setEmptyFile] = useState({
+    id: uuidv4(),
+    name: "Untitled Spreadsheet",
+  });
+
+  const file = fileFromRedux || emptyFile;
+
+  const params = new URLSearchParams(location.search);
+
+  console.log(`found params`, params);
+
+  console.log(`file ${fileID},`, file);
+  console.log(`--- fileUrl loading=${isLoading}`, fileUrl);
+
+  const objectStoreNameRef = useRef<string>("files");
+
+  const fetchJsonContent = useCallback(async (url: string) => {
+    console.log(`fetchJsonContent`, url);
+
+    if (!url) return;
+
+    setFileContentLoading(true);
+    setFileContentError(null);
+
+    try {
+      console.log(`Fetching JSON content from URL: ${url}`);
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+
+      // Get response as text
+      const text = await response.text();
+
+      try {
+        // Parse as JSON
+        const jsonData = JSON.parse(text);
+
+        // Store in ref instead of state
+        fileContentRef.current = jsonData;
+
+        // Signal that content has been updated
+        setFileContentVersion((prev) => prev + 1);
+
+        console.log("Successfully loaded and parsed JSON content");
+      } catch (parseError) {
+        console.error("Error parsing JSON:", parseError);
+        fileContentRef.current = { raw: text };
+        setFileContentVersion((prev) => prev + 1);
+        setFileContentError("Could not parse file as JSON");
+      }
+    } catch (error) {
+      console.error("Error loading file content:", error);
+      setFileContentError(
+        error instanceof Error ? error.message : String(error)
+      );
+    } finally {
+      setFileContentLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log(`useEffect for fileUrl`, fileUrl);
+    if (fileUrl && !isLoading) {
+      fetchJsonContent(fileUrl);
+    }
+  }, [fileUrl, isLoading, fetchJsonContent]);
+
+  // Cleanup effect when component unmounts
+  useEffect(() => {
+    return () => {
+      // Help garbage collection by clearing the ref
+      fileContentRef.current = null;
+    };
+  }, []);
+
+  const isFileSizeValidForPreview = (file: FileFEO) => {
+    const sizeInMB = file.file_size / (1024 * 1024);
+    const sizeInGB = sizeInMB / 1024;
+
+    if (
+      file.disk_type === DiskTypeEnum.BrowserCache ||
+      file.disk_type === DiskTypeEnum.IcpCanister
+    ) {
+      return isMobile ? sizeInMB < 200 : sizeInGB < 1;
+    } else if (
+      file.disk_type === DiskTypeEnum.StorjWeb3 ||
+      file.disk_type === DiskTypeEnum.AwsBucket
+    ) {
+      return sizeInGB < 2;
+    }
+    return true;
+  };
 
   useEffect(() => {
     console.log("SpreadsheetEditor mounted");
-    const getFileParam = async () => {
-      setLoading(true);
-      const searchParams = new URLSearchParams(location.search);
-      const fileParam = searchParams.get("file");
-      console.log(`fileParam`, fileParam);
-      if (fileParam) {
-        try {
-          const decodedData = JSON.parse(urlSafeBase64Decode(fileParam || ""));
-          console.log(`Decoded SpreadsheetFile_BTOA:`, decodedData);
-          const readyData = {
-            ...decodedData,
-          };
-          if (decodedData.file_id) {
-            setFileData(decodedData);
-            setLoading(false);
-            return;
-          }
-        } catch (error) {
-          console.error("Error decoding file parameter:", error);
-          message.error("Invalid spreadsheet file data");
-        }
+    if (fileID) {
+      if (fileID === "new") {
+        // fetchFileById("______");
+      } else {
+        fetchFileById(fileID);
       }
-      console.log("No file data found in URL, creating new spreadsheet");
-      setFileData({
-        file_id: uuidv4() as FileID,
-        file_name: "Draft Spreadsheet",
-      });
-      setLoading(false);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (currentOrg && currentProfile) {
+      dbNameRef.current = `OFFICEX-browser-cache-storage-${currentOrg.driveID}-${currentProfile.userID}`;
+    }
+  }, [currentOrg, currentProfile]);
+
+  const fileType = "officex-spreadsheet";
+
+  // New method to handle files from IndexedDB
+  const getFileFromIndexedDB = async (fileId: FileUUID): Promise<string> => {
+    console.log(`getFileFromIndexedDB`, fileId);
+    return new Promise((resolve, reject) => {
+      const openRequest = indexedDB.open(dbNameRef.current, 1);
+
+      openRequest.onerror = (event) => {
+        console.error("Error opening IndexedDB:", event);
+        reject(new Error("Failed to open IndexedDB"));
+      };
+
+      openRequest.onsuccess = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+
+        // Try retrieving the file first
+        const filesTransaction = db.transaction(
+          [objectStoreNameRef.current],
+          "readonly"
+        );
+        const filesStore = filesTransaction.objectStore(
+          objectStoreNameRef.current
+        );
+        const fileRequest = filesStore.get(fileId);
+
+        fileRequest.onsuccess = async () => {
+          if (fileRequest.result) {
+            // Check if we have the complete file
+            if (fileRequest.result.uploadComplete) {
+              console.log(
+                "Found complete file in IndexedDB:",
+                fileRequest.result
+              );
+
+              // For certain file types that need reconstruction from chunks
+              if (
+                [
+                  "image",
+                  "video",
+                  "audio",
+                  "pdf",
+                  "spreadsheet",
+                  "other",
+                  "officex-spreadsheet",
+                  "officex-document",
+                ].includes(fileType)
+              ) {
+                try {
+                  const fileBlob = await reconstructFileFromChunks(db, fileId);
+                  if (fileBlob) {
+                    const url = URL.createObjectURL(fileBlob);
+                    resolve(url);
+                  } else {
+                    reject(new Error("Failed to reconstruct file from chunks"));
+                  }
+                } catch (error) {
+                  console.error("Error reconstructing file:", error);
+                  reject(error);
+                }
+              } else {
+                // For other types where direct access may be enough
+                resolve(fileRequest.result.url || "");
+              }
+            } else {
+              reject(new Error("File upload is not complete"));
+            }
+          } else {
+            reject(new Error("File not found in IndexedDB"));
+          }
+        };
+
+        fileRequest.onerror = (event) => {
+          console.error("Error retrieving file from IndexedDB:", event);
+          reject(new Error("Failed to retrieve file from IndexedDB"));
+        };
+      };
+
+      // Handle database version upgrade (first time)
+      openRequest.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+
+        // Create object stores if they don't exist
+        if (!db.objectStoreNames.contains(objectStoreNameRef.current)) {
+          db.createObjectStore(objectStoreNameRef.current, { keyPath: "id" });
+        }
+        if (!db.objectStoreNames.contains("file_chunks")) {
+          db.createObjectStore("file_chunks", { keyPath: "id" });
+        }
+      };
+    });
+  };
+
+  // Helper method to reconstruct a file from chunks
+  const reconstructFileFromChunks = async (
+    db: IDBDatabase,
+    fileId: FileUUID
+  ): Promise<Blob | null> => {
+    return new Promise((resolve, reject) => {
+      try {
+        // First get the file metadata to determine chunks
+        const filesTransaction = db.transaction(
+          [objectStoreNameRef.current],
+          "readonly"
+        );
+        const filesStore = filesTransaction.objectStore(
+          objectStoreNameRef.current
+        );
+        const metadataRequest = filesStore.get(fileId);
+
+        metadataRequest.onsuccess = async () => {
+          if (!metadataRequest.result) {
+            console.error("File metadata not found for reconstruction");
+            return resolve(null);
+          }
+
+          const fileInfo = metadataRequest.result;
+          const chunkSize = 1024 * 1024; // Default 1MB chunks
+          const totalChunks = Math.ceil(fileInfo.size / chunkSize);
+
+          // Start transaction for chunks
+          const chunksTransaction = db.transaction(["file_chunks"], "readonly");
+          const chunksStore = chunksTransaction.objectStore("file_chunks");
+
+          const chunks: Uint8Array[] = [];
+          let loadedChunks = 0;
+
+          // Process each chunk
+          for (let i = 0; i < totalChunks; i++) {
+            const chunkId = `${fileId}_chunk_${i}`;
+            const chunkRequest = chunksStore.get(chunkId);
+
+            chunkRequest.onsuccess = (event) => {
+              const result = (event.target as IDBRequest).result;
+              if (result && result.data) {
+                chunks[i] = result.data; // Store at correct position
+                loadedChunks++;
+
+                // Check if all chunks are loaded
+                if (loadedChunks === totalChunks) {
+                  const blob = new Blob(chunks, {
+                    type: fileInfo.type || "application/octet-stream",
+                  });
+                  resolve(blob);
+                }
+              } else {
+                console.warn(`Missing chunk ${i} for file ${fileId}`);
+                loadedChunks++;
+
+                // Even with missing chunks, try to construct partial file
+                if (loadedChunks === totalChunks) {
+                  if (chunks.length > 0) {
+                    const blob = new Blob(chunks.filter(Boolean), {
+                      type: fileInfo.type || "application/octet-stream",
+                    });
+                    resolve(blob);
+                  } else {
+                    resolve(null);
+                  }
+                }
+              }
+            };
+
+            chunkRequest.onerror = (event) => {
+              console.error(`Error loading chunk ${i}:`, event);
+              loadedChunks++;
+
+              // Continue with remaining chunks
+              if (loadedChunks === totalChunks && chunks.length > 0) {
+                const blob = new Blob(chunks.filter(Boolean), {
+                  type: fileInfo.type || "application/octet-stream",
+                });
+                resolve(blob);
+              }
+            };
+          }
+
+          // Handle case with no chunks
+          if (totalChunks === 0) {
+            resolve(null);
+          }
+        };
+
+        metadataRequest.onerror = (event) => {
+          console.error("Error getting file metadata:", event);
+          reject(new Error("Failed to get file metadata"));
+        };
+      } catch (error) {
+        console.error("Error during file reconstruction:", error);
+        reject(error);
+      }
+    });
+  };
+
+  useEffect(() => {
+    console.log(`useEffect loop`);
+    if (!file) return;
+    // If file ID hasn't changed, don't reload
+    if (file.id === lastLoadedFileRef.current) {
+      return;
+    }
+
+    // If we're already loading this file, don't start a new load
+    if (currentLoadingFileRef.current === file.id) {
+      return;
+    }
+    console.log(`about ot start`);
+    // Clear previous URL when switching to a new file
+    if (fileUrl && file.id !== lastLoadedFileRef.current) {
+      URL.revokeObjectURL(fileUrl);
+      setFileUrl("");
+    }
+    const loadFileContent = async () => {
+      console.log(`loadFileContent`, file);
+      console.log(`fileType`, fileType);
+
+      if (!file || !fileType) return;
+
+      // if (!currentOrg?.endpoint) {
+      //   setFileUrl(file.raw_url || "");
+      //   setIsLoading(false);
+      //   return;
+      // }
+
+      // // Check if file is fully uploaded
+      // if (
+      //   file.upload_status !== "COMPLETED" &&
+      //   currentOrg?.endpoint &&
+      //   !offlineDisk
+      // ) {
+      //   setIsLoading(false);
+      //   return;
+      // }
+
+      // Check if file size is valid for preview
+      if (!isFileSizeValidForPreview(file)) {
+        setIsLoading(false);
+        return;
+      }
+
+      currentLoadingFileRef.current = file.id;
+      setIsLoading(true);
+      console.log(`file --> `, file);
+      try {
+        if (file.disk_type === DiskTypeEnum.BrowserCache) {
+          // Use IndexedDB approach instead of indexdbGetFileUrl
+          const url = await getFileFromIndexedDB(file.id as FileUUID);
+          console.log(`indexdb url`, url);
+          setFileUrl(url);
+        } else if (
+          file.disk_type === DiskTypeEnum.StorjWeb3 ||
+          file.disk_type === DiskTypeEnum.AwsBucket
+        ) {
+          const url = await getPresignedUrl(file.raw_url as string);
+          console.log(`the presigned url`, url);
+          setFileUrl(url as string);
+        } else if (file.disk_type === DiskTypeEnum.IcpCanister) {
+          // Handle IcpCanister files using the raw download endpoints
+          // wait 3 seconds
+          await sleep(3000);
+          const blobUrl = await fetchFileContentFromCanister(file.id as string);
+          if (blobUrl) {
+            setFileUrl(blobUrl);
+          } else {
+            throw new Error("Failed to load file from Canister");
+          }
+        }
+        lastLoadedFileRef.current = file.id;
+      } catch (error) {
+        console.error("Error loading file content", error);
+        // message.info("Failed to load file content");
+      } finally {
+        setIsLoading(false);
+        currentLoadingFileRef.current = null;
+      }
     };
 
-    getFileParam();
-  }, [location]);
+    loadFileContent();
+
+    setFileName(file.name || "Unknown File");
+
+    // Cleanup function
+    return () => {
+      if (fileUrl) {
+        URL.revokeObjectURL(fileUrl);
+      }
+    };
+  }, [file, fileType]);
+
+  async function getPresignedUrl(initialUrl: string) {
+    try {
+      // Make a GET request to follow redirects without downloading content
+      const response = await fetch(initialUrl, {
+        method: "GET",
+        redirect: "follow",
+      });
+
+      if (response.ok) {
+        // response.url will contain the final URL after all redirects
+        return response.url;
+      } else {
+        console.error("Error fetching presigned URL:", response.status);
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Failed to get presigned URL:", error);
+      throw error;
+    }
+  }
+
+  const fetchFileContentFromCanister = async (fileId: string) => {
+    let auth_token = currentAPIKey?.value || (await generateSignature());
+    try {
+      // 1. Fetch metadata
+      const { url, headers } = wrapAuthStringOrHeader(
+        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/directory/raw_download/meta?file_id=${fileId}`,
+        {
+          "Content-Type": "application/json",
+        },
+        auth_token
+      );
+      const metaRes = await fetch(url, {
+        method: "GET",
+        headers,
+      });
+
+      if (!metaRes.ok) {
+        throw new Error(`Metadata request failed: ${metaRes.statusText}`);
+      }
+
+      const metadata = await metaRes.json();
+      const { total_size, total_chunks } = metadata;
+
+      // 2. Fetch all chunks
+      let allBytes = new Uint8Array(total_size);
+      let offset = 0;
+
+      for (let i = 0; i < total_chunks; i++) {
+        const { url, headers } = wrapAuthStringOrHeader(
+          `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
+          {
+            "Content-Type": "application/json",
+          },
+          auth_token
+        );
+        const chunkRes = await fetch(url, {
+          method: "GET",
+          headers,
+        });
+
+        if (!chunkRes.ok) {
+          throw new Error(`Chunk request #${i} failed: ${chunkRes.statusText}`);
+        }
+
+        const chunkBuf = await chunkRes.arrayBuffer();
+        allBytes.set(new Uint8Array(chunkBuf), offset);
+        offset += chunkBuf.byteLength;
+      }
+
+      // 3. Create blob and URL
+      const blob = new Blob([allBytes]);
+      const blobUrl = URL.createObjectURL(blob);
+
+      return blobUrl;
+    } catch (error) {
+      console.error(
+        `Error fetching content from Canister for ${fileId}:`,
+        error
+      );
+      return null;
+    }
+  };
+
+  const handleRename = async (newName: string) => {
+    const oldName = file.name;
+    if (oldName === newName) return;
+    if (newName.split(".").length === 1) {
+      message.error(`Filename must include extension`);
+      return;
+    }
+    setIsUpdatingName(true);
+    try {
+      // update file action
+      const updateAction = {
+        action: UPDATE_FILE as "UPDATE_FILE",
+        payload: {
+          id: file.id,
+          name: newName,
+        },
+      };
+
+      dispatch(
+        updateFileAction(
+          updateAction,
+          undefined,
+          shouldBehaveOfflineDiskUIIntent(file.disk_id)
+        )
+      );
+      message.success("File renamed successfully");
+    } catch (error) {
+      message.error("Failed to rename file");
+    } finally {
+      setIsUpdatingName(false);
+      setIsEditing(false);
+    }
+  };
 
   const parentMethods = {
     getFileData: useCallback(() => {
       console.log("Fetching file data from parent");
-      return fileData;
-    }, [fileData]),
+
+      if (!file) {
+        return {
+          error: "No file data available",
+          loading: isLoading,
+        };
+      }
+
+      // Always return metadata, loading state, and content reference
+      return {
+        file,
+        contents: {
+          content: fileContentRef.current,
+          contentLoading: fileContentLoading || isLoading,
+          contentError: fileContentError,
+          contentVersion: fileContentVersion,
+          url: fileUrl,
+        },
+      };
+    }, [
+      file,
+      fileContentVersion,
+      fileContentLoading,
+      fileContentError,
+      fileUrl,
+      isLoading,
+    ]),
     downloadFile: useCallback(
       (fileContent: string) => {
         console.log("Downloading file with content:", fileContent);
-        const blob = new Blob([fileContent], { type: "text/plain" });
+        const blob = new Blob([fileContent], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        const _fileName = `${fileData?.file_name}.officex-spreadsheet.json`;
+        const _fileName = `${file?.name}.officex-spreadsheet.json`;
         a.download = _fileName;
         document.body.appendChild(a);
         a.click();
@@ -91,18 +675,27 @@ const SpreadsheetEditor = () => {
         URL.revokeObjectURL(url);
         return `File ${_fileName} downloaded successfully.`;
       },
-      [fileData]
+      [file]
     ),
     saveFile: useCallback((fileContent: string) => {
       console.log("Saving file with content:", fileContent);
       // Implement your save logic here
       return `File ${"fileName"} saved successfully.`;
     }, []),
+    shareFile: useCallback(() => {
+      setIsShareDrawerOpen(true);
+      // Implement your save logic here
+      return `File ${"fileName"} shared successfully.`;
+    }, []),
     logMessage: useCallback((message: string) => {
       console.log("Message from iframe:", message);
       return `Parent received: ${message}`;
     }, []),
   };
+
+  const offlineDisk = file
+    ? shouldBehaveOfflineDiskUIIntent(file.disk_type)
+    : true;
 
   const setupPenpal = useCallback(async () => {
     // Ensure iframeRef.current and its contentWindow exist before proceeding
@@ -155,13 +748,35 @@ const SpreadsheetEditor = () => {
     }
   }, [parentMethods, SPREADSHEET_APP_ENDPOINT]); // Depend on parentMethods and the endpoint URL
 
+  const fetchFileById = (fileId: FileID) => {
+    console.log(`fetching file by id`, fileId);
+
+    try {
+      // Create the get file action
+      const getAction = {
+        action: GET_FILE as "GET_FILE",
+        payload: {
+          id: fileId,
+        },
+      };
+
+      dispatch(getFileAction(getAction, false));
+    } catch (error) {
+      console.error("Error fetching file by ID:", error);
+    }
+  };
+
+  if (!currentOrg && !currentProfile) {
+    return null;
+  }
+
   return (
     <div>
       <Helmet>
         <meta charSet="utf-8" />
         <title>
-          {fileData?.file_name
-            ? fileData?.file_name?.replace(".officex-spreadsheet.json", "")
+          {file?.name
+            ? file?.name?.replace(".officex-spreadsheet.json", "")
             : "Sheets | OfficeX"}
         </title>
         <link rel="icon" href="/sheets-favicon.ico" />
@@ -249,28 +864,36 @@ const SpreadsheetEditor = () => {
               }}
               style={{ fontFamily: "sans-serif", marginLeft: 8 }}
             >
-              {fileData?.file_name
-                ? fileData?.file_name?.replace(".officex-spreadsheet.json", "")
+              {file?.name
+                ? file?.name?.replace(".officex-spreadsheet.json", "")
                 : "Sheets | OfficeX"}
             </span>
           </div>
         }
       />
-      {/* <iframe
-        src={SPREADSHEET_APP_ENDPOINT}
-        allow="clipboard-read; clipboard-write"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        style={{ width: "100%", height: "90vh", border: "none" }}
-      /> */}
-      <iframe
-        ref={iframeRef} // Attach the ref here
-        src={SPREADSHEET_APP_ENDPOINT}
-        allow="clipboard-read; clipboard-write"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        style={{ width: "100%", height: "90vh", border: "none" }}
-        onLoad={setupPenpal} // Trigger Penpal setup when the iframe content loads
-      />
+      {file && (
+        <iframe
+          ref={iframeRef} // Attach the ref here
+          src={SPREADSHEET_APP_ENDPOINT}
+          allow="clipboard-read; clipboard-write"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          style={{ width: "100%", height: "90vh", border: "none" }}
+          onLoad={setupPenpal} // Trigger Penpal setup when the iframe content loads
+        />
+      )}
+      {file && (
+        <DirectorySharingDrawer
+          open={isShareDrawerOpen}
+          onClose={() => setIsShareDrawerOpen(false)}
+          resourceID={file.id as DirectoryResourceID}
+          resourceName={file.name}
+          resource={file}
+          breadcrumbs={file?.breadcrumbs || []}
+          currentUserPermissions={file?.permission_previews || []}
+        />
+      )}
     </div>
   );
 };
+
 export default SpreadsheetEditor;

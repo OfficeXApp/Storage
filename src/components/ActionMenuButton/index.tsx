@@ -244,7 +244,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     },
     {
       label: (
-        <Link to={wrapOrgCode("/apps/docs")} target="_blank">
+        <Link to={wrapOrgCode("/apps/docs/new")} target="_blank">
           <div
             style={{
               display: "flex",
@@ -273,7 +273,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     },
     {
       label: (
-        <Link to={wrapOrgCode("/apps/sheets")} target="_blank">
+        <Link to={wrapOrgCode("/apps/sheets/new")} target="_blank">
           <div
             style={{
               display: "flex",

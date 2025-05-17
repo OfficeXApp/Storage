@@ -96,8 +96,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     | "audio"
     | "pdf"
     | "spreadsheet"
-    | "office-spreadsheet"
-    | "office-document"
+    | "officex-spreadsheet"
+    | "officex-document"
     | "other" => {
     const name = file.name || "";
     let extension =
@@ -135,9 +135,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       case "pdf":
         return "pdf";
       case "officex-spreadsheet":
-        return "office-spreadsheet";
+        return "officex-spreadsheet";
       case "officex-document":
-        return "office-document";
+        return "officex-document";
       default:
         return "other";
     }
@@ -857,18 +857,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               />
             </div>
           )}
-          {fileType === "office-spreadsheet" && (
-            <Link
-              to={`${wrapOrgCode(`/apps/sheets/${file.id}`)}?file=${urlSafeBase64Encode(
-                JSON.stringify({
-                  file_id: file.id,
-                  file_name: file.name,
-                  parent_folder_id: file.parent_folder_uuid,
-                  disk_type: file.disk_type,
-                  disk_id: file.disk_id,
-                })
-              )}`}
-            >
+          {fileType === "officex-spreadsheet" && (
+            <Link to={`${wrapOrgCode(`/apps/sheets/${file.id}`)}`}>
               <Button>Open Spreadsheet</Button>
             </Link>
           )}

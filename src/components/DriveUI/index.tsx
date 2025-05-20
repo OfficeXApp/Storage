@@ -227,6 +227,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     uploadTargetDiskID === defaultTempCloudSharingDiskID ||
     uploadTargetDiskID === defaultBrowserCacheDiskID;
 
+  console.log(`isOfflineDisk`, isOfflineDisk);
+
   const getFileResult: FileFEO | undefined = useSelector(
     (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
   );
@@ -1545,12 +1547,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 toggleUploadPanel={toggleUploadPanel}
                 optimisticListDirectoryKey={listDirectoryKey}
                 disabled={
-                  currentOrg?.endpoint
-                    ? listDirectoryResults?.isFirstTime ||
-                      !listDirectoryResults?.permission_previews.includes(
-                        DirectoryPermissionType.UPLOAD
-                      )
-                    : false
+                  isOfflineDisk
+                    ? false
+                    : currentOrg?.endpoint
+                      ? listDirectoryResults?.isFirstTime ||
+                        !listDirectoryResults?.permission_previews.includes(
+                          DirectoryPermissionType.UPLOAD
+                        )
+                      : false
                 }
               />
 
@@ -1823,12 +1827,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               toggleUploadPanel={toggleUploadPanel}
                               optimisticListDirectoryKey={listDirectoryKey}
                               disabled={
-                                currentOrg?.endpoint
-                                  ? listDirectoryResults?.isFirstTime ||
-                                    !listDirectoryResults?.permission_previews.includes(
-                                      DirectoryPermissionType.UPLOAD
-                                    )
-                                  : false
+                                isOfflineDisk
+                                  ? false
+                                  : currentOrg?.endpoint
+                                    ? listDirectoryResults?.isFirstTime ||
+                                      !listDirectoryResults?.permission_previews.includes(
+                                        DirectoryPermissionType.UPLOAD
+                                      )
+                                    : false
                               }
                             />,
                           ]
@@ -1838,12 +1844,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               toggleUploadPanel={toggleUploadPanel}
                               optimisticListDirectoryKey={listDirectoryKey}
                               disabled={
-                                currentOrg?.endpoint
-                                  ? listDirectoryResults?.isFirstTime ||
-                                    !listDirectoryResults?.permission_previews.includes(
-                                      DirectoryPermissionType.UPLOAD
-                                    )
-                                  : false
+                                isOfflineDisk
+                                  ? false
+                                  : currentOrg?.endpoint
+                                    ? listDirectoryResults?.isFirstTime ||
+                                      !listDirectoryResults?.permission_previews.includes(
+                                        DirectoryPermissionType.UPLOAD
+                                      )
+                                    : false
                               }
                             />,
                             <Link

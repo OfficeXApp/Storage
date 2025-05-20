@@ -126,6 +126,8 @@ const SpreadsheetEditor = () => {
   const [fileContentVersion, setFileContentVersion] = useState(0);
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [fileContentError, setFileContentError] = useState<string | null>(null);
+  const [iframeReady, setIframeReady] = useState(false);
+  const [isNewFile, setIsNewFile] = useState(false);
 
   const [emptyFile, setEmptyFile] = useState({
     id: `FileID_${uuidv4()}`,
@@ -154,7 +156,7 @@ const SpreadsheetEditor = () => {
   useEffect(() => {
     const getRedeemParam = async () => {
       const searchParams = new URLSearchParams(location.search);
-      const redeemParam = searchParams.get("file");
+      const redeemParam = searchParams.get("target");
 
       if (redeemParam) {
         try {
@@ -196,12 +198,14 @@ const SpreadsheetEditor = () => {
         // Parse as JSON
         const jsonData = JSON.parse(text);
 
+        console.log(`parsed json data`, jsonData);
+
         // Store in ref instead of state
         fileContentRef.current = jsonData;
 
         // Signal that content has been updated
         setFileContentVersion((prev) => prev + 1);
-
+        setIframeReady(true);
         console.log("Successfully loaded and parsed JSON content");
       } catch (parseError) {
         console.error("Error parsing JSON:", parseError);
@@ -221,10 +225,10 @@ const SpreadsheetEditor = () => {
 
   useEffect(() => {
     console.log(`useEffect for fileUrl`, fileUrl);
-    if (fileUrl && !isLoading) {
+    if (fileUrl) {
       fetchJsonContent(fileUrl);
     }
-  }, [fileUrl, isLoading, fetchJsonContent]);
+  }, [fileUrl, fetchJsonContent]);
 
   // Cleanup effect when component unmounts
   useEffect(() => {
@@ -256,7 +260,7 @@ const SpreadsheetEditor = () => {
     console.log("SpreadsheetEditor mounted");
     if (fileID) {
       if (fileID === "new") {
-        // fetchFileById("______");
+        setIsNewFile(true);
       } else {
         fetchFileById(fileID);
       }
@@ -512,6 +516,9 @@ const SpreadsheetEditor = () => {
       currentLoadingFileRef.current = file.id;
       setIsLoading(true);
       console.log(`file --> `, file);
+      if (isNewFile) {
+        setIframeReady(true);
+      }
       try {
         if (file.disk_type === DiskTypeEnum.BrowserCache) {
           // Use IndexedDB approach instead of indexdbGetFileUrl
@@ -530,6 +537,7 @@ const SpreadsheetEditor = () => {
           // wait 3 seconds
           await sleep(3000);
           const blobUrl = await fetchFileContentFromCanister(file.id as string);
+          console.log(`blobUrl=blobUrl`, blobUrl);
           if (blobUrl) {
             setFileUrl(blobUrl);
           } else {
@@ -1021,7 +1029,7 @@ const SpreadsheetEditor = () => {
           </div>
         }
       />
-      {file && (
+      {file && iframeReady ? (
         <iframe
           ref={iframeRef} // Attach the ref here
           src={SPREADSHEET_APP_ENDPOINT}
@@ -1030,6 +1038,18 @@ const SpreadsheetEditor = () => {
           style={{ width: "100%", height: "90vh", border: "none" }}
           onLoad={setupPenpal} // Trigger Penpal setup when the iframe content loads
         />
+      ) : (
+        <div
+          style={{
+            width: "100vw",
+            height: "90vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Spin />
+        </div>
       )}
       {file && (
         <DirectorySharingDrawer

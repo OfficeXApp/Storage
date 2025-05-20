@@ -163,13 +163,14 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       fileMap: state.directory.fileMap,
     })
   );
-  const [uploadTargetDiskID, setUploadTargetDiskID] = useState<DiskID | null>(
+  const [uploadTargetDiskID, setUploadTargetDiskID] = useState<DiskID>(
     defaultBrowserCacheDiskID
   );
   const [uploadTargetDiskType, setUploadTargetDiskType] =
-    useState<DiskTypeEnum | null>(null);
-  const [uploadTargetFolderID, setUploadTargetFolderID] =
-    useState<FolderID | null>(defaultBrowserCacheRootFolderID);
+    useState<DiskTypeEnum>(DiskTypeEnum.BrowserCache);
+  const [uploadTargetFolderID, setUploadTargetFolderID] = useState<FolderID>(
+    defaultBrowserCacheRootFolderID
+  );
   const [currentFileID, setCurrentFileID] = useState<FileID | null>(
     defaultBrowserCacheRootFolderID
   );

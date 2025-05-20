@@ -29,7 +29,14 @@ export function trimToFolderPath(filePath: string) {
 
 export const getFileType = (
   filename: string
-): "image" | "video" | "audio" | "pdf" | "other" => {
+):
+  | "image"
+  | "video"
+  | "audio"
+  | "pdf"
+  | "officex-spreadsheet"
+  | "officex-document"
+  | "other" => {
   const extension = filename.split(".").pop()?.toLowerCase();
 
   switch (extension) {
@@ -53,6 +60,10 @@ export const getFileType = (
       return "audio";
     case "pdf":
       return "pdf";
+    case "officex-spreadsheet":
+      return "officex-spreadsheet";
+    case "officex-document":
+      return "officex-document";
     default:
       return "other";
   }

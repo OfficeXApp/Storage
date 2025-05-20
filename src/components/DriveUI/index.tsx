@@ -56,6 +56,8 @@ import {
   AppstoreOutlined,
   ExperimentOutlined,
 } from "@ant-design/icons";
+import sheetsLogo from "../../assets/sheets-logo.png";
+import docsLogo from "../../assets/docs-logo.png";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   FileUUID,
@@ -807,6 +809,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const renderIconForFile = (title: string) => {
     const fileType = getFileType(title);
     switch (fileType) {
+      case "officex-spreadsheet":
+        return (
+          <img src={sheetsLogo} alt="Spreadsheet" style={{ width: "100px" }} />
+        );
+      case "officex-document":
+        return <img src={docsLogo} alt="Document" />;
       default:
         return <FileOutlined />;
     }

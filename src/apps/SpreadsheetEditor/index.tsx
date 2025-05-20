@@ -43,14 +43,17 @@ import {
   DiskID,
   DiskTypeEnum,
   FileID,
+  FolderID,
 } from "@officexapp/types";
 import {
   extractDiskInfo,
   sleep,
+  urlSafeBase64Decode,
   urlSafeBase64Encode,
   wrapAuthStringOrHeader,
 } from "../../api/helpers";
 import {
+  generateListDirectoryKey,
   GET_FILE,
   getFileAction,
   UPDATE_FILE,
@@ -70,6 +73,13 @@ import { SPREADSHEET_APP_ENDPOINT } from "../../framework/identity/constants";
 import { Helmet } from "react-helmet";
 import Marquee from "react-fast-marquee";
 import SlimAppHeader from "../../components/SlimAppHeader";
+import { useMultiUploader } from "../../framework/uploader/hook";
+
+export interface Spreadsheet_BTOA {
+  parent_folder_uuid: FolderID;
+  disk_type: DiskTypeEnum;
+  disk_id: DiskID;
+}
 
 const { Text } = Typography;
 
@@ -80,11 +90,16 @@ const SpreadsheetEditor = () => {
   const isMobile = screenType.isMobile;
   const currentLoadingFileRef = useRef<string | null>(null);
   const lastLoadedFileRef = useRef<string>("");
-  const [fileName, setFileName] = useState("");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const penpalRef = useRef<RemoteProxy<Methods>>(null);
+  const {
+    uploadFiles,
+    uploadTargetDiskID,
+    uploadTargetDisk,
+    uploadTargetFolderID,
+  } = useMultiUploader();
   const {
     currentProfile,
     currentOrg,
@@ -99,6 +114,7 @@ const SpreadsheetEditor = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
   const [isShareDrawerOpen, setIsShareDrawerOpen] = useState(false);
+  const [btoaData, setBtoaData] = useState<Spreadsheet_BTOA | null>(null);
   // IndexedDB specific state and methods
   const dbNameRef = useRef<string>(
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
@@ -112,20 +128,50 @@ const SpreadsheetEditor = () => {
   const [fileContentError, setFileContentError] = useState<string | null>(null);
 
   const [emptyFile, setEmptyFile] = useState({
-    id: uuidv4(),
-    name: "Untitled Spreadsheet",
+    id: `FileID_${uuidv4()}`,
+    name: `Untitled Spreadsheet - ${Date.now()}`,
   });
 
   const file = fileFromRedux || emptyFile;
 
+  const [currentFileName, setCurrentFileName] = useState(
+    "Untitled Spreadsheet"
+  );
+  const currentFileNameRef = useRef<string>(currentFileName);
+
   const params = new URLSearchParams(location.search);
 
-  console.log(`found params`, params);
-
-  console.log(`file ${fileID},`, file);
-  console.log(`--- fileUrl loading=${isLoading}`, fileUrl);
-
   const objectStoreNameRef = useRef<string>("files");
+
+  useEffect(() => {
+    console.log(`initial setting filename`);
+    const defaultName =
+      file.name.replace(".officex-spreadsheet", "") || "Untitled Spreadsheet";
+    setCurrentFileName(defaultName);
+    currentFileNameRef.current = defaultName;
+  }, []);
+
+  useEffect(() => {
+    const getRedeemParam = async () => {
+      const searchParams = new URLSearchParams(location.search);
+      const redeemParam = searchParams.get("file");
+
+      if (redeemParam) {
+        try {
+          const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
+          console.log(`decodedData`, decodedData);
+          setBtoaData(decodedData);
+        } catch (error) {
+          console.error("Error decoding redeem parameter:", error);
+          message.error("Invalid resource access link");
+        }
+      } else {
+        // message.error("No resource access data found");
+      }
+    };
+
+    getRedeemParam();
+  }, [location]);
 
   const fetchJsonContent = useCallback(async (url: string) => {
     console.log(`fetchJsonContent`, url);
@@ -502,7 +548,12 @@ const SpreadsheetEditor = () => {
 
     loadFileContent();
 
-    setFileName(file.name || "Unknown File");
+    if (file.id !== lastLoadedFileRef.current) {
+      const defaultName =
+        file.name.replace(".officex-spreadsheet", "") || "Unknown File";
+      setCurrentFileName(defaultName);
+      currentFileNameRef.current = defaultName;
+    }
 
     // Cleanup function
     return () => {
@@ -630,8 +681,110 @@ const SpreadsheetEditor = () => {
     }
   };
 
+  const saveFileContent = async (fileContent: string) => {
+    if (!file || !fileContent) {
+      message.error("No file or content to save");
+      return false;
+    }
+
+    console.log(`currentFileName==`, currentFileName);
+    console.log(`currentFileNameRef==`, currentFileNameRef.current);
+
+    const _currentFileName = currentFileNameRef.current;
+
+    console.log(`save fileContent`, fileContent);
+
+    const _fileContent = {
+      ...JSON.parse(fileContent),
+      name: _currentFileName.replace(".officex-spreadsheet", ""),
+    };
+
+    try {
+      // Convert string content to a file object
+      const blob = new Blob([JSON.stringify(_fileContent)], {
+        type: "application/json",
+      });
+      const fileObject = new File(
+        [blob],
+        `${_currentFileName.replace(".officex-spreadsheet", "")}.officex-spreadsheet`,
+        {
+          type: "application/json",
+        }
+      );
+
+      // Get the folder and disk information
+      const parentFolderID =
+        file.parent_folder_uuid ||
+        btoaData?.parent_folder_uuid ||
+        uploadTargetFolderID ||
+        "root";
+      const diskType =
+        file.disk_type || btoaData?.disk_type || uploadTargetDisk?.disk_type;
+      const diskID = file.disk_id || btoaData?.disk_id || uploadTargetDiskID;
+
+      if (!diskID) {
+        message.error("No disk ID available for saving");
+        return false;
+      }
+
+      // Create file object with the same ID to overwrite existing file
+      const uploadFileObject = {
+        file: fileObject,
+        fileID: file.id as FileID, // Use the existing file ID to overwrite
+      };
+
+      console.log(`
+
+        Saving file with ID: ${file.id}
+        File name: ${fileObject.name}
+        File size: ${fileObject.size} bytes
+        Disk type: ${diskType}
+        Disk ID: ${diskID}
+        Parent folder ID: ${parentFolderID}
+        
+        `);
+
+      // Upload the file (which will overwrite the existing one)
+      // The useMultiUploader will handle all disk types appropriately
+      uploadFiles([uploadFileObject], parentFolderID, diskType, diskID, {
+        onFileComplete: (fileUUID) => {
+          console.log(`>>>>> File ${fileUUID} save completed`);
+          // Refresh the file content after save
+          // fetchFileById(file.id as FileID);
+          dispatch(
+            updateFileAction(
+              {
+                action: UPDATE_FILE as "UPDATE_FILE",
+                payload: {
+                  id: file.id,
+                  name: `${_currentFileName.replace(".officex-spreadsheet", "")}.officex-spreadsheet`,
+                },
+              },
+              undefined,
+              shouldBehaveOfflineDiskUIIntent(file.disk_id)
+            )
+          );
+        },
+        metadata: {
+          dispatch,
+        },
+        parentFolderID: parentFolderID,
+        listDirectoryKey: generateListDirectoryKey({
+          folder_id: parentFolderID || undefined,
+        }),
+      });
+      message.success(`File ${_currentFileName} saved successfully`);
+
+      return true;
+    } catch (error) {
+      console.error("Error saving file:", error);
+      message.error("Failed to save file");
+      return false;
+    }
+  };
+
   const parentMethods = {
-    getFileData: useCallback(() => {
+    getFileData: () => {
       console.log("Fetching file data from parent");
 
       if (!file) {
@@ -652,36 +805,42 @@ const SpreadsheetEditor = () => {
           url: fileUrl,
         },
       };
-    }, [
-      file,
-      fileContentVersion,
-      fileContentLoading,
-      fileContentError,
-      fileUrl,
-      isLoading,
-    ]),
-    downloadFile: useCallback(
-      (fileContent: string) => {
-        console.log("Downloading file with content:", fileContent);
-        const blob = new Blob([fileContent], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        const _fileName = `${file?.name}.officex-spreadsheet.json`;
-        a.download = _fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        return `File ${_fileName} downloaded successfully.`;
+    },
+    downloadFile: (fileContent: string) => {
+      console.log(`currentFileNameRef==`, currentFileNameRef.current);
+      const _currentFileName = currentFileNameRef.current;
+      console.log(
+        `Downloading file ${_currentFileName} with content:`,
+        fileContent
+      );
+      const blob = new Blob([fileContent], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const _fileName = `${_currentFileName.replace(".officex-spreadsheet", "")}.officex-spreadsheet`;
+      a.download = _fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      return `File ${_fileName} downloaded successfully.`;
+    },
+    saveFile: useCallback(
+      async (fileContent: string) => {
+        console.log("Saving file with content:", fileContent);
+
+        const success = await saveFileContent(fileContent);
+
+        history.replaceState({}, "", wrapOrgCode(`/apps/sheets/${file.id}`));
+
+        if (success) {
+          return `File ${currentFileName} saved successfully.`;
+        } else {
+          return `Failed to save file ${currentFileName}.`;
+        }
       },
-      [file]
+      [currentFileName, file, saveFileContent]
     ),
-    saveFile: useCallback((fileContent: string) => {
-      console.log("Saving file with content:", fileContent);
-      // Implement your save logic here
-      return `File ${"fileName"} saved successfully.`;
-    }, []),
     shareFile: useCallback(() => {
       setIsShareDrawerOpen(true);
       // Implement your save logic here
@@ -697,7 +856,7 @@ const SpreadsheetEditor = () => {
     ? shouldBehaveOfflineDiskUIIntent(file.disk_type)
     : true;
 
-  const setupPenpal = useCallback(async () => {
+  const setupPenpal = async () => {
     // Ensure iframeRef.current and its contentWindow exist before proceeding
     if (iframeRef.current && iframeRef.current.contentWindow) {
       let connection: Connection | undefined;
@@ -746,7 +905,7 @@ const SpreadsheetEditor = () => {
         "Iframe ref or contentWindow not available to set up Penpal."
       );
     }
-  }, [parentMethods, SPREADSHEET_APP_ENDPOINT]); // Depend on parentMethods and the endpoint URL
+  }; // Depend on parentMethods and the endpoint URL
 
   const fetchFileById = (fileId: FileID) => {
     console.log(`fetching file by id`, fileId);
@@ -774,11 +933,7 @@ const SpreadsheetEditor = () => {
     <div>
       <Helmet>
         <meta charSet="utf-8" />
-        <title>
-          {file?.name
-            ? file?.name?.replace(".officex-spreadsheet.json", "")
-            : "Sheets | OfficeX"}
-        </title>
+        <title>{currentFileName.replace(".officex-spreadsheet", "")}</title>
         <link rel="icon" href="/sheets-favicon.ico" />
       </Helmet>
       <Alert
@@ -855,19 +1010,14 @@ const SpreadsheetEditor = () => {
                 } as React.CSSProperties
               }
             />
-            <span
-              onClick={() => {
-                // @ts-ignore
-                penpalRef.current?.checkstatus(
-                  "To support multiple iframes, you can use a unique identifier for each iframe instance."
-                );
+            <Input
+              value={currentFileName}
+              onChange={(e) => {
+                setCurrentFileName(e.target.value);
+                currentFileNameRef.current = e.target.value;
               }}
-              style={{ fontFamily: "sans-serif", marginLeft: 8 }}
-            >
-              {file?.name
-                ? file?.name?.replace(".officex-spreadsheet.json", "")
-                : "Sheets | OfficeX"}
-            </span>
+              style={{ marginLeft: 8, minWidth: 300 }}
+            />
           </div>
         }
       />
@@ -886,7 +1036,7 @@ const SpreadsheetEditor = () => {
           open={isShareDrawerOpen}
           onClose={() => setIsShareDrawerOpen(false)}
           resourceID={file.id as DirectoryResourceID}
-          resourceName={file.name}
+          resourceName={currentFileName}
           resource={file}
           breadcrumbs={file?.breadcrumbs || []}
           currentUserPermissions={file?.permission_previews || []}

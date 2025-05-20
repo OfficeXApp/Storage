@@ -103,9 +103,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     let extension =
       file.extension?.toLowerCase() || name.split(".").pop()?.toLowerCase();
 
-    if (name.endsWith("officex-spreadsheet.json")) {
+    if (name.endsWith("officex-spreadsheet")) {
       extension = "officex-spreadsheet";
-    } else if (name.endsWith("officex-document.json")) {
+    } else if (name.endsWith("officex-document")) {
       extension = "officex-document";
     }
 
@@ -379,7 +379,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     const loadFileContent = async () => {
       if (!file || !fileType) return;
 
-      if (!currentOrg?.endpoint) {
+      if (!currentOrg?.endpoint && diskTypeEnum !== DiskTypeEnum.BrowserCache) {
         setFileUrl(file.raw_url || "");
         setIsLoading(false);
         return;

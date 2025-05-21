@@ -39,6 +39,7 @@ import {
   shouldBehaveOfflineDiskUIIntent,
 } from "../../redux-offline/directory/directory.reducer";
 import {
+  DirectoryPermissionType,
   DirectoryResourceID,
   DiskID,
   DiskTypeEnum,
@@ -75,20 +76,23 @@ import { Helmet } from "react-helmet";
 import Marquee from "react-fast-marquee";
 import SlimAppHeader from "../../components/SlimAppHeader";
 import { useMultiUploader } from "../../framework/uploader/hook";
-
-export interface Spreadsheet_BTOA {
-  parent_folder_uuid: FolderID;
-  disk_type: DiskTypeEnum;
-  disk_id: DiskID;
-}
+import { fileRawUrl_BTOA } from "../../components/FreeFileSharePreview";
+import DirectoryGuard from "../../components/DriveUI/DirectoryGuard";
 
 const { Text } = Typography;
 
 const SpreadsheetEditor = () => {
-  const { orgcode, fileID } = useParams();
+  const {
+    orgcode,
+    fileID,
+    diskTypeEnum: diskTypeEnumFromUrl,
+    diskID: diskIDFromUrl,
+    parentFolderID: parentFolderIDFromUrl,
+  } = useParams();
   const screenType = useScreenType();
   const navigate = useNavigate();
   const isMobile = screenType.isMobile;
+  const [redeemData, setRedeemData] = useState<fileRawUrl_BTOA | null>(null);
   const currentLoadingFileRef = useRef<string | null>(null);
   const lastLoadedFileRef = useRef<string>("");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
@@ -115,7 +119,6 @@ const SpreadsheetEditor = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
   const [isShareDrawerOpen, setIsShareDrawerOpen] = useState(false);
-  const [btoaData, setBtoaData] = useState<Spreadsheet_BTOA | null>(null);
   // IndexedDB specific state and methods
   const dbNameRef = useRef<string>(
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
@@ -134,7 +137,9 @@ const SpreadsheetEditor = () => {
     name: `Untitled Spreadsheet - ${Date.now()}`,
   });
 
-  const file = fileFromRedux || emptyFile;
+  console.log(`++++++ fileFromRedux`, fileFromRedux);
+
+  const file = fileFromRedux || redeemData?.original || emptyFile;
 
   const [currentFileName, setCurrentFileName] = useState(
     "Untitled Spreadsheet"
@@ -156,19 +161,19 @@ const SpreadsheetEditor = () => {
   useEffect(() => {
     const getRedeemParam = async () => {
       const searchParams = new URLSearchParams(location.search);
-      const redeemParam = searchParams.get("target");
+      const redeemParam = searchParams.get("redeem");
+
+      console.log(`redeemParam`, redeemParam);
 
       if (redeemParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
-          console.log(`decodedData`, decodedData);
-          setBtoaData(decodedData);
+          console.log(`redeem-decodedData`, decodedData);
+          setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
           message.error("Invalid resource access link");
         }
-      } else {
-        // message.error("No resource access data found");
       }
     };
 
@@ -193,8 +198,6 @@ const SpreadsheetEditor = () => {
 
       // Get response as text
       const text = await response.text();
-      console.log("const text = await response.text();", text);
-      console.log("----------------------------");
 
       try {
         // Parse as JSON
@@ -724,12 +727,12 @@ const SpreadsheetEditor = () => {
       // Get the folder and disk information
       const parentFolderID =
         file.parent_folder_uuid ||
-        btoaData?.parent_folder_uuid ||
+        parentFolderIDFromUrl ||
         uploadTargetFolderID ||
         "root";
       const diskType =
-        file.disk_type || btoaData?.disk_type || uploadTargetDisk?.disk_type;
-      const diskID = file.disk_id || btoaData?.disk_id || uploadTargetDiskID;
+        file.disk_type || diskTypeEnumFromUrl || uploadTargetDisk?.disk_type;
+      const diskID = file.disk_id || diskIDFromUrl || uploadTargetDiskID;
 
       if (!diskID) {
         message.error("No disk ID available for saving");
@@ -813,6 +816,9 @@ const SpreadsheetEditor = () => {
           contentError: fileContentError,
           contentVersion: fileContentVersion,
           url: fileUrl,
+          editable:
+            fileID === "new" ||
+            file.permission_previews?.includes(DirectoryPermissionType.EDIT),
         },
       };
     },
@@ -841,7 +847,17 @@ const SpreadsheetEditor = () => {
 
         const success = await saveFileContent(fileContent);
 
-        history.replaceState({}, "", wrapOrgCode(`/apps/sheets/${file.id}`));
+        history.replaceState(
+          {},
+          "",
+          wrapOrgCode(
+            `/drive/${file.disk_type || diskTypeEnumFromUrl}/${
+              file.disk_id || diskIDFromUrl
+            }/${file.parent_folder_uuid || parentFolderIDFromUrl}/${file.id}/apps/sheets`
+          )
+        );
+
+        // fetchFileById(file.id as FileID);
 
         if (success) {
           return `File ${currentFileName} saved successfully.`;
@@ -939,6 +955,20 @@ const SpreadsheetEditor = () => {
     return null;
   }
 
+  // unauthorized access to file
+  if (fileID && !fileFromRedux && !redeemData && fileID !== "new") {
+    return (
+      <DirectoryGuard
+        resourceID={fileID}
+        loading={(fileFromRedux as any)?.isLoading}
+        fetchResource={() => {
+          if (!fileID) return;
+          fetchFileById(fileID);
+        }}
+      />
+    );
+  }
+
   return (
     <div>
       <Helmet>
@@ -1006,30 +1036,29 @@ const SpreadsheetEditor = () => {
               cursor: "pointer",
             }}
           >
-            <img
-              alt="Sheets"
-              src={sheetsLogo}
-              onClick={() => {
-                if (btoaData?.parent_folder_uuid || file.parent_folder_uuid) {
-                  navigate(
-                    wrapOrgCode(
-                      `/drive/${btoaData?.disk_type || file.disk_type}/${
-                        file.disk_id || btoaData?.disk_id
-                      }/${file.parent_folder_uuid || btoaData?.parent_folder_uuid}/`
+            <Link
+              to={
+                parentFolderIDFromUrl || file.parent_folder_uuid
+                  ? wrapOrgCode(
+                      `/drive/${file.disk_type || diskTypeEnumFromUrl}/${
+                        file.disk_id || diskIDFromUrl
+                      }/${file.parent_folder_uuid || parentFolderIDFromUrl}/`
                     )
-                  );
-                } else {
-                  navigate("/");
-                }
-              }}
-              style={
-                {
-                  width: 30,
-                  objectFit: "cover",
-                  margin: "0px",
-                } as React.CSSProperties
+                  : wrapOrgCode("/drive")
               }
-            />
+            >
+              <img
+                alt="Sheets"
+                src={sheetsLogo}
+                style={
+                  {
+                    width: 30,
+                    objectFit: "cover",
+                    margin: "0px",
+                  } as React.CSSProperties
+                }
+              />
+            </Link>
             <Input
               value={currentFileName}
               onChange={(e) => {

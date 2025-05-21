@@ -444,13 +444,30 @@ const RouterUI = () => {
   return (
     <Routes>
       <Route
-        path="/org/:orgcode/apps/docs/:fileID"
+        path="/docs"
+        element={
+          <Navigate
+            to={`/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/new/apps/docs`}
+          />
+        }
+      />
+      <Route
+        path="/org/:orgcode/drive/:diskTypeEnum/:diskID/:parentFolderID/:fileID/apps/docs"
         element={<DocumentEditor />}
       />
       <Route
-        path="/org/:orgcode/apps/sheets/:fileID"
+        path="/sheets"
+        element={
+          <Navigate
+            to={`/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/new/apps/sheets`}
+          />
+        }
+      />
+      <Route
+        path="/org/:orgcode/drive/:diskTypeEnum/:diskID/:parentFolderID/:fileID/apps/sheets"
         element={<SpreadsheetEditor />}
       />
+
       <Route
         path="*"
         element={

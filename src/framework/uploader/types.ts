@@ -111,6 +111,7 @@ export interface UploadConfig {
   retryDelay?: number;
   skipDuplicates?: boolean;
   listDirectoryKey?: string;
+  fileConflictResolution?: FileConflictResolutionEnum;
 }
 
 /**

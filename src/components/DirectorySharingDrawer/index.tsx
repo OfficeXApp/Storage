@@ -136,13 +136,14 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   const [permissionForEdit, setPermissionForEdit] =
     useState<PreExistingStateForEdit>();
 
-  const { uploadTargetDiskID } = useMultiUploader();
+  const { diskID: uploadTargetDiskID } = extractDiskInfo();
   const isOfflineDisk =
     uploadTargetDiskID === defaultTempCloudSharingDiskID ||
     uploadTargetDiskID === defaultBrowserCacheDiskID;
 
   const dispatch = useDispatch();
   useEffect(() => {
+    console.log("....uploadTargetDiskID", uploadTargetDiskID);
     if (uploadTargetDiskID === defaultTempCloudSharingDiskID && resource) {
       const _file = resource as FileRecordFE;
       const payload: fileRawUrl_BTOA = {
@@ -495,7 +496,11 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       />
       <div style={{ marginBottom: "16px" }}>
         <Input
-          value={shareUrl}
+          value={
+            uploadTargetDiskID === defaultBrowserCacheDiskID
+              ? "Offline Disk cannot be shared"
+              : shareUrl
+          }
           readOnly
           size="large"
           variant="borderless"
@@ -507,6 +512,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
               onClick={handleCopyUrl}
               size="large"
               style={{ marginLeft: 8 }}
+              disabled={uploadTargetDiskID === defaultBrowserCacheDiskID}
             >
               Copy Link
             </Button>

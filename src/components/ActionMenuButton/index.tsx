@@ -244,7 +244,12 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     },
     {
       label: (
-        <Link to={wrapOrgCode("/apps/docs/new")} target="_blank">
+        <Link
+          to={wrapOrgCode(
+            `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/docs`
+          )}
+          target="_blank"
+        >
           <div
             style={{
               display: "flex",
@@ -275,13 +280,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       label: (
         <Link
           to={wrapOrgCode(
-            `/apps/sheets/new?target=${urlSafeBase64Encode(
-              JSON.stringify({
-                parent_folder_uuid: uploadTargetFolderID,
-                disk_type: uploadTargetDiskType,
-                disk_id: uploadTargetDisk?.id,
-              })
-            )}`
+            `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/sheets`
           )}
           target="_blank"
         >

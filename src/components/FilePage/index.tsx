@@ -85,6 +85,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
   );
 
+  const searchParams = new URLSearchParams(location.search);
+  const redeemParam = searchParams.get("redeem");
+
   console.log(`file,`, file);
   console.log(`--- fileUrl loading=${isLoading}`, fileUrl);
 
@@ -856,7 +859,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             </div>
           )}
           {fileType === "officex-spreadsheet" && (
-            <Link to={`${wrapOrgCode(`/apps/sheets/${file.id}`)}`}>
+            <Link
+              to={`${wrapOrgCode(`/drive/${file.disk_type}/${file.disk_id}/${file.parent_folder_uuid}/${file.id}/apps/sheets${redeemParam ? `?redeem=${redeemParam}` : ""}`)}`}
+            >
               <Button>Open Spreadsheet</Button>
             </Link>
           )}

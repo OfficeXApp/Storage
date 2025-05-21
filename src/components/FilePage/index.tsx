@@ -781,9 +781,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
       {!currentOrg?.endpoint ||
       (offlineDisk && fileUrl) ||
-      (currentOrg?.endpoint &&
-        file.upload_status === "COMPLETED" &&
-        isFileSizeValidForPreview(file)) ? (
+      (currentOrg?.endpoint && isFileSizeValidForPreview(file)) ? (
         <div
           style={{
             display: "flex",

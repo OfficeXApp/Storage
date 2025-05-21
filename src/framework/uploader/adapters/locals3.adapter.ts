@@ -30,7 +30,12 @@ import {
   ResumableUploadMetadata,
 } from "../types";
 import { IUploadAdapter } from "./IUploadAdapter";
-import { DiskTypeEnum, FileID, GenerateID } from "@officexapp/types";
+import {
+  DiskTypeEnum,
+  FileConflictResolutionEnum,
+  FileID,
+  GenerateID,
+} from "@officexapp/types";
 import { getMimeType } from "../helpers";
 import {
   CREATE_FILE,
@@ -574,6 +579,9 @@ export class LocalS3Adapter implements IUploadAdapter {
           disk_id: config.diskID,
           disk_type: config.diskType,
           expires_at: getNextUtcMidnight(),
+          file_conflict_resolution:
+            config.fileConflictResolution ||
+            FileConflictResolutionEnum.KEEP_BOTH,
         },
       };
 

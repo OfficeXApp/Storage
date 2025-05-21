@@ -42,6 +42,7 @@ import {
   DirectoryResourceID,
   DiskID,
   DiskTypeEnum,
+  FileConflictResolutionEnum,
   FileID,
   FolderID,
 } from "@officexapp/types";
@@ -127,7 +128,6 @@ const SpreadsheetEditor = () => {
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [fileContentError, setFileContentError] = useState<string | null>(null);
   const [iframeReady, setIframeReady] = useState(false);
-  const [isNewFile, setIsNewFile] = useState(false);
 
   const [emptyFile, setEmptyFile] = useState({
     id: `FileID_${uuidv4()}`,
@@ -193,6 +193,8 @@ const SpreadsheetEditor = () => {
 
       // Get response as text
       const text = await response.text();
+      console.log("const text = await response.text();", text);
+      console.log("----------------------------");
 
       try {
         // Parse as JSON
@@ -260,7 +262,7 @@ const SpreadsheetEditor = () => {
     console.log("SpreadsheetEditor mounted");
     if (fileID) {
       if (fileID === "new") {
-        setIsNewFile(true);
+        setIframeReady(true);
       } else {
         fetchFileById(fileID);
       }
@@ -516,9 +518,6 @@ const SpreadsheetEditor = () => {
       currentLoadingFileRef.current = file.id;
       setIsLoading(true);
       console.log(`file --> `, file);
-      if (isNewFile) {
-        setIframeReady(true);
-      }
       try {
         if (file.disk_type === DiskTypeEnum.BrowserCache) {
           // Use IndexedDB approach instead of indexdbGetFileUrl
@@ -707,6 +706,8 @@ const SpreadsheetEditor = () => {
       name: _currentFileName.replace(".officex-spreadsheet", ""),
     };
 
+    console.log(`aobut to save,`, _fileContent);
+
     try {
       // Convert string content to a file object
       const blob = new Blob([JSON.stringify(_fileContent)], {
@@ -780,6 +781,7 @@ const SpreadsheetEditor = () => {
         listDirectoryKey: generateListDirectoryKey({
           folder_id: parentFolderID || undefined,
         }),
+        fileConflictResolution: FileConflictResolutionEnum.KEEP_NEWER,
       });
       message.success(`File ${_currentFileName} saved successfully`);
 
@@ -1008,7 +1010,17 @@ const SpreadsheetEditor = () => {
               alt="Sheets"
               src={sheetsLogo}
               onClick={() => {
-                navigate("/");
+                if (btoaData?.parent_folder_uuid || file.parent_folder_uuid) {
+                  navigate(
+                    wrapOrgCode(
+                      `/drive/${btoaData?.disk_type || file.disk_type}/${
+                        file.disk_id || btoaData?.disk_id
+                      }/${file.parent_folder_uuid || btoaData?.parent_folder_uuid}/`
+                    )
+                  );
+                } else {
+                  navigate("/");
+                }
               }}
               style={
                 {

@@ -26,7 +26,7 @@ import {
 } from "@ant-design/icons";
 import { FileUUID, StorageLocationEnum, useDrive } from "../../framework";
 import useScreenType from "react-screentype-hook";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import FilePreview from "../FilePreview";
 import { createPseudoShareLink } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
@@ -42,6 +42,7 @@ import DirectorySharingDrawer from "../DirectorySharingDrawer";
 import {
   extractDiskInfo,
   sleep,
+  urlSafeBase64Encode,
   wrapAuthStringOrHeader,
 } from "../../api/helpers";
 import {
@@ -65,8 +66,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const [fileName, setFileName] = useState(file.name || "Unknown File");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { currentProfile, currentOrg, currentAPIKey, generateSignature } =
-    useIdentitySystem();
+  const {
+    currentProfile,
+    currentOrg,
+    currentAPIKey,
+    generateSignature,
+    wrapOrgCode,
+  } = useIdentitySystem();
   const { evmPublicKey, icpAccount } = currentProfile || {};
   const dispatch = useDispatch();
   // State for file content and UI
@@ -79,6 +85,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
   );
 
+  const searchParams = new URLSearchParams(location.search);
+  const redeemParam = searchParams.get("redeem");
+
   console.log(`file,`, file);
   console.log(`--- fileUrl loading=${isLoading}`, fileUrl);
 
@@ -90,10 +99,18 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     | "audio"
     | "pdf"
     | "spreadsheet"
+    | "officex-spreadsheet"
+    | "officex-document"
     | "other" => {
     const name = file.name || "";
-    const extension =
+    let extension =
       file.extension?.toLowerCase() || name.split(".").pop()?.toLowerCase();
+
+    if (name.endsWith("officex-spreadsheet")) {
+      extension = "officex-spreadsheet";
+    } else if (name.endsWith("officex-document")) {
+      extension = "officex-document";
+    }
 
     switch (extension) {
       case "jpg":
@@ -120,6 +137,10 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         return "spreadsheet";
       case "pdf":
         return "pdf";
+      case "officex-spreadsheet":
+        return "officex-spreadsheet";
+      case "officex-document":
+        return "officex-document";
       default:
         return "other";
     }
@@ -361,7 +382,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     const loadFileContent = async () => {
       if (!file || !fileType) return;
 
-      if (!currentOrg?.endpoint) {
+      if (!currentOrg?.endpoint && diskTypeEnum !== DiskTypeEnum.BrowserCache) {
         setFileUrl(file.raw_url || "");
         setIsLoading(false);
         return;
@@ -763,9 +784,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
       {!currentOrg?.endpoint ||
       (offlineDisk && fileUrl) ||
-      (currentOrg?.endpoint &&
-        file.upload_status === "COMPLETED" &&
-        isFileSizeValidForPreview(file)) ? (
+      (currentOrg?.endpoint && isFileSizeValidForPreview(file)) ? (
         <div
           style={{
             display: "flex",
@@ -838,6 +857,20 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
                 }
               />
             </div>
+          )}
+          {fileType === "officex-spreadsheet" && (
+            <Link
+              to={`${wrapOrgCode(`/drive/${file.disk_type}/${file.disk_id}/${file.parent_folder_uuid}/${file.id}/apps/sheets${redeemParam ? `?redeem=${redeemParam}` : ""}`)}`}
+            >
+              <Button>Open Spreadsheet</Button>
+            </Link>
+          )}
+          {fileType === "officex-document" && (
+            <Link
+              to={`${wrapOrgCode(`/drive/${file.disk_type}/${file.disk_id}/${file.parent_folder_uuid}/${file.id}/apps/docs${redeemParam ? `?redeem=${redeemParam}` : ""}`)}`}
+            >
+              <Button>Open Document</Button>
+            </Link>
           )}
         </div>
       ) : null}

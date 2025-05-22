@@ -1,6 +1,12 @@
 // src/framework/uploader/types.ts - Shared types for the upload system
 
-import { DiskID, DiskTypeEnum, FileID, FolderID } from "@officexapp/types";
+import {
+  DiskID,
+  DiskTypeEnum,
+  FileConflictResolutionEnum,
+  FileID,
+  FolderID,
+} from "@officexapp/types";
 import { Observable } from "rxjs";
 import { IUploadAdapter } from "./adapters/IUploadAdapter";
 import { ObjectCannedACL } from "@aws-sdk/client-s3";
@@ -105,6 +111,7 @@ export interface UploadConfig {
   retryDelay?: number;
   skipDuplicates?: boolean;
   listDirectoryKey?: string;
+  fileConflictResolution?: FileConflictResolutionEnum;
 }
 
 /**
@@ -123,6 +130,7 @@ export interface BatchUploadConfig {
   retryDelay?: number;
   skipDuplicates?: boolean;
   listDirectoryKey?: string;
+  fileConflictResolution?: FileConflictResolutionEnum;
 }
 
 /**

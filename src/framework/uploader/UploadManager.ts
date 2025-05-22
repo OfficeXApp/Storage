@@ -187,6 +187,7 @@ export class UploadManager {
       retryLimit: options.retryLimit || 3,
       retryDelay: options.retryDelay || 1000,
       skipDuplicates: options.skipDuplicates,
+      fileConflictResolution: options.fileConflictResolution,
     };
 
     // Create upload item and add to queue

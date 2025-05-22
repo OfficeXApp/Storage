@@ -7,10 +7,16 @@ import { notification } from "antd";
 import { Link } from "react-router-dom";
 
 export const freeTrialStorjCreds = {
-  access_key: "jwu43kry2lja5z27c5mwfwxxkvea",
-  secret_key: "j37zrkuw7e2rvxywqmidx6gcmqf64brxygvbqhgiaotcfv47telme",
+  access_key: "jw23ptdypclkptmfmfnirxjfkoqa",
+  secret_key: "jyfrblil2o7fhmw5qxfenwhp5qbsxykvo4l3we2eu4yenqfodfdyw",
   endpoint: "https://gateway.storjshare.io",
 };
+
+// export const freeTrialStorjCreds = {
+//   access_key: "jw23ptdypclkptmfmfnirxjfkoqa",
+//   secret_key: "j3smkybq2b24foid56xw2tteesaes4dlamqueg5z4jiijeevdqlow",
+//   endpoint: "https://gateway.storjshare.io",
+// };
 
 export const setupFreeTrialStorj = () => {
   const isStorjSet =

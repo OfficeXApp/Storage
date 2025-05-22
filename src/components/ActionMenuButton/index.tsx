@@ -40,7 +40,7 @@ import {
 } from "../../redux-offline/directory/directory.actions";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import { shouldBehaveOfflineDiskUIIntent } from "../../redux-offline/directory/directory.reducer";
-import { extractDiskInfo } from "../../api/helpers";
+import { extractDiskInfo, urlSafeBase64Encode } from "../../api/helpers";
 
 interface ActionMenuButtonProps {
   isBigButton?: boolean; // Determines the button style
@@ -244,7 +244,12 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     },
     {
       label: (
-        <Link to={wrapOrgCode("/apps/docs")} target="_blank">
+        <Link
+          to={wrapOrgCode(
+            `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/docs`
+          )}
+          target="_blank"
+        >
           <div
             style={{
               display: "flex",
@@ -273,7 +278,12 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     },
     {
       label: (
-        <Link to={wrapOrgCode("/apps/sheets")} target="_blank">
+        <Link
+          to={wrapOrgCode(
+            `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/sheets`
+          )}
+          target="_blank"
+        >
           <div
             style={{
               display: "flex",

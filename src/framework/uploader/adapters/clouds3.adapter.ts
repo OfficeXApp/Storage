@@ -14,6 +14,7 @@ import { IUploadAdapter } from "./IUploadAdapter";
 import {
   DiskID,
   DiskTypeEnum,
+  FileConflictResolutionEnum,
   FileID,
   GenerateID,
   UploadStatus,
@@ -312,6 +313,9 @@ export class CloudS3Adapter implements IUploadAdapter {
           file_size: file.size,
           disk_id: config.diskID,
           disk_type: config.diskType,
+          file_conflict_resolution:
+            config.fileConflictResolution ||
+            FileConflictResolutionEnum.KEEP_BOTH,
         },
       };
 

@@ -56,6 +56,8 @@ import {
   AppstoreOutlined,
   ExperimentOutlined,
 } from "@ant-design/icons";
+import sheetsLogo from "../../assets/sheets-logo.png";
+import docsLogo from "../../assets/docs-logo.png";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   FileUUID,
@@ -224,6 +226,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const isOfflineDisk =
     uploadTargetDiskID === defaultTempCloudSharingDiskID ||
     uploadTargetDiskID === defaultBrowserCacheDiskID;
+
+  console.log(`isOfflineDisk`, isOfflineDisk);
 
   const getFileResult: FileFEO | undefined = useSelector(
     (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
@@ -807,6 +811,22 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const renderIconForFile = (title: string) => {
     const fileType = getFileType(title);
     switch (fileType) {
+      case "officex-spreadsheet":
+        return (
+          <img
+            src={sheetsLogo}
+            alt="Spreadsheet"
+            style={{ width: viewRowTile === "row" ? "25px" : "100px" }}
+          />
+        );
+      case "officex-document":
+        return (
+          <img
+            src={docsLogo}
+            alt="Document"
+            style={{ width: viewRowTile === "row" ? "25px" : "100px" }}
+          />
+        );
       default:
         return <FileOutlined />;
     }
@@ -858,6 +878,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
+                  display: "flex",
+                  alignItems: "center",
                 }}
               >
                 {renamingItems[record.id] ? (
@@ -898,7 +920,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                     ) : record ? (
                       renderIconForFile(record.title)
                     ) : null}
-                    <span style={{ marginLeft: 8 }}>{text}</span>
+                    <span style={{ marginLeft: 8 }}>
+                      {text
+                        .replace(".officex-spreadsheet", "")
+                        .replace(".officex-document", "")}
+                    </span>
                   </>
                 )}
               </div>
@@ -1537,12 +1563,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 toggleUploadPanel={toggleUploadPanel}
                 optimisticListDirectoryKey={listDirectoryKey}
                 disabled={
-                  currentOrg?.endpoint
-                    ? listDirectoryResults?.isFirstTime ||
-                      !listDirectoryResults?.permission_previews.includes(
-                        DirectoryPermissionType.UPLOAD
-                      )
-                    : false
+                  isOfflineDisk
+                    ? false
+                    : currentOrg?.endpoint
+                      ? listDirectoryResults?.isFirstTime ||
+                        !listDirectoryResults?.permission_previews.includes(
+                          DirectoryPermissionType.UPLOAD
+                        )
+                      : false
                 }
               />
 
@@ -1815,12 +1843,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               toggleUploadPanel={toggleUploadPanel}
                               optimisticListDirectoryKey={listDirectoryKey}
                               disabled={
-                                currentOrg?.endpoint
-                                  ? listDirectoryResults?.isFirstTime ||
-                                    !listDirectoryResults?.permission_previews.includes(
-                                      DirectoryPermissionType.UPLOAD
-                                    )
-                                  : false
+                                isOfflineDisk
+                                  ? false
+                                  : currentOrg?.endpoint
+                                    ? listDirectoryResults?.isFirstTime ||
+                                      !listDirectoryResults?.permission_previews.includes(
+                                        DirectoryPermissionType.UPLOAD
+                                      )
+                                    : false
                               }
                             />,
                           ]
@@ -1830,12 +1860,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               toggleUploadPanel={toggleUploadPanel}
                               optimisticListDirectoryKey={listDirectoryKey}
                               disabled={
-                                currentOrg?.endpoint
-                                  ? listDirectoryResults?.isFirstTime ||
-                                    !listDirectoryResults?.permission_previews.includes(
-                                      DirectoryPermissionType.UPLOAD
-                                    )
-                                  : false
+                                isOfflineDisk
+                                  ? false
+                                  : currentOrg?.endpoint
+                                    ? listDirectoryResults?.isFirstTime ||
+                                      !listDirectoryResults?.permission_previews.includes(
+                                        DirectoryPermissionType.UPLOAD
+                                      )
+                                    : false
                               }
                             />,
                             <Link
@@ -2149,7 +2181,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                                 color: "#000",
                               }}
                             >
-                              {item.title}
+                              {item.title
+                                .replace(".officex-spreadsheet", "")
+                                .replace(".officex-document", "")}
                             </div>
                           </Popover>
                         </div>

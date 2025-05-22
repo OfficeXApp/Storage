@@ -820,7 +820,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           />
         );
       case "officex-document":
-        return <img src={docsLogo} alt="Document" />;
+        return (
+          <img
+            src={docsLogo}
+            alt="Document"
+            style={{ width: viewRowTile === "row" ? "25px" : "100px" }}
+          />
+        );
       default:
         return <FileOutlined />;
     }

@@ -865,6 +865,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               <Button>Open Spreadsheet</Button>
             </Link>
           )}
+          {fileType === "officex-document" && (
+            <Link
+              to={`${wrapOrgCode(`/drive/${file.disk_type}/${file.disk_id}/${file.parent_folder_uuid}/${file.id}/apps/docs${redeemParam ? `?redeem=${redeemParam}` : ""}`)}`}
+            >
+              <Button>Open Document</Button>
+            </Link>
+          )}
         </div>
       ) : null}
       <DirectorySharingDrawer

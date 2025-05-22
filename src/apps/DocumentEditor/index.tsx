@@ -138,8 +138,6 @@ const SpreadsheetEditor = () => {
     name: `Untitled Document - ${Date.now()}`,
   });
 
-  console.log(`++++++ fileFromRedux`, fileFromRedux);
-
   const file = fileFromRedux || redeemData?.original || emptyFile;
 
   const [currentFileName, setCurrentFileName] = useState("Untitled Document");
@@ -705,7 +703,7 @@ const SpreadsheetEditor = () => {
 
     const _fileContent = {
       ...JSON.parse(fileContent),
-      name: _currentFileName.replace(".officex-document", ""),
+      title: _currentFileName.replace(".officex-document", ""),
     };
 
     console.log(`aobut to save,`, _fileContent);

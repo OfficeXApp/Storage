@@ -137,8 +137,6 @@ const SpreadsheetEditor = () => {
     name: `Untitled Spreadsheet - ${Date.now()}`,
   });
 
-  console.log(`++++++ fileFromRedux`, fileFromRedux);
-
   const file = fileFromRedux || redeemData?.original || emptyFile;
 
   const [currentFileName, setCurrentFileName] = useState(

@@ -1,4 +1,4 @@
-// FilePage.tsx
+// SpreadsheetEditor.tsx
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
@@ -55,6 +55,7 @@ import {
   wrapAuthStringOrHeader,
 } from "../../api/helpers";
 import {
+  bumpRecentDirectory,
   generateListDirectoryKey,
   GET_FILE,
   getFileAction,
@@ -774,6 +775,37 @@ const SpreadsheetEditor = () => {
               shouldBehaveOfflineDiskUIIntent(file.disk_id)
             )
           );
+          const pathDescription = (fileFromRedux.breadcrumbs || [])
+            .slice(0, -1)
+            .map((b) => b.resource_name)
+            .join("/");
+
+          const truncatedPathDescription =
+            pathDescription.length > 50
+              ? `...${pathDescription.slice(-47)}`
+              : pathDescription;
+
+          const description = ` ${truncatedPathDescription}`;
+          const href = `${window.location.origin}${wrapOrgCode(
+            `/drive/${
+              file.disk_type || diskTypeEnumFromUrl
+            }/${file.disk_type || diskType}/${fileUUID}${fileUUID.startsWith("FolderID_") ? "/" : ""}`
+          )}`;
+
+          bumpRecentDirectory(
+            {
+              id: fileUUID as DirectoryResourceID,
+              title: fileObject.name,
+              disk_id: file.disk_id || diskID,
+              disk_type: file.disk_type || diskType,
+              resource_id: fileUUID as DirectoryResourceID,
+              href,
+              last_opened: Date.now(),
+              description,
+            },
+            currentProfile?.userID || "",
+            currentOrg?.driveID || ""
+          );
         },
         metadata: {
           dispatch,
@@ -841,7 +873,12 @@ const SpreadsheetEditor = () => {
     },
     saveFile: useCallback(
       async (fileContent: string) => {
-        console.log("Saving file with content:", fileContent);
+        if (fileID !== "new") {
+          const shouldSave = window.confirm(
+            "Are you sure you want to save? Be careful not to overwrite other people's work. Realtime collab editing coming soon."
+          );
+          if (!shouldSave) return false;
+        }
 
         const success = await saveFileContent(fileContent);
 
@@ -855,7 +892,9 @@ const SpreadsheetEditor = () => {
           )
         );
 
-        // fetchFileById(file.id as FileID);
+        setTimeout(() => {
+          fetchFileById(file.id as FileID);
+        }, 5000);
 
         if (success) {
           return `File ${currentFileName} saved successfully.`;
@@ -1063,7 +1102,11 @@ const SpreadsheetEditor = () => {
                 setCurrentFileName(e.target.value);
                 currentFileNameRef.current = e.target.value;
               }}
-              style={{ marginLeft: 8, minWidth: 300 }}
+              style={{
+                marginLeft: 8,
+                minWidth: 300,
+              }}
+              variant="borderless"
             />
           </div>
         }

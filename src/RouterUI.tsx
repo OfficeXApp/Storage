@@ -73,6 +73,8 @@ import PermissionPage from "./pages/PermissionsPage/permission.page";
 import RedeemDirectoryPermitPage from "./components/DirectorySharingDrawer/directory-permission.redeem";
 import RedeemGroupInvite from "./pages/GroupsPage/invite.redeem";
 import {
+  defaultBrowserCacheDiskID,
+  defaultBrowserCacheRootFolderID,
   defaultTempCloudSharingDefaultUploadFolderID,
   defaultTempCloudSharingDiskID,
   defaultTempCloudSharingRootFolderID,
@@ -447,7 +449,7 @@ const RouterUI = () => {
         path="/docs"
         element={
           <Navigate
-            to={`/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/new/apps/docs`}
+            to={`/org/current/drive/${DiskTypeEnum.BrowserCache}/${defaultBrowserCacheDiskID}/${defaultBrowserCacheRootFolderID}/new/apps/docs`}
           />
         }
       />
@@ -459,7 +461,7 @@ const RouterUI = () => {
         path="/sheets"
         element={
           <Navigate
-            to={`/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/new/apps/sheets`}
+            to={`/org/current/drive/${DiskTypeEnum.BrowserCache}/${defaultBrowserCacheDiskID}/${defaultBrowserCacheRootFolderID}/new/apps/sheets`}
           />
         }
       />

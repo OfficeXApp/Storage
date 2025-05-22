@@ -51,7 +51,7 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
   useEffect(() => {
     setTimeout(() => {
       fetchResource();
-    }, 1000);
+    }, 500);
   }, []);
 
   const handleSubmit = async () => {

@@ -1,4 +1,4 @@
-// FilePage.tsx
+// DocumentEditor.tsx
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
@@ -55,6 +55,7 @@ import {
   wrapAuthStringOrHeader,
 } from "../../api/helpers";
 import {
+  bumpRecentDirectory,
   generateListDirectoryKey,
   GET_FILE,
   getFileAction,
@@ -133,12 +134,16 @@ const SpreadsheetEditor = () => {
   const [fileContentError, setFileContentError] = useState<string | null>(null);
   const [iframeReady, setIframeReady] = useState(false);
 
+  const [freshGeneratedSignature, setFreshGeneratedSignature] =
+    useState<string>("");
+
   const [emptyFile, setEmptyFile] = useState({
     id: `FileID_${uuidv4()}`,
     name: `Untitled Document - ${Date.now()}`,
   });
 
   const file = fileFromRedux || redeemData?.original || emptyFile;
+  console.log(`reeeeecent`, file);
 
   const [currentFileName, setCurrentFileName] = useState("Untitled Document");
   const currentFileNameRef = useRef<string>(currentFileName);
@@ -153,6 +158,22 @@ const SpreadsheetEditor = () => {
       file.name.replace(".officex-document", "") || "Untitled Document";
     setCurrentFileName(defaultName);
     currentFileNameRef.current = defaultName;
+  }, []);
+
+  useEffect(() => {
+    const updateFreshSignature = async () => {
+      const signature = await generateSignature();
+      setFreshGeneratedSignature(signature);
+    };
+
+    // Run immediately
+    updateFreshSignature();
+
+    // Set up interval to run every 25 seconds
+    const interval = setInterval(updateFreshSignature, 25000);
+
+    // Cleanup function - clears the interval when component unmounts
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -368,6 +389,15 @@ const SpreadsheetEditor = () => {
     });
   };
 
+  const wrapUrlWithAuth = (url: string) => {
+    let auth_token = currentAPIKey?.value || freshGeneratedSignature;
+    if (url.includes("?")) {
+      return `${url}&auth=${auth_token}`;
+    } else {
+      return `${url}?auth=${auth_token}`;
+    }
+  };
+
   // Helper method to reconstruct a file from chunks
   const reconstructFileFromChunks = async (
     db: IDBDatabase,
@@ -573,7 +603,7 @@ const SpreadsheetEditor = () => {
   async function getPresignedUrl(initialUrl: string) {
     try {
       // Make a GET request to follow redirects without downloading content
-      const response = await fetch(initialUrl, {
+      const response = await fetch(wrapUrlWithAuth(initialUrl), {
         method: "GET",
         redirect: "follow",
       });
@@ -773,6 +803,38 @@ const SpreadsheetEditor = () => {
               shouldBehaveOfflineDiskUIIntent(file.disk_id)
             )
           );
+
+          const pathDescription = (fileFromRedux.breadcrumbs || [])
+            .slice(0, -1)
+            .map((b) => b.resource_name)
+            .join("/");
+
+          const truncatedPathDescription =
+            pathDescription.length > 50
+              ? `...${pathDescription.slice(-47)}`
+              : pathDescription;
+
+          const description = ` ${truncatedPathDescription}`;
+          const href = `${window.location.origin}${wrapOrgCode(
+            `/drive/${
+              file.disk_type || diskTypeEnumFromUrl
+            }/${file.disk_type || diskType}/${fileUUID}${fileUUID.startsWith("FolderID_") ? "/" : ""}`
+          )}`;
+
+          bumpRecentDirectory(
+            {
+              id: fileUUID as DirectoryResourceID,
+              title: fileObject.name,
+              disk_id: file.disk_id || diskID,
+              disk_type: file.disk_type || diskType,
+              resource_id: fileUUID as DirectoryResourceID,
+              href,
+              last_opened: Date.now(),
+              description,
+            },
+            currentProfile?.userID || "",
+            currentOrg?.driveID || ""
+          );
         },
         metadata: {
           dispatch,
@@ -838,32 +900,33 @@ const SpreadsheetEditor = () => {
       URL.revokeObjectURL(url);
       return `File ${_fileName} downloaded successfully.`;
     },
-    saveFile: useCallback(
-      async (fileContent: string) => {
-        console.log("Saving file with content:", fileContent);
-
-        const success = await saveFileContent(fileContent);
-
-        history.replaceState(
-          {},
-          "",
-          wrapOrgCode(
-            `/drive/${file.disk_type || diskTypeEnumFromUrl}/${
-              file.disk_id || diskIDFromUrl
-            }/${file.parent_folder_uuid || parentFolderIDFromUrl}/${file.id}/apps/sheets`
-          )
+    saveFile: async (fileContent: string) => {
+      if (fileID !== "new") {
+        const shouldSave = window.confirm(
+          "Are you sure you want to save? Be careful not to overwrite other people's work. Realtime collab editing coming soon."
         );
+        if (!shouldSave) return false;
+      }
 
-        // fetchFileById(file.id as FileID);
+      const success = await saveFileContent(fileContent);
+      const knownRoute = wrapOrgCode(
+        `/drive/${file.disk_type || diskTypeEnumFromUrl}/${
+          file.disk_id || diskIDFromUrl
+        }/${file.parent_folder_uuid || parentFolderIDFromUrl}/${file.id}/apps/docs`
+      );
 
-        if (success) {
-          return `File ${currentFileName} saved successfully.`;
-        } else {
-          return `Failed to save file ${currentFileName}.`;
-        }
-      },
-      [currentFileName, file, saveFileContent]
-    ),
+      history.replaceState({}, "", knownRoute);
+
+      setTimeout(() => {
+        fetchFileById(file.id as FileID);
+      }, 5000);
+
+      if (success) {
+        return `File ${currentFileName} saved successfully.`;
+      } else {
+        return `Failed to save file ${currentFileName}.`;
+      }
+    },
     shareFile: useCallback(() => {
       setIsShareDrawerOpen(true);
       // Implement your save logic here
@@ -1063,6 +1126,7 @@ const SpreadsheetEditor = () => {
                 currentFileNameRef.current = e.target.value;
               }}
               style={{ marginLeft: 8, minWidth: 300 }}
+              variant="borderless"
             />
           </div>
         }

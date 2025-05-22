@@ -275,6 +275,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         </Link>
       ),
       key: "new-docs",
+      disabled,
     },
     {
       label: (
@@ -309,6 +310,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         </Link>
       ),
       key: "new-sheets",
+      disabled,
     },
     {
       type: "divider",

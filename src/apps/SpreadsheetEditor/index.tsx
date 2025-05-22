@@ -145,6 +145,9 @@ const SpreadsheetEditor = () => {
   );
   const currentFileNameRef = useRef<string>(currentFileName);
 
+  const [freshGeneratedSignature, setFreshGeneratedSignature] =
+    useState<string>("");
+
   const params = new URLSearchParams(location.search);
 
   const objectStoreNameRef = useRef<string>("files");
@@ -233,6 +236,22 @@ const SpreadsheetEditor = () => {
       fetchJsonContent(fileUrl);
     }
   }, [fileUrl, fetchJsonContent]);
+
+  useEffect(() => {
+    const updateFreshSignature = async () => {
+      const signature = await generateSignature();
+      setFreshGeneratedSignature(signature);
+    };
+
+    // Run immediately
+    updateFreshSignature();
+
+    // Set up interval to run every 25 seconds
+    const interval = setInterval(updateFreshSignature, 25000);
+
+    // Cleanup function - clears the interval when component unmounts
+    return () => clearInterval(interval);
+  }, []);
 
   // Cleanup effect when component unmounts
   useEffect(() => {
@@ -575,7 +594,7 @@ const SpreadsheetEditor = () => {
   async function getPresignedUrl(initialUrl: string) {
     try {
       // Make a GET request to follow redirects without downloading content
-      const response = await fetch(initialUrl, {
+      const response = await fetch(wrapUrlWithAuth(initialUrl), {
         method: "GET",
         redirect: "follow",
       });
@@ -687,6 +706,15 @@ const SpreadsheetEditor = () => {
     } finally {
       setIsUpdatingName(false);
       setIsEditing(false);
+    }
+  };
+
+  const wrapUrlWithAuth = (url: string) => {
+    let auth_token = currentAPIKey?.value || freshGeneratedSignature;
+    if (url.includes("?")) {
+      return `${url}&auth=${auth_token}`;
+    } else {
+      return `${url}?auth=${auth_token}`;
     }
   };
 

@@ -193,7 +193,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const default_disk_action = params.get(
     "default_disk_action"
   ) as DiskUIDefaultAction;
-  const { currentOrg, wrapOrgCode, currentProfile } = useIdentitySystem();
+  const {
+    currentOrg,
+    wrapOrgCode,
+    currentProfile,
+    currentAPIKey,
+    generateSignature,
+  } = useIdentitySystem();
   const [refreshToken, setRefreshToken] = useState("");
   const [showAncillary, setShowAncillary] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<(FileID | FolderID)[]>(
@@ -228,8 +234,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     uploadTargetDiskID === defaultTempCloudSharingDiskID ||
     uploadTargetDiskID === defaultBrowserCacheDiskID;
 
-  console.log(`isOfflineDisk`, isOfflineDisk);
-
   const getFileResult: FileFEO | undefined = useSelector(
     (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
   );
@@ -251,11 +255,30 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [is404NotFound, setIs404NotFound] = useState(false);
   const [apiNotifs, contextHolder] = notification.useNotification();
 
+  const [freshGeneratedSignature, setFreshGeneratedSignature] =
+    useState<string>("");
+
   useEffect(() => {
     const rowGrid = localStorage.getItem(LOCAL_STORAGE_ROW_GRID_VIEW);
     if (rowGrid) {
       setViewRowTile(rowGrid === "grid" ? "grid" : "row");
     }
+  }, []);
+
+  useEffect(() => {
+    const updateFreshSignature = async () => {
+      const signature = await generateSignature();
+      setFreshGeneratedSignature(signature);
+    };
+
+    // Run immediately
+    updateFreshSignature();
+
+    // Set up interval to run every 25 seconds
+    const interval = setInterval(updateFreshSignature, 25000);
+
+    // Cleanup function - clears the interval when component unmounts
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -326,6 +349,15 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     currentOrg,
     window.location.origin,
   ]);
+
+  const wrapUrlWithAuth = (url: string) => {
+    let auth_token = currentAPIKey?.value || freshGeneratedSignature;
+    if (url.includes("?")) {
+      return `${url}&auth=${auth_token}`;
+    } else {
+      return `${url}?auth=${auth_token}`;
+    }
+  };
 
   useEffect(() => {
     if (getFileResult) {
@@ -1303,7 +1335,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         key: `${f.id}-${f.disk_id}`,
         thumbnail:
           getFileType(f.name) === "image" || getFileType(f.name) === "video"
-            ? f.raw_url
+            ? wrapUrlWithAuth(f.raw_url)
             : "",
       })),
     ];

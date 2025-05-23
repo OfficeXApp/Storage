@@ -124,9 +124,6 @@ const SpreadsheetEditor = () => {
   const dbNameRef = useRef<string>(
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
   );
-  const fileFromRedux: FileFEO | undefined = useSelector(
-    (state: ReduxAppState) => state.directory.fileMap[fileID || ""]
-  );
   const fileContentRef = useRef<any>(null);
   const [fileContentVersion, setFileContentVersion] = useState(0);
   const [fileContentLoading, setFileContentLoading] = useState(false);
@@ -137,6 +134,11 @@ const SpreadsheetEditor = () => {
     id: `FileID_${uuidv4()}`,
     name: `Untitled Spreadsheet - ${Date.now()}`,
   });
+
+  const fileFromRedux: FileFEO | undefined = useSelector(
+    (state: ReduxAppState) =>
+      state.directory.fileMap[fileID === "new" ? emptyFile.id : fileID || ""]
+  );
 
   const file = fileFromRedux || redeemData?.original || emptyFile;
 
@@ -165,12 +167,9 @@ const SpreadsheetEditor = () => {
       const searchParams = new URLSearchParams(location.search);
       const redeemParam = searchParams.get("redeem");
 
-      console.log(`redeemParam`, redeemParam);
-
       if (redeemParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
-          console.log(`redeem-decodedData`, decodedData);
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
@@ -868,7 +867,10 @@ const SpreadsheetEditor = () => {
           loading: isLoading,
         };
       }
-
+      const _offlineDisk =
+        file && file.disk_type
+          ? shouldBehaveOfflineDiskUIIntent(file.disk_id)
+          : true;
       // Always return metadata, loading state, and content reference
       return {
         file,
@@ -880,17 +882,13 @@ const SpreadsheetEditor = () => {
           url: fileUrl,
           editable:
             fileID === "new" ||
-            file.permission_previews?.includes(DirectoryPermissionType.EDIT),
+            file.permission_previews?.includes(DirectoryPermissionType.EDIT) ||
+            _offlineDisk,
         },
       };
     },
     downloadFile: (fileContent: string) => {
-      console.log(`currentFileNameRef==`, currentFileNameRef.current);
       const _currentFileName = currentFileNameRef.current;
-      console.log(
-        `Downloading file ${_currentFileName} with content:`,
-        fileContent
-      );
       const blob = new Blob([fileContent], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1003,8 +1001,6 @@ const SpreadsheetEditor = () => {
   }; // Depend on parentMethods and the endpoint URL
 
   const fetchFileById = (fileId: FileID) => {
-    console.log(`fetching file by id`, fileId);
-
     try {
       // Create the get file action
       const getAction = {
@@ -1014,7 +1010,7 @@ const SpreadsheetEditor = () => {
         },
       };
 
-      dispatch(getFileAction(getAction, false));
+      dispatch(getFileAction(getAction, offlineDisk));
     } catch (error) {
       console.error("Error fetching file by ID:", error);
     }

@@ -846,7 +846,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           upload_status: UploadStatus.COMPLETED,
         } as FileRecordFE,
       };
-      console.log(`onfly payload`, payload);
       const _setOnTheFlyShareUrl = `${window.location.origin}${wrapOrgCode("/share/free-cloud-filesharing")}?redeem=${urlSafeBase64Encode(
         JSON.stringify(payload)
       )}`;

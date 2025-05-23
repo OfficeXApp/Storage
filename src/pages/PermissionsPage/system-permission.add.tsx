@@ -35,6 +35,7 @@ import {
   SolutionOutlined,
   MobileOutlined,
   DesktopOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -50,6 +51,8 @@ import { createSystemPermissionAction } from "../../redux-offline/permissions/pe
 import dayjs from "dayjs";
 import { shortenAddress } from "../../framework/identity/constants";
 import { set } from "lodash";
+import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
+import { listGroupsAction } from "../../redux-offline/groups/groups.actions";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -475,6 +478,12 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
               value={contactSearchQuery}
               onChange={(e) => setContactSearchQuery(e.target.value)}
               style={{ marginBottom: 16 }}
+              suffix={
+                <ReloadOutlined
+                  onClick={() => dispatch(listContactsAction({}))}
+                  style={{ color: "gray" }}
+                />
+              }
             />
 
             <List
@@ -541,6 +550,12 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
               value={groupSearchQuery}
               onChange={(e) => setGroupSearchQuery(e.target.value)}
               style={{ marginBottom: 16 }}
+              suffix={
+                <ReloadOutlined
+                  onClick={() => dispatch(listGroupsAction({}))}
+                  style={{ color: "gray" }}
+                />
+              }
             />
 
             <List

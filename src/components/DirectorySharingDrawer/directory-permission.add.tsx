@@ -40,6 +40,7 @@ import {
   BarcodeOutlined,
   GlobalOutlined,
   UnlockOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -62,6 +63,8 @@ import { areArraysEqual, wrapAuthStringOrHeader } from "../../api/helpers";
 import { generateRedeemDirectoryPermitURL } from "./directory-permission.redeem";
 import { useIdentitySystem } from "../../framework/identity";
 import { passwordToSeedPhrase } from "../../api/icp";
+import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
+import { listGroupsAction } from "../../redux-offline/groups/groups.actions";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -104,8 +107,6 @@ const DirectoryPermissionAddDrawer: React.FC<
   preExistingStateForEdit,
   resourceName,
 }) => {
-  console.log(`preExistingStateForEdit`, preExistingStateForEdit);
-
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const contacts = useSelector(
@@ -813,6 +814,12 @@ const DirectoryPermissionAddDrawer: React.FC<
               <Input
                 placeholder={getContactPlaceholderText()}
                 prefix={<SearchOutlined />}
+                suffix={
+                  <ReloadOutlined
+                    onClick={() => dispatch(listContactsAction({}))}
+                    style={{ color: "gray" }}
+                  />
+                }
                 value={contactSearchQuery}
                 onChange={(e) => setContactSearchQuery(e.target.value)}
                 style={{ marginBottom: 16 }}
@@ -882,6 +889,12 @@ const DirectoryPermissionAddDrawer: React.FC<
                 value={groupSearchQuery}
                 onChange={(e) => setGroupSearchQuery(e.target.value)}
                 style={{ marginBottom: 16 }}
+                suffix={
+                  <ReloadOutlined
+                    onClick={() => dispatch(listGroupsAction({}))}
+                    style={{ color: "gray" }}
+                  />
+                }
               />
 
               <List

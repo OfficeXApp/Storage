@@ -9,7 +9,10 @@ import {
 import { useIdentitySystem } from "../../framework/identity";
 import { Link } from "react-router-dom";
 import { extractDiskInfo } from "../../api/helpers";
-import { defaultTempCloudSharingDiskID } from "../../api/dexie-database";
+import {
+  defaultBrowserCacheDiskID,
+  defaultTempCloudSharingDiskID,
+} from "../../api/dexie-database";
 
 interface PermissionStatusMessageProps {
   resource_id: DirectoryResourceID;
@@ -36,8 +39,6 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
   let tooltipText = "";
   let ancestorWithPermission = null;
   let ancestorPart = "";
-
-  console.log(`breadcrumbs on resource_id=${resource_id}`, breadcrumbs);
 
   // Check if current resource has any direct permissions
   const hasDirectPermissions =
@@ -205,6 +206,13 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
     message = `This ${resource} is PUBLIC on internet via free public filesharing disk`;
     messageColor = "red";
     tooltipText = `This ${resource} is accessible to anyone on the internet because it is stored on a free public filesharing disk`;
+  }
+
+  if (diskID === defaultBrowserCacheDiskID) {
+    message = `This ${resource} is OFFLINE and hidden. You can generate a temporary 8 hour sharing link`;
+    messageColor = "blue";
+    tooltipText =
+      "You are the only one who can see it until you generate a temporary link, which lasts less than 24h hours.";
   }
 
   return (

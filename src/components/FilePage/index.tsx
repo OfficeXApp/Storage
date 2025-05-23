@@ -653,10 +653,14 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
-    if (url.includes("?")) {
-      return `${url}&auth=${auth_token}`;
+    if (currentOrg?.endpoint && url.includes(currentOrg.endpoint)) {
+      if (url.includes("?")) {
+        return `${url}&auth=${auth_token}`;
+      } else {
+        return `${url}?auth=${auth_token}`;
+      }
     } else {
-      return `${url}?auth=${auth_token}`;
+      return url;
     }
   };
 
@@ -769,7 +773,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             <Button
               type="primary"
               onClick={() => handleShare(file.raw_url)}
-              disabled={file.disk_type === DiskTypeEnum.BrowserCache}
               loading={isGeneratingShareLink}
             >
               Share

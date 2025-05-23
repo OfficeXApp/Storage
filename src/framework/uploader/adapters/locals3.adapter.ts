@@ -85,6 +85,7 @@ export class LocalS3Adapter implements IUploadAdapter {
     });
 
     // Verify connectivity by listing buckets
+    console.log("locals3adapter config", config);
     try {
       const command = new ListBucketsCommand({});
       await this.s3Client.send(command);
@@ -94,7 +95,7 @@ export class LocalS3Adapter implements IUploadAdapter {
       await this.ensureBucketExists(config.bucket);
     } catch (error) {
       console.error("Error connecting to S3:", error);
-      throw new Error("Failed to connect to S3");
+      // throw new Error("Failed to connect to S3");
     }
   }
 
@@ -298,7 +299,7 @@ export class LocalS3Adapter implements IUploadAdapter {
     }
   }
 
-  private async getSignedUrl(key: string, fileName?: string): Promise<string> {
+  async getSignedUrl(key: string, fileName?: string): Promise<string> {
     if (!this.s3Client || !this.config) {
       throw new Error("S3 adapter not initialized");
     }

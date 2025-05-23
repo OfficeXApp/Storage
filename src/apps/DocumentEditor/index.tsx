@@ -391,10 +391,14 @@ const SpreadsheetEditor = () => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
-    if (url.includes("?")) {
-      return `${url}&auth=${auth_token}`;
+    if (currentOrg?.endpoint && url.includes(currentOrg.endpoint)) {
+      if (url.includes("?")) {
+        return `${url}&auth=${auth_token}`;
+      } else {
+        return `${url}?auth=${auth_token}`;
+      }
     } else {
-      return `${url}?auth=${auth_token}`;
+      return url;
     }
   };
 

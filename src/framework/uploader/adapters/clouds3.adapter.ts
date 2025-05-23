@@ -113,17 +113,24 @@ export class CloudS3Adapter implements IUploadAdapter {
     signal: AbortSignal
   ): Promise<void> {
     const startTime = Date.now();
+    console.log(
+      `[CloudS3Adapter ${uploadId}] processUpload started for ${file.name}`
+    );
 
     try {
       // First create a file record in the system
+      console.log(`[CloudS3Adapter ${uploadId}] Calling createFileRecord...`);
       const { fileID, presignedData } = await this.createFileRecord(
         file,
         config,
         uploadId
       );
+      console.log(
+        `[CloudS3Adapter ${uploadId}] createFileRecord SUCCEEDED. FileID: ${fileID}, Presigned URL: ${presignedData?.url}`
+      );
 
       if (!presignedData || !presignedData.url) {
-        throw new Error("Failed to get presigned URL from server");
+        throw new Error("No presigned URL data in response");
       }
 
       // Send initial progress
@@ -176,6 +183,9 @@ export class CloudS3Adapter implements IUploadAdapter {
       formData.append("file", file);
 
       // Upload using fetch with progress tracking
+      console.log(
+        `[CloudS3Adapter ${uploadId}] Calling uploadWithProgress to URL: ${presignedData.url}`
+      );
       await this.uploadWithProgress(
         presignedData.url,
         formData,
@@ -197,9 +207,12 @@ export class CloudS3Adapter implements IUploadAdapter {
         },
         signal
       );
+      console.log(`[CloudS3Adapter ${uploadId}] uploadWithProgress SUCCEEDED.`);
 
       // Update file status to completed
+      console.log(`[CloudS3Adapter ${uploadId}] Calling updateFileStatus...`);
       await this.updateFileStatus(fileID, UploadStatus.COMPLETED, config);
+      console.log(`[CloudS3Adapter ${uploadId}] updateFileStatus SUCCEEDED.`);
 
       // If we got here, upload is complete
       const finalProgress: UploadProgressInfo = {
@@ -217,7 +230,14 @@ export class CloudS3Adapter implements IUploadAdapter {
 
       progressSubject.next(finalProgress);
       progressSubject.complete();
+      console.log(
+        `[CloudS3Adapter ${uploadId}] processUpload COMPLETED for ${file.name}.`
+      );
     } catch (error) {
+      console.error(
+        `[CloudS3Adapter ${uploadId}] processUpload FAILED for ${file.name}:`,
+        error
+      );
       if (
         (error as Error).name === "AbortError" ||
         (error as Error).message === "Upload cancelled"

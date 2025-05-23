@@ -104,8 +104,6 @@ const DirectoryPermissionAddDrawer: React.FC<
   preExistingStateForEdit,
   resourceName,
 }) => {
-  console.log(`preExistingStateForEdit`, preExistingStateForEdit);
-
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const contacts = useSelector(

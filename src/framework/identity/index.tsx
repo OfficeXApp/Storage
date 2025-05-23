@@ -511,7 +511,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   // Generate signature using ICP identity
   const generateSignature = useCallback(
     async (auth_profile?: AuthProfile): Promise<string> => {
-      console.log(`generating signature...`);
       try {
         if (!auth_profile) {
           if (!currentProfileRef.current) {
@@ -530,8 +529,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         if (!target_profile || !target_profile.icpAccount) {
           throw Error("No target profile for signature generation");
         }
-
-        console.log(`Generating signature for ${target_profile.nickname}`);
 
         const identity = target_profile.icpAccount.identity;
 
@@ -553,7 +550,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           self_auth_principal: publicKeyArray,
           canonical_principal: canonicalPrincipal,
         };
-        console.log(`challenge`, challenge);
 
         // Serialize and sign the challenge
         const challengeBytes = new TextEncoder().encode(

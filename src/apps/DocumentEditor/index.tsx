@@ -125,9 +125,6 @@ const SpreadsheetEditor = () => {
   const dbNameRef = useRef<string>(
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
   );
-  const fileFromRedux: FileFEO | undefined = useSelector(
-    (state: ReduxAppState) => state.directory.fileMap[fileID || ""]
-  );
   const fileContentRef = useRef<any>(null);
   const [fileContentVersion, setFileContentVersion] = useState(0);
   const [fileContentLoading, setFileContentLoading] = useState(false);
@@ -142,8 +139,12 @@ const SpreadsheetEditor = () => {
     name: `Untitled Document - ${Date.now()}`,
   });
 
+  const fileFromRedux: FileFEO | undefined = useSelector(
+    (state: ReduxAppState) =>
+      state.directory.fileMap[fileID === "new" ? emptyFile.id : fileID || ""]
+  );
+
   const file = fileFromRedux || redeemData?.original || emptyFile;
-  console.log(`reeeeecent`, file);
 
   const [currentFileName, setCurrentFileName] = useState("Untitled Document");
   const currentFileNameRef = useRef<string>(currentFileName);
@@ -870,6 +871,11 @@ const SpreadsheetEditor = () => {
         };
       }
 
+      const _offlineDisk =
+        file && file.disk_type
+          ? shouldBehaveOfflineDiskUIIntent(file.disk_id)
+          : true;
+
       // Always return metadata, loading state, and content reference
       return {
         file,
@@ -881,7 +887,8 @@ const SpreadsheetEditor = () => {
           url: fileUrl,
           editable:
             fileID === "new" ||
-            file.permission_previews?.includes(DirectoryPermissionType.EDIT),
+            file.permission_previews?.includes(DirectoryPermissionType.EDIT) ||
+            _offlineDisk,
         },
       };
     },
@@ -1009,7 +1016,7 @@ const SpreadsheetEditor = () => {
         },
       };
 
-      dispatch(getFileAction(getAction, false));
+      dispatch(getFileAction(getAction, offlineDisk));
     } catch (error) {
       console.error("Error fetching file by ID:", error);
     }

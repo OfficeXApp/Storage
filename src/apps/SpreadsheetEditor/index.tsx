@@ -142,6 +142,11 @@ const SpreadsheetEditor = () => {
 
   const file = fileFromRedux || redeemData?.original || emptyFile;
 
+  console.log(`>>> file`, file);
+  console.log(`>>> fileFromRedux`, fileFromRedux);
+  console.log(`>>> redeemData`, redeemData);
+  console.log(`>>> emptyFile`, emptyFile);
+
   const [currentFileName, setCurrentFileName] = useState(
     "Untitled Spreadsheet"
   );
@@ -710,7 +715,7 @@ const SpreadsheetEditor = () => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
-    if (currentOrg?.endpoint && url.includes(currentOrg.endpoint)) {
+    if (currentOrg?.endpoint && url?.includes(currentOrg.endpoint)) {
       if (url.includes("?")) {
         return `${url}&auth=${auth_token}`;
       } else {
@@ -847,6 +852,7 @@ const SpreadsheetEditor = () => {
         }),
         fileConflictResolution: FileConflictResolutionEnum.KEEP_NEWER,
       });
+
       message.success(`File ${_currentFileName} saved successfully`);
 
       return true;
@@ -945,8 +951,9 @@ const SpreadsheetEditor = () => {
     }, []),
   };
 
+  const { diskID: extractedDiskID } = extractDiskInfo();
   const offlineDisk = file
-    ? shouldBehaveOfflineDiskUIIntent(file.disk_type)
+    ? shouldBehaveOfflineDiskUIIntent(extractedDiskID)
     : true;
 
   const setupPenpal = async () => {
@@ -1161,7 +1168,7 @@ const SpreadsheetEditor = () => {
           <Spin />
         </div>
       )}
-      {file && (
+      {offlineDisk || (file && fileFromRedux) ? (
         <DirectorySharingDrawer
           open={isShareDrawerOpen}
           onClose={() => setIsShareDrawerOpen(false)}
@@ -1171,7 +1178,7 @@ const SpreadsheetEditor = () => {
           breadcrumbs={file?.breadcrumbs || []}
           currentUserPermissions={file?.permission_previews || []}
         />
-      )}
+      ) : null}
     </div>
   );
 };

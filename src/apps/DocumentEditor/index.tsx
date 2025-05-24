@@ -392,7 +392,7 @@ const SpreadsheetEditor = () => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
-    if (currentOrg?.endpoint && url.includes(currentOrg.endpoint)) {
+    if (currentOrg?.endpoint && url?.includes(currentOrg.endpoint)) {
       if (url.includes("?")) {
         return `${url}&auth=${auth_token}`;
       } else {
@@ -729,19 +729,12 @@ const SpreadsheetEditor = () => {
       return false;
     }
 
-    console.log(`currentFileName==`, currentFileName);
-    console.log(`currentFileNameRef==`, currentFileNameRef.current);
-
     const _currentFileName = currentFileNameRef.current;
-
-    console.log(`save fileContent`, fileContent);
 
     const _fileContent = {
       ...JSON.parse(fileContent),
       title: _currentFileName.replace(".officex-document", ""),
     };
-
-    console.log(`aobut to save,`, _fileContent);
 
     try {
       // Convert string content to a file object
@@ -850,8 +843,8 @@ const SpreadsheetEditor = () => {
         }),
         fileConflictResolution: FileConflictResolutionEnum.KEEP_NEWER,
       });
-      message.success(`File ${_currentFileName} saved successfully`);
 
+      message.success(`File ${_currentFileName} saved successfully`);
       return true;
     } catch (error) {
       console.error("Error saving file:", error);
@@ -948,10 +941,15 @@ const SpreadsheetEditor = () => {
       return `Parent received: ${message}`;
     }, []),
   };
-
+  const { diskID: extractedDiskID } = extractDiskInfo();
   const offlineDisk = file
-    ? shouldBehaveOfflineDiskUIIntent(file.disk_type)
+    ? shouldBehaveOfflineDiskUIIntent(extractedDiskID)
     : true;
+
+  console.log(
+    `offlineDisk=${extractedDiskID} shouldBehaveOfflineDiskUIIntent`,
+    offlineDisk
+  );
 
   const setupPenpal = async () => {
     // Ensure iframeRef.current and its contentWindow exist before proceeding
@@ -1164,7 +1162,7 @@ const SpreadsheetEditor = () => {
           <Spin />
         </div>
       )}
-      {file && (
+      {offlineDisk || (file && fileFromRedux) ? (
         <DirectorySharingDrawer
           open={isShareDrawerOpen}
           onClose={() => setIsShareDrawerOpen(false)}
@@ -1174,7 +1172,7 @@ const SpreadsheetEditor = () => {
           breadcrumbs={file?.breadcrumbs || []}
           currentUserPermissions={file?.permission_previews || []}
         />
-      )}
+      ) : null}
     </div>
   );
 };

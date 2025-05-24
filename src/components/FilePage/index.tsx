@@ -653,7 +653,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
-    if (currentOrg?.endpoint && url.includes(currentOrg.endpoint)) {
+    if (currentOrg?.endpoint && url?.includes(currentOrg.endpoint)) {
       if (url.includes("?")) {
         return `${url}&auth=${auth_token}`;
       } else {
@@ -771,7 +771,12 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               Download
             </Button>
             <Button
-              type="primary"
+              type={
+                file.name.endsWith(".officex-spreadsheet") ||
+                file.name.endsWith(".officex-document")
+                  ? "default"
+                  : "primary"
+              }
               onClick={() => handleShare(file.raw_url)}
               loading={isGeneratingShareLink}
             >
@@ -892,14 +897,14 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             <Link
               to={`${wrapOrgCode(`/drive/${file.disk_type}/${file.disk_id}/${file.parent_folder_uuid}/${file.id}/apps/sheets${redeemParam ? `?redeem=${redeemParam}` : ""}`)}`}
             >
-              <Button>Open Spreadsheet</Button>
+              <Button type="primary">Open Spreadsheet</Button>
             </Link>
           )}
           {fileType === "officex-document" && (
             <Link
               to={`${wrapOrgCode(`/drive/${file.disk_type}/${file.disk_id}/${file.parent_folder_uuid}/${file.id}/apps/docs${redeemParam ? `?redeem=${redeemParam}` : ""}`)}`}
             >
-              <Button>Open Document</Button>
+              <Button type="primary">Open Document</Button>
             </Link>
           )}
         </div>

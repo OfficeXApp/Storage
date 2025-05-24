@@ -352,7 +352,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
-    if (currentOrg?.endpoint && url.includes(currentOrg.endpoint)) {
+    if (currentOrg?.endpoint && url?.includes(currentOrg.endpoint)) {
       if (url.includes("?")) {
         return `${url}&auth=${auth_token}`;
       } else {

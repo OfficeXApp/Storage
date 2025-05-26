@@ -447,6 +447,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     }
 
     if (pathParts[2] === "recent") {
+      setShowInitialLoading(false);
       setListDirectoryKey("");
       setCurrentFolderId(null);
       setCurrentFileId(null);
@@ -458,6 +459,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         pathParts[2] === "drive-trash") &&
       pathParts.length === 3
     ) {
+      setShowInitialLoading(false);
       setListDirectoryKey("");
       setCurrentFolderId(null);
       setCurrentFileId(null);
@@ -477,11 +479,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     console.log(`folderFileID`, folderFileID);
 
     if (pathParts[2] === "recent") {
+      setShowInitialLoading(false);
       fetchRecentsGlobal();
     } else if (
       folderFileID === defaultTempCloudSharingRootFolderID ||
       folderFileID === defaultTempCloudSharingDefaultUploadFolderID
     ) {
+      setShowInitialLoading(false);
       const isFreeTrialStorjCreds =
         localStorage.getItem(LOCAL_STORAGE_STORJ_ACCESS_KEY) ===
         freeTrialStorjCreds.access_key;
@@ -541,6 +545,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         fetchFileById(fileId, diskID);
       }
     } else if (folderFileID === "shared-with-me") {
+      setShowInitialLoading(false);
       setCurrentFolderId(null);
       setCurrentFileId(null);
       setSingleFile(null);
@@ -656,7 +661,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
       setTimeout(() => {
         setShowInitialLoading(false);
-      }, 2000);
+      }, 4000);
 
       const payload: IRequestListDirectoryPermissions = {
         filters: {
@@ -667,7 +672,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       dispatch(listDirectoryPermissionsAction(payload));
       setTimeout(() => {
         setShowInitialLoading(false);
-      }, 2000);
+      }, 4000);
     } catch (error) {
       console.error("Error fetching file by ID:", error);
       setIs404NotFound(true);
@@ -781,7 +786,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         dispatch(listDirectoryPermissionsAction(payload));
         setTimeout(() => {
           setShowInitialLoading(false);
-        }, 2000);
+        }, 4000);
         setIsDiskRootPage(false);
         setIsSharedWithMePage(false);
 

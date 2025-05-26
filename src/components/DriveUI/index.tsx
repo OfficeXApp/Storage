@@ -150,6 +150,7 @@ import { useMultiUploader } from "../../framework/uploader/hook";
 import MoveDirectorySelector from "../MoveDirectorySelection";
 import { LOCALSTORAGE_ALREADY_VIEWED_DEMO_GALLERY } from "../../api/demo-gallery";
 import { Helmet } from "react-helmet";
+import Paragraph from "antd/es/skeleton/Paragraph";
 
 interface DriveItemRow {
   id: FolderID | FileID;
@@ -228,15 +229,24 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [currentFolderId, setCurrentFolderId] = useState<FolderID | null>(null);
   const [currentFileId, setCurrentFileId] = useState<FileID | null>(null);
 
-  const { uploadTargetDiskID } = useMultiUploader();
+  const { diskTypeEnum: extractedDiskTypeEnum, diskID: extractedDiskID } =
+    extractDiskInfo();
 
   const isOfflineDisk =
-    uploadTargetDiskID === defaultTempCloudSharingDiskID ||
-    uploadTargetDiskID === defaultBrowserCacheDiskID;
+    extractedDiskID === defaultTempCloudSharingDiskID ||
+    extractedDiskID === defaultBrowserCacheDiskID;
 
   const getFileResult: FileFEO | undefined = useSelector(
     (state: ReduxAppState) => state.directory.fileMap[currentFileId || ""]
   );
+
+  const [showInitialLoading, setShowInitialLoading] = useState(
+    !currentOrg?.endpoint || isOfflineDisk ? false : true
+  );
+
+  console.log(`showInitialLoading`, showInitialLoading);
+  console.log(`currentOrg.endpoint`, currentOrg?.endpoint);
+  console.log(`isOfflineDisk`, isOfflineDisk);
 
   const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
 
@@ -292,11 +302,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     }
   }, [currentDiskId, currentFolderId, currentFileId, disks]);
 
-  const { diskTypeEnum: extractedDiskTypeEnum, diskID: extractedDiskID } =
-    extractDiskInfo();
-
   useEffect(() => {
     if (listDirectoryResults) {
+      setShowInitialLoading(false);
       const { folders, files, breadcrumbs } = listDirectoryResults;
       setContent({ folders, files });
       if (
@@ -365,6 +373,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   useEffect(() => {
     if (getFileResult) {
+      setShowInitialLoading(false);
       if (
         currentProfile &&
         currentOrg &&
@@ -527,6 +536,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       setCurrentFolderId(null);
       // Only set currentFileId if it's different
       if (fileId !== currentFileId) {
+        console.log(`we are setting currentFileId to:`, fileId);
         setCurrentFileId(fileId);
         fetchFileById(fileId, diskID);
       }
@@ -629,6 +639,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   };
 
   const fetchFileById = (fileId: FileID, diskID: DiskID) => {
+    console.log(`calling fetchFileById at disk`, diskID);
     if (!diskID) return;
     try {
       // Create the get file action
@@ -643,6 +654,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         getFileAction(getAction, shouldBehaveOfflineDiskUIIntent(diskID || ""))
       );
 
+      setTimeout(() => {
+        setShowInitialLoading(false);
+      }, 2000);
+
       const payload: IRequestListDirectoryPermissions = {
         filters: {
           resource_id: fileId as DirectoryResourceID,
@@ -650,6 +665,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       };
 
       dispatch(listDirectoryPermissionsAction(payload));
+      setTimeout(() => {
+        setShowInitialLoading(false);
+      }, 2000);
     } catch (error) {
       console.error("Error fetching file by ID:", error);
       setIs404NotFound(true);
@@ -761,6 +779,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         };
 
         dispatch(listDirectoryPermissionsAction(payload));
+        setTimeout(() => {
+          setShowInitialLoading(false);
+        }, 2000);
         setIsDiskRootPage(false);
         setIsSharedWithMePage(false);
 
@@ -1424,6 +1445,27 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     });
   };
 
+  if (showInitialLoading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+          padding: "50px 0",
+          height: "80vh",
+        }}
+      >
+        <Spin size="large" />
+        <p style={{ marginTop: 16, fontWeight: 500, color: "gray" }}>
+          Loading...
+        </p>
+      </div>
+    );
+  }
+
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
     return (
@@ -1436,6 +1478,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   }
 
   // unauthorized access to file
+  console.log(`currentFileId`, currentFileId);
+  console.log(`getFileResult`, getFileResult);
   if (currentFileId && !getFileResult) {
     return (
       <DirectoryGuard

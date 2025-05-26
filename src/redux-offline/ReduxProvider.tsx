@@ -146,6 +146,17 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       const effectWithAuth = async (effect: any, action: any) => {
+        console.log(
+          `effectWithAuth
+        
+          ----
+          
+          `,
+          action,
+          currentOrgRef.current,
+          currentProfileRef.current,
+          currentAPIKeyRef.current
+        );
         if (
           !currentOrgRef.current ||
           !currentOrgRef.current.endpoint ||
@@ -159,6 +170,8 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         const shouldBehaveOffline =
           headers.shouldBehaveOfflineDiskUI === true ||
           data?.shouldBehaveOfflineDiskUI === true;
+
+        console.log(`effectWithAuth, shouldBehaveOffline`, shouldBehaveOffline);
 
         if (shouldBehaveOffline) return;
 
@@ -188,6 +201,8 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           },
           authToken
         );
+
+        console.log(`effectWithAuth, url`, _url, _headers, data);
 
         // Configure fetch options with fresh auth token
         const fetchOptions: RequestInit = {

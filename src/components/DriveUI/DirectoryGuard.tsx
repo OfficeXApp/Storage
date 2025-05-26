@@ -48,12 +48,6 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
     switchProfile,
   } = useIdentitySystem();
 
-  useEffect(() => {
-    setTimeout(() => {
-      fetchResource();
-    }, 500);
-  }, []);
-
   const handleSubmit = async () => {
     console.log(`submitting...`, password, currentOrg);
     if (!password || !currentOrg) return;

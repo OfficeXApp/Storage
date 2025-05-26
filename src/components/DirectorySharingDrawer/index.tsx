@@ -134,8 +134,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   breadcrumbs,
   currentUserPermissions,
 }) => {
-  console.log(`WOW_resource`, resource);
-
   const { currentProfile, currentOrg } = useIdentitySystem();
   const dbNameRef = React.useRef<string>(
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`

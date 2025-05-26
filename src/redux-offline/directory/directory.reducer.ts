@@ -364,27 +364,31 @@ export const directoryReducer = (
     // ------------------------------ GET FILE --------------------------------- //
     case GET_FILE: {
       console.log(`GET_FILE reducer`, action);
-      return {
-        ...state,
-        files: action.optimistic
-          ? updateOrAddFile(state.files, action.optimistic)
-          : state.files,
-        fileMap: action.optimistic
-          ? {
-              ...state.fileMap,
-              [action.optimistic.id]: {
-                ...action.optimistic,
-                lastChecked: Date.now(),
-                isLoading: true,
-              },
-            }
-          : state.fileMap,
-        loading: true,
-        error: null,
-      };
+      if (action.optimistic) {
+        return {
+          ...state,
+          files: action.optimistic
+            ? updateOrAddFile(state.files, action.optimistic)
+            : state.files,
+          fileMap: action.optimistic
+            ? {
+                ...state.fileMap,
+                [action.optimistic.id]: {
+                  ...action.optimistic,
+                  lastChecked: Date.now(),
+                  isLoading: true,
+                },
+              }
+            : state.fileMap,
+          loading: true,
+          error: null,
+        };
+      }
+      return state;
     }
 
     case GET_FILE_COMMIT: {
+      console.log(`GET_FILE_COMMIT reducer`, action);
       const optimisticID = action.meta?.optimisticID;
       let realFile;
 
@@ -439,6 +443,7 @@ export const directoryReducer = (
     }
 
     case GET_FILE_ROLLBACK: {
+      console.log(`GET_FILE_ROLLBACK reducer`, action);
       if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {

@@ -77,8 +77,8 @@
 
 //   // Hardcoded Storj credentials
 //   const freeTrialStorjCreds = {
-//     access_key: "jw23ptdypclkptmfmfnirxjfkoqa",
-//     secret_key: "j3smkybq2b24foid56xw2tteesaes4dlamqueg5z4jiijeevdqlow",
+//     access_key: "jvaedsy46q4p5brxisvnrj7r2qpq",
+//     secret_key: "j2tw7vymrpfihfoyucb3se2litma4r72aa4rb6cfqhc25lvy2bpoi",
 //     endpoint: "https://gateway.storjshare.io",
 //   };
 

@@ -7,14 +7,14 @@ import { notification } from "antd";
 import { Link } from "react-router-dom";
 
 export const freeTrialStorjCreds = {
-  access_key: "jw23ptdypclkptmfmfnirxjfkoqa",
+  access_key: "jvaedsy46q4p5brxisvnrj7r2qpq",
   secret_key: "jyfrblil2o7fhmw5qxfenwhp5qbsxykvo4l3we2eu4yenqfodfdyw",
   endpoint: "https://gateway.storjshare.io",
 };
 
 // export const freeTrialStorjCreds = {
-//   access_key: "jw23ptdypclkptmfmfnirxjfkoqa",
-//   secret_key: "j3smkybq2b24foid56xw2tteesaes4dlamqueg5z4jiijeevdqlow",
+//   access_key: "jvaedsy46q4p5brxisvnrj7r2qpq",
+//   secret_key: "j2tw7vymrpfihfoyucb3se2litma4r72aa4rb6cfqhc25lvy2bpoi",
 //   endpoint: "https://gateway.storjshare.io",
 // };
 
@@ -63,8 +63,8 @@ export async function uploadTempTrialSharing(file: File): Promise<string> {
   const storjConfig = {
     endpoint: "https://gateway.storjshare.io",
     region: "us-east-1",
-    accessKeyId: "jw23ptdypclkptmfmfnirxjfkoqa",
-    secretAccessKey: "j3smkybq2b24foid56xw2tteesaes4dlamqueg5z4jiijeevdqlow",
+    accessKeyId: "jvaedsy46q4p5brxisvnrj7r2qpq",
+    secretAccessKey: "j2tw7vymrpfihfoyucb3se2litma4r72aa4rb6cfqhc25lvy2bpoi",
     bucket: "officex",
   };
 

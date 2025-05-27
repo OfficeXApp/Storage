@@ -813,6 +813,7 @@ export const directoryReducer = (
 
     // ------------------------------ UPDATE FILE --------------------------------- //
     case UPDATE_FILE: {
+      console.log(`UPDATE_FILE reducer`, action);
       const optimisticFile = action.optimistic;
       return {
         ...state,

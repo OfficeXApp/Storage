@@ -141,6 +141,7 @@ export class LocalS3Adapter implements IUploadAdapter {
     file: File,
     config: UploadConfig
   ): Observable<UploadProgressInfo> {
+    console.log("Starting upload process");
     if (!this.s3Client || !this.config) {
       throw new Error("S3 adapter not initialized");
     }
@@ -237,6 +238,7 @@ export class LocalS3Adapter implements IUploadAdapter {
 
       // Read the file
       const fileBuffer = await this.readFileAsArrayBuffer(file);
+      console.log("File buffer read successfully");
 
       if (signal.aborted) {
         progressSubject.error(new Error("Upload cancelled"));
@@ -251,9 +253,11 @@ export class LocalS3Adapter implements IUploadAdapter {
         ContentType: file.type || getMimeType(file),
         ACL: ObjectCannedACL.public_read,
       });
+      console.log("Uploading to S3 with key:", key);
 
       // Get signed URL for the file
       const raw_url = await this.getSignedUrl(key, file.name);
+      console.log("S3 upload successful, getting signed URL");
 
       const updateAction = {
         action: UPDATE_FILE as "UPDATE_FILE",
@@ -262,6 +266,9 @@ export class LocalS3Adapter implements IUploadAdapter {
           raw_url,
         },
       };
+
+      console.log(`DISPATCH updateAction`, updateAction);
+      console.log(`config.metadata.dispatch`, config.metadata?.dispatch);
 
       // Dispatch action to create file record
       config.metadata?.dispatch(
@@ -530,6 +537,7 @@ export class LocalS3Adapter implements IUploadAdapter {
       progressSubject.complete();
 
       const raw_url = await this.getSignedUrl(key, file.name);
+      console.log("Signed URL obtained:", raw_url);
 
       const updateAction = {
         action: UPDATE_FILE as "UPDATE_FILE",
@@ -538,6 +546,10 @@ export class LocalS3Adapter implements IUploadAdapter {
           raw_url,
         },
       };
+
+      console.log(`Preparing update action with raw_url:`, raw_url);
+      console.log(`DISPATCH updateAction`, updateAction);
+      console.log(`config.metadata.dispatch`, config.metadata?.dispatch);
 
       // Dispatch action to update file record with URL
       config.metadata?.dispatch(
@@ -549,6 +561,9 @@ export class LocalS3Adapter implements IUploadAdapter {
     }
   }
 
+  /**
+   * Create a file record
+   */
   private async createFileRecord(
     file: File,
     config: UploadConfig,
@@ -585,6 +600,11 @@ export class LocalS3Adapter implements IUploadAdapter {
             FileConflictResolutionEnum.KEEP_BOTH,
         },
       };
+
+      console.log(
+        `Checking dispatch function availability:`,
+        config.metadata?.dispatch
+      );
 
       // Dispatch action to create file record
       dispatch(createFileAction(createAction, config.listDirectoryKey, true));

@@ -671,6 +671,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     return null;
   }
 
+  console.log(`fileUrl`, fileUrl);
+  console.log(`isLoading`, isLoading);
+
   return (
     <>
       <div

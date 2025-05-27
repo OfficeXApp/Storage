@@ -954,6 +954,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ UPDATE FILE --------------------------------- //
           case UPDATE_FILE: {
+            console.log(`UPDATE_FILE optimistic`, action);
             // Only handle actions with file data
             const listDirectoryKey = action.meta?.listDirectoryKey;
 

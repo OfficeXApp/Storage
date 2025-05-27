@@ -190,8 +190,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       diskID: defaultTempCloudSharingDiskID,
       endpoint: "https://gateway.storjshare.io",
       region: "us-east-1",
-      accessKeyId: "jw23ptdypclkptmfmfnirxjfkoqa",
-      secretAccessKey: "j3smkybq2b24foid56xw2tteesaes4dlamqueg5z4jiijeevdqlow",
+      accessKeyId: "jvaedsy46q4p5brxisvnrj7r2qpq",
+      secretAccessKey: "j2tw7vymrpfihfoyucb3se2litma4r72aa4rb6cfqhc25lvy2bpoi",
       bucket: "officex",
       useMultipartUpload: true,
       partSize: 5 * 1024 * 1024, // 5MB parts

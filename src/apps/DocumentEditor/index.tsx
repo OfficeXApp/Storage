@@ -844,7 +844,9 @@ const SpreadsheetEditor = () => {
         fileConflictResolution: FileConflictResolutionEnum.KEEP_NEWER,
       });
 
-      message.success(`File ${_currentFileName} saved successfully`);
+      setTimeout(() => {
+        message.success(`File ${_currentFileName} saved successfully`);
+      }, 5000);
       return true;
     } catch (error) {
       console.error("Error saving file:", error);
@@ -1015,6 +1017,9 @@ const SpreadsheetEditor = () => {
       };
 
       dispatch(getFileAction(getAction, offlineDisk));
+      setTimeout(() => {
+        setIframeReady(true);
+      }, 10000);
     } catch (error) {
       console.error("Error fetching file by ID:", error);
     }
@@ -1025,7 +1030,13 @@ const SpreadsheetEditor = () => {
   }
 
   // unauthorized access to file
-  if (fileID && !fileFromRedux && !redeemData && fileID !== "new") {
+  if (
+    iframeReady &&
+    fileID &&
+    !fileFromRedux &&
+    !redeemData &&
+    fileID !== "new"
+  ) {
     return (
       <DirectoryGuard
         resourceID={fileID}
@@ -1157,9 +1168,15 @@ const SpreadsheetEditor = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            flexDirection: "column",
           }}
         >
           <Spin />
+          <br />
+          <p style={{ marginTop: 16, fontWeight: 500, color: "gray" }}>
+            Loading from Blockchain... <br />
+            May take up to 15 seconds...
+          </p>
         </div>
       )}
       {offlineDisk || (file && fileFromRedux) ? (

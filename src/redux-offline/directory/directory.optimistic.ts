@@ -477,6 +477,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                   _syncWarning: `Awaiting Sync. This file was fetched offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be refetched.`,
                 },
               };
+              break;
             } else {
               enhancedAction = {
                 ...action,

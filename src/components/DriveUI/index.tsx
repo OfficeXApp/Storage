@@ -536,6 +536,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         targetFolderId: folderId,
       });
     } else if (folderFileID.startsWith("FileID_")) {
+      console.log(`currently at fileID`, folderFileID);
       let fileId = folderFileID;
       setCurrentFolderId(null);
       // Only set currentFileId if it's different
@@ -655,13 +656,18 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         },
       };
 
+      console.log(
+        `shouldBehaveOfflineDiskUIIntent(diskID || "")`,
+        shouldBehaveOfflineDiskUIIntent(diskID || "")
+      );
+
       dispatch(
         getFileAction(getAction, shouldBehaveOfflineDiskUIIntent(diskID || ""))
       );
 
       setTimeout(() => {
         setShowInitialLoading(false);
-      }, 4000);
+      }, 10000);
 
       const payload: IRequestListDirectoryPermissions = {
         filters: {
@@ -672,7 +678,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       dispatch(listDirectoryPermissionsAction(payload));
       setTimeout(() => {
         setShowInitialLoading(false);
-      }, 4000);
+      }, 10000);
     } catch (error) {
       console.error("Error fetching file by ID:", error);
       setIs404NotFound(true);
@@ -1465,7 +1471,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       >
         <Spin size="large" />
         <p style={{ marginTop: 16, fontWeight: 500, color: "gray" }}>
-          Loading...
+          Loading from Blockchain... <br />
+          May take up to 15 seconds...
         </p>
       </div>
     );
@@ -1485,7 +1492,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   // unauthorized access to file
   console.log(`currentFileId`, currentFileId);
   console.log(`getFileResult`, getFileResult);
-  if (currentFileId && !getFileResult) {
+  console.log(`isOfflineDisk`, isOfflineDisk);
+  if (!isOfflineDisk && currentFileId && !getFileResult) {
     return (
       <DirectoryGuard
         resourceID={currentFileId}

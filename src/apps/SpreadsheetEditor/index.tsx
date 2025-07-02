@@ -129,6 +129,7 @@ const SpreadsheetEditor = () => {
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [fileContentError, setFileContentError] = useState<string | null>(null);
   const [iframeReady, setIframeReady] = useState(false);
+  const [isContentLoaded, setIsContentLoaded] = useState<boolean>(false);
 
   const [emptyFile, setEmptyFile] = useState({
     id: `FileID_${uuidv4()}`,
@@ -217,6 +218,7 @@ const SpreadsheetEditor = () => {
         // Signal that content has been updated
         setFileContentVersion((prev) => prev + 1);
         setIframeReady(true);
+        setIsContentLoaded(true); // Set content loaded to true on success
         console.log("Successfully loaded and parsed JSON content");
       } catch (parseError) {
         console.error("Error parsing JSON:", parseError);
@@ -511,6 +513,7 @@ const SpreadsheetEditor = () => {
     if (fileUrl && file.id !== lastLoadedFileRef.current) {
       URL.revokeObjectURL(fileUrl);
       setFileUrl("");
+      setIsContentLoaded(false);
     }
     const loadFileContent = async () => {
       console.log(`loadFileContent`, file);
@@ -745,6 +748,8 @@ const SpreadsheetEditor = () => {
     };
 
     console.log(`aobut to save,`, _fileContent);
+
+    message.info(`Saving file, please wait...`);
 
     try {
       // Convert string content to a file object
@@ -1158,7 +1163,7 @@ const SpreadsheetEditor = () => {
           </div>
         }
       />
-      {file && iframeReady ? (
+      {file && iframeReady && isContentLoaded ? (
         <iframe
           ref={iframeRef} // Attach the ref here
           src={SPREADSHEET_APP_ENDPOINT}

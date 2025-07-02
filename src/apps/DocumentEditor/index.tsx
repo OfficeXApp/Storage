@@ -83,7 +83,7 @@ import { DOCUMENTS_APP_ENDPOINT } from "../../framework/identity/constants";
 
 const { Text } = Typography;
 
-const SpreadsheetEditor = () => {
+const DocumentEditor = () => {
   const {
     orgcode,
     fileID,
@@ -118,6 +118,7 @@ const SpreadsheetEditor = () => {
   const dispatch = useDispatch();
   // State for file content and UI
   const [fileUrl, setFileUrl] = useState<string>("");
+  const [isContentLoaded, setIsContentLoaded] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
   const [isShareDrawerOpen, setIsShareDrawerOpen] = useState(false);
@@ -230,6 +231,7 @@ const SpreadsheetEditor = () => {
         // Signal that content has been updated
         setFileContentVersion((prev) => prev + 1);
         setIframeReady(true);
+        setIsContentLoaded(true); // Set content loaded to true on success
         console.log("Successfully loaded and parsed JSON content");
       } catch (parseError) {
         console.error("Error parsing JSON:", parseError);
@@ -281,7 +283,7 @@ const SpreadsheetEditor = () => {
   };
 
   useEffect(() => {
-    console.log("SpreadsheetEditor mounted");
+    console.log("DocumentEditor mounted");
     if (fileID) {
       if (fileID === "new") {
         setIframeReady(true);
@@ -521,6 +523,7 @@ const SpreadsheetEditor = () => {
     if (fileUrl && file.id !== lastLoadedFileRef.current) {
       URL.revokeObjectURL(fileUrl);
       setFileUrl("");
+      setIsContentLoaded(false);
     }
     const loadFileContent = async () => {
       console.log(`loadFileContent`, file);
@@ -781,6 +784,7 @@ const SpreadsheetEditor = () => {
         
         `);
 
+      message.info(`Saving file, please wait...`);
       // Upload the file (which will overwrite the existing one)
       // The useMultiUploader will handle all disk types appropriately
       uploadFiles([uploadFileObject], parentFolderID, diskType, diskID, {
@@ -1151,7 +1155,7 @@ const SpreadsheetEditor = () => {
           </div>
         }
       />
-      {file && iframeReady ? (
+      {file && iframeReady && isContentLoaded ? (
         <iframe
           ref={iframeRef} // Attach the ref here
           src={DOCUMENTS_APP_ENDPOINT}
@@ -1194,4 +1198,4 @@ const SpreadsheetEditor = () => {
   );
 };
 
-export default SpreadsheetEditor;
+export default DocumentEditor;

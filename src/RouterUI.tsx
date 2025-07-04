@@ -517,7 +517,7 @@ const RouterUI = () => {
                               fontSize: "0.8rem",
                             }}
                           >
-                            Beta v0.1
+                            Beta v1.0
                           </span>
                         </div>
                       </Link>

@@ -129,7 +129,9 @@ const SpreadsheetEditor = () => {
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [fileContentError, setFileContentError] = useState<string | null>(null);
   const [iframeReady, setIframeReady] = useState(false);
-  const [isContentLoaded, setIsContentLoaded] = useState<boolean>(false);
+  const [isContentLoaded, setIsContentLoaded] = useState<boolean>(
+    fileID === "new" || false
+  );
 
   const [emptyFile, setEmptyFile] = useState({
     id: `FileID_${uuidv4()}`,

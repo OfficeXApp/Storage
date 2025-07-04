@@ -118,7 +118,9 @@ const DocumentEditor = () => {
   const dispatch = useDispatch();
   // State for file content and UI
   const [fileUrl, setFileUrl] = useState<string>("");
-  const [isContentLoaded, setIsContentLoaded] = useState<boolean>(false);
+  const [isContentLoaded, setIsContentLoaded] = useState<boolean>(
+    fileID === "new" || false
+  );
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
   const [isShareDrawerOpen, setIsShareDrawerOpen] = useState(false);

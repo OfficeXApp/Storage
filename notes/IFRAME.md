@@ -110,6 +110,7 @@ The iFrame integration allows drop-in UI for OfficeX, orgs+profiles scoped by de
 
 Implementation Work:
 
+☑️ Add allowlistDomains as a server side attribute of canisters
 ☑️ Implement iframe.postMessage handlers & tracer update results
 ☑️ Add allowlistDomains to the officex drive ui indexdb identity framework, pure clientside
 ☑️ Implement init flow for ephemeral org+profile
@@ -120,3 +121,4 @@ Implementation Work:
 ☑️ Implement getAuthToken flows
 ☑️ Implement go-to-url flows for redeem disk
 ☑️ Implement iframe pages showing example usage
+☑️ Remove frontend code dependencies on localstorage (only use IndexedDB for identity framework on every unique tab or iframe) - this is preventing parallel tabs with different identities. it can also generate bugs on org-specific url routes as the url (eg. /org/current/\*)

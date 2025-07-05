@@ -8,20 +8,38 @@ import {
   useRef,
 } from "react";
 import { useIdentitySystem } from "../identity";
-import { DriveID } from "@officexapp/types";
+import {
+  DiskID,
+  DiskTypeEnum,
+  DriveID,
+  FileConflictResolutionEnum,
+  FileID,
+  FolderID,
+} from "@officexapp/types";
 import { message } from "antd";
+import { v4 as uuidv4 } from "uuid";
 
 // Cryptography imports for deterministic mnemonics
 import { hexToBytes, sha256 } from "viem";
 import { entropyToMnemonic } from "@scure/bip39";
 import { wordlist } from "@scure/bip39/wordlists/english";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { getMimeTypeFromExtension } from "../drive/helpers";
+import {
+  createFileAction,
+  generateListDirectoryKey,
+  updateFileAction,
+} from "../../redux-offline/directory/directory.actions";
+import { useMultiUploader } from "../uploader/hook";
 
 // Types for iframe communication
 interface IFrameMessage {
   type: string;
   data: any;
   tracer?: string;
+  success?: boolean;
+  error?: string;
 }
 
 interface EphemeralConfig {
@@ -79,6 +97,9 @@ const generateDeterministicMnemonic = (secret: string): string => {
   return entropyToMnemonic(entropyBytes, wordlist);
 };
 
+// Global emitter function type
+type GlobalEmitFunction = (message: IFrameMessage) => void;
+
 // Provider component
 export function IFrameProvider({ children }: { children: ReactNode }) {
   const {
@@ -96,6 +117,9 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     currentAPIKey,
     generateSignature,
   } = useIdentitySystem();
+
+  const dispatch = useDispatch();
+  const { uploadFiles } = useMultiUploader();
 
   // State
   const [isIFrameMode, setIsIFrameMode] = useState(true);
@@ -125,6 +149,33 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     },
     [isIFrameMode]
   );
+
+  // Global emit function that uses the provider's context
+  const globalEmit: GlobalEmitFunction = useCallback(
+    (message: IFrameMessage) => {
+      sendMessageToParent(
+        message.type,
+        {
+          success: message.success,
+          data: message.data,
+          error: message.error,
+        },
+        message.tracer
+      );
+    },
+    [sendMessageToParent]
+  );
+
+  // Set up global emitter when provider initializes
+  useEffect(() => {
+    // Expose globally
+    window.iframeEmit = globalEmit;
+
+    return () => {
+      // Clean up on unmount
+      delete window.iframeEmit;
+    };
+  }, [globalEmit]);
 
   // Effect to clean up heartbeat interval
   useEffect(() => {
@@ -160,8 +211,6 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           );
           return;
         }
-
-        // Get current organization and profile
 
         if (!currentOrg || !currentProfile) {
           sendMessageToParent(
@@ -262,7 +311,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         tracer
       );
     } catch (error) {
-      console.error("About Child IFrame Instance failed:", error);
+      console.error("Auth Token Request failed:", error);
       sendMessageToParent(
         "officex-auth-token-response",
         {
@@ -396,11 +445,11 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           parentOriginRef.current = origin;
           setIsIFrameMode(true);
 
-          if (heartbeatIntervalRef.current)
-            clearInterval(heartbeatIntervalRef.current);
-          heartbeatIntervalRef.current = window.setInterval(() => {
-            sendMessageToParent("officex-heartbeat", { timestamp: Date.now() });
-          }, 2000);
+          //   if (heartbeatIntervalRef.current)
+          //     clearInterval(heartbeatIntervalRef.current);
+          //   heartbeatIntervalRef.current = window.setInterval(() => {
+          //     sendMessageToParent("officex-heartbeat", { timestamp: Date.now() });
+          //   }, 2000);
         }
 
         await handleEphemeralInit(initData.ephemeral, origin, tracer);
@@ -473,6 +522,169 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     [isInitialized, sendMessageToParent, navigate, wrapOrgCode]
   );
 
+  const handleRestCommandIFrame = useCallback(
+    async (data: any, origin: string, tracer?: string) => {
+      if (!isInitialized || parentOriginRef.current !== origin) {
+        sendMessageToParent(
+          "officex-rest-command-response",
+          {
+            success: false,
+            error: "IFrame not initialized or unauthorized origin",
+          },
+          tracer
+        );
+        return;
+      }
+
+      try {
+        if (data.action === "CREATE_FILE") {
+          const { payload } = data;
+
+          // Generate file ID
+          const fileID = `FileID_${uuidv4()}` as FileID;
+
+          // Default values
+          const diskType = DiskTypeEnum.BrowserCache;
+          const diskID = "DiskID_offline-local-browser-cache" as DiskID;
+          const parentFolderID =
+            "FolderID_root-folder-offline-local-browser-cache" as FolderID;
+
+          // Extract file extension
+          const extension = payload.name.split(".").pop() || "";
+
+          // If base64 is provided, we need to convert it to a File object and store it
+          if (payload.base64) {
+            // Convert base64 to blob
+            const byteCharacters = atob(payload.base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+
+            // Determine MIME type from extension
+            const mimeType =
+              getMimeTypeFromExtension(extension) || "application/octet-stream";
+            const blob = new Blob([byteArray], { type: mimeType });
+
+            // Create File object
+            const file = new File([blob], payload.name, { type: mimeType });
+
+            // Use uploadFiles from useMultiUploader to handle the actual storage
+            const uploadFilesArray = [
+              {
+                file,
+                fileID: fileID,
+              },
+            ];
+
+            uploadFiles(uploadFilesArray, parentFolderID, diskType, diskID, {
+              onFileComplete: (fileUUID) => {
+                console.log(`IFrame file upload completed: ${fileUUID}`);
+              },
+              metadata: {
+                dispatch,
+              },
+              parentFolderID: parentFolderID,
+              listDirectoryKey: generateListDirectoryKey({
+                folder_id: parentFolderID,
+              }),
+            });
+
+            sendMessageToParent(
+              "officex-rest-command-response",
+              {
+                success: true,
+                data: {
+                  fileID,
+                  diskID,
+                  diskType,
+                  parentFolderID,
+                  message: "File upload initiated successfully",
+                },
+              },
+              tracer
+            );
+          } else if (payload.raw_url) {
+            // Handle URL-based file creation
+
+            // First, create the file record
+            const createAction = {
+              action: "CREATE_FILE" as const,
+              payload: {
+                id: fileID,
+                name: payload.name,
+                parent_folder_uuid: parentFolderID,
+                extension: extension,
+                labels: [],
+                file_size: payload.file_size || 0, // Size might be unknown for URLs
+                disk_id: diskID,
+                disk_type: diskType,
+                expires_at: payload.expires_at || -1, // Never expires by default
+                file_conflict_resolution: FileConflictResolutionEnum.KEEP_BOTH,
+                raw_url: payload.raw_url,
+              },
+            };
+
+            // Dispatch create action
+            dispatch(
+              createFileAction(
+                createAction,
+                generateListDirectoryKey({ folder_id: parentFolderID }),
+                true
+              )
+            );
+
+            sendMessageToParent(
+              "officex-rest-command-response",
+              {
+                success: true,
+                data: {
+                  fileID,
+                  diskID,
+                  diskType,
+                  parentFolderID,
+                  raw_url: payload.raw_url,
+                  message: "File created successfully with URL",
+                },
+              },
+              tracer
+            );
+          } else {
+            sendMessageToParent(
+              "officex-rest-command-response",
+              {
+                success: false,
+                error: "Neither base64 nor raw_url provided",
+              },
+              tracer
+            );
+          }
+        } else {
+          sendMessageToParent(
+            "officex-rest-command-response",
+            {
+              success: false,
+              error: `Unknown action: ${data.action}`,
+            },
+            tracer
+          );
+        }
+      } catch (error) {
+        console.error("REST command failed:", error);
+        sendMessageToParent(
+          "officex-rest-command-response",
+          {
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+          tracer
+        );
+      }
+    },
+    [isInitialized, sendMessageToParent, uploadFiles, dispatch]
+  );
+
   // Handle incoming messages from parent
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
@@ -493,8 +705,19 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         case "officex-auth-token":
           await handleAuthTokenRequestIFrame(event.origin, tracer);
           break;
+        case "officex-rest-command":
+          await handleRestCommandIFrame(data, event.origin, tracer);
+          break;
         default:
-          // It's good practice to ignore unknown message types
+          // For any other message type, broadcast it as a DOM event
+          // Your app components can listen and respond via window.iframeEmit()
+          if (isInitialized && parentOriginRef.current === event.origin) {
+            document.dispatchEvent(
+              new CustomEvent("iframe-message-received", {
+                detail: { type, data, tracer, origin: event.origin },
+              })
+            );
+          }
           break;
       }
     };
@@ -508,6 +731,8 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     handleInitMessage,
     handleGoToPageMessage,
     handleAboutChildIFrameInstance,
+    handleAuthTokenRequestIFrame,
+    isInitialized,
   ]);
 
   // Context value
@@ -535,4 +760,11 @@ export function useIFrame() {
   }
 
   return context;
+}
+
+// Global type declaration
+declare global {
+  interface Window {
+    iframeEmit?: (message: IFrameMessage) => void;
+  }
 }

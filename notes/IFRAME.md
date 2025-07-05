@@ -88,6 +88,10 @@ The iFrame integration allows drop-in UI for OfficeX, orgs+profiles scoped by de
       case "getAuthToken-action05":
         console.log("Auth token response:", data);
         break;
+
+      case "rest-command-action06":
+        console.log("Rest command response:", data);
+        break;
     }
   });
 
@@ -113,6 +117,11 @@ The iFrame integration allows drop-in UI for OfficeX, orgs+profiles scoped by de
   // Get Auth Token
   function getAuthToken() {
     sendMessageToIframe("getAuthToken", {}, "getAuthToken-action05");
+  }
+
+  // Send Rest Command
+  function sendRestCommand(commandData) {
+    sendMessageToIframe("rest-command", commandData, "rest-command-action06");
   }
 </script>
 ```
@@ -150,12 +159,4 @@ Implementation Work:
 ☑️ Implement iframe pages showing example usage
 ☑️ Remove frontend code dependencies on localstorage (only use IndexedDB for identity framework on every unique tab or iframe) - this is preventing parallel tabs with different identities. it can also generate bugs on org-specific url routes as the url (eg. /org/current/\*)
 ☑️ Handle reinitialization on iframe refresh/reload events
-
-## Best Practices
-
-1. **Always validate message origins** for security
-2. **Store initialization config** in parent scope for reuse
-3. **Implement retry logic** for failed initializations
-4. **Use tracers** to match requests with responses
-5. **Handle iframe refresh gracefully** with automatic reinitialization
-6. **Add appropriate delays** to ensure iframe readiness before sending messages
+☑️ Allow canister rest api to accept `raw_url` on create file (simplify to not need subsequent update file)

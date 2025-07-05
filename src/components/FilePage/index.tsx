@@ -427,9 +427,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       console.log(`file --> `, file);
       try {
         if (file.disk_type === DiskTypeEnum.BrowserCache) {
-          // Use IndexedDB approach instead of indexdbGetFileUrl
-          const url = await getFileFromIndexedDB(file.id as FileUUID);
-          setFileUrl(url);
+          if (file.raw_url) {
+            setFileUrl(file.raw_url);
+          } else {
+            // Otherwise, try to get from IndexedDB
+            const url = await getFileFromIndexedDB(file.id as FileUUID);
+            setFileUrl(url);
+          }
         } else if (
           file.disk_type === DiskTypeEnum.StorjWeb3 ||
           file.disk_type === DiskTypeEnum.AwsBucket

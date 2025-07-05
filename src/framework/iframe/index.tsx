@@ -15,6 +15,7 @@ import { message } from "antd";
 import { hexToBytes, sha256 } from "viem";
 import { entropyToMnemonic } from "@scure/bip39";
 import { wordlist } from "@scure/bip39/wordlists/english";
+import { useNavigate } from "react-router-dom";
 
 // Types for iframe communication
 interface IFrameMessage {
@@ -24,8 +25,10 @@ interface IFrameMessage {
 }
 
 interface EphemeralConfig {
-  orgSeed: string;
-  profileSeed: string;
+  org_client_secret: string;
+  profile_client_secret: string;
+  org_name: string;
+  profile_name: string;
 }
 
 interface InitData {
@@ -36,6 +39,24 @@ interface EphemeralConnection {
   domain: string;
   orgID: string;
   profileID: string;
+  org_name: string;
+  profile_name: string;
+}
+
+// About Child IFrame Instance response type
+interface AboutChildIFrameInstanceResponse {
+  organization_name: string;
+  organization_id: string;
+  profile_id: string;
+  profile_name: string;
+  endpoint?: string;
+}
+
+interface AuthTokenIFrameResponse {
+  organization_id: string;
+  profile_id: string;
+  endpoint?: string;
+  auth_token: string;
 }
 
 // Context type definition
@@ -69,6 +90,11 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     readOrganization,
     readProfile,
     updateOrganization,
+    wrapOrgCode,
+    currentOrg,
+    currentProfile,
+    currentAPIKey,
+    generateSignature,
   } = useIdentitySystem();
 
   // State
@@ -76,6 +102,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentConnection, setCurrentConnection] =
     useState<EphemeralConnection | null>(null);
+  const navigate = useNavigate();
 
   // Refs
   const parentOriginRef = useRef<string | null>(null);
@@ -118,6 +145,135 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Handle About Child IFrame Instance request
+  const handleAboutChildIFrameInstance = useCallback(
+    async (origin: string, tracer?: string) => {
+      try {
+        if (!isInitialized || parentOriginRef.current !== origin) {
+          sendMessageToParent(
+            "officex-about-child-iframe-instance-response",
+            {
+              success: false,
+              error: "IFrame not initialized or unauthorized origin",
+            },
+            tracer
+          );
+          return;
+        }
+
+        // Get current organization and profile
+
+        if (!currentOrg || !currentProfile) {
+          sendMessageToParent(
+            "officex-about-child-iframe-instance-response",
+            {
+              success: false,
+              error: "No current organization or profile found",
+            },
+            tracer
+          );
+          return;
+        }
+
+        const response: AboutChildIFrameInstanceResponse = {
+          organization_name:
+            currentOrg.nickname || `Org ${currentConnection?.domain}`,
+          organization_id: currentOrg.driveID,
+          profile_id: currentProfile.userID,
+          profile_name:
+            currentProfile.nickname || `Profile ${currentConnection?.domain}`,
+          endpoint: currentOrg.endpoint || undefined,
+        };
+
+        sendMessageToParent(
+          "officex-about-child-iframe-instance-response",
+          {
+            success: true,
+            data: response,
+          },
+          tracer
+        );
+      } catch (error) {
+        console.error("About Child IFrame Instance failed:", error);
+        sendMessageToParent(
+          "officex-about-child-iframe-instance-response",
+          {
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+          tracer
+        );
+      }
+    },
+    [
+      isInitialized,
+      currentConnection,
+      currentOrg,
+      currentProfile,
+      sendMessageToParent,
+    ]
+  );
+
+  const handleAuthTokenRequestIFrame = async (
+    origin: string,
+    tracer?: string
+  ) => {
+    try {
+      if (!isInitialized || parentOriginRef.current !== origin) {
+        sendMessageToParent(
+          "officex-auth-token-response",
+          {
+            success: false,
+            error: "IFrame not initialized or unauthorized origin",
+          },
+          tracer
+        );
+        return;
+      }
+
+      // Get current organization and profile
+      let auth_token = currentAPIKey?.value || (await generateSignature());
+
+      if (!currentOrg || !currentProfile || !auth_token) {
+        sendMessageToParent(
+          "officex-auth-token-response",
+          {
+            success: false,
+            error: "No current organization or profile or auth_token found",
+          },
+          tracer
+        );
+        return;
+      }
+
+      const response: AuthTokenIFrameResponse = {
+        organization_id: currentOrg.driveID,
+        profile_id: currentProfile.userID,
+        endpoint: currentOrg.endpoint || undefined,
+        auth_token: auth_token,
+      };
+
+      sendMessageToParent(
+        "officex-auth-token-response",
+        {
+          success: true,
+          data: response,
+        },
+        tracer
+      );
+    } catch (error) {
+      console.error("About Child IFrame Instance failed:", error);
+      sendMessageToParent(
+        "officex-auth-token-response",
+        {
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
+        tracer
+      );
+    }
+  };
+
   // Handle ephemeral initialization
   const handleEphemeralInit = useCallback(
     async (
@@ -131,10 +287,10 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
 
         // 1. Deterministically generate org and profile IDs from seeds
         const profileMnemonic = generateDeterministicMnemonic(
-          `${domain}-profile-${ephemeralConfig.profileSeed}`
+          `${domain}-profile-${ephemeralConfig.profile_client_secret}`
         );
         const orgMnemonic = generateDeterministicMnemonic(
-          `${domain}-organization-${ephemeralConfig.orgSeed}`
+          `${domain}-organization-${ephemeralConfig.org_client_secret}`
         );
 
         const derivedProfile = await deriveProfileFromSeed(profileMnemonic);
@@ -157,7 +313,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("No existing organization found, creating new one...");
           targetOrg = await createOrganization({
             driveID: orgDriveID,
-            nickname: `Org ${domain}`,
+            nickname: `${domain} | ${ephemeralConfig.org_name}`,
             icpPublicAddress: orgIdentityProfile.icpPublicAddress,
             endpoint: "",
             note: `Created via iframe from ${domain}`,
@@ -174,7 +330,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("Found existing profile:", targetProfile.userID);
         } else {
           console.log("No existing profile found, creating new one...");
-          derivedProfile.nickname = `Profile ${domain}`;
+          derivedProfile.nickname = `${domain} | ${ephemeralConfig.profile_name}`;
           derivedProfile.note = `Created via iframe from ${domain}`;
           targetProfile = await createProfile(derivedProfile);
           message.success(`New profile for ${domain} created.`);
@@ -188,6 +344,8 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           domain,
           orgID: targetOrg.driveID,
           profileID: targetProfile.userID,
+          org_name: `${domain} | ${ephemeralConfig.org_name}`,
+          profile_name: `${domain} | ${ephemeralConfig.profile_name}`,
         });
 
         setIsInitialized(true);
@@ -229,8 +387,6 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
       sendMessageToParent,
     ]
   );
-
-  // ... (the rest of your IFrameProvider component remains unchanged)
 
   // Handle init message
   const handleInitMessage = useCallback(
@@ -275,13 +431,33 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
       const { route } = data;
 
       if (typeof route === "string" && route.startsWith("org/current/")) {
-        window.location.href = `/${route}`;
+        try {
+          // Remove "org/current/" prefix and get the actual route
+          const actualRoute = route.replace("org/current/", "");
 
-        sendMessageToParent(
-          "officex-go-to-page-response",
-          { success: true, route: route },
-          tracer
-        );
+          // Use wrapOrgCode to create the proper organization-specific route
+          const wrappedRoute = wrapOrgCode(`/${actualRoute}`);
+
+          // Navigate using React Router
+          navigate(wrappedRoute);
+
+          sendMessageToParent(
+            "officex-go-to-page-response",
+            { success: true, route: wrappedRoute },
+            tracer
+          );
+        } catch (error) {
+          console.error("Navigation error:", error);
+          sendMessageToParent(
+            "officex-go-to-page-response",
+            {
+              success: false,
+              error: "Navigation failed",
+              attemptedRoute: route,
+            },
+            tracer
+          );
+        }
       } else {
         sendMessageToParent(
           "officex-go-to-page-response",
@@ -294,7 +470,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         );
       }
     },
-    [isInitialized, sendMessageToParent]
+    [isInitialized, sendMessageToParent, navigate, wrapOrgCode]
   );
 
   // Handle incoming messages from parent
@@ -311,6 +487,12 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         case "officex-go-to-page":
           handleGoToPageMessage(data, event.origin, tracer);
           break;
+        case "officex-about-iframe":
+          await handleAboutChildIFrameInstance(event.origin, tracer);
+          break;
+        case "officex-auth-token":
+          await handleAuthTokenRequestIFrame(event.origin, tracer);
+          break;
         default:
           // It's good practice to ignore unknown message types
           break;
@@ -322,7 +504,11 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [handleInitMessage, handleGoToPageMessage]);
+  }, [
+    handleInitMessage,
+    handleGoToPageMessage,
+    handleAboutChildIFrameInstance,
+  ]);
 
   // Context value
   const contextValue: IFrameContextType = {

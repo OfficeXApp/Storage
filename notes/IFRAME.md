@@ -161,3 +161,4 @@ Implementation Work:
 ☑️ Handle reinitialization on iframe refresh/reload events
 ☑️ Allow canister rest api to accept `raw_url` on create file (simplify to not need subsequent update file)
 ☑️ Update Files & Folders to have a notes field for display. this will be important for file attribution to 3rd party apps
+☑️ Fix scrollability in drive ui / filepage

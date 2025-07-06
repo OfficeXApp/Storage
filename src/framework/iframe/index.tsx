@@ -72,6 +72,7 @@ interface AboutChildIFrameInstanceResponse {
   profile_id: string;
   profile_name: string;
   endpoint?: string;
+  frontend_domain?: string;
 }
 
 interface AuthTokenIFrameResponse {
@@ -272,6 +273,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           profile_name:
             currentProfile.nickname || `Profile ${currentConnection?.domain}`,
           endpoint: currentOrg.endpoint || undefined,
+          frontend_domain: `${window.location.origin}`,
         };
 
         sendMessageToParent(

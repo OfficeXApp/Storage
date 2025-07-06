@@ -15,6 +15,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./fetch";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { IFrameProvider } from "./framework/iframe/index.tsx";
 
 dayjs.extend(relativeTime);
 
@@ -70,7 +71,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               }
             >
               <MultiUploaderProvider>
-                <App />
+                <IFrameProvider>
+                  <App />
+                </IFrameProvider>
               </MultiUploaderProvider>
             </DriveProvider>
           </ReduxOfflineProvider>

@@ -610,6 +610,7 @@ const OrganizationSwitcher = () => {
         endpoint: endpoint,
         note: `Organization imported via API for user ${profileNickToUse}`,
         defaultProfile: profileToUse.userID,
+        allowedDomains: [],
       });
 
       // Store the API key for later use
@@ -818,6 +819,7 @@ const OrganizationSwitcher = () => {
             endpoint: adminEndpoint,
             note: `Organization created with gift card ${giftCardValue}`,
             defaultProfile: profile.userID,
+            allowedDomains: [],
           });
 
           // Store the API key for later use
@@ -901,6 +903,7 @@ const OrganizationSwitcher = () => {
           endpoint: "",
           note: `Created on ${new Date().toLocaleDateString()}`,
           defaultProfile: selectedProfileId, // Use the selectedProfileId
+          allowedDomains: [],
         });
 
         // Switch to the new organization

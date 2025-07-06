@@ -269,6 +269,7 @@ const ContactRedeem = () => {
         endpoint: currentOrg?.endpoint || "",
         note: `Organization owned by ${orgName}`,
         defaultProfile: selectedProfile.userID,
+        allowedDomains: [],
       };
       await createOrganization(org);
       await switchOrganization(org);
@@ -340,6 +341,7 @@ const ContactRedeem = () => {
       endpoint: currentOrg?.endpoint || "",
       note: `Organization owned by ${orgName}`,
       defaultProfile: data.profile_id,
+      allowedDomains: [],
     };
     await createOrganization(org);
     const apiKey = {
@@ -408,6 +410,7 @@ const ContactRedeem = () => {
       endpoint: currentOrg?.endpoint || "",
       note: `Organization owned by ${orgName}`,
       defaultProfile: data.profile_id,
+      allowedDomains: [],
     };
     await createOrganization(org);
     if (data.api_key) {

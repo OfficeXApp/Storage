@@ -53,6 +53,7 @@ export interface IndexDB_Organization {
   endpoint: string;
   note: string;
   defaultProfile: string; // the userID string of a IndexDB_Profile
+  allowedDomains: string[];
 }
 
 export interface IndexDB_Profile {
@@ -108,6 +109,7 @@ interface IdentitySystemContextType {
     endpoint,
     note,
     defaultProfile,
+    allowedDomains,
   }: {
     driveID: DriveID;
     nickname: string;
@@ -115,6 +117,7 @@ interface IdentitySystemContextType {
     endpoint: string;
     note: string;
     defaultProfile: string;
+    allowedDomains: string[];
   }) => Promise<IndexDB_Organization>;
   readOrganization: (driveID: DriveID) => Promise<IndexDB_Organization | null>;
   updateOrganization: (org: IndexDB_Organization) => Promise<void>;
@@ -298,6 +301,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
                 icpPublicAddress: tempProfile.icpPublicAddress,
                 endpoint: "",
                 note: "",
+                allowedDomains: [],
               });
               setCurrentOrg(newOrg);
               currentOrgRef.current = newOrg;
@@ -774,12 +778,14 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       icpPublicAddress,
       endpoint,
       note,
+      allowedDomains,
     }: {
       driveID: DriveID;
       nickname: string;
       icpPublicAddress: string;
       endpoint: string;
       note: string;
+      allowedDomains: string[];
     }) => {
       if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
@@ -793,6 +799,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           endpoint,
           note,
           defaultProfile: "",
+          allowedDomains,
         };
         const transaction = db.current.transaction(
           [ORGS_STORE_NAME],
@@ -1064,6 +1071,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         icpPublicAddress: driveID.replace("DriveID_", ""),
         endpoint,
         note: "",
+        allowedDomains: [],
       });
       await switchOrganization(newOrg);
 

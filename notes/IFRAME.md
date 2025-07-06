@@ -160,3 +160,4 @@ Implementation Work:
 ☑️ Remove frontend code dependencies on localstorage (only use IndexedDB for identity framework on every unique tab or iframe) - this is preventing parallel tabs with different identities. it can also generate bugs on org-specific url routes as the url (eg. /org/current/\*)
 ☑️ Handle reinitialization on iframe refresh/reload events
 ☑️ Allow canister rest api to accept `raw_url` on create file (simplify to not need subsequent update file)
+☑️ Update Files & Folders to have a notes field for display. this will be important for file attribution to 3rd party apps

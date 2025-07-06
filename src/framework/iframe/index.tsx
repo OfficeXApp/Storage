@@ -15,6 +15,9 @@ import {
   FileConflictResolutionEnum,
   FileID,
   FolderID,
+  LabelValue,
+  ExternalID,
+  ExternalPayload,
 } from "@officexapp/types";
 import { message } from "antd";
 import { v4 as uuidv4 } from "uuid";
@@ -28,6 +31,7 @@ import { useDispatch } from "react-redux";
 import { getMimeTypeFromExtension } from "../drive/helpers";
 import {
   createFileAction,
+  createFolderAction,
   generateListDirectoryKey,
   updateFileAction,
 } from "../../redux-offline/directory/directory.actions";
@@ -76,6 +80,42 @@ interface AuthTokenIFrameResponse {
   endpoint?: string;
   auth_token: string;
 }
+
+// REST Command types for CREATE_FILE
+interface CreateFileCommandPayload {
+  name: string;
+  file_size?: number;
+  expires_at?: number;
+  raw_url?: string;
+  base64?: string;
+  parent_folder_uuid?: FolderID; // Optional parent folder ID
+}
+
+interface CreateFileCommand {
+  action: "CREATE_FILE";
+  payload: CreateFileCommandPayload;
+}
+
+// REST Command types for CREATE_FOLDER
+interface CreateFolderCommandPayload {
+  name: string;
+  labels?: LabelValue[];
+  expires_at?: number;
+  file_conflict_resolution?: FileConflictResolutionEnum;
+  has_sovereign_permissions?: boolean;
+  shortcut_to?: FolderID;
+  external_id?: ExternalID;
+  external_payload?: ExternalPayload;
+  parent_folder_uuid?: FolderID; // Optional parent folder ID
+}
+
+interface CreateFolderCommand {
+  action: "CREATE_FOLDER";
+  payload: CreateFolderCommandPayload;
+}
+
+// Union type for all REST commands
+type RestCommand = CreateFileCommand | CreateFolderCommand;
 
 // Context type definition
 interface IFrameContextType {
@@ -523,7 +563,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
   );
 
   const handleRestCommandIFrame = useCallback(
-    async (data: any, origin: string, tracer?: string) => {
+    async (data: RestCommand, origin: string, tracer?: string) => {
       if (!isInitialized || parentOriginRef.current !== origin) {
         sendMessageToParent(
           "officex-rest-command-response",
@@ -537,17 +577,21 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        // Default values used by both file and folder creation
+        const diskType = DiskTypeEnum.BrowserCache;
+        const diskID = "DiskID_offline-local-browser-cache" as DiskID;
+        const defaultParentFolderID =
+          "FolderID_root-folder-offline-local-browser-cache" as FolderID;
+
         if (data.action === "CREATE_FILE") {
           const { payload } = data;
 
+          // Use provided parent folder ID or default
+          const parentFolderID =
+            payload.parent_folder_uuid || defaultParentFolderID;
+
           // Generate file ID
           const fileID = `FileID_${uuidv4()}` as FileID;
-
-          // Default values
-          const diskType = DiskTypeEnum.BrowserCache;
-          const diskID = "DiskID_offline-local-browser-cache" as DiskID;
-          const parentFolderID =
-            "FolderID_root-folder-offline-local-browser-cache" as FolderID;
 
           // Extract file extension
           const extension = payload.name.split(".").pop() || "";
@@ -601,14 +645,13 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
                   diskType,
                   parentFolderID,
                   message: "File upload initiated successfully",
+                  name: payload.name,
                 },
               },
               tracer
             );
           } else if (payload.raw_url) {
             // Handle URL-based file creation
-
-            // First, create the file record
             const createAction = {
               action: "CREATE_FILE" as const,
               payload: {
@@ -617,10 +660,10 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
                 parent_folder_uuid: parentFolderID,
                 extension: extension,
                 labels: [],
-                file_size: payload.file_size || 0, // Size might be unknown for URLs
+                file_size: payload.file_size || 0,
                 disk_id: diskID,
                 disk_type: diskType,
-                expires_at: payload.expires_at || -1, // Never expires by default
+                expires_at: payload.expires_at || -1,
                 file_conflict_resolution: FileConflictResolutionEnum.KEEP_BOTH,
                 raw_url: payload.raw_url,
               },
@@ -646,6 +689,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
                   parentFolderID,
                   raw_url: payload.raw_url,
                   message: "File created successfully with URL",
+                  name: payload.name,
                 },
               },
               tracer
@@ -660,12 +704,67 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
               tracer
             );
           }
+        } else if (data.action === "CREATE_FOLDER") {
+          const { payload } = data;
+
+          // Use provided parent folder ID or default
+          const parentFolderID =
+            payload.parent_folder_uuid || defaultParentFolderID;
+
+          // Generate folder ID
+          const folderID = `FolderID_${uuidv4()}` as FolderID;
+
+          const createAction = {
+            action: "CREATE_FOLDER" as const,
+            payload: {
+              id: folderID,
+              name: payload.name,
+              parent_folder_uuid: parentFolderID,
+              labels: payload.labels || [],
+              disk_id: diskID,
+              disk_type: diskType,
+              expires_at: payload.expires_at || -1, // Never expires by default
+              file_conflict_resolution:
+                payload.file_conflict_resolution ||
+                FileConflictResolutionEnum.KEEP_BOTH,
+              has_sovereign_permissions:
+                payload.has_sovereign_permissions || false,
+              shortcut_to: payload.shortcut_to,
+              external_id: payload.external_id,
+              external_payload: payload.external_payload,
+            },
+          };
+
+          // Dispatch create folder action
+          dispatch(
+            createFolderAction(
+              createAction,
+              generateListDirectoryKey({ folder_id: parentFolderID }),
+              true
+            )
+          );
+
+          sendMessageToParent(
+            "officex-rest-command-response",
+            {
+              success: true,
+              data: {
+                folderID,
+                diskID,
+                diskType,
+                parentFolderID,
+                message: "Folder created successfully",
+                name: payload.name,
+              },
+            },
+            tracer
+          );
         } else {
           sendMessageToParent(
             "officex-rest-command-response",
             {
               success: false,
-              error: `Unknown action: ${data.action}`,
+              error: `Unknown action: ${(data as any).action}`,
             },
             tracer
           );
@@ -732,6 +831,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     handleGoToPageMessage,
     handleAboutChildIFrameInstance,
     handleAuthTokenRequestIFrame,
+    handleRestCommandIFrame,
     isInitialized,
   ]);
 

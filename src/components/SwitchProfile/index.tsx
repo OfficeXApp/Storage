@@ -911,6 +911,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                   endpoint: endpoint,
                   note: `Organization imported via API for user ${nickToUse}`,
                   defaultProfile: newProfile.userID,
+                  allowedDomains: [],
                 });
                 await switchOrganization(newOrg, newProfile.userID);
 

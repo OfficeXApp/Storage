@@ -238,6 +238,7 @@ const ConnectICPButton = () => {
         endpoint: adminEndpoint,
         note: `Organization created with gift card ${giftCardValue}`,
         defaultProfile: profile.userID,
+        allowedDomains: [],
       });
 
       // Store the API key

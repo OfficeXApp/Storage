@@ -110,7 +110,6 @@ const AutoLoginPage = () => {
         endpoint: data.org_endpoint,
         note: `Recovered organization for ${data.profile_name || "user"}`,
         defaultProfile: newProfile.userID,
-        allowedDomains: [],
       });
 
       // Switch to the new organization with the current profile

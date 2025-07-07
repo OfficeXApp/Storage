@@ -408,12 +408,6 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
 
         if (targetOrg) {
           console.log("Found existing organization:", targetOrg.driveID);
-          // If org exists, ensure the current domain is allowed
-          if (!targetOrg.allowedDomains.includes(domain)) {
-            targetOrg.allowedDomains.push(domain);
-            await updateOrganization(targetOrg);
-            message.info(`Added ${domain} to existing org.`);
-          }
         } else {
           console.log("No existing organization found, creating new one...");
           targetOrg = await createOrganization({
@@ -423,7 +417,6 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
             endpoint: "",
             note: `Created via iframe from ${domain}`,
             defaultProfile: "",
-            allowedDomains: [domain],
           });
           message.success(`New organization for ${domain} created.`);
         }
@@ -521,7 +514,6 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
             endpoint: host,
             note: `Created via iframe from ${domain}`,
             defaultProfile: "",
-            allowedDomains: [domain],
           });
           message.success(`New organization for ${domain} created.`);
         }

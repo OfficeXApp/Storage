@@ -423,7 +423,6 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
         endpoint: adminEndpoint,
         note: `Organization created with gift card ${giftCardID}`,
         defaultProfile: currentProfile.userID,
-        allowedDomains: [],
       });
 
       // Store the API key

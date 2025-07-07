@@ -285,6 +285,43 @@ const SelectAgenticKey: React.FC = () => {
       });
   };
 
+  if (currentOrg && !currentOrg.endpoint) {
+    return (
+      <Layout
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "#f5f7fa",
+        }}
+      >
+        <Content
+          style={{
+            padding: screenType.isMobile ? "24px 16px" : "60px 24px",
+            maxWidth: "800px",
+            margin: "0 auto",
+            width: "100%",
+          }}
+        >
+          <Card
+            bordered={false}
+            style={{
+              marginBottom: "32px",
+              borderRadius: "12px",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            }}
+          >
+            <Title level={2} style={{ fontWeight: "bold" }}>
+              No Cloud Available
+            </Title>
+            <p>
+              Offline Orgs cannot be used with agentic keys. Please switch to
+              another organization with cloud endpoint.
+            </p>
+          </Card>
+        </Content>
+      </Layout>
+    );
+  }
+
   return (
     <Layout
       style={{

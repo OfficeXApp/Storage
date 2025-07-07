@@ -158,14 +158,11 @@ Implementation Work:
 ✅ Implement init flow for ephemeral org+profile
 ✅ Handle reinitialization on iframe refresh/reload events
 ✅ Implement whoami flows
+✅ Parent app sponsored injection of creds into child iframe. Allowing any arbitrary set of orgs.
+✅ To escape the confines of the parent iframe, an "auto-login" url containing all the necessary auth info to connect to officex.app on seperate browser (contacts > generate auto-login)
+☑️ Yes upon further thought, we still need a 'grant agentic key' flow as a single easy url for 3rd party apps to send to, and after granting agentic key access the page is redirected back to 3rd party app with the apikey in the url params. This is like traditional auth confirm flows.
 
 Due to browser security, the child iframe doesnt actually have access to the same local device storage as direct on officex.app. Which means we will never even need the "grant agentic key" flow on frontend. How we do grant iframe easy access to existing profiles? maybe we cant... maybe it needs to be an explicit API key copy paste for those 3rd party apps. At best those 3rd party apps inject API auth creds into the iframe, and they can switch between any org since its all scoped to their domain so all accounts are theirs.
-
-Yes upon further thought, we still need a 'grant agentic key' flow as a single easy url for 3rd party apps to send to, and after granting agentic key access the page is redirected back to 3rd party app with the apikey in the url params. This is like traditional auth confirm flows.
-
-Say we want to escape the confines of the parent iframe, then we also need an "auto-login" url containing all the necessary auth info to connect to officex.app on seperate browser. the local device memory would be seperated, but the cloud can sync the two clients.
-
-And finally the parent app sponsored injection of creds into child iframe. Allowing any arbitrary set of orgs.
 
 ☑️ Implement getAuthToken flows (what is the appropriate flow?) - where should we store api-keys for outer domain flows? we probably should create a new indexdb table for just storing `domain:org:profile:api-key` pairs, and users must manually switch to a specific profile to connect (unless providing a sponsored profile)
 ☑️ Implement init flow for auto-login parent sponsored cloud org+profile (parent provides apikey) - same url should be openable on new tab on officex.app directly
@@ -178,3 +175,4 @@ And finally the parent app sponsored injection of creds into child iframe. Allow
 ☑️ Allow canister rest api to accept `raw_url` on create file (simplify to not need subsequent update file)
 ☑️ Update Files & Folders to have a notes field for display. this will be important for file attribution to 3rd party apps
 ☑️ Fix scrollability in drive ui / filepage
+☑️ When creating a new auto-login (api creds) add optional UI field to label the api key

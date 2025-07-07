@@ -97,6 +97,7 @@ import AutoLoginPage from "./pages/AutoLoginPage";
 import RedeemDiskGiftCard from "./pages/DisksPage/disk.redeem";
 import SpreadsheetEditor from "./apps/SpreadsheetEditor";
 import DocumentEditor from "./apps/DocumentEditor";
+import SelectAgenticKey from "./components/SelectAgenticKey";
 
 const { Sider, Content } = Layout;
 
@@ -623,6 +624,10 @@ const RouterUI = () => {
                     <Route
                       path="/org/:orgcode/search"
                       element={<SearchResultsPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/grant-agentic-key"
+                      element={<SelectAgenticKey />}
                     />
 
                     <Route path="/sandbox" element={<SandboxPage />} />

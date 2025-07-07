@@ -161,13 +161,13 @@ Implementation Work:
 ✅ Implement whoami flows
 ✅ Parent app sponsored injection of creds into child iframe. Allowing any arbitrary set of orgs.
 ✅ To escape the confines of the parent iframe, an "auto-login" url containing all the necessary auth info to connect to officex.app on seperate browser (contacts > generate auto-login)
-🔵 Yes upon further thought, we still need a 'grant agentic key' flow as a single easy url for 3rd party apps to send to, and after granting agentic key access the page is redirected back to 3rd party app with the apikey in the url params. This is like traditional auth confirm flows.
-🔵 Update parent app demo to show the grant agentic key flow (callback url success proof)
+✅ Yes upon further thought, we still need a 'grant agentic key' flow as a single easy url for 3rd party apps to send to, and after granting agentic key access the page is redirected back to 3rd party app with the apikey in the url params. This is like traditional auth confirm flows.
+✅ Update parent app demo to show the grant agentic key flow (callback url success proof)
 
 ✅ Allow canister rest api to accept `raw_url` on create file (simplify to not need subsequent update file)
 ✅ Update Files & Folders to have a notes field for display. this will be important for file attribution to 3rd party apps
 
-☑️ Remove the old allowed_domains flow in rust & typescript
+✅ Remove the old allowed_domains flow in rust & typescript
 
 ☑️ Implement go-to-url flows for redeem disk
 ☑️ Implement iframe pages showing example usage

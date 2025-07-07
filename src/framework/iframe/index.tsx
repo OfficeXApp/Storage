@@ -18,6 +18,8 @@ import {
   LabelValue,
   ExternalID,
   ExternalPayload,
+  UserID,
+  ApiKeyValue,
 } from "@officexapp/types";
 import { message } from "antd";
 import { v4 as uuidv4 } from "uuid";
@@ -53,11 +55,22 @@ interface EphemeralConfig {
   profile_name: string;
 }
 
-interface InitData {
-  ephemeral?: EphemeralConfig;
+interface InjectedConfig {
+  host: string;
+  org_id: DriveID;
+  org_name?: string;
+  profile_id: UserID;
+  profile_name?: string;
+  api_key_value?: ApiKeyValue; // only provide apiKey if you are subsidizing for users
+  redirect_to?: string; // optional, default is the drive path
 }
 
-interface EphemeralConnection {
+interface InitData {
+  ephemeral?: EphemeralConfig;
+  injected?: InjectedConfig;
+}
+
+interface CurrentConnection {
   domain: string;
   orgID: string;
   profileID: string;
@@ -123,7 +136,7 @@ interface IFrameContextType {
   isIFrameMode: boolean;
   parentOrigin: string | null;
   isInitialized: boolean;
-  currentConnection: EphemeralConnection | null;
+  currentConnection: CurrentConnection | null;
   sendMessageToParent: (type: string, data: any, tracer?: string) => void;
 }
 
@@ -157,6 +170,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     currentProfile,
     currentAPIKey,
     generateSignature,
+    createApiKey,
   } = useIdentitySystem();
 
   const dispatch = useDispatch();
@@ -166,7 +180,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
   const [isIFrameMode, setIsIFrameMode] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentConnection, setCurrentConnection] =
-    useState<EphemeralConnection | null>(null);
+    useState<CurrentConnection | null>(null);
   const navigate = useNavigate();
 
   // Refs
@@ -479,22 +493,141 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     ]
   );
 
+  const handleInjectedInit = useCallback(
+    async (injectedConfig: InjectedConfig, origin: string, tracer?: string) => {
+      try {
+        message.info("Starting ephemeral initialization...");
+        const domain = extractDomainFromOrigin(origin);
+        const {
+          host,
+          org_id,
+          org_name,
+          profile_id,
+          profile_name,
+          api_key_value, // only provide apiKey if you are subsidizing for users
+          redirect_to, // optional, default is the drive path
+        } = injectedConfig;
+
+        // check if injectedConfig.profile_id & injectedConfig.org_id already exist in indexdb, switch to it if found
+
+        let targetOrg = await readOrganization(org_id);
+
+        if (!targetOrg) {
+          console.log("No existing organization found, creating new one...");
+          targetOrg = await createOrganization({
+            driveID: org_id,
+            nickname: `${domain} | ${org_name || "Org"}`,
+            icpPublicAddress: org_id.replace("DriveID_", ""),
+            endpoint: host,
+            note: `Created via iframe from ${domain}`,
+            defaultProfile: "",
+            allowedDomains: [domain],
+          });
+          message.success(`New organization for ${domain} created.`);
+        }
+
+        // 3. Check for existing Profile, or create if it doesn't exist.
+        let targetProfile = await readProfile(profile_id);
+
+        if (!targetProfile) {
+          console.log("No existing profile found, creating new one...");
+          if (!api_key_value) {
+            // report error to tracer and end early
+            sendMessageToParent(
+              "officex-init-response",
+              {
+                success: false,
+                error: "API key value is required if no existing profile found",
+              },
+              tracer
+            );
+            return;
+          }
+          const newProfile = {
+            userID: profile_id,
+            nickname: `${domain} | ${profile_name || "Profile"}`,
+            icpPublicAddress: profile_id.replace("UserID_", ""),
+            evmPublicAddress: "",
+            seedPhrase: "",
+            note: `Created via iframe from ${domain}`,
+            avatar: "",
+          };
+          targetProfile = await createProfile(newProfile);
+          // use injectedConfig.api_key_value to create a new org and profile
+          await createApiKey({
+            apiKeyID: `ApiKey_${uuidv4()}`,
+            userID: profile_id,
+            driveID: org_id,
+            note: `Created via iframe from ${domain}`,
+            value: api_key_value,
+            endpoint: host,
+          });
+          message.success(`New profile for ${domain} created.`);
+        }
+
+        // 4. Switch to the target org and profile
+        await switchOrganization(targetOrg, targetProfile.userID);
+        await switchProfile(targetProfile);
+
+        setCurrentConnection({
+          domain,
+          orgID: targetOrg.driveID,
+          profileID: targetProfile.userID,
+          org_name: `${domain} | ${org_name}`,
+          profile_name: `${domain} | ${profile_name}`,
+        });
+
+        setIsInitialized(true);
+
+        sendMessageToParent(
+          "officex-init-response",
+          {
+            success: true,
+            mode: "injected",
+            orgID: targetOrg.driveID,
+            profileID: targetProfile.userID,
+            isPersistent: true,
+            domain: domain,
+          },
+          tracer
+        );
+
+        if (redirect_to) {
+          navigate(redirect_to);
+        }
+      } catch (error) {
+        console.error("Injected init failed:", error);
+        sendMessageToParent(
+          "officex-init-response",
+          {
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+          tracer
+        );
+      }
+    },
+    []
+  );
+
   // Handle init message
   const handleInitMessage = useCallback(
     async (initData: InitData, origin: string, tracer?: string) => {
+      if (!parentOriginRef.current) {
+        parentOriginRef.current = origin;
+        setIsIFrameMode(true);
+
+        //   if (heartbeatIntervalRef.current)
+        //     clearInterval(heartbeatIntervalRef.current);
+        //   heartbeatIntervalRef.current = window.setInterval(() => {
+        //     sendMessageToParent("officex-heartbeat", { timestamp: Date.now() });
+        //   }, 2000);
+      }
+
       if (initData.ephemeral) {
-        if (!parentOriginRef.current) {
-          parentOriginRef.current = origin;
-          setIsIFrameMode(true);
-
-          //   if (heartbeatIntervalRef.current)
-          //     clearInterval(heartbeatIntervalRef.current);
-          //   heartbeatIntervalRef.current = window.setInterval(() => {
-          //     sendMessageToParent("officex-heartbeat", { timestamp: Date.now() });
-          //   }, 2000);
-        }
-
         await handleEphemeralInit(initData.ephemeral, origin, tracer);
+      } else if (initData.injected) {
+        await handleInjectedInit(initData.injected, origin, tracer);
       } else {
         const message: IFrameMessage = {
           type: "officex-init-response",
@@ -797,6 +930,9 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         case "officex-init":
           await handleInitMessage(data as InitData, event.origin, tracer);
           break;
+        // case "officex-switch-profile-org":
+        //   await handleSwitchProfileOrgMessage(data, event.origin, tracer);
+        //   break;
         case "officex-go-to-page":
           handleGoToPageMessage(data, event.origin, tracer);
           break;

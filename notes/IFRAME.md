@@ -19,6 +19,8 @@ The iFrame integration allows drop-in UI for OfficeX, orgs+profiles scoped by de
   const iframe = document.getElementById("officex-iframe");
 
   // Configuration for initialization
+
+  // Configuration for initialization
   const initConfig = {
     ephemeral: {
       org_client_secret: "your-org-seed-phrase", // this can be an arbitrary string
@@ -26,15 +28,20 @@ The iFrame integration allows drop-in UI for OfficeX, orgs+profiles scoped by de
       org_name: "your-org-name", // this can be an arbitrary string
       profile_name: "your-profile-name", // this can be an arbitrary string
     },
-    cloud: {
-      // if using existing cloud, the child iframe will check if the user has approved the connection (allowlist the host domain - the allowlist lives in officex drive ui indexdb identity framework, pure clientside)
-      // if using existing cloud is not provided, the child iframe will issue a popup to allow parent domain to add this org+profile to your officex
+    injected: {
       host: "your-custom-backend", // this can be an arbitrary string
       orgID: "your-drive-id", // this can be an arbitrary string
       profileID: "your-profile-id", // this can be an arbitrary string
-      // only provide apiKey if you are subsidizing for users
-      apiKey: "your-api-key", // omit if you are using their existing profile
+      apiKey: "your-api-key", // only provide apiKey if you are subsidizing for users
+      redirectTo?: "org/current/drive" // optional, default is the drive path
     },
+    // no longer needed
+    // existing: {
+    //     // shows ui page asking user to approve connection, and select api key to give parent app access to
+    //   orgID: "your-drive-id", // this can be an arbitrary string
+    //   profileID: "your-profile-id", // this can be an arbitrary string
+    //   redirectTo?: "org/current/drive" // optional, default is the drive path
+    // }
   };
 
   // Function to initialize the iframe
@@ -146,19 +153,28 @@ The iframe automatically reinitializes when it refreshes because:
 
 Implementation Work:
 
-☑️ Add allowlistDomains as a server side attribute of canisters
-☑️ Implement iframe.postMessage handlers & tracer update results
-☑️ Add allowlistDomains to the officex drive ui indexdb identity framework, pure clientside
-☑️ Implement init flow for ephemeral org+profile
-☑️ Implement init flow for cloud org+profile
-☑️ Implement approval flow & popup for existing allowlisted domains
-☑️ Implement switchOrg flows
-☑️ Implement whoami flows
-☑️ Implement getAuthToken flows
+✅ Add allowlistDomains as a server side attribute of canisters
+✅ Implement iframe.postMessage handlers & tracer update results
+✅ Implement init flow for ephemeral org+profile
+✅ Handle reinitialization on iframe refresh/reload events
+✅ Implement whoami flows
+
+Due to browser security, the child iframe doesnt actually have access to the same local device storage as direct on officex.app. Which means we will never even need the "grant agentic key" flow on frontend. How we do grant iframe easy access to existing profiles? maybe we cant... maybe it needs to be an explicit API key copy paste for those 3rd party apps. At best those 3rd party apps inject API auth creds into the iframe, and they can switch between any org since its all scoped to their domain so all accounts are theirs.
+
+Yes upon further thought, we still need a 'grant agentic key' flow as a single easy url for 3rd party apps to send to, and after granting agentic key access the page is redirected back to 3rd party app with the apikey in the url params. This is like traditional auth confirm flows.
+
+Say we want to escape the confines of the parent iframe, then we also need an "auto-login" url containing all the necessary auth info to connect to officex.app on seperate browser. the local device memory would be seperated, but the cloud can sync the two clients.
+
+And finally the parent app sponsored injection of creds into child iframe. Allowing any arbitrary set of orgs.
+
+☑️ Implement getAuthToken flows (what is the appropriate flow?) - where should we store api-keys for outer domain flows? we probably should create a new indexdb table for just storing `domain:org:profile:api-key` pairs, and users must manually switch to a specific profile to connect (unless providing a sponsored profile)
+☑️ Implement init flow for auto-login parent sponsored cloud org+profile (parent provides apikey) - same url should be openable on new tab on officex.app directly
+☑️ Implement init flow for permit access to existing org+profile, parent does NOT pass apiKey, user is taken through a flow to create an api-key for the parent iframe (or select existing api-key). user may have to switch to a specific profile to connect
+☑️ Do we even need Add allowlistDomains to the officex drive ui indexdb identity framework, pure clientside?
+
 ☑️ Implement go-to-url flows for redeem disk
 ☑️ Implement iframe pages showing example usage
 ☑️ Remove frontend code dependencies on localstorage (only use IndexedDB for identity framework on every unique tab or iframe) - this is preventing parallel tabs with different identities. it can also generate bugs on org-specific url routes as the url (eg. /org/current/\*)
-☑️ Handle reinitialization on iframe refresh/reload events
 ☑️ Allow canister rest api to accept `raw_url` on create file (simplify to not need subsequent update file)
 ☑️ Update Files & Folders to have a notes field for display. this will be important for file attribution to 3rd party apps
 ☑️ Fix scrollability in drive ui / filepage

@@ -53,7 +53,6 @@ export interface IndexDB_Organization {
   endpoint: string;
   note: string;
   defaultProfile: string; // the userID string of a IndexDB_Profile
-  allowedDomains: string[];
 }
 
 export interface IndexDB_Profile {
@@ -73,6 +72,17 @@ export interface IndexDB_ApiKey {
   note: string;
   value: string;
   endpoint: string;
+}
+
+export interface IndexDB_AgenticKeyGrant {
+  agenticKeyGrantID: string;
+  profileID: UserID;
+  driveID: DriveID;
+  endpoint: string;
+  note: string;
+  apiKeyID: string;
+  apiKeyValue: string;
+  domain: string;
 }
 
 export interface AuthProfile {
@@ -109,7 +119,6 @@ interface IdentitySystemContextType {
     endpoint,
     note,
     defaultProfile,
-    allowedDomains,
   }: {
     driveID: DriveID;
     nickname: string;
@@ -117,7 +126,6 @@ interface IdentitySystemContextType {
     endpoint: string;
     note: string;
     defaultProfile: string;
-    allowedDomains: string[];
   }) => Promise<IndexDB_Organization>;
   readOrganization: (driveID: DriveID) => Promise<IndexDB_Organization | null>;
   updateOrganization: (org: IndexDB_Organization) => Promise<void>;
@@ -138,6 +146,13 @@ interface IdentitySystemContextType {
 
   createApiKey: (apiKey: IndexDB_ApiKey) => Promise<IndexDB_ApiKey>;
   removeApiKey: (apiKeyID: string) => Promise<void>;
+
+  setAgenticKeyGrant: (
+    agenticKeyGrant: IndexDB_AgenticKeyGrant
+  ) => Promise<IndexDB_AgenticKeyGrant>;
+  getAgenticKeyGrant: (
+    agenticKeyGrantID: string
+  ) => Promise<IndexDB_AgenticKeyGrant | null>;
 
   syncLatestIdentities: () => Promise<void>;
   deriveProfileFromSeed: (seedPhrase: string) => Promise<IndexDB_Profile>;
@@ -160,6 +175,7 @@ const DB_VERSION = 1;
 const ORGS_STORE_NAME = "organizations";
 const PROFILES_STORE_NAME = "profiles";
 const API_KEYS_STORE_NAME = "apiKeys";
+const API_KEY_GRANTS_STORE_NAME = "apiKeyGrants";
 
 // Function to derive Ed25519 key from seed (uses the first 32 bytes of the seed)
 const deriveEd25519KeyFromSeed = async (
@@ -245,6 +261,12 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
               keyPath: "apiKeyID",
             });
           }
+
+          if (!database.objectStoreNames.contains(API_KEY_GRANTS_STORE_NAME)) {
+            database.createObjectStore(API_KEY_GRANTS_STORE_NAME, {
+              keyPath: "apiKeyGrantID",
+            });
+          }
         };
 
         request.onsuccess = async (event) => {
@@ -301,7 +323,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
                 icpPublicAddress: tempProfile.icpPublicAddress,
                 endpoint: "",
                 note: "",
-                allowedDomains: [],
               });
               setCurrentOrg(newOrg);
               currentOrgRef.current = newOrg;
@@ -778,14 +799,12 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       icpPublicAddress,
       endpoint,
       note,
-      allowedDomains,
     }: {
       driveID: DriveID;
       nickname: string;
       icpPublicAddress: string;
       endpoint: string;
       note: string;
-      allowedDomains: string[];
     }) => {
       if (!db.current) {
         throw new Error("INDEXEDDB_NOT_INITIALIZED");
@@ -799,7 +818,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           endpoint,
           note,
           defaultProfile: "",
-          allowedDomains,
         };
         const transaction = db.current.transaction(
           [ORGS_STORE_NAME],
@@ -1029,6 +1047,53 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     [db, syncLatestIdentities]
   );
 
+  // Agentic Key Grant
+  const setAgenticKeyGrant = useCallback(
+    async (agenticKeyGrant: IndexDB_AgenticKeyGrant) => {
+      if (!db.current) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+      try {
+        const transaction = db.current.transaction(
+          [API_KEY_GRANTS_STORE_NAME],
+          "readwrite"
+        );
+        const store = transaction.objectStore(API_KEY_GRANTS_STORE_NAME);
+        store.add(agenticKeyGrant);
+        await syncLatestIdentities();
+        return agenticKeyGrant;
+      } catch (err) {
+        console.error("Error adding agentic key grant:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        throw err;
+      }
+    },
+    [db, syncLatestIdentities]
+  );
+
+  const getAgenticKeyGrant = useCallback(
+    async (agenticKeyGrantID: string) => {
+      if (!db.current) {
+        throw new Error("INDEXEDDB_NOT_INITIALIZED");
+      }
+      try {
+        const transaction = db.current.transaction(
+          [API_KEY_GRANTS_STORE_NAME],
+          "readonly"
+        );
+        const store = transaction.objectStore(API_KEY_GRANTS_STORE_NAME);
+        const agenticKeyGrant = await store.get(agenticKeyGrantID);
+        return agenticKeyGrant as unknown as IndexDB_AgenticKeyGrant | null;
+      } catch (err) {
+        console.error("Error getting agentic key grant:", err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        // throw err;
+        return null;
+      }
+    },
+    [db]
+  );
+
   // Enter by orgcode
   const enterByOrgCode = async () => {
     const orgcode = getOrgCodeFromUrl();
@@ -1071,7 +1136,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         icpPublicAddress: driveID.replace("DriveID_", ""),
         endpoint,
         note: "",
-        allowedDomains: [],
       });
       await switchOrganization(newOrg);
 
@@ -1132,6 +1196,9 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
 
     createApiKey,
     removeApiKey,
+
+    setAgenticKeyGrant,
+    getAgenticKeyGrant,
 
     syncLatestIdentities,
     deriveProfileFromSeed,

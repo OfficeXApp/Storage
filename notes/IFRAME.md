@@ -19,6 +19,8 @@ The iFrame integration allows drop-in UI for OfficeX, orgs+profiles scoped by de
   const iframe = document.getElementById("officex-iframe");
 
   // Configuration for initialization
+
+  // Configuration for initialization
   const initConfig = {
     ephemeral: {
       org_client_secret: "your-org-seed-phrase", // this can be an arbitrary string
@@ -26,15 +28,20 @@ The iFrame integration allows drop-in UI for OfficeX, orgs+profiles scoped by de
       org_name: "your-org-name", // this can be an arbitrary string
       profile_name: "your-profile-name", // this can be an arbitrary string
     },
-    cloud: {
-      // if using existing cloud, the child iframe will check if the user has approved the connection (allowlist the host domain - the allowlist lives in officex drive ui indexdb identity framework, pure clientside)
-      // if using existing cloud is not provided, the child iframe will issue a popup to allow parent domain to add this org+profile to your officex
+    injected: {
       host: "your-custom-backend", // this can be an arbitrary string
       orgID: "your-drive-id", // this can be an arbitrary string
       profileID: "your-profile-id", // this can be an arbitrary string
-      // only provide apiKey if you are subsidizing for users
-      apiKey: "your-api-key", // omit if you are using their existing profile
+      apiKey: "your-api-key", // only provide apiKey if you are subsidizing for users
+      redirectTo?: "org/current/drive" // optional, default is the drive path
     },
+    // no longer needed
+    // existing: {
+    //     // shows ui page asking user to approve connection, and select api key to give parent app access to
+    //   orgID: "your-drive-id", // this can be an arbitrary string
+    //   profileID: "your-profile-id", // this can be an arbitrary string
+    //   redirectTo?: "org/current/drive" // optional, default is the drive path
+    // }
   };
 
   // Function to initialize the iframe
@@ -146,18 +153,23 @@ The iframe automatically reinitializes when it refreshes because:
 
 Implementation Work:
 
-☑️ Add allowlistDomains as a server side attribute of canisters
-☑️ Implement iframe.postMessage handlers & tracer update results
-☑️ Add allowlistDomains to the officex drive ui indexdb identity framework, pure clientside
-☑️ Implement init flow for ephemeral org+profile
-☑️ Implement init flow for cloud org+profile
-☑️ Implement approval flow & popup for existing allowlisted domains
-☑️ Implement switchOrg flows
-☑️ Implement whoami flows
-☑️ Implement getAuthToken flows
+✅ Add allowlistDomains as a server side attribute of canisters
+✅ Implement iframe.postMessage handlers & tracer update results
+✅ Implement init flow for ephemeral org+profile
+✅ Handle reinitialization on iframe refresh/reload events
+✅ When creating a new auto-login (api creds) add optional UI field to label the api key
+✅ Implement whoami flows
+✅ Parent app sponsored injection of creds into child iframe. Allowing any arbitrary set of orgs.
+✅ To escape the confines of the parent iframe, an "auto-login" url containing all the necessary auth info to connect to officex.app on seperate browser (contacts > generate auto-login)
+✅ Yes upon further thought, we still need a 'grant agentic key' flow as a single easy url for 3rd party apps to send to, and after granting agentic key access the page is redirected back to 3rd party app with the apikey in the url params. This is like traditional auth confirm flows.
+✅ Update parent app demo to show the grant agentic key flow (callback url success proof)
+
+✅ Allow canister rest api to accept `raw_url` on create file (simplify to not need subsequent update file)
+✅ Update Files & Folders to have a notes field for display. this will be important for file attribution to 3rd party apps
+
+✅ Remove the old allowed_domains flow in rust & typescript
+
 ☑️ Implement go-to-url flows for redeem disk
 ☑️ Implement iframe pages showing example usage
 ☑️ Remove frontend code dependencies on localstorage (only use IndexedDB for identity framework on every unique tab or iframe) - this is preventing parallel tabs with different identities. it can also generate bugs on org-specific url routes as the url (eg. /org/current/\*)
-☑️ Handle reinitialization on iframe refresh/reload events
-☑️ Allow canister rest api to accept `raw_url` on create file (simplify to not need subsequent update file)
-☑️ Update Files & Folders to have a notes field for display. this will be important for file attribution to 3rd party apps
+☑️ Fix scrollability in drive ui / filepage

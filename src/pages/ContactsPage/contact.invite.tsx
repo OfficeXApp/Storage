@@ -60,6 +60,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
   const [enableAutoLogin, setEnableAutoLogin] = useState<boolean>(false);
   const [hasApiCreationAuth, setHasApiCreationAuth] = useState<boolean>(false);
   const [redirectUrl, setRedirectUrl] = useState<string>("");
+  const [keyName, setKeyName] = useState<string>("");
   const [apiKeyDates, setApiKeyDates] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState<boolean>(false);
@@ -133,7 +134,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
   // Prepare API key request payload
   const createApiKeyRequest = (): IRequestCreateApiKey => {
     return {
-      name: `Auto-login key for ${contact.name}`,
+      name: keyName || `Auto-login key for ${contact.name}`,
       user_id: contact.id,
       begins_at:
         apiKeyDates && apiKeyDates[0] ? apiKeyDates[0].valueOf() : Date.now(),
@@ -441,6 +442,25 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                   placeholder="https://app.example.com/welcome"
                   value={redirectUrl}
                   onChange={(e) => setRedirectUrl(e.target.value)}
+                  variant="borderless"
+                  style={{ backgroundColor: "#fafafa" }}
+                />
+              </Form.Item>
+              <Form.Item
+                label={
+                  <span>
+                    API Key Nickname{" "}
+                    <Tooltip title="A nickname for the API key">
+                      <InfoCircleOutlined style={{ color: "#aaa" }} />
+                    </Tooltip>
+                  </span>
+                }
+              >
+                <Input
+                  prefix={<LinkOutlined />}
+                  placeholder="API Key Nickname"
+                  value={keyName}
+                  onChange={(e) => setKeyName(e.target.value)}
                   variant="borderless"
                   style={{ backgroundColor: "#fafafa" }}
                 />

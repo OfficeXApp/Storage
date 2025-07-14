@@ -218,7 +218,7 @@ const ContactRedeem = () => {
       };
       const auth_token = currentAPIKey?.value || (await generateSignature());
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/contacts/redeem`,
+        `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/contacts/redeem`,
         {
           "Content-Type": "application/json",
         },
@@ -233,7 +233,7 @@ const ContactRedeem = () => {
 
       const redeem_data: IResponseRedeemContact = await redeem_response.json();
       const { url: url2, headers: headers2 } = wrapAuthStringOrHeader(
-        `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`,
+        `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/whoami`,
         {},
         redeem_data.ok.data.api_key
       );
@@ -305,7 +305,7 @@ const ContactRedeem = () => {
     }
     console.log("Processing auto login contact", data);
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`,
+      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/whoami`,
       {},
       data.api_key
     );
@@ -373,7 +373,7 @@ const ContactRedeem = () => {
     }
     const auth_token = data.api_key || (await generateSignature());
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`,
+      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/whoami`,
       {},
       auth_token
     );

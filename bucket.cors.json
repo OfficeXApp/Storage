@@ -1,8 +1,7 @@
 [
-    {
-      "origin": ["*", "https://drive.officex.app"],
-      "method": ["GET", "HEAD"],
-      "maxAgeSeconds": 3600
-    }
-  ]
-  
+  {
+    "origin": ["*", "https://drive.officex.app", "https://officex.app"],
+    "method": ["GET", "HEAD"],
+    "maxAgeSeconds": 3600
+  }
+]

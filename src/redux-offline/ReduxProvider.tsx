@@ -181,7 +181,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         // Construct full URL if needed
         let fullUrl = url;
         if (!url.includes("http")) {
-          fullUrl = `${currentOrgRef.current.endpoint}/v1/${currentOrgRef.current.driveID}${url}`;
+          fullUrl = `${currentOrgRef.current.endpoint}/v1/drive/${currentOrgRef.current.driveID}${url}`;
         }
 
         // Get fresh auth token right when executing the request

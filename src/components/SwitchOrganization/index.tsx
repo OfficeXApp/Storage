@@ -12,6 +12,7 @@ import {
   UserOutlined,
   SyncOutlined,
   LoadingOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import {
   Select,
@@ -29,6 +30,7 @@ import {
   Progress,
   ProgressProps,
   notification,
+  AutoComplete,
 } from "antd";
 import {
   IndexDB_Organization,
@@ -37,6 +39,8 @@ import {
 import { DiskTypeEnum, DriveID } from "@officexapp/types";
 import {
   FACTORY_CANISTER_ENDPOINT,
+  GiftCardOption,
+  initialGiftCardOptions,
   shortenAddress,
 } from "../../framework/identity/constants";
 import { debounce } from "lodash";
@@ -51,6 +55,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
 
+const { Text, Title } = Typography;
 const { TabPane } = Tabs;
 
 const OrganizationSwitcher = () => {
@@ -115,6 +120,12 @@ const OrganizationSwitcher = () => {
     driveNickname: "",
   });
 
+  const [selectedFactoryEndpoint, setSelectedFactoryEndpoint] =
+    useState<GiftCardOption>();
+  const [filteredGiftCardOptions, setFilteredGiftCardOptions] = useState(
+    initialGiftCardOptions
+  );
+
   // Effect to set existing org details when editing
   useEffect(() => {
     if (modalMode === "edit-enter" && selectedOrgId) {
@@ -142,6 +153,7 @@ const OrganizationSwitcher = () => {
       } else if (listOfProfiles.length > 0) {
         setSelectedProfileId(listOfProfiles[0].userID);
       }
+      setSelectedFactoryEndpoint(initialGiftCardOptions[0]);
     }
   }, [modalMode, selectedOrgId, listOfOrgs, currentProfile, listOfProfiles]);
 
@@ -223,7 +235,7 @@ const OrganizationSwitcher = () => {
         const orgIcp = driveID.replace("DriveID_", "");
 
         // Construct the whoami URL with the specific drive ID
-        const whoamiUrl = `${endpoint}/v1/${driveID}/organization/whoami`;
+        const whoamiUrl = `${endpoint}/v1/drive/${driveID}/organization/whoami`;
         // Only the password part should go in the Authorization header
         const { url, headers } = wrapAuthStringOrHeader(
           whoamiUrl,
@@ -672,8 +684,44 @@ const OrganizationSwitcher = () => {
       // Set loading state
       setCreateLoading(true);
 
+      let targetFactoryEndpoint = selectedFactoryEndpoint?.value;
+      let giftcardRedeemID = giftCardValue;
+
+      if (!targetFactoryEndpoint) {
+        throw new Error("Selected factory endpoint not found");
+      }
+
+      if (!selectedFactoryEndpoint?.buyLink) {
+        // assumes its a free server and thus we can create a gift card ourselves
+        const giftcardSpawnOrgResponse = await fetch(
+          `${selectedFactoryEndpoint?.value}/v1/factory/giftcards/spawnorg/upsert`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "CREATE",
+              usd_revenue_cents: 0,
+              note: `Free User | ${selectedProfileId}`,
+              gas_cycles_included: 3500000000000,
+            }),
+          }
+        );
+
+        const giftcardSpawnOrgData = await giftcardSpawnOrgResponse.json();
+
+        console.log(giftcardSpawnOrgData);
+
+        if (!giftcardSpawnOrgData.ok || !giftcardSpawnOrgData.ok.data) {
+          throw new Error("Invalid response from voucher redemption");
+        }
+
+        giftcardRedeemID = giftcardSpawnOrgData.ok.data.id;
+      }
+
       // Check if gift card is provided
-      if (giftCardValue && giftCardValue.trim() !== "") {
+      if (giftcardRedeemID && giftcardRedeemID.trim() !== "") {
         try {
           apiNotifs.open({
             message: "Creating Organization",
@@ -699,14 +747,14 @@ const OrganizationSwitcher = () => {
 
           // Make the first POST request to redeem the voucher
           const redeemResponse = await fetch(
-            `${FACTORY_CANISTER_ENDPOINT}/v1/default/giftcards/spawnorg/redeem`,
+            `${targetFactoryEndpoint}/v1/factory/giftcards/spawnorg/redeem`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                giftcard_id: giftCardValue,
+                giftcard_id: giftcardRedeemID,
                 owner_icp_principal: icpPrincipal,
                 organization_name: newOrgNickname,
                 owner_name: profile.nickname || "Anon Owner",
@@ -746,7 +794,7 @@ const OrganizationSwitcher = () => {
             redeemData.ok.data;
 
           // Step 2: Make the second POST request to complete the organization setup
-          const completeRedeemUrl = `${endpoint}/v1/${drive_id}/organization/redeem`;
+          const completeRedeemUrl = `${endpoint}/v1/drive/${drive_id}/organization/redeem`;
           const completeRedeemResponse = await fetch(completeRedeemUrl, {
             method: "POST",
             headers: {
@@ -845,7 +893,7 @@ const OrganizationSwitcher = () => {
 
               // Make POST request to create disk
               const { url, headers } = wrapAuthStringOrHeader(
-                `${adminEndpoint}/v1/${driveID}/disks/create`,
+                `${adminEndpoint}/v1/drive/${driveID}/disks/create`,
                 {},
                 password
               );
@@ -1032,31 +1080,55 @@ const OrganizationSwitcher = () => {
             placeholder="Select Profile"
           />
         </Form.Item>
-        <Form.Item
-          label={
-            <Space>
-              Gift Card
-              <Tooltip title="Gift Cards let you connect to the world computer $ICP">
-                <QuestionCircleOutlined />
-              </Tooltip>
-              <a
-                href="https://nowpayments.io/payment/?iid=4444542097"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Buy Now
-              </a>
-            </Space>
-          }
-          style={{ marginTop: "-16px" }}
-        >
-          <Input
-            value={giftCardValue}
-            onChange={(e) => setGiftCardValue(e.target.value)}
-            placeholder="GiftCardID_abc123"
-            style={{ flex: 1, color: "#8c8c8c" }}
-            prefix={<LinkOutlined />}
-          />
+        {selectedFactoryEndpoint?.buyLink && (
+          <Form.Item
+            label={
+              <Space>
+                Gift Card
+                <Tooltip title="Gift Cards let you connect to the world computer $ICP">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </Space>
+            }
+            style={{ marginTop: "-16px" }}
+          >
+            <Input
+              value={giftCardValue}
+              onChange={(e) => setGiftCardValue(e.target.value)}
+              placeholder="GiftCardID_abc123"
+              style={{ flex: 1, color: "#8c8c8c" }}
+              suffix={
+                <a
+                  href="https://nowpayments.io/payment/?iid=4444542097"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Buy Now
+                </a>
+              }
+            />
+          </Form.Item>
+        )}
+        <Form.Item style={{ marginTop: "-16px" }}>
+          <div>
+            <AutoComplete
+              // Use the filtered options state
+              options={filteredGiftCardOptions.map(renderGiftCardOption)}
+              value={selectedFactoryEndpoint?.value} // Binds to the input field's text
+              onChange={(value) => {
+                console.log("Changing Factory Endpoint:", value);
+                setSelectedFactoryEndpoint(getFactoryEndpointFromValue(value));
+              }}
+              onSelect={(value, option) => {
+                setSelectedFactoryEndpoint(getFactoryEndpointFromValue(value));
+              }}
+              onSearch={handleGiftCardSearch} // Handles filtering the options list
+              placeholder="Factory Endpoint"
+              style={{ width: "100%", marginBottom: "4px" }}
+            >
+              <Input suffix={<DownOutlined />} />
+            </AutoComplete>
+          </div>
         </Form.Item>
       </details>
     );
@@ -1434,6 +1506,50 @@ const OrganizationSwitcher = () => {
         </Tabs>
       </Modal>
     );
+  };
+
+  const handleGiftCardSearch = (searchText: string) => {
+    if (searchText) {
+      // Filter the initial hardcoded options based on title or value
+      const filtered = initialGiftCardOptions.filter(
+        (option) =>
+          option.title.toLowerCase().includes(searchText.toLowerCase()) ||
+          option.value.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setFilteredGiftCardOptions(filtered); // Update the state for options shown in dropdown
+    } else {
+      // If search text is empty, show all initial options
+      setFilteredGiftCardOptions(initialGiftCardOptions);
+    }
+  };
+
+  const renderGiftCardOption = (item: GiftCardOption) => {
+    return {
+      value: item.value, // This is the value that will be set when selected or typed
+      label: (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            maxWidth: "250px",
+          }}
+        >
+          <Text strong>{item.title}</Text>
+          {/* Optionally show a truncated subtext directly in the dropdown item */}
+          <Text type="secondary" style={{ fontSize: "0.85em" }}>
+            {item.subtext.length > 50
+              ? `${item.subtext.substring(0, 50)}...`
+              : item.subtext}
+          </Text>
+        </div>
+      ),
+      key: item.value,
+      title: item.title, // Keep title for filterOption
+    };
+  };
+
+  const getFactoryEndpointFromValue = (value: string) => {
+    return initialGiftCardOptions.find((option) => option.value === value);
   };
 
   return (

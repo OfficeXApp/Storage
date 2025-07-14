@@ -147,7 +147,7 @@ const SearchResultsPage: React.FC = () => {
       };
       let auth_token = currentAPIKey?.value || (await generateSignature());
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/search`,
+        `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/search`,
         {
           "Content-Type": "application/json",
         },
@@ -204,7 +204,7 @@ const SearchResultsPage: React.FC = () => {
 
       let auth_token = currentAPIKey?.value || (await generateSignature());
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/search`,
+        `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/search`,
         {
           "Content-Type": "application/json",
         },
@@ -265,7 +265,7 @@ const SearchResultsPage: React.FC = () => {
     try {
       let auth_token = currentAPIKey?.value || (await generateSignature());
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/reindex`,
+        `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/reindex`,
         {
           "Content-Type": "application/json",
         },

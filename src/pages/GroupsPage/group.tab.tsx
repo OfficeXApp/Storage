@@ -1001,7 +1001,7 @@ const data = await response.json();`;
                                                   (await generateSignature());
                                                 const { url, headers } =
                                                   wrapAuthStringOrHeader(
-                                                    `${currentOrg.endpoint}/v1/${currentOrg.driveID}/groups/invites/get/${member.invite_id}`,
+                                                    `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/groups/invites/get/${member.invite_id}`,
                                                     {
                                                       "Content-Type":
                                                         "application/json",

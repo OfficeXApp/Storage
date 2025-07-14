@@ -70,7 +70,7 @@ const ICPCanisterSettingsCard = () => {
     setIsLoading(true);
     let auth_token = currentAPIKey?.value || (await generateSignature());
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/about`,
+      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/about`,
       {
         "Content-Type": "application/json",
       },

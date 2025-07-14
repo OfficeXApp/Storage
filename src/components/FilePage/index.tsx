@@ -502,7 +502,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     try {
       // 1. Fetch metadata
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/directory/raw_download/meta?file_id=${fileId}`,
+        `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/directory/raw_download/meta?file_id=${fileId}`,
         {
           "Content-Type": "application/json",
         },
@@ -526,7 +526,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
       for (let i = 0; i < total_chunks; i++) {
         const { url, headers } = wrapAuthStringOrHeader(
-          `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
+          `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
           {
             "Content-Type": "application/json",
           },

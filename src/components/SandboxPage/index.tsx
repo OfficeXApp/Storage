@@ -126,7 +126,7 @@ const SandboxPage = () => {
           Sandbox Page
         </Title>
         <br />
-        <p>{`${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/*`}</p>
+        <p>{`${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/*`}</p>
         <Button
           onClick={async () => {
             const _sig = await generateSignature();

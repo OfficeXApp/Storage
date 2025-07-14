@@ -702,7 +702,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
         }
 
         // Construct the whoami URL with the specific drive ID
-        const whoamiUrl = `${endpoint}/v1/${driveID}/organization/whoami`;
+        const whoamiUrl = `${endpoint}/v1/drive/${driveID}/organization/whoami`;
 
         // Important: Only the password part should go in the Authorization header, not the driveID
         const { url, headers } = wrapAuthStringOrHeader(

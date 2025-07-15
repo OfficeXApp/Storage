@@ -70,9 +70,8 @@ export const SPREADSHEET_APP_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:3002/sheets/"
   : "https://demoofidapps.web.app/sheets/";
 
-// "http://localhost:8888"
 export const WEB2_FACTORY_ENDPOINT = LOCAL_DEV_MODE
-  ? "https://1687d06f0299.ngrok-free.app"
+  ? "http://localhost:8888"
   : "https://free-aws-usa.officex.app";
 
 // Hardcoded Gift Card Options

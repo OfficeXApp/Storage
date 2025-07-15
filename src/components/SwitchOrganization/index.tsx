@@ -41,6 +41,7 @@ import {
   FACTORY_CANISTER_ENDPOINT,
   GiftCardOption,
   initialGiftCardOptions,
+  LOCAL_DEV_MODE,
   shortenAddress,
 } from "../../framework/identity/constants";
 import { debounce } from "lodash";
@@ -777,16 +778,20 @@ const OrganizationSwitcher = () => {
             throw new Error("Invalid response from voucher redemption");
           }
 
-          await sleep(5000);
+          const isWeb3 = LOCAL_DEV_MODE
+            ? selectedFactoryEndpoint?.value.includes("localhost:8000")
+            : selectedFactoryEndpoint?.value.includes("icp0.io");
+
+          await sleep(isWeb3 ? 5000 : 0);
 
           message.info("Minting Anonymous Blockchain...");
 
           // wait 5 seconds
-          await sleep(5000);
+          await sleep(isWeb3 ? 5000 : 0);
 
           message.info("Promoting you to Admin...");
 
-          await sleep(5000);
+          await sleep(isWeb3 ? 5000 : 0);
 
           console.log(`redeem data spawn org`, redeemData.ok.data);
 
@@ -923,7 +928,7 @@ const OrganizationSwitcher = () => {
             }
           }
           message.success("Syncing... please wait");
-          await sleep(3000);
+          await sleep(isWeb3 ? 3000 : 0);
           message.success(`Success! Entering new organization...`);
 
           navigate("/org/current/welcome");

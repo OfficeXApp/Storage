@@ -50,13 +50,14 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
   return result;
 };
 
-const LOCAL_DEV_MODE = true;
+export const LOCAL_DEV_MODE = true;
 
 // LOCAL vs. PROD
 export const FACTORY_CANISTER_ENDPOINT = LOCAL_DEV_MODE
   ? "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000"
   : "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io";
 
+// "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000"
 export const DEFAULT_GIFTCARD_REFUEL_VENDOR = LOCAL_DEV_MODE
   ? "http://be2us-64aaa-aaaaa-qaabq-cai.localhost:8000"
   : "https://glvgj-aiaaa-aaaak-apdmq-cai.icp0.io";
@@ -69,8 +70,9 @@ export const SPREADSHEET_APP_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:3002/sheets/"
   : "https://demoofidapps.web.app/sheets/";
 
+// "http://localhost:8888"
 export const WEB2_FACTORY_ENDPOINT = LOCAL_DEV_MODE
-  ? "http://localhost:8888"
+  ? "https://1687d06f0299.ngrok-free.app"
   : "https://free-aws-usa.officex.app";
 
 // Hardcoded Gift Card Options

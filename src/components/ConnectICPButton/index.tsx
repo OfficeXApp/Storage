@@ -27,6 +27,7 @@ import {
   FACTORY_CANISTER_ENDPOINT,
   GiftCardOption,
   initialGiftCardOptions,
+  LOCAL_DEV_MODE,
   shortenAddress,
 } from "../../framework/identity/constants";
 import { useIdentitySystem } from "../../framework/identity";
@@ -213,11 +214,15 @@ const ConnectICPButton = () => {
         throw new Error("Invalid response from voucher redemption");
       }
 
-      await sleep(5000);
+      const isWeb3 = LOCAL_DEV_MODE
+        ? selectedFactoryEndpoint?.value.includes("localhost:8000")
+        : selectedFactoryEndpoint?.value.includes("icp0.io");
+
+      await sleep(isWeb3 ? 5000 : 0);
       message.info("Minting Anonymous Blockchain...");
-      await sleep(5000);
+      await sleep(isWeb3 ? 5000 : 0);
       message.info("Promoting you to Admin...");
-      await sleep(5000);
+      await sleep(isWeb3 ? 5000 : 0);
 
       const { drive_id, endpoint, redeem_code, disk_auth_json } =
         redeemData.ok.data;
@@ -344,7 +349,7 @@ const ConnectICPButton = () => {
 
       // Refresh the page
       message.success("Syncing... please wait");
-      await sleep(3000);
+      await sleep(isWeb3 ? 3000 : 0);
       message.success(`Success! Entering new organization...`);
       navigate("/org/current/welcome");
       window.location.reload();

@@ -134,7 +134,7 @@ const ICPCanisterSettingsCard = () => {
 
       // Call the refuel endpoint
       const redeemResponse = await fetch(
-        `${vendorEndpoint}/v1/default/giftcards/refuel/redeem`,
+        `${vendorEndpoint}/v1/factory/giftcards/refuel/redeem`,
         {
           method: "POST",
           headers: {

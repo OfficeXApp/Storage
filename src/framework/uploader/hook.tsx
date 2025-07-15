@@ -379,7 +379,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               currentAPIKey?.value || (await generateSignature());
             const cloudS3Adapter = new CloudS3Adapter();
             const cloudS3Config = {
-              endpoint: `${currentOrg.endpoint}/v1/default`,
+              endpoint: `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}`,
               maxChunkSize: 5 * 1024 * 1024,
               rawUrlProxyPath: `/v1/drive/${currentOrg.driveID}/directory/asset/`,
               apiKey: auth_token,

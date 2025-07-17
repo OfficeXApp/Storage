@@ -937,10 +937,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 onClick={(e) => {
                   if (record.isDisabled) {
                     e.preventDefault();
+                    e.stopPropagation();
                     return;
                   }
                   if (isTrashBin) {
                     e.preventDefault();
+                    e.stopPropagation();
                     message.error(
                       "You cannot access files in the Trash. Restore it first."
                     );
@@ -971,7 +973,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       }
                       onPressEnter={() => handleRenameSubmit(record)}
                       onBlur={() => handleRenameChange(record.id, "")}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
                       prefix={
                         (record as any).isRecentShortcut ? (
                           <ClockCircleOutlined />
@@ -985,6 +990,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                         <CheckOutlined
                           onClick={(e) => {
                             e.stopPropagation();
+                            e.preventDefault();
                             handleRenameSubmit(record);
                           }}
                         />
@@ -2132,6 +2138,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                                   checked={selectedRowKeys.includes(item.id)}
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    e.preventDefault();
                                     const newSelectedKeys =
                                       selectedRowKeys.includes(item.id)
                                         ? selectedRowKeys.filter(
@@ -2270,6 +2277,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                                   top: "0",
                                   right: "0",
                                   padding: "8px",
+                                  zIndex: 2,
                                 }}
                               >
                                 <Dropdown
@@ -2277,6 +2285,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                                     items: getRowMenuItems(item),
                                     onClick: (e) => {
                                       e.domEvent.stopPropagation();
+                                      e.domEvent.preventDefault();
                                     },
                                   }}
                                   trigger={["click"]}
@@ -2285,7 +2294,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                                     type="text"
                                     icon={<MoreOutlined />}
                                     size="small"
-                                    onClick={(e) => e.stopPropagation()}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                    }}
                                     style={{ background: "transparent" }}
                                   />
                                 </Dropdown>

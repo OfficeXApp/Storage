@@ -714,6 +714,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             let name = disk.name;
             let id = disk.root_folder as FolderID;
 
+            console.log(`>>>>>>> disk`, disk);
+
             if (default_disk_action === DiskUIDefaultAction.shared) {
               name = `${name}`;
               id = `shared-with-me` as FolderID;
@@ -2083,249 +2085,252 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                         paddingBottom: "20vh",
                       }}
                     >
-                      {tableRows.map((item) => (
-                        <Link
-                          to={
-                            item.isFolder
-                              ? wrapOrgCode(
-                                  `/drive/${item.diskType}/${item.diskID}/${item.id}/${default_disk_action === DiskUIDefaultAction.trash ? "?isTrashBin=1" : ""}`
-                                )
-                              : wrapOrgCode(
-                                  `/drive/${item.diskType}/${item.diskID}/${item.id}`
-                                )
-                          }
-                          onClick={(e) => {
-                            if (item.isDisabled) {
-                              e.preventDefault();
-                              return;
+                      {tableRows.map((item) => {
+                        console.log(`tr ....`, item);
+                        return (
+                          <Link
+                            to={
+                              item.isFolder
+                                ? wrapOrgCode(
+                                    `/drive/${item.diskType}/${item.diskID}/${item.id}/${default_disk_action === DiskUIDefaultAction.trash ? "?isTrashBin=1" : ""}`
+                                  )
+                                : wrapOrgCode(
+                                    `/drive/${item.diskType}/${item.diskID}/${item.id}`
+                                  )
                             }
-                            if (isTrashBin) {
-                              e.preventDefault();
-                              message.error(
-                                "You cannot access files in the Trash. Restore it first."
-                              );
-                              return;
-                            }
-                            setSearchString("");
-                            setSelectedRowKeys([]);
-                          }}
-                        >
-                          <div
-                            key={item.key}
-                            style={{
-                              cursor: item.isDisabled
-                                ? "not-allowed"
-                                : "pointer",
-                              opacity: item.isDisabled ? 0.5 : 1,
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "flex-start",
-                              position: "relative",
+                            onClick={(e) => {
+                              if (item.isDisabled) {
+                                e.preventDefault();
+                                return;
+                              }
+                              if (isTrashBin) {
+                                e.preventDefault();
+                                message.error(
+                                  "You cannot access files in the Trash. Restore it first."
+                                );
+                                return;
+                              }
+                              setSearchString("");
+                              setSelectedRowKeys([]);
                             }}
                           >
-                            {/* Checkbox selection */}
-                            {!isDiskRootPage && (
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "-4px",
-                                  left: "-4px",
-                                  zIndex: 2,
-                                  padding: "8px",
-                                }}
-                              >
-                                <Checkbox
-                                  checked={selectedRowKeys.includes(item.id)}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    const newSelectedKeys =
-                                      selectedRowKeys.includes(item.id)
-                                        ? selectedRowKeys.filter(
-                                            (key) => key !== item.id
-                                          )
-                                        : [...selectedRowKeys, item.id];
-                                    setSelectedRowKeys(newSelectedKeys);
-                                  }}
-                                />
-                              </div>
-                            )}
-
-                            {/* Square tile with icon */}
-
                             <div
+                              key={item.key}
                               style={{
-                                width: "100%",
-                                paddingBottom: "100%" /* Makes it square */,
-                                background: "#f5f5f5",
-                                borderRadius: "8px",
-                                border: "1px solid #f0f0f0",
+                                cursor: item.isDisabled
+                                  ? "not-allowed"
+                                  : "pointer",
+                                opacity: item.isDisabled ? 0.5 : 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "flex-start",
                                 position: "relative",
                               }}
                             >
-                              {/* Icon based on item type */}
-                              {item.thumbnail ? (
-                                getFileType(item.title) === "video" ? (
-                                  <div
-                                    style={{
-                                      position: "absolute",
-                                      top: "0",
-                                      left: "0",
-                                      width: "100%",
-                                      height: "100%",
+                              {/* Checkbox selection */}
+                              {!isDiskRootPage && (
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    top: "-4px",
+                                    left: "-4px",
+                                    zIndex: 2,
+                                    padding: "8px",
+                                  }}
+                                >
+                                  <Checkbox
+                                    checked={selectedRowKeys.includes(item.id)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      const newSelectedKeys =
+                                        selectedRowKeys.includes(item.id)
+                                          ? selectedRowKeys.filter(
+                                              (key) => key !== item.id
+                                            )
+                                          : [...selectedRowKeys, item.id];
+                                      setSelectedRowKeys(newSelectedKeys);
                                     }}
-                                  >
-                                    <video
-                                      src={item.thumbnail}
-                                      preload="metadata"
+                                  />
+                                </div>
+                              )}
+
+                              {/* Square tile with icon */}
+
+                              <div
+                                style={{
+                                  width: "100%",
+                                  paddingBottom: "100%" /* Makes it square */,
+                                  background: "#f5f5f5",
+                                  borderRadius: "8px",
+                                  border: "1px solid #f0f0f0",
+                                  position: "relative",
+                                }}
+                              >
+                                {/* Icon based on item type */}
+                                {item.thumbnail ? (
+                                  getFileType(item.title) === "video" ? (
+                                    <div
                                       style={{
                                         position: "absolute",
                                         top: "0",
                                         left: "0",
                                         width: "100%",
                                         height: "100%",
-                                        objectFit: "cover",
-                                      }}
-                                    />
-                                    {/* Play button overlay */}
-                                    <div
-                                      style={{
-                                        position: "absolute",
-                                        inset: "0",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        backgroundColor: "rgba(0,0,0,0.3)",
                                       }}
                                     >
+                                      <video
+                                        src={item.thumbnail}
+                                        preload="metadata"
+                                        style={{
+                                          position: "absolute",
+                                          top: "0",
+                                          left: "0",
+                                          width: "100%",
+                                          height: "100%",
+                                          objectFit: "cover",
+                                        }}
+                                      />
+                                      {/* Play button overlay */}
                                       <div
                                         style={{
-                                          width: "48px",
-                                          height: "48px",
-                                          borderRadius: "50%",
-                                          background: "rgba(255,255,255,0.8)",
+                                          position: "absolute",
+                                          inset: "0",
                                           display: "flex",
                                           alignItems: "center",
                                           justifyContent: "center",
+                                          backgroundColor: "rgba(0,0,0,0.3)",
                                         }}
                                       >
-                                        <VideoCameraOutlined
+                                        <div
                                           style={{
-                                            fontSize: "20px",
-                                            color: "#1890ff",
+                                            width: "48px",
+                                            height: "48px",
+                                            borderRadius: "50%",
+                                            background: "rgba(255,255,255,0.8)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
                                           }}
-                                        />
+                                        >
+                                          <VideoCameraOutlined
+                                            style={{
+                                              fontSize: "20px",
+                                              color: "#1890ff",
+                                            }}
+                                          />
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                ) : (
-                                  <Popover
-                                    content={
+                                  ) : (
+                                    <Popover
+                                      content={
+                                        <img
+                                          src={item.thumbnail}
+                                          alt={item.title}
+                                          style={{
+                                            width: screenType.isMobile
+                                              ? "70vw"
+                                              : "50vw",
+                                            height: "auto",
+                                          }}
+                                        />
+                                      }
+                                    >
                                       <img
                                         src={item.thumbnail}
                                         alt={item.title}
                                         style={{
-                                          width: screenType.isMobile
-                                            ? "70vw"
-                                            : "50vw",
-                                          height: "auto",
+                                          position: "absolute",
+                                          top: "0",
+                                          left: "0",
+                                          width: "100%",
+                                          height: "100%",
+                                          objectFit: "cover",
                                         }}
                                       />
-                                    }
+                                    </Popover>
+                                  )
+                                ) : (
+                                  <div
+                                    style={{
+                                      position: "absolute",
+                                      top: "50%",
+                                      left: "50%",
+                                      transform: "translate(-50%, -50%)",
+                                      fontSize: "48px",
+                                      color: "#1890ff",
+                                    }}
                                   >
-                                    <img
-                                      src={item.thumbnail}
-                                      alt={item.title}
-                                      style={{
-                                        position: "absolute",
-                                        top: "0",
-                                        left: "0",
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "cover",
-                                      }}
-                                    />
-                                  </Popover>
-                                )
-                              ) : (
+                                    {(item as any).isRecentShortcut ? (
+                                      <ClockCircleOutlined />
+                                    ) : (item as any).hasDiskTrash ? (
+                                      <CloudOutlined />
+                                    ) : item.isFolder ? (
+                                      <FolderFilled />
+                                    ) : (
+                                      renderIconForFile(item.title)
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Actions menu (three dots) */}
                                 <div
                                   style={{
                                     position: "absolute",
-                                    top: "50%",
-                                    left: "50%",
-                                    transform: "translate(-50%, -50%)",
-                                    fontSize: "48px",
-                                    color: "#1890ff",
+                                    top: "0",
+                                    right: "0",
+                                    padding: "8px",
+                                    zIndex: 2,
                                   }}
                                 >
-                                  {(item as any).isRecentShortcut ? (
-                                    <ClockCircleOutlined />
-                                  ) : (item as any).hasDiskTrash ? (
-                                    <CloudOutlined />
-                                  ) : item.isFolder ? (
-                                    <FolderFilled />
-                                  ) : (
-                                    renderIconForFile(item.title)
-                                  )}
-                                </div>
-                              )}
-
-                              {/* Actions menu (three dots) */}
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "0",
-                                  right: "0",
-                                  padding: "8px",
-                                  zIndex: 2,
-                                }}
-                              >
-                                <Dropdown
-                                  menu={{
-                                    items: getRowMenuItems(item),
-                                    onClick: (e) => {
-                                      e.domEvent.stopPropagation();
-                                      e.domEvent.preventDefault();
-                                    },
-                                  }}
-                                  trigger={["click"]}
-                                >
-                                  <Button
-                                    type="text"
-                                    icon={<MoreOutlined />}
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
+                                  <Dropdown
+                                    menu={{
+                                      items: getRowMenuItems(item),
+                                      onClick: (e) => {
+                                        e.domEvent.stopPropagation();
+                                        e.domEvent.preventDefault();
+                                      },
                                     }}
-                                    style={{ background: "transparent" }}
-                                  />
-                                </Dropdown>
+                                    trigger={["click"]}
+                                  >
+                                    <Button
+                                      type="text"
+                                      icon={<MoreOutlined />}
+                                      size="small"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                      }}
+                                      style={{ background: "transparent" }}
+                                    />
+                                  </Dropdown>
+                                </div>
                               </div>
-                            </div>
 
-                            {/* Title at bottom */}
-                            <Popover content={item.title}>
-                              <div
-                                style={{
-                                  marginTop: "8px",
-                                  width: "100%",
-                                  textAlign: "center",
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  fontSize: "14px",
-                                  color: "#000",
-                                }}
-                              >
-                                {item.title
-                                  .replace(".officex-spreadsheet", "")
-                                  .replace(".officex-document", "")}
-                              </div>
-                            </Popover>
-                          </div>
-                        </Link>
-                      ))}
+                              {/* Title at bottom */}
+                              <Popover content={item.title}>
+                                <div
+                                  style={{
+                                    marginTop: "8px",
+                                    width: "100%",
+                                    textAlign: "center",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    fontSize: "14px",
+                                    color: "#000",
+                                  }}
+                                >
+                                  {item.title
+                                    .replace(".officex-spreadsheet", "")
+                                    .replace(".officex-document", "")}
+                                </div>
+                              </Popover>
+                            </div>
+                          </Link>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

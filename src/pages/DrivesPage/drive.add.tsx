@@ -237,7 +237,7 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
             loading={loading}
             disabled={loading}
           >
-            Add Drive
+            Add Server
           </Button>
         </div>
       }

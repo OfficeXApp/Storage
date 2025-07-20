@@ -226,7 +226,7 @@ const DrivesPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Drives
+            Servers
           </Title>
           <Button
             size={screenType.isMobile ? "small" : "middle"}
@@ -240,7 +240,7 @@ const DrivesPage: React.FC = () => {
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
             disabled={!tablePermissions.includes(SystemPermissionType.CREATE)}
           >
-            Add Drive
+            Add Server
           </Button>
         </div>
 

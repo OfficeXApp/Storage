@@ -78,7 +78,7 @@ const ProfileSettingsCard = () => {
         throw new Error("Organization information is missing");
       }
 
-      const whoamiUrl = `${currentOrg.endpoint}/v1/${currentOrg.driveID}/organization/whoami`;
+      const whoamiUrl = `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/whoami`;
 
       // Use the new API key value for the test
       const { url, headers } = wrapAuthStringOrHeader(
@@ -183,7 +183,7 @@ const ProfileSettingsCard = () => {
       const auth_token = currentAPIKey?.value || (await generateSignature());
       // Make the actual API call to create an API key
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/api_keys/create`,
+        `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/api_keys/create`,
         {
           "Content-Type": "application/json",
         },

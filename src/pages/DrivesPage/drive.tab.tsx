@@ -623,11 +623,11 @@ const listDrives = async (page = 1, limit = 10) => {
                         <Card size="small" style={{ marginTop: 8 }}>
                           <GlobalOutlined style={{ marginRight: 8 }} />
                           <a
-                            href={`${drive.endpoint_url}/v1/${drive.id}`}
+                            href={`${drive.endpoint_url}/v1/drive/${drive.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            {`${drive.endpoint_url}/v1/${drive.id}`}
+                            {`${drive.endpoint_url}/v1/drive/${drive.id}`}
                           </a>
                         </Card>
                       )}

@@ -347,7 +347,7 @@ const SideMenu = ({
                     }
                   }}
                 >
-                  Drives
+                  Servers
                 </Link>
               ),
             },

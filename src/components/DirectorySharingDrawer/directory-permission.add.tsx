@@ -641,7 +641,7 @@ const DirectoryPermissionAddDrawer: React.FC<
 
         const auth_token = currentAPIKey?.value || (await generateSignature());
         const { url, headers } = wrapAuthStringOrHeader(
-          `${currentOrg.endpoint}/v1/${currentOrg.driveID}/permissions/directory/create`,
+          `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/permissions/directory/create`,
           {
             "Content-Type": "application/json",
           },

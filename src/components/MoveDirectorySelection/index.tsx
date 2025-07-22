@@ -107,7 +107,7 @@ const MoveDirectorySelector: React.FC<MoveDirectorySelectorProps> = ({
         // Then immediately load its children
         let auth_token = currentAPIKey?.value || (await generateSignature());
         const { url, headers } = wrapAuthStringOrHeader(
-          `${currentOrg.endpoint}/v1/${currentOrg.driveID}/directory/list`,
+          `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/directory/list`,
           {
             "Content-Type": "application/json",
           },
@@ -181,7 +181,7 @@ const MoveDirectorySelector: React.FC<MoveDirectorySelectorProps> = ({
       try {
         let auth_token = currentAPIKey?.value || (await generateSignature());
         const { url, headers } = wrapAuthStringOrHeader(
-          `${currentOrg.endpoint}/v1/${currentOrg.driveID}/directory/list`,
+          `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/directory/list`,
           {
             "Content-Type": "application/json",
           },
@@ -235,7 +235,7 @@ const MoveDirectorySelector: React.FC<MoveDirectorySelectorProps> = ({
 
     let auth_token = currentAPIKey?.value || (await generateSignature());
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/${currentOrg.driveID}/directory/action`,
+      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/directory/action`,
       {
         "Content-Type": "application/json",
       },

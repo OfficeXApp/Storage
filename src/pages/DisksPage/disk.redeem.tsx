@@ -122,7 +122,7 @@ const RedeemDiskGiftCard = () => {
 
       // Manually create the disk using fetch
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg.endpoint}/v1/${currentOrg.driveID}/disks/create`,
+        `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/disks/create`,
         {
           "Content-Type": "application/json",
         },

@@ -9,9 +9,12 @@ import {
   Select,
   Divider,
   notification,
+  Popover,
+  AutoComplete,
 } from "antd";
 import {
   CloudSyncOutlined,
+  DownOutlined,
   LinkOutlined,
   LoadingOutlined,
   UserOutlined,
@@ -22,6 +25,9 @@ import { v4 as uuidv4 } from "uuid";
 import mixpanel from "mixpanel-browser";
 import {
   FACTORY_CANISTER_ENDPOINT,
+  GiftCardOption,
+  initialGiftCardOptions,
+  LOCAL_DEV_MODE,
   shortenAddress,
 } from "../../framework/identity/constants";
 import { useIdentitySystem } from "../../framework/identity";
@@ -55,11 +61,17 @@ const ConnectICPButton = () => {
     profile: "",
   });
   const [apiNotifs, contextHolder] = notification.useNotification();
+  const [selectedFactoryEndpoint, setSelectedFactoryEndpoint] =
+    useState<GiftCardOption>();
+  const [filteredGiftCardOptions, setFilteredGiftCardOptions] = useState(
+    initialGiftCardOptions
+  );
 
   // Set default selected profile when profiles list changes
   useEffect(() => {
     if (listOfProfiles.length > 0) {
       setSelectedProfileId(listOfProfiles[0].userID);
+      setSelectedFactoryEndpoint(initialGiftCardOptions[0]);
     }
   }, [listOfProfiles]);
 
@@ -72,7 +84,7 @@ const ConnectICPButton = () => {
 
     let isValid = true;
 
-    if (!giftCardValue.trim()) {
+    if (selectedFactoryEndpoint?.buyLink && !giftCardValue.trim()) {
       newErrors.giftCard = "Gift Card ID is required";
       isValid = false;
     }
@@ -137,16 +149,52 @@ const ConnectICPButton = () => {
 
       message.info("Redeeming Gift Card...");
 
+      let targetFactoryEndpoint = selectedFactoryEndpoint?.value;
+      let giftcardRedeemID = giftCardValue;
+
+      if (!targetFactoryEndpoint) {
+        throw new Error("Selected factory endpoint not found");
+      }
+
+      if (!selectedFactoryEndpoint?.buyLink) {
+        // assumes its a free server and thus we can create a gift card ourselves
+        const giftcardSpawnOrgResponse = await fetch(
+          `${selectedFactoryEndpoint?.value}/v1/factory/giftcards/spawnorg/upsert`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "CREATE",
+              usd_revenue_cents: 0,
+              note: `Free User | ${profile.userID}`,
+              gas_cycles_included: 3500000000000,
+            }),
+          }
+        );
+
+        const giftcardSpawnOrgData = await giftcardSpawnOrgResponse.json();
+
+        console.log(giftcardSpawnOrgData);
+
+        if (!giftcardSpawnOrgData.ok || !giftcardSpawnOrgData.ok.data) {
+          throw new Error("Invalid response from voucher redemption");
+        }
+
+        giftcardRedeemID = giftcardSpawnOrgData.ok.data.id;
+      }
+
       // Make the POST request to redeem the voucher
       const redeemResponse = await fetch(
-        `${FACTORY_CANISTER_ENDPOINT}/v1/default/giftcards/spawnorg/redeem`,
+        `${targetFactoryEndpoint}/v1/factory/giftcards/spawnorg/redeem`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            giftcard_id: giftCardValue,
+            giftcard_id: giftcardRedeemID,
             owner_icp_principal: icpPrincipal,
             organization_name: orgName,
             owner_name: profile.nickname || "Anon Owner",
@@ -166,17 +214,21 @@ const ConnectICPButton = () => {
         throw new Error("Invalid response from voucher redemption");
       }
 
-      await sleep(5000);
+      const isWeb3 = LOCAL_DEV_MODE
+        ? selectedFactoryEndpoint?.value.includes("localhost:8000")
+        : selectedFactoryEndpoint?.value.includes("icp0.io");
+
+      await sleep(isWeb3 ? 5000 : 0);
       message.info("Minting Anonymous Blockchain...");
-      await sleep(5000);
+      await sleep(isWeb3 ? 5000 : 0);
       message.info("Promoting you to Admin...");
-      await sleep(5000);
+      await sleep(isWeb3 ? 5000 : 0);
 
       const { drive_id, endpoint, redeem_code, disk_auth_json } =
         redeemData.ok.data;
 
       // Complete the organization setup
-      const completeRedeemUrl = `${endpoint}/v1/${drive_id}/organization/redeem`;
+      const completeRedeemUrl = `${endpoint}/v1/drive/${drive_id}/organization/redeem`;
       const completeRedeemResponse = await fetch(completeRedeemUrl, {
         method: "POST",
         headers: {
@@ -265,7 +317,7 @@ const ConnectICPButton = () => {
 
           // Make POST request to create disk
           const { url, headers } = wrapAuthStringOrHeader(
-            `${adminEndpoint}/v1/${driveID}/disks/create`,
+            `${adminEndpoint}/v1/drive/${driveID}/disks/create`,
             {},
             password
           );
@@ -297,7 +349,7 @@ const ConnectICPButton = () => {
 
       // Refresh the page
       message.success("Syncing... please wait");
-      await sleep(3000);
+      await sleep(isWeb3 ? 3000 : 0);
       message.success(`Success! Entering new organization...`);
       navigate("/org/current/welcome");
       window.location.reload();
@@ -309,6 +361,50 @@ const ConnectICPButton = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGiftCardSearch = (searchText: string) => {
+    if (searchText) {
+      // Filter the initial hardcoded options based on title or value
+      const filtered = initialGiftCardOptions.filter(
+        (option) =>
+          option.title.toLowerCase().includes(searchText.toLowerCase()) ||
+          option.value.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setFilteredGiftCardOptions(filtered); // Update the state for options shown in dropdown
+    } else {
+      // If search text is empty, show all initial options
+      setFilteredGiftCardOptions(initialGiftCardOptions);
+    }
+  };
+
+  const renderGiftCardOption = (item: GiftCardOption) => {
+    return {
+      value: item.value, // This is the value that will be set when selected or typed
+      label: (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            maxWidth: "250px",
+          }}
+        >
+          <Text strong>{item.title}</Text>
+          {/* Optionally show a truncated subtext directly in the dropdown item */}
+          <Text type="secondary" style={{ fontSize: "0.85em" }}>
+            {item.subtext.length > 50
+              ? `${item.subtext.substring(0, 50)}...`
+              : item.subtext}
+          </Text>
+        </div>
+      ),
+      key: item.value,
+      title: item.title, // Keep title for filterOption
+    };
+  };
+
+  const getFactoryEndpointFromValue = (value: string) => {
+    return initialGiftCardOptions.find((option) => option.value === value);
   };
 
   if (currentOrg?.endpoint) {
@@ -388,27 +484,53 @@ const ConnectICPButton = () => {
               )}
             </div>
 
+            {selectedFactoryEndpoint?.buyLink && (
+              <div>
+                <Input
+                  value={giftCardValue}
+                  onChange={(e) => setGiftCardValue(e.target.value)}
+                  placeholder="Gift Card ID"
+                  suffix={
+                    <a
+                      href="https://nowpayments.io/payment/?iid=4444542097"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Buy Now
+                    </a>
+                  }
+                  style={{ marginBottom: "4px" }}
+                />
+                {errors.giftCard && (
+                  <Text type="danger" style={{ fontSize: "12px" }}>
+                    {errors.giftCard}
+                  </Text>
+                )}
+              </div>
+            )}
+
             <div>
-              <Input
-                value={giftCardValue}
-                onChange={(e) => setGiftCardValue(e.target.value)}
-                placeholder="Gift Card ID"
-                suffix={
-                  <a
-                    href="https://nowpayments.io/payment/?iid=4444542097"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Buy Now
-                  </a>
-                }
-                style={{ marginBottom: "4px" }}
-              />
-              {errors.giftCard && (
-                <Text type="danger" style={{ fontSize: "12px" }}>
-                  {errors.giftCard}
-                </Text>
-              )}
+              <AutoComplete
+                // Use the filtered options state
+                options={filteredGiftCardOptions.map(renderGiftCardOption)}
+                value={selectedFactoryEndpoint?.value} // Binds to the input field's text
+                onChange={(value) => {
+                  console.log("Changing Factory Endpoint:", value);
+                  setSelectedFactoryEndpoint(
+                    getFactoryEndpointFromValue(value)
+                  );
+                }}
+                onSelect={(value, option) => {
+                  setSelectedFactoryEndpoint(
+                    getFactoryEndpointFromValue(value)
+                  );
+                }}
+                onSearch={handleGiftCardSearch} // Handles filtering the options list
+                placeholder="Factory Endpoint"
+                style={{ width: "100%", marginBottom: "4px" }}
+              >
+                <Input suffix={<DownOutlined />} />
+              </AutoComplete>
             </div>
 
             <span style={{ fontWeight: "normal", color: "rgba(0,0,0,0.3)" }}>
@@ -436,7 +558,11 @@ const ConnectICPButton = () => {
             type="primary"
             onClick={connectICP}
             style={{ width: "100%" }}
-            disabled={!giftCardValue || !orgName || !selectedProfileId}
+            disabled={
+              selectedFactoryEndpoint?.buyLink
+                ? !giftCardValue || !orgName || !selectedProfileId
+                : !orgName || !selectedProfileId
+            }
           >
             Connect Cloud
           </Button>

@@ -123,7 +123,7 @@ function App() {
   const ref = urlParams.get("ref") || "";
 
   const setupAnalytics = useCallback(() => {
-    if (window.location.hostname === "drive.officex.app" && currentProfile) {
+    if (window.location.hostname === "officex.app" && currentProfile) {
       mixpanel.identify(evmPublicKey);
       mixpanel.people.set({
         $name: slug,

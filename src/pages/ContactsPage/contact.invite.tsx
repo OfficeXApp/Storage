@@ -93,7 +93,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
 
       // Make the API call to check permissions
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/permissions/system/check`,
+        `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/permissions/system/check`,
         {
           "Content-Type": "application/json",
         },
@@ -156,7 +156,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
       const auth_token = currentAPIKey?.value || (await generateSignature());
       // Make the actual API call to create an API key
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg?.endpoint}/v1/${currentOrg?.driveID}/api_keys/create`,
+        `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/api_keys/create`,
         {
           "Content-Type": "application/json",
         },

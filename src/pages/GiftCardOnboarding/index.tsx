@@ -31,7 +31,7 @@ import { DiskTypeEnum } from "@officexapp/types";
 interface GiftCardOnboardingProps {}
 
 // sample url
-// https://drive.officex.app/gift-card-onboarding?gas_cycles_included=4T&gift_card_id=GiftcardSpawnOrgID_fe3fd0f8-665e-435c-a0d3-2ffa3bd8d363
+// https://officex.app/gift-card-onboarding?gas_cycles_included=4T&gift_card_id=GiftcardSpawnOrgID_fe3fd0f8-665e-435c-a0d3-2ffa3bd8d363
 const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
   const screenType = useScreenType();
   const [searchParams] = useSearchParams();
@@ -324,7 +324,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
 
       // Make the POST request to redeem the voucher
       const redeemResponse = await fetch(
-        `${FACTORY_CANISTER_ENDPOINT}/v1/default/giftcards/spawnorg/redeem`,
+        `${FACTORY_CANISTER_ENDPOINT}/v1/factory/giftcards/spawnorg/redeem`,
         {
           method: "POST",
           headers: {
@@ -361,7 +361,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
         redeemData.ok.data;
 
       // Complete the organization setup
-      const completeRedeemUrl = `${endpoint}/v1/${drive_id}/organization/redeem`;
+      const completeRedeemUrl = `${endpoint}/v1/drive/${drive_id}/organization/redeem`;
       const completeRedeemResponse = await fetch(completeRedeemUrl, {
         method: "POST",
         headers: {
@@ -448,7 +448,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
 
           // Make POST request to create disk
           const { url, headers } = wrapAuthStringOrHeader(
-            `${adminEndpoint}/v1/${driveID}/disks/create`,
+            `${adminEndpoint}/v1/drive/${driveID}/disks/create`,
             {},
             password
           );

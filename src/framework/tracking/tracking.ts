@@ -25,7 +25,7 @@ export const trackUserSignup = async (icpPrincipal: string = "") => {
 export function checkIsProdByURL(): boolean {
   if (typeof window !== "undefined" && window.location) {
     return (
-      window.location.hostname === "drive.officex.app" ||
+      window.location.hostname === "officex.app" ||
       window.location.hostname === "officex.app"
     );
   }

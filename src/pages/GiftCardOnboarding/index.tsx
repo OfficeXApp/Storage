@@ -31,7 +31,7 @@ import { DiskTypeEnum } from "@officexapp/types";
 interface GiftCardOnboardingProps {}
 
 // sample url
-// https://drive.officex.app/gift-card-onboarding?gas_cycles_included=4T&gift_card_id=GiftcardSpawnOrgID_fe3fd0f8-665e-435c-a0d3-2ffa3bd8d363
+// https://officex.app/gift-card-onboarding?gas_cycles_included=4T&gift_card_id=GiftcardSpawnOrgID_fe3fd0f8-665e-435c-a0d3-2ffa3bd8d363
 const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
   const screenType = useScreenType();
   const [searchParams] = useSearchParams();

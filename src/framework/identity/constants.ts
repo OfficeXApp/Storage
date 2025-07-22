@@ -50,7 +50,7 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
   return result;
 };
 
-export const LOCAL_DEV_MODE = true;
+export const LOCAL_DEV_MODE = false;
 
 // LOCAL vs. PROD
 export const FACTORY_CANISTER_ENDPOINT = LOCAL_DEV_MODE
@@ -88,29 +88,29 @@ export const initialGiftCardOptions: GiftCardOption[] = [
     value: FACTORY_CANISTER_ENDPOINT,
     buyLink: "https://nowpayments.io/payment?iid=4444542097",
   },
-  {
-    title: "🇨🇭 Swiss Mountain Bunker | PAID",
-    subtext:
-      "Mountain Datacenter in a Nuclear Fallout Bunker, decentralized trustless crypto cloud, committed to neutrality.",
-    value: "https://glvgj-aiaaa-aaaak-dfj3f-cai.icp0.io",
-    buyLink: "https://nowpayments.io/payment?iid=4444542097",
-  },
+  // {
+  //   title: "🇨🇭 Swiss Mountain Bunker | PAID",
+  //   subtext:
+  //     "Mountain Datacenter in a Nuclear Fallout Bunker, decentralized trustless crypto cloud, committed to neutrality.",
+  //   value: "https://glvgj-aiaaa-aaaak-dfj3f-cai.icp0.io",
+  //   buyLink: "https://nowpayments.io/payment?iid=4444542097",
+  // },
   {
     title: "📦 Custom | FREE",
     subtext: "Bring your own backend server",
     value: "enter custom url endpoint",
     buyLink: "https://repocloud.io/?ref=wxmj693",
   },
-  {
-    title: "🇨🇳 Alibaba Cloud | FREE",
-    subtext: "Chinese Data Centers",
-    value: "https://free-alibaba-china.officex.app",
-  },
-  {
-    title: "🇪🇺 Hetzner Cloud | FREE",
-    subtext: "European Union / German Data Centers",
-    value: "https://free-hetzner-eu.officex.app",
-  },
+  // {
+  //   title: "🇨🇳 Alibaba Cloud | FREE",
+  //   subtext: "Chinese Data Centers",
+  //   value: "https://free-alibaba-china.officex.app",
+  // },
+  // {
+  //   title: "🇪🇺 Hetzner Cloud | FREE",
+  //   subtext: "European Union / German Data Centers",
+  //   value: "https://free-hetzner-eu.officex.app",
+  // },
 ];
 
 export interface GiftCardOption {

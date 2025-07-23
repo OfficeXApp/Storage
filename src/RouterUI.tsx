@@ -589,6 +589,10 @@ const RouterUI = () => {
                       }
                     />
                     <Route
+                      path="/appstore"
+                      element={<Navigate to="/org/current/appstore" />}
+                    />
+                    <Route
                       path="/org/:orgcode/drive/*"
                       element={
                         <DriveUI toggleUploadPanel={setUploadPanelVisible} />

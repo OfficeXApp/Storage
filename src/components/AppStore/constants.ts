@@ -1183,7 +1183,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
     name: "Semrush",
     subheading:
       "Online visibility management and content marketing SaaS platform.\nImprove your SEO.",
-    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b",
+    coverImage:
+      "https://www.pagetraffic.in/wp-content/uploads/2022/05/semrush-review-adn-guide.jpg",
     isFeatured: Math.random() > 0.5,
     offers: [
       {
@@ -1396,6 +1397,1094 @@ export const appstore_apps: AppInfoWithOffers[] = [
             reviewsScore: 4.7,
             communityLinks: [{ label: "Solutions Page", url: "#" }],
             priceLine: "$0.25/record",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "bitly",
+    name: "Bitly",
+    subheading:
+      "Link management platform.\nShorten, track, and optimize your links.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b",
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-bitly-link-analytics-csv",
+        title: "Bitly Link Click & Analytics Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of detailed click data and analytics from your Bitly links**, delivering them as structured **CSV files** to your Anonymous OfficeX. Gain comprehensive insights into link performance, geographic clicks, referral sources, and more for in-depth analysis and reporting within your spreadsheets.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Link Performance Metrics:</strong> Export total clicks, unique clicks, and click-through rates for your Bitly links.</li>
+            <li><strong>Geographic Data:</strong> Analyze clicks by country, region, and city to understand audience distribution.</li>
+            <li><strong>Referral Source Analysis:</strong> Identify where your clicks are coming from (e.g., social media, websites).</li>
+            <li><strong>Custom Date Range Reporting:</strong> Generate reports for specific periods to track campaign performance.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for marketing analysis.</li>
+          </ul>
+          <p>Optimize your digital campaigns with granular Bitly link data, seamlessly integrated into your OfficeX analytics.</p>
+        `,
+        price: 150,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for Bitly data export",
+        bookmarks: 80,
+        avgCustomerLifetimeValue: 600,
+        cumulativeSales: 48000,
+        vendors: [
+          {
+            id: "bitly-vendor1",
+            name: "Link Analytics Pro",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=LAP",
+            uptimeScore: 99.8,
+            reviewsScore: 4.6,
+            communityLinks: [{ label: "Support Docs", url: "#" }],
+            priceLine: "$150/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "veo3",
+    name: "Veo3",
+    subheading: "Advanced video analysis for sports.\nUnderstand performance.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder, find a relevant image
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-veo3-match-data-csv",
+        title:
+          "Veo3 Match Event & Player Performance Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of detailed match events and player performance data from Veo3 footage**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for sports coaches, analysts, and recruiters to analyze game strategies, individual player statistics, and team performance for in-depth tactical planning and scouting.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Match Event Data:</strong> Export timestamps and descriptions of key events (goals, fouls, passes, shots).</li>
+            <li><strong>Player Performance Metrics:</strong> Gather data on touches, passes, distance covered, and other customizable metrics for each player.</li>
+            <li><strong>Team Statistics:</strong> Analyze overall team possession, shots on target, and defensive actions.</li>
+            <li><strong>Custom Tagging & Filtering:</strong> Export data based on custom tags applied within Veo3 or specific match criteria.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for statistical analysis and reporting.</li>
+          </ul>
+          <p>Transform raw sports footage into actionable data with Veo3 integration, seamlessly enhancing your OfficeX performance analysis.</p>
+        `,
+        price: 500,
+        priceUnit: "/match",
+        priceExplanation: "per analyzed match and data export",
+        bookmarks: 45,
+        avgCustomerLifetimeValue: 2000,
+        cumulativeSales: 90000,
+        vendors: [
+          {
+            id: "veo3-vendor1",
+            name: "Sports Analytics Pro",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=SAP",
+            uptimeScore: 99.6,
+            reviewsScore: 4.7,
+            communityLinks: [{ label: "Consultation", url: "#" }],
+            priceLine: "$500/match",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "taskrabbit",
+    name: "TaskRabbit",
+    subheading:
+      "Platform connecting people with local taskers.\nGet help with everyday tasks.",
+    coverImage:
+      "https://www.taskrabbit.com/blog/wp-content/uploads/2023/11/Hero_Taskers-1024x683.jpg", // Placeholder, find a relevant image
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-taskrabbit-task-data-csv",
+        title: "TaskRabbit Task & Tasker Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public task listings and tasker profile data from TaskRabbit**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for market researchers, businesses analyzing gig economy trends, or individuals tracking service availability and pricing in specific regions.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Task Listing Data:</strong> Extract task descriptions, requested skills, estimated duration, and pricing (if public).</li>
+            <li><strong>Tasker Profile Data:</strong> Gather public information on tasker skills, hourly rates, reviews, and availability.</li>
+            <li><strong>Geographic & Category Filtering:</strong> Extract data based on specific locations or task categories.</li>
+            <li><strong>Pricing & Demand Analysis:</strong> Analyze trends in task pricing and service demand.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for market analysis or competitive benchmarking.</li>
+          </ul>
+          <p>Gain insights into the local service economy by integrating TaskRabbit data into your OfficeX analytical workflows.</p>
+        `,
+        price: 0.04,
+        priceUnit: "/record",
+        priceExplanation: "per extracted task or tasker record",
+        bookmarks: 50,
+        avgCustomerLifetimeValue: 200,
+        cumulativeSales: 10000,
+        vendors: [
+          {
+            id: "taskrabbit-vendor1",
+            name: "Gig Economy Insights",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=GEI",
+            uptimeScore: 99.4,
+            reviewsScore: 4.2,
+            communityLinks: [{ label: "Research Blog", url: "#" }],
+            priceLine: "$0.04/record",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "shopee",
+    name: "Shopee",
+    subheading:
+      "Leading e-commerce platform in Southeast Asia and Taiwan.\nShop and sell with ease.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder, find a relevant image
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-shopee-product-data-csv",
+        title: "Shopee Product & Seller Data Extraction (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public product listings and seller information from Shopee**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for e-commerce businesses, market researchers, and competitive analysts looking to understand product trends, pricing strategies, and seller performance in the Southeast Asian and Taiwanese markets.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Product Listing Data:</strong> Extract product names, descriptions, prices, categories, and stock availability.</li>
+            <li><strong>Seller Information:</strong> Gather public data on seller ratings, shop location, and number of products.</li>
+            <li><strong>Sales & Review Data:</strong> Analyze sales volume (if publicly available) and customer reviews for specific products.</li>
+            <li><strong>Keyword & Category Filtering:</strong> Target specific product categories or search terms for data extraction.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for market analysis, inventory planning, or competitive intelligence.</li>
+          </ul>
+          <p>Gain a significant competitive advantage in the Southeast Asian e-commerce market by integrating granular Shopee data into your OfficeX analytics.</p>
+        `,
+        price: 0.08,
+        priceUnit: "/record",
+        priceExplanation: "per extracted product or seller record",
+        bookmarks: 100,
+        avgCustomerLifetimeValue: 400,
+        cumulativeSales: 40000,
+        vendors: [
+          {
+            id: "shopee-vendor1",
+            name: "SEA E-commerce Insights",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=SEI",
+            uptimeScore: 99.6,
+            reviewsScore: 4.5,
+            communityLinks: [{ label: "Client Portal", url: "#" }],
+            priceLine: "$0.08/record",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "taobao",
+    name: "Taobao",
+    subheading:
+      "Largest e-commerce platform in China.\nDiscover a vast array of products.",
+    coverImage:
+      "https://tiengtrungcamxu.com/wp-content/uploads/2018/01/krupnejshij-marketplejs-taobao-news.jpg", // Placeholder, find a relevant image
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-taobao-product-data-csv",
+        title: "Taobao Product & Pricing Data Extraction (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public product listings and pricing information from Taobao**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for e-commerce businesses, sourcing agents, and market researchers looking to understand product availability, pricing trends, and supplier information within the Chinese e-commerce market.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Product Listing Data:</strong> Extract product names, descriptions, prices, and available variations.</li>
+            <li><strong>Seller/Shop Information:</strong> Gather public data on seller ratings, location, and sales volume (if publicly available).</li>
+            <li><strong>Image & Video URLs:</strong> Include URLs to product images and videos for visual reference.</li>
+            <li><strong>Trend & Price Analysis:</strong> Analyze historical pricing data and identify trending products.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for competitive pricing, sourcing, or market entry analysis.</li>
+          </ul>
+          <p>Gain a significant competitive advantage in the Chinese e-commerce market by integrating granular Taobao data into your OfficeX analytics.</p>
+        `,
+        price: 0.1,
+        priceUnit: "/record",
+        priceExplanation: "per extracted product or seller record",
+        bookmarks: 95,
+        avgCustomerLifetimeValue: 600,
+        cumulativeSales: 57000,
+        vendors: [
+          {
+            id: "taobao-vendor1",
+            name: "China E-commerce Data",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CED",
+            uptimeScore: 99.5,
+            reviewsScore: 4.4,
+            communityLinks: [{ label: "Consultation", url: "#" }],
+            priceLine: "$0.10/record",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "uber",
+    name: "Uber",
+    subheading:
+      "Ride-sharing and food delivery service.\nTravel and order food with ease.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-uber-ride-data-csv",
+        title: "Uber Ride & Expense Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of your Uber ride history and associated expense data**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for business professionals, accountants, or individuals looking to track transportation expenses, analyze travel patterns, or reconcile company spending.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Ride History Export:</strong> Extract date, time, pickup/dropoff locations, distance, and trip cost.</li>
+            <li><strong>Expense Categorization:</strong> Option to categorize rides for business vs. personal expense tracking.</li>
+            <li><strong>Invoice Data (Metadata):</strong> Export metadata related to trip invoices for easy reconciliation.</li>
+            <li><strong>Travel Pattern Analysis:</strong> Analyze frequently used routes, times, and associated costs.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for expense reporting and budgeting.</li>
+          </ul>
+          <p>Streamline your travel expense management by integrating detailed Uber ride data into your OfficeX financial workflows.</p>
+        `,
+        price: 50,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for automated data export",
+        bookmarks: 60,
+        avgCustomerLifetimeValue: 300,
+        cumulativeSales: 18000,
+        vendors: [
+          {
+            id: "uber-vendor1",
+            name: "Travel Expense Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TES",
+            uptimeScore: 99.7,
+            reviewsScore: 4.5,
+            communityLinks: [{ label: "FAQ", url: "#" }],
+            priceLine: "$50/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "grab",
+    name: "Grab",
+    subheading:
+      "Leading super-app in Southeast Asia for ride-hailing, food delivery, and payments.\nYour everyday everything.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-grab-transaction-data-csv",
+        title:
+          "Grab Ride, Food, & Payment Transaction Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of your Grab transaction history, including rides, food deliveries, and payments**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses in Southeast Asia to track expenses, analyze spending patterns across different services, or reconcile financial records.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Comprehensive Transaction History:</strong> Export data on Grab rides, GrabFood orders, GrabMart purchases, and GrabPay transactions.</li>
+            <li><strong>Detailed Expense Breakdown:</strong> Capture date, time, service type, amount, and associated notes for each transaction.</li>
+            <li><strong>Spending Pattern Analysis:</strong> Identify trends in your Grab usage and allocate spending across categories.</li>
+            <li><strong>Receipt Data (Metadata):</strong> Export metadata related to digital receipts for easy record-keeping.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for personal budgeting or business expense management.</li>
+          </ul>
+          <p>Gain complete visibility into your Grab ecosystem spending by integrating detailed transaction data into your OfficeX financial workflows.</p>
+        `,
+        price: 75,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for automated data export",
+        bookmarks: 70,
+        avgCustomerLifetimeValue: 400,
+        cumulativeSales: 28000,
+        vendors: [
+          {
+            id: "grab-vendor1",
+            name: "Southeast Asia Data Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=SEADS",
+            uptimeScore: 99.7,
+            reviewsScore: 4.6,
+            communityLinks: [{ label: "Help Docs", url: "#" }],
+            priceLine: "$75/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "brex",
+    name: "Brex",
+    subheading:
+      "Financial operating system for growing businesses.\nManage corporate spend.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-brex-transaction-csv",
+        title: "Brex Transaction & Expense Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of detailed transaction and expense data from your Brex account**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for finance teams, accountants, and business owners looking to reconcile corporate spending, manage budgets, and perform in-depth financial analysis directly within their spreadsheets.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Transaction History Export:</strong> Extract date, merchant, amount, category, and associated notes for all Brex transactions.</li>
+            <li><strong>Expense Report Data:</strong> Pull data from submitted expense reports, including attachments (metadata) and approvals.</li>
+            <li><strong>Budget Tracking:</strong> Monitor spending against departmental or project budgets with granular data.</li>
+            <li><strong>Vendor Analysis:</strong> Analyze spending patterns with specific vendors for negotiation or optimization.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for financial reporting, auditing, and reconciliation.</li>
+          </ul>
+          <p>Automate your financial reporting and gain deep insights into corporate spend by integrating Brex data into your OfficeX financial workflows.</p>
+        `,
+        price: 100,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for automated data export",
+        bookmarks: 85,
+        avgCustomerLifetimeValue: 1200,
+        cumulativeSales: 102000,
+        vendors: [
+          {
+            id: "brex-vendor1",
+            name: "Corporate Finance Data",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CFD",
+            uptimeScore: 99.9,
+            reviewsScore: 4.8,
+            communityLinks: [{ label: "API Docs", url: "#" }],
+            priceLine: "$100/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "paypal",
+    name: "PayPal",
+    subheading: "Online payment system.\nSend and receive money securely.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-paypal-transaction-csv",
+        title: "PayPal Transaction History & Fee Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of your detailed PayPal transaction history, including payments sent, received, and associated fees**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses to reconcile financial records, track income and expenses, and analyze payment processing costs directly within their spreadsheets.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Transaction History Export:</strong> Extract date, type, status, gross amount, fees, and net amount for all transactions.</li>
+            <li><strong>Sender/Recipient Details:</strong> Gather information on the parties involved in each transaction.</li>
+            <li><strong>Currency Conversion Data:</strong> Track details for transactions involving currency conversions.</li>
+            <li><strong>Fee Analysis:</strong> Analyze PayPal fees incurred over time for cost optimization.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for financial tracking, accounting, and reporting.</li>
+          </ul>
+          <p>Streamline your financial record-keeping and gain deep insights into your PayPal activities by integrating transaction data into your OfficeX financial workflows.</p>
+        `,
+        price: 70,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for automated data export",
+        bookmarks: 90,
+        avgCustomerLifetimeValue: 500,
+        cumulativeSales: 45000,
+        vendors: [
+          {
+            id: "paypal-vendor1",
+            name: "Payment Data Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=PDS",
+            uptimeScore: 99.8,
+            reviewsScore: 4.7,
+            communityLinks: [{ label: "Help Center", url: "#" }],
+            priceLine: "$70/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "cashapp",
+    name: "Cash App",
+    subheading: "Mobile payment service.\nSend, spend, save, and invest money.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-cashapp-transaction-csv",
+        title: "Cash App Transaction History Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of your Cash App transaction history**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals to track personal spending, manage budgets, and reconcile financial records from their Cash App activities.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Transaction History Export:</strong> Extract date, type (sent/received), amount, and transaction description for all activities.</li>
+            <li><strong>Bitcoin & Stock Activity (Metadata):</strong> Include metadata for any linked Bitcoin or stock purchase/sale activities.</li>
+            <li><strong>Spending Categorization:</strong> Option to categorize transactions for personal budgeting.</li>
+            <li><strong>Custom Date Range Reporting:</strong> Generate reports for specific periods for financial overview.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for personal finance tracking.</li>
+          </ul>
+          <p>Gain clarity on your Cash App spending and investments by integrating detailed transaction data into your OfficeX financial workflows.</p>
+        `,
+        price: 40,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for automated data export",
+        bookmarks: 55,
+        avgCustomerLifetimeValue: 250,
+        cumulativeSales: 13750,
+        vendors: [
+          {
+            id: "cashapp-vendor1",
+            name: "Personal Finance Data Co.",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=PFDC",
+            uptimeScore: 99.7,
+            reviewsScore: 4.5,
+            communityLinks: [{ label: "User Guide", url: "#" }],
+            priceLine: "$40/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "google-drive",
+    name: "Google Drive",
+    subheading:
+      "Cloud storage and file synchronization service.\nStore and share your files.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-google-drive-file-metadata-csv",
+        title:
+          "Google Drive File Metadata & Usage Report Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of detailed file metadata and usage reports from your Google Drive**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for organizations and individuals managing large Drive accounts to audit file access, track storage usage, organize documents, and manage permissions efficiently.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>File Metadata Export:</strong> Extract file names, types, sizes, creation/modification dates, and owner information.</li>
+            <li><strong>Sharing & Permissions Audit:</strong> Track sharing settings, collaborators, and public/private access for files and folders.</li>
+            <li><strong>Storage Usage Analysis:</strong> Generate reports on storage consumption by file type, owner, or folder.</li>
+            <li><strong>Activity Log (Metadata):</strong> Export metadata on file views, edits, and downloads for auditing purposes.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for data governance and organization.</li>
+          </ul>
+          <p>Gain comprehensive control and insights over your Google Drive assets by integrating detailed metadata into your OfficeX management workflows.</p>
+        `,
+        price: 80,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for automated data export",
+        bookmarks: 110,
+        avgCustomerLifetimeValue: 700,
+        cumulativeSales: 77000,
+        vendors: [
+          {
+            id: "google-drive-vendor1",
+            name: "Cloud Data Organizers",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CDO",
+            uptimeScore: 99.8,
+            reviewsScore: 4.7,
+            communityLinks: [{ label: "Solutions", url: "#" }],
+            priceLine: "$80/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "agoda",
+    name: "Agoda",
+    subheading:
+      "Online travel agency for accommodations.\nBook hotels and flights worldwide.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-agoda-hotel-data-csv",
+        title:
+          "Agoda Hotel Listing & Pricing Data Extraction (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public hotel listings, pricing, and review data from Agoda**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for hospitality businesses, travel agencies, and market researchers to analyze accommodation trends, competitive pricing, customer feedback, and optimize their online presence.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Hotel Listing Data:</strong> Extract hotel names, locations, star ratings, amenities, and image URLs.</li>
+            <li><strong>Pricing & Availability:</strong> Gather real-time or historical pricing data for specific dates and room types.</li>
+            <li><strong>Customer Review Analysis:</strong> Export review text and scores for sentiment analysis and feedback.</li>
+            <li><strong>Destination & Property Type Filtering:</strong> Target specific regions, cities, or accommodation types for data extraction.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for market analysis, revenue management, or competitive benchmarking.</li>
+          </ul>
+          <p>Gain a significant competitive advantage in the travel industry by integrating granular Agoda data into your OfficeX analytics.</p>
+        `,
+        price: 0.15,
+        priceUnit: "/record",
+        priceExplanation: "per extracted hotel or review record",
+        bookmarks: 75,
+        avgCustomerLifetimeValue: 450,
+        cumulativeSales: 33750,
+        vendors: [
+          {
+            id: "agoda-vendor1",
+            name: "Travel Data Insights",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TDI",
+            uptimeScore: 99.6,
+            reviewsScore: 4.5,
+            communityLinks: [{ label: "Client Support", url: "#" }],
+            priceLine: "$0.15/record",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "donotpay",
+    name: "Do Not Pay",
+    subheading:
+      "AI-powered legal bot.\nFight corporations, beat bureaucracy, and sue anyone at the press of a button.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-donotpay-legal-doc-csv",
+        title: "Do Not Pay Case & Document Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of your own Do Not Pay case data and generated document metadata**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals tracking their legal disputes, managing appeals, or organizing generated legal documents for personal record-keeping or further analysis.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Case Status Export:</strong> Extract data on case type, current status, and relevant deadlines.</li>
+            <li><strong>Document Metadata:</strong> Gather metadata on generated legal documents (e.g., date generated, document type, associated case).</li>
+            <li><strong>Fine & Fee Tracking:</strong> Analyze the amounts of fines or fees disputed and their outcomes.</li>
+            <li><strong>Correspondence Log (Metadata):</strong> Export metadata related to communications generated or received through the platform.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for personal legal tracking and record management.</li>
+          </ul>
+          <p>Organize and analyze your Do Not Pay activities by integrating detailed case and document data into your OfficeX personal archives.</p>
+        `,
+        price: 60,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for automated data export",
+        bookmarks: 40,
+        avgCustomerLifetimeValue: 300,
+        cumulativeSales: 12000,
+        vendors: [
+          {
+            id: "donotpay-vendor1",
+            name: "Legal Data Organizers",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=LDO",
+            uptimeScore: 99.5,
+            reviewsScore: 4.3,
+            communityLinks: [{ label: "FAQs", url: "#" }],
+            priceLine: "$60/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "fedex",
+    name: "FedEx",
+    subheading:
+      "Global shipping and logistics services.\nDeliver packages worldwide.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-fedex-shipping-data-csv",
+        title: "FedEx Shipping & Tracking Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of your FedEx shipping history and tracking data**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for businesses and individuals managing high volumes of shipments to analyze shipping costs, delivery performance, track packages, and reconcile logistics records.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Shipment History Export:</strong> Extract data on package details, origin/destination, service type, and shipping costs.</li>
+            <li><strong>Tracking Status Updates:</strong> Gather real-time or historical tracking updates for specific packages.</li>
+            <li><strong>Delivery Performance Analysis:</strong> Analyze on-time delivery rates and identify potential delays.</li>
+            <li><strong>Cost Allocation:</strong> Categorize shipping expenses by department, project, or client.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for logistics management, expense tracking, and reporting.</li>
+          </ul>
+          <p>Optimize your shipping operations and gain clear visibility into your logistics with granular FedEx data, seamlessly integrated into your OfficeX workflows.</p>
+        `,
+        price: 180,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for automated data export",
+        bookmarks: 95,
+        avgCustomerLifetimeValue: 800,
+        cumulativeSales: 76000,
+        vendors: [
+          {
+            id: "fedex-vendor1",
+            name: "Logistics Data Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=LDS",
+            uptimeScore: 99.8,
+            reviewsScore: 4.7,
+            communityLinks: [{ label: "API Docs", url: "#" }],
+            priceLine: "$180/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "american-express",
+    name: "American Express",
+    subheading:
+      "Global financial services corporation.\nCredit cards, charge cards, and travel services.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-amex-transaction-csv",
+        title:
+          "American Express Transaction & Statement Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of your American Express transaction history and statement data**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses to reconcile credit card statements, track expenses, manage budgets, and perform in-depth financial analysis directly within their spreadsheets.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Transaction History Export:</strong> Extract date, merchant, amount, category, and transaction ID for all card activities.</li>
+            <li><strong>Statement Reconciliation:</strong> Sync transaction data with your billing statements for easy accounting.</li>
+            <li><strong>Spending Analysis:</strong> Analyze spending patterns across different categories and time periods.</li>
+            <li><strong>Reward Point Tracking (Metadata):</strong> Include metadata related to earned reward points for optimization.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for financial reporting, budgeting, and tax preparation.</li>
+          </ul>
+          <p>Automate your financial record-keeping and gain deep insights into your American Express spending by integrating transaction data into your OfficeX financial workflows.</p>
+        `,
+        price: 90,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for automated data export",
+        bookmarks: 100,
+        avgCustomerLifetimeValue: 600,
+        cumulativeSales: 60000,
+        vendors: [
+          {
+            id: "amex-vendor1",
+            name: "Financial Data Solutions Inc.",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=FDSI",
+            uptimeScore: 99.9,
+            reviewsScore: 4.8,
+            communityLinks: [{ label: "Support", url: "#" }],
+            priceLine: "$90/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "airbnb",
+    name: "Airbnb",
+    subheading:
+      "Online marketplace for lodging, primarily homestays, and tourism experiences.\nFind unique stays.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-airbnb-listing-data-csv",
+        title:
+          "Airbnb Listing & Market Trend Data Extraction (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public Airbnb listing data and market trend insights**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for property managers, real estate investors, and market researchers to analyze occupancy rates, pricing strategies, competitor listings, and identify profitable investment opportunities in specific regions.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Listing Details Export:</strong> Extract property type, number of bedrooms/bathrooms, amenities, and host information.</li>
+            <li><strong>Pricing & Availability Data:</strong> Gather real-time or historical pricing and calendar availability for specific dates.</li>
+            <li><strong>Review & Rating Analysis:</strong> Export customer reviews and overall ratings for sentiment analysis and feedback.</li>
+            <li><strong>Geographic & Property Type Filtering:</strong> Target specific cities, neighborhoods, or property types for data extraction.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for market analysis, revenue optimization, and competitive benchmarking.</li>
+          </ul>
+          <p>Gain a significant competitive advantage in the short-term rental market by integrating granular Airbnb data into your OfficeX analytics and decision-making.</p>
+        `,
+        price: 0.2,
+        priceUnit: "/listing",
+        priceExplanation: "per extracted listing record",
+        bookmarks: 130,
+        avgCustomerLifetimeValue: 800,
+        cumulativeSales: 104000,
+        vendors: [
+          {
+            id: "airbnb-vendor1",
+            name: "Rental Market Insights",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=RMI",
+            uptimeScore: 99.7,
+            reviewsScore: 4.6,
+            communityLinks: [{ label: "Case Studies", url: "#" }],
+            priceLine: "$0.20/listing",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "makerworld",
+    name: "MakerWorld",
+    subheading:
+      "3D model platform for 3D printing.\nShare and download designs.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-makerworld-design-data-csv",
+        title: "MakerWorld 3D Model & Creator Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of public 3D model data and creator statistics from MakerWorld**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for 3D printing businesses, designers, and market researchers to analyze trending designs, popular creators, model specifications, and user engagement for product development or content strategy.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>3D Model Metadata:</strong> Extract model names, descriptions, categories, download counts, and print statistics.</li>
+            <li><strong>Creator Insights:</strong> Gather public data on creator followers, print counts, and popular models.</li>
+            <li><strong>User Engagement Data:</strong> Analyze likes, comments, and collections for specific designs.</li>
+            <li><strong>Keyword & Category Analysis:</strong> Identify trending keywords and popular design categories.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for trend analysis, content planning, or competitive benchmarking.</li>
+          </ul>
+          <p>Gain deep insights into the 3D printing community and market by integrating MakerWorld data into your OfficeX analytical workflows.</p>
+        `,
+        price: 0.1,
+        priceUnit: "/record",
+        priceExplanation: "per extracted model or creator record",
+        bookmarks: 60,
+        avgCustomerLifetimeValue: 300,
+        cumulativeSales: 18000,
+        vendors: [
+          {
+            id: "makerworld-vendor1",
+            name: "3D Print Data Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=3DPDS",
+            uptimeScore: 99.6,
+            reviewsScore: 4.4,
+            communityLinks: [{ label: "Forum", url: "#" }],
+            priceLine: "$0.10/record",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "home-depot",
+    name: "Home Depot",
+    subheading:
+      "Home improvement and appliance retailer.\nFind tools and materials for your projects.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-home-depot-product-data-csv",
+        title:
+          "Home Depot Product Inventory & Pricing Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public product inventory, pricing, and specification data from Home Depot**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for contractors, resellers, and market researchers to analyze product availability, competitive pricing, and trending home improvement items across various locations.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Product Catalog Export:</strong> Extract product names, descriptions, categories, SKUs, and online availability.</li>
+            <li><strong>Pricing & Promotions:</strong> Gather current pricing data, sale prices, and active promotions.</li>
+            <li><strong>In-Store Inventory (Limited):</strong> Provide insights into approximate in-store stock levels for specific products and locations (where publicly accessible).</li>
+            <li><strong>Product Specifications:</strong> Extract technical specifications and attributes for detailed analysis.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for inventory management, competitive pricing, or procurement planning.</li>
+          </ul>
+          <p>Gain a significant competitive edge in the home improvement market by integrating granular Lowe's data into your OfficeX operations and analysis.</p>
+        `,
+        price: 0.12,
+        priceUnit: "/product",
+        priceExplanation: "per extracted product record",
+        bookmarks: 80,
+        avgCustomerLifetimeValue: 400,
+        cumulativeSales: 32000,
+        vendors: [
+          {
+            id: "home-depot-vendor1",
+            name: "Retail Data Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=RDS",
+            uptimeScore: 99.5,
+            reviewsScore: 4.3,
+            communityLinks: [{ label: "Client Support", url: "#" }],
+            priceLine: "$0.12/product",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "shopify",
+    name: "Shopify",
+    subheading:
+      "E-commerce platform for online stores and retail point-of-sale systems.\nBuild and grow your business.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-shopify-store-data-csv",
+        title: "Shopify Store & Product Data Extraction (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public product listings, pricing, and store information from Shopify-powered online stores**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for competitive analysis, market research, or dropshippers looking to identify trending products, pricing strategies, and successful store setups.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Product Listing Data:</strong> Extract product titles, descriptions, images, prices, and inventory levels (if publicly available).</li>
+            <li><strong>Storefront Analysis:</strong> Gather data on shop themes, app integrations (visible), and general product offerings.</li>
+            <li><strong>Pricing Trends:</strong> Monitor pricing changes for specific products or categories across multiple Shopify stores.</li>
+            <li><strong>Competitor Product Research:</strong> Identify popular products and successful strategies of competitors.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for market analysis, product sourcing, or business strategy.</li>
+          </ul>
+          <p>Gain a significant competitive edge in the e-commerce landscape by integrating granular Shopify store data into your OfficeX analytics.</p>
+        `,
+        price: 0.15,
+        priceUnit: "/product_record",
+        priceExplanation: "per extracted product record from public stores",
+        bookmarks: 110,
+        avgCustomerLifetimeValue: 700,
+        cumulativeSales: 77000,
+        vendors: [
+          {
+            id: "shopify-vendor1",
+            name: "Ecom Data Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=EDS",
+            uptimeScore: 99.7,
+            reviewsScore: 4.6,
+            communityLinks: [{ label: "Client Portal", url: "#" }],
+            priceLine: "$0.15/product_record",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "draftkings",
+    name: "DraftKings",
+    subheading:
+      "Daily fantasy sports contest and sports betting operator.\nPlay and win big.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-draftkings-data-csv",
+        title: "DraftKings Contest & Player Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public contest details, player statistics, and outcome data from DraftKings**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for sports analysts, data scientists, or serious players looking to optimize strategies, identify trends, and perform in-depth statistical analysis on player performance and contest outcomes.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Contest Details:</strong> Export data on contest types, entry fees, prize pools, and number of entries.</li>
+            <li><strong>Player Statistics:</strong> Gather detailed player performance data for various sports and contests.</li>
+            <li><strong>Historical Outcome Data:</strong> Analyze past contest results and winning lineups (if publicly available).</li>
+            <li><strong>Trend Identification:</strong> Identify patterns in player performance, scoring, and winning strategies.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for predictive modeling or strategy optimization.</li>
+          </ul>
+          <p>Gain a competitive edge in daily fantasy sports and sports betting by integrating granular DraftKings data into your OfficeX analytical workflows.</p>
+        `,
+        price: 300,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for data export and analysis",
+        bookmarks: 70,
+        avgCustomerLifetimeValue: 1000,
+        cumulativeSales: 70000,
+        vendors: [
+          {
+            id: "draftkings-vendor1",
+            name: "Fantasy Sports Data Labs",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=FSDL",
+            uptimeScore: 99.6,
+            reviewsScore: 4.5,
+            communityLinks: [{ label: "Research Papers", url: "#" }],
+            priceLine: "$300/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "geeksquad",
+    name: "Geek Squad",
+    subheading:
+      "Tech support and repair services by Best Buy.\nGet help with your electronics.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-geeksquad-service-log-csv",
+        title: "Geek Squad Service History Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service provides **extraction of your Geek Squad service history and associated details**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses managing multiple devices or tech assets to track repair history, warranty information, service costs, and maintenance schedules directly within their spreadsheets.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Service History Export:</strong> Extract date of service, service type, device serviced, issue description, and resolution.</li>
+            <li><strong>Cost & Warranty Tracking:</strong> Log service charges and link them to device warranty periods.</li>
+            <li><strong>Device Inventory Management:</strong> Maintain a detailed record of all serviced devices and their repair history.</li>
+            <li><strong>Problem Pattern Analysis:</strong> Identify recurring issues across devices or specific product types.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for asset management and maintenance planning.</li>
+          </ul>
+          <p>Efficiently manage your tech support and device maintenance by integrating detailed Geek Squad service data into your OfficeX records.</p>
+        `,
+        price: 50,
+        priceUnit: "/year",
+        priceExplanation: "annual fee for data export and organization",
+        bookmarks: 30,
+        avgCustomerLifetimeValue: 150,
+        cumulativeSales: 4500,
+        vendors: [
+          {
+            id: "geeksquad-vendor1",
+            name: "Tech Records Management",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TRM",
+            uptimeScore: 99.5,
+            reviewsScore: 4.2,
+            communityLinks: [{ label: "Help Guide", url: "#" }],
+            priceLine: "$50/year",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "turo",
+    name: "Turo Car Rental",
+    subheading:
+      "Peer-to-peer car sharing marketplace.\nRent unique cars from local hosts.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-turo-rental-data-csv",
+        title: "Turo Rental & Host Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public Turo car rental listing data and host performance metrics**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for car owners considering Turo, rental market analysts, or competitors looking to understand rental trends, pricing strategies, and successful host practices.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Vehicle Listing Data:</strong> Extract car make/model, year, location, daily rate, and availability details.</li>
+            <li><strong>Host Performance Metrics:</strong> Gather public data on host ratings, response rates, and number of trips.</li>
+            <li><strong>Pricing & Demand Analysis:</strong> Analyze rental pricing trends and demand for specific vehicle types or locations.</li>
+            <li><strong>Booking Calendar Data (Metadata):</strong> Include metadata related to booking availability for optimal scheduling.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for revenue optimization, competitive analysis, or investment planning.</li>
+          </ul>
+          <p>Gain a significant competitive edge in the peer-to-peer car rental market by integrating granular Turo data into your OfficeX analytical workflows.</p>
+        `,
+        price: 0.18,
+        priceUnit: "/rental_record",
+        priceExplanation: "per extracted rental listing record",
+        bookmarks: 65,
+        avgCustomerLifetimeValue: 400,
+        cumulativeSales: 26000,
+        vendors: [
+          {
+            id: "turo-vendor1",
+            name: "Car Rental Data Insights",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CRDI",
+            uptimeScore: 99.6,
+            reviewsScore: 4.5,
+            communityLinks: [{ label: "Host Resources", url: "#" }],
+            priceLine: "$0.18/rental_record",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "timeleft",
+    name: "Timeleft",
+    subheading:
+      "App for anonymous dinner parties with strangers.\nMeet new people.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-timeleft-event-data-csv",
+        title:
+          "Timeleft Event & User Interaction Data Export (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public event details and aggregated, anonymized user interaction data from Timeleft**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for social researchers, event organizers, or businesses interested in networking trends, social preferences, and group dynamics.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Event Details:</strong> Export data on event dates, locations (general), participant counts (anonymized), and themes.</li>
+            <li><strong>Aggregated Interaction Data:</strong> Analyze trends in user matching preferences, common interests, and feedback (anonymized).</li>
+            <li><strong>Demographic Trends (Anonymized):</strong> Identify broad demographic participation patterns in events.</li>
+            <li><strong>Topic & Conversation Analysis:</strong> Extract aggregated keywords from anonymized conversations to identify popular topics.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for social trend analysis or event planning insights.</li>
+          </ul>
+          <p>Gain insights into social networking and event dynamics by integrating aggregated Timeleft data into your OfficeX analytical workflows, with full respect for user privacy.</p>
+        `,
+        price: 200,
+        priceUnit: "/month",
+        priceExplanation: "monthly subscription for aggregated data export",
+        bookmarks: 25,
+        avgCustomerLifetimeValue: 800,
+        cumulativeSales: 20000,
+        vendors: [
+          {
+            id: "timeleft-vendor1",
+            name: "Social Dynamics Lab",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=SDL",
+            uptimeScore: 99.5,
+            reviewsScore: 4.3,
+            communityLinks: [{ label: "Research Blog", url: "#" }],
+            priceLine: "$200/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "craigslist",
+    name: "Craigslist",
+    subheading:
+      "Centralized network of online communities, featuring classified advertisements and forums.\nFind anything locally.",
+    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b", // Placeholder
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-craigslist-listings-csv",
+        title:
+          "Craigslist Classifieds & Listings Data Extraction (CSV) for OfficeX",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting public classified advertisements and listings from Craigslist**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for market researchers, resellers, or businesses tracking local demand, pricing trends, and product/service availability in specific geographical areas.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Categorized Listing Export:</strong> Extract data on titles, descriptions, prices, categories, and posting dates for various sections (e.g., for sale, housing, services).</li>
+            <li><strong>Geographic Filtering:</strong> Target specific cities or regions for highly localized data extraction.</li>
+            <li><strong>Keyword & Price Range Search:</strong> Filter listings based on keywords and price parameters.</li>
+            <li><strong>Trend Analysis:</strong> Identify emerging trends in local buying, selling, or service demands.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for market analysis, inventory sourcing, or competitive intelligence.</li>
+          </ul>
+          <p>Gain valuable insights into local markets and consumer behavior by integrating granular Craigslist data into your OfficeX analytical workflows.</p>
+        `,
+        price: 0.05,
+        priceUnit: "/listing",
+        priceExplanation: "per extracted classified listing record",
+        bookmarks: 80,
+        avgCustomerLifetimeValue: 250,
+        cumulativeSales: 20000,
+        vendors: [
+          {
+            id: "craigslist-vendor1",
+            name: "Local Market Data",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=LMD",
+            uptimeScore: 99.4,
+            reviewsScore: 4.1,
+            communityLinks: [{ label: "FAQs", url: "#" }],
+            priceLine: "$0.05/listing",
             viewPageLink: "#",
           },
         ],

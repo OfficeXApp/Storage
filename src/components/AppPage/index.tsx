@@ -28,6 +28,7 @@ import {
   TeamOutlined,
   FireOutlined,
   DollarOutlined,
+  CaretRightOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 // Ensure you import AppInfoWithOffers if you defined it in AppStore/constants or AppStore/index.tsx
@@ -348,7 +349,7 @@ const AppPage = () => {
                             <Button
                               type="primary"
                               size="large"
-                              icon={<FireOutlined />}
+                              icon={<CaretRightOutlined />}
                             >
                               Run App
                             </Button>

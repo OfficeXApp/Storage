@@ -35,6 +35,7 @@ import {
   HomeOutlined,
   UnorderedListOutlined,
   TeamOutlined,
+  AppstoreAddOutlined,
 } from "@ant-design/icons";
 import DriveUI from "./components/DriveUI";
 import UploadPanel from "./components/UploadPanel";
@@ -98,6 +99,7 @@ import RedeemDiskGiftCard from "./pages/DisksPage/disk.redeem";
 import SpreadsheetEditor from "./apps/SpreadsheetEditor";
 import DocumentEditor from "./apps/DocumentEditor";
 import SelectAgenticKey from "./components/SelectAgenticKey";
+import AppStorePage from "./components/AppStore";
 
 const { Sider, Content } = Layout;
 
@@ -159,6 +161,8 @@ const SideMenu = ({
       setOpenKeys(["organization"]);
     } else if (path.includes("/settings")) {
       setSelectedKeys(["settings"]);
+    } else if (path.includes("/appstore")) {
+      setSelectedKeys(["appstore"]);
     }
   }, [location]);
 
@@ -171,6 +175,17 @@ const SideMenu = ({
   };
 
   const menuItems = [
+    {
+      key: "appstore",
+      icon: <AppstoreAddOutlined />,
+      label: "App Store",
+      onClick: () => {
+        navigate(wrapOrgCode("/appstore"));
+        if (setSidebarVisible) {
+          setSidebarVisible(false);
+        }
+      },
+    },
     {
       key: "navigate-storage",
       label: "Storage",
@@ -616,6 +631,10 @@ const RouterUI = () => {
                     <Route
                       path="/org/:orgcode/settings"
                       element={<SettingsPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/appstore"
+                      element={<AppStorePage />}
                     />
                     <Route
                       path="/org/:orgcode/welcome"

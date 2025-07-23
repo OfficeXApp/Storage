@@ -29,7 +29,7 @@ export default defineConfig({
       },
       // WebManifest options
       manifest: {
-        name: "OfficeX Drive Storage",
+        name: "Anonymous OfficeX",
         short_name: "OfficeX",
         description: "Cloud Storage & Offline Filesystem",
         theme_color: "#ffffff",

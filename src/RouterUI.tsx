@@ -100,6 +100,7 @@ import SpreadsheetEditor from "./apps/SpreadsheetEditor";
 import DocumentEditor from "./apps/DocumentEditor";
 import SelectAgenticKey from "./components/SelectAgenticKey";
 import AppStorePage from "./components/AppStore";
+import AppPage from "./components/AppPage";
 
 const { Sider, Content } = Layout;
 
@@ -635,6 +636,10 @@ const RouterUI = () => {
                     <Route
                       path="/org/:orgcode/appstore"
                       element={<AppStorePage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/appstore/app/:app_id"
+                      element={<AppPage />}
                     />
                     <Route
                       path="/org/:orgcode/welcome"

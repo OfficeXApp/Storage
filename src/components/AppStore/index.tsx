@@ -2,9 +2,41 @@ import React, { useState } from "react";
 import { Typography, Card, Input, Row, Col, Layout, Tag, Badge } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { appstore_apps } from "./constants";
+import { Link } from "react-router-dom";
+import { useIdentitySystem } from "../../framework/identity";
 
 const { Title, Paragraph } = Typography;
 const { Content } = Layout;
+
+export interface Vendor {
+  id: string;
+  name: string;
+  avatar: string;
+  uptimeScore: number;
+  reviewsScore: number;
+  communityLinks: { label: string; url: string }[];
+  priceLine: string;
+  viewPageLink: string;
+}
+
+export interface OfferWorkflow {
+  id: string;
+  title: string;
+  images: string[];
+  description: string;
+  price: number;
+  priceUnit: string;
+  priceExplanation: string;
+  bookmarks: number;
+  avgCustomerLifetimeValue: number;
+  cumulativeSales: number;
+  vendors: Vendor[];
+}
+
+// EXPORT THIS INTERFACE
+export interface AppInfoWithOffers extends AppInfo {
+  offers: OfferWorkflow[];
+}
 
 export interface AppInfo {
   id: string;
@@ -96,6 +128,7 @@ const AppCard = ({ app }: { app: AppInfo }) => {
 
 const AppStore = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { wrapOrgCode } = useIdentitySystem();
 
   // Filter apps based on search term
   const filteredApps = appstore_apps.filter(
@@ -165,7 +198,12 @@ const AppStore = () => {
                   cursor: "pointer",
                 }} // Center cards in their columns
               >
-                <AppCard app={app} />
+                <Link
+                  to={wrapOrgCode(`/appstore/app/${app.id}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <AppCard app={app} />
+                </Link>
               </Col>
             ))
           ) : (

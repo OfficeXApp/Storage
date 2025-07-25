@@ -219,7 +219,7 @@ export const wrapAuthStringOrHeader = (
 ) => {
   let url = _url;
   let headers = _headers;
-  if (_url.includes("icp0.io")) {
+  if (_url.includes("icp0.io") || _url.includes("localhost:8000")) {
     // if no question mark already in url, then add ?auth=, otherwise &auth=
     if (_url.includes("?")) {
       url = `${_url}&auth=${auth}`;

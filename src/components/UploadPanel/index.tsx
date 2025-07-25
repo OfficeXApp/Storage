@@ -200,6 +200,7 @@ const UploadPanel: React.FC<{
   }, [uploadProgress]);
 
   const renderTitle = () => {
+    return "Chat with AI";
     const state = getUploadState();
     switch (state) {
       case "empty":

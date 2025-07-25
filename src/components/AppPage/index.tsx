@@ -15,6 +15,7 @@ import {
   Popover,
   Statistic,
   Divider,
+  Drawer, // Import Drawer
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -52,6 +53,7 @@ const AppPage = () => {
     | undefined;
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false); // State for Drawer visibility
 
   if (!app) {
     return <NotFoundPage />;
@@ -71,6 +73,14 @@ const AppPage = () => {
 
   const handleBack = () => {
     navigate(wrapOrgCode("/appstore"));
+  };
+
+  const showDrawer = () => {
+    setIsDrawerVisible(true);
+  };
+
+  const onCloseDrawer = () => {
+    setIsDrawerVisible(false);
   };
 
   const filteredOffers = offersWithImages.filter((offer) =>
@@ -350,6 +360,7 @@ const AppPage = () => {
                               type="primary"
                               size="large"
                               icon={<CaretRightOutlined />}
+                              onClick={showDrawer} // Add onClick to open Drawer
                             >
                               Run App
                             </Button>
@@ -454,13 +465,13 @@ const AppPage = () => {
                                     <Col>
                                       {" "}
                                       <Button
-                                        type="link"
+                                        type="default"
                                         href={vendor.viewPageLink}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        icon={<LinkOutlined />}
+                                        icon={<CaretRightOutlined />}
                                       >
-                                        Samples
+                                        Run App
                                       </Button>
                                     </Col>
                                   </Row>
@@ -528,6 +539,22 @@ const AppPage = () => {
           </Popover>
         </div>
       </Content>
+
+      {/* The Ant Design Drawer Component */}
+      <Drawer
+        title="Run App"
+        placement="right"
+        closable={true} // Only closeable by x
+        onClose={onCloseDrawer}
+        open={isDrawerVisible} // Controlled by state
+        width="70vw" // 90% of screen width
+        destroyOnClose={true} // Unmount children when closed
+      >
+        {/* Content for your Drawer goes here */}
+        <p>This is where your app will run!</p>
+        <p>You can add forms, content, or other components here.</p>
+        <Button onClick={onCloseDrawer}>Close Drawer</Button>
+      </Drawer>
     </Layout>
   );
 };

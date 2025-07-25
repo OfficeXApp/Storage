@@ -12,7 +12,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer1-aws-s3-ai-csv-export",
-        title: "AI-Powered CSV Data Export & Cloud Storage for OfficeX",
+        title: "AI-Powered CSV Data Export & Cloud Storage",
         images: [], // Will be populated with app.coverImage at runtime
         description: `
           <p>Seamlessly integrate your OfficeX documents and spreadsheets with AWS S3 for secure, scalable cloud storage. This offer enhances your workflow by enabling **AI-powered analysis and export of your data into CSV format**, directly from your cloud-stored documents. Whether you need to dump data for machine learning, generate reports, or integrate with other systems, this service automates the process of extracting structured data from your office files.</p>
@@ -601,7 +601,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-exa-ai-web-data-csv",
-        title: "exa.ai Web Data Extraction & CSV Export for OfficeX",
+        title: "Exa AI Web Data Extraction & CSV Export",
         images: [], // Will be populated with app.coverImage at runtime
         description: `
           <p>Integrate **exa.ai's advanced AI-powered search capabilities** with your Anonymous OfficeX environment to perform highly targeted web data extraction and receive results as structured **CSV files**. This service leverages exa.ai's ability to find and understand hyper-relevant information across the web, making it ideal for market research, competitive analysis, trend identification, and gathering specific data points for your OfficeX spreadsheets.</p>
@@ -736,7 +736,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-lastpass-secure-csv-import",
-        title: "Secure LastPass CSV Password Import & Audit for OfficeX",
+        title: "Secure LastPass CSV Password Import & Audit",
         images: [],
         description: `
           <p>This offer facilitates **secure import and auditing of LastPass-exported CSV password data** into a protected environment linked with your Anonymous OfficeX. We help you securely migrate, organize, and analyze your password vault data (e.g., for compliance, identifying weak passwords, or consolidating logins) while ensuring maximum privacy and security.</p>
@@ -1051,7 +1051,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-sendgrid-email-logs-csv",
-        title: "SendGrid Email Log & Analytics Export (CSV) for OfficeX",
+        title: "SendGrid Email Log & Analytics Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of detailed email logs and analytics from SendGrid**, delivering them as structured **CSV files** to your Anonymous OfficeX. Gain comprehensive insights into your email campaign performance, delivery rates, bounces, clicks, and opens for in-depth analysis and reporting within your spreadsheets.</p>
@@ -1096,7 +1096,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-twilio-cdr-csv",
-        title: "Twilio Call & SMS Log (CDR) Export (CSV) for OfficeX",
+        title: "Twilio Call & SMS Log (CDR) Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of detailed Call Detail Records (CDRs) and SMS logs from Twilio**, delivering them as structured **CSV files** to your Anonymous OfficeX. Analyze your communication patterns, track call durations, message statuses, costs, and identify trends for optimizing your customer interactions and communication workflows.</p>
@@ -1233,7 +1233,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-ebay-listing-data-csv",
-        title: "eBay Listing & Sales Data Extraction (CSV) for OfficeX",
+        title: "eBay Listing & Sales Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public listing and sales data from eBay**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for e-commerce businesses, resellers, and market researchers to analyze product trends, pricing strategies, competitor activity, and sales performance on the eBay platform.</p>
@@ -1278,7 +1278,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-amazon-product-data-csv",
-        title: "Amazon Product & Review Data Extraction (CSV) for OfficeX",
+        title: "Amazon Product & Review Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public product and customer review data from Amazon**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for product developers, market researchers, and e-commerce businesses to analyze product trends, competitor offerings, customer sentiment, and optimize their Amazon listings.</p>
@@ -1323,7 +1323,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-producthunt-data-csv",
-        title: "Product Hunt Launch & Trend Data Extraction (CSV) for OfficeX",
+        title: "Product Hunt Launch & Trend Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public launch data, trend information, and user comments from Product Hunt**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for product managers, investors, and entrepreneurs to monitor new product launches, identify emerging trends, analyze market reception, and discover potential competitors or collaborators.</p>
@@ -1368,7 +1368,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-crunchbase-company-data-csv",
-        title: "Crunchbase Company & Funding Data Extraction (CSV) for OfficeX",
+        title: "Crunchbase Company & Funding Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public company, funding, and M&A data from Crunchbase**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for investors, sales teams, and market researchers to build target lists, analyze industry landscapes, track funding rounds, and monitor competitive activity.</p>
@@ -1413,7 +1413,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-bitly-link-analytics-csv",
-        title: "Bitly Link Click & Analytics Data Export (CSV) for OfficeX",
+        title: "Bitly Link Click & Analytics Data Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of detailed click data and analytics from your Bitly links**, delivering them as structured **CSV files** to your Anonymous OfficeX. Gain comprehensive insights into link performance, geographic clicks, referral sources, and more for in-depth analysis and reporting within your spreadsheets.</p>
@@ -1457,8 +1457,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-veo3-match-data-csv",
-        title:
-          "Veo3 Match Event & Player Performance Data Export (CSV) for OfficeX",
+        title: "Veo3 Match Event & Player Performance Data Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of detailed match events and player performance data from Veo3 footage**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for sports coaches, analysts, and recruiters to analyze game strategies, individual player statistics, and team performance for in-depth tactical planning and scouting.</p>
@@ -1504,7 +1503,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-taskrabbit-task-data-csv",
-        title: "TaskRabbit Task & Tasker Data Export (CSV) for OfficeX",
+        title: "TaskRabbit Task & Tasker Data Export (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public task listings and tasker profile data from TaskRabbit**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for market researchers, businesses analyzing gig economy trends, or individuals tracking service availability and pricing in specific regions.</p>
@@ -1549,7 +1548,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-shopee-product-data-csv",
-        title: "Shopee Product & Seller Data Extraction (CSV) for OfficeX",
+        title: "Shopee Product & Seller Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public product listings and seller information from Shopee**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for e-commerce businesses, market researchers, and competitive analysts looking to understand product trends, pricing strategies, and seller performance in the Southeast Asian and Taiwanese markets.</p>
@@ -1595,7 +1594,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-taobao-product-data-csv",
-        title: "Taobao Product & Pricing Data Extraction (CSV) for OfficeX",
+        title: "Taobao Product & Pricing Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public product listings and pricing information from Taobao**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for e-commerce businesses, sourcing agents, and market researchers looking to understand product availability, pricing trends, and supplier information within the Chinese e-commerce market.</p>
@@ -1640,7 +1639,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-uber-ride-data-csv",
-        title: "Uber Ride & Expense Data Export (CSV) for OfficeX",
+        title: "Uber Ride & Expense Data Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of your Uber ride history and associated expense data**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for business professionals, accountants, or individuals looking to track transportation expenses, analyze travel patterns, or reconcile company spending.</p>
@@ -1685,8 +1684,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-grab-transaction-data-csv",
-        title:
-          "Grab Ride, Food, & Payment Transaction Export (CSV) for OfficeX",
+        title: "Grab Ride, Food, & Payment Transaction Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of your Grab transaction history, including rides, food deliveries, and payments**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses in Southeast Asia to track expenses, analyze spending patterns across different services, or reconcile financial records.</p>
@@ -1731,7 +1729,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-brex-transaction-csv",
-        title: "Brex Transaction & Expense Data Export (CSV) for OfficeX",
+        title: "Brex Transaction & Expense Data Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of detailed transaction and expense data from your Brex account**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for finance teams, accountants, and business owners looking to reconcile corporate spending, manage budgets, and perform in-depth financial analysis directly within their spreadsheets.</p>
@@ -1775,7 +1773,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-paypal-transaction-csv",
-        title: "PayPal Transaction History & Fee Data Export (CSV) for OfficeX",
+        title: "PayPal Transaction History & Fee Data Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of your detailed PayPal transaction history, including payments sent, received, and associated fees**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses to reconcile financial records, track income and expenses, and analyze payment processing costs directly within their spreadsheets.</p>
@@ -1819,7 +1817,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-cashapp-transaction-csv",
-        title: "Cash App Transaction History Export (CSV) for OfficeX",
+        title: "Cash App Transaction History Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of your Cash App transaction history**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals to track personal spending, manage budgets, and reconcile financial records from their Cash App activities.</p>
@@ -1864,8 +1862,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-google-drive-file-metadata-csv",
-        title:
-          "Google Drive File Metadata & Usage Report Export (CSV) for OfficeX",
+        title: "Google Drive File Metadata & Usage Report Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of detailed file metadata and usage reports from your Google Drive**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for organizations and individuals managing large Drive accounts to audit file access, track storage usage, organize documents, and manage permissions efficiently.</p>
@@ -1910,8 +1907,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-agoda-hotel-data-csv",
-        title:
-          "Agoda Hotel Listing & Pricing Data Extraction (CSV) for OfficeX",
+        title: "Agoda Hotel Listing & Pricing Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public hotel listings, pricing, and review data from Agoda**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for hospitality businesses, travel agencies, and market researchers to analyze accommodation trends, competitive pricing, customer feedback, and optimize their online presence.</p>
@@ -1956,7 +1952,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-donotpay-legal-doc-csv",
-        title: "Do Not Pay Case & Document Data Export (CSV) for OfficeX",
+        title: "Do Not Pay Case & Document Data Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of your own Do Not Pay case data and generated document metadata**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals tracking their legal disputes, managing appeals, or organizing generated legal documents for personal record-keeping or further analysis.</p>
@@ -2001,7 +1997,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-fedex-shipping-data-csv",
-        title: "FedEx Shipping & Tracking Data Export (CSV) for OfficeX",
+        title: "FedEx Shipping & Tracking Data Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of your FedEx shipping history and tracking data**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for businesses and individuals managing high volumes of shipments to analyze shipping costs, delivery performance, track packages, and reconcile logistics records.</p>
@@ -2046,8 +2042,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-amex-transaction-csv",
-        title:
-          "American Express Transaction & Statement Export (CSV) for OfficeX",
+        title: "American Express Transaction & Statement Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of your American Express transaction history and statement data**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses to reconcile credit card statements, track expenses, manage budgets, and perform in-depth financial analysis directly within their spreadsheets.</p>
@@ -2092,8 +2087,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-airbnb-listing-data-csv",
-        title:
-          "Airbnb Listing & Market Trend Data Extraction (CSV) for OfficeX",
+        title: "Airbnb Listing & Market Trend Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public Airbnb listing data and market trend insights**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for property managers, real estate investors, and market researchers to analyze occupancy rates, pricing strategies, competitor listings, and identify profitable investment opportunities in specific regions.</p>
@@ -2138,7 +2132,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-makerworld-design-data-csv",
-        title: "MakerWorld 3D Model & Creator Data Export (CSV) for OfficeX",
+        title: "MakerWorld 3D Model & Creator Data Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of public 3D model data and creator statistics from MakerWorld**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for 3D printing businesses, designers, and market researchers to analyze trending designs, popular creators, model specifications, and user engagement for product development or content strategy.</p>
@@ -2183,8 +2177,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-home-depot-product-data-csv",
-        title:
-          "Home Depot Product Inventory & Pricing Data Export (CSV) for OfficeX",
+        title: "Home Depot Product Inventory & Pricing Data Export (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public product inventory, pricing, and specification data from Home Depot**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for contractors, resellers, and market researchers to analyze product availability, competitive pricing, and trending home improvement items across various locations.</p>
@@ -2229,7 +2222,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-shopify-store-data-csv",
-        title: "Shopify Store & Product Data Extraction (CSV) for OfficeX",
+        title: "Shopify Store & Product Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public product listings, pricing, and store information from Shopify-powered online stores**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for competitive analysis, market research, or dropshippers looking to identify trending products, pricing strategies, and successful store setups.</p>
@@ -2274,7 +2267,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-draftkings-data-csv",
-        title: "DraftKings Contest & Player Data Export (CSV) for OfficeX",
+        title: "DraftKings Contest & Player Data Export (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public contest details, player statistics, and outcome data from DraftKings**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for sports analysts, data scientists, or serious players looking to optimize strategies, identify trends, and perform in-depth statistical analysis on player performance and contest outcomes.</p>
@@ -2310,6 +2303,52 @@ export const appstore_apps: AppInfoWithOffers[] = [
     ],
   },
   {
+    id: "sproutgigs",
+    name: "SproutGigs",
+    subheading:
+      "Earn money by completing micro-jobs like social media engagement.",
+    coverImage:
+      "https://prabumulihpos.bacakoran.co/upload/02dbaa6f8e781dc7585fb835dccf2abb.jpg", // Placeholder for a microtask-related image
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-sproutgigs-microtask-fulfillment",
+        title: "Human Microtasks",
+        images: [],
+        description: `
+          <p>This service offers **fulfillment of various microtasks on SproutGigs**, delivering structured data or completed tasks directly to your Anonymous OfficeX. Ideal for businesses needing rapid completion of repetitive digital tasks, data collection, content moderation, or simple verification processes.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Diverse Task Categories:</strong> Fulfill tasks like data entry, categorization, image tagging, content moderation, surveys, and more.</li>
+            <li><strong>Scalable Workforce:</strong> Leverage a large pool of micro-taskers for high-volume task completion.</li>
+            <li><strong>Quality Assurance:</strong> Implement checks to ensure accuracy and adherence to task instructions.</li>
+            <li><strong>Rapid Turnaround:</strong> Achieve quick completion for time-sensitive projects.</li>
+            <li><strong>Data Delivery to OfficeX:</strong> Receive clean, organized data or results directly in your OfficeX Sheets for further analysis, integration, or reporting.</li>
+          </ul>
+          <p>Streamline your workflows and gather valuable data efficiently by integrating SproutGigs microtask fulfillment into your OfficeX operations.</p>
+        `,
+        price: 0.03,
+        priceUnit: "/task",
+        priceExplanation: "per completed microtask",
+        bookmarks: 120,
+        avgCustomerLifetimeValue: 300,
+        cumulativeSales: 35000,
+        vendors: [
+          {
+            id: "sproutgigs-vendor1",
+            name: "TaskFlow Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TFS",
+            uptimeScore: 98.9,
+            reviewsScore: 4.3,
+            communityLinks: [{ label: "FAQs", url: "#" }],
+            priceLine: "$0.01/task",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
     id: "geeksquad",
     name: "Geek Squad",
     subheading:
@@ -2319,7 +2358,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-geeksquad-service-log-csv",
-        title: "Geek Squad Service History Export (CSV) for OfficeX",
+        title: "Geek Squad Service History Export (CSV)",
         images: [],
         description: `
           <p>This service provides **extraction of your Geek Squad service history and associated details**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses managing multiple devices or tech assets to track repair history, warranty information, service costs, and maintenance schedules directly within their spreadsheets.</p>
@@ -2364,7 +2403,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-turo-rental-data-csv",
-        title: "Turo Rental & Host Data Export (CSV) for OfficeX",
+        title: "Turo Rental & Host Data Export (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public Turo car rental listing data and host performance metrics**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for car owners considering Turo, rental market analysts, or competitors looking to understand rental trends, pricing strategies, and successful host practices.</p>
@@ -2409,8 +2448,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-timeleft-event-data-csv",
-        title:
-          "Timeleft Event & User Interaction Data Export (CSV) for OfficeX",
+        title: "Timeleft Event & User Interaction Data Export (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public event details and aggregated, anonymized user interaction data from Timeleft**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for social researchers, event organizers, or businesses interested in networking trends, social preferences, and group dynamics.</p>
@@ -2455,8 +2493,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-craigslist-listings-csv",
-        title:
-          "Craigslist Classifieds & Listings Data Extraction (CSV) for OfficeX",
+        title: "Craigslist Classifieds & Listings Data Extraction (CSV)",
         images: [],
         description: `
           <p>This service focuses on **extracting public classified advertisements and listings from Craigslist**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for market researchers, resellers, or businesses tracking local demand, pricing trends, and product/service availability in specific geographical areas.</p>
@@ -2485,6 +2522,95 @@ export const appstore_apps: AppInfoWithOffers[] = [
             reviewsScore: 4.1,
             communityLinks: [{ label: "FAQs", url: "#" }],
             priceLine: "$0.05/listing",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "anyone-farm",
+    name: "Anyone Farm",
+    subheading:
+      "A marketplace for acquiring aged social media accounts, including Telegram, Facebook, and others. Specializes in providing accounts with history and established presence.",
+    coverImage: "https://images.unsplash.com/photo-1516259020967-159b3f3a8b4b", // Placeholder for a digital identity/account-related image
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-anyonefarm-aged-social-accounts",
+        title: "Aged Social Media Accounts (Telegram, Facebook, etc.)",
+        images: [],
+        description: `
+          <p>This service provides access to a catalog of **aged social media accounts for various platforms like Telegram, Facebook, and more**, delivered with credentials suitable for integration into your Anonymous OfficeX workflows. These accounts are presented as having a history of activity, which can be desirable for specific digital marketing or engagement strategies.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Diverse Platform Availability:</strong> Access accounts for popular platforms including Telegram, Facebook, Instagram, and potentially others.</li>
+            <li><strong>Account Age & Activity:</strong> Accounts are presented as having varying degrees of age and prior activity to appear more established.</li>
+            <li><strong>Bulk Acquisition:</strong> Options for purchasing single accounts or larger quantities to scale operations.</li>
+            <li><strong>Credential Delivery to OfficeX:</strong> Receive account login details and associated information in structured formats for easy import into OfficeX Sheets.</li>
+          </ul>
+          <p>Utilize these aged accounts for various digital engagement purposes, carefully considering platform terms of service and best practices.</p>
+        `,
+        price: 5.0,
+        priceUnit: "/account",
+        priceExplanation: "per aged social media account",
+        bookmarks: 150,
+        avgCustomerLifetimeValue: 400,
+        cumulativeSales: 50000,
+        vendors: [
+          {
+            id: "anyonefarm-vendor1",
+            name: "Digital Footprint Co.",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=DFC",
+            uptimeScore: 97.2,
+            reviewsScore: 3.8,
+            communityLinks: [{ label: "Usage Guidelines", url: "#" }],
+            priceLine: "$5.00/account",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "ads-tiger",
+    name: "Ads Tiger",
+    subheading:
+      "Provider of agency-level Facebook Ads accounts with high spending limits",
+    coverImage: "https://images.unsplash.com/photo-1516252726392-4d22162a8d1a", // Placeholder for an advertising/marketing-related image
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-adstiger-high-spend-fb-ads",
+        title: "High-Spend Facebook Agency Ads Accounts",
+        images: [],
+        description: `
+          <p>This service offers **agency-level Facebook Ads accounts with significantly higher spending limits and enhanced stability**, delivered for seamless integration into your Anonymous OfficeX advertising management. These accounts are designed for advertisers running large-scale campaigns or those who frequently face spending limits or restrictions with standard ad accounts.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Elevated Spending Limits:</strong> Access accounts pre-configured with high daily or monthly spending capacities.</li>
+            <li><strong>Increased Stability & Trust Score:</strong> Accounts are presented as having a higher trust score within the Facebook advertising ecosystem, potentially reducing ban rates.</li>
+            <li><strong>Direct Business Manager Access:</strong> Accounts are shared with your Facebook Business Manager for full control and integration with your existing assets (pixels, pages, etc.).</li>
+            <li><strong>Dedicated Support:</strong> Access to support for account issues and operational guidance.</li>
+            <li><strong>Scalability for OfficeX Workflows:</strong> Manage and monitor high-volume ad campaigns directly from OfficeX, leveraging the provided account infrastructure.</li>
+          </ul>
+          <p>Optimize your large-scale Facebook advertising efforts and overcome common limitations by utilizing high-spend agency accounts, managed efficiently through your OfficeX ecosystem.</p>
+        `,
+        price: 500.0,
+        priceUnit: "/month",
+        priceExplanation: "monthly fee per high-spend agency ad account",
+        bookmarks: 200,
+        avgCustomerLifetimeValue: 1500,
+        cumulativeSales: 100000,
+        vendors: [
+          {
+            id: "adstiger-vendor1",
+            name: "AdScale Pro",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=ASP",
+            uptimeScore: 99.1,
+            reviewsScore: 4.5,
+            communityLinks: [{ label: "Policy Guidelines", url: "#" }],
+            priceLine: "$500/month",
             viewPageLink: "#",
           },
         ],

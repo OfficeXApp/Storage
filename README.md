@@ -5,6 +5,7 @@ https://drive.officex.app
 To run locally:
 
 ```sh
+$ npm install
 $ npm run dev
 ```
 

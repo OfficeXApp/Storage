@@ -36,6 +36,7 @@ export const fetchDemoGalleryFiles = (
       name: filename,
       parent_folder_uuid: defaultTempCloudSharingDemoGalleryFolderID,
       file_version: 1,
+      version_id: `FileID_demo-${fileSlug}`,
       extension: "jpeg",
       full_directory_path: `${defaultTempCloudSharingDiskID}::/Demo Gallery/${filename}`,
       labels: [],
@@ -128,6 +129,7 @@ export const fetchDemoTutorialFiles = (
     return {
       id: `FileID_tutorial-${fileSlug}`,
       name: filename,
+      version_id: `FileID_tutorial-${fileSlug}`,
       parent_folder_uuid: defaultTempCloudSharingTutorialVideosFolderID,
       file_version: 1,
       extension: "mp4",

@@ -22,7 +22,6 @@ import { CloseOutlined, PlusOutlined, UserOutlined } from "@ant-design/icons";
 import ContactsAddDrawer from "./contact.add";
 import ContactTab from "./contact.tab";
 import ContactsTableList from "./contacts.table";
-import { SAMPLE_CONTACTS } from "./sample";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
 import {

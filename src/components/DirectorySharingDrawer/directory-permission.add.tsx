@@ -49,6 +49,7 @@ import {
   IRequestCreateDirectoryPermission,
   DirectoryPermissionType,
   IRequestUpdateDirectoryPermission,
+  PermissionMetadataTypeEnum,
 } from "@officexapp/types";
 import { GenerateID } from "@officexapp/types";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
@@ -628,7 +629,7 @@ const DirectoryPermissionAddDrawer: React.FC<
       };
       if (passwordForGrantee) {
         const metadata = {
-          metadata_type: "DIRECTORY_PASSWORD",
+          metadata_type: PermissionMetadataTypeEnum.DIRECTORY_PASSWORD,
           content: {
             DirectoryPassword: passwordForGrantee,
           },

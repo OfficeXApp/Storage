@@ -29,7 +29,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   IResponseSearchDrive,
   SearchCategoryEnum,
-  SearchDriveRequestBody,
+  IRequestSearchDrive,
   SearchResult,
   SearchResultResourceID,
   SearchSortByEnum,
@@ -138,7 +138,7 @@ const SearchResultsPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const requestBody: SearchDriveRequestBody = {
+      const requestBody: IRequestSearchDrive = {
         query: query,
         // categories: [SearchCategoryEnum.ALL],
         // page_size: pageSize,
@@ -193,7 +193,7 @@ const SearchResultsPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const requestBody: SearchDriveRequestBody = {
+      const requestBody: IRequestSearchDrive = {
         query: searchQuery,
         // page_size: pageSize,
         // categories: [SearchCategoryEnum.ALL],

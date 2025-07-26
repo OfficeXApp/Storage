@@ -517,6 +517,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       note: record.original.note,
       external_id: record.original.external_id,
       external_payload: record.original.external_payload,
+      // @ts-ignore
       password: record.original.metadata?.content?.DirectoryPassword || "",
       redeem_code: record.original.redeem_code,
     });
@@ -708,7 +709,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
               <a
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    record.original.metadata.content.DirectoryPassword
+                    // @ts-ignore
+                    record.original.metadata?.content?.DirectoryPassword || ""
                   );
                   message.success("Copied password!");
                 }}

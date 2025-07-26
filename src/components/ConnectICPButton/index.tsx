@@ -159,14 +159,13 @@ const ConnectICPButton = () => {
       if (!selectedFactoryEndpoint?.buyLink) {
         // assumes its a free server and thus we can create a gift card ourselves
         const giftcardSpawnOrgResponse = await fetch(
-          `${selectedFactoryEndpoint?.value}/v1/factory/giftcards/spawnorg/upsert`,
+          `${selectedFactoryEndpoint?.value}/v1/factory/giftcards/spawnorg/create`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              action: "CREATE",
               usd_revenue_cents: 0,
               note: `Free User | ${profile.userID}`,
               gas_cycles_included: 3500000000000,

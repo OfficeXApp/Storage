@@ -20,6 +20,10 @@ import {
   Card,
   Statistic,
   Select,
+  Divider,
+  Popover,
+  QRCode,
+  Input,
 } from "antd";
 import {
   FolderOutlined,
@@ -35,6 +39,10 @@ import {
   HomeOutlined,
   UnorderedListOutlined,
   TeamOutlined,
+  AppstoreAddOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import DriveUI from "./components/DriveUI";
 import UploadPanel from "./components/UploadPanel";
@@ -98,6 +106,11 @@ import RedeemDiskGiftCard from "./pages/DisksPage/disk.redeem";
 import SpreadsheetEditor from "./apps/SpreadsheetEditor";
 import DocumentEditor from "./apps/DocumentEditor";
 import SelectAgenticKey from "./components/SelectAgenticKey";
+import AppStorePage from "./components/AppStore";
+import AppPage from "./components/AppPage";
+import TagCopy from "./components/TagCopy";
+import { DriveProvider } from "./framework";
+import JobRunsPage from "./pages/JobRunsPage";
 
 const { Sider, Content } = Layout;
 
@@ -159,6 +172,8 @@ const SideMenu = ({
       setOpenKeys(["organization"]);
     } else if (path.includes("/settings")) {
       setSelectedKeys(["settings"]);
+    } else if (path.includes("/appstore")) {
+      setSelectedKeys(["appstore"]);
     }
   }, [location]);
 
@@ -171,6 +186,17 @@ const SideMenu = ({
   };
 
   const menuItems = [
+    {
+      key: "appstore",
+      icon: <AppstoreAddOutlined />,
+      label: "App Store",
+      onClick: () => {
+        navigate(wrapOrgCode("/appstore"));
+        if (setSidebarVisible) {
+          setSidebarVisible(false);
+        }
+      },
+    },
     {
       key: "navigate-storage",
       label: "Storage",
@@ -359,6 +385,21 @@ const SideMenu = ({
           type: "group",
           children: [
             {
+              key: "apps",
+              label: (
+                <Link
+                  to={wrapOrgCode("/resources/job-runs")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
+                  Job Runs
+                </Link>
+              ),
+            },
+            {
               key: "webhooks",
               label: (
                 <Link
@@ -440,9 +481,10 @@ function ExternalRedirect({ url }: { url: string }) {
 const RouterUI = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const screenType = useScreenType();
-  const { currentOrg } = useIdentitySystem();
-
+  const { currentOrg, wrapOrgCode } = useIdentitySystem();
+  const [showBalance, setShowBalance] = useState(false);
   const [uploadPanelVisible, setUploadPanelVisible] = useState(false);
+  const { currentProfile } = useIdentitySystem();
 
   return (
     <Routes>
@@ -544,6 +586,95 @@ const RouterUI = () => {
                       </section>
                       <SideMenu />
                     </div>
+
+                    {/* Wallet Card Added Here */}
+                    <div style={{ padding: "0 10px 10px 10px" }}>
+                      <Popover
+                        content={
+                          <Space direction="vertical" align="center">
+                            <span>EVM Deposit Address</span>
+                            <QRCode
+                              value={currentProfile?.evmPublicKey || "-"}
+                            />
+                            <Input
+                              placeholder="-"
+                              maxLength={60}
+                              value={currentProfile?.evmPublicKey}
+                              prefix={
+                                <CopyOutlined
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(
+                                      currentProfile?.evmPublicKey || ""
+                                    );
+                                  }}
+                                />
+                              }
+                            />
+                          </Space>
+                        }
+                      >
+                        <Card
+                          bordered={false}
+                          hoverable={true}
+                          style={{
+                            width: "100%",
+                            borderRadius: "8px",
+                            background: "#FFF",
+                          }}
+                        >
+                          <Statistic
+                            title={
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                }}
+                              >
+                                <span>Wallet Balance</span>
+
+                                <div>
+                                  {/* Top Up */}
+                                  <TagCopy
+                                    id={currentProfile?.evmPublicKey || ""}
+                                    style={{ fontSize: "0.65rem" }}
+                                  />
+                                </div>
+                              </div>
+                            }
+                            value={showBalance ? 1280.52 : "******"} // Mask value if not shown
+                            precision={2}
+                            valueStyle={{
+                              color: "rgba(0, 0, 0, 0.6)",
+                              fontSize: "24px",
+                              fontWeight: "bold",
+                            }}
+                            prefix={showBalance ? "$" : ""} // Only show prefix if balance is visible
+                            suffix={
+                              <div
+                                style={{
+                                  padding: "0px 0px 0px 0px",
+                                  marginLeft: "8px",
+                                }}
+                              >
+                                {showBalance ? (
+                                  <EyeInvisibleOutlined
+                                    onClick={() => setShowBalance(!showBalance)}
+                                    size={8}
+                                    style={{ fontSize: "0.9rem" }}
+                                  />
+                                ) : (
+                                  <EyeOutlined
+                                    onClick={() => setShowBalance(!showBalance)}
+                                    size={8}
+                                    style={{ fontSize: "0.9rem" }}
+                                  />
+                                )}
+                              </div>
+                            }
+                          />
+                        </Card>
+                      </Popover>
+                    </div>
                     <OrganizationSwitcher />
                   </div>
                 </Sider>
@@ -571,6 +702,10 @@ const RouterUI = () => {
                           }
                         />
                       }
+                    />
+                    <Route
+                      path="/appstore"
+                      element={<Navigate to="/org/current/appstore" />}
                     />
                     <Route
                       path="/org/:orgcode/drive/*"
@@ -616,6 +751,14 @@ const RouterUI = () => {
                     <Route
                       path="/org/:orgcode/settings"
                       element={<SettingsPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/appstore"
+                      element={<AppStorePage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/appstore/app/:app_id"
+                      element={<AppPage />}
                     />
                     <Route
                       path="/org/:orgcode/welcome"
@@ -750,6 +893,10 @@ const RouterUI = () => {
                     <Route
                       path="/org/:orgcode/resources/api-keys/:apiKeyID"
                       element={<ApiKeyPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/job-runs"
+                      element={<JobRunsPage />}
                     />
 
                     <Route path="*" element={<NotFoundPage />} />

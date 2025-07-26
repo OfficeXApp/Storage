@@ -38,6 +38,7 @@ import { permissionsOptimisticDexieMiddleware } from "./permissions/permissions.
 import { directoryOptimisticDexieMiddleware } from "./directory/directory.optimistic";
 import { wrapAuthStringOrHeader } from "../api/helpers";
 import LoadingAnimation from "../components/NotFound/LoadingAnimation";
+import { jobRunsOptimisticDexieMiddleware } from "./job-runs/job-runs.optimistic";
 
 // Custom discard function
 const discard = (error: any) => {
@@ -292,6 +293,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         apiKeysOptimisticDexieMiddleware(_idset),
         permissionsOptimisticDexieMiddleware(_idset),
         directoryOptimisticDexieMiddleware(_idset),
+        jobRunsOptimisticDexieMiddleware(_idset),
         // This comes after the optimistic middleware
         offlineMiddleware,
       ];

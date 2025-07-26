@@ -148,13 +148,13 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
         // Dispatch the create disk action
         dispatch(createDiskAction(diskData));
 
-        message.success(
+        message.info(
           isOnline
             ? "Creating disk..."
             : "Queued disk creation for when you're back online"
         );
 
-        message.success(`Page will refresh upon successful disk creation...`);
+        message.info(`Page will refresh upon successful disk creation...`);
 
         // Call the parent's onAddDisk for any additional handling
         onAddDisk(diskData);

@@ -31,6 +31,7 @@ import {
   RecentFEO,
 } from "../redux-offline/directory/directory.reducer";
 import { fetchDemoGalleryFiles, fetchDemoTutorialFiles } from "./demo-gallery";
+import { JOB_RUNS_DEXIE_TABLE } from "../redux-offline/job-runs/job-runs.reducer";
 
 /**
  * Singleton class to manage Dexie database connections
@@ -109,6 +110,7 @@ class DexieManager {
       [FOLDERS_DEXIE_TABLE]: "id, parent_folder_uuid, _syncConflict",
       [BREADCRUMBS_TABLE]: "id, resource_id",
       [RECENTS_DEXIE_TABLE]: "id, last_opened",
+      [JOB_RUNS_DEXIE_TABLE]: "id, _syncConflict",
     });
 
     // Set as current and return

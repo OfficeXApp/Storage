@@ -111,7 +111,7 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
         // Dispatch the create group action
         dispatch(createGroupAction(groupData));
 
-        message.success(
+        message.info(
           isOnline
             ? "Creating group..."
             : "Queued group creation for when you're back online"

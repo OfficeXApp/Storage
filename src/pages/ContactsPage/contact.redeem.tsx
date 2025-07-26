@@ -240,7 +240,7 @@ const ContactRedeem = () => {
       const check = await fetch(url2, {
         headers: headers2,
       });
-      const checkData: IResponseWhoAmI = (await check.json()).ok.data;
+      const checkData = ((await check.json()) as IResponseWhoAmI).ok.data;
 
       console.log("checkData", checkData);
 
@@ -312,7 +312,7 @@ const ContactRedeem = () => {
     const check = await fetch(url, {
       headers,
     });
-    const checkData: IResponseWhoAmI = (await check.json()).ok.data;
+    const checkData = ((await check.json()) as IResponseWhoAmI).ok.data;
 
     console.log("checkData", checkData);
 
@@ -380,7 +380,7 @@ const ContactRedeem = () => {
     const check = await fetch(url, {
       headers,
     });
-    const checkData: IResponseWhoAmI = (await check.json()).ok.data;
+    const checkData = ((await check.json()) as IResponseWhoAmI).ok.data;
 
     console.log("checkData", checkData);
 

@@ -416,7 +416,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                       created_at: 0,
                       last_modified_at: 0,
                       labels: [],
-                      metadata: {},
+                      metadata: undefined,
                       permission_previews: permission_previews,
                       lastChecked: Date.now(),
                     });
@@ -665,6 +665,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
                 id: optimisticID,
                 name: fileData.payload.name,
                 extension: fileData.payload.extension || "",
+                version_id: fileData.payload.version_id,
                 parent_folder_uuid: parentFolderId,
                 disk_type: fileData.payload.disk_type || "BrowserCache",
                 file_version: 1,

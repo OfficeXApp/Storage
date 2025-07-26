@@ -28,6 +28,10 @@ import {
   DIRECTORY_REDUX_KEY,
   directoryReducer,
 } from "./directory/directory.reducer";
+import {
+  JOB_RUNS_REDUX_KEY,
+  jobRunsReducer,
+} from "./job-runs/job-runs.reducer";
 
 export const rootReducer = combineReducers({
   [DISKS_REDUX_KEY]: disksReducer,
@@ -41,6 +45,7 @@ export const rootReducer = combineReducers({
   [SYSTEM_PERMISSIONS_REDUX_KEY]: systemPermissionsReducer,
   [DIRECTORY_PERMISSIONS_REDUX_KEY]: directoryPermissionsReducer,
   [DIRECTORY_REDUX_KEY]: directoryReducer,
+  [JOB_RUNS_REDUX_KEY]: jobRunsReducer,
   // Any other reducers would go here
 });
 

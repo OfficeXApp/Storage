@@ -5,7 +5,7 @@ import { appstore_apps } from "./constants";
 import { Link } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
 
 export interface Vendor {
@@ -154,18 +154,28 @@ const AppStore = () => {
           paddingBottom: "64px",
         }}
       >
-        <Title
-          level={1}
-          style={{
-            fontWeight: "bold",
-            textAlign: "center",
-            marginBottom: "32px",
-            color: "#262626",
-          }}
-        >
-          Explore Appstore
-        </Title>
-
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
+          <Title
+            level={1}
+            style={{
+              fontWeight: "bold",
+              marginBottom: "8px",
+              color: "#262626",
+            }}
+          >
+            Explore Appstore
+          </Title>
+          <Text
+            style={{
+              textAlign: "center",
+              width: "100%",
+              fontSize: "1.1rem",
+              fontWeight: "lighter",
+            }}
+          >
+            Agents Mall to install apps & shop vendors
+          </Text>
+        </div>
         <div
           style={{ marginBottom: "32px", maxWidth: "600px", margin: "0 auto" }}
         >

@@ -1,3 +1,5 @@
+// src/pages/JobRunsPage/jobruns.tab.tsx
+
 import React, { useEffect, useState } from "react";
 import {
   Typography,
@@ -24,7 +26,7 @@ import {
   EditOutlined,
   TagOutlined,
   ClockCircleOutlined,
-  DatabaseOutlined,
+  RocketOutlined, // Changed icon
   GlobalOutlined,
   FileTextOutlined,
   CopyOutlined,
@@ -32,15 +34,17 @@ import {
   DownOutlined,
   UpOutlined,
   CodeOutlined,
-  KeyOutlined,
   LoadingOutlined,
   SyncOutlined,
+  UserOutlined, // For Vendor ID
+  DollarOutlined, // For Pricing
+  LinkOutlined, // For URLs
 } from "@ant-design/icons";
 import {
-  IRequestUpdateDisk,
+  IRequestUpdateJobRun,
   SystemPermissionType,
-  DiskID,
-  DiskTypeEnum,
+  JobRunID,
+  JobRunStatus, // Import JobRunStatus
 } from "@officexapp/types";
 import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
@@ -51,31 +55,30 @@ import useScreenType from "react-screentype-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
-  deleteDiskAction,
-  getDiskAction,
-  updateDiskAction,
-} from "../../redux-offline/disks/disks.actions";
-import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
+  deleteJobRunAction,
+  getJobRunAction,
+  updateJobRunAction,
+} from "../../redux-offline/job-runs/job-runs.actions";
+import { JobRunFEO } from "../../redux-offline/job-runs/job-runs.reducer";
 import { useNavigate } from "react-router-dom";
-import {
-  defaultBrowserCacheDiskID,
-  defaultTempCloudSharingDiskID,
-} from "../../api/dexie-database";
 import TagCopy from "../../components/TagCopy";
-import { generateRedeemDiskGiftCardURL } from "./disk.redeem";
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-// Define the props for the DiskTab component
-interface DiskTabProps {
-  diskCache: DiskFEO;
-  onSave?: (updatedDisk: Partial<DiskFEO>) => void;
-  onDelete?: (diskID: DiskID) => void;
+// Define the props for the JobRunTab component
+interface JobRunTabProps {
+  jobRunCache: JobRunFEO;
+  onSave?: (updatedJobRun: Partial<JobRunFEO>) => void;
+  onDelete?: (jobRunID: JobRunID) => void;
 }
 
-const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
+const JobRunTab: React.FC<JobRunTabProps> = ({
+  jobRunCache,
+  onSave,
+  onDelete,
+}) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const [isEditing, setIsEditing] = useState(false);
@@ -84,10 +87,11 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
   const [form] = Form.useForm();
   const screenType = useScreenType();
   const navigate = useNavigate();
-  const [giftLink, setGiftLink] = useState("");
-  const disk =
-    useSelector((state: ReduxAppState) => state.disks.diskMap[diskCache.id]) ||
-    diskCache;
+
+  const jobRun =
+    useSelector(
+      (state: ReduxAppState) => state.jobRuns.jobRunMap[jobRunCache.id]
+    ) || jobRunCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -108,17 +112,26 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
   const handleSave = () => {
     form.validateFields().then((values) => {
       // Determine which fields have changed
-      const changedFields: IRequestUpdateDisk = { id: disk.id as DiskID };
+      const changedFields: IRequestUpdateJobRun = { id: jobRun.id as JobRunID };
 
       // Define the specific fields we care about
-      const fieldsToCheck: (keyof IRequestUpdateDisk)[] = [
-        "name",
-        "public_note",
-        "private_note",
-        "auth_json",
+      const fieldsToCheck: (keyof IRequestUpdateJobRun)[] = [
+        "status",
+        "subtitle",
+        "pricing",
+        "vendor_notes",
+        "about_url",
+        "run_url",
+        "billing_url",
+        "support_url",
+        "delivery_url",
+        "verification_url",
+        "installation_url",
+        "related_resources",
+        "tracer",
+        "labels",
         "external_id",
         "external_payload",
-        "endpoint",
       ];
 
       // Only check the fields we care about
@@ -127,15 +140,27 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
         if (!(field in values)) return;
 
         const valueFromForm = values[field];
-        const originalValue = disk[field as keyof DiskFEO];
+        const originalValue = jobRun[field as keyof JobRunFEO];
 
-        // Only include fields that have changed
-        if (valueFromForm !== originalValue) {
-          // Handle empty strings - don't include them if they're just empty strings replacing undefined/null
-          if (valueFromForm === "" && !originalValue) {
-            return;
+        // Special handling for array fields like labels or related_resources
+        if (Array.isArray(valueFromForm) && Array.isArray(originalValue)) {
+          // Check if arrays are different (order-independent)
+          if (
+            JSON.stringify([...valueFromForm].sort()) !==
+            JSON.stringify([...originalValue].sort())
+          ) {
+            changedFields[field] = valueFromForm as any;
           }
-
+        }
+        // Handle empty strings - don't include them if they're just empty strings replacing undefined/null
+        else if (
+          valueFromForm === "" &&
+          (originalValue === undefined || originalValue === null)
+        ) {
+          return;
+        }
+        // Only include fields that have changed for non-array types
+        else if (valueFromForm !== originalValue) {
           changedFields[field] = valueFromForm;
         }
       });
@@ -145,15 +170,15 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
         // More than just the ID
         // Dispatch the update action if we're online
         dispatch(
-          updateDiskAction({
+          updateJobRunAction({
             ...changedFields,
           })
         );
 
-        message.info(
+        message.success(
           isOnline
-            ? "Updating disk..."
-            : "Queued disk update for when you're back online"
+            ? "Updating job run..."
+            : "Queued job run update for when you're back online"
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -173,6 +198,9 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
       year: "numeric",
       month: "long",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
     });
   };
 
@@ -183,10 +211,13 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
   const renderReadOnlyField = (
     label: string,
-    value: string,
+    value: string | undefined | null,
     icon: React.ReactNode,
-    navigationRoute?: string
+    navigationRoute?: string,
+    isPassword?: boolean
   ) => {
+    if (!value) return null; // Don't render if value is null or undefined
+
     const handleClick = (e: React.MouseEvent) => {
       if (navigationRoute) {
         if (e.ctrlKey || e.metaKey) {
@@ -202,43 +233,11 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
         copyToClipboard(value);
       }
     };
-    if (label === "Auth JSON") {
-      return (
-        <Input.Password
-          readOnly
-          onClick={handleClick}
-          value={value}
-          style={{
-            marginBottom: 8,
-            backgroundColor: "#fafafa",
-            cursor: "pointer",
-          }}
-          variant="borderless"
-          addonBefore={
-            <div
-              style={{
-                width: screenType.isMobile ? 120 : 90,
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              {icon}
-              <span style={{ marginLeft: 8 }}>{label}</span>
-            </div>
-          }
-          suffix={
-            <Tooltip title="Copy to clipboard">
-              <CopyOutlined
-                onClick={() => copyToClipboard(value)}
-                style={{ cursor: "pointer", color: "#1890ff" }}
-              />
-            </Tooltip>
-          }
-        />
-      );
-    }
+
+    const InputComponent = isPassword ? Input.Password : Input;
+
     return (
-      <Input
+      <InputComponent
         readOnly
         onClick={handleClick}
         value={value}
@@ -251,7 +250,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
         addonBefore={
           <div
             style={{
-              width: screenType.isMobile ? 120 : 90,
+              width: screenType.isMobile ? 120 : 120, // Adjusted width
               display: "flex",
               alignItems: "center",
             }}
@@ -272,42 +271,38 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
     );
   };
 
-  const getDiskTypeLabel = (type: DiskTypeEnum) => {
-    switch (type) {
-      case DiskTypeEnum.LocalSSD:
-        return "Physical SSD";
-      case DiskTypeEnum.AwsBucket:
-        return "Amazon Bucket";
-      case DiskTypeEnum.StorjWeb3:
-        return "StorjWeb3 Bucket";
-      case DiskTypeEnum.BrowserCache:
-        return "Offline Browser";
-      case DiskTypeEnum.IcpCanister:
-        return "ICP Canister";
-      default:
-        return "Unknown";
-    }
-  };
-
-  if (!disk) return null;
+  if (!jobRun) return null;
 
   const initialValues = {
-    name: disk.name,
-    disk_type: disk.disk_type,
-    auth_json: disk.auth_json || "",
-    public_note: disk.public_note || "",
-    private_note: disk.private_note || "",
-    external_id: disk.external_id || "",
-    external_payload: disk.external_payload || "",
-    endpoint: disk.endpoint || "",
+    title: jobRun.title,
+    subtitle: jobRun.subtitle || "",
+    description: jobRun.description || "",
+    vendor_name: jobRun.vendor_name,
+    vendor_id: jobRun.vendor_id,
+    status: jobRun.status,
+    pricing: jobRun.pricing || "",
+    vendor_notes: jobRun.vendor_notes || "",
+    notes: jobRun.notes || "",
+    about_url: jobRun.about_url || "",
+    run_url: jobRun.run_url || "",
+    billing_url: jobRun.billing_url || "",
+    support_url: jobRun.support_url || "",
+    delivery_url: jobRun.delivery_url || "",
+    verification_url: jobRun.verification_url || "",
+    installation_url: jobRun.installation_url || "",
+    related_resources: jobRun.related_resources || [],
+    tracer: jobRun.tracer || "",
+    labels: jobRun.labels || [],
+    external_id: jobRun.external_id || "",
+    external_payload: jobRun.external_payload || "",
   };
 
   const renderCodeSnippets = () => {
-    const jsCode_GET = `function getDisk(id) {\n  return fetch(\`/disks/get/\${id}\`, {\n    method: 'GET',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n  }).then(response => response.json());\n}`;
-    const jsCode_CREATE = `function createDisk(diskData) {\n  return fetch('/disks/create', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(diskData),\n  }).then(response => response.json());\n}`;
-    const jsCode_UPDATE = `function updateDisk(diskData) {\n  return fetch('/disks/update', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(diskData),\n  }).then(response => response.json());\n}`;
-    const jsCode_DELETE = `function deleteDisk(id) {\n  return fetch('/disks/delete', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify({ id }),\n  }).then(response => response.json());\n}`;
-    const jsCode_LIST = `function listDisks(params) {\n  return fetch('/disks/list', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(params),\n  }).then(response => response.json());\n}`;
+    const jsCode_GET = `function getJobRun(id) {\n  return fetch(\`/job-runs/get/\${id}\`, {\n    method: 'GET',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n  }).then(response => response.json());\n}`;
+    const jsCode_CREATE = `function createJobRun(jobRunData) {\n  return fetch('/job-runs/create', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(jobRunData),\n  }).then(response => response.json());\n}`;
+    const jsCode_UPDATE = `function updateJobRun(jobRunData) {\n  return fetch('/job-runs/update', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(jobRunData),\n  }).then(response => response.json());\n}`;
+    const jsCode_DELETE = `function deleteJobRun(id) {\n  return fetch('/job-runs/delete', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify({ id }),\n  }).then(response => response.json());\n}`;
+    const jsCode_LIST = `function listJobRuns(params) {\n  return fetch('/job-runs/list', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(params),\n  }).then(response => response.json());\n}`;
 
     return (
       <Card
@@ -324,27 +319,27 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
               <CodeBlock
                 code={jsCode_GET}
                 language="javascript"
-                title="GET Disk"
+                title="GET Job Run"
               />
               <CodeBlock
                 code={jsCode_CREATE}
                 language="javascript"
-                title="CREATE Disk"
+                title="CREATE Job Run"
               />
               <CodeBlock
                 code={jsCode_UPDATE}
                 language="javascript"
-                title="UPDATE Disk"
+                title="UPDATE Job Run"
               />
               <CodeBlock
                 code={jsCode_DELETE}
                 language="javascript"
-                title="DELETE Disk"
+                title="DELETE Job Run"
               />
               <CodeBlock
                 code={jsCode_LIST}
                 language="javascript"
-                title="LIST Disks"
+                title="LIST Job Runs"
               />
             </Space>
           </Tabs.TabPane>
@@ -357,30 +352,28 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
   };
 
   const syncLatest = () => {
-    dispatch(getDiskAction(disk.id));
+    dispatch(getJobRunAction(jobRun.id));
   };
 
-  const generateGiftLink = async () => {
-    try {
-      // Construct the gift card parameters from form values
-      const giftParams = {
-        name: `Gift - ${disk.name}`,
-        disk_type: disk.disk_type,
-        public_note: disk.public_note || "",
-        auth_json: disk.auth_json || "",
-        endpoint: disk.endpoint || "",
-      };
-
-      // Generate the URL
-      const url = generateRedeemDiskGiftCardURL(giftParams);
-
-      // Copy to clipboard
-      await navigator.clipboard.writeText(url);
-      message.success(`Gift link copied to clipboard!`);
-      setGiftLink(url);
-    } catch (error) {
-      console.error("Error generating gift link:", error);
-      message.error("Please fill in at least the name and disk type fields");
+  // Function to get appropriate tag color for JobRunStatus
+  const getStatusTagColor = (status: JobRunStatus) => {
+    switch (status) {
+      case JobRunStatus.COMPLETED:
+        return "success";
+      case JobRunStatus.RUNNING:
+        return "processing";
+      case JobRunStatus.FAILED:
+        return "error";
+      case JobRunStatus.CANCELED:
+      case JobRunStatus.REFUNDED:
+        return "default";
+      case JobRunStatus.REQUESTED:
+      case JobRunStatus.AWAITING:
+        return "warning";
+      case JobRunStatus.BLOCKED:
+        return "red";
+      default:
+        return "default";
     }
   };
 
@@ -428,7 +421,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                   size={screenType.isMobile ? "small" : "middle"}
                   ghost
                   disabled={
-                    !disk.permission_previews.includes(
+                    !jobRun.permission_previews.includes(
                       SystemPermissionType.EDIT
                     )
                   }
@@ -449,133 +442,174 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
           >
             {isEditing ? (
               <Form form={form} layout="vertical" initialValues={initialValues}>
-                <Form.Item
-                  name="name"
-                  label="Name"
-                  rules={[{ required: true, message: "Please enter name" }]}
-                >
+                <Form.Item name="title" label="Title">
                   <Input
-                    placeholder="Disk name"
+                    placeholder="Job Run Title"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-
-                <Form.Item
-                  name="disk_type"
-                  label="Disk Type"
-                  rules={[
-                    { required: true, message: "Please select disk type" },
-                  ]}
-                >
+                <Form.Item name="subtitle" label="Subtitle">
+                  <Input
+                    placeholder="Job Run Subtitle"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="description" label="Description">
+                  <TextArea
+                    rows={4}
+                    placeholder="Detailed description of the job run"
+                    variant="borderless"
+                  />
+                </Form.Item>
+                <Form.Item name="status" label="Status">
                   <Select
-                    disabled
+                    placeholder="Select Status"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   >
-                    <Option value={DiskTypeEnum.BrowserCache}>
-                      Offline Browser
-                    </Option>
-                    <Option value={DiskTypeEnum.AwsBucket}>Amazon S3</Option>
-                    <Option value={DiskTypeEnum.LocalSSD}>Physical SSD</Option>
-                    <Option value={DiskTypeEnum.AwsBucket}>
-                      Amazon Bucket
-                    </Option>
-                    <Option value={DiskTypeEnum.StorjWeb3}>
-                      StorjWeb3 Bucket
-                    </Option>
+                    {Object.values(JobRunStatus).map((status) => (
+                      <Option key={status} value={status}>
+                        {status}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
-
-                <Form.Item name="public_note" label="Public Note">
-                  <TextArea
-                    rows={6}
-                    placeholder="Public information about this disk"
+                <Form.Item name="pricing" label="Pricing">
+                  <Input
+                    placeholder="Pricing information"
+                    prefix={<DollarOutlined />}
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-
-                {disk.permission_previews.includes(
-                  SystemPermissionType.EDIT
-                ) && (
-                  <>
-                    <Form.Item name="endpoint" label="Endpoint URL">
-                      <Input
-                        prefix={<GlobalOutlined />}
-                        placeholder="URL for disk billing and info"
-                        variant="borderless"
-                        style={{ backgroundColor: "#fafafa" }}
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      name="private_note"
-                      label="Private Note"
-                      extra="Only organization owners and editors can view this note"
-                    >
-                      <TextArea
-                        rows={6}
-                        placeholder="Private notes (only visible to owners and editors)"
-                        variant="borderless"
-                        style={{ backgroundColor: "#fafafa" }}
-                      />
-                    </Form.Item>
-
-                    {disk.disk_type !== DiskTypeEnum.BrowserCache && (
-                      <Form.Item
-                        name="auth_json"
-                        label="Authentication JSON"
-                        extra="Authentication information for cloud storage"
-                      >
-                        <TextArea
-                          rows={4}
-                          placeholder='{"key": "value", ...}'
-                          variant="borderless"
-                          style={{ backgroundColor: "#fafafa" }}
-                        />
-                      </Form.Item>
-                    )}
-
-                    <Form.Item name="external_id" label="External ID">
-                      <Input
-                        placeholder="External identifier"
-                        variant="borderless"
-                        style={{ backgroundColor: "#fafafa" }}
-                      />
-                    </Form.Item>
-
-                    <Form.Item name="external_payload" label="External Payload">
-                      <TextArea
-                        rows={2}
-                        placeholder="Additional data for external systems"
-                        variant="borderless"
-                        style={{ backgroundColor: "#fafafa" }}
-                      />
-                    </Form.Item>
-                  </>
-                )}
-
+                <Form.Item name="vendor_notes" label="Vendor Notes">
+                  <TextArea
+                    rows={3}
+                    placeholder="Notes from the vendor"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="about_url" label="About URL">
+                  <Input
+                    prefix={<LinkOutlined />}
+                    placeholder="URL for more info about this job"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="run_url" label="Run URL">
+                  <Input
+                    prefix={<LinkOutlined />}
+                    placeholder="URL to run or access the job"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="billing_url" label="Billing URL">
+                  <Input
+                    prefix={<LinkOutlined />}
+                    placeholder="URL for billing details"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="support_url" label="Support URL">
+                  <Input
+                    prefix={<LinkOutlined />}
+                    placeholder="URL for support"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="delivery_url" label="Delivery URL">
+                  <Input
+                    prefix={<LinkOutlined />}
+                    placeholder="URL for delivery status/info"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="verification_url" label="Verification URL">
+                  <Input
+                    prefix={<LinkOutlined />}
+                    placeholder="URL for verification"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="installation_url" label="Installation URL">
+                  <Input
+                    prefix={<LinkOutlined />}
+                    placeholder="URL to install the job script"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="related_resources"
+                  label="Related Resources (IDs)"
+                >
+                  <Select
+                    mode="tags"
+                    placeholder="Add related resource IDs"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="labels" label="Labels">
+                  <Select
+                    mode="tags"
+                    placeholder="Add labels"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="tracer" label="Tracer">
+                  <Input
+                    placeholder="Tracer string"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="external_id" label="External ID">
+                  <Input
+                    placeholder="External identifier"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
+                <Form.Item name="external_payload" label="External Payload">
+                  <TextArea
+                    rows={2}
+                    placeholder="Additional data for external systems"
+                    variant="borderless"
+                    style={{ backgroundColor: "#fafafa" }}
+                  />
+                </Form.Item>
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this disk?"
+                    title="Are you sure you want to delete this job run?"
                     okText="Yes"
                     cancelText="No"
                     onConfirm={() => {
-                      dispatch(deleteDiskAction({ id: disk.id }));
-                      message.info(
+                      dispatch(deleteJobRunAction({ id: jobRun.id }));
+                      message.success(
                         isOnline
-                          ? "Deleting disk..."
-                          : "Queued disk delete for when you're back online"
+                          ? "Deleting job run..."
+                          : "Queued job run delete for when you're back online"
                       );
                       if (onDelete) {
-                        onDelete(disk.id);
+                        onDelete(jobRun.id);
                       }
                     }}
                   >
                     <Button
                       disabled={
-                        !disk.permission_previews.includes(
+                        !jobRun.permission_previews.includes(
                           SystemPermissionType.DELETE
                         )
                       }
@@ -583,7 +617,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                       type="primary"
                       danger
                     >
-                      Delete Disk
+                      Delete Job Run
                     </Button>
                   </Popconfirm>
                 </Form.Item>
@@ -614,7 +648,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                             fontSize: "28px",
                           }}
                         >
-                          <DatabaseOutlined />
+                          <RocketOutlined />
                         </div>
                         <div
                           style={{
@@ -636,16 +670,14 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                               level={3}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {disk.name}
+                              {jobRun.title}
                             </Title>
-                            {disk.id === defaultBrowserCacheDiskID ||
-                            disk.id === defaultTempCloudSharingDiskID ? (
-                              <Tag color="blue">Temp</Tag>
-                            ) : (
-                              <TagCopy id={disk.id} />
-                            )}
+                            <TagCopy id={jobRun.id} />
+                            <Tag color={getStatusTagColor(jobRun.status)}>
+                              {jobRun.status}
+                            </Tag>
                             <div style={{ marginTop: "0px" }}>
-                              {disk.isLoading ? (
+                              {jobRun.isLoading ? (
                                 <span>
                                   <LoadingOutlined />
                                   <i
@@ -670,7 +702,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                           </div>
                           <Space>
                             <Text type="secondary">
-                              {getDiskTypeLabel(disk.disk_type)}
+                              {jobRun.subtitle || "No subtitle"}
                             </Text>
                           </Space>
                         </div>
@@ -681,8 +713,6 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
                 <Row gutter={[16, 16]}>
                   <Col span={24}>
-                    {/* Always displayed fields */}
-
                     {!screenType.isMobile && (
                       <div
                         style={{
@@ -692,8 +722,8 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {disk.labels &&
-                          disk.labels.map((label, index) => (
+                        {jobRun.labels &&
+                          jobRun.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
@@ -709,18 +739,18 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : disk.labels && disk.labels.length > 0
+                          : jobRun.labels && jobRun.labels.length > 0
                             ? 0
                             : 32,
                       }}
                     >
                       <Card size="small" style={{ marginTop: 8 }}>
-                        <GlobalOutlined style={{ marginRight: 8 }} />
-                        {disk.public_note || "No public note available"}
+                        <InfoCircleOutlined style={{ marginRight: 8 }} />
+                        {jobRun.description || "No description available"}
                       </Card>
                     </div>
 
-                    {screenType.isMobile && disk.labels && (
+                    {screenType.isMobile && jobRun.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -729,7 +759,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                           flexWrap: "wrap",
                         }}
                       >
-                        {disk.labels.map((label, index) => (
+                        {jobRun.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
@@ -767,113 +797,99 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Disk ID",
-                          disk.id,
-                          <DatabaseOutlined />
+                          "Vendor Name",
+                          jobRun.vendor_name,
+                          <UserOutlined />
                         )}
-
-                        {disk.auth_json &&
-                          disk.permission_previews.includes(
-                            SystemPermissionType.EDIT
-                          ) &&
+                        {renderReadOnlyField(
+                          "Vendor ID",
+                          jobRun.vendor_id,
+                          <UserOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "Status",
+                          jobRun.status,
+                          <Tag color={getStatusTagColor(jobRun.status)} />
+                        )}
+                        {renderReadOnlyField(
+                          "Pricing",
+                          jobRun.pricing,
+                          <DollarOutlined />
+                        )}
+                        {jobRun.permission_previews.includes(
+                          SystemPermissionType.EDIT
+                        ) &&
                           renderReadOnlyField(
-                            "Auth JSON",
-                            disk.auth_json,
-                            <KeyOutlined />
+                            "Vendor Notes",
+                            jobRun.vendor_notes,
+                            <FileTextOutlined />
                           )}
-
-                        {disk.endpoint &&
-                          renderReadOnlyField(
-                            "Billing",
-                            disk.endpoint,
-                            <GlobalOutlined />
-                          )}
-
-                        {disk.private_note &&
-                          disk.permission_previews.includes(
-                            SystemPermissionType.EDIT
-                          ) && (
-                            <div style={{ marginTop: "16px" }}>
-                              <Space align="center">
-                                <Text strong>Private Note:</Text>
-                                <Popover
-                                  content="Only organization owners and editors can view this note"
-                                  trigger="hover"
-                                >
-                                  <InfoCircleOutlined
-                                    style={{ color: "#1890ff" }}
-                                  />
-                                </Popover>
-                              </Space>
-                              <Card
-                                size="small"
-                                style={{
-                                  marginTop: 8,
-                                  backgroundColor: "#fafafa",
-                                }}
-                              >
-                                <FileTextOutlined style={{ marginRight: 8 }} />
-                                {disk.private_note}
-                              </Card>
-                            </div>
-                          )}
-
-                        {disk.auth_json &&
-                          disk.permission_previews.includes(
-                            SystemPermissionType.EDIT
-                          ) && (
-                            <Input
-                              value={giftLink}
-                              readOnly
-                              suffix={
-                                <span
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(giftLink);
-                                    message.success("Copied to clipboard");
-                                  }}
-                                  style={{ cursor: "pointer" }}
-                                >
-                                  <CopyOutlined
-                                    style={{
-                                      cursor: "pointer",
-                                      margin: "0px 8px",
-                                    }}
-                                  />
-                                  Copy
-                                </span>
-                              }
-                              prefix={
-                                <Button
-                                  size="small"
-                                  type="dashed"
-                                  onClick={generateGiftLink}
-                                >
-                                  Share Gift Link
-                                </Button>
-                              }
-                              style={{ marginTop: 8, marginBottom: 8 }}
-                            />
-                          )}
-
+                        {renderReadOnlyField(
+                          "About URL",
+                          jobRun.about_url,
+                          <LinkOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "Run URL",
+                          jobRun.run_url,
+                          <LinkOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "Billing URL",
+                          jobRun.billing_url,
+                          <LinkOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "Support URL",
+                          jobRun.support_url,
+                          <LinkOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "Delivery URL",
+                          jobRun.delivery_url,
+                          <LinkOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "Verification URL",
+                          jobRun.verification_url,
+                          <LinkOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "Installation URL",
+                          jobRun.installation_url,
+                          <LinkOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "Tracer",
+                          jobRun.tracer,
+                          <FileTextOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "External ID",
+                          jobRun.external_id,
+                          <FileTextOutlined />
+                        )}
+                        {renderReadOnlyField(
+                          "External Payload",
+                          jobRun.external_payload,
+                          <FileTextOutlined />
+                        )}
                         <div style={{ marginTop: "16px" }}>
                           <Space align="center">
                             <ClockCircleOutlined />
                             <Text type="secondary">
-                              Created on {formatDate(disk.created_at)}
+                              Created on {formatDate(jobRun.created_at)}
                             </Text>
                           </Space>
-                          {disk.external_id && (
+                          {jobRun.updated_at && (
                             <div style={{ marginTop: 8 }}>
-                              <Text type="secondary">
-                                External ID: {disk.external_id}
-                              </Text>
-                            </div>
-                          )}
-                          {disk.external_payload && (
-                            <div style={{ marginTop: 8 }}>
-                              <Text type="secondary">
-                                External Payload: {disk.external_payload}
-                              </Text>
+                              <Space align="center">
+                                <ClockCircleOutlined />
+                                <Text type="secondary">
+                                  Last updated on{" "}
+                                  {formatDate(jobRun.updated_at)}
+                                </Text>
+                              </Space>
                             </div>
                           )}
                         </div>
@@ -914,4 +930,4 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
   );
 };
 
-export default DiskTab;
+export default JobRunTab;

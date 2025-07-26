@@ -5,14 +5,14 @@ export const appstore_apps: AppInfoWithOffers[] = [
   {
     id: "19",
     name: "Amazon Cloud",
-    subheading: "Cloud storage and computing services. Global Scale.",
+    subheading: "Add storage to OfficeX with giftcards for $1 per 100GB/month",
     coverImage:
       "https://cdn2.interfaz.io/wp-content/uploads/2023/06/Blog_AWS_cover-1.png",
     isFeatured: Math.random() > 0.5,
     offers: [
       {
         id: "offer1-aws-s3-ai-csv-export",
-        title: "AI-Powered CSV Data Export & Cloud Storage",
+        title: "100GB Storage Giftcard",
         images: [], // Will be populated with app.coverImage at runtime
         description: `
           <p>Seamlessly integrate your OfficeX documents and spreadsheets with AWS S3 for secure, scalable cloud storage. This offer enhances your workflow by enabling **AI-powered analysis and export of your data into CSV format**, directly from your cloud-stored documents. Whether you need to dump data for machine learning, generate reports, or integrate with other systems, this service automates the process of extracting structured data from your office files.</p>
@@ -26,7 +26,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
           </ul>
           <p>Streamline your data workflows by converting raw document data into actionable CSV datasets, ready for advanced analytics or database integration.</p>
         `,
-        price: 0.035, // Slightly higher for AI features
+        price: 0.01, // Slightly higher for AI features
         priceUnit: "/GB",
         priceExplanation: "per month for storage and processing",
         bookmarks: 180,
@@ -88,15 +88,14 @@ export const appstore_apps: AppInfoWithOffers[] = [
   {
     id: "17",
     name: "The Pirate Bay",
-    subheading: "Browse and download torrents.\nAccess a vast content library.",
+    subheading: "Upload to your storage. Delegate torrenting to cloud vendors",
     coverImage:
       "https://www.prsformusic.com/-/media/images/mmagazine/images/2017/08/piratebayresize.ashx?h=358&w=637&la=en&hash=0C7EFCAF4BED538A4A2E8A0D855333CD",
     isFeatured: true,
     offers: [
       {
         id: "offer-piratebay-data-scraping",
-        title:
-          "Web Scraping & Data Extraction from Public Repositories (CSV Export)",
+        title: "Delegate Torrent Download",
         images: [],
         description: `
           <p>This offer provides a specialized service for **web scraping data from public torrent indices and other open-source repositories**, transforming raw information into structured **CSV dumps** suitable for analysis within Anonymous OfficeX. While respecting legal and ethical guidelines, this service can help researchers or data analysts gather publicly available metadata, content descriptions, or other information for large-scale data projects.</p>
@@ -111,8 +110,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
           <p>Unlock insights from vast public datasets by converting unstructured web content into usable CSV formats for your analytical needs.</p>
         `,
         price: 0.05, // Per record for specialized scraping
-        priceUnit: "/record",
-        priceExplanation: "per data record extracted and formatted",
+        priceUnit: "/GB",
+        priceExplanation: "per GB of data downloaded",
         bookmarks: 350,
         avgCustomerLifetimeValue: 100,
         cumulativeSales: 35000,
@@ -134,7 +133,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
   {
     id: "30",
     name: "Gemini AI",
-    subheading: "Google AI for knowledge discovery.\nFind answers quickly.",
+    subheading:
+      "Enable AI features on OfficeX with API giftcards starting at $1/month",
     coverImage:
       "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/final_keyword_header.width-1200.format-webp.webp",
     isFeatured: Math.random() > 0.7,
@@ -179,8 +179,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   {
     id: "31",
     name: "Gnosis Multi-Sig",
-    subheading:
-      "Secure multi-signature wallet.\nManage your crypto assets safely.",
+    subheading: "Secure your workspace with multiple admin voting rights",
     coverImage:
       "https://cdn.prod.website-files.com/67ed326db9d26b1dc1df7929/68017edea825224b44cfb0c7_6653f8d50a4daf8c4066b928_Gnosis%2520Safe%2520Explained.webp",
     isFeatured: Math.random() > 0.7,
@@ -217,6 +216,414 @@ export const appstore_apps: AppInfoWithOffers[] = [
             reviewsScore: 4.8,
             communityLinks: [{ label: "Consultation", url: "#" }],
             priceLine: "$750 (setup)",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "16",
+    name: "YouTube Downloader",
+    subheading: "Bulk download entire channels and playlists to your storage.",
+    coverImage:
+      "https://static1.anpoimages.com/wordpress/wp-content/uploads/2022/09/youtube-ap-hero-2.jpg",
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-youtubedl-bulk-archive",
+        title: "Bulk YouTube Content Archiving to OfficeX Cloud Storage",
+        images: [],
+        description: `
+          <p>This offer provides a service for **bulk downloading and archiving YouTube video and audio content** directly into your Anonymous OfficeX cloud storage. Ideal for researchers, content creators, or businesses needing to retain large volumes of public YouTube data (e.g., competitor analysis, public sentiment, trend analysis) in a structured and accessible format. We can provide accompanying metadata in **CSV format**.</p>
+          <p>Features include:</p>
+          <ul>
+            <li><strong>Bulk Video/Audio Downloads:</strong> Download entire YouTube channels, playlists, or specific video lists.</li>
+            <li><strong>OfficeX Cloud Integration:</strong> Directly save downloaded content to your designated OfficeX cloud storage folders.</li>
+            <li><strong>Metadata CSV Export:</strong> Receive a CSV file with video titles, descriptions, upload dates, views, and other relevant data.</li>
+            <li><strong>Custom Quality & Format:</strong> Specify desired video quality (up to 4K) and audio formats (MP3, WAV).</li>
+            <li><strong>Automated Archiving:</strong> Set up recurring downloads for continuously updated content.</li>
+          </ul>
+          <p>Build a comprehensive archive of YouTube content within your OfficeX ecosystem for research, analysis, or internal use. Ensure compliance with YouTube's terms of service and copyright laws.</p>
+        `,
+        price: 10,
+        priceUnit: "/GB",
+        priceExplanation: "per GB of downloaded and stored content",
+        bookmarks: 250,
+        avgCustomerLifetimeValue: 50,
+        cumulativeSales: 12500,
+        vendors: [
+          {
+            id: "youtubedl-vendor1",
+            name: "Video Archiving Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=VAS",
+            uptimeScore: 99.6,
+            reviewsScore: 4.3,
+            communityLinks: [{ label: "FAQ", url: "#" }],
+            priceLine: "$10/GB",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "tiktok",
+    name: "Buy TikTok Accounts",
+    subheading: "Scale social marketing with warmed healthy accounts",
+    coverImage: "https://img-c.udemycdn.com/course/750x422/4890032_95a9_2.jpg",
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-tiktok-analytics-csv",
+        title: "Bulk Download TikTok Videos",
+        images: [],
+        description: `
+          <p>This service allows you to **extract detailed analytics and trend data from TikTok**, delivering it as structured **CSV files** for analysis within your Anonymous OfficeX environment. Gain insights into video performance, hashtag trends, audience demographics, and popular sounds to inform your content strategy or market research.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Video Performance Data:</strong> Export metrics like views, likes, shares, comments, and watch time for your TikTok content.</li>
+            <li><strong>Hashtag & Trend Analysis:</strong> Get CSVs on trending hashtags, popular sounds, and viral challenges.</li>
+            <li><strong>Audience Demographics:</strong> Access aggregated audience data to understand your viewers better.</li>
+            <li><strong>Competitor Analysis:</strong> Monitor and export data from public competitor profiles.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs ready for import into OfficeX Sheets for reporting and analysis.</li>
+          </ul>
+          <p>Leverage TikTok's vast dataset to drive your marketing decisions, all within your OfficeX suite.</p>
+        `,
+        price: 1,
+        priceUnit: "/channel",
+        priceExplanation:
+          "monthly subscription for data extraction and reporting",
+        bookmarks: 90,
+        avgCustomerLifetimeValue: 800,
+        cumulativeSales: 72000,
+        vendors: [
+          {
+            id: "tiktok-vendor1",
+            name: "Social Data Insights",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=SDI",
+            uptimeScore: 99.7,
+            reviewsScore: 4.5,
+            communityLinks: [{ label: "Case Studies", url: "#" }],
+            priceLine: "$250/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "exa-ai",
+    name: "Exa AI Search",
+    subheading: "Hyper-relevant lead prospecting using AI search & compilation",
+    coverImage: "https://pbs.twimg.com/media/GwkR4Q6bUAAJKUR?format=png",
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-exa-ai-web-data-csv",
+        title: "Exa AI Web Data Extraction & CSV Export",
+        images: [], // Will be populated with app.coverImage at runtime
+        description: `
+          <p>Integrate **exa.ai's advanced AI-powered search capabilities** with your Anonymous OfficeX environment to perform highly targeted web data extraction and receive results as structured **CSV files**. This service leverages exa.ai's ability to find and understand hyper-relevant information across the web, making it ideal for market research, competitive analysis, trend identification, and gathering specific data points for your OfficeX spreadsheets.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>AI-Powered Targeted Search:</strong> Utilize exa.ai to conduct deep, semantic searches across the web for specific information.</li>
+            <li><strong>Automated Data Extraction:</strong> Automatically pull relevant text, numbers, links, and other data points from search results.</li>
+            <li><strong>Structured CSV Output:</strong> Receive clean, organized CSV files tailored for easy import and analysis in OfficeX Sheets.</li>
+            <li><strong>Customizable Search Queries:</strong> Define precise search parameters and criteria to get the exact data you need.</li>
+            <li><strong>Scheduled Data Pulls:</strong> Set up recurring data extraction tasks to keep your datasets updated.</li>
+          </ul>
+          <p>Enhance your data intelligence by transforming the vastness of the web into actionable, structured CSV data, seamlessly integrated with your OfficeX suite.</p>
+        `,
+        price: 0.02,
+        priceUnit: "/query",
+        priceExplanation: "per AI-powered search query with data extraction",
+        bookmarks: 80,
+        avgCustomerLifetimeValue: 300,
+        cumulativeSales: 24000,
+        vendors: [
+          {
+            id: "exa-ai-vendor1",
+            name: "AI Search Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=ASS",
+            uptimeScore: 99.9,
+            reviewsScore: 4.7,
+            communityLinks: [{ label: "API Docs", url: "#" }],
+            priceLine: "$0.02/query",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "sproutgigs",
+    name: "SproutGigs",
+    subheading:
+      "Earn money by completing micro-jobs like social media engagement.",
+    coverImage:
+      "https://prabumulihpos.bacakoran.co/upload/02dbaa6f8e781dc7585fb835dccf2abb.jpg", // Placeholder for a microtask-related image
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-sproutgigs-microtask-fulfillment",
+        title: "Human Microtasks",
+        images: [],
+        description: `
+          <p>This service offers **fulfillment of various microtasks on SproutGigs**, delivering structured data or completed tasks directly to your Anonymous OfficeX. Ideal for businesses needing rapid completion of repetitive digital tasks, data collection, content moderation, or simple verification processes.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Diverse Task Categories:</strong> Fulfill tasks like data entry, categorization, image tagging, content moderation, surveys, and more.</li>
+            <li><strong>Scalable Workforce:</strong> Leverage a large pool of micro-taskers for high-volume task completion.</li>
+            <li><strong>Quality Assurance:</strong> Implement checks to ensure accuracy and adherence to task instructions.</li>
+            <li><strong>Rapid Turnaround:</strong> Achieve quick completion for time-sensitive projects.</li>
+            <li><strong>Data Delivery to OfficeX:</strong> Receive clean, organized data or results directly in your OfficeX Sheets for further analysis, integration, or reporting.</li>
+          </ul>
+          <p>Streamline your workflows and gather valuable data efficiently by integrating SproutGigs microtask fulfillment into your OfficeX operations.</p>
+        `,
+        price: 0.03,
+        priceUnit: "/task",
+        priceExplanation: "per completed microtask",
+        bookmarks: 120,
+        avgCustomerLifetimeValue: 300,
+        cumulativeSales: 35000,
+        vendors: [
+          {
+            id: "sproutgigs-vendor1",
+            name: "TaskFlow Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TFS",
+            uptimeScore: 98.9,
+            reviewsScore: 4.3,
+            communityLinks: [{ label: "FAQs", url: "#" }],
+            priceLine: "$0.01/task",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "facebook-marketplace",
+    name: "Facebook Marketplace",
+    subheading: "Pay someone to post more for you. Posting as a service.",
+    coverImage: "https://juphy.com/wp-content/uploads/2023/05/image-51.png",
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-fb-marketplace-listings-csv",
+        title: "Facebook Marketplace Listing Data Extraction (CSV Export)",
+        images: [],
+        description: `
+          <p>This service enables **extraction of public listing data from Facebook Marketplace**, providing it to your Anonymous OfficeX as structured **CSV files**. Ideal for market researchers, resellers, or businesses looking to analyze product trends, pricing strategies, or inventory availability within local or specific regions.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Targeted Listing Search:</strong> Extract data based on keywords, categories, price range, and location.</li>
+            <li><strong>Detailed Listing Data:</strong> Capture product title, description, price, seller information, and condition.</li>
+            <li><strong>Image URL Export:</strong> Include URLs to listing images for visual analysis.</li>
+            <li><strong>Trend & Pricing Analysis:</strong> Use extracted data to identify pricing trends and popular items.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for detailed analysis.</li>
+          </ul>
+          <p>Gain a competitive edge by leveraging real-time marketplace data, formatted for easy use in your OfficeX spreadsheets.</p>
+        `,
+        price: 0.1,
+        priceUnit: "/listing",
+        priceExplanation: "per extracted listing record",
+        bookmarks: 85,
+        avgCustomerLifetimeValue: 200,
+        cumulativeSales: 17000,
+        vendors: [
+          {
+            id: "fb-marketplace-vendor1",
+            name: "E-commerce Data Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=ECDS",
+            uptimeScore: 99.4,
+            reviewsScore: 4.2,
+            communityLinks: [{ label: "Client Portal", url: "#" }],
+            priceLine: "$0.10/listing",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "linkedin",
+    name: "LinkedIn Delegation",
+    subheading: "Rent professional accounts to scale outreach & connections",
+    coverImage:
+      "https://www.codeur.com/blog/wp-content/uploads/2024/02/linkedin-top-voices-1-740x416.jpg",
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-linkedin-lead-gen-csv",
+        title: "Rent LinkedIn Accounts",
+        images: [],
+        description: `
+          <p>This service focuses on **extracting targeted lead and company data from LinkedIn** for your Anonymous OfficeX, delivered as organized **CSV files**. Ideal for sales teams, recruiters, and market researchers looking to build prospect lists, analyze industry trends, or gather competitive intelligence from the world's largest professional network.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Targeted Lead Extraction:</strong> Identify and extract professional profiles based on industry, role, location, and seniority.</li>
+            <li><strong>Company Data Enrichment:</strong> Gather public company information including size, industry, location, and key employees.</li>
+            <li><strong>Job Posting Data:</strong> Extract data from job postings for talent market analysis.</li>
+            <li><strong>Network Mapping:</strong> Visualize connections and influence within specific professional networks (optional add-on).</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, structured CSVs ready for CRM import or analysis in OfficeX Sheets.</li>
+          </ul>
+          <p>Supercharge your outreach and market research efforts with precisely targeted LinkedIn data, seamlessly integrated into your OfficeX platform.</p>
+        `,
+        price: 30,
+        priceUnit: "/month",
+        priceExplanation: "per verified professional",
+        bookmarks: 140,
+        avgCustomerLifetimeValue: 600,
+        cumulativeSales: 84000,
+        vendors: [
+          {
+            id: "linkedin-vendor1",
+            name: "Professional Data Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=PDS",
+            uptimeScore: 99.8,
+            reviewsScore: 4.7,
+            communityLinks: [{ label: "Success Stories", url: "#" }],
+            priceLine: "$0.20/lead",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "uma-protocol",
+    name: "UMA Protocol",
+    subheading: "Verify marketplace purchases with decentralized oracles.",
+    coverImage:
+      "https://public.bnbstatic.com/static/academy/uploads-original/fc76576af82644fca04b60a46ad9dd39.png", // Placeholder image, replace with a UMA-specific one if available
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-uma-transaction-verification",
+        title: "Marketplace Transaction Verification",
+        images: [],
+        description: `
+          <p>Leverage the **UMA Protocol's Optimistic Oracle** for robust and decentralized verification of marketplace transactions within your Anonymous OfficeX ecosystem. This service provides a crowd-sourced mechanism to ensure the accuracy and integrity of transaction data, minimizing disputes and building trust.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Optimistic Verification:</strong> Transactions are optimistically assumed correct, with a challenge period for disputes.</li>
+            <li><strong>Decentralized Dispute Resolution:</strong> UMA token holders vote to resolve disputed assertions, ensuring unbiased outcomes.</li>
+            <li><strong>Cost-Efficient:</strong> Verifications are only escalated to the full dispute mechanism when challenged, saving on gas fees.</li>
+            <li><strong>Enhanced Trust:</strong> Provides a transparent and verifiable layer of security for your marketplace transactions.</li>
+            <li><strong>Integration with OfficeX:</strong> Receive verification statuses and dispute outcomes directly within your OfficeX applications.</li>
+          </ul>
+          <p>Build a more secure and trustworthy marketplace with UMA Protocol's decentralized verification capabilities.</p>
+        `,
+        price: 2,
+        priceUnit: "/verification",
+        priceExplanation: "per crowd verification via Optimistic Oracle",
+        bookmarks: Math.floor(Math.random() * 100) + 20, // Random bookmarks for a new app
+        avgCustomerLifetimeValue: Math.floor(Math.random() * 500) + 100, // Random CLV
+        cumulativeSales: Math.floor(Math.random() * 50000) + 5000, // Random cumulative sales
+        vendors: [
+          {
+            id: "uma-vendor1",
+            name: "VeriTrust Solutions",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=VTS",
+            uptimeScore: 99.9,
+            reviewsScore: 4.8,
+            communityLinks: [
+              { label: "UMA Docs", url: "https://docs.uma.xyz/" },
+            ],
+            priceLine: "$2/verification",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "tiktok",
+    name: "TikTok Downloader",
+    subheading:
+      "Short-form video platform.\nCreate and discover viral content.",
+    coverImage: "https://img-c.udemycdn.com/course/750x422/4890032_95a9_2.jpg",
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-tiktok-analytics-csv",
+        title: "Bulk Download TikTok Videos",
+        images: [],
+        description: `
+          <p>This service allows you to **extract detailed analytics and trend data from TikTok**, delivering it as structured **CSV files** for analysis within your Anonymous OfficeX environment. Gain insights into video performance, hashtag trends, audience demographics, and popular sounds to inform your content strategy or market research.</p>
+          <p>Key features:</p>
+          <ul>
+            <li><strong>Video Performance Data:</strong> Export metrics like views, likes, shares, comments, and watch time for your TikTok content.</li>
+            <li><strong>Hashtag & Trend Analysis:</strong> Get CSVs on trending hashtags, popular sounds, and viral challenges.</li>
+            <li><strong>Audience Demographics:</strong> Access aggregated audience data to understand your viewers better.</li>
+            <li><strong>Competitor Analysis:</strong> Monitor and export data from public competitor profiles.</li>
+            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs ready for import into OfficeX Sheets for reporting and analysis.</li>
+          </ul>
+          <p>Leverage TikTok's vast dataset to drive your marketing decisions, all within your OfficeX suite.</p>
+        `,
+        price: 1,
+        priceUnit: "/channel",
+        priceExplanation:
+          "monthly subscription for data extraction and reporting",
+        bookmarks: 90,
+        avgCustomerLifetimeValue: 800,
+        cumulativeSales: 72000,
+        vendors: [
+          {
+            id: "tiktok-vendor1",
+            name: "Social Data Insights",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=SDI",
+            uptimeScore: 99.7,
+            reviewsScore: 4.5,
+            communityLinks: [{ label: "Case Studies", url: "#" }],
+            priceLine: "$250/month",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "13",
+    name: "Spreadsheets",
+    subheading: "Powerful tool for data organization and analysis. CSV dumps",
+    coverImage:
+      "https://static1.howtogeekimages.com/wordpress/wp-content/uploads/2024/08/an-excel-spreadsheet-displaying-a-heat-map-with-the-excel-logo-in-front-of-it.jpg",
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-spreadsheet-ai-csv-workflows",
+        title:
+          "AI-Driven Workflows for CSV Uploads in Anonymous OfficeX Sheets",
+        images: [],
+        description: `
+          <p>This offer provides advanced services to build **AI-driven workflows directly within Anonymous OfficeX Spreadsheets**, specifically designed for handling CSV data uploads. Automate tasks like data cleaning, categorization, enrichment via web scraping, or even trigger AI models for predictive analysis immediately after a CSV is uploaded to your cloud storage or imported into a sheet.</p>
+          <p>Services include:</p>
+          <ul>
+            <li><strong>Automated CSV Data Cleaning:</strong> AI identifies and corrects inconsistencies, duplicates, or missing values upon upload.</li>
+            <li><strong>Data Enrichment (Web Scraping):</strong> Automatically pull additional data from the web based on CSV content (e.g., company details from names).</li>
+            <li><strong>AI Categorization & Tagging:</strong> Use AI to classify data points within your CSVs for better organization.</li>
+            <li><strong>Custom Macro/Script Development:</strong> Build powerful automation scripts (e.g., Google Apps Script, VBA for compatibility) to react to CSV changes.</li>
+            <li><strong>Dashboard Integration:</strong> Update interactive dashboards automatically with newly uploaded CSV data.</li>
+          </ul>
+          <p>Transform your spreadsheets into intelligent, automated data processing hubs for all your CSV-based workflows.</p>
+        `,
+        price: 400, // Higher for AI/automation integration
+        priceUnit: "/workflow",
+        priceExplanation: "starting price for custom AI-powered CSV workflows",
+        bookmarks: 150,
+        avgCustomerLifetimeValue: 1200,
+        cumulativeSales: 180000,
+        vendors: [
+          {
+            id: "spreadsheet-vendor1",
+            name: "Data Flow Gurus",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=DFG",
+            uptimeScore: 99.7,
+            reviewsScore: 4.6,
+            communityLinks: [{ label: "Samples", url: "#" }],
+            priceLine: "From $400",
             viewPageLink: "#",
           },
         ],
@@ -318,53 +725,6 @@ export const appstore_apps: AppInfoWithOffers[] = [
     ],
   },
   {
-    id: "13",
-    name: "Spreadsheets",
-    subheading:
-      "Powerful tool for data organization and analysis.\nCreate and manage tables.",
-    coverImage:
-      "https://static1.howtogeekimages.com/wordpress/wp-content/uploads/2024/08/an-excel-spreadsheet-displaying-a-heat-map-with-the-excel-logo-in-front-of-it.jpg",
-    isFeatured: Math.random() > 0.5,
-    offers: [
-      {
-        id: "offer-spreadsheet-ai-csv-workflows",
-        title:
-          "AI-Driven Workflows for CSV Uploads in Anonymous OfficeX Sheets",
-        images: [],
-        description: `
-          <p>This offer provides advanced services to build **AI-driven workflows directly within Anonymous OfficeX Spreadsheets**, specifically designed for handling CSV data uploads. Automate tasks like data cleaning, categorization, enrichment via web scraping, or even trigger AI models for predictive analysis immediately after a CSV is uploaded to your cloud storage or imported into a sheet.</p>
-          <p>Services include:</p>
-          <ul>
-            <li><strong>Automated CSV Data Cleaning:</strong> AI identifies and corrects inconsistencies, duplicates, or missing values upon upload.</li>
-            <li><strong>Data Enrichment (Web Scraping):</strong> Automatically pull additional data from the web based on CSV content (e.g., company details from names).</li>
-            <li><strong>AI Categorization & Tagging:</strong> Use AI to classify data points within your CSVs for better organization.</li>
-            <li><strong>Custom Macro/Script Development:</strong> Build powerful automation scripts (e.g., Google Apps Script, VBA for compatibility) to react to CSV changes.</li>
-            <li><strong>Dashboard Integration:</strong> Update interactive dashboards automatically with newly uploaded CSV data.</li>
-          </ul>
-          <p>Transform your spreadsheets into intelligent, automated data processing hubs for all your CSV-based workflows.</p>
-        `,
-        price: 400, // Higher for AI/automation integration
-        priceUnit: "/workflow",
-        priceExplanation: "starting price for custom AI-powered CSV workflows",
-        bookmarks: 150,
-        avgCustomerLifetimeValue: 1200,
-        cumulativeSales: 180000,
-        vendors: [
-          {
-            id: "spreadsheet-vendor1",
-            name: "Data Flow Gurus",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=DFG",
-            uptimeScore: 99.7,
-            reviewsScore: 4.6,
-            communityLinks: [{ label: "Samples", url: "#" }],
-            priceLine: "From $400",
-            viewPageLink: "#",
-          },
-        ],
-      },
-    ],
-  },
-  {
     id: "3",
     name: "n8n",
     subheading:
@@ -404,52 +764,6 @@ export const appstore_apps: AppInfoWithOffers[] = [
             reviewsScore: 4.8,
             communityLinks: [{ label: "Case Studies", url: "#" }],
             priceLine: "From $600",
-            viewPageLink: "#",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "16",
-    name: "YouTube Downloader",
-    subheading:
-      "Watch and share videos from around the world.\nEntertain and learn.",
-    coverImage:
-      "https://static1.anpoimages.com/wordpress/wp-content/uploads/2022/09/youtube-ap-hero-2.jpg",
-    isFeatured: Math.random() > 0.5,
-    offers: [
-      {
-        id: "offer-youtubedl-bulk-archive",
-        title: "Bulk YouTube Content Archiving to OfficeX Cloud Storage",
-        images: [],
-        description: `
-          <p>This offer provides a service for **bulk downloading and archiving YouTube video and audio content** directly into your Anonymous OfficeX cloud storage. Ideal for researchers, content creators, or businesses needing to retain large volumes of public YouTube data (e.g., competitor analysis, public sentiment, trend analysis) in a structured and accessible format. We can provide accompanying metadata in **CSV format**.</p>
-          <p>Features include:</p>
-          <ul>
-            <li><strong>Bulk Video/Audio Downloads:</strong> Download entire YouTube channels, playlists, or specific video lists.</li>
-            <li><strong>OfficeX Cloud Integration:</strong> Directly save downloaded content to your designated OfficeX cloud storage folders.</li>
-            <li><strong>Metadata CSV Export:</strong> Receive a CSV file with video titles, descriptions, upload dates, views, and other relevant data.</li>
-            <li><strong>Custom Quality & Format:</strong> Specify desired video quality (up to 4K) and audio formats (MP3, WAV).</li>
-            <li><strong>Automated Archiving:</strong> Set up recurring downloads for continuously updated content.</li>
-          </ul>
-          <p>Build a comprehensive archive of YouTube content within your OfficeX ecosystem for research, analysis, or internal use. Ensure compliance with YouTube's terms of service and copyright laws.</p>
-        `,
-        price: 10,
-        priceUnit: "/GB",
-        priceExplanation: "per GB of downloaded and stored content",
-        bookmarks: 250,
-        avgCustomerLifetimeValue: 50,
-        cumulativeSales: 12500,
-        vendors: [
-          {
-            id: "youtubedl-vendor1",
-            name: "Video Archiving Solutions",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=VAS",
-            uptimeScore: 99.6,
-            reviewsScore: 4.3,
-            communityLinks: [{ label: "FAQ", url: "#" }],
-            priceLine: "$10/GB",
             viewPageLink: "#",
           },
         ],
@@ -503,51 +817,6 @@ export const appstore_apps: AppInfoWithOffers[] = [
     ],
   },
   {
-    id: "4",
-    name: "ChatGPT",
-    subheading: "AI-powered conversational assistant.\nGet instant answers.",
-    coverImage:
-      "https://www.designmantic.com/blog/wp-content/uploads/2023/04/ChatGPT-1280x720.jpg",
-    isFeatured: Math.random() > 0.5,
-    offers: [
-      {
-        id: "offer-chatgpt-csv-prompting",
-        title: "ChatGPT for CSV-Driven Document Generation & AI Actions",
-        images: [], // Will be populated with app.coverImage at runtime
-        description: `
-          <p>Integrate ChatGPT's advanced AI capabilities with your Anonymous OfficeX workflows to enable **document generation and AI actions driven by CSV data uploads**. This service allows you to use content from your spreadsheets as prompts for ChatGPT, generating reports, drafting emails, summarizing data, or performing complex text-based tasks directly within your cloud office environment. Upload a CSV, and let AI generate structured documents or perform bulk text operations.</p>
-          <p>Benefits include:</p>
-          <ul>
-            <li><strong>CSV-to-Document Automation:</strong> Generate reports, contracts, or personalized emails by feeding data from OfficeX CSVs to ChatGPT.</li>
-            <li><strong>Bulk Content Generation:</strong> Create multiple variations of text content based on rows in a spreadsheet (e.g., product descriptions, marketing copy).</li>
-            <li><strong>AI-Powered Data Summarization:</strong> Summarize large textual datasets within your CSVs into concise reports or overviews.</li>
-            <li><strong>Semantic Search & Q&A:</strong> Use natural language to query your CSV data, leveraging ChatGPT's understanding.</li>
-            <li><strong>Content Refinement & Editing:</strong> Leverage AI to improve grammar, style, or tone of documents generated from data.</li>
-          </ul>
-          <p>Transform your OfficeX CSV data into dynamic, AI-generated text and documents, enhancing productivity and content creation.</p>
-        `,
-        price: 30, // Higher for integrated AI services
-        priceUnit: "/month",
-        priceExplanation: "flat rate for API access and integrated workflows",
-        bookmarks: 400,
-        avgCustomerLifetimeValue: 360,
-        cumulativeSales: 144000,
-        vendors: [
-          {
-            id: "chat-vendor1",
-            name: "AI Solutions Direct",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=ASD",
-            uptimeScore: 99.8,
-            reviewsScore: 4.6,
-            communityLinks: [{ label: "FAQ", url: "#" }],
-            priceLine: "$30/month",
-            viewPageLink: "#",
-          },
-        ],
-      },
-    ],
-  },
-  {
     id: "1",
     name: "Dmail",
     subheading:
@@ -593,96 +862,6 @@ export const appstore_apps: AppInfoWithOffers[] = [
     ],
   },
   {
-    id: "exa-ai",
-    name: "Exa AI Search",
-    subheading: "AI-powered search engine.\nFind hyper-relevant results.",
-    coverImage: "https://pbs.twimg.com/media/GwkR4Q6bUAAJKUR?format=png",
-    isFeatured: Math.random() > 0.5,
-    offers: [
-      {
-        id: "offer-exa-ai-web-data-csv",
-        title: "Exa AI Web Data Extraction & CSV Export",
-        images: [], // Will be populated with app.coverImage at runtime
-        description: `
-          <p>Integrate **exa.ai's advanced AI-powered search capabilities** with your Anonymous OfficeX environment to perform highly targeted web data extraction and receive results as structured **CSV files**. This service leverages exa.ai's ability to find and understand hyper-relevant information across the web, making it ideal for market research, competitive analysis, trend identification, and gathering specific data points for your OfficeX spreadsheets.</p>
-          <p>Key features:</p>
-          <ul>
-            <li><strong>AI-Powered Targeted Search:</strong> Utilize exa.ai to conduct deep, semantic searches across the web for specific information.</li>
-            <li><strong>Automated Data Extraction:</strong> Automatically pull relevant text, numbers, links, and other data points from search results.</li>
-            <li><strong>Structured CSV Output:</strong> Receive clean, organized CSV files tailored for easy import and analysis in OfficeX Sheets.</li>
-            <li><strong>Customizable Search Queries:</strong> Define precise search parameters and criteria to get the exact data you need.</li>
-            <li><strong>Scheduled Data Pulls:</strong> Set up recurring data extraction tasks to keep your datasets updated.</li>
-          </ul>
-          <p>Enhance your data intelligence by transforming the vastness of the web into actionable, structured CSV data, seamlessly integrated with your OfficeX suite.</p>
-        `,
-        price: 0.02,
-        priceUnit: "/query",
-        priceExplanation: "per AI-powered search query with data extraction",
-        bookmarks: 80,
-        avgCustomerLifetimeValue: 300,
-        cumulativeSales: 24000,
-        vendors: [
-          {
-            id: "exa-ai-vendor1",
-            name: "AI Search Solutions",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=ASS",
-            uptimeScore: 99.9,
-            reviewsScore: 4.7,
-            communityLinks: [{ label: "API Docs", url: "#" }],
-            priceLine: "$0.02/query",
-            viewPageLink: "#",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "tiktok",
-    name: "TikTok",
-    subheading:
-      "Short-form video platform.\nCreate and discover viral content.",
-    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b",
-    isFeatured: Math.random() > 0.5,
-    offers: [
-      {
-        id: "offer-tiktok-analytics-csv",
-        title: "TikTok Analytics & Trend Data Export to OfficeX (CSV)",
-        images: [],
-        description: `
-          <p>This service allows you to **extract detailed analytics and trend data from TikTok**, delivering it as structured **CSV files** for analysis within your Anonymous OfficeX environment. Gain insights into video performance, hashtag trends, audience demographics, and popular sounds to inform your content strategy or market research.</p>
-          <p>Key features:</p>
-          <ul>
-            <li><strong>Video Performance Data:</strong> Export metrics like views, likes, shares, comments, and watch time for your TikTok content.</li>
-            <li><strong>Hashtag & Trend Analysis:</strong> Get CSVs on trending hashtags, popular sounds, and viral challenges.</li>
-            <li><strong>Audience Demographics:</strong> Access aggregated audience data to understand your viewers better.</li>
-            <li><strong>Competitor Analysis:</strong> Monitor and export data from public competitor profiles.</li>
-            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs ready for import into OfficeX Sheets for reporting and analysis.</li>
-          </ul>
-          <p>Leverage TikTok's vast dataset to drive your marketing decisions, all within your OfficeX suite.</p>
-        `,
-        price: 250,
-        priceUnit: "/month",
-        priceExplanation:
-          "monthly subscription for data extraction and reporting",
-        bookmarks: 90,
-        avgCustomerLifetimeValue: 800,
-        cumulativeSales: 72000,
-        vendors: [
-          {
-            id: "tiktok-vendor1",
-            name: "Social Data Insights",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=SDI",
-            uptimeScore: 99.7,
-            reviewsScore: 4.5,
-            communityLinks: [{ label: "Case Studies", url: "#" }],
-            priceLine: "$250/month",
-            viewPageLink: "#",
-          },
-        ],
-      },
-    ],
-  },
-  {
     id: "instagram",
     name: "Instagram",
     subheading: "Photo and video sharing social network.\nConnect visually.",
@@ -720,6 +899,52 @@ export const appstore_apps: AppInfoWithOffers[] = [
             reviewsScore: 4.4,
             communityLinks: [{ label: "Blog", url: "#" }],
             priceLine: "$0.08/record",
+            viewPageLink: "#",
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    id: "4",
+    name: "ChatGPT",
+    subheading: "AI-powered conversational assistant.\nGet instant answers.",
+    coverImage:
+      "https://www.designmantic.com/blog/wp-content/uploads/2023/04/ChatGPT-1280x720.jpg",
+    isFeatured: Math.random() > 0.5,
+    offers: [
+      {
+        id: "offer-chatgpt-csv-prompting",
+        title: "ChatGPT for CSV-Driven Document Generation & AI Actions",
+        images: [], // Will be populated with app.coverImage at runtime
+        description: `
+          <p>Integrate ChatGPT's advanced AI capabilities with your Anonymous OfficeX workflows to enable **document generation and AI actions driven by CSV data uploads**. This service allows you to use content from your spreadsheets as prompts for ChatGPT, generating reports, drafting emails, summarizing data, or performing complex text-based tasks directly within your cloud office environment. Upload a CSV, and let AI generate structured documents or perform bulk text operations.</p>
+          <p>Benefits include:</p>
+          <ul>
+            <li><strong>CSV-to-Document Automation:</strong> Generate reports, contracts, or personalized emails by feeding data from OfficeX CSVs to ChatGPT.</li>
+            <li><strong>Bulk Content Generation:</strong> Create multiple variations of text content based on rows in a spreadsheet (e.g., product descriptions, marketing copy).</li>
+            <li><strong>AI-Powered Data Summarization:</strong> Summarize large textual datasets within your CSVs into concise reports or overviews.</li>
+            <li><strong>Semantic Search & Q&A:</strong> Use natural language to query your CSV data, leveraging ChatGPT's understanding.</li>
+            <li><strong>Content Refinement & Editing:</strong> Leverage AI to improve grammar, style, or tone of documents generated from data.</li>
+          </ul>
+          <p>Transform your OfficeX CSV data into dynamic, AI-generated text and documents, enhancing productivity and content creation.</p>
+        `,
+        price: 30, // Higher for integrated AI services
+        priceUnit: "/month",
+        priceExplanation: "flat rate for API access and integrated workflows",
+        bookmarks: 400,
+        avgCustomerLifetimeValue: 360,
+        cumulativeSales: 144000,
+        vendors: [
+          {
+            id: "chat-vendor1",
+            name: "AI Solutions Direct",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=ASD",
+            uptimeScore: 99.8,
+            reviewsScore: 4.6,
+            communityLinks: [{ label: "FAQ", url: "#" }],
+            priceLine: "$30/month",
             viewPageLink: "#",
           },
         ],
@@ -811,95 +1036,6 @@ export const appstore_apps: AppInfoWithOffers[] = [
             reviewsScore: 4.3,
             communityLinks: [{ label: "API Docs", url: "#" }],
             priceLine: "$300/month",
-            viewPageLink: "#",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "facebook-marketplace",
-    name: "Facebook Marketplace",
-    subheading: "Local buying and selling platform.\nDiscover deals nearby.",
-    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b",
-    isFeatured: Math.random() > 0.5,
-    offers: [
-      {
-        id: "offer-fb-marketplace-listings-csv",
-        title: "Facebook Marketplace Listing Data Extraction (CSV Export)",
-        images: [],
-        description: `
-          <p>This service enables **extraction of public listing data from Facebook Marketplace**, providing it to your Anonymous OfficeX as structured **CSV files**. Ideal for market researchers, resellers, or businesses looking to analyze product trends, pricing strategies, or inventory availability within local or specific regions.</p>
-          <p>Key features:</p>
-          <ul>
-            <li><strong>Targeted Listing Search:</strong> Extract data based on keywords, categories, price range, and location.</li>
-            <li><strong>Detailed Listing Data:</strong> Capture product title, description, price, seller information, and condition.</li>
-            <li><strong>Image URL Export:</strong> Include URLs to listing images for visual analysis.</li>
-            <li><strong>Trend & Pricing Analysis:</strong> Use extracted data to identify pricing trends and popular items.</li>
-            <li><strong>CSV Export for OfficeX:</strong> Receive clean, organized CSVs for import into OfficeX Sheets for detailed analysis.</li>
-          </ul>
-          <p>Gain a competitive edge by leveraging real-time marketplace data, formatted for easy use in your OfficeX spreadsheets.</p>
-        `,
-        price: 0.1,
-        priceUnit: "/listing",
-        priceExplanation: "per extracted listing record",
-        bookmarks: 85,
-        avgCustomerLifetimeValue: 200,
-        cumulativeSales: 17000,
-        vendors: [
-          {
-            id: "fb-marketplace-vendor1",
-            name: "E-commerce Data Solutions",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=ECDS",
-            uptimeScore: 99.4,
-            reviewsScore: 4.2,
-            communityLinks: [{ label: "Client Portal", url: "#" }],
-            priceLine: "$0.10/listing",
-            viewPageLink: "#",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "linkedin",
-    name: "LinkedIn",
-    subheading:
-      "Professional networking and career development.\nConnect with peers.",
-    coverImage: "https://images.unsplash.com/photo-1611605697294-84ad1f2b6e1b",
-    isFeatured: Math.random() > 0.5,
-    offers: [
-      {
-        id: "offer-linkedin-lead-gen-csv",
-        title: "LinkedIn Lead Generation & Company Data Export (CSV)",
-        images: [],
-        description: `
-          <p>This service focuses on **extracting targeted lead and company data from LinkedIn** for your Anonymous OfficeX, delivered as organized **CSV files**. Ideal for sales teams, recruiters, and market researchers looking to build prospect lists, analyze industry trends, or gather competitive intelligence from the world's largest professional network.</p>
-          <p>Key features:</p>
-          <ul>
-            <li><strong>Targeted Lead Extraction:</strong> Identify and extract professional profiles based on industry, role, location, and seniority.</li>
-            <li><strong>Company Data Enrichment:</strong> Gather public company information including size, industry, location, and key employees.</li>
-            <li><strong>Job Posting Data:</strong> Extract data from job postings for talent market analysis.</li>
-            <li><strong>Network Mapping:</strong> Visualize connections and influence within specific professional networks (optional add-on).</li>
-            <li><strong>CSV Export for OfficeX:</strong> Receive clean, structured CSVs ready for CRM import or analysis in OfficeX Sheets.</li>
-          </ul>
-          <p>Supercharge your outreach and market research efforts with precisely targeted LinkedIn data, seamlessly integrated into your OfficeX platform.</p>
-        `,
-        price: 0.2,
-        priceUnit: "/lead",
-        priceExplanation: "per verified professional or company lead record",
-        bookmarks: 140,
-        avgCustomerLifetimeValue: 600,
-        cumulativeSales: 84000,
-        vendors: [
-          {
-            id: "linkedin-vendor1",
-            name: "Professional Data Solutions",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=PDS",
-            uptimeScore: 99.8,
-            reviewsScore: 4.7,
-            communityLinks: [{ label: "Success Stories", url: "#" }],
-            priceLine: "$0.20/lead",
             viewPageLink: "#",
           },
         ],
@@ -2302,52 +2438,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
       },
     ],
   },
-  {
-    id: "sproutgigs",
-    name: "SproutGigs",
-    subheading:
-      "Earn money by completing micro-jobs like social media engagement.",
-    coverImage:
-      "https://prabumulihpos.bacakoran.co/upload/02dbaa6f8e781dc7585fb835dccf2abb.jpg", // Placeholder for a microtask-related image
-    isFeatured: Math.random() > 0.5,
-    offers: [
-      {
-        id: "offer-sproutgigs-microtask-fulfillment",
-        title: "Human Microtasks",
-        images: [],
-        description: `
-          <p>This service offers **fulfillment of various microtasks on SproutGigs**, delivering structured data or completed tasks directly to your Anonymous OfficeX. Ideal for businesses needing rapid completion of repetitive digital tasks, data collection, content moderation, or simple verification processes.</p>
-          <p>Key features:</p>
-          <ul>
-            <li><strong>Diverse Task Categories:</strong> Fulfill tasks like data entry, categorization, image tagging, content moderation, surveys, and more.</li>
-            <li><strong>Scalable Workforce:</strong> Leverage a large pool of micro-taskers for high-volume task completion.</li>
-            <li><strong>Quality Assurance:</strong> Implement checks to ensure accuracy and adherence to task instructions.</li>
-            <li><strong>Rapid Turnaround:</strong> Achieve quick completion for time-sensitive projects.</li>
-            <li><strong>Data Delivery to OfficeX:</strong> Receive clean, organized data or results directly in your OfficeX Sheets for further analysis, integration, or reporting.</li>
-          </ul>
-          <p>Streamline your workflows and gather valuable data efficiently by integrating SproutGigs microtask fulfillment into your OfficeX operations.</p>
-        `,
-        price: 0.03,
-        priceUnit: "/task",
-        priceExplanation: "per completed microtask",
-        bookmarks: 120,
-        avgCustomerLifetimeValue: 300,
-        cumulativeSales: 35000,
-        vendors: [
-          {
-            id: "sproutgigs-vendor1",
-            name: "TaskFlow Solutions",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TFS",
-            uptimeScore: 98.9,
-            reviewsScore: 4.3,
-            communityLinks: [{ label: "FAQs", url: "#" }],
-            priceLine: "$0.01/task",
-            viewPageLink: "#",
-          },
-        ],
-      },
-    ],
-  },
+
   {
     id: "geeksquad",
     name: "Geek Squad",

@@ -362,7 +362,7 @@ const AppPage = () => {
                               icon={<CaretRightOutlined />}
                               onClick={showDrawer} // Add onClick to open Drawer
                             >
-                              Run App
+                              Run Job
                             </Button>
                           </Space>
                         </Col>
@@ -471,7 +471,7 @@ const AppPage = () => {
                                         rel="noopener noreferrer"
                                         icon={<CaretRightOutlined />}
                                       >
-                                        Run App
+                                        Run Job
                                       </Button>
                                     </Col>
                                   </Row>
@@ -542,7 +542,7 @@ const AppPage = () => {
 
       {/* The Ant Design Drawer Component */}
       <Drawer
-        title="Run App"
+        title="Run Job"
         placement="right"
         closable={true} // Only closeable by x
         onClose={onCloseDrawer}

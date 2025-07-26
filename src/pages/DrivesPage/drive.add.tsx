@@ -198,7 +198,7 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
         // Dispatch the create drive action
         dispatch(createDriveAction(driveData));
 
-        message.success(
+        message.info(
           isOnline
             ? "Creating drive..."
             : "Queued drive creation for when you're back online"

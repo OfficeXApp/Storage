@@ -110,6 +110,7 @@ import AppStorePage from "./components/AppStore";
 import AppPage from "./components/AppPage";
 import TagCopy from "./components/TagCopy";
 import { DriveProvider } from "./framework";
+import JobRunsPage from "./pages/JobRunsPage";
 
 const { Sider, Content } = Layout;
 
@@ -383,6 +384,21 @@ const SideMenu = ({
           label: "Developers",
           type: "group",
           children: [
+            {
+              key: "apps",
+              label: (
+                <Link
+                  to={wrapOrgCode("/resources/job-runs")}
+                  onClick={() => {
+                    if (setSidebarVisible) {
+                      setSidebarVisible(false);
+                    }
+                  }}
+                >
+                  Job Runs
+                </Link>
+              ),
+            },
             {
               key: "webhooks",
               label: (
@@ -877,6 +893,10 @@ const RouterUI = () => {
                     <Route
                       path="/org/:orgcode/resources/api-keys/:apiKeyID"
                       element={<ApiKeyPage />}
+                    />
+                    <Route
+                      path="/org/:orgcode/resources/job-runs"
+                      element={<JobRunsPage />}
                     />
 
                     <Route path="*" element={<NotFoundPage />} />

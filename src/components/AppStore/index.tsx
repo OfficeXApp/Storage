@@ -4,101 +4,18 @@ import { SearchOutlined } from "@ant-design/icons";
 import { appstore_apps } from "./constants";
 import { Link } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
-import { DiskTypeEnum, IDPrefixEnum } from "@officexapp/types";
+import {
+  AppInfoWithOffers,
+  DiskTypeEnum,
+  IDPrefixEnum,
+} from "@officexapp/types";
+import { Helmet } from "react-helmet";
 
 const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
 
-export interface VendorOffer {
-  id: string;
-  name: string;
-  avatar: string;
-  uptimeScore: number;
-  reviewsScore: number;
-  communityLinks: { label: string; url: string }[];
-  priceLine: string;
-  viewPageLink: string;
-  callToAction: string;
-  description: string;
-  aboutUrl: string;
-  requirements: VendorOfferReqField[];
-  depositOptions: VendorDepositForOffer[];
-  verificationUrl: string;
-  installationUrl: string;
-}
-
-export interface VendorOfferReqField {
-  id: string;
-  title: string;
-  explanation: string;
-  type:
-    | "number"
-    | "date"
-    | "text"
-    | "select"
-    | "multi-select"
-    | "boolean"
-    | IDPrefixEnum
-    | DiskTypeEnum;
-  required: boolean;
-  options?: string[];
-  defaultValue?: any;
-}
-
-export interface VendorDepositForOffer {
-  title: string;
-  amount: number;
-  depositAddress: string;
-  tokenAddress: string;
-  tokenName: string;
-  tokenSymbol: string;
-  tokenDecimals: number;
-  explanation: string;
-  chain: string;
-  chainExplorerUrl: string;
-  signWithNote?: string;
-  depositUrlCheckout: string;
-}
-
-export interface OfferWorkflow {
-  id: string;
-  title: string;
-  images: string[];
-  description: string;
-  price: number;
-  priceUnit: string;
-  priceExplanation: string;
-  bookmarks: number;
-  avgCustomerLifetimeValue: number;
-  cumulativeSales: number;
-  bookmarkUrl: string;
-  callToAction: string;
-  vendors: VendorOffer[];
-}
-
-// EXPORT THIS INTERFACE
-export interface AppInfoWithOffers extends AppInfo {
-  offers: OfferWorkflow[];
-}
-
-export interface AppInfo {
-  id: string;
-  name: string;
-  subheading: string;
-  coverImage: string;
-  isFeatured: boolean;
-}
-// const appstore_apps = [{
-//   id: "12",
-//   name: "Calendly",
-//   subheading:
-//     "Schedule meetings and appointments effortlessly.\nStreamline your calendar.",
-//   coverImage: "https://images.g2crowd.com/uploads/product/image/social_share/social_share_97e42d7637841c73c8868c2ee03e7e22/calendly.png",
-//   isFeatured: false
-// }]
-
 // AppCard component for individual app tiles
-const AppCard = ({ app }: { app: AppInfo }) => {
+const AppCard = ({ app }: { app: AppInfoWithOffers }) => {
   // Split subheading into two lines
   const subheadingLines = app.subheading.split("\n");
 
@@ -188,6 +105,9 @@ const AppStore = () => {
         fontFamily: "Inter, sans-serif",
       }}
     >
+      <Helmet>
+        <title>App Store - OfficeX</title>
+      </Helmet>
       <Content
         style={{
           padding: "24px",
@@ -223,7 +143,7 @@ const AppStore = () => {
           style={{ marginBottom: "32px", maxWidth: "600px", margin: "0 auto" }}
         >
           <Input.Search
-            placeholder="Search for apps..."
+            placeholder="Search for apps, agents & services..."
             allowClear
             enterButton={<SearchOutlined />}
             size="large"

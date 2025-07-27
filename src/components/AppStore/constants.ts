@@ -1,5 +1,8 @@
-import { DiskTypeEnum, IDPrefixEnum } from "@officexapp/types";
-import { AppInfo, AppInfoWithOffers } from ".";
+import {
+  AppInfoWithOffers,
+  DiskTypeEnum,
+  IDPrefixEnum,
+} from "@officexapp/types";
 
 export const appstore_apps: AppInfoWithOffers[] = [
   {
@@ -29,6 +32,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
             id: "vendorA",
             name: "Cloud Solutions Inc.",
             avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CS",
+            needsAuth: false,
+            needsCloudOfficeX: false,
             aboutUrl: "#",
             uptimeScore: 99.99,
             reviewsScore: 4.8,
@@ -49,7 +54,27 @@ export const appstore_apps: AppInfoWithOffers[] = [
             viewPageLink: "#",
             description:
               "We promise the best results and have a 30 day money back guarantee.",
-            requirements: [],
+            requirements: [
+              {
+                id: "vendorA",
+                title: "Initial Storage",
+                explanation:
+                  "You must have a valid subscription to Vendor A to use this offer.",
+                type: "number",
+                required: true,
+                defaultValue: 100,
+                placeholder: "Enter initial storage amount in GB",
+                suffix: "Gigabytes",
+              },
+              {
+                id: "your-email",
+                title: "Your Email",
+                explanation: "Enter your email address",
+                type: "text",
+                required: true,
+                placeholder: "Enter your email address",
+              },
+            ],
             depositOptions: [
               {
                 title: "USDC on Base",
@@ -87,6 +112,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
             id: "vendorC",
             name: "Compute Masters",
             avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CM",
+            needsAuth: false,
+            needsCloudOfficeX: false,
             aboutUrl: "#",
             uptimeScore: 99.98,
             reviewsScore: 4.7,
@@ -151,6 +178,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
             id: "tpb-vendor1",
             name: "Data Harvest Solutions",
             avatar: "https://api.dicebear.com/7.x/initials/svg?seed=DHS",
+            needsAuth: true,
+            needsCloudOfficeX: true,
             aboutUrl: "#",
             uptimeScore: 99.5,
             reviewsScore: 4.1,
@@ -163,7 +192,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
             priceLine: "$0.05/record",
             viewPageLink: "#",
             verificationUrl: "#",
-            installationUrl: "https://obedient-airline-13.webhook.cool",
+            installationUrl:
+              "http://localhost:3000/officex/install/click-worker-complex-task",
             description:
               "We promise the best results and have a 30 day money back guarantee.",
             callToAction: "Book Service",
@@ -210,59 +240,274 @@ export const appstore_apps: AppInfoWithOffers[] = [
       },
     ],
   },
+  {
+    id: "20",
+    name: "Clickworker",
+    subheading: "Bulk volunteers for online gigwork & microtasks.",
+    coverImage:
+      "https://static.vecteezy.com/system/resources/previews/029/182/639/non_2x/black-corporate-id-card-template-clean-id-card-design-with-realistic-lanyard-mockup-free-vector.jpg", // "https://res.cloudinary.com/people-matters/image/upload/fl_immutable_cache,w_624,h_351,q_auto,f_auto/v1717428082/1717428081.jpg", // "https://cdn.prod.website-files.com/643a3434759b024418ea32c0/64a3e22aeb0e06778d2e4cfc_Gig-Economy.png", //"https://www.keka.com/us/wp-content/uploads/2024/10/gig-worker-rights-1.png",
+    isFeatured: true,
+    offers: [
+      {
+        id: "offer-clickworker-100-simple-task",
+        title: "25 Volunteers for Simple Task",
+        images: [],
+        description:
+          "<p>Quickly complete **25 simple, repetitive microtasks** using the Clickworker crowd. This offer is perfect for large-volume, straightforward assignments such as data entry, image tagging, sentiment analysis of short texts, or basic data validation. Get fast and accurate results for tasks that don't require complex decision-making.</p><p>Key benefits:</p><ul><li><strong>High Volume, Fast Turnaround:</strong> Ideal for large datasets and quick completion.</li><li><strong>Cost-Effective:</strong> Efficiently process many simple tasks at a lower unit cost.</li><li><strong>Scalable Workforce:</strong> Access a massive pool of Clickworkers.</li><li><strong>Automated Quality Checks:</strong> Benefit from Clickworker's streamlined quality assurance for microtasks.</li><li><strong>Seamless Integration:</strong> Easily integrate task submission and result retrieval.</li></ul><p>Automate your microtask workflows with the power of the Clickworker crowd.</p>",
+        price: 25,
+        priceUnit: "/project",
+        priceExplanation:
+          "Starting price for 25 simple tasks, varies by task type",
+        bookmarks: 300,
+        bookmarkUrl: "#",
+        avgCustomerLifetimeValue: 1000,
+        cumulativeSales: 100000,
+        callToAction: "Configure Project",
+        vendors: [
+          {
+            id: "clickworker-vendor1",
+            name: "Clickworker GmbH",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
+            needsAuth: true,
+            needsCloudOfficeX: false,
+            aboutUrl: "https://www.clickworker.com/how-it-works/",
+            uptimeScore: 99.7,
+            reviewsScore: 4.6,
+            communityLinks: [
+              {
+                label: "API Docs",
+                url: "http://docs.clickworker.com/swagger.html",
+              },
+            ],
+            priceLine: "Pricing varies by task",
+            viewPageLink: "https://www.clickworker.com/",
+            verificationUrl: "https://www.clickworker.com/",
+            installationUrl:
+              "http://localhost:3000/officex/install/click-worker-simple-task",
+            description:
+              "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
+            callToAction: "Access Platform",
+            requirements: [
+              {
+                id: "clickworker-vendor1-requirement3",
+                title: "Data Input CSV URL",
+                explanation:
+                  "URL to a CSV file containing the data for simple tasks",
+                type: "url",
+                required: true,
+              },
+            ],
+            depositOptions: [
+              {
+                title: "USDC on Base",
+                amount: 10000,
+                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
+                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                tokenName: "USDC",
+                tokenSymbol: "USDC",
+                tokenDecimals: 6,
+                explanation: "Deposit USDC to fund your Clickworker projects",
+                chain: "BASE_L2",
+                depositUrlCheckout: "",
+                chainExplorerUrl: "https://basescan.org/",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: "offer-clickworker-25-complex-task",
+        title: "10 Volunteers for Complex Task",
+        images: [],
+        description:
+          "<p>Leverage the Clickworker crowd to tackle **25 complex tasks** requiring human intelligence and nuanced understanding. This offer is ideal for projects such as detailed web research, content creation, data categorization with intricate rules, or in-depth data verification. Clickworkers are qualified based on your specific requirements to ensure high-quality results for challenging assignments.</p><p>Key benefits:</p><ul><li><strong>High-Quality Output:</strong> Access Clickworkers trained for complex tasks.</li><li><strong>Scalable Workforce:</strong> Get tasks completed efficiently by a large crowd.</li><li><strong>Customizable Requirements:</strong> Define specific skills or qualifications needed.</li><li><strong>Integrated Quality Control:</strong> Benefit from Clickworker's quality assurance processes.</li><li><strong>Flexible & On-Demand:</strong> Hire exactly when and how many you need.</li></ul><p>Empower your business with human intelligence for tasks that AI can't handle alone.</p>",
+        price: 30,
+        priceUnit: "/project",
+        priceExplanation:
+          "Starting price for 25 complex tasks, varies by task type and complexity",
+        bookmarks: 120,
+        bookmarkUrl: "#",
+        avgCustomerLifetimeValue: 2500,
+        cumulativeSales: 62500,
+        callToAction: "Configure Project",
+        vendors: [
+          {
+            id: "clickworker-vendor1",
+            name: "Clickworker GmbH",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
+            needsAuth: true,
+            needsCloudOfficeX: false,
+            aboutUrl: "https://www.clickworker.com/how-it-works/",
+            uptimeScore: 99.7,
+            reviewsScore: 4.6,
+            communityLinks: [
+              {
+                label: "API Docs",
+                url: "http://docs.clickworker.com/swagger.html",
+              },
+            ],
+            priceLine: "Pricing varies by task",
+            viewPageLink: "https://www.clickworker.com/",
+            verificationUrl: "https://www.clickworker.com/",
+            installationUrl:
+              "http://localhost:3000/officex/install/click-worker-complex-task",
+            description:
+              "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
+            callToAction: "Access Platform",
+            requirements: [
+              {
+                id: "clickworker-vendor1-requirement3",
+                title: "Instructions Document URL",
+                explanation:
+                  "URL to a detailed document outlining task instructions and quality guidelines",
+                type: "url",
+                required: true,
+              },
+            ],
+            depositOptions: [
+              {
+                title: "USDC on Base",
+                amount: 50000,
+                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
+                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                tokenName: "USDC",
+                tokenSymbol: "USDC",
+                tokenDecimals: 6,
+                explanation: "Deposit USDC to fund your Clickworker projects",
+                chain: "BASE_L2",
+                depositUrlCheckout: "",
+                chainExplorerUrl: "https://basescan.org/",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "american-express",
+    name: "American Express",
+    subheading: "Global financial services. Credit card points.",
+    coverImage:
+      "https://icm.aexp-static.com/Internet/internationalcardshop/en_in/images/cards/Gold_Card.png",
+    isFeatured: false,
+    offers: [
+      {
+        id: "offer-amex-transaction-csv",
+        title: "Signup Bonus - $100",
+        images: [],
+        description:
+          "<p>Sign up for a new American Express card through this offer and receive a **$100 signup bonus**! This exclusive promotion provides a direct incentive for new cardmembers, giving you a valuable boost when you join the American Express family. Enjoy the benefits and services of an Amex card along with this special bonus.</p><p>Key features of this offer:</p><ul><li><strong>$100 Signup Bonus:</strong> Receive a $100 bonus credited to your account after meeting initial spending requirements.</li><li><strong>Access to American Express Benefits:</strong> Enjoy premium customer service, purchase protection, and travel perks.</li><li><strong>Global Acceptance:</strong> Use your American Express card worldwide.</li><li><strong>Flexible Rewards Programs:</strong> Earn points on your spending, redeemable for travel, gift cards, or statement credits.</li><li><strong>Secure Transactions:</strong> Benefit from American Express's robust security features for peace of mind.</li></ul><p>Take advantage of this limited-time offer to earn a $100 signup bonus and experience the premium services of American Express.</p>",
+        price: 120,
+        priceUnit: "/year",
+        priceExplanation:
+          "American Express Gold Card starting at $10k/month credit limit",
+        bookmarks: 100,
+        bookmarkUrl: "#",
+        avgCustomerLifetimeValue: 600,
+        cumulativeSales: 60000,
+        callToAction: "Signup Free",
+        vendors: [
+          {
+            id: "amex-vendor1",
+            name: "Financial Data Solutions Inc.",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=FDSI",
+            needsAuth: false,
+            needsCloudOfficeX: false,
+            aboutUrl: "#",
+            verificationUrl: "#",
+            installationUrl: "https://obedient-airline-13.webhook.cool",
+            uptimeScore: 99.9,
+            reviewsScore: 4.8,
+            communityLinks: [
+              {
+                label: "Support",
+                url: "#",
+              },
+            ],
+            priceLine: "$90/month",
+            viewPageLink: "#",
+            requirements: [],
+            description:
+              "We promise the best results and have a 30 day money back guarantee.",
+            depositOptions: [],
+            callToAction: "Signup Free",
+          },
+        ],
+      },
+    ],
+  },
   // {
   //   id: "30",
-  //   name: "Gemini AI",
-  //   subheading:
-  //     "Enable AI features on OfficeX with API giftcards starting at $1/month",
+  //   name: "Gemini Agent",
+  //   subheading: "Enable AI features on OfficeX with powerful Gemini models.",
   //   coverImage:
   //     "https://storage.googleapis.com/gweb-uniblog-publish-prod/images/final_keyword_header.width-1200.format-webp.webp",
-  //   isFeatured: Math.random() > 0.7,
+  //   isFeatured: true,
   //   offers: [
   //     {
-  //       id: "offer-gemini-csv-analysis",
-  //       title: "Gemini AI for CSV Data Analysis & Insights in OfficeX",
-  //       images: [], // Will be populated with app.coverImage at runtime
-  //       description: `
-  //         <p>Integrate Gemini's powerful AI capabilities directly into your Anonymous OfficeX workflows for **advanced analysis of CSV data uploads**. This API access allows you to feed your spreadsheet data to Gemini for natural language queries, trend identification, anomaly detection, and even generating summaries or reports based on complex datasets. Transform raw data into actionable intelligence without leaving your OfficeX environment.</p>
-  //         <p>Key benefits:</p>
-  //         <ul>
-  //           <li><strong>Intelligent CSV Analysis:</strong> Ask natural language questions about your data in OfficeX sheets and get AI-driven answers.</li>
-  //           <li><strong>Pattern & Trend Discovery:</strong> Gemini can identify hidden patterns, correlations, and trends within your uploaded CSVs.</li>
-  //           <li><strong>Automated Report Generation:</strong> Generate summaries, highlights, or even draft reports based on your data.</li>
-  //           <li><strong>Data Cleaning Suggestions:</strong> Receive AI-powered recommendations for cleaning and structuring messy CSV data.</li>
-  //           <li><strong>Secure Data Processing:</strong> Your uploaded data is processed securely to maintain privacy.</li>
-  //         </ul>
-  //         <p>Empower your data-driven decisions with Gemini's AI, making complex CSV analysis accessible and intuitive.</p>
-  //       `,
-  //       price: 0.007, // Slightly higher for advanced data interaction
+  //       id: "offer-gemini-ai-dobrowser",
+  //       title: "Gemini AI on DoBrowser",
+  //       images: [],
+  //       description:
+  //         "<p>Integrate Gemini's powerful AI capabilities directly into your Anonymous OfficeX DoBrowser for **intelligent web Browse, content summarization, and interactive assistance**. This offer provides API access to Gemini, allowing you to use AI to enhance your Browse experience, extract key information from web pages, and get instant answers without leaving your browser environment.</p><p>Key benefits:</p><ul><li><strong>Intelligent Web Browse:</strong> Ask natural language questions about web content and get AI-driven answers.</li><li><strong>Content Summarization:</strong> Quickly summarize lengthy articles or documents directly within your browser.</li><li><strong>Interactive Assistance:</strong> Get real-time help with research, data extraction, and content generation.</li><li><strong>Secure & Private:</strong> Your Browse data is processed securely to maintain privacy within your Anonymous OfficeX platform.</li><li><strong>Seamless Integration:</strong> Easy setup to link Gemini AI with your DoBrowser instance.</li></ul><p>Transform your DoBrowser into a powerful AI-powered research and productivity tool with Gemini AI.</p>",
+  //       price: 0.007,
   //       priceUnit: "/1K tokens",
-  //       priceExplanation: "for data analysis and generation",
+  //       priceExplanation: "for AI processing and generation",
   //       bookmarks: 250,
   //       bookmarkUrl: "#",
   //       avgCustomerLifetimeValue: 1500,
   //       cumulativeSales: 187500,
+  //       callToAction: "Install App",
   //       vendors: [
   //         {
   //           id: "gemini-vendor1",
   //           name: "AI Innovators Hub",
   //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=AIH",
+  //           needsAuth: true,
+  //           aboutUrl: "#",
   //           uptimeScore: 99.9,
   //           reviewsScore: 4.9,
-  //           communityLinks: [{ label: "Docs", url: "#" }],
+  //           communityLinks: [
+  //             {
+  //               label: "Docs",
+  //               url: "#",
+  //             },
+  //           ],
   //           priceLine: "Starting from $0.007/1K tokens",
   //           viewPageLink: "#",
-  //           requirements: JSON.stringify({
-  //             // no requirements because output is an api key secret in plain text, no complex actions on drive
-  //           }),
+  //           verificationUrl: "#",
+  //           installationUrl: "https://obedient-airline-13.webhook.cool",
+  //           description:
+  //             "We specialize in cutting-edge AI integrations and offer unparalleled support for our solutions.",
+  //           callToAction: "Install App",
+  //           requirements: [
+  //             {
+  //               id: "gemini-vendor1-requirement1",
+  //               title: "DoBrowser Instance ID",
+  //               explanation:
+  //                 "Select the DoBrowser instance to install the app to",
+  //               type: "IDPrefixEnum.DoBrowser",
+  //               required: true,
+  //             },
+  //             {
+  //               id: "gemini-vendor1-requirement2",
+  //               title: "Gemini API Key",
+  //               explanation: "Provide your Gemini API key for access",
+  //               type: "string",
+  //               required: true,
+  //             },
+  //           ],
   //           depositOptions: [
   //             {
-  //               amount: 10 * 6 * 1, // $1 usdc
+  //               title: "USDC on Base",
+  //               amount: 60,
+  //               depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
   //               tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-  //               tokenName: "Circle USD",
+  //               tokenName: "USDC",
   //               tokenSymbol: "USDC",
   //               tokenDecimals: 6,
-  //               explanation: "To initialize the vendor",
+  //               explanation: "Deposit USDC to purchase API credits",
   //               chain: "BASE_L2",
   //               depositUrlCheckout: "",
   //               chainExplorerUrl: "https://basescan.org/",
@@ -730,101 +975,102 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //     },
   //   ],
   // },
-  {
-    id: "15",
-    name: "Telegram Agent",
-    subheading:
-      "Secure messaging and voice calls.\nConnect with friends and family.",
-    coverImage:
-      "https://mir-s3-cdn-cf.behance.net/project_modules/1400/3d89aa78088397.5c9a9eb73dabf.png",
-    isFeatured: false,
-    offers: [
-      {
-        id: "offer-telegram-csv-notifications",
-        title: "Telegram Media Archive Bot",
-        images: [],
-        description:
-          "<p>This offer provides a custom Telegram bot designed to help you **archive media and files from your Telegram chats directly to your OfficeX cloud storage**. Never lose important photos, videos, or documents shared in your Telegram conversations. The bot automates the process of saving media to your designated OfficeX-connected cloud folders, keeping your valuable data organized and accessible.</p><p>Features include:</p><ul><li><strong>Automated Media Archiving:</strong> Automatically save photos, videos, and documents from Telegram chats to OfficeX storage.</li><li><strong>Configurable Storage Locations:</strong> Choose specific OfficeX cloud folders for different types of media or chats.</li><li><strong>Real-time Sync:</strong> Media is archived as it's shared, ensuring you have the latest content.</li><li><strong>Secure & Private:</strong> Ensures your media is securely transferred and stored in your private OfficeX environment.</li><li><strong>Easy Setup:</strong> Simple installation and configuration to link your Telegram with OfficeX storage.</li></ul><p>Transform your Telegram into a powerful media archiving tool, securing all your shared content within your Anonymous OfficeX platform.</p>",
-        price: 10,
-        priceUnit: "/month",
-        priceExplanation:
-          "starting price for custom bot development and integration",
-        bookmarks: 150,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 750,
-        cumulativeSales: 112500,
-        callToAction: "Install App",
-        vendors: [
-          {
-            id: "telegram-vendor1",
-            name: "Bot Builders Co.",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=BBC",
-            aboutUrl: "#",
-            uptimeScore: 99.8,
-            reviewsScore: 4.5,
-            communityLinks: [
-              {
-                label: "Portfolio",
-                url: "#",
-              },
-            ],
-            priceLine: "From $10/month",
-            viewPageLink: "#",
-            verificationUrl: "#",
-            installationUrl: "https://obedient-airline-13.webhook.cool",
-            description:
-              "We promise the best results and have a 30 day money back guarantee.",
-            callToAction: "Install App",
-            requirements: [
-              {
-                id: "telegram-vendor1-requirement1",
-                title: "Group ID",
-                explanation: "Select the group to install the app to",
-                type: IDPrefixEnum.Group,
-                required: true,
-              },
-              {
-                id: "telegram-vendor1-requirement2",
-                title: "Disk ID",
-                explanation: "Select the disk to install the app to",
-                type: IDPrefixEnum.Disk,
-                required: true,
-              },
-              {
-                id: "telegram-vendor1-requirement3",
-                title: "Disk Type",
-                explanation: "Select the disk type",
-                type: DiskTypeEnum.AwsBucket,
-                required: true,
-              },
-              {
-                id: "telegram-vendor1-requirement4",
-                title: "Folder ID",
-                explanation: "Select the folder to install the app to",
-                type: IDPrefixEnum.Folder,
-                required: true,
-              },
-            ],
-            depositOptions: [
-              {
-                title: "USDC on Base",
-                amount: 60,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "USDC",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "Deposit USDC to purchase the app",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
+  // {
+  //   id: "15",
+  //   name: "Telegram Agent",
+  //   subheading:
+  //     "Secure messaging and voice calls.\nConnect with friends and family.",
+  //   coverImage:
+  //     "https://mir-s3-cdn-cf.behance.net/project_modules/1400/3d89aa78088397.5c9a9eb73dabf.png",
+  //   isFeatured: false,
+  //   offers: [
+  //     {
+  //       id: "offer-telegram-csv-notifications",
+  //       title: "Telegram Media Archive Bot",
+  //       images: [],
+  //       description:
+  //         "<p>This offer provides a custom Telegram bot designed to help you **archive media and files from your Telegram chats directly to your OfficeX cloud storage**. Never lose important photos, videos, or documents shared in your Telegram conversations. The bot automates the process of saving media to your designated OfficeX-connected cloud folders, keeping your valuable data organized and accessible.</p><p>Features include:</p><ul><li><strong>Automated Media Archiving:</strong> Automatically save photos, videos, and documents from Telegram chats to OfficeX storage.</li><li><strong>Configurable Storage Locations:</strong> Choose specific OfficeX cloud folders for different types of media or chats.</li><li><strong>Real-time Sync:</strong> Media is archived as it's shared, ensuring you have the latest content.</li><li><strong>Secure & Private:</strong> Ensures your media is securely transferred and stored in your private OfficeX environment.</li><li><strong>Easy Setup:</strong> Simple installation and configuration to link your Telegram with OfficeX storage.</li></ul><p>Transform your Telegram into a powerful media archiving tool, securing all your shared content within your Anonymous OfficeX platform.</p>",
+  //       price: 10,
+  //       priceUnit: "/month",
+  //       priceExplanation:
+  //         "starting price for custom bot development and integration",
+  //       bookmarks: 150,
+  //       bookmarkUrl: "#",
+  //       avgCustomerLifetimeValue: 750,
+  //       cumulativeSales: 112500,
+  //       callToAction: "Install App",
+  //       vendors: [
+  //         {
+  //           id: "telegram-vendor1",
+  //           name: "Bot Builders Co.",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=BBC",
+  //           needsAuth: true,
+  //           aboutUrl: "#",
+  //           uptimeScore: 99.8,
+  //           reviewsScore: 4.5,
+  //           communityLinks: [
+  //             {
+  //               label: "Portfolio",
+  //               url: "#",
+  //             },
+  //           ],
+  //           priceLine: "From $10/month",
+  //           viewPageLink: "#",
+  //           verificationUrl: "#",
+  //           installationUrl: "https://obedient-airline-13.webhook.cool",
+  //           description:
+  //             "We promise the best results and have a 30 day money back guarantee.",
+  //           callToAction: "Install App",
+  //           requirements: [
+  //             {
+  //               id: "telegram-vendor1-requirement1",
+  //               title: "Group ID",
+  //               explanation: "Select the group to install the app to",
+  //               type: IDPrefixEnum.Group,
+  //               required: true,
+  //             },
+  //             {
+  //               id: "telegram-vendor1-requirement2",
+  //               title: "Disk ID",
+  //               explanation: "Select the disk to install the app to",
+  //               type: IDPrefixEnum.Disk,
+  //               required: true,
+  //             },
+  //             {
+  //               id: "telegram-vendor1-requirement3",
+  //               title: "Disk Type",
+  //               explanation: "Select the disk type",
+  //               type: DiskTypeEnum.AwsBucket,
+  //               required: true,
+  //             },
+  //             {
+  //               id: "telegram-vendor1-requirement4",
+  //               title: "Folder ID",
+  //               explanation: "Select the folder to install the app to",
+  //               type: IDPrefixEnum.Folder,
+  //               required: true,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             {
+  //               title: "USDC on Base",
+  //               amount: 60,
+  //               depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
+  //               tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  //               tokenName: "USDC",
+  //               tokenSymbol: "USDC",
+  //               tokenDecimals: 6,
+  //               explanation: "Deposit USDC to purchase the app",
+  //               chain: "BASE_L2",
+  //               depositUrlCheckout: "",
+  //               chainExplorerUrl: "https://basescan.org/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
   // {
   //   id: "5",
   //   name: "Uniswap",
@@ -2315,57 +2561,6 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //     },
   //   ],
   // },
-  {
-    id: "american-express",
-    name: "American Express",
-    subheading: "Global financial services. Credit card points.",
-    coverImage:
-      "https://icm.aexp-static.com/Internet/internationalcardshop/en_in/images/cards/Gold_Card.png",
-    isFeatured: false,
-    offers: [
-      {
-        id: "offer-amex-transaction-csv",
-        title: "Signup Bonus - $100",
-        images: [],
-        description:
-          "<p>Sign up for a new American Express card through this offer and receive a **$100 signup bonus**! This exclusive promotion provides a direct incentive for new cardmembers, giving you a valuable boost when you join the American Express family. Enjoy the benefits and services of an Amex card along with this special bonus.</p><p>Key features of this offer:</p><ul><li><strong>$100 Signup Bonus:</strong> Receive a $100 bonus credited to your account after meeting initial spending requirements.</li><li><strong>Access to American Express Benefits:</strong> Enjoy premium customer service, purchase protection, and travel perks.</li><li><strong>Global Acceptance:</strong> Use your American Express card worldwide.</li><li><strong>Flexible Rewards Programs:</strong> Earn points on your spending, redeemable for travel, gift cards, or statement credits.</li><li><strong>Secure Transactions:</strong> Benefit from American Express's robust security features for peace of mind.</li></ul><p>Take advantage of this limited-time offer to earn a $100 signup bonus and experience the premium services of American Express.</p>",
-        price: 120,
-        priceUnit: "/year",
-        priceExplanation:
-          "American Express Gold Card starting at $10k/month credit limit",
-        bookmarks: 100,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 600,
-        cumulativeSales: 60000,
-        callToAction: "Signup Free",
-        vendors: [
-          {
-            id: "amex-vendor1",
-            name: "Financial Data Solutions Inc.",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=FDSI",
-            aboutUrl: "#",
-            verificationUrl: "#",
-            installationUrl: "https://obedient-airline-13.webhook.cool",
-            uptimeScore: 99.9,
-            reviewsScore: 4.8,
-            communityLinks: [
-              {
-                label: "Support",
-                url: "#",
-              },
-            ],
-            priceLine: "$90/month",
-            viewPageLink: "#",
-            requirements: [],
-            description:
-              "We promise the best results and have a 30 day money back guarantee.",
-            depositOptions: [],
-            callToAction: "Signup Free",
-          },
-        ],
-      },
-    ],
-  },
   // {
   //   id: "airbnb",
   //   name: "Airbnb",

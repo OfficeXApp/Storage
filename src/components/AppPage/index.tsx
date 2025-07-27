@@ -39,6 +39,7 @@ import { useIdentitySystem } from "../../framework/identity";
 // Assuming these are exported from AppStore/index.tsx or a types file
 import { AppInfoWithOffers, OfferWorkflow, VendorOffer } from "../AppStore"; // Keep these if still needed for typing elsewhere
 import RunAppDrawer, { CheckoutRun } from "../RunAppDrawer";
+import { Helmet } from "react-helmet";
 
 const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
@@ -102,6 +103,8 @@ const AppPage = () => {
       depositOptions: vendor.depositOptions,
       requirements: vendor.requirements,
       callToAction: vendor.callToAction,
+      needsAuth: vendor.needsAuth,
+      needsCloudOfficeX: vendor.needsCloudOfficeX,
     });
     showDrawer();
   };
@@ -139,6 +142,10 @@ const AppPage = () => {
         fontFamily: "Inter, sans-serif",
       }}
     >
+      {/* React Helmet */}
+      <Helmet>
+        <title>{app.name} - Appstore</title>
+      </Helmet>
       {/* Sticky Top Bar: Back Button & Search Bar */}
       <div
         style={{

@@ -24,7 +24,6 @@ import {
   InfoCircleOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { VendorDepositForOffer, VendorOfferReqField } from "../AppStore";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
@@ -32,8 +31,15 @@ import {
   getApiKeyAction,
 } from "../../redux-offline/api-keys/api-keys.actions";
 import { useIdentitySystem } from "../../framework/identity";
-import { ApiKeyFE } from "@officexapp/types";
+import {
+  ApiKeyFE,
+  CheckoutRun,
+  IRequestCheckoutPayload,
+  IResponseCheckoutPayload,
+  VendorDepositForOffer,
+} from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
+import { Link } from "react-router-dom";
 
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
@@ -42,20 +48,6 @@ interface RunAppDrawerProps {
   isDrawerVisible: boolean;
   onCloseDrawer: () => void;
   checkoutRun: CheckoutRun;
-}
-
-export interface CheckoutRun {
-  vendorID: string;
-  vendorName: string;
-  vendorAvatar: string;
-  aboutUrl: string;
-  verificationUrl: string;
-  installationUrl: string;
-  offerName: string;
-  offerDescription: string;
-  depositOptions: VendorDepositForOffer[];
-  requirements: VendorOfferReqField[];
-  callToAction: string;
 }
 
 const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
@@ -76,10 +68,30 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     Record<string, string>
   >({}); // For dynamic requirement inputs
   const [isRunButtonDisabled, setIsRunButtonDisabled] = useState<boolean>(true);
+  const [finishedCheckoutRedirectUrl, setFinishedCheckoutRedirectUrl] =
+    useState<string>("");
+  const [redirectCta, setRedirectCta] = useState<string>("");
 
   const dispatch = useDispatch();
-  const { currentProfile, generateSignature, currentAPIKey, currentOrg } =
-    useIdentitySystem();
+  const {
+    currentProfile,
+    generateSignature,
+    currentAPIKey,
+    currentOrg,
+    wrapOrgCode,
+  } = useIdentitySystem();
+
+  useEffect(() => {
+    if (isDrawerVisible) {
+      const initialPreferenceInputs: Record<string, string> = {};
+      checkoutRun.requirements.forEach((req) => {
+        if (req.defaultValue !== undefined && req.defaultValue !== null) {
+          initialPreferenceInputs[req.id] = String(req.defaultValue);
+        }
+      });
+      setPreferenceInputs(initialPreferenceInputs);
+    }
+  }, [isDrawerVisible, checkoutRun.requirements]);
 
   useEffect(() => {
     if (isDrawerVisible && currentProfile) {
@@ -178,7 +190,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         message.success("Signature generated!");
       }
 
-      const payload = {
+      const payload: IRequestCheckoutPayload = {
         checkoutRun,
         selectedDepositOption,
         requirements: preferenceInputs, // All dynamic form fields go here
@@ -204,14 +216,23 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         throw new Error(errorData.message || "Network response was not ok.");
       }
 
-      const data = await response.json();
+      const data: IResponseCheckoutPayload = await response.json();
+      console.log(`Checkout Response:`, data);
+
+      message.success(
+        <span>
+          Checkout successful! View your{" "}
+          <Link to={wrapOrgCode(`/resources/job_runs`)}>purchase history</Link>
+        </span>
+      );
+      setRedirectCta(data.redirect_cta || "");
 
       if (data.redirect_url) {
-        message.success("Checkout successful! Redirecting...");
-        onCloseDrawer(); // Close the drawer before redirecting
-        window.location.href = data.redirect_url; // Redirect to the provided URL
+        setFinishedCheckoutRedirectUrl(data.redirect_url);
       } else {
-        message.error("Checkout successful, but no redirect URL provided.");
+        setFinishedCheckoutRedirectUrl(
+          `${window.location.origin}${wrapOrgCode(`/resources/job-runs`)}`
+        );
       }
     } catch (error: any) {
       console.error("Submission failed:", error);
@@ -252,6 +273,10 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         TEE, the scope of potential damage is minimized.
       </Paragraph>
     </div>
+  );
+
+  console.log(
+    `checkoutRun.needsCloudOfficeX=${checkoutRun.needsCloudOfficeX} && !currentOrg?.endpoint=${currentOrg?.endpoint}`
   );
 
   return (
@@ -304,13 +329,34 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       footer={
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
           <Button onClick={onCloseDrawer}>Close</Button>
-          <Button
-            type="primary"
-            onClick={handleSubmit}
-            disabled={isRunButtonDisabled}
-          >
-            {checkoutRun.callToAction || "Run App"}
-          </Button>
+          {finishedCheckoutRedirectUrl ? (
+            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+              <span style={{ color: "#16af16" }}>Success</span>
+              <Button
+                type="primary"
+                onClick={() => {
+                  // open in new tab
+                  window.open(finishedCheckoutRedirectUrl, "_blank");
+                }}
+                disabled={isRunButtonDisabled}
+              >
+                {redirectCta || "View Purchase History"}
+              </Button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+              {checkoutRun.needsCloudOfficeX && !currentOrg?.endpoint && (
+                <span style={{ color: "#ff0000" }}>Connect Cloud</span>
+              )}
+              <Button
+                type="primary"
+                onClick={handleSubmit}
+                disabled={isRunButtonDisabled}
+              >
+                {checkoutRun.callToAction || "Run App"}
+              </Button>
+            </div>
+          )}
         </Space>
       }
     >
@@ -334,96 +380,108 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           <Title level={5} style={{ marginBottom: 16 }}>
             1. Security & Verification
           </Title>
-          <Paragraph>
-            This application requires certain permissions to function. Please
-            review the permission scopes below.
-          </Paragraph>
-          <Alert
-            message="Vendor Verification & API Key Best Practices"
-            description={
-              <>
-                <Paragraph style={{ marginBottom: "8px" }}>
-                  It's crucial to verify that this vendor offer is who they
-                  claim to be. Always check their credentials and the code being
-                  executed.
-                </Paragraph>
-                <Paragraph>
-                  <Tooltip title="View vendor's terms and conditions or general information.">
-                    <a
-                      href={checkoutRun.aboutUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        borderBottom: "1px dashed #999",
-                        color: "inherit",
-                      }}
-                    >
-                      About this vendor{" "}
-                      <LinkOutlined style={{ fontSize: "12px" }} />
-                    </a>
-                  </Tooltip>
-                  <Divider type="vertical" />
-                  <Tooltip title="Verify the code to be executed on checkout, usually pointing to a Trusted Execution Environment (TEE).">
-                    <a
-                      href={checkoutRun.verificationUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        borderBottom: "1px dashed #999",
-                        color: "inherit",
-                      }}
-                    >
-                      Verify execution code{" "}
-                      <LinkOutlined style={{ fontSize: "12px" }} />
-                    </a>
-                  </Tooltip>
-                  <Divider type="vertical" />
-                  <Tooltip title="OfficeX is a permissionless platform and thus does not verify 3rd party apps. Appstore list providers and users to be responsible for their own security.">
-                    <a
-                      href="#" // Replace with actual link to "Learn more about verification"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        borderBottom: "1px dashed #999",
-                        color: "inherit",
-                      }}
-                    >
-                      Learn more about 3rd party app verification on OfficeX{" "}
-                      <LinkOutlined style={{ fontSize: "12px" }} />
-                    </a>
-                  </Tooltip>
-                </Paragraph>
-              </>
-            }
-            type="warning"
-            showIcon
-            style={{ marginBottom: 20 }}
-          />
+          {checkoutRun.needsAuth ? (
+            <>
+              <Paragraph>
+                This application requires certain permissions to function.
+                Please review the permission scopes below.
+              </Paragraph>
+              <Alert
+                message="Vendor Verification & API Key Best Practices"
+                description={
+                  <>
+                    <Paragraph style={{ marginBottom: "8px" }}>
+                      It's crucial to verify that this vendor offer is who they
+                      claim to be. Always check their credentials and the code
+                      being executed.
+                    </Paragraph>
+                    <Paragraph>
+                      <Tooltip title="View vendor's terms and conditions or general information.">
+                        <a
+                          href={checkoutRun.aboutUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            borderBottom: "1px dashed #999",
+                            color: "inherit",
+                          }}
+                        >
+                          About this vendor{" "}
+                          <LinkOutlined style={{ fontSize: "12px" }} />
+                        </a>
+                      </Tooltip>
+                      <Divider type="vertical" />
+                      <Tooltip title="Verify the code to be executed on checkout, usually pointing to a Trusted Execution Environment (TEE).">
+                        <a
+                          href={checkoutRun.verificationUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            borderBottom: "1px dashed #999",
+                            color: "inherit",
+                          }}
+                        >
+                          Verify execution code{" "}
+                          <LinkOutlined style={{ fontSize: "12px" }} />
+                        </a>
+                      </Tooltip>
+                      <Divider type="vertical" />
+                      <Tooltip title="OfficeX is a permissionless platform and thus does not verify 3rd party apps. Appstore list providers and users to be responsible for their own security.">
+                        <a
+                          href="#" // Replace with actual link to "Learn more about verification"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            borderBottom: "1px dashed #999",
+                            color: "inherit",
+                          }}
+                        >
+                          Learn more about 3rd party app verification on OfficeX{" "}
+                          <LinkOutlined style={{ fontSize: "12px" }} />
+                        </a>
+                      </Tooltip>
+                    </Paragraph>
+                  </>
+                }
+                type="warning"
+                showIcon
+                style={{ marginBottom: 20 }}
+              />
 
-          {/* API Key Password Input */}
-          <div style={{ marginBottom: 24 }}>
-            <label style={{ display: "block", marginBottom: 8 }}>
-              <Space size={4}>
-                Grant API Key Scope
-                <Popover
-                  content={SecurityDisclaimerPopoverContent}
-                  title="API Key Security Hygiene"
-                  trigger="hover"
-                >
-                  <InfoCircleOutlined style={{ color: "rgba(0,0,0,.45)" }} />
-                </Popover>
-              </Space>
-            </label>
-            <Input.Password
-              placeholder="Enter API key or leave empty to use 30 second signatures if available"
-              value={apiKeyInputValue}
-              onChange={(e) => setApiKeyInputValue(e.target.value)}
-            />
-          </div>
+              {/* API Key Password Input */}
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ display: "block", marginBottom: 8 }}>
+                  <Space size={4}>
+                    Grant API Key Scope
+                    <Popover
+                      content={SecurityDisclaimerPopoverContent}
+                      title="API Key Security Hygiene"
+                      trigger="hover"
+                    >
+                      <InfoCircleOutlined
+                        style={{ color: "rgba(0,0,0,.45)" }}
+                      />
+                    </Popover>
+                  </Space>
+                </label>
+                <Input.Password
+                  placeholder="Enter API key or leave empty to use 30 second signatures if available"
+                  value={apiKeyInputValue}
+                  onChange={(e) => setApiKeyInputValue(e.target.value)}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <Paragraph>
+                This application does not require any permissions to function.
+              </Paragraph>
+            </>
+          )}
         </Card>
 
         {/* --- Deposit Details Section --- */}
-        {checkoutRun.depositOptions.length > 0 && (
+        {checkoutRun.depositOptions.length > 0 ? (
           <Card
             size="small"
             style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
@@ -738,6 +796,17 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
               </>
             )}
           </Card>
+        ) : (
+          <Card
+            size="small"
+            style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
+          >
+            <b>2. Deposit Details</b>
+            <br />
+            <span style={{ fontSize: "13px", color: "#666" }}>
+              No deposit required.
+            </span>
+          </Card>
         )}
 
         {/* Third Section: Preferences (formerly App Requirements) */}
@@ -772,11 +841,15 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                 </label>
                 {/* Placeholder: Later implement specific input fields based on req.type */}
                 <Input
-                  placeholder={`Enter value for ${req.title} (${req.type})`}
+                  placeholder={
+                    req.placeholder ||
+                    `Enter value for ${req.title} (${req.type})`
+                  }
                   value={preferenceInputs[req.id] || ""}
                   onChange={(e) =>
                     handlePreferenceInputChange(req.id, e.target.value)
                   }
+                  suffix={req.suffix}
                 />
               </div>
             ))

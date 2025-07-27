@@ -23,6 +23,7 @@ import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
 import { checkJobRunsTablePermissionsAction } from "../../redux-offline/job-runs/job-runs.actions";
 import { pastLastCheckedCacheLimit } from "../../api/helpers";
+import { Helmet } from "react-helmet";
 
 const { Content, Footer } = Layout;
 const { Title } = Typography;
@@ -197,6 +198,9 @@ const JobRunsPage: React.FC = () => {
         overflowX: "hidden",
       }}
     >
+      <Helmet>
+        <title>Purchase History - OfficeX</title>
+      </Helmet>
       <Content
         style={{
           padding: screenType.isMobile ? "0px" : "0 16px",
@@ -225,7 +229,7 @@ const JobRunsPage: React.FC = () => {
               color: "#262626",
             }}
           >
-            Job Runs
+            Purchase History
           </Title>
           <Button
             size={screenType.isMobile ? "small" : "middle"}
@@ -234,6 +238,7 @@ const JobRunsPage: React.FC = () => {
                 ? "default"
                 : "primary"
             }
+            ghost
             icon={<PlusOutlined />}
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}

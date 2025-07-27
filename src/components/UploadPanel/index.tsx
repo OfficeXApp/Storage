@@ -174,7 +174,6 @@ const UploadPanel: React.FC<{
   };
 
   const renderIcon = () => {
-    return <MessageOutlined style={{ marginRight: "10px" }} />;
     const state = getUploadState();
     switch (state) {
       case "empty":
@@ -200,7 +199,6 @@ const UploadPanel: React.FC<{
   }, [uploadProgress]);
 
   const renderTitle = () => {
-    return "Chat with AI";
     const state = getUploadState();
     switch (state) {
       case "empty":

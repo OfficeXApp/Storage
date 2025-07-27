@@ -395,7 +395,7 @@ const SideMenu = ({
                     }
                   }}
                 >
-                  Job Runs
+                  Purchases
                 </Link>
               ),
             },

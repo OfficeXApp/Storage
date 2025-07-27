@@ -32,6 +32,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
             id: "vendorA",
             name: "Cloud Solutions Inc.",
             avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CS",
+            checkoutVideo:
+              "https://www.youtube.com/embed/Wp0LKeZhcTM?si=auUjNj0txDeCYKA9",
             needsAuth: false,
             needsCloudOfficeX: false,
             aboutUrl: "#",
@@ -112,6 +114,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
             id: "vendorC",
             name: "Compute Masters",
             avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CM",
+            checkoutVideo:
+              "https://www.youtube.com/embed/_vdK5PgcNvc?si=_fsA8MDvT124XAbp",
             needsAuth: false,
             needsCloudOfficeX: false,
             aboutUrl: "#",
@@ -394,7 +398,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
     offers: [
       {
         id: "offer-amex-transaction-csv",
-        title: "Signup Bonus - $100",
+        title: "Signup Bonus $100",
         images: [],
         description:
           "<p>Sign up for a new American Express card through this offer and receive a **$100 signup bonus**! This exclusive promotion provides a direct incentive for new cardmembers, giving you a valuable boost when you join the American Express family. Enjoy the benefits and services of an Amex card along with this special bonus.</p><p>Key features of this offer:</p><ul><li><strong>$100 Signup Bonus:</strong> Receive a $100 bonus credited to your account after meeting initial spending requirements.</li><li><strong>Access to American Express Benefits:</strong> Enjoy premium customer service, purchase protection, and travel perks.</li><li><strong>Global Acceptance:</strong> Use your American Express card worldwide.</li><li><strong>Flexible Rewards Programs:</strong> Earn points on your spending, redeemable for travel, gift cards, or statement credits.</li><li><strong>Secure Transactions:</strong> Benefit from American Express's robust security features for peace of mind.</li></ul><p>Take advantage of this limited-time offer to earn a $100 signup bonus and experience the premium services of American Express.</p>",
@@ -412,6 +416,8 @@ export const appstore_apps: AppInfoWithOffers[] = [
             id: "amex-vendor1",
             name: "Financial Data Solutions Inc.",
             avatar: "https://api.dicebear.com/7.x/initials/svg?seed=FDSI",
+            checkoutVideo:
+              "https://www.youtube.com/embed/EbLmCRuoW1w?si=YHaM5gX1MgbFhmTG",
             needsAuth: false,
             needsCloudOfficeX: false,
             aboutUrl: "#",

@@ -32,14 +32,17 @@ import {
   CaretRightOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
-// Ensure you import AppInfoWithOffers if you defined it in AppStore/constants or AppStore/index.tsx
-import { appstore_apps } from "../AppStore/constants"; // Assuming AppInfoWithOffers is now exported from constants
+import { appstore_apps } from "../AppStore/constants";
 import NotFoundPage from "../NotFound";
 import { useIdentitySystem } from "../../framework/identity";
-// Assuming these are exported from AppStore/index.tsx or a types file
-import { AppInfoWithOffers, OfferWorkflow, VendorOffer } from "../AppStore"; // Keep these if still needed for typing elsewhere
-import RunAppDrawer, { CheckoutRun } from "../RunAppDrawer";
+import RunAppDrawer from "../RunAppDrawer";
 import { Helmet } from "react-helmet";
+import {
+  AppInfoWithOffers,
+  CheckoutRun,
+  OfferWorkflow,
+  VendorOffer,
+} from "@officexapp/types";
 
 const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
@@ -105,6 +108,7 @@ const AppPage = () => {
       callToAction: vendor.callToAction,
       needsAuth: vendor.needsAuth,
       needsCloudOfficeX: vendor.needsCloudOfficeX,
+      checkoutVideo: vendor.checkoutVideo,
     });
     showDrawer();
   };

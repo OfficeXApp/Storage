@@ -279,6 +279,37 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     `checkoutRun.needsCloudOfficeX=${checkoutRun.needsCloudOfficeX} && !currentOrg?.endpoint=${currentOrg?.endpoint}`
   );
 
+  const renderVideo = () => {
+    if (!checkoutRun.checkoutVideo) return null;
+    const videoUrl = checkoutRun.checkoutVideo;
+    if (videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be")) {
+      return (
+        <div style={{ marginBottom: 16 }}>
+          <iframe
+            width="100%"
+            height="315"
+            src={videoUrl}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          ></iframe>
+        </div>
+      );
+    } else {
+      return (
+        <div style={{ marginBottom: 16 }}>
+          <video
+            src={checkoutRun.checkoutVideo}
+            controls
+            style={{ width: "100%" }}
+          />
+        </div>
+      );
+    }
+  };
+
   return (
     <Drawer
       title={
@@ -372,14 +403,15 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           />
         </div>
 
+        {renderVideo()}
+
         {/* --- Security Section --- */}
         <Card
           size="small"
           style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
         >
-          <Title level={5} style={{ marginBottom: 16 }}>
-            1. Security & Verification
-          </Title>
+          <b>1. Security & Verification</b>
+          <br />
           {checkoutRun.needsAuth ? (
             <>
               <Paragraph>
@@ -473,9 +505,9 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
             </>
           ) : (
             <>
-              <Paragraph>
+              <span style={{ fontSize: "13px", color: "#666" }}>
                 This application does not require any permissions to function.
-              </Paragraph>
+              </span>
             </>
           )}
         </Card>
@@ -602,6 +634,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                           value={selectedDepositOption.depositAddress || "-"}
                           size={180}
                           errorLevel="H"
+                          icon={checkoutRun.vendorAvatar}
                         />
                       </div>
                     </Col>
@@ -867,11 +900,15 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
             What happens next
           </Title>
           <Paragraph>
-            After you click "Run App", your request will be securely sent to the
-            vendor. The vendor will then process the job based on the details
-            you've provided. You'll be able to monitor the status and see the
-            progress of your job on the "Job Runs" page, where updates will be
-            provided until the goods or services are delivered.
+            After you click {`"${checkoutRun.callToAction}"` || "Run App"}, your
+            request will be securely sent to the vendor. The vendor will then
+            process the job based on the details you've provided. You'll be able
+            to monitor the status and see the progress of your job on the{" "}
+            <Link to={wrapOrgCode(`/resources/job-runs`)} target="_blank">
+              Purchase History Page
+            </Link>
+            , where updates will be provided until the goods or services are
+            delivered.
           </Paragraph>
         </Card>
       </div>

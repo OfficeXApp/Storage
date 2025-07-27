@@ -4,11 +4,12 @@ import { SearchOutlined } from "@ant-design/icons";
 import { appstore_apps } from "./constants";
 import { Link } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
+import { DiskTypeEnum, IDPrefixEnum } from "@officexapp/types";
 
 const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
 
-export interface Vendor {
+export interface VendorOffer {
   id: string;
   name: string;
   avatar: string;
@@ -17,6 +18,46 @@ export interface Vendor {
   communityLinks: { label: string; url: string }[];
   priceLine: string;
   viewPageLink: string;
+  callToAction: string;
+  description: string;
+  aboutUrl: string;
+  requirements: VendorOfferReqField[];
+  depositOptions: VendorDepositForOffer[];
+  verificationUrl: string;
+  installationUrl: string;
+}
+
+export interface VendorOfferReqField {
+  id: string;
+  title: string;
+  explanation: string;
+  type:
+    | "number"
+    | "date"
+    | "text"
+    | "select"
+    | "multi-select"
+    | "boolean"
+    | IDPrefixEnum
+    | DiskTypeEnum;
+  required: boolean;
+  options?: string[];
+  defaultValue?: any;
+}
+
+export interface VendorDepositForOffer {
+  title: string;
+  amount: number;
+  depositAddress: string;
+  tokenAddress: string;
+  tokenName: string;
+  tokenSymbol: string;
+  tokenDecimals: number;
+  explanation: string;
+  chain: string;
+  chainExplorerUrl: string;
+  signWithNote?: string;
+  depositUrlCheckout: string;
 }
 
 export interface OfferWorkflow {
@@ -30,7 +71,9 @@ export interface OfferWorkflow {
   bookmarks: number;
   avgCustomerLifetimeValue: number;
   cumulativeSales: number;
-  vendors: Vendor[];
+  bookmarkUrl: string;
+  callToAction: string;
+  vendors: VendorOffer[];
 }
 
 // EXPORT THIS INTERFACE

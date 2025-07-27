@@ -38,7 +38,8 @@ import {
   SyncOutlined,
   UserOutlined, // For Vendor ID
   DollarOutlined, // For Pricing
-  LinkOutlined, // For URLs
+  LinkOutlined,
+  GiftFilled, // For URLs
 } from "@ant-design/icons";
 import {
   IRequestUpdateJobRun,
@@ -149,6 +150,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
             JSON.stringify([...valueFromForm].sort()) !==
             JSON.stringify([...originalValue].sort())
           ) {
+            // @ts-ignore
             changedFields[field] = valueFromForm as any;
           }
         }
@@ -161,6 +163,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
         }
         // Only include fields that have changed for non-array types
         else if (valueFromForm !== originalValue) {
+          // @ts-ignore
           changedFields[field] = valueFromForm;
         }
       });
@@ -427,6 +430,16 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                   }
                 >
                   Edit
+                </Button>
+
+                <Button
+                  icon={<GiftFilled />}
+                  href={jobRun.delivery_url}
+                  type="primary"
+                  size={screenType.isMobile ? "small" : "middle"}
+                  disabled={!jobRun.delivery_url}
+                >
+                  View Delivery
                 </Button>
               </>
             )}

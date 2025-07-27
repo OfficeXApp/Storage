@@ -234,6 +234,7 @@ const JobRunsPage: React.FC = () => {
                 ? "default"
                 : "primary"
             }
+            ghost
             icon={<PlusOutlined />}
             onClick={toggleDrawer}
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}

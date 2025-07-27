@@ -37,7 +37,8 @@ import { appstore_apps } from "../AppStore/constants"; // Assuming AppInfoWithOf
 import NotFoundPage from "../NotFound";
 import { useIdentitySystem } from "../../framework/identity";
 // Assuming these are exported from AppStore/index.tsx or a types file
-import { AppInfoWithOffers, OfferWorkflow, Vendor } from "../AppStore"; // Keep these if still needed for typing elsewhere
+import { AppInfoWithOffers, OfferWorkflow, VendorOffer } from "../AppStore"; // Keep these if still needed for typing elsewhere
+import RunAppDrawer, { CheckoutRun } from "../RunAppDrawer";
 
 const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
@@ -54,6 +55,7 @@ const AppPage = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isDrawerVisible, setIsDrawerVisible] = useState(false); // State for Drawer visibility
+  const [checkoutRun, setCheckoutRun] = useState<CheckoutRun | null>(null);
 
   if (!app) {
     return <NotFoundPage />;
@@ -86,6 +88,23 @@ const AppPage = () => {
   const filteredOffers = offersWithImages.filter((offer) =>
     offer.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleRunVendorJob = (offer: OfferWorkflow, vendor: VendorOffer) => {
+    setCheckoutRun({
+      vendorID: vendor.id,
+      vendorName: vendor.name,
+      vendorAvatar: vendor.avatar,
+      aboutUrl: vendor.aboutUrl,
+      verificationUrl: vendor.verificationUrl,
+      installationUrl: vendor.installationUrl,
+      offerName: offer.title,
+      offerDescription: vendor.description,
+      depositOptions: vendor.depositOptions,
+      requirements: vendor.requirements,
+      callToAction: vendor.callToAction,
+    });
+    showDrawer();
+  };
 
   const BookmarkedDemandPopoverContent = (
     <div>
@@ -360,9 +379,11 @@ const AppPage = () => {
                               type="primary"
                               size="large"
                               icon={<CaretRightOutlined />}
-                              onClick={showDrawer} // Add onClick to open Drawer
+                              onClick={() =>
+                                handleRunVendorJob(offer, offer.vendors[0])
+                              }
                             >
-                              Run Job
+                              {offer.callToAction || "Run Job"}
                             </Button>
                           </Space>
                         </Col>
@@ -469,9 +490,12 @@ const AppPage = () => {
                                         href={vendor.viewPageLink}
                                         target="_blank"
                                         rel="noopener noreferrer"
+                                        onClick={() =>
+                                          handleRunVendorJob(offer, vendor)
+                                        }
                                         icon={<CaretRightOutlined />}
                                       >
-                                        Run Job
+                                        {vendor.callToAction || "Run Job"}
                                       </Button>
                                     </Col>
                                   </Row>
@@ -541,20 +565,13 @@ const AppPage = () => {
       </Content>
 
       {/* The Ant Design Drawer Component */}
-      <Drawer
-        title="Run Job"
-        placement="right"
-        closable={true} // Only closeable by x
-        onClose={onCloseDrawer}
-        open={isDrawerVisible} // Controlled by state
-        width="70vw" // 90% of screen width
-        destroyOnClose={true} // Unmount children when closed
-      >
-        {/* Content for your Drawer goes here */}
-        <p>This is where your app will run!</p>
-        <p>You can add forms, content, or other components here.</p>
-        <Button onClick={onCloseDrawer}>Close Drawer</Button>
-      </Drawer>
+      {isDrawerVisible && checkoutRun && (
+        <RunAppDrawer
+          onCloseDrawer={onCloseDrawer}
+          isDrawerVisible={isDrawerVisible}
+          checkoutRun={checkoutRun}
+        />
+      )}
     </Layout>
   );
 };

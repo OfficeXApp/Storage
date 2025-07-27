@@ -112,6 +112,7 @@ import TagCopy from "./components/TagCopy";
 import { DriveProvider } from "./framework";
 import JobRunsPage from "./pages/JobRunsPage";
 import WalletControlPopover from "./components/WalletControlPopover";
+import ChatWithAI from "./apps/ChatWithAI";
 
 const { Sider, Content } = Layout;
 
@@ -187,17 +188,17 @@ const SideMenu = ({
   };
 
   const menuItems = [
-    // {
-    //   key: "appstore",
-    //   icon: <AppstoreAddOutlined />,
-    //   label: "App Store",
-    //   onClick: () => {
-    //     navigate(wrapOrgCode("/appstore"));
-    //     if (setSidebarVisible) {
-    //       setSidebarVisible(false);
-    //     }
-    //   },
-    // },
+    {
+      key: "appstore",
+      icon: <AppstoreAddOutlined />,
+      label: "App Store",
+      onClick: () => {
+        navigate(wrapOrgCode("/appstore"));
+        if (setSidebarVisible) {
+          setSidebarVisible(false);
+        }
+      },
+    },
     {
       key: "navigate-storage",
       label: "Storage",
@@ -622,6 +623,10 @@ const RouterUI = () => {
                         element={<Navigate to="/org/current/appstore" />}
                       />
                       <Route
+                        path="/chat"
+                        element={<Navigate to="/org/current/chat" />}
+                      />
+                      <Route
                         path="/org/:orgcode/drive/*"
                         element={
                           <DriveUI toggleUploadPanel={setUploadPanelVisible} />
@@ -673,6 +678,10 @@ const RouterUI = () => {
                       <Route
                         path="/org/:orgcode/appstore/app/:app_id"
                         element={<AppPage />}
+                      />
+                      <Route
+                        path="/org/:orgcode/chat"
+                        element={<ChatWithAI />}
                       />
                       <Route
                         path="/org/:orgcode/welcome"

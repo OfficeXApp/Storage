@@ -14,6 +14,7 @@ import {
   UploadOutlined,
   FolderAddOutlined,
   CloudSyncOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
 import { DriveFullFilePath, useDrive } from "../../framework";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -182,26 +183,39 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     {
       label: (
         <Space>
-          <FolderAddOutlined />
-          New Folder
+          <MessageOutlined />
+          New Chat
         </Space>
       ),
-      key: "newFolder",
+      key: "newChat",
       disabled,
       onClick: () => {
-        if (window.location.pathname.includes("/drive/")) {
-          setIsModalVisible(true);
-        } else if (window.location.pathname === wrapOrgCode("/drive")) {
-          message.info("Select a disk first");
-        } else {
-          navigate(wrapOrgCode("/drive"));
-          message.info("Select a disk");
-        }
+        navigate(wrapOrgCode("/chat"));
       },
     },
     {
       type: "divider",
     },
+    // {
+    //   label: (
+    //     <Space>
+    //       <FolderAddOutlined />
+    //       New Folder
+    //     </Space>
+    //   ),
+    //   key: "newFolder",
+    //   disabled,
+    //   onClick: () => {
+    //     if (window.location.pathname.includes("/drive/")) {
+    //       setIsModalVisible(true);
+    //     } else if (window.location.pathname === wrapOrgCode("/drive")) {
+    //       message.info("Select a disk first");
+    //     } else {
+    //       navigate(wrapOrgCode("/drive"));
+    //       message.info("Select a disk");
+    //     }
+    //   },
+    // },
     {
       label: (
         <Space>

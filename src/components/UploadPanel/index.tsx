@@ -62,6 +62,8 @@ const UploadPanel: React.FC<{
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isOnChatPage = location.pathname.includes("/chat");
+
   const getUploadFolderID = () => {
     // Get the current folder path
     const parentFolderID = uploadTargetFolderID
@@ -419,7 +421,7 @@ const UploadPanel: React.FC<{
       <div
         style={{
           position: "fixed",
-          bottom: 0,
+          bottom: isOnChatPage ? -50 : 0,
           right: screenType.isMobile ? 0 : 20,
           width: screenType.isMobile ? "100%" : "400px",
           backgroundColor: "white",

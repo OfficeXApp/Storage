@@ -268,3 +268,23 @@ export function extractDiskInfo() {
     diskID: "" as DiskID,
   };
 }
+
+export function isValidEmail(email: string) {
+  // 1. Basic type and emptiness check
+  if (typeof email !== "string" || email.trim() === "") {
+    return false;
+  }
+
+  // 2. Simple regex for email validation
+  // This regex checks for:
+  // ^          - start of the string
+  // [^\s@]+    - one or more characters that are NOT whitespace or @ (for the local part, e.g., "user")
+  // @          - literal @ symbol
+  // [^\s@]+    - one or more characters that are NOT whitespace or @ (for the domain part, e.g., "example")
+  // \.         - literal dot (escaped because . is a special regex character)
+  // [^\s@]+    - one or more characters that are NOT whitespace or @ (for the top-level domain, e.g., "com")
+  // $          - end of the string
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  return emailRegex.test(email);
+}

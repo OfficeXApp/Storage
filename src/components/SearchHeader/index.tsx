@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Input, Button } from "antd";
-import { MenuOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  MenuOutlined,
+  SearchOutlined,
+  WalletOutlined,
+} from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import useScreenType from "react-screentype-hook";
 import { generate } from "random-words"; // Import random-words library
@@ -59,6 +63,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
           />
         )}
         {renderSearchBar()}
+
         <SwitchProfile showAvatar={false} />
       </div>
     );
@@ -78,7 +83,10 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
     >
       <div style={{ flex: 1 }}>{renderSearchBar()}</div>
 
-      <SwitchProfile showAvatar />
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {/* <WalletOutlined color="rgba(165, 165, 165, 0.4)" /> */}
+        <SwitchProfile showAvatar />
+      </div>
     </div>
   );
 };

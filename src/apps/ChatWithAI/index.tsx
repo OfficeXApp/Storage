@@ -1059,8 +1059,8 @@ const ChatWithAI = () => {
     <div>
       <Helmet>
         <meta charSet="utf-8" />
-        <title>Chat with AI</title>
-        <link rel="icon" href="/docs-favicon.ico" />
+        <title>Chat | OfficeX</title>
+        <link rel="icon" href="/drive-logo.png" />
       </Helmet>
       <iframe
         ref={iframeRef}

@@ -23,6 +23,8 @@ import {
   LinkOutlined,
   InfoCircleOutlined,
   CloseOutlined,
+  CheckCircleFilled,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
@@ -34,12 +36,26 @@ import { useIdentitySystem } from "../../framework/identity";
 import {
   ApiKeyFE,
   CheckoutRun,
-  IRequestCheckoutPayload,
-  IResponseCheckoutPayload,
-  VendorDepositForOffer,
+  IRequestAuthInstallation,
+  IResponseAuthInstallation,
+  CheckoutOption,
+  IResponseCheckoutInit_Base,
+  IResponseCheckoutInit,
+  IRequestCheckoutInit,
+  IResponseCheckoutInit_Crypto,
+  VendorOfferReqField,
+  IRequestCheckoutFinalize,
+  GenerateID,
+  JobRunStatus,
+  IResponseCheckoutFinalize,
+  IRequestCheckoutValidate,
+  IResponseCheckoutValidate,
 } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { Link } from "react-router-dom";
+import { isValidEmail } from "../../api/helpers";
+import { parseUnits } from "viem";
+import { createJobRunAction } from "../../redux-offline/job-runs/job-runs.actions";
 
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
@@ -57,9 +73,9 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
 }) => {
   const screenType = useScreenType();
   const [selectedDepositOption, setSelectedDepositOption] =
-    useState<VendorDepositForOffer | null>(
-      checkoutRun.depositOptions.length > 0
-        ? checkoutRun.depositOptions[0]
+    useState<CheckoutOption | null>(
+      checkoutRun.checkoutOptions.length > 0
+        ? checkoutRun.checkoutOptions[0]
         : null
     );
   const [apiKeyInputValue, setApiKeyInputValue] = useState<string>("");
@@ -67,10 +83,19 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
   const [preferenceInputs, setPreferenceInputs] = useState<
     Record<string, string>
   >({}); // For dynamic requirement inputs
-  const [isRunButtonDisabled, setIsRunButtonDisabled] = useState<boolean>(true);
-  const [finishedCheckoutRedirectUrl, setFinishedCheckoutRedirectUrl] =
-    useState<string>("");
-  const [redirectCta, setRedirectCta] = useState<string>("");
+  const [isFinishButtonDisabled, setIsFinishButtonDisabled] =
+    useState<boolean>(true);
+  const [finalRedirectUrl, setFinalRedirectUrl] = useState<string>("");
+  const [finalRedirectCta, setFinalRedirectCta] = useState<string>("");
+  const [isFinalizedCheckout, setIsFinalizedCheckout] =
+    useState<boolean>(false);
+  const [checkoutInitResponse, setCheckoutInitResponse] =
+    useState<IResponseCheckoutInit | null>(null);
+  const [email, setEmail] = useState<string>("");
+  const [isValidatingLoading, setIsValidatingLoading] =
+    useState<boolean>(false);
+  const [isFinalizingLoading, setIsFinalizingLoading] =
+    useState<boolean>(false);
 
   const dispatch = useDispatch();
   const {
@@ -80,18 +105,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     currentOrg,
     wrapOrgCode,
   } = useIdentitySystem();
-
-  useEffect(() => {
-    if (isDrawerVisible) {
-      const initialPreferenceInputs: Record<string, string> = {};
-      checkoutRun.requirements.forEach((req) => {
-        if (req.defaultValue !== undefined && req.defaultValue !== null) {
-          initialPreferenceInputs[req.id] = String(req.defaultValue);
-        }
-      });
-      setPreferenceInputs(initialPreferenceInputs);
-    }
-  }, [isDrawerVisible, checkoutRun.requirements]);
+  const [validatedPayment, setValidatedPayment] = useState<boolean>(false);
 
   useEffect(() => {
     if (isDrawerVisible && currentProfile) {
@@ -112,21 +126,24 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       // For now, we'll only consider it required if a custom value is expected.
       // If it's empty, the signature generation will handle it.
 
-      // Check Deposit Proof (txProof) if deposit options exist
-      if (checkoutRun.depositOptions.length > 0 && selectedDepositOption) {
-        if (!txProofInputValue.trim()) {
-          allRequiredFieldsFilled = false;
-        }
-      }
-
       // Check dynamic requirement fields
-      checkoutRun.requirements.forEach((req) => {
+      checkoutInitResponse?.requirements?.forEach((req) => {
         if (req.required && !preferenceInputs[req.id]?.trim()) {
           allRequiredFieldsFilled = false;
         }
       });
 
-      setIsRunButtonDisabled(!allRequiredFieldsFilled);
+      if (!selectedDepositOption) {
+        allRequiredFieldsFilled = false;
+      }
+      if (!email.trim()) {
+        allRequiredFieldsFilled = false;
+      }
+      if (checkoutInitResponse?.validation_endpoint && !validatedPayment) {
+        allRequiredFieldsFilled = false;
+      }
+
+      setIsFinishButtonDisabled(!allRequiredFieldsFilled);
     };
 
     checkFormValidity();
@@ -134,16 +151,16 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     apiKeyInputValue,
     txProofInputValue,
     preferenceInputs,
-    selectedDepositOption,
-    checkoutRun.depositOptions,
-    checkoutRun.requirements,
+    checkoutInitResponse,
+    validatedPayment,
   ]);
 
   const handleDepositOptionChange = (value: string) => {
-    const selected = checkoutRun.depositOptions.find(
+    const selected = checkoutRun.checkoutOptions.find(
       (option) => option.title === value
     );
     setSelectedDepositOption(selected || null);
+    setCheckoutInitResponse(null);
     setTxProofInputValue(""); // Clear txProof when deposit option changes
   };
 
@@ -157,67 +174,119 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
   };
 
   const handleSubmit = async () => {
-    // Manual validation before submission
-    let isValid = true;
-
-    // Validate Transaction Proof if required
-    if (checkoutRun.depositOptions.length > 0 && selectedDepositOption) {
-      if (!txProofInputValue.trim()) {
-        message.error("Please enter the transaction proof!");
-        isValid = false;
-      }
-    }
-
-    // Validate dynamic requirement fields
-    checkoutRun.requirements.forEach((req) => {
-      if (req.required && !preferenceInputs[req.id]?.trim()) {
-        message.error(`Please provide ${req.title}`);
-        isValid = false;
-      }
-    });
-
-    if (!isValid) {
-      return;
-    }
-
+    if (!checkoutInitResponse) return;
+    setIsFinalizingLoading(true);
+    message.info("Finalizing checkout... This can take up to 2 mins...");
     try {
-      let finalApiKey = apiKeyInputValue;
+      // create the purchase record
+      const job_run_id = GenerateID.JobRunID();
 
-      if (!finalApiKey) {
-        message.loading("Generating quick signature...", 0);
-        finalApiKey = await generateSignature();
-        message.destroy();
-        message.success("Signature generated!");
+      const payload_finalize_checkout: IRequestCheckoutFinalize = {
+        checkout_flow_id: checkoutInitResponse?.checkout_flow_id || "",
+        checkout_session_id: checkoutInitResponse?.checkout_session_id || "",
+        officex_purchase_id: job_run_id,
+        note: "", // depends on vendor server,
+        tracer: checkoutInitResponse.tracer || "",
+        proxy_buyer_data: {
+          org_id: currentOrg?.driveID || "",
+          org_endpoint: currentOrg?.endpoint || "",
+          user_id: currentProfile?.userID || "",
+        },
+        sweep_tokens: (checkoutInitResponse as IResponseCheckoutInit_Crypto)
+          .crypto_checkout.token_address
+          ? [
+              (checkoutInitResponse as IResponseCheckoutInit_Crypto)
+                .crypto_checkout.token_address,
+            ]
+          : [],
+      };
+      const response_finalize_checkout = await fetch(
+        checkoutInitResponse?.finalization_endpoint || "",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload_finalize_checkout),
+        }
+      );
+      const data_finalize_checkout: IResponseCheckoutFinalize =
+        await response_finalize_checkout.json();
+
+      if (!data_finalize_checkout.success) {
+        message.error(
+          `Failed to finalize checkout | ${data_finalize_checkout.message}`,
+          30
+        );
+        setIsFinalizingLoading(false);
+        return;
       }
 
-      const payload: IRequestCheckoutPayload = {
-        checkoutRun,
-        selectedDepositOption,
-        requirements: preferenceInputs, // All dynamic form fields go here
-        grantedApiKey: finalApiKey,
-        txProof: txProofInputValue,
-        orgID: currentOrg?.driveID,
-        orgEndpoint: currentOrg?.endpoint,
-      };
-
-      console.log("Final Checkout Payload:", payload);
-
-      const response = await fetch(checkoutRun.installationUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      createJobRunAction({
+        id: job_run_id,
+        title: checkoutRun.offerName,
+        vendor_name: checkoutRun.vendorName,
+        vendor_id: checkoutRun.vendorID,
+        about_url: checkoutRun.aboutUrl,
+        status: JobRunStatus.AWAITING,
+        description: checkoutRun.offerDescription,
+        pricing: checkoutRun.priceLine,
+        notes: `From checkout init route ${selectedDepositOption?.checkout_init_endpoint} with checkout session id ${checkoutInitResponse?.checkout_session_id}`,
+        tracer: checkoutInitResponse?.tracer || "",
+        labels: [],
+        delivery_url: data_finalize_checkout.skip_to_final_redirect,
       });
 
-      if (!response.ok) {
-        // Handle HTTP errors
-        const errorData = await response.json(); // Attempt to parse error message from response body
-        throw new Error(errorData.message || "Network response was not ok.");
+      let finalApiKey = apiKeyInputValue;
+      if (checkoutInitResponse?.post_payment.auth_installation_url) {
+        if (!finalApiKey) {
+          message.loading("Generating quick signature...", 0);
+          finalApiKey = await generateSignature();
+          if (finalApiKey) {
+            message.destroy();
+            message.success("Signature generated!");
+          } else {
+            message.error(
+              "Did not provide API key and failed to generate signature"
+            );
+            setIsFinalizingLoading(false);
+            return;
+          }
+        }
       }
 
-      const data: IResponseCheckoutPayload = await response.json();
-      console.log(`Checkout Response:`, data);
+      if (
+        checkoutInitResponse.post_payment.auth_installation_url &&
+        finalApiKey
+      ) {
+        const payload: IRequestAuthInstallation = {
+          checkout_session_id: checkoutInitResponse.checkout_session_id,
+          requirements: preferenceInputs, // All dynamic form fields go here
+          org_id: currentOrg?.driveID,
+          org_endpoint: currentOrg?.endpoint,
+          org_api_key: finalApiKey,
+          user_id: currentProfile?.userID,
+        };
+        console.log("Final Checkout Payload:", payload);
+        const response = await fetch(
+          checkoutInitResponse?.post_payment?.auth_installation_url || "",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+        if (!response.ok) {
+          // Handle HTTP errors
+          const errorData = await response.json(); // Attempt to parse error message from response body
+          setIsFinalizingLoading(false);
+          throw new Error(errorData.message || "Network response was not ok.");
+        }
+        const data: IResponseAuthInstallation = await response.json();
+        console.log(`Checkout Response:`, data);
+      }
 
       message.success(
         <span>
@@ -225,21 +294,25 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           <Link to={wrapOrgCode(`/resources/job_runs`)}>purchase history</Link>
         </span>
       );
-      setRedirectCta(data.redirect_cta || "");
-
-      if (data.redirect_url) {
-        setFinishedCheckoutRedirectUrl(data.redirect_url);
-      } else {
-        setFinishedCheckoutRedirectUrl(
-          `${window.location.origin}${wrapOrgCode(`/resources/job-runs`)}`
-        );
-      }
+      setFinalRedirectUrl(
+        data_finalize_checkout.skip_to_final_redirect ||
+          `${window.location.origin}/org/current/resources/job-runs`
+      );
+      setFinalRedirectCta(
+        data_finalize_checkout.skip_to_final_cta ||
+          checkoutInitResponse.final_cta ||
+          "View Purchase History"
+      );
+      setIsFinalizedCheckout(true);
+      setIsFinalizingLoading(false);
     } catch (error: any) {
       console.error("Submission failed:", error);
       // Display the error message from the caught error, or a generic one
       message.error(
-        `Submission failed: ${error.message || "An unexpected error occurred."}`
+        `Submission failed: ${error.message || "An unexpected error occurred."}`,
+        30
       );
+      setIsFinalizingLoading(false);
     }
   };
 
@@ -275,10 +348,6 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     </div>
   );
 
-  console.log(
-    `checkoutRun.needsCloudOfficeX=${checkoutRun.needsCloudOfficeX} && !currentOrg?.endpoint=${currentOrg?.endpoint}`
-  );
-
   const renderVideo = () => {
     if (!checkoutRun.checkoutVideo) return null;
     const videoUrl = checkoutRun.checkoutVideo;
@@ -309,6 +378,106 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       );
     }
   };
+
+  const initiateCheckout = async () => {
+    if (
+      !selectedDepositOption ||
+      !selectedDepositOption.checkout_init_endpoint
+    ) {
+      message.error("Error | No checkout init endpoint found");
+      return;
+    }
+    try {
+      const payload: IRequestCheckoutInit = {
+        checkout_flow_id: selectedDepositOption.checkout_flow_id,
+        org_id: currentOrg?.driveID || "",
+        user_id: currentProfile?.userID || "",
+        email,
+      };
+      const response = await fetch(
+        selectedDepositOption.checkout_init_endpoint,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      const data = await response.json();
+      if (data) {
+        console.log(`Got IResponseCheckoutInit`, data);
+        setCheckoutInitResponse(data);
+        const initialPreferenceInputs: Record<string, string> = {};
+        data.requirements.forEach((req: VendorOfferReqField) => {
+          if (req.defaultValue !== undefined && req.defaultValue !== null) {
+            initialPreferenceInputs[req.id] = String(req.defaultValue);
+          }
+        });
+        setPreferenceInputs(initialPreferenceInputs);
+      }
+    } catch (error) {
+      console.error("Error initiating checkout:", error);
+    }
+  };
+
+  const validatePayment = async () => {
+    setIsValidatingLoading(true);
+    try {
+      const payload: IRequestCheckoutValidate = {
+        checkout_flow_id: checkoutInitResponse?.checkout_flow_id || "",
+        checkout_session_id: checkoutInitResponse?.checkout_session_id || "",
+        note: "", // depends on vendor server,
+        tracer: checkoutInitResponse?.tracer || "",
+      };
+      const response = await fetch(
+        checkoutInitResponse?.validation_endpoint || "",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      const data: IResponseCheckoutValidate = await response.json();
+      console.log(`Got IResponseCheckoutValidate`, data);
+      if (data.success) {
+        setValidatedPayment(true);
+        message.success(
+          `Validated | You may now proceed to finalizing the purchase`
+        );
+      } else {
+        message.error(data.message, 30);
+        setValidatedPayment(false);
+      }
+    } catch (error) {
+      console.error("Error validating payment:", error);
+    } finally {
+      setIsValidatingLoading(false);
+    }
+  };
+
+  const handleFinalRedirect = () => {
+    if (finalRedirectUrl) {
+      window.location.href = finalRedirectUrl;
+    }
+  };
+
+  const shouldShowAuthSection =
+    checkoutInitResponse &&
+    checkoutInitResponse.post_payment.auth_installation_url;
+
+  const shouldShowWhatHappensNext =
+    (checkoutInitResponse &&
+      checkoutInitResponse?.validation_endpoint &&
+      validatedPayment) ||
+    (checkoutInitResponse &&
+      !checkoutInitResponse?.validation_endpoint &&
+      checkoutInitResponse?.finalization_endpoint) ||
+    (checkoutInitResponse &&
+      !checkoutInitResponse?.validation_endpoint &&
+      !checkoutInitResponse?.finalization_endpoint);
 
   return (
     <Drawer
@@ -360,34 +529,32 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       footer={
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
           <Button onClick={onCloseDrawer}>Close</Button>
-          {finishedCheckoutRedirectUrl ? (
-            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-              <span style={{ color: "#16af16" }}>Success</span>
-              <Button
-                type="primary"
-                onClick={() => {
-                  // open in new tab
-                  window.open(finishedCheckoutRedirectUrl, "_blank");
-                }}
-                disabled={isRunButtonDisabled}
-              >
-                {redirectCta || "View Purchase History"}
-              </Button>
-            </div>
-          ) : (
-            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-              {checkoutRun.needsCloudOfficeX && !currentOrg?.endpoint && (
+
+          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            {checkoutInitResponse?.post_payment?.needs_cloud_officex &&
+              !currentOrg?.endpoint && (
                 <span style={{ color: "#ff0000" }}>Connect Cloud</span>
               )}
+            {finalRedirectUrl && finalRedirectCta && isFinalizedCheckout ? (
               <Button
                 type="primary"
-                onClick={handleSubmit}
-                disabled={isRunButtonDisabled}
+                onClick={handleFinalRedirect}
+                disabled={isFinishButtonDisabled}
               >
-                {checkoutRun.callToAction || "Run App"}
+                {finalRedirectCta}
               </Button>
-            </div>
-          )}
+            ) : shouldShowWhatHappensNext ? (
+              <Button
+                type="primary"
+                ghost
+                onClick={handleSubmit}
+                disabled={isFinishButtonDisabled}
+                loading={isFinalizingLoading}
+              >
+                {checkoutInitResponse?.final_cta || "Finish"}
+              </Button>
+            ) : null}
+          </div>
         </Space>
       }
     >
@@ -397,6 +564,9 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           <Title level={4} style={{ margin: 0 }}>
             {checkoutRun.offerName}
           </Title>
+          <Text color="blue" italic>
+            {checkoutRun.priceLine}
+          </Text>
           <div
             dangerouslySetInnerHTML={{ __html: checkoutRun.offerDescription }}
             style={{ marginTop: 10 }}
@@ -405,224 +575,179 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
 
         {renderVideo()}
 
-        {/* --- Security Section --- */}
-        <Card
-          size="small"
-          style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
-        >
-          <b>1. Security & Verification</b>
-          <br />
-          {checkoutRun.needsAuth ? (
-            <>
-              <Paragraph>
-                This application requires certain permissions to function.
-                Please review the permission scopes below.
-              </Paragraph>
-              <Alert
-                message="Vendor Verification & API Key Best Practices"
-                description={
-                  <>
-                    <Paragraph style={{ marginBottom: "8px" }}>
-                      It's crucial to verify that this vendor offer is who they
-                      claim to be. Always check their credentials and the code
-                      being executed.
-                    </Paragraph>
-                    <Paragraph>
-                      <Tooltip title="View vendor's terms and conditions or general information.">
-                        <a
-                          href={checkoutRun.aboutUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            borderBottom: "1px dashed #999",
-                            color: "inherit",
-                          }}
-                        >
-                          About this vendor{" "}
-                          <LinkOutlined style={{ fontSize: "12px" }} />
-                        </a>
-                      </Tooltip>
-                      <Divider type="vertical" />
-                      <Tooltip title="Verify the code to be executed on checkout, usually pointing to a Trusted Execution Environment (TEE).">
-                        <a
-                          href={checkoutRun.verificationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            borderBottom: "1px dashed #999",
-                            color: "inherit",
-                          }}
-                        >
-                          Verify execution code{" "}
-                          <LinkOutlined style={{ fontSize: "12px" }} />
-                        </a>
-                      </Tooltip>
-                      <Divider type="vertical" />
-                      <Tooltip title="OfficeX is a permissionless platform and thus does not verify 3rd party apps. Appstore list providers and users to be responsible for their own security.">
-                        <a
-                          href="#" // Replace with actual link to "Learn more about verification"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            borderBottom: "1px dashed #999",
-                            color: "inherit",
-                          }}
-                        >
-                          Learn more about 3rd party app verification on OfficeX{" "}
-                          <LinkOutlined style={{ fontSize: "12px" }} />
-                        </a>
-                      </Tooltip>
-                    </Paragraph>
-                  </>
-                }
-                type="warning"
-                showIcon
-                style={{ marginBottom: 20 }}
-              />
-
-              {/* API Key Password Input */}
-              <div style={{ marginBottom: 24 }}>
-                <label style={{ display: "block", marginBottom: 8 }}>
-                  <Space size={4}>
-                    Grant API Key Scope
-                    <Popover
-                      content={SecurityDisclaimerPopoverContent}
-                      title="API Key Security Hygiene"
-                      trigger="hover"
-                    >
-                      <InfoCircleOutlined
-                        style={{ color: "rgba(0,0,0,.45)" }}
-                      />
-                    </Popover>
-                  </Space>
-                </label>
-                <Input.Password
-                  placeholder="Enter API key or leave empty to use 30 second signatures if available"
-                  value={apiKeyInputValue}
-                  onChange={(e) => setApiKeyInputValue(e.target.value)}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <span style={{ fontSize: "13px", color: "#666" }}>
-                This application does not require any permissions to function.
-              </span>
-            </>
-          )}
-        </Card>
-
         {/* --- Deposit Details Section --- */}
-        {checkoutRun.depositOptions.length > 0 ? (
+        {checkoutRun.checkoutOptions.length > 0 ? (
           <Card
             size="small"
             style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
           >
-            <b>2. Deposit Details</b>
+            <b>1. Payment Method</b>
             <br />
             <span style={{ fontSize: "13px", color: "#666" }}>
               The vendor may require a deposit or payment to run the app.
             </span>
             <br />
             <br />
-            {selectedDepositOption && (
-              <>
-                {selectedDepositOption.depositUrlCheckout ? (
-                  // Non-crypto payment rail: Show button only
-                  <>
-                    <div style={{ marginBottom: 16 }}>
-                      <label style={{ display: "block", marginBottom: 8 }}>
-                        <Space size={4}>
-                          Select Deposit Option
-                          <Popover
-                            content={DepositInfoPopoverContent(
-                              "Choose your preferred method for depositing funds to run the app."
-                            )}
-                            title="Deposit Option Explanation"
-                            trigger="hover"
-                          >
-                            <InfoCircleOutlined
-                              style={{ color: "rgba(0,0,0,.45)" }}
-                            />
-                          </Popover>
-                        </Space>
-                      </label>
-                      <Select
-                        value={selectedDepositOption?.title}
-                        onChange={handleDepositOptionChange}
-                        style={{ width: "100%" }}
-                      >
-                        {checkoutRun.depositOptions.map((option) => (
-                          <Option key={option.title} value={option.title}>
-                            {option.title}
-                          </Option>
-                        ))}
-                      </Select>
-                    </div>
-                    <div style={{ textAlign: "center", marginBottom: 24 }}>
-                      <Button
-                        type="primary"
-                        size="large"
-                        onClick={() =>
-                          window.open(
-                            selectedDepositOption.depositUrlCheckout,
-                            "_blank"
-                          )
-                        }
-                        icon={<LinkOutlined />}
-                      >
-                        Open Payment Link
-                      </Button>
-                      {selectedDepositOption.explanation && (
-                        <Paragraph
-                          type="secondary"
-                          style={{ fontSize: "13px", marginTop: "12px" }}
+            <div style={{ marginBottom: 0 }}>
+              <label style={{ display: "block", marginBottom: 8 }}>
+                <Space size={4}>
+                  Select Payment Option
+                  <Popover
+                    content={DepositInfoPopoverContent(
+                      "Choose your preferred method for depositing funds to run the app."
+                    )}
+                    trigger="hover"
+                  >
+                    <InfoCircleOutlined style={{ color: "rgba(0,0,0,.45)" }} />
+                  </Popover>
+                </Space>
+              </label>
+              <Select
+                value={selectedDepositOption?.title}
+                onChange={handleDepositOptionChange}
+                style={{ width: "100%" }}
+                disabled={validatedPayment}
+              >
+                {checkoutRun.checkoutOptions.map((option) => (
+                  <Option key={option.title} value={option.title}>
+                    <Popover
+                      content={
+                        <span
+                          style={{ maxWidth: "200px", whiteSpace: "pre-wrap" }}
                         >
-                          {selectedDepositOption.explanation}
-                        </Paragraph>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  // Crypto payment rails: Show QR and crypto details
+                          {option.vendor_notes ||
+                            option.vendor_disclaimer ||
+                            ""}
+                        </span>
+                      }
+                    >
+                      <InfoCircleOutlined
+                        style={{
+                          color: "rgba(0,0,0,.45)",
+                          marginRight: "8px",
+                        }}
+                      />
+                    </Popover>
+                    {option.title}
+                  </Option>
+                ))}
+              </Select>
+              {selectedDepositOption?.vendor_disclaimer &&
+                !checkoutInitResponse && (
+                  <Alert
+                    message={
+                      <div>
+                        <span>
+                          {selectedDepositOption?.vendor_disclaimer || ""}
+                        </span>
+                        <br />
+
+                        {selectedDepositOption?.requires_email_for_init && (
+                          <>
+                            <br />
+                            <Input
+                              type="email"
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="Enter your email"
+                              value={email}
+                              bordered={false}
+                              style={{
+                                width: "100%",
+                                backgroundColor: "#f6fbff",
+                              }}
+                            />
+                          </>
+                        )}
+                      </div>
+                    }
+                    type="info"
+                    style={{ marginTop: 8 }}
+                  />
+                )}
+              {((selectedDepositOption &&
+                selectedDepositOption.requires_email_for_init &&
+                isValidEmail(email) &&
+                !checkoutInitResponse) ||
+                (selectedDepositOption &&
+                  !selectedDepositOption.requires_email_for_init)) && (
+                <div
+                  style={{ width: "100%", textAlign: "center", marginTop: 8 }}
+                >
+                  <Button
+                    block
+                    size="large"
+                    type="primary"
+                    onClick={initiateCheckout}
+                  >
+                    Begin Checkout
+                  </Button>
+                  <i
+                    style={{
+                      fontSize: "0.7rem",
+                      color: "#b1b1b1",
+                    }}
+                  >
+                    By clicking "Begin Checkout", you agree to the vendor's{" "}
+                    <a
+                      href={checkoutRun.terms_of_service_url}
+                      target="_blank"
+                      style={{
+                        color: "rgb(177, 177, 177)",
+                        textDecoration: "dashed underline",
+                      }}
+                    >
+                      terms and conditions.
+                    </a>
+                  </i>
+                </div>
+              )}
+              {checkoutInitResponse && (
+                <div style={{ marginTop: 16 }}>
+                  <Paragraph style={{ marginBottom: "8px" }}>
+                    Send{" "}
+                    <Text
+                      strong
+                      style={{
+                        borderBottom: "1px dashed #999",
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        window.open(
+                          `${(checkoutInitResponse as IResponseCheckoutInit_Crypto).crypto_checkout.chain_explorer_url}/token/${(checkoutInitResponse as IResponseCheckoutInit_Crypto).crypto_checkout.token_address}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      {
+                        (checkoutInitResponse as IResponseCheckoutInit_Crypto)
+                          .crypto_checkout.token_symbol
+                      }
+                    </Text>{" "}
+                    on{" "}
+                    <Text
+                      strong
+                      style={{
+                        borderBottom: "1px dashed #999",
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        window.open(
+                          (checkoutInitResponse as IResponseCheckoutInit_Crypto)
+                            .crypto_checkout.chain_explorer_url,
+                          "_blank"
+                        )
+                      }
+                    >
+                      {
+                        (checkoutInitResponse as IResponseCheckoutInit_Crypto)
+                          .crypto_checkout.chain
+                      }
+                    </Text>
+                    :
+                  </Paragraph>
                   <Row gutter={[8, 16]} align="top" justify="start">
                     {/* Left Column: QR Code and Instructions */}
                     <Col xs={24} md={8} style={{ textAlign: "center" }}>
-                      <Paragraph style={{ marginBottom: "8px" }}>
-                        Send{" "}
-                        <Text
-                          strong
-                          style={{
-                            borderBottom: "1px dashed #999",
-                            cursor: "pointer",
-                          }}
-                          onClick={() =>
-                            window.open(
-                              `${selectedDepositOption.chainExplorerUrl}token/${selectedDepositOption.tokenAddress}`,
-                              "_blank"
-                            )
-                          }
-                        >
-                          {selectedDepositOption.tokenSymbol}
-                        </Text>{" "}
-                        on{" "}
-                        <Text
-                          strong
-                          style={{
-                            borderBottom: "1px dashed #999",
-                            cursor: "pointer",
-                          }}
-                          onClick={() =>
-                            window.open(
-                              selectedDepositOption.chainExplorerUrl,
-                              "_blank"
-                            )
-                          }
-                        >
-                          {selectedDepositOption.chain}
-                        </Text>
-                        :
-                      </Paragraph>
                       <div
                         style={{
                           display: "flex",
@@ -631,7 +756,11 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                         }}
                       >
                         <QRCode
-                          value={selectedDepositOption.depositAddress || "-"}
+                          value={
+                            (
+                              checkoutInitResponse as IResponseCheckoutInit_Crypto
+                            ).crypto_checkout.receiving_address || "-"
+                          }
                           size={180}
                           errorLevel="H"
                           icon={checkoutRun.vendorAvatar}
@@ -641,43 +770,18 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
 
                     {/* Right Column: Deposit Input Fields & Select Deposit Option */}
                     <Col xs={24} md={16}>
-                      <div style={{ marginBottom: 16 }}>
-                        <label style={{ display: "block", marginBottom: 8 }}>
-                          <Space size={4}>
-                            Select Deposit Option
-                            <Popover
-                              content={DepositInfoPopoverContent(
-                                "Choose your preferred method for depositing funds to run the app."
-                              )}
-                              title="Deposit Option Explanation"
-                              trigger="hover"
-                            >
-                              <InfoCircleOutlined
-                                style={{ color: "rgba(0,0,0,.45)" }}
-                              />
-                            </Popover>
-                          </Space>
-                        </label>
-                        <Select
-                          value={selectedDepositOption?.title}
-                          onChange={handleDepositOptionChange}
-                          style={{ width: "100%" }}
-                        >
-                          {checkoutRun.depositOptions.map((option) => (
-                            <Option key={option.title} value={option.title}>
-                              {option.title}
-                            </Option>
-                          ))}
-                        </Select>
-                      </div>
-
-                      <div style={{ marginBottom: 12 }}>
+                      <div style={{ marginTop: 4, marginBottom: 12 }}>
                         <Input
                           readOnly
-                          value={selectedDepositOption.depositAddress}
+                          disabled={validatedPayment}
+                          value={
+                            (
+                              checkoutInitResponse as IResponseCheckoutInit_Crypto
+                            ).crypto_checkout.receiving_address
+                          }
                           addonBefore={
                             <Space size={4}>
-                              <Text strong>Deposit Address</Text>{" "}
+                              <Text strong>Receiver</Text>{" "}
                               <Popover
                                 content={DepositInfoPopoverContent(
                                   "The unique address for the deposit on the selected chain. Click to view on chain explorer."
@@ -697,7 +801,15 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                                 style={{ cursor: "pointer", color: "#666" }}
                                 onClick={() =>
                                   window.open(
-                                    `${selectedDepositOption.chainExplorerUrl}address/${selectedDepositOption.depositAddress}`,
+                                    `${
+                                      (
+                                        checkoutInitResponse as IResponseCheckoutInit_Crypto
+                                      ).crypto_checkout.chain_explorer_url
+                                    }address/${
+                                      (
+                                        checkoutInitResponse as IResponseCheckoutInit_Crypto
+                                      ).crypto_checkout.receiving_address
+                                    }`,
                                     "_blank"
                                   )
                                 }
@@ -706,7 +818,9 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                                 style={{ cursor: "pointer", color: "#666" }}
                                 onClick={() =>
                                   handleCopy(
-                                    selectedDepositOption.depositAddress
+                                    (
+                                      checkoutInitResponse as IResponseCheckoutInit_Crypto
+                                    ).crypto_checkout.receiving_address
                                   )
                                 }
                               />
@@ -718,10 +832,22 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                       <div style={{ marginBottom: 12 }}>
                         <Input
                           readOnly
+                          disabled={validatedPayment}
                           value={`${
-                            selectedDepositOption.amount /
-                            Math.pow(10, selectedDepositOption.tokenDecimals)
-                          } ${selectedDepositOption.tokenSymbol}`}
+                            (
+                              checkoutInitResponse as IResponseCheckoutInit_Crypto
+                            ).crypto_checkout.suggested_amount_decimals
+                          }`}
+                          min={
+                            (
+                              checkoutInitResponse as IResponseCheckoutInit_Crypto
+                            ).crypto_checkout.minimum_amount_decimals
+                          }
+                          max={
+                            (
+                              checkoutInitResponse as IResponseCheckoutInit_Crypto
+                            ).crypto_checkout.maximum_amount_decimals
+                          }
                           addonBefore={
                             <Space size={4}>
                               <Text strong>Amount</Text>
@@ -739,34 +865,46 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                             </Space>
                           }
                           suffix={
-                            <CopyOutlined
-                              style={{ cursor: "pointer", color: "#666" }}
-                              onClick={() =>
-                                handleCopy(
-                                  `${
-                                    selectedDepositOption.amount /
-                                    Math.pow(
-                                      10,
-                                      selectedDepositOption.tokenDecimals
-                                    )
-                                  } ${selectedDepositOption.tokenSymbol}`
-                                )
+                            <span>
+                              {
+                                (
+                                  checkoutInitResponse as IResponseCheckoutInit_Crypto
+                                ).crypto_checkout.token_symbol
                               }
-                            />
+                              <CopyOutlined
+                                style={{
+                                  cursor: "pointer",
+                                  color: "#666",
+                                  marginLeft: 4,
+                                }}
+                                onClick={() =>
+                                  handleCopy(
+                                    (
+                                      checkoutInitResponse as IResponseCheckoutInit_Crypto
+                                    ).crypto_checkout.suggested_amount_decimals.toString()
+                                  )
+                                }
+                              />
+                            </span>
                           }
                         />
                       </div>
 
-                      {selectedDepositOption.explanation && (
+                      {(checkoutInitResponse as IResponseCheckoutInit_Crypto)
+                        .vendor_disclaimer && (
                         <Paragraph
                           type="secondary"
                           style={{ fontSize: "13px", marginTop: "4px" }}
                         >
-                          {selectedDepositOption.explanation}
+                          {
+                            (
+                              checkoutInitResponse as IResponseCheckoutInit_Crypto
+                            ).vendor_disclaimer
+                          }
                         </Paragraph>
                       )}
                     </Col>
-                    <Col xs={24}>
+                    {/* <Col xs={24}>
                       <div style={{ marginBottom: 0 }}>
                         <label style={{ display: "block", marginBottom: 8 }}>
                           <Space size={4}>
@@ -783,7 +921,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                               />
                             </Popover>
                           </Space>
-                          {checkoutRun.depositOptions.length > 0 &&
+                          {checkoutRun.checkoutOptions.length > 0 &&
                             selectedDepositOption && (
                               <Text type="danger">*</Text>
                             )}
@@ -794,21 +932,200 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                           onChange={(e) => setTxProofInputValue(e.target.value)}
                         />
                       </div>
-                    </Col>
+                    </Col> */}
                   </Row>
+                </div>
+              )}
+              {checkoutInitResponse &&
+                checkoutInitResponse.validation_endpoint && (
+                  <div
+                    style={{
+                      marginTop: 16,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    {validatedPayment ? (
+                      <Button block type="default" disabled size="large">
+                        <CheckCircleOutlined /> Successful Payment
+                      </Button>
+                    ) : (
+                      <Button
+                        block
+                        type="primary"
+                        size="large"
+                        onClick={validatePayment}
+                        loading={isValidatingLoading}
+                      >
+                        Validate Transaction
+                      </Button>
+                    )}
+                    <i
+                      style={{
+                        fontSize: "0.7rem",
+                        color: "#b1b1b1",
+                        marginTop: 4,
+                      }}
+                    >
+                      {validatedPayment
+                        ? `Click "${checkoutInitResponse.final_cta || "Finish"}" to complete the checkout`
+                        : `Click "Validate Transaction" to check if your payment
+                      succeeded`}
+                    </i>
+                  </div>
                 )}
+            </div>
+          </Card>
+        ) : (
+          <Card
+            size="small"
+            style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
+          >
+            <b>1. Payment Method</b>
+            <br />
+            <span style={{ fontSize: "13px", color: "#666" }}>
+              No payment required.
+            </span>
+          </Card>
+        )}
 
-                {/* For non-crypto, tx proof is called receipt proof */}
-                {selectedDepositOption.depositUrlCheckout && (
-                  <div style={{ marginBottom: 0, marginTop: 16 }}>
+        {/* --- Security Section --- */}
+        {shouldShowAuthSection && (
+          <Card
+            size="small"
+            style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
+          >
+            <b>2. Security & Verification</b>
+            <br />
+            {checkoutInitResponse?.post_payment?.auth_installation_url ? (
+              <>
+                <Paragraph>
+                  This application requires certain permissions to function.
+                  Please review the permission scopes below.
+                </Paragraph>
+                <Alert
+                  message="Vendor Verification & API Key Best Practices"
+                  description={
+                    <>
+                      <Paragraph style={{ marginBottom: "8px" }}>
+                        It's crucial to verify that this vendor offer is who
+                        they claim to be. Always check their credentials and the
+                        code being executed.
+                      </Paragraph>
+                      <Paragraph>
+                        <Tooltip title="View vendor's terms and conditions or general information.">
+                          <a
+                            href={checkoutRun.aboutUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              borderBottom: "1px dashed #999",
+                              color: "inherit",
+                            }}
+                          >
+                            About this vendor{" "}
+                            <LinkOutlined style={{ fontSize: "12px" }} />
+                          </a>
+                        </Tooltip>
+                        <Divider type="vertical" />
+                        <Tooltip title="Verify the code to be executed on checkout, usually pointing to a Trusted Execution Environment (TEE).">
+                          <a
+                            href={
+                              checkoutInitResponse?.post_payment
+                                ?.verify_installation_url || ""
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              borderBottom: "1px dashed #999",
+                              color: "inherit",
+                            }}
+                          >
+                            Verify execution code{" "}
+                            <LinkOutlined style={{ fontSize: "12px" }} />
+                          </a>
+                        </Tooltip>
+                        <Divider type="vertical" />
+                        <Tooltip title="OfficeX is a permissionless platform and thus does not verify 3rd party apps. Appstore list providers and users to be responsible for their own security.">
+                          <a
+                            href="#" // Replace with actual link to "Learn more about verification"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              borderBottom: "1px dashed #999",
+                              color: "inherit",
+                            }}
+                          >
+                            Learn more about 3rd party app verification on
+                            OfficeX{" "}
+                            <LinkOutlined style={{ fontSize: "12px" }} />
+                          </a>
+                        </Tooltip>
+                      </Paragraph>
+                    </>
+                  }
+                  type="warning"
+                  showIcon
+                  style={{ marginBottom: 20 }}
+                />
+
+                {/* API Key Password Input */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ display: "block", marginBottom: 8 }}>
+                    <Space size={4}>
+                      Grant API Key Scope
+                      <Popover
+                        content={SecurityDisclaimerPopoverContent}
+                        title="API Key Security Hygiene"
+                        trigger="hover"
+                      >
+                        <InfoCircleOutlined
+                          style={{ color: "rgba(0,0,0,.45)" }}
+                        />
+                      </Popover>
+                    </Space>
+                  </label>
+                  <Input.Password
+                    placeholder="Enter API key or leave empty to use 30 second signatures if available"
+                    value={apiKeyInputValue}
+                    onChange={(e) => setApiKeyInputValue(e.target.value)}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: "13px", color: "#666" }}>
+                  This application does not require any permissions to function.
+                </span>
+              </>
+            )}
+          </Card>
+        )}
+
+        {/* Third Section: Preferences (formerly App Requirements) */}
+        {checkoutInitResponse?.requirements?.length &&
+          checkoutInitResponse?.requirements?.length > 0 && (
+            <Card
+              size="small"
+              style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
+            >
+              <b>3. Additional Details</b>
+              <br />
+              <span style={{ fontSize: "13px", color: "#666" }}>
+                The vendor may require additional information to run the app.
+              </span>
+              <br />
+              <br />
+              {checkoutInitResponse?.requirements?.length > 0 ? (
+                checkoutInitResponse?.requirements?.map((req) => (
+                  <div key={req.id} style={{ marginBottom: 12 }}>
                     <label style={{ display: "block", marginBottom: 8 }}>
                       <Space size={4}>
-                        Receipt Proof
+                        <Text>{req.title}</Text>
                         <Popover
-                          content={DepositInfoPopoverContent(
-                            "Enter the receipt details or a link to your payment confirmation for non-crypto transactions."
-                          )}
-                          title="Receipt Proof Explanation"
+                          content={DepositInfoPopoverContent(req.explanation)}
+                          title={`${req.title} Explanation`}
                           trigger="hover"
                         >
                           <InfoCircleOutlined
@@ -816,104 +1133,403 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                           />
                         </Popover>
                       </Space>
-                      {checkoutRun.depositOptions.length > 0 &&
-                        selectedDepositOption && <Text type="danger">*</Text>}
+                      {req.required && <Text type="danger">*</Text>}
                     </label>
+                    {/* Placeholder: Later implement specific input fields based on req.type */}
                     <Input
-                      placeholder="Enter receipt details or payment link"
-                      value={txProofInputValue}
-                      onChange={(e) => setTxProofInputValue(e.target.value)}
+                      placeholder={
+                        req.placeholder ||
+                        `Enter value for ${req.title} (${req.type})`
+                      }
+                      value={preferenceInputs[req.id] || ""}
+                      onChange={(e) =>
+                        handlePreferenceInputChange(req.id, e.target.value)
+                      }
+                      suffix={req.suffix}
                     />
                   </div>
-                )}
-              </>
-            )}
-          </Card>
-        ) : (
+                ))
+              ) : (
+                <Paragraph>No additional details required.</Paragraph>
+              )}
+            </Card>
+          )}
+
+        {checkoutInitResponse?.validation_endpoint && !validatedPayment ? (
+          <Divider>
+            <span
+              style={{
+                fontSize: "0.8rem",
+                color: "#999",
+                fontWeight: "normal",
+                fontStyle: "italic",
+              }}
+            >
+              Please validate your payment before finalizing checkout
+            </span>
+          </Divider>
+        ) : null}
+
+        {/* --- What happens next section --- */}
+        {shouldShowWhatHappensNext ? (
           <Card
             size="small"
             style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
           >
-            <b>2. Deposit Details</b>
-            <br />
-            <span style={{ fontSize: "13px", color: "#666" }}>
-              No deposit required.
-            </span>
+            <Title level={5} style={{ marginBottom: 16 }}>
+              What happens next
+            </Title>
+            <Paragraph>
+              After you click{" "}
+              {`"${checkoutInitResponse?.final_cta}"` || "Finish"}, your request
+              will be securely sent to the vendor. The vendor will then process
+              the job based on the details you've provided. You'll be able to
+              monitor the status and see the progress of your job on the{" "}
+              <Link to={wrapOrgCode(`/resources/job-runs`)} target="_blank">
+                Purchase History Page
+              </Link>
+              , where updates will be provided until the goods or services are
+              delivered.
+            </Paragraph>
           </Card>
+        ) : null}
+        {shouldShowWhatHappensNext && !isFinalizedCheckout && (
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Button
+              block
+              type="primary"
+              size="large"
+              disabled={isFinishButtonDisabled}
+              onClick={handleSubmit}
+              loading={isFinalizingLoading}
+            >
+              {checkoutInitResponse?.final_cta || "Finish"}
+            </Button>
+            <i
+              style={{
+                fontSize: "0.7rem",
+                color: "#b1b1b1",
+                marginTop: 8,
+              }}
+            >
+              {`Fill in all required fields to complete the checkout`}
+            </i>
+          </div>
         )}
-
-        {/* Third Section: Preferences (formerly App Requirements) */}
-        <Card
-          size="small"
-          style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
-        >
-          <b>3. Preferences</b>
-          <br />
-          <span style={{ fontSize: "13px", color: "#666" }}>
-            The vendor may require additional information to run the app.
-          </span>
-          <br />
-          <br />
-          {checkoutRun.requirements.length > 0 ? (
-            checkoutRun.requirements.map((req) => (
-              <div key={req.id} style={{ marginBottom: 12 }}>
-                <label style={{ display: "block", marginBottom: 8 }}>
-                  <Space size={4}>
-                    <Text>{req.title}</Text>
-                    <Popover
-                      content={DepositInfoPopoverContent(req.explanation)}
-                      title={`${req.title} Explanation`}
-                      trigger="hover"
-                    >
-                      <InfoCircleOutlined
-                        style={{ color: "rgba(0,0,0,.45)" }}
-                      />
-                    </Popover>
-                  </Space>
-                  {req.required && <Text type="danger">*</Text>}
-                </label>
-                {/* Placeholder: Later implement specific input fields based on req.type */}
-                <Input
-                  placeholder={
-                    req.placeholder ||
-                    `Enter value for ${req.title} (${req.type})`
-                  }
-                  value={preferenceInputs[req.id] || ""}
-                  onChange={(e) =>
-                    handlePreferenceInputChange(req.id, e.target.value)
-                  }
-                  suffix={req.suffix}
-                />
-              </div>
-            ))
-          ) : (
-            <Paragraph>No specific preferences for this app.</Paragraph>
-          )}
-        </Card>
-
-        {/* --- What happens next section --- */}
-        <Card
-          size="small"
-          style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
-        >
-          <Title level={5} style={{ marginBottom: 16 }}>
-            What happens next
-          </Title>
-          <Paragraph>
-            After you click {`"${checkoutRun.callToAction}"` || "Run App"}, your
-            request will be securely sent to the vendor. The vendor will then
-            process the job based on the details you've provided. You'll be able
-            to monitor the status and see the progress of your job on the{" "}
-            <Link to={wrapOrgCode(`/resources/job-runs`)} target="_blank">
-              Purchase History Page
-            </Link>
-            , where updates will be provided until the goods or services are
-            delivered.
-          </Paragraph>
-        </Card>
+        {finalRedirectUrl && finalRedirectCta && isFinalizedCheckout && (
+          <Button
+            block
+            type="primary"
+            size="large"
+            disabled={isFinishButtonDisabled}
+            onClick={handleFinalRedirect}
+            loading={isFinalizingLoading}
+          >
+            {finalRedirectCta}
+          </Button>
+        )}
       </div>
     </Drawer>
   );
 };
 
 export default RunAppDrawer;
+
+// {
+//   selectedDepositOption && (
+//     <>
+//       {selectedDepositOption.depositUrlCheckout ? (
+//         // Non-crypto payment rail: Show button only
+//         <>
+//           <div style={{ marginBottom: 16 }}>
+//             <label style={{ display: "block", marginBottom: 8 }}>
+//               <Space size={4}>
+//                 Select Deposit Option
+//                 <Popover
+//                   content={DepositInfoPopoverContent(
+//                     "Choose your preferred method for depositing funds to run the app."
+//                   )}
+//                   title="Deposit Option Explanation"
+//                   trigger="hover"
+//                 >
+//                   <InfoCircleOutlined style={{ color: "rgba(0,0,0,.45)" }} />
+//                 </Popover>
+//               </Space>
+//             </label>
+//             <Select
+//               value={selectedDepositOption?.title}
+//               onChange={handleDepositOptionChange}
+//               style={{ width: "100%" }}
+//             >
+//               {checkoutRun.checkoutOptions.map((option) => (
+//                 <Option key={option.title} value={option.title}>
+//                   {option.title}
+//                 </Option>
+//               ))}
+//             </Select>
+//           </div>
+//           <div style={{ textAlign: "center", marginBottom: 24 }}>
+//             <Button
+//               type="primary"
+//               size="large"
+//               onClick={() =>
+//                 window.open(selectedDepositOption.depositUrlCheckout, "_blank")
+//               }
+//               block
+//               icon={<LinkOutlined />}
+//             >
+//               Open Payment Link
+//             </Button>
+//             {selectedDepositOption.vendor_disclaimer && (
+//               <Paragraph
+//                 type="secondary"
+//                 style={{ fontSize: "13px", marginTop: "12px" }}
+//               >
+//                 {selectedDepositOption.vendor_disclaimer}
+//               </Paragraph>
+//             )}
+//           </div>
+//         </>
+//       ) : (
+//         // Crypto payment rails: Show QR and crypto details
+//         <Row gutter={[8, 16]} align="top" justify="start">
+//           {/* Left Column: QR Code and Instructions */}
+//           <Col xs={24} md={8} style={{ textAlign: "center" }}>
+//             <Paragraph style={{ marginBottom: "8px" }}>
+//               Send{" "}
+//               <Text
+//                 strong
+//                 style={{
+//                   borderBottom: "1px dashed #999",
+//                   cursor: "pointer",
+//                 }}
+//                 onClick={() =>
+//                   window.open(
+//                     `${selectedDepositOption.chainExplorerUrl}token/${selectedDepositOption.tokenAddress}`,
+//                     "_blank"
+//                   )
+//                 }
+//               >
+//                 {selectedDepositOption.tokenSymbol}
+//               </Text>{" "}
+//               on{" "}
+//               <Text
+//                 strong
+//                 style={{
+//                   borderBottom: "1px dashed #999",
+//                   cursor: "pointer",
+//                 }}
+//                 onClick={() =>
+//                   window.open(selectedDepositOption.chainExplorerUrl, "_blank")
+//                 }
+//               >
+//                 {selectedDepositOption.chain}
+//               </Text>
+//               :
+//             </Paragraph>
+//             <div
+//               style={{
+//                 display: "flex",
+//                 justifyContent: "center",
+//                 padding: "0px 0",
+//               }}
+//             >
+//               <QRCode
+//                 value={selectedDepositOption.depositAddress || "-"}
+//                 size={180}
+//                 errorLevel="H"
+//                 icon={checkoutRun.vendorAvatar}
+//               />
+//             </div>
+//           </Col>
+
+//           {/* Right Column: Deposit Input Fields & Select Deposit Option */}
+//           <Col xs={24} md={16}>
+//             <div style={{ marginBottom: 16 }}>
+//               <label style={{ display: "block", marginBottom: 8 }}>
+//                 <Space size={4}>
+//                   Select Deposit Option
+//                   <Popover
+//                     content={DepositInfoPopoverContent(
+//                       "Choose your preferred method for depositing funds to run the app."
+//                     )}
+//                     title="Deposit Option Explanation"
+//                     trigger="hover"
+//                   >
+//                     <InfoCircleOutlined style={{ color: "rgba(0,0,0,.45)" }} />
+//                   </Popover>
+//                 </Space>
+//               </label>
+//               <Select
+//                 value={selectedDepositOption?.title}
+//                 onChange={handleDepositOptionChange}
+//                 style={{ width: "100%" }}
+//               >
+//                 {checkoutRun.checkoutOptions.map((option) => (
+//                   <Option key={option.title} value={option.title}>
+//                     {option.title}
+//                   </Option>
+//                 ))}
+//               </Select>
+//             </div>
+
+//             <div style={{ marginBottom: 12 }}>
+//               <Input
+//                 readOnly
+//                 value={selectedDepositOption.depositAddress}
+//                 addonBefore={
+//                   <Space size={4}>
+//                     <Text strong>Deposit Address</Text>{" "}
+//                     <Popover
+//                       content={DepositInfoPopoverContent(
+//                         "The unique address for the deposit on the selected chain. Click to view on chain explorer."
+//                       )}
+//                       title="Deposit Address Explanation"
+//                       trigger="hover"
+//                     >
+//                       <InfoCircleOutlined
+//                         style={{ color: "rgba(0,0,0,.45)" }}
+//                       />
+//                     </Popover>
+//                   </Space>
+//                 }
+//                 suffix={
+//                   <Space size={4}>
+//                     <LinkOutlined
+//                       style={{ cursor: "pointer", color: "#666" }}
+//                       onClick={() =>
+//                         window.open(
+//                           `${selectedDepositOption.chainExplorerUrl}address/${selectedDepositOption.depositAddress}`,
+//                           "_blank"
+//                         )
+//                       }
+//                     />
+//                     <CopyOutlined
+//                       style={{ cursor: "pointer", color: "#666" }}
+//                       onClick={() =>
+//                         handleCopy(selectedDepositOption.depositAddress)
+//                       }
+//                     />
+//                   </Space>
+//                 }
+//               />
+//             </div>
+
+//             <div style={{ marginBottom: 12 }}>
+//               <Input
+//                 readOnly
+//                 value={`${
+//                   selectedDepositOption.amount /
+//                   Math.pow(10, selectedDepositOption.tokenDecimals)
+//                 }`}
+//                 addonBefore={
+//                   <Space size={4}>
+//                     <Text strong>Amount</Text>
+//                     <Popover
+//                       content={DepositInfoPopoverContent(
+//                         "The exact amount of tokens required for this deposit."
+//                       )}
+//                       title="Amount Explanation"
+//                       trigger="hover"
+//                     >
+//                       <InfoCircleOutlined
+//                         style={{ color: "rgba(0,0,0,.45)" }}
+//                       />
+//                     </Popover>
+//                   </Space>
+//                 }
+//                 suffix={
+//                   <span>
+//                     {selectedDepositOption.tokenSymbol}
+//                     <CopyOutlined
+//                       style={{
+//                         cursor: "pointer",
+//                         color: "#666",
+//                         marginLeft: 4,
+//                       }}
+//                       onClick={() =>
+//                         handleCopy(
+//                           `${
+//                             selectedDepositOption.amount /
+//                             Math.pow(10, selectedDepositOption.tokenDecimals)
+//                           }`
+//                         )
+//                       }
+//                     />
+//                   </span>
+//                 }
+//               />
+//             </div>
+
+//             {selectedDepositOption.vendor_disclaimer && (
+//               <Paragraph
+//                 type="secondary"
+//                 style={{ fontSize: "13px", marginTop: "4px" }}
+//               >
+//                 {selectedDepositOption.vendor_disclaimer}
+//               </Paragraph>
+//             )}
+//           </Col>
+//           <Col xs={24}>
+//             <div style={{ marginBottom: 0 }}>
+//               <label style={{ display: "block", marginBottom: 8 }}>
+//                 <Space size={4}>
+//                   Transaction Proof
+//                   <Popover
+//                     content={DepositInfoPopoverContent(
+//                       "Enter the transaction hash or a link to the chain explorer for your deposit. This verifies your payment."
+//                     )}
+//                     title="Transaction Proof Explanation"
+//                     trigger="hover"
+//                   >
+//                     <InfoCircleOutlined style={{ color: "rgba(0,0,0,.45)" }} />
+//                   </Popover>
+//                 </Space>
+//                 {checkoutRun.checkoutOptions.length > 0 &&
+//                   selectedDepositOption && <Text type="danger">*</Text>}
+//               </label>
+//               <Input
+//                 placeholder="Enter transaction hash or chain explorer link"
+//                 value={txProofInputValue}
+//                 onChange={(e) => setTxProofInputValue(e.target.value)}
+//               />
+//             </div>
+//           </Col>
+//         </Row>
+//       )}
+
+//       {selectedDepositOption.depositUrlCheckout && (
+//         <div style={{ marginBottom: 0, marginTop: 16 }}>
+//           <label style={{ display: "block", marginBottom: 8 }}>
+//             <Space size={4}>
+//               Receipt Proof
+//               <Popover
+//                 content={DepositInfoPopoverContent(
+//                   "Enter the receipt details or a link to your payment confirmation for non-crypto transactions."
+//                 )}
+//                 title="Receipt Proof Explanation"
+//                 trigger="hover"
+//               >
+//                 <InfoCircleOutlined style={{ color: "rgba(0,0,0,.45)" }} />
+//               </Popover>
+//             </Space>
+//             {checkoutRun.checkoutOptions.length > 0 &&
+//               selectedDepositOption && <Text type="danger">*</Text>}
+//           </label>
+//           <Input
+//             placeholder="Provide verification text"
+//             value={txProofInputValue}
+//             onChange={(e) => setTxProofInputValue(e.target.value)}
+//           />
+//         </div>
+//       )}
+//     </>
+//   );
+// }

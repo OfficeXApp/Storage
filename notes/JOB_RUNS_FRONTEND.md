@@ -250,7 +250,7 @@ billing_url: string; // can be updated by vendor
 support_url: string; // can be updated by vendor
 delivery_url: string; // can be updated by vendor
 verification_url: string; // can be updated by vendor
-installation_url: string; // the script to run to install the job
+auth_installation_url: string; // the script to run to install the job
 title: string; // cannot be updated, only set on create
 subtitle: string; // can be updated
 pricing: string; // can be updated
@@ -750,7 +750,7 @@ billing_url?: string;
 support_url?: string;
 delivery_url?: string;
 verification_url?: string;
-installation_url?: string;
+auth_installation_url?: string;
 subtitle?: string;
 pricing?: string;
 vendor_notes?: string;
@@ -773,7 +773,7 @@ billing_url?: string;
 support_url?: string;
 delivery_url?: string;
 verification_url?: string;
-installation_url?: string;
+auth_installation_url?: string;
 subtitle?: string;
 pricing?: string;
 vendor_notes?: string;

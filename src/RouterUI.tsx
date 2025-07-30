@@ -43,6 +43,8 @@ import {
   EyeInvisibleOutlined,
   EyeOutlined,
   CopyOutlined,
+  ProductFilled,
+  ProductOutlined,
 } from "@ant-design/icons";
 import DriveUI from "./components/DriveUI";
 import UploadPanel from "./components/UploadPanel";
@@ -113,6 +115,11 @@ import { DriveProvider } from "./framework";
 import JobRunsPage from "./pages/JobRunsPage";
 import WalletControlPopover from "./components/WalletControlPopover";
 import ChatWithAI from "./apps/ChatWithAI";
+import {
+  ENABLE_APPSTORE,
+  ENABLE_CHAT_WITH_AI,
+  ENABLE_WALLET,
+} from "./framework/flags/feature-flags";
 
 const { Sider, Content } = Layout;
 
@@ -176,6 +183,8 @@ const SideMenu = ({
       setSelectedKeys(["settings"]);
     } else if (path.includes("/appstore")) {
       setSelectedKeys(["appstore"]);
+    } else if (path.includes("/chat")) {
+      setSelectedKeys(["chat"]);
     }
   }, [location]);
 
@@ -188,17 +197,19 @@ const SideMenu = ({
   };
 
   const menuItems = [
-    {
-      key: "appstore",
-      icon: <AppstoreAddOutlined />,
-      label: "App Store",
-      onClick: () => {
-        navigate(wrapOrgCode("/appstore"));
-        if (setSidebarVisible) {
-          setSidebarVisible(false);
+    ENABLE_APPSTORE
+      ? {
+          key: "appstore",
+          icon: <AppstoreAddOutlined />, // <ProductOutlined />, //
+          label: "App Store",
+          onClick: () => {
+            navigate(wrapOrgCode("/appstore"));
+            if (setSidebarVisible) {
+              setSidebarVisible(false);
+            }
+          },
         }
-      },
-    },
+      : null,
     {
       key: "navigate-storage",
       label: "Storage",
@@ -274,7 +285,7 @@ const SideMenu = ({
     },
     {
       key: "organization",
-      label: "Organization",
+      label: "Company",
       icon: <TeamOutlined />,
       children: [
         {
@@ -386,21 +397,23 @@ const SideMenu = ({
           label: "Developers",
           type: "group",
           children: [
-            {
-              key: "apps",
-              label: (
-                <Link
-                  to={wrapOrgCode("/resources/job-runs")}
-                  onClick={() => {
-                    if (setSidebarVisible) {
-                      setSidebarVisible(false);
-                    }
-                  }}
-                >
-                  Purchases
-                </Link>
-              ),
-            },
+            ENABLE_APPSTORE
+              ? {
+                  key: "apps",
+                  label: (
+                    <Link
+                      to={wrapOrgCode("/resources/job-runs")}
+                      onClick={() => {
+                        if (setSidebarVisible) {
+                          setSidebarVisible(false);
+                        }
+                      }}
+                    >
+                      Purchases
+                    </Link>
+                  ),
+                }
+              : null,
             {
               key: "webhooks",
               label: (
@@ -483,8 +496,9 @@ function ExternalRedirect({ url }: { url: string }) {
 const RouterUI = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const screenType = useScreenType();
-  const { currentOrg, wrapOrgCode } = useIdentitySystem();
+  const { currentOrg, wrapOrgCode, currentProfile } = useIdentitySystem();
   const [uploadPanelVisible, setUploadPanelVisible] = useState(false);
+  const [showBalance, setShowBalance] = useState(false);
 
   return (
     <Routes>
@@ -589,7 +603,79 @@ const RouterUI = () => {
                       </div>
 
                       {/* Wallet Card Added Here */}
-                      {/* <WalletControlPopover /> */}
+                      {ENABLE_WALLET && (
+                        <WalletControlPopover>
+                          <Card
+                            bordered={false}
+                            hoverable={true}
+                            style={{
+                              width: "100%",
+                              borderRadius: "8px",
+                              background: "#FFF",
+                            }}
+                          >
+                            <Statistic
+                              title={
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                  }}
+                                >
+                                  <span>Wallet Balance</span>
+
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                    }}
+                                  >
+                                    {/* Top Up */}
+                                    <TagCopy
+                                      id={currentProfile?.evmPublicKey || ""}
+                                      style={{ fontSize: "0.65rem" }}
+                                    />
+                                  </div>
+                                </div>
+                              }
+                              value={showBalance ? 1280.52 : "******"} // Mask value if not shown
+                              precision={2}
+                              valueStyle={{
+                                color: "rgba(0, 0, 0, 0.6)",
+                                fontSize: "24px",
+                                fontWeight: "bold",
+                              }}
+                              prefix={showBalance ? "$" : ""} // Only show prefix if balance is visible
+                              suffix={
+                                <div
+                                  style={{
+                                    padding: "0px 0px 0px 0px",
+                                    marginLeft: "8px",
+                                  }}
+                                >
+                                  {showBalance ? (
+                                    <EyeInvisibleOutlined
+                                      onClick={() =>
+                                        setShowBalance(!showBalance)
+                                      }
+                                      size={8}
+                                      style={{ fontSize: "0.9rem" }}
+                                    />
+                                  ) : (
+                                    <EyeOutlined
+                                      onClick={() =>
+                                        setShowBalance(!showBalance)
+                                      }
+                                      size={8}
+                                      style={{ fontSize: "0.9rem" }}
+                                    />
+                                  )}
+                                </div>
+                              }
+                            />
+                          </Card>
+                        </WalletControlPopover>
+                      )}
                       <OrganizationSwitcher />
                     </div>
                   </Sider>
@@ -618,14 +704,18 @@ const RouterUI = () => {
                           />
                         }
                       />
-                      <Route
-                        path="/appstore"
-                        element={<Navigate to="/org/current/appstore" />}
-                      />
-                      <Route
-                        path="/chat"
-                        element={<Navigate to="/org/current/chat" />}
-                      />
+                      {ENABLE_APPSTORE && (
+                        <Route
+                          path="/appstore"
+                          element={<Navigate to="/org/current/appstore" />}
+                        />
+                      )}
+                      {ENABLE_CHAT_WITH_AI && (
+                        <Route
+                          path="/chat"
+                          element={<Navigate to="/org/current/chat" />}
+                        />
+                      )}
                       <Route
                         path="/org/:orgcode/drive/*"
                         element={
@@ -671,18 +761,24 @@ const RouterUI = () => {
                         path="/org/:orgcode/settings"
                         element={<SettingsPage />}
                       />
-                      <Route
-                        path="/org/:orgcode/appstore"
-                        element={<AppStorePage />}
-                      />
-                      <Route
-                        path="/org/:orgcode/appstore/app/:app_id"
-                        element={<AppPage />}
-                      />
-                      <Route
-                        path="/org/:orgcode/chat"
-                        element={<ChatWithAI />}
-                      />
+                      {ENABLE_APPSTORE && (
+                        <Route
+                          path="/org/:orgcode/appstore"
+                          element={<AppStorePage />}
+                        />
+                      )}
+                      {ENABLE_APPSTORE && (
+                        <Route
+                          path="/org/:orgcode/appstore/app/:app_id"
+                          element={<AppPage />}
+                        />
+                      )}
+                      {ENABLE_CHAT_WITH_AI && (
+                        <Route
+                          path="/org/:orgcode/chat"
+                          element={<ChatWithAI />}
+                        />
+                      )}
                       <Route
                         path="/org/:orgcode/welcome"
                         element={<WelcomePage />}
@@ -817,10 +913,12 @@ const RouterUI = () => {
                         path="/org/:orgcode/resources/api-keys/:apiKeyID"
                         element={<ApiKeyPage />}
                       />
-                      <Route
-                        path="/org/:orgcode/resources/job-runs"
-                        element={<JobRunsPage />}
-                      />
+                      {ENABLE_APPSTORE && (
+                        <Route
+                          path="/org/:orgcode/resources/job-runs"
+                          element={<JobRunsPage />}
+                        />
+                      )}
 
                       <Route path="*" element={<NotFoundPage />} />
                     </Routes>

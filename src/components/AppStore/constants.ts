@@ -1,45 +1,43 @@
 import {
-  AppInfoWithOffers,
+  ServiceWithOffersFromVendors,
   DiskTypeEnum,
   IDPrefixEnum,
+  CartCheckoutPatternEnum,
 } from "@officexapp/types";
 
-export const appstore_apps: AppInfoWithOffers[] = [
+export const appstore_apps: ServiceWithOffersFromVendors[] = [
   {
     id: "19",
     name: "Amazon Cloud",
     subheading: "Add storage to OfficeX with giftcards for $1 per 100GB/month",
-    coverImage:
+    cover_image:
       "https://cdn2.interfaz.io/wp-content/uploads/2023/06/Blog_AWS_cover-1.png",
-    isFeatured: false,
+    is_featured: false,
     offers: [
       {
-        id: "offer1-aws-s3-ai-csv-export",
+        id: "offer1-aws-s3-ai-csv-expodrt",
         title: "100GB Storage Giftcard",
         images: [],
         description:
           "<p>Purchase a 100GB gift card for secure, scalable cloud storage on Amazon Cloud. This gift card adds 100GB of storage to your OfficeX account, allowing you to seamlessly integrate your documents and spreadsheets for secure cloud storage. Utilize AWS S3's industry-leading durability and availability for your data.</p><p>Key features include:</p><ul><li><strong>100GB Storage:</strong> Instantly add 100GB of secure storage to your OfficeX.</li><li><strong>Secure S3 Storage:</strong> Store your documents securely with AWS S3's industry-leading durability and availability.</li><li><strong>Scalability:</strong> Easily add more storage as your needs grow.</li><li><strong>Cost-Effectiveness:</strong> Pay for what you use with transparent pricing.</li></ul><p>Expand your OfficeX storage capacity with this convenient 100GB gift card, ensuring all your important documents are safely stored in the cloud.</p>",
         price: 0.01,
-        priceUnit: "/GB",
-        priceExplanation: "per month for storage and processing, min 20gb",
+        price_unit: "/GB",
+        price_explanation: "per month for storage and processing, min 20gb",
         bookmarks: 180,
-        bookmarkUrl: "",
-        avgCustomerLifetimeValue: 700,
-        cumulativeSales: 105000,
-        callToAction: "Buy Giftcard",
+        bookmarked_demand: 0,
+        cumulative_sales: 105000,
+        bookmark_url: "",
+        call_to_action: "Buy Giftcard",
         vendors: [
           {
             id: "vendorA",
             name: "Cloud Solutions Inc.",
             avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CS",
-            checkoutVideo:
+            checkout_video:
               "https://www.youtube.com/embed/Wp0LKeZhcTM?si=auUjNj0txDeCYKA9",
-            needsAuth: false,
-            needsCloudOfficeX: false,
-            aboutUrl: "#",
-            uptimeScore: 99.99,
-            reviewsScore: 4.8,
-            communityLinks: [
+            uptime_score: 99.99,
+            reviews_score: 4.8,
+            community_links: [
               {
                 label: "Forum",
                 url: "#",
@@ -49,47 +47,126 @@ export const appstore_apps: AppInfoWithOffers[] = [
                 url: "#",
               },
             ],
-            verificationUrl: "#",
-            installationUrl: "https://obedient-airline-13.webhook.cool",
-            callToAction: "Buy Giftcard",
-            priceLine: "$0.035/GB",
-            viewPageLink: "#",
+            price_line: "$0.01/GB/month",
+            view_page_link: "#",
+            call_to_action: "Buy Giftcard",
             description:
               "We promise the best results and have a 30 day money back guarantee.",
-            requirements: [
+            vendor_disclaimer: undefined,
+            about_url: "#",
+            checkout_options: [
               {
-                id: "vendorA",
-                title: "Initial Storage",
-                explanation:
-                  "You must have a valid subscription to Vendor A to use this offer.",
-                type: "number",
-                required: true,
-                defaultValue: 100,
-                placeholder: "Enter initial storage amount in GB",
-                suffix: "Gigabytes",
+                offer_id: "aws-s3-storage-giftcard",
+                checkout_flow_id:
+                  "001_amazon_storage_crypto_wallet_topup_gift_card_only",
+                title: "USDC on Base",
+                note: "To initialize the vendor (Note: Actual deposit address and details would be provided by the backend after initiating this checkout option)",
+                checkout_init_endpoint:
+                  "http://localhost:3001/v1/checkout/initiate",
+                checkout_pattern: CartCheckoutPatternEnum.CRYPTO_WALLET_TOPUP,
+                vendor_notes: "You will receive a giftcard for AWS S3",
+                vendor_disclaimer:
+                  "Immediate access. Your storage giftcard will have a crypto balance that pays for storage and bandwidth. You can top it up any time you need more.",
+                terms_of_service_url: "https://google.com",
+                requires_email_for_init: true,
               },
               {
-                id: "your-email",
-                title: "Your Email",
-                explanation: "Enter your email address",
-                type: "text",
-                required: true,
-                placeholder: "Enter your email address",
+                offer_id: "offer1-aws-s3-ai-csv-export",
+                checkout_flow_id: "usdc-on-base-direct-transfer",
+                title: "One Time Payment",
+                note: "To initialize the vendor (Note: Actual deposit address and details would be provided by the backend after initiating this checkout option)",
+                checkout_init_endpoint:
+                  "/api/checkout/initiate-crypto-transfer?optionId=usdc-on-base",
+                checkout_pattern:
+                  CartCheckoutPatternEnum.CRYPTO_DIRECT_TRANSFER,
+                vendor_disclaimer:
+                  "You will directly send crypto to the vendors wallet, and they will email the giftcard in a few hours.",
+              },
+              {
+                offer_id: "offer1-aws-s3-ai-csv-export",
+                checkout_flow_id: "stripe-payment",
+                title: "Pay with Stripe",
+                note: "",
+                checkout_init_endpoint: "https://google.com",
+                checkout_pattern: CartCheckoutPatternEnum.EXTERNAL_PAYMENT_LINK,
+                vendor_disclaimer:
+                  "You will be redirected to Stripe to complete the payment. The giftcard will be emailed to you immediately.",
               },
             ],
-            depositOptions: [
+          },
+        ],
+      },
+      {
+        id: "offer1-aws-s3-ai-csv-export",
+        title: "100GB Storage Giftcard",
+        images: [],
+        description:
+          "<p>Purchase a 100GB gift card for secure, scalable cloud storage on Amazon Cloud. This gift card adds 100GB of storage to your OfficeX account, allowing you to seamlessly integrate your documents and spreadsheets for secure cloud storage. Utilize AWS S3's industry-leading durability and availability for your data.</p><p>Key features include:</p><ul><li><strong>100GB Storage:</strong> Instantly add 100GB of secure storage to your OfficeX.</li><li><strong>Secure S3 Storage:</strong> Store your documents securely with AWS S3's industry-leading durability and availability.</li><li><strong>Scalability:</strong> Easily add more storage as your needs grow.</li><li><strong>Cost-Effectiveness:</strong> Pay for what you use with transparent pricing.</li></ul><p>Expand your OfficeX storage capacity with this convenient 100GB gift card, ensuring all your important documents are safely stored in the cloud.</p>",
+        price: 0.01,
+        price_unit: "/GB",
+        price_explanation: "per month for storage and processing, min 20gb",
+        bookmarks: 180,
+        bookmarked_demand: 0,
+        cumulative_sales: 105000,
+        bookmark_url: "",
+        call_to_action: "Buy Giftcard",
+        vendors: [
+          {
+            id: "vendorA",
+            name: "Cloud Solutions Inc.",
+            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CS",
+            checkout_video:
+              "https://www.youtube.com/embed/Wp0LKeZhcTM?si=auUjNj0txDeCYKA9",
+            uptime_score: 99.99,
+            reviews_score: 4.8,
+            community_links: [
               {
+                label: "Forum",
+                url: "#",
+              },
+              {
+                label: "Discord",
+                url: "#",
+              },
+            ],
+            price_line: "$0.035/GB",
+            view_page_link: "#",
+            call_to_action: "Buy Giftcard",
+            description:
+              "We promise the best results and have a 30 day money back guarantee.",
+            vendor_disclaimer: undefined,
+            // requirements: [
+            //   {
+            //     id: "vendorA",
+            //     title: "Initial Storage",
+            //     explanation:
+            //       "You must have a valid subscription to Vendor A to use this offer.",
+            //     type: "number",
+            //     required: true,
+            //     defaultValue: 100,
+            //     placeholder: "Enter initial storage amount in GB",
+            //     suffix: "Gigabytes",
+            //   },
+            //   {
+            //     id: "your-email",
+            //     title: "Your Email",
+            //     explanation: "Enter your email address",
+            //     type: "text",
+            //     required: true,
+            //     placeholder: "Enter your email address",
+            //   },
+            // ],
+            about_url: "#",
+            checkout_options: [
+              {
+                offer_id: "offer1-aws-s3-ai-csv-export",
+                checkout_flow_id: "usdc-on-base-direct-transfer-2",
                 title: "USDC on Base",
-                amount: 60,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "Circle USD",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "To initialize the vendor",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
+                note: "To initialize the vendor (Note: Actual deposit address and details would be provided by the backend after initiating this checkout option)",
+                checkout_init_endpoint:
+                  "/api/checkout/initiate-crypto-transfer?optionId=usdc-on-base-2",
+                checkout_pattern:
+                  CartCheckoutPatternEnum.CRYPTO_DIRECT_TRANSFER,
               },
             ],
           },
@@ -102,52 +179,46 @@ export const appstore_apps: AppInfoWithOffers[] = [
         description:
           "<p>Access the powerful Anthropic Claude AI for your OfficeX platform. This offer provides a gift card for using Claude AI, allowing you to integrate advanced AI capabilities into your document processing and data workflows. Leverage Claude AI for tasks like content generation, summarization, and intelligent data extraction directly within your OfficeX environment.</p><p>With Claude AI, you get:</p><ul><li><strong>Advanced AI Capabilities:</strong> Integrate state-of-the-art AI for a variety of tasks.</li><li><strong>Content Generation:</strong> Generate summaries, drafts, and creative content from your documents.</li><li><strong>Intelligent Data Extraction:</strong> Extract key information and insights from unstructured text.</li><li><strong>Workflow Automation:</strong> Automate repetitive tasks using AI-powered insights.</li><li><strong>Scalable & On-demand:</strong> Access AI resources as needed for your specific projects.</li></ul><p>Enhance your OfficeX suite with the intelligence of Anthropic Claude AI, transforming how you interact with your documents and data.</p>",
         price: 0.015,
-        priceUnit: "/1M tokens",
-        priceExplanation: "per 1M tokens",
+        price_unit: "/1M tokens",
+        price_explanation: "per 1M tokens",
         bookmarks: 100,
-        bookmarkUrl: "",
-        avgCustomerLifetimeValue: 900,
-        cumulativeSales: 72000,
-        callToAction: "Buy Giftcard",
+        bookmarked_demand: 0,
+        cumulative_sales: 72000,
+        bookmark_url: "",
+        call_to_action: "Buy Giftcard",
         vendors: [
           {
             id: "vendorC",
             name: "Compute Masters",
             avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CM",
-            checkoutVideo:
+            checkout_video:
               "https://www.youtube.com/embed/_vdK5PgcNvc?si=_fsA8MDvT124XAbp",
-            needsAuth: false,
-            needsCloudOfficeX: false,
-            aboutUrl: "#",
-            uptimeScore: 99.98,
-            reviewsScore: 4.7,
-            communityLinks: [
+            uptime_score: 99.98,
+            reviews_score: 4.7,
+            community_links: [
               {
                 label: "Support",
                 url: "#",
               },
             ],
-            priceLine: "Starting from $0.015/1M tokens",
-            viewPageLink: "#",
-            verificationUrl: "#",
-            installationUrl: "https://obedient-airline-13.webhook.cool",
-            callToAction: "Buy Giftcard",
+            price_line: "Starting from $0.015/1M tokens",
+            view_page_link: "#",
+            call_to_action: "Buy Giftcard",
             description:
               "We promise the best results and have a 30 day money back guarantee.",
-            requirements: [],
-            depositOptions: [
+            vendor_disclaimer: undefined,
+            // requirements: [],
+            about_url: "#",
+            checkout_options: [
               {
+                offer_id: "offer1-aws-s3-ai-csv-export",
+                checkout_flow_id: "usdc-on-base-direct-transfer-3",
                 title: "USDC on Base",
-                amount: 60,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "Circle USD",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "To initialize the vendor",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
+                note: "To initialize the vendor (Note: Actual deposit address and details would be provided by the backend after initiating this checkout option)",
+                checkout_init_endpoint:
+                  "/api/checkout/initiate-crypto-transfer?optionId=usdc-on-base-3",
+                checkout_pattern:
+                  CartCheckoutPatternEnum.CRYPTO_DIRECT_TRANSFER,
               },
             ],
           },
@@ -155,294 +226,464 @@ export const appstore_apps: AppInfoWithOffers[] = [
       },
     ],
   },
-  {
-    id: "17",
-    name: "The Pirate Bay",
-    subheading: "Upload to your storage. Delegate torrenting to cloud vendors",
-    coverImage:
-      "https://www.prsformusic.com/-/media/images/mmagazine/images/2017/08/piratebayresize.ashx?h=358&w=637&la=en&hash=0C7EFCAF4BED538A4A2E8A0D855333CD",
-    isFeatured: true,
-    offers: [
-      {
-        id: "offer-piratebay-data-scraping",
-        title: "Delegate Torrent Download",
-        images: [],
-        description:
-          "<p>Delegate torrent downloads to cloud vendors for seamless integration with your Anonymous OfficeX storage. This service allows you to initiate torrent downloads remotely, with the downloaded content automatically saved to your designated cloud storage. Free up your local resources and ensure efficient, secure file acquisition for your projects.</p><p>Key features:</p><ul><li><strong>Cloud-Based Torrenting:</strong> Delegate torrent downloads to high-speed cloud servers.</li><li><strong>Direct to Storage:</strong> Automatically save downloaded files directly to your OfficeX integrated cloud storage (e.g., AWS S3).</li><li><strong>Bandwidth Efficiency:</strong> Utilize vendor's bandwidth for faster downloads without impacting your local network.</li><li><strong>Privacy & Security:</strong> Enhance privacy by offloading torrent activity from your personal devices.</li><li><strong>Automated & Scheduled:</strong> Option to schedule downloads or set up automated processes for new torrents.</li></ul><p>Streamline your file acquisition process by delegating torrent downloads to secure cloud vendors, ensuring direct delivery to your OfficeX storage.</p>",
-        price: 0.05,
-        priceUnit: "/GB",
-        priceExplanation: "per GB of data downloaded",
-        bookmarks: 350,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 100,
-        cumulativeSales: 35000,
-        callToAction: "Book Service",
-        vendors: [
-          {
-            id: "tpb-vendor1",
-            name: "Data Harvest Solutions",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=DHS",
-            needsAuth: true,
-            needsCloudOfficeX: true,
-            aboutUrl: "#",
-            uptimeScore: 99.5,
-            reviewsScore: 4.1,
-            communityLinks: [
-              {
-                label: "Support Forum",
-                url: "#",
-              },
-            ],
-            priceLine: "$0.05/record",
-            viewPageLink: "#",
-            verificationUrl: "#",
-            installationUrl:
-              "http://localhost:3000/officex/install/click-worker-complex-task",
-            description:
-              "We promise the best results and have a 30 day money back guarantee.",
-            callToAction: "Book Service",
-            requirements: [
-              {
-                id: "tpb-vendor1-requirement1",
-                title: "Save to Disk",
-                explanation: "Select the disk to save the data to",
-                type: IDPrefixEnum.Disk,
-                required: true,
-              },
-              {
-                id: "tpb-vendor1-requirement2",
-                title: "Disk Type",
-                explanation: "Select the disk type",
-                type: DiskTypeEnum.AwsBucket,
-                required: true,
-              },
-              {
-                id: "tpb-vendor1-requirement3",
-                title: "Save to Folder",
-                explanation: "Select the folder to save the data to",
-                type: IDPrefixEnum.Folder,
-                required: true,
-              },
-            ],
-            depositOptions: [
-              {
-                title: "USDC on Base",
-                amount: 60,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "Circle USD",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "To initialize the vendor",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "20",
-    name: "Clickworker",
-    subheading: "Bulk volunteers for online gigwork & microtasks.",
-    coverImage:
-      "https://static.vecteezy.com/system/resources/previews/029/182/639/non_2x/black-corporate-id-card-template-clean-id-card-design-with-realistic-lanyard-mockup-free-vector.jpg", // "https://res.cloudinary.com/people-matters/image/upload/fl_immutable_cache,w_624,h_351,q_auto,f_auto/v1717428082/1717428081.jpg", // "https://cdn.prod.website-files.com/643a3434759b024418ea32c0/64a3e22aeb0e06778d2e4cfc_Gig-Economy.png", //"https://www.keka.com/us/wp-content/uploads/2024/10/gig-worker-rights-1.png",
-    isFeatured: true,
-    offers: [
-      {
-        id: "offer-clickworker-100-simple-task",
-        title: "25 Volunteers for Simple Task",
-        images: [],
-        description:
-          "<p>Quickly complete **25 simple, repetitive microtasks** using the Clickworker crowd. This offer is perfect for large-volume, straightforward assignments such as data entry, image tagging, sentiment analysis of short texts, or basic data validation. Get fast and accurate results for tasks that don't require complex decision-making.</p><p>Key benefits:</p><ul><li><strong>High Volume, Fast Turnaround:</strong> Ideal for large datasets and quick completion.</li><li><strong>Cost-Effective:</strong> Efficiently process many simple tasks at a lower unit cost.</li><li><strong>Scalable Workforce:</strong> Access a massive pool of Clickworkers.</li><li><strong>Automated Quality Checks:</strong> Benefit from Clickworker's streamlined quality assurance for microtasks.</li><li><strong>Seamless Integration:</strong> Easily integrate task submission and result retrieval.</li></ul><p>Automate your microtask workflows with the power of the Clickworker crowd.</p>",
-        price: 25,
-        priceUnit: "/project",
-        priceExplanation:
-          "Starting price for 25 simple tasks, varies by task type",
-        bookmarks: 300,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 1000,
-        cumulativeSales: 100000,
-        callToAction: "Configure Project",
-        vendors: [
-          {
-            id: "clickworker-vendor1",
-            name: "Clickworker GmbH",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
-            needsAuth: true,
-            needsCloudOfficeX: false,
-            aboutUrl: "https://www.clickworker.com/how-it-works/",
-            uptimeScore: 99.7,
-            reviewsScore: 4.6,
-            communityLinks: [
-              {
-                label: "API Docs",
-                url: "http://docs.clickworker.com/swagger.html",
-              },
-            ],
-            priceLine: "Pricing varies by task",
-            viewPageLink: "https://www.clickworker.com/",
-            verificationUrl: "https://www.clickworker.com/",
-            installationUrl:
-              "http://localhost:3000/officex/install/click-worker-simple-task",
-            description:
-              "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
-            callToAction: "Access Platform",
-            requirements: [
-              {
-                id: "clickworker-vendor1-requirement3",
-                title: "Data Input CSV URL",
-                explanation:
-                  "URL to a CSV file containing the data for simple tasks",
-                type: "url",
-                required: true,
-              },
-            ],
-            depositOptions: [
-              {
-                title: "USDC on Base",
-                amount: 10000,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "USDC",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "Deposit USDC to fund your Clickworker projects",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: "offer-clickworker-25-complex-task",
-        title: "10 Volunteers for Complex Task",
-        images: [],
-        description:
-          "<p>Leverage the Clickworker crowd to tackle **25 complex tasks** requiring human intelligence and nuanced understanding. This offer is ideal for projects such as detailed web research, content creation, data categorization with intricate rules, or in-depth data verification. Clickworkers are qualified based on your specific requirements to ensure high-quality results for challenging assignments.</p><p>Key benefits:</p><ul><li><strong>High-Quality Output:</strong> Access Clickworkers trained for complex tasks.</li><li><strong>Scalable Workforce:</strong> Get tasks completed efficiently by a large crowd.</li><li><strong>Customizable Requirements:</strong> Define specific skills or qualifications needed.</li><li><strong>Integrated Quality Control:</strong> Benefit from Clickworker's quality assurance processes.</li><li><strong>Flexible & On-Demand:</strong> Hire exactly when and how many you need.</li></ul><p>Empower your business with human intelligence for tasks that AI can't handle alone.</p>",
-        price: 30,
-        priceUnit: "/project",
-        priceExplanation:
-          "Starting price for 25 complex tasks, varies by task type and complexity",
-        bookmarks: 120,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 2500,
-        cumulativeSales: 62500,
-        callToAction: "Configure Project",
-        vendors: [
-          {
-            id: "clickworker-vendor1",
-            name: "Clickworker GmbH",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
-            needsAuth: true,
-            needsCloudOfficeX: false,
-            aboutUrl: "https://www.clickworker.com/how-it-works/",
-            uptimeScore: 99.7,
-            reviewsScore: 4.6,
-            communityLinks: [
-              {
-                label: "API Docs",
-                url: "http://docs.clickworker.com/swagger.html",
-              },
-            ],
-            priceLine: "Pricing varies by task",
-            viewPageLink: "https://www.clickworker.com/",
-            verificationUrl: "https://www.clickworker.com/",
-            installationUrl:
-              "http://localhost:3000/officex/install/click-worker-complex-task",
-            description:
-              "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
-            callToAction: "Access Platform",
-            requirements: [
-              {
-                id: "clickworker-vendor1-requirement3",
-                title: "Instructions Document URL",
-                explanation:
-                  "URL to a detailed document outlining task instructions and quality guidelines",
-                type: "url",
-                required: true,
-              },
-            ],
-            depositOptions: [
-              {
-                title: "USDC on Base",
-                amount: 50000,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "USDC",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "Deposit USDC to fund your Clickworker projects",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "american-express",
-    name: "American Express",
-    subheading: "Global financial services. Credit card points.",
-    coverImage:
-      "https://icm.aexp-static.com/Internet/internationalcardshop/en_in/images/cards/Gold_Card.png",
-    isFeatured: false,
-    offers: [
-      {
-        id: "offer-amex-transaction-csv",
-        title: "Signup Bonus $100",
-        images: [],
-        description:
-          "<p>Sign up for a new American Express card through this offer and receive a **$100 signup bonus**! This exclusive promotion provides a direct incentive for new cardmembers, giving you a valuable boost when you join the American Express family. Enjoy the benefits and services of an Amex card along with this special bonus.</p><p>Key features of this offer:</p><ul><li><strong>$100 Signup Bonus:</strong> Receive a $100 bonus credited to your account after meeting initial spending requirements.</li><li><strong>Access to American Express Benefits:</strong> Enjoy premium customer service, purchase protection, and travel perks.</li><li><strong>Global Acceptance:</strong> Use your American Express card worldwide.</li><li><strong>Flexible Rewards Programs:</strong> Earn points on your spending, redeemable for travel, gift cards, or statement credits.</li><li><strong>Secure Transactions:</strong> Benefit from American Express's robust security features for peace of mind.</li></ul><p>Take advantage of this limited-time offer to earn a $100 signup bonus and experience the premium services of American Express.</p>",
-        price: 120,
-        priceUnit: "/year",
-        priceExplanation:
-          "American Express Gold Card starting at $10k/month credit limit",
-        bookmarks: 100,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 600,
-        cumulativeSales: 60000,
-        callToAction: "Signup Free",
-        vendors: [
-          {
-            id: "amex-vendor1",
-            name: "Financial Data Solutions Inc.",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=FDSI",
-            checkoutVideo:
-              "https://www.youtube.com/embed/EbLmCRuoW1w?si=YHaM5gX1MgbFhmTG",
-            needsAuth: false,
-            needsCloudOfficeX: false,
-            aboutUrl: "#",
-            verificationUrl: "#",
-            installationUrl: "https://obedient-airline-13.webhook.cool",
-            uptimeScore: 99.9,
-            reviewsScore: 4.8,
-            communityLinks: [
-              {
-                label: "Support",
-                url: "#",
-              },
-            ],
-            priceLine: "$90/month",
-            viewPageLink: "#",
-            requirements: [],
-            description:
-              "We promise the best results and have a 30 day money back guarantee.",
-            depositOptions: [],
-            callToAction: "Signup Free",
-          },
-        ],
-      },
-    ],
-  },
+
+  // {
+  //   id: "17",
+  //   name: "The Pirate Bay",
+  //   subheading: "Upload to your storage. Delegate torrenting to cloud vendors",
+  //   coverImage:
+  //     "https://www.prsformusic.com/-/media/images/mmagazine/images/2017/08/piratebayresize.ashx?h=358&w=637&la=en&hash=0C7EFCAF4BED538A4A2E8A0D855333CD",
+  //   isFeatured: true,
+  //   offers: [
+  //     {
+  //       id: "offer-piratebay-data-scraping",
+  //       title: "Delegate Torrent Download",
+  //       images: [],
+  //       description:
+  //         "<p>Delegate torrent downloads to cloud vendors for seamless integration with your Anonymous OfficeX storage. This service allows you to initiate torrent downloads remotely, with the downloaded content automatically saved to your designated cloud storage. Free up your local resources and ensure efficient, secure file acquisition for your projects.</p><p>Key features:</p><ul><li><strong>Cloud-Based Torrenting:</strong> Delegate torrent downloads to high-speed cloud servers.</li><li><strong>Direct to Storage:</strong> Automatically save downloaded files directly to your OfficeX integrated cloud storage (e.g., AWS S3).</li><li><strong>Bandwidth Efficiency:</strong> Utilize vendor's bandwidth for faster downloads without impacting your local network.</li><li><strong>Privacy & Security:</strong> Enhance privacy by offloading torrent activity from your personal devices.</li><li><strong>Automated & Scheduled:</strong> Option to schedule downloads or set up automated processes for new torrents.</li></ul><p>Streamline your file acquisition process by delegating torrent downloads to secure cloud vendors, ensuring direct delivery to your OfficeX storage.</p>",
+  //       price: 0.05,
+  //       priceUnit: "/GB",
+  //       priceExplanation: "per GB of data downloaded",
+  //       bookmarks: 350,
+  //       bookmarkUrl: "#",
+  //       avgCustomerLifetimeValue: 100,
+  //       cumulativeSales: 35000,
+  //       callToAction: "Book Service",
+  //       vendors: [
+  //         {
+  //           id: "tpb-vendor1",
+  //           name: "Data Harvest Solutions",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=DHS",
+  //           needs_auth_installation: true,
+  //           need_cloud_officex: true,
+  //           aboutUrl: "#",
+  //           uptimeScore: 99.5,
+  //           reviewsScore: 4.1,
+  //           communityLinks: [
+  //             {
+  //               label: "Support Forum",
+  //               url: "#",
+  //             },
+  //           ],
+  //           priceLine: "$0.05/record",
+  //           viewPageLink: "#",
+  //           verificationUrl: "#",
+  //           auth_installation_url:
+  //             "http://localhost:3000/officex/install/click-worker-complex-task",
+  //           description:
+  //             "We promise the best results and have a 30 day money back guarantee.",
+  //           callToAction: "Book Service",
+  //           requirements: [
+  //             {
+  //               id: "tpb-vendor1-requirement1",
+  //               title: "Save to Disk",
+  //               explanation: "Select the disk to save the data to",
+  //               type: IDPrefixEnum.Disk,
+  //               required: true,
+  //             },
+  //             {
+  //               id: "tpb-vendor1-requirement2",
+  //               title: "Disk Type",
+  //               explanation: "Select the disk type",
+  //               type: DiskTypeEnum.AwsBucket,
+  //               required: true,
+  //             },
+  //             {
+  //               id: "tpb-vendor1-requirement3",
+  //               title: "Save to Folder",
+  //               explanation: "Select the folder to save the data to",
+  //               type: IDPrefixEnum.Folder,
+  //               required: true,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             {
+  //               title: "USDC on Base",
+  //               amount: 60,
+  //               depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
+  //               tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  //               tokenName: "Circle USD",
+  //               tokenSymbol: "USDC",
+  //               tokenDecimals: 6,
+  //               explanation: "To initialize the vendor",
+  //               chain: "BASE_L2",
+  //               depositUrlCheckout: "",
+  //               chainExplorerUrl: "https://basescan.org/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "21-t",
+  //   name: "Tornado Cash",
+  //   subheading: "Decentralized crypto mixer for enhanced transaction privacy.",
+  //   coverImage:
+  //     "https://img.freepik.com/premium-vector/tornado-cash-torn-coin-cryptocurrency-concept-banner-background_32996-2281.jpg", // Placeholder image, replace with a suitable one if available
+  //   isFeatured: true,
+  //   offers: [
+  //     {
+  //       id: "offer-tornado-cash-0-1-eth",
+  //       title: "Mix 0.1 ETH",
+  //       images: [],
+  //       description:
+  //         "<p>Deposit <strong>0.1 ETH</strong> into the Tornado Cash privacy pool to break the on-chain link between your deposit and withdrawal addresses. This service enhances transaction anonymity by mixing your funds with those of other users in a large liquidity pool.</p><p>Key benefits:</p><ul><li><strong>Enhanced Privacy:</strong> Obfuscates transaction history.</li><li><strong>Decentralized:</strong> Operated by smart contracts, not a central entity.</li><li><strong>Permissionless:</strong> Accessible to anyone with an Ethereum wallet.</li><li><strong>Fixed Denomination:</strong> Standardized pool sizes for consistent mixing.</li></ul><p>Please ensure you understand the mechanics of crypto mixers and the associated risks before proceeding. A 'note' (secret) is generated upon deposit, which is required for withdrawal.</p>",
+  //       price: 0.1, // This represents the denomination of the pool
+  //       priceUnit: "ETH",
+  //       priceExplanation:
+  //         "The fixed denomination for this mixing pool. A small relayer fee (paid in ETH) is typically required for withdrawal.",
+  //       bookmarks: 500000, // Represents approximate number of transactions processed through this pool
+  //       bookmarkUrl: "https://dune.com/queries/100000/200000", // Example: Link to a Dune Analytics dashboard for Tornado Cash stats
+  //       avgCustomerLifetimeValue: 10, // Not applicable for a mixer in this context
+  //       cumulativeSales: 50000, // Represents total ETH mixed through this specific pool (0.1 ETH * 500,000 transactions)
+  //       callToAction: "Deposit 0.1 ETH",
+  //       vendors: [
+  //         {
+  //           id: "tornado-cash-protocol",
+  //           name: "Tornado Cash Protocol",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TCP",
+  //           needs_auth_installation: false, // Permissionless protocol
+  //           need_cloud_officex: false,
+  //           aboutUrl: "https://tornado-cash.info/", // Link to a general info page or historical archive
+  //           uptimeScore: 99.9, // Represents smart contract reliability/availability
+  //           reviewsScore: 5, // Not applicable for a protocol
+  //           communityLinks: [
+  //             {
+  //               label: "GitHub (Archived)",
+  //               url: "https://github.com/tornadocash",
+  //             },
+  //             {
+  //               label: "Audit Reports",
+  //               url: "https://tornado-cash.info/audits/",
+  //             },
+  //           ],
+  //           priceLine: "Variable relayer fees for withdrawal",
+  //           viewPageLink: "https://tornado-cash.info/", // Link to a general info page or historical archive
+  //           verificationUrl:
+  //             "https://etherscan.io/address/0x47ce0c6ed5b0ce3d3967a0cf4e132c820fbcab09", // Example: Etherscan link to the 0.1 ETH pool contract
+  //           auth_installation_url: "", // Not an installable application
+  //           description:
+  //             "Tornado Cash is a fully decentralized, non-custodial protocol that improves transaction privacy on Ethereum by breaking the on-chain link between sender and receiver addresses.",
+  //           callToAction: "Access Mixer Interface",
+  //           requirements: [
+  //             {
+  //               id: "tornado-cash-requirement-recipient",
+  //               title: "Recipient Ethereum Address",
+  //               explanation:
+  //                 "The address where you want the mixed funds to be sent. This should be a new, clean address.",
+  //               type: "text", // Or 'address' if a specific type is supported
+  //               required: true,
+  //             },
+  //             {
+  //               id: "tornado-cash-requirement-relayer",
+  //               title: "Relayer Fee (Optional)",
+  //               explanation:
+  //                 "An optional fee paid to a relayer to withdraw funds without revealing your IP address or using your original wallet.",
+  //               type: "number",
+  //               required: false,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             // This section describes the *input* to the mixer, which is the "deposit" itself
+  //             {
+  //               title: "Deposit 0.1 ETH",
+  //               amount: 0.1,
+  //               depositAddress: "0x47ce0c6ed5b0ce3d3967a0cf4e132c820fbcab09", // Tornado Cash 0.1 ETH pool contract address
+  //               tokenAddress: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH address on Ethereum Mainnet
+  //               tokenName: "Wrapped Ether",
+  //               tokenSymbol: "WETH",
+  //               tokenDecimals: 18,
+  //               explanation: "Deposit 0.1 ETH into the privacy pool.",
+  //               chain: "ETHEREUM_MAINNET",
+  //               depositUrlCheckout: "", // User interacts directly with smart contract
+  //               chainExplorerUrl: "https://etherscan.io/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       id: "offer-tornado-cash-1-eth",
+  //       title: "Mix 1 ETH",
+  //       images: [],
+  //       description:
+  //         "<p>Utilize the <strong>1 ETH</strong> Tornado Cash pool for enhanced privacy of larger Ethereum transactions. Similar to other denominations, this pool allows you to deposit 1 ETH and withdraw it to a new address, breaking the on-chain link and improving your financial anonymity.</p><p>Key benefits:</p><ul><li><strong>Higher Denomination:</strong> Suitable for larger amounts of ETH.</li><li><strong>Proven Mechanism:</strong> Operates on the same audited smart contract principles.</li><li><strong>Community Supported:</strong> Relayers and interfaces maintained by the community.</li><li><strong>Non-Custodial:</strong> You retain control of your funds throughout the process.</li></ul><p>Remember to securely store your generated 'note' (secret) as it is essential for withdrawing your funds. Consider using a relayer for withdrawal to maximize privacy.</p>",
+  //       price: 1, // Denomination
+  //       priceUnit: "ETH",
+  //       priceExplanation:
+  //         "The fixed denomination for this mixing pool. A small relayer fee (paid in ETH) is typically required for withdrawal.",
+  //       bookmarks: 200000, // Approximate number of transactions
+  //       bookmarkUrl: "https://dune.com/queries/100000/200000", // Example: Link to a Dune Analytics dashboard
+  //       avgCustomerLifetimeValue: 10,
+  //       cumulativeSales: 200000, // Total ETH mixed (1 ETH * 200,000 transactions)
+  //       callToAction: "Deposit 1 ETH",
+  //       vendors: [
+  //         {
+  //           id: "tornado-cash-protocol",
+  //           name: "Tornado Cash Protocol",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TCP",
+  //           needs_auth_installation: false,
+  //           need_cloud_officex: false,
+  //           aboutUrl: "https://tornado-cash.info/",
+  //           uptimeScore: 99.9,
+  //           reviewsScore: 5,
+  //           communityLinks: [
+  //             {
+  //               label: "GitHub (Archived)",
+  //               url: "https://github.com/tornadocash",
+  //             },
+  //             {
+  //               label: "Audit Reports",
+  //               url: "https://tornado-cash.info/audits/",
+  //             },
+  //           ],
+  //           priceLine: "Variable relayer fees for withdrawal",
+  //           viewPageLink: "https://tornado-cash.info/",
+  //           verificationUrl:
+  //             "https://etherscan.io/address/0x910CebD20aC4626E3D63C7d6bF8d4fF86Ff3aE17", // Example: Etherscan link to the 1 ETH pool contract
+  //           auth_installation_url: "",
+  //           description:
+  //             "Tornado Cash is a fully decentralized, non-custodial protocol that improves transaction privacy on Ethereum by breaking the on-chain link between sender and receiver addresses.",
+  //           callToAction: "Access Mixer Interface",
+  //           requirements: [
+  //             {
+  //               id: "tornado-cash-requirement-recipient",
+  //               title: "Recipient Ethereum Address",
+  //               explanation:
+  //                 "The address where you want the mixed funds to be sent. This should be a new, clean address.",
+  //               type: "text",
+  //               required: true,
+  //             },
+  //             {
+  //               id: "tornado-cash-requirement-relayer",
+  //               title: "Relayer Fee (Optional)",
+  //               explanation:
+  //                 "An optional fee paid to a relayer to withdraw funds without revealing your IP address or using your original wallet.",
+  //               type: "number",
+  //               required: false,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             {
+  //               title: "Deposit 1 ETH",
+  //               amount: 1,
+  //               depositAddress: "0x910CebD20aC4626E3D63C7d6bF8d4fF86Ff3aE17", // Tornado Cash 1 ETH pool contract address
+  //               tokenAddress: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH address on Ethereum Mainnet
+  //               tokenName: "Wrapped Ether",
+  //               tokenSymbol: "WETH",
+  //               tokenDecimals: 18,
+  //               explanation: "Deposit 1 ETH into the privacy pool.",
+  //               chain: "ETHEREUM_MAINNET",
+  //               depositUrlCheckout: "",
+  //               chainExplorerUrl: "https://etherscan.io/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "20",
+  //   name: "Clickworker",
+  //   subheading: "Bulk volunteers for online gigwork & microtasks.",
+  //   coverImage:
+  //     "https://static.vecteezy.com/system/resources/previews/029/182/639/non_2x/black-corporate-id-card-template-clean-id-card-design-with-realistic-lanyard-mockup-free-vector.jpg", // "https://res.cloudinary.com/people-matters/image/upload/fl_immutable_cache,w_624,h_351,q_auto,f_auto/v1717428082/1717428081.jpg", // "https://cdn.prod.website-files.com/643a3434759b024418ea32c0/64a3e22aeb0e06778d2e4cfc_Gig-Economy.png", //"https://www.keka.com/us/wp-content/uploads/2024/10/gig-worker-rights-1.png",
+  //   isFeatured: true,
+  //   offers: [
+  //     {
+  //       id: "offer-clickworker-100-simple-task",
+  //       title: "25 Volunteers for Simple Task",
+  //       images: [],
+  //       description:
+  //         "<p>Quickly complete **25 simple, repetitive microtasks** using the Clickworker crowd. This offer is perfect for large-volume, straightforward assignments such as data entry, image tagging, sentiment analysis of short texts, or basic data validation. Get fast and accurate results for tasks that don't require complex decision-making.</p><p>Key benefits:</p><ul><li><strong>High Volume, Fast Turnaround:</strong> Ideal for large datasets and quick completion.</li><li><strong>Cost-Effective:</strong> Efficiently process many simple tasks at a lower unit cost.</li><li><strong>Scalable Workforce:</strong> Access a massive pool of Clickworkers.</li><li><strong>Automated Quality Checks:</strong> Benefit from Clickworker's streamlined quality assurance for microtasks.</li><li><strong>Seamless Integration:</strong> Easily integrate task submission and result retrieval.</li></ul><p>Automate your microtask workflows with the power of the Clickworker crowd.</p>",
+  //       price: 25,
+  //       priceUnit: "/project",
+  //       priceExplanation:
+  //         "Starting price for 25 simple tasks, varies by task type",
+  //       bookmarks: 300,
+  //       bookmarkUrl: "#",
+  //       avgCustomerLifetimeValue: 1000,
+  //       cumulativeSales: 100000,
+  //       callToAction: "Configure Project",
+  //       vendors: [
+  //         {
+  //           id: "clickworker-vendor1",
+  //           name: "Clickworker GmbH",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
+  //           needs_auth_installation: true,
+  //           need_cloud_officex: false,
+  //           aboutUrl: "https://www.clickworker.com/how-it-works/",
+  //           uptimeScore: 99.7,
+  //           reviewsScore: 4.6,
+  //           communityLinks: [
+  //             {
+  //               label: "API Docs",
+  //               url: "http://docs.clickworker.com/swagger.html",
+  //             },
+  //           ],
+  //           priceLine: "Pricing varies by task",
+  //           viewPageLink: "https://www.clickworker.com/",
+  //           verificationUrl: "https://www.clickworker.com/",
+  //           auth_installation_url:
+  //             "http://localhost:3000/officex/install/click-worker-simple-task",
+  //           description:
+  //             "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
+  //           callToAction: "Access Platform",
+  //           requirements: [
+  //             {
+  //               id: "clickworker-vendor1-requirement3",
+  //               title: "Data Input CSV URL",
+  //               explanation:
+  //                 "URL to a CSV file containing the data for simple tasks",
+  //               type: "url",
+  //               required: true,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             {
+  //               title: "USDC on Base",
+  //               amount: 10000,
+  //               depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
+  //               tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  //               tokenName: "USDC",
+  //               tokenSymbol: "USDC",
+  //               tokenDecimals: 6,
+  //               explanation: "Deposit USDC to fund your Clickworker projects",
+  //               chain: "BASE_L2",
+  //               depositUrlCheckout: "",
+  //               chainExplorerUrl: "https://basescan.org/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       id: "offer-clickworker-25-complex-task",
+  //       title: "10 Volunteers for Complex Task",
+  //       images: [],
+  //       description:
+  //         "<p>Leverage the Clickworker crowd to tackle **25 complex tasks** requiring human intelligence and nuanced understanding. This offer is ideal for projects such as detailed web research, content creation, data categorization with intricate rules, or in-depth data verification. Clickworkers are qualified based on your specific requirements to ensure high-quality results for challenging assignments.</p><p>Key benefits:</p><ul><li><strong>High-Quality Output:</strong> Access Clickworkers trained for complex tasks.</li><li><strong>Scalable Workforce:</strong> Get tasks completed efficiently by a large crowd.</li><li><strong>Customizable Requirements:</strong> Define specific skills or qualifications needed.</li><li><strong>Integrated Quality Control:</strong> Benefit from Clickworker's quality assurance processes.</li><li><strong>Flexible & On-Demand:</strong> Hire exactly when and how many you need.</li></ul><p>Empower your business with human intelligence for tasks that AI can't handle alone.</p>",
+  //       price: 30,
+  //       priceUnit: "/project",
+  //       priceExplanation:
+  //         "Starting price for 25 complex tasks, varies by task type and complexity",
+  //       bookmarks: 120,
+  //       bookmarkUrl: "#",
+  //       avgCustomerLifetimeValue: 2500,
+  //       cumulativeSales: 62500,
+  //       callToAction: "Configure Project",
+  //       vendors: [
+  //         {
+  //           id: "clickworker-vendor1",
+  //           name: "Clickworker GmbH",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
+  //           needs_auth_installation: true,
+  //           need_cloud_officex: false,
+  //           aboutUrl: "https://www.clickworker.com/how-it-works/",
+  //           uptimeScore: 99.7,
+  //           reviewsScore: 4.6,
+  //           communityLinks: [
+  //             {
+  //               label: "API Docs",
+  //               url: "http://docs.clickworker.com/swagger.html",
+  //             },
+  //           ],
+  //           priceLine: "Pricing varies by task",
+  //           viewPageLink: "https://www.clickworker.com/",
+  //           verificationUrl: "https://www.clickworker.com/",
+  //           auth_installation_url:
+  //             "http://localhost:3000/officex/install/click-worker-complex-task",
+  //           description:
+  //             "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
+  //           callToAction: "Access Platform",
+  //           requirements: [
+  //             {
+  //               id: "clickworker-vendor1-requirement3",
+  //               title: "Instructions Document URL",
+  //               explanation:
+  //                 "URL to a detailed document outlining task instructions and quality guidelines",
+  //               type: "url",
+  //               required: true,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             {
+  //               title: "USDC on Base",
+  //               amount: 50000,
+  //               depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
+  //               tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  //               tokenName: "USDC",
+  //               tokenSymbol: "USDC",
+  //               tokenDecimals: 6,
+  //               explanation: "Deposit USDC to fund your Clickworker projects",
+  //               chain: "BASE_L2",
+  //               depositUrlCheckout: "",
+  //               chainExplorerUrl: "https://basescan.org/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "american-express",
+  //   name: "American Express",
+  //   subheading: "Global financial services. Credit card points.",
+  //   coverImage:
+  //     "https://icm.aexp-static.com/Internet/internationalcardshop/en_in/images/cards/Gold_Card.png",
+  //   isFeatured: false,
+  //   offers: [
+  //     {
+  //       id: "offer-amex-transaction-csv",
+  //       title: "Signup Bonus $100",
+  //       images: [],
+  //       description:
+  //         "<p>Sign up for a new American Express card through this offer and receive a **$100 signup bonus**! This exclusive promotion provides a direct incentive for new cardmembers, giving you a valuable boost when you join the American Express family. Enjoy the benefits and services of an Amex card along with this special bonus.</p><p>Key features of this offer:</p><ul><li><strong>$100 Signup Bonus:</strong> Receive a $100 bonus credited to your account after meeting initial spending requirements.</li><li><strong>Access to American Express Benefits:</strong> Enjoy premium customer service, purchase protection, and travel perks.</li><li><strong>Global Acceptance:</strong> Use your American Express card worldwide.</li><li><strong>Flexible Rewards Programs:</strong> Earn points on your spending, redeemable for travel, gift cards, or statement credits.</li><li><strong>Secure Transactions:</strong> Benefit from American Express's robust security features for peace of mind.</li></ul><p>Take advantage of this limited-time offer to earn a $100 signup bonus and experience the premium services of American Express.</p>",
+  //       price: 120,
+  //       priceUnit: "/year",
+  //       priceExplanation:
+  //         "American Express Gold Card starting at $10k/month credit limit",
+  //       bookmarks: 100,
+  //       bookmarkUrl: "#",
+  //       avgCustomerLifetimeValue: 600,
+  //       cumulativeSales: 60000,
+  //       callToAction: "Signup Free",
+  //       vendors: [
+  //         {
+  //           id: "amex-vendor1",
+  //           name: "Financial Data Solutions Inc.",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=FDSI",
+  //           checkout_video:
+  //             "https://www.youtube.com/embed/EbLmCRuoW1w?si=YHaM5gX1MgbFhmTG",
+  //           needs_auth_installation: false,
+  //           need_cloud_officex: false,
+  //           aboutUrl: "#",
+  //           verificationUrl: "#",
+  //           auth_installation_url: "https://obedient-airline-13.webhook.cool",
+  //           uptimeScore: 99.9,
+  //           reviewsScore: 4.8,
+  //           communityLinks: [
+  //             {
+  //               label: "Support",
+  //               url: "#",
+  //             },
+  //           ],
+  //           priceLine: "$90/month",
+  //           viewPageLink: "#",
+  //           requirements: [],
+  //           description:
+  //             "We promise the best results and have a 30 day money back guarantee.",
+  //           depositOptions: [],
+  //           callToAction: "Signup Free",
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
   // {
   //   id: "30",
   //   name: "Gemini Agent",
@@ -470,7 +711,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //           id: "gemini-vendor1",
   //           name: "AI Innovators Hub",
   //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=AIH",
-  //           needsAuth: true,
+  //           needs_auth_installation: true,
   //           aboutUrl: "#",
   //           uptimeScore: 99.9,
   //           reviewsScore: 4.9,
@@ -483,7 +724,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //           priceLine: "Starting from $0.007/1K tokens",
   //           viewPageLink: "#",
   //           verificationUrl: "#",
-  //           installationUrl: "https://obedient-airline-13.webhook.cool",
+  //           auth_installation_url: "https://obedient-airline-13.webhook.cool",
   //           description:
   //             "We specialize in cutting-edge AI integrations and offer unparalleled support for our solutions.",
   //           callToAction: "Install App",
@@ -1010,7 +1251,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //           id: "telegram-vendor1",
   //           name: "Bot Builders Co.",
   //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=BBC",
-  //           needsAuth: true,
+  //           needs_auth_installation: true,
   //           aboutUrl: "#",
   //           uptimeScore: 99.8,
   //           reviewsScore: 4.5,
@@ -1023,7 +1264,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //           priceLine: "From $10/month",
   //           viewPageLink: "#",
   //           verificationUrl: "#",
-  //           installationUrl: "https://obedient-airline-13.webhook.cool",
+  //           auth_installation_url: "https://obedient-airline-13.webhook.cool",
   //           description:
   //             "We promise the best results and have a 30 day money back guarantee.",
   //           callToAction: "Install App",

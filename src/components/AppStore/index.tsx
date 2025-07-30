@@ -5,7 +5,7 @@ import { appstore_apps } from "./constants";
 import { Link } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
 import {
-  AppInfoWithOffers,
+  ServiceWithOffersFromVendors,
   DiskTypeEnum,
   IDPrefixEnum,
 } from "@officexapp/types";
@@ -15,7 +15,7 @@ const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
 
 // AppCard component for individual app tiles
-const AppCard = ({ app }: { app: AppInfoWithOffers }) => {
+const AppCard = ({ app }: { app: ServiceWithOffersFromVendors }) => {
   // Split subheading into two lines
   const subheadingLines = app.subheading.split("\n");
 

@@ -122,12 +122,10 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
         "pricing",
         "vendor_notes",
         "about_url",
-        "run_url",
         "billing_url",
         "support_url",
         "delivery_url",
         "verification_url",
-        "installation_url",
         "related_resources",
         "tracer",
         "labels",
@@ -287,12 +285,11 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
     vendor_notes: jobRun.vendor_notes || "",
     notes: jobRun.notes || "",
     about_url: jobRun.about_url || "",
-    run_url: jobRun.run_url || "",
     billing_url: jobRun.billing_url || "",
     support_url: jobRun.support_url || "",
     delivery_url: jobRun.delivery_url || "",
     verification_url: jobRun.verification_url || "",
-    installation_url: jobRun.installation_url || "",
+    auth_installation_url: jobRun.auth_installation_url || "",
     related_resources: jobRun.related_resources || [],
     tracer: jobRun.tracer || "",
     labels: jobRun.labels || [],
@@ -553,7 +550,10 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="installation_url" label="Installation URL">
+                <Form.Item
+                  name="auth_installation_url"
+                  label="Installation URL"
+                >
                   <Input
                     prefix={<LinkOutlined />}
                     placeholder="URL to install the job script"
@@ -843,11 +843,6 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
-                          "Run URL",
-                          jobRun.run_url,
-                          <LinkOutlined />
-                        )}
-                        {renderReadOnlyField(
                           "Billing URL",
                           jobRun.billing_url,
                           <LinkOutlined />
@@ -869,7 +864,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                         )}
                         {renderReadOnlyField(
                           "Installation URL",
-                          jobRun.installation_url,
+                          jobRun.auth_installation_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(

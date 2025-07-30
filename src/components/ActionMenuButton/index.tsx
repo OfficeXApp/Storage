@@ -15,6 +15,7 @@ import {
   FolderAddOutlined,
   CloudSyncOutlined,
   MessageOutlined,
+  EllipsisOutlined,
 } from "@ant-design/icons";
 import { DriveFullFilePath, useDrive } from "../../framework";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -42,6 +43,7 @@ import {
 import { useMultiUploader } from "../../framework/uploader/hook";
 import { shouldBehaveOfflineDiskUIIntent } from "../../redux-offline/directory/directory.reducer";
 import { extractDiskInfo, urlSafeBase64Encode } from "../../api/helpers";
+import { ENABLE_CHAT_WITH_AI } from "../../framework/flags/feature-flags";
 
 interface ActionMenuButtonProps {
   isBigButton?: boolean; // Determines the button style
@@ -180,42 +182,24 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   };
 
   const newButtonItems: MenuProps["items"] = [
-    {
-      label: (
-        <Space>
-          <MessageOutlined />
-          New Chat
-        </Space>
-      ),
-      key: "newChat",
-      disabled,
-      onClick: () => {
-        navigate(wrapOrgCode("/chat"));
-      },
-    },
+    ENABLE_CHAT_WITH_AI
+      ? {
+          label: (
+            <Space>
+              <MessageOutlined />
+              New Chat
+            </Space>
+          ),
+          key: "newChat",
+          disabled,
+          onClick: () => {
+            navigate(wrapOrgCode("/chat"));
+          },
+        }
+      : null,
     {
       type: "divider",
     },
-    // {
-    //   label: (
-    //     <Space>
-    //       <FolderAddOutlined />
-    //       New Folder
-    //     </Space>
-    //   ),
-    //   key: "newFolder",
-    //   disabled,
-    //   onClick: () => {
-    //     if (window.location.pathname.includes("/drive/")) {
-    //       setIsModalVisible(true);
-    //     } else if (window.location.pathname === wrapOrgCode("/drive")) {
-    //       message.info("Select a disk first");
-    //     } else {
-    //       navigate(wrapOrgCode("/drive"));
-    //       message.info("Select a disk");
-    //     }
-    //   },
-    // },
     {
       label: (
         <Space>
@@ -335,6 +319,30 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       disabled: true,
     },
   ];
+
+  if (isBigButton && ENABLE_CHAT_WITH_AI) {
+    return (
+      <div style={{ width: "100%", display: "flex", flexDirection: "row" }}>
+        <Dropdown menu={{ items: newButtonItems }}>
+          <Button type="primary" style={{ borderRadius: "5px 0px 0px 5px" }}>
+            <PlusOutlined />
+            {/* <EllipsisOutlined /> */}
+          </Button>
+        </Dropdown>
+        <Button
+          type="primary"
+          block
+          onClick={() => navigate(wrapOrgCode("/chat"))}
+          style={{
+            borderRadius: "0px 5px 5px 0px",
+            borderLeft: "0.5px solid rgb(209, 242, 255)",
+          }}
+        >
+          Chat
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <>

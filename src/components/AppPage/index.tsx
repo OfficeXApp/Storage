@@ -38,9 +38,9 @@ import { useIdentitySystem } from "../../framework/identity";
 import RunAppDrawer from "../RunAppDrawer";
 import { Helmet } from "react-helmet";
 import {
-  AppInfoWithOffers,
+  ServiceWithOffersFromVendors,
   CheckoutRun,
-  OfferWorkflow,
+  OfferPreview,
   VendorOffer,
 } from "@officexapp/types";
 
@@ -52,9 +52,9 @@ const AppPage = () => {
   const { app_id } = useParams();
   const { wrapOrgCode } = useIdentitySystem();
 
-  // Find the app, ensuring it's typed as AppInfoWithOffers to access 'offers' directly
+  // Find the app, ensuring it's typed as ServiceWithOffersFromVendors to access 'offers' directly
   const app = appstore_apps.find((app) => app.id === app_id) as
-    | AppInfoWithOffers
+    | ServiceWithOffersFromVendors
     | undefined;
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,12 +67,12 @@ const AppPage = () => {
 
   // Now, directly use app.offers and populate the images
   // We create a new array of offers to ensure immutability and add the images
-  const offersWithImages: OfferWorkflow[] =
+  const offersWithImages: OfferPreview[] =
     app.offers?.map((offer) => ({
       ...offer,
       // Duplicating the image for the carousel to function, as it needs at least two distinct items to slide.
       // If you only want one image, remove the second `app.coverImage`.
-      images: [app.coverImage, app.coverImage],
+      images: [app.cover_image, app.cover_image],
     })) || []; // Default to an empty array if app.offers is undefined
 
   const navigate = useNavigate();
@@ -93,22 +93,18 @@ const AppPage = () => {
     offer.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleRunVendorJob = (offer: OfferWorkflow, vendor: VendorOffer) => {
+  const handleRunVendorJob = (offer: OfferPreview, vendor: VendorOffer) => {
     setCheckoutRun({
       vendorID: vendor.id,
       vendorName: vendor.name,
       vendorAvatar: vendor.avatar,
-      aboutUrl: vendor.aboutUrl,
-      verificationUrl: vendor.verificationUrl,
-      installationUrl: vendor.installationUrl,
+      aboutUrl: vendor.about_url || "",
       offerName: offer.title,
       offerDescription: vendor.description,
-      depositOptions: vendor.depositOptions,
-      requirements: vendor.requirements,
-      callToAction: vendor.callToAction,
-      needsAuth: vendor.needsAuth,
-      needsCloudOfficeX: vendor.needsCloudOfficeX,
-      checkoutVideo: vendor.checkoutVideo,
+      callToAction: vendor.call_to_action,
+      checkoutVideo: vendor.checkout_video,
+      checkoutOptions: vendor.checkout_options,
+      priceLine: vendor.price_line,
     });
     showDrawer();
   };
@@ -305,7 +301,7 @@ const AppPage = () => {
                       >
                         ${offer.price}
                         <Text style={{ fontSize: "14px", color: "#595959" }}>
-                          {offer.priceUnit}
+                          {offer.price_unit}
                         </Text>
                       </Paragraph>
                       <Paragraph
@@ -315,7 +311,7 @@ const AppPage = () => {
                           marginBottom: 16,
                         }}
                       >
-                        {offer.priceExplanation}
+                        {offer.price_explanation}
                       </Paragraph>
 
                       <Paragraph
@@ -361,17 +357,14 @@ const AppPage = () => {
                             >
                               <Statistic
                                 title="Bookmarked Demand"
-                                value={
-                                  offer.bookmarks *
-                                  offer.avgCustomerLifetimeValue
-                                }
+                                value={offer.bookmarked_demand}
                                 prefix={<DollarCircleOutlined />}
                                 valueStyle={{ fontSize: 16 }}
                               />
                             </Popover>
                             <Statistic
                               title="Cumulative Sales"
-                              value={offer.cumulativeSales}
+                              value={offer.cumulative_sales}
                               prefix={<DollarOutlined />}
                               valueStyle={{ fontSize: 16 }}
                             />
@@ -394,7 +387,7 @@ const AppPage = () => {
                                 handleRunVendorJob(offer, offer.vendors[0])
                               }
                             >
-                              {offer.callToAction || "Run Job"}
+                              {offer.call_to_action || "Run Job"}
                             </Button>
                           </Space>
                         </Col>
@@ -477,17 +470,17 @@ const AppPage = () => {
                                               type="secondary"
                                               style={{ fontSize: "13px" }}
                                             >
-                                              Price: {vendor.priceLine}
+                                              Price: {vendor.price_line}
                                             </Text>
                                             <Space size={4} wrap>
                                               <Tag
                                                 icon={<StarFilled />}
                                                 color="gold"
                                               >
-                                                {vendor.reviewsScore} Reviews
+                                                {vendor.reviews_score} Reviews
                                               </Tag>
                                               <Tag color="blue">
-                                                Uptime: {vendor.uptimeScore}%
+                                                Uptime: {vendor.uptime_score}%
                                               </Tag>
                                             </Space>
                                           </Space>
@@ -498,7 +491,7 @@ const AppPage = () => {
                                       {" "}
                                       <Button
                                         type="default"
-                                        href={vendor.viewPageLink}
+                                        href={vendor.view_page_link}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onClick={() =>
@@ -506,7 +499,7 @@ const AppPage = () => {
                                         }
                                         icon={<CaretRightOutlined />}
                                       >
-                                        {vendor.callToAction || "Run Job"}
+                                        {vendor.call_to_action || "Run Job"}
                                       </Button>
                                     </Col>
                                   </Row>

@@ -50,9 +50,10 @@ import {
   IResponseCheckoutFinalize,
   IRequestCheckoutValidate,
   IResponseCheckoutValidate,
+  JobRunID,
 } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { isValidEmail } from "../../api/helpers";
 import { parseUnits } from "viem";
 import { createJobRunAction } from "../../redux-offline/job-runs/job-runs.actions";
@@ -87,6 +88,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     useState<boolean>(true);
   const [finalRedirectUrl, setFinalRedirectUrl] = useState<string>("");
   const [finalRedirectCta, setFinalRedirectCta] = useState<string>("");
+  const [jobRunId, setJobRunId] = useState<JobRunID>("");
   const [isFinalizedCheckout, setIsFinalizedCheckout] =
     useState<boolean>(false);
   const [checkoutInitResponse, setCheckoutInitResponse] =
@@ -96,6 +98,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     useState<boolean>(false);
   const [isFinalizingLoading, setIsFinalizingLoading] =
     useState<boolean>(false);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const {
@@ -221,21 +224,37 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         setIsFinalizingLoading(false);
         return;
       }
-
-      createJobRunAction({
-        id: job_run_id,
-        title: checkoutRun.offerName,
-        vendor_name: checkoutRun.vendorName,
-        vendor_id: checkoutRun.vendorID,
-        about_url: checkoutRun.aboutUrl,
-        status: JobRunStatus.AWAITING,
-        description: checkoutRun.offerDescription,
-        pricing: checkoutRun.priceLine,
-        notes: `From checkout init route ${selectedDepositOption?.checkout_init_endpoint} with checkout session id ${checkoutInitResponse?.checkout_session_id}`,
-        tracer: checkoutInitResponse?.tracer || "",
-        labels: [],
-        delivery_url: data_finalize_checkout.skip_to_final_redirect,
-      });
+      const receipt = data_finalize_checkout.receipt;
+      dispatch(
+        createJobRunAction({
+          id: job_run_id,
+          title: receipt?.title || checkoutRun.offerName,
+          vendor_name: receipt?.vendor_name || checkoutRun.vendorName,
+          vendor_id: receipt?.vendor_id || checkoutRun.vendorID,
+          about_url:
+            receipt?.about_url ||
+            checkoutRun.aboutUrl ||
+            "https://google.com?search=officex",
+          status: receipt?.status || JobRunStatus.PAID,
+          description: receipt?.description || checkoutRun.offerDescription,
+          pricing: receipt?.pricing || checkoutRun.priceLine,
+          notes: `From checkout init route ${selectedDepositOption?.checkout_init_endpoint} with checkout session id ${checkoutInitResponse?.checkout_session_id}`,
+          tracer: checkoutInitResponse?.tracer || "",
+          labels: [],
+          delivery_url:
+            receipt?.delivery_url || receipt?.skip_to_final_redirect || "",
+          billing_url:
+            receipt?.billing_url ||
+            checkoutRun.aboutUrl ||
+            "https://google.com?search=officex",
+          support_url:
+            receipt?.support_url ||
+            checkoutRun.aboutUrl ||
+            "https://google.com?search=officex",
+          subtitle: receipt?.subtitle || "",
+          vendor_notes: receipt?.vendor_notes || "",
+        })
+      );
 
       let finalApiKey = apiKeyInputValue;
       if (checkoutInitResponse?.post_payment.auth_installation_url) {
@@ -295,14 +314,15 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         </span>
       );
       setFinalRedirectUrl(
-        data_finalize_checkout.skip_to_final_redirect ||
+        data_finalize_checkout.receipt?.skip_to_final_redirect ||
           `${window.location.origin}/org/current/resources/job-runs`
       );
       setFinalRedirectCta(
-        data_finalize_checkout.skip_to_final_cta ||
+        data_finalize_checkout.receipt?.skip_to_final_cta ||
           checkoutInitResponse.final_cta ||
           "View Purchase History"
       );
+      setJobRunId(job_run_id);
       setIsFinalizedCheckout(true);
       setIsFinalizingLoading(false);
     } catch (error: any) {
@@ -415,6 +435,9 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           }
         });
         setPreferenceInputs(initialPreferenceInputs);
+        message.success(
+          "Payment Confirmed | You may now proceed to finalizing the purchase"
+        );
       }
     } catch (error) {
       console.error("Error initiating checkout:", error);
@@ -453,14 +476,16 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       }
     } catch (error) {
       console.error("Error validating payment:", error);
+      message.error(`Error validating payment`, 30);
     } finally {
       setIsValidatingLoading(false);
     }
   };
 
   const handleFinalRedirect = () => {
+    // open in new tab
     if (finalRedirectUrl) {
-      window.location.href = finalRedirectUrl;
+      window.open(finalRedirectUrl, "_blank");
     }
   };
 
@@ -531,6 +556,18 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           <Button onClick={onCloseDrawer}>Close</Button>
 
           <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <span
+              onClick={() => {
+                // open in new tab aboutUrl
+                window.open(checkoutRun.aboutUrl, "_blank");
+              }}
+              style={{
+                cursor: "pointer",
+                color: "rgba(0,0,0,0.3)",
+              }}
+            >
+              Customer Support
+            </span>
             {checkoutInitResponse?.post_payment?.needs_cloud_officex &&
               !currentOrg?.endpoint && (
                 <span style={{ color: "#ff0000" }}>Connect Cloud</span>
@@ -538,10 +575,16 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
             {finalRedirectUrl && finalRedirectCta && isFinalizedCheckout ? (
               <Button
                 type="primary"
-                onClick={handleFinalRedirect}
+                onClick={() => {
+                  window.open(
+                    `${window.location.origin}${wrapOrgCode(`/resources/job-runs/${jobRunId}`)}`,
+                    "_blank"
+                  );
+                }}
                 disabled={isFinishButtonDisabled}
+                ghost
               >
-                {finalRedirectCta}
+                View Purchase History
               </Button>
             ) : shouldShowWhatHappensNext ? (
               <Button
@@ -1224,16 +1267,24 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           </div>
         )}
         {finalRedirectUrl && finalRedirectCta && isFinalizedCheckout && (
-          <Button
-            block
-            type="primary"
-            size="large"
-            disabled={isFinishButtonDisabled}
-            onClick={handleFinalRedirect}
-            loading={isFinalizingLoading}
-          >
-            {finalRedirectCta}
-          </Button>
+          <>
+            <Alert
+              message="🎉 Checkout Completed - View Your Purchase"
+              type="success"
+              style={{ textAlign: "center" }}
+            />
+            <Button
+              block
+              type="primary"
+              size="large"
+              disabled={isFinishButtonDisabled}
+              onClick={handleFinalRedirect}
+              loading={isFinalizingLoading}
+              style={{ marginTop: 8 }}
+            >
+              {finalRedirectCta}
+            </Button>
+          </>
         )}
       </div>
     </Drawer>

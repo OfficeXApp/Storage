@@ -432,6 +432,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                 <Button
                   icon={<GiftFilled />}
                   href={jobRun.delivery_url}
+                  target="_blank"
                   type="primary"
                   size={screenType.isMobile ? "small" : "middle"}
                   disabled={!jobRun.delivery_url}

@@ -20,7 +20,7 @@ const AppCard = ({ app }: { app: ServiceWithOffersFromVendors }) => {
   const subheadingLines = app.subheading.split("\n");
 
   return (
-    <Badge.Ribbon text={app.isFeatured ? "Featured" : ""}>
+    <Badge.Ribbon text={app.is_featured ? "Featured" : ""}>
       <Card
         hoverable // Ant Design's built-in hover effect
         style={{
@@ -45,7 +45,7 @@ const AppCard = ({ app }: { app: ServiceWithOffersFromVendors }) => {
           >
             <img
               alt={app.name}
-              src={app.coverImage}
+              src={app.cover_image}
               style={{
                 width: "100%",
                 height: "100%",

@@ -120,6 +120,7 @@ import {
   ENABLE_CHAT_WITH_AI,
   ENABLE_WALLET,
 } from "./framework/flags/feature-flags";
+import JobRunPage from "./pages/JobRunsPage/jobruns.page";
 
 const { Sider, Content } = Layout;
 
@@ -137,7 +138,7 @@ const SideMenu = ({
 
   // State for selected and open keys
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [openKeys, setOpenKeys] = useState<string[]>(["navigate-storage"]);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   // Update selected and open keys based on current route
   useEffect(() => {
@@ -145,16 +146,16 @@ const SideMenu = ({
 
     if (path.includes("/recent")) {
       setSelectedKeys(["recent"]);
-      setOpenKeys(["navigate-storage"]);
+      setOpenKeys(["navigate-directory"]);
     } else if (path.includes("/drive-shared")) {
       setSelectedKeys(["drive-shared"]);
-      setOpenKeys(["navigate-storage"]);
+      setOpenKeys(["navigate-directory"]);
     } else if (path.includes("/drive-trash")) {
       setSelectedKeys(["drive-trash"]);
-      setOpenKeys(["navigate-storage"]);
+      setOpenKeys(["navigate-directory"]);
     } else if (path.includes("/drive")) {
       setSelectedKeys(["drive"]);
-      setOpenKeys(["navigate-storage"]);
+      setOpenKeys(["navigate-directory"]);
     } else if (path.includes("/resources/contacts")) {
       setSelectedKeys(["contacts"]);
       setOpenKeys(["organization"]);
@@ -211,8 +212,19 @@ const SideMenu = ({
         }
       : null,
     {
-      key: "navigate-storage",
-      label: "Storage",
+      key: "navigate-directory",
+      label: (
+        <div
+          onClick={() => {
+            navigate(wrapOrgCode("/drive"));
+            if (setSidebarVisible) {
+              setSidebarVisible(false);
+            }
+          }}
+        >
+          Storage
+        </div>
+      ),
       icon: <FolderOutlined />,
       children: [
         {
@@ -920,6 +932,12 @@ const RouterUI = () => {
                         />
                       )}
 
+                      {ENABLE_APPSTORE && (
+                        <Route
+                          path="/org/:orgcode/resources/job-runs/:jobRunID"
+                          element={<JobRunPage />}
+                        />
+                      )}
                       <Route path="*" element={<NotFoundPage />} />
                     </Routes>
                   </Content>

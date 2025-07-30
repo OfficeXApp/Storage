@@ -53,7 +53,7 @@ export const appstore_apps: ServiceWithOffersFromVendors[] = [
             description:
               "We promise the best results and have a 30 day money back guarantee.",
             vendor_disclaimer: undefined,
-            about_url: "#",
+            about_url: "https://vendor.com",
             checkout_options: [
               {
                 offer_id: "aws-s3-storage-giftcard",
@@ -69,6 +69,7 @@ export const appstore_apps: ServiceWithOffersFromVendors[] = [
                   "Immediate access. Your storage giftcard will have a crypto balance that pays for storage and bandwidth. You can top it up any time you need more.",
                 terms_of_service_url: "https://google.com",
                 requires_email_for_init: true,
+                about_url: "https://vendor.com",
               },
               {
                 offer_id: "offer1-aws-s3-ai-csv-export",
@@ -79,6 +80,7 @@ export const appstore_apps: ServiceWithOffersFromVendors[] = [
                   "/api/checkout/initiate-crypto-transfer?optionId=usdc-on-base",
                 checkout_pattern:
                   CartCheckoutPatternEnum.CRYPTO_DIRECT_TRANSFER,
+                about_url: "https://vendor.com",
                 vendor_disclaimer:
                   "You will directly send crypto to the vendors wallet, and they will email the giftcard in a few hours.",
               },
@@ -89,6 +91,7 @@ export const appstore_apps: ServiceWithOffersFromVendors[] = [
                 note: "",
                 checkout_init_endpoint: "https://google.com",
                 checkout_pattern: CartCheckoutPatternEnum.EXTERNAL_PAYMENT_LINK,
+                about_url: "https://vendor.com",
                 vendor_disclaimer:
                   "You will be redirected to Stripe to complete the payment. The giftcard will be emailed to you immediately.",
               },

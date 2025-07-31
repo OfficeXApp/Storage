@@ -848,7 +848,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                                       (
                                         checkoutInitResponse as IResponseCheckoutInit_Crypto
                                       ).crypto_checkout.chain_explorer_url
-                                    }address/${
+                                    }/address/${
                                       (
                                         checkoutInitResponse as IResponseCheckoutInit_Crypto
                                       ).crypto_checkout.receiving_address

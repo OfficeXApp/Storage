@@ -106,7 +106,7 @@ const AppStore = () => {
       }}
     >
       <Helmet>
-        <title>App Store - OfficeX</title>
+        <title>App Store | OfficeX</title>
       </Helmet>
       <Content
         style={{

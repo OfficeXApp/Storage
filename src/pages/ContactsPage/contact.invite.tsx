@@ -22,16 +22,14 @@ import { ContactFEO } from "../../redux-offline/contacts/contacts.reducer";
 import {
   ApiKey,
   IRequestCreateApiKey,
+  OrgOwnedContactApiKeyLogin_BTOA,
+  SelfCustodySuperswapLogin_BTOA,
+  SovereignStrangerLogin_BTOA,
   SystemPermissionType,
 } from "@officexapp/types";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import { useIdentitySystem } from "../../framework/identity";
 import TagCopy from "../../components/TagCopy";
-import {
-  OrgOwnedContactApiKeyLogin_BTOA,
-  SelfCustodySuperswapLogin_BTOA,
-  SovereignStrangerLogin_BTOA,
-} from "./contact.redeem";
 import { urlSafeBase64Encode, wrapAuthStringOrHeader } from "../../api/helpers";
 import { generateAutoLoginBTOA } from "../AutoLoginPage";
 

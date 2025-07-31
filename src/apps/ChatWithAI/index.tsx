@@ -45,6 +45,7 @@ import {
   DiskTypeEnum,
   FileConflictResolutionEnum,
   FileID,
+  fileRawUrl_BTOA,
   FolderID,
 } from "@officexapp/types";
 import {
@@ -77,7 +78,6 @@ import { Helmet } from "react-helmet";
 import Marquee from "react-fast-marquee";
 import SlimAppHeader from "../../components/SlimAppHeader";
 import { useMultiUploader } from "../../framework/uploader/hook";
-import { fileRawUrl_BTOA } from "../../components/FreeFileSharePreview";
 import DirectoryGuard from "../../components/DriveUI/DirectoryGuard";
 import { DOCUMENTS_APP_ENDPOINT } from "../../framework/identity/constants";
 

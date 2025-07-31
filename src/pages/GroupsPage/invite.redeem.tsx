@@ -10,7 +10,11 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import { GroupInviteID, GroupRole } from "@officexapp/types";
+import {
+  GroupInviteID,
+  GroupRole,
+  RedeemGroupInvite_BTOA,
+} from "@officexapp/types";
 import {
   urlSafeBase64Decode,
   urlSafeBase64Encode,
@@ -29,16 +33,6 @@ import { shortenAddress } from "../../framework/identity/constants";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
-
-export interface RedeemGroupInvite_BTOA {
-  invite_id: GroupInviteID;
-  redeem_code: string;
-  redirect_url: string;
-  group_name: string;
-  role: GroupRole;
-  org_name: string;
-  daterange: { begins_at: number; expires_at: number };
-}
 
 const RedeemGroupInvite = () => {
   const params = useParams();

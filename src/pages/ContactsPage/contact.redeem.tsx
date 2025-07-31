@@ -17,6 +17,9 @@ import {
   IRequestRedeemContact,
   IResponseRedeemContact,
   IResponseWhoAmI,
+  OrgOwnedContactApiKeyLogin_BTOA,
+  SelfCustodySuperswapLogin_BTOA,
+  SovereignStrangerLogin_BTOA,
   UserID,
 } from "@officexapp/types";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -40,32 +43,6 @@ import { windowWhen } from "rxjs";
 
 const { Content, Footer } = Layout;
 const { Title, Paragraph, Text } = Typography;
-
-export interface SelfCustodySuperswapLogin_BTOA extends IRequestRedeemContact {
-  type: "SelfCustodySuperswapLogin_BTOA";
-  org_name: string;
-  profile_name: string;
-  redirect_url?: string;
-}
-
-export interface OrgOwnedContactApiKeyLogin_BTOA {
-  type: "OrgOwnedContactApiKeyLogin_BTOA";
-  api_key: string;
-  org_name: string;
-  profile_name: string;
-  profile_id: UserID;
-  redirect_url?: string;
-  daterange: { begins_at: number; expires_at: number };
-}
-
-export interface SovereignStrangerLogin_BTOA {
-  type: "SovereignStrangerLogin_BTOA";
-  org_name: string;
-  profile_name: string;
-  profile_id: UserID;
-  redirect_url?: string;
-  api_key?: string;
-}
 
 const formatDate = (timestamp: number) => {
   if (timestamp === -1) return "no expiry date";

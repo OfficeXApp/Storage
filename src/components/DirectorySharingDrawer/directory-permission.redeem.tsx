@@ -20,6 +20,7 @@ import {
   IRequestRedeemDirectoryPermission,
   IResponseRedeemDirectoryPermission,
   IResponseWhoAmI,
+  RedeemDirectoryPermission_BTOA,
   UserID,
 } from "@officexapp/types";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -41,17 +42,6 @@ import { shortenAddress } from "../../framework/identity/constants";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
-
-export interface RedeemDirectoryPermission_BTOA {
-  resource_id: DirectoryResourceID;
-  permission_id: DirectoryPermissionID;
-  redeem_code: string;
-  redirect_url: string;
-  resource_name: string;
-  org_name: string;
-  permissions: DirectoryPermissionType[];
-  daterange: { begins_at: number; expires_at: number };
-}
 
 const RedeemDirectoryPermitPage = () => {
   const params = useParams();

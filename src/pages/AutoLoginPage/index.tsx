@@ -1,4 +1,9 @@
-import { ApiKeyValue, DriveID, UserID } from "@officexapp/types";
+import {
+  ApiKeyValue,
+  AutoLogin_BTOA,
+  DriveID,
+  UserID,
+} from "@officexapp/types";
 import { useEffect, useState } from "react";
 import {
   sleep,
@@ -21,16 +26,6 @@ import { useNavigate } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
 
 const { Title, Paragraph, Text } = Typography;
-
-export interface AutoLogin_BTOA {
-  org_name: string;
-  org_id: DriveID;
-  org_endpoint: string;
-  profile_id: UserID;
-  profile_name: string;
-  profile_api_key: ApiKeyValue;
-  profile_seed_phrase?: string;
-}
 
 export const generateAutoLoginBTOA = (data: AutoLogin_BTOA) => {
   const token = urlSafeBase64Encode(JSON.stringify(data));

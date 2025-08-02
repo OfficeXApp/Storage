@@ -28,9 +28,9 @@ import { useState } from "react";
 const { Option } = Select;
 const { TextArea } = Input; // For the signed note
 
-const WalletControlPopover = () => {
+const WalletControlPopover = ({ children }: { children: React.ReactNode }) => {
   const { currentProfile, currentOrg, currentAPIKey } = useIdentitySystem();
-  const [showBalance, setShowBalance] = useState(false);
+
   const [receiverAddress, setReceiverAddress] = useState("");
   const [amount, setAmount] = useState(0);
   const [currency, setCurrency] = useState("ETH");
@@ -411,72 +411,7 @@ const WalletControlPopover = () => {
         placement="bottomRight"
         open={isPopoverOpen}
       >
-        <Card
-          bordered={false}
-          hoverable={true}
-          style={{
-            width: "100%",
-            borderRadius: "8px",
-            background: "#FFF",
-          }}
-          onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-        >
-          <Statistic
-            title={
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-              >
-                <span>Wallet Balance</span>
-
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                >
-                  {/* Top Up */}
-                  <TagCopy
-                    id={currentProfile?.evmPublicKey || ""}
-                    style={{ fontSize: "0.65rem" }}
-                  />
-                </div>
-              </div>
-            }
-            value={showBalance ? 1280.52 : "******"} // Mask value if not shown
-            precision={2}
-            valueStyle={{
-              color: "rgba(0, 0, 0, 0.6)",
-              fontSize: "24px",
-              fontWeight: "bold",
-            }}
-            prefix={showBalance ? "$" : ""} // Only show prefix if balance is visible
-            suffix={
-              <div
-                style={{
-                  padding: "0px 0px 0px 0px",
-                  marginLeft: "8px",
-                }}
-              >
-                {showBalance ? (
-                  <EyeInvisibleOutlined
-                    onClick={() => setShowBalance(!showBalance)}
-                    size={8}
-                    style={{ fontSize: "0.9rem" }}
-                  />
-                ) : (
-                  <EyeOutlined
-                    onClick={() => setShowBalance(!showBalance)}
-                    size={8}
-                    style={{ fontSize: "0.9rem" }}
-                  />
-                )}
-              </div>
-            }
-          />
-        </Card>
+        <div onClick={() => setIsPopoverOpen(!isPopoverOpen)}>{children}</div>
       </Popover>
     </div>
   );

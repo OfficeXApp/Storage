@@ -1613,14 +1613,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         <meta charSet="utf-8" />
         <title>
           {isDiskRootPage
-            ? "Drive"
+            ? "Drive | OfficeX"
             : currentFileId
-              ? getFileResult?.name || "File"
+              ? getFileResult?.name || "File | OfficeX"
               : listDirectoryResults?.breadcrumbs[
                   listDirectoryResults.breadcrumbs.length - 1
-                ]?.resource_name || "Folder"}
+                ]?.resource_name || "Folder | OfficeX"}
         </title>
-        <link rel="icon" href="/favicon.svg" />
+        <link rel="icon" href="/globe-star.ico" />
       </Helmet>
       {contextHolder}
       {renderViewTitle()}

@@ -62,6 +62,10 @@ const UploadPanel: React.FC<{
   const navigate = useNavigate();
   const location = useLocation();
 
+  const shouldHideUploadPanel =
+    location.pathname.includes("/chat") ||
+    location.pathname.includes("/appstore");
+
   const getUploadFolderID = () => {
     // Get the current folder path
     const parentFolderID = uploadTargetFolderID
@@ -419,7 +423,7 @@ const UploadPanel: React.FC<{
       <div
         style={{
           position: "fixed",
-          bottom: 0,
+          bottom: shouldHideUploadPanel ? -50 : 0,
           right: screenType.isMobile ? 0 : 20,
           width: screenType.isMobile ? "100%" : "400px",
           backgroundColor: "white",

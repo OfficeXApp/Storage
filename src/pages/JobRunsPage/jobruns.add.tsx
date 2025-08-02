@@ -122,7 +122,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           support_url: values.support_url || undefined,
           delivery_url: values.delivery_url || undefined,
           verification_url: values.verification_url || undefined,
-          installation_url: values.installation_url || undefined,
+          auth_installation_url: values.auth_installation_url || undefined,
           subtitle: values.subtitle || undefined,
           pricing: values.pricing || undefined,
           vendor_notes: values.vendor_notes || undefined,
@@ -492,7 +492,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           </Form.Item>
 
           <Form.Item
-            name="installation_url"
+            name="auth_installation_url"
             label={
               <Tooltip title="URL to the script or instructions for installing the job">
                 <Space>

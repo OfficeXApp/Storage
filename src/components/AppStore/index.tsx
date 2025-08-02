@@ -5,7 +5,7 @@ import { appstore_apps } from "./constants";
 import { Link } from "react-router-dom";
 import { useIdentitySystem } from "../../framework/identity";
 import {
-  AppInfoWithOffers,
+  ServiceWithOffersFromVendors,
   DiskTypeEnum,
   IDPrefixEnum,
 } from "@officexapp/types";
@@ -15,12 +15,12 @@ const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
 
 // AppCard component for individual app tiles
-const AppCard = ({ app }: { app: AppInfoWithOffers }) => {
+const AppCard = ({ app }: { app: ServiceWithOffersFromVendors }) => {
   // Split subheading into two lines
   const subheadingLines = app.subheading.split("\n");
 
   return (
-    <Badge.Ribbon text={app.isFeatured ? "Featured" : ""}>
+    <Badge.Ribbon text={app.is_featured ? "Featured" : ""}>
       <Card
         hoverable // Ant Design's built-in hover effect
         style={{
@@ -45,7 +45,7 @@ const AppCard = ({ app }: { app: AppInfoWithOffers }) => {
           >
             <img
               alt={app.name}
-              src={app.coverImage}
+              src={app.cover_image}
               style={{
                 width: "100%",
                 height: "100%",
@@ -106,7 +106,7 @@ const AppStore = () => {
       }}
     >
       <Helmet>
-        <title>App Store - OfficeX</title>
+        <title>App Store | OfficeX</title>
       </Helmet>
       <Content
         style={{

@@ -1,45 +1,43 @@
 import {
-  AppInfoWithOffers,
+  ServiceWithOffersFromVendors,
   DiskTypeEnum,
   IDPrefixEnum,
+  CartCheckoutPatternEnum,
 } from "@officexapp/types";
 
-export const appstore_apps: AppInfoWithOffers[] = [
+export const appstore_apps: ServiceWithOffersFromVendors[] = [
   {
     id: "19",
     name: "Amazon Cloud",
     subheading: "Add storage to OfficeX with giftcards for $1 per 100GB/month",
-    coverImage:
+    cover_image:
       "https://cdn2.interfaz.io/wp-content/uploads/2023/06/Blog_AWS_cover-1.png",
-    isFeatured: false,
+    is_featured: false,
     offers: [
       {
-        id: "offer1-aws-s3-ai-csv-export",
+        id: "offer1-aws-s3-ai-csv-expodrt",
         title: "100GB Storage Giftcard",
         images: [],
         description:
-          "<p>Purchase a 100GB gift card for secure, scalable cloud storage on Amazon Cloud. This gift card adds 100GB of storage to your OfficeX account, allowing you to seamlessly integrate your documents and spreadsheets for secure cloud storage. Utilize AWS S3's industry-leading durability and availability for your data.</p><p>Key features include:</p><ul><li><strong>100GB Storage:</strong> Instantly add 100GB of secure storage to your OfficeX.</li><li><strong>Secure S3 Storage:</strong> Store your documents securely with AWS S3's industry-leading durability and availability.</li><li><strong>Scalability:</strong> Easily add more storage as your needs grow.</li><li><strong>Cost-Effectiveness:</strong> Pay for what you use with transparent pricing.</li></ul><p>Expand your OfficeX storage capacity with this convenient 100GB gift card, ensuring all your important documents are safely stored in the cloud.</p>",
+          "<p>Purchase a 100GB gift card for secure, scalable cloud storage on Amazon Cloud. Your data is protected by AWS S3's industry-leading durability and availability, ensuring high reliability and performance. This gift card adds funds to your storage account with usage based pricing.</p><p>We offer fast and affordable storage thanks to AWS S3 Intelligent-Tiering, which automatically moves data to the most cost-effective storage tier without impacting performance. This provides high availability at wholesale pricing.</p><ul><li>Infrequently accessed files: Automatically moved to colder storage for as low as $0.0054/GB per month.</li><li>Frequently accessed files: Kept in standard storage for $0.03128/GB per month.</li></ul><p>Please note that data egress (downloading data from the cloud) is charged at $0.1224 per GB.</p><p>Expand your OfficeX storage capacity with this convenient 100GB gift card, ensuring all your important documents are safely stored in the cloud.</p>",
         price: 0.01,
-        priceUnit: "/GB",
-        priceExplanation: "per month for storage and processing, min 20gb",
+        price_unit: "/GB",
+        price_explanation: "per month for storage and processing, min $1",
         bookmarks: 180,
-        bookmarkUrl: "",
-        avgCustomerLifetimeValue: 700,
-        cumulativeSales: 105000,
-        callToAction: "Buy Giftcard",
+        bookmarked_demand: 0,
+        cumulative_sales: 105000,
+        bookmark_url: "",
+        call_to_action: "Buy Giftcard",
         vendors: [
           {
             id: "vendorA",
             name: "Cloud Solutions Inc.",
             avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CS",
-            checkoutVideo:
-              "https://www.youtube.com/embed/Wp0LKeZhcTM?si=auUjNj0txDeCYKA9",
-            needsAuth: false,
-            needsCloudOfficeX: false,
-            aboutUrl: "#",
-            uptimeScore: 99.99,
-            reviewsScore: 4.8,
-            communityLinks: [
+            checkout_video:
+              "https://www.youtube.com/embed/ecv-19sYL3w?si=4jQ6W1YuYaK7Q4-k",
+            uptime_score: 99.99,
+            reviews_score: 4.8,
+            community_links: [
               {
                 label: "Forum",
                 url: "#",
@@ -49,105 +47,29 @@ export const appstore_apps: AppInfoWithOffers[] = [
                 url: "#",
               },
             ],
-            verificationUrl: "#",
-            installationUrl: "https://obedient-airline-13.webhook.cool",
-            callToAction: "Buy Giftcard",
-            priceLine: "$0.035/GB",
-            viewPageLink: "#",
+            price_line: "$0.01/GB/month",
+            view_page_link: "#",
+            call_to_action: "Buy Giftcard",
             description:
-              "We promise the best results and have a 30 day money back guarantee.",
-            requirements: [
+              "Expand your OfficeX storage capacity with this convenient 100GB gift card, ensuring all your important documents are safely stored in the cloud.",
+            vendor_disclaimer: "",
+            about_url: "https://vendor.com",
+            checkout_options: [
               {
-                id: "vendorA",
-                title: "Initial Storage",
-                explanation:
-                  "You must have a valid subscription to Vendor A to use this offer.",
-                type: "number",
-                required: true,
-                defaultValue: 100,
-                placeholder: "Enter initial storage amount in GB",
-                suffix: "Gigabytes",
-              },
-              {
-                id: "your-email",
-                title: "Your Email",
-                explanation: "Enter your email address",
-                type: "text",
-                required: true,
-                placeholder: "Enter your email address",
-              },
-            ],
-            depositOptions: [
-              {
+                offer_id: "aws-s3-storage-giftcard",
+                checkout_flow_id:
+                  "001_amazon_storage_crypto_wallet_topup_gift_card_only",
                 title: "USDC on Base",
-                amount: 60,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "Circle USD",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "To initialize the vendor",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: "offer2-aws-ec2-bulk-processing",
-        title: "Anthropic Claude AI",
-        images: [],
-        description:
-          "<p>Access the powerful Anthropic Claude AI for your OfficeX platform. This offer provides a gift card for using Claude AI, allowing you to integrate advanced AI capabilities into your document processing and data workflows. Leverage Claude AI for tasks like content generation, summarization, and intelligent data extraction directly within your OfficeX environment.</p><p>With Claude AI, you get:</p><ul><li><strong>Advanced AI Capabilities:</strong> Integrate state-of-the-art AI for a variety of tasks.</li><li><strong>Content Generation:</strong> Generate summaries, drafts, and creative content from your documents.</li><li><strong>Intelligent Data Extraction:</strong> Extract key information and insights from unstructured text.</li><li><strong>Workflow Automation:</strong> Automate repetitive tasks using AI-powered insights.</li><li><strong>Scalable & On-demand:</strong> Access AI resources as needed for your specific projects.</li></ul><p>Enhance your OfficeX suite with the intelligence of Anthropic Claude AI, transforming how you interact with your documents and data.</p>",
-        price: 0.015,
-        priceUnit: "/1M tokens",
-        priceExplanation: "per 1M tokens",
-        bookmarks: 100,
-        bookmarkUrl: "",
-        avgCustomerLifetimeValue: 900,
-        cumulativeSales: 72000,
-        callToAction: "Buy Giftcard",
-        vendors: [
-          {
-            id: "vendorC",
-            name: "Compute Masters",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CM",
-            checkoutVideo:
-              "https://www.youtube.com/embed/_vdK5PgcNvc?si=_fsA8MDvT124XAbp",
-            needsAuth: false,
-            needsCloudOfficeX: false,
-            aboutUrl: "#",
-            uptimeScore: 99.98,
-            reviewsScore: 4.7,
-            communityLinks: [
-              {
-                label: "Support",
-                url: "#",
-              },
-            ],
-            priceLine: "Starting from $0.015/1M tokens",
-            viewPageLink: "#",
-            verificationUrl: "#",
-            installationUrl: "https://obedient-airline-13.webhook.cool",
-            callToAction: "Buy Giftcard",
-            description:
-              "We promise the best results and have a 30 day money back guarantee.",
-            requirements: [],
-            depositOptions: [
-              {
-                title: "USDC on Base",
-                amount: 60,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "Circle USD",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "To initialize the vendor",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
+                note: "To initialize the vendor (Note: Actual deposit address and details would be provided by the backend after initiating this checkout option)",
+                checkout_init_endpoint:
+                  "http://localhost:3001/v1/checkout/initiate",
+                checkout_pattern: CartCheckoutPatternEnum.CRYPTO_WALLET_TOPUP,
+                vendor_notes: "You will receive a giftcard for AWS S3",
+                vendor_disclaimer:
+                  "Immediate access. Your storage giftcard will have a crypto balance that pays for storage and bandwidth. You can top it up any time you need more.",
+                terms_of_service_url: "https://google.com",
+                requires_email_for_init: true,
+                about_url: "https://vendor.com",
               },
             ],
           },
@@ -155,294 +77,464 @@ export const appstore_apps: AppInfoWithOffers[] = [
       },
     ],
   },
-  {
-    id: "17",
-    name: "The Pirate Bay",
-    subheading: "Upload to your storage. Delegate torrenting to cloud vendors",
-    coverImage:
-      "https://www.prsformusic.com/-/media/images/mmagazine/images/2017/08/piratebayresize.ashx?h=358&w=637&la=en&hash=0C7EFCAF4BED538A4A2E8A0D855333CD",
-    isFeatured: true,
-    offers: [
-      {
-        id: "offer-piratebay-data-scraping",
-        title: "Delegate Torrent Download",
-        images: [],
-        description:
-          "<p>Delegate torrent downloads to cloud vendors for seamless integration with your Anonymous OfficeX storage. This service allows you to initiate torrent downloads remotely, with the downloaded content automatically saved to your designated cloud storage. Free up your local resources and ensure efficient, secure file acquisition for your projects.</p><p>Key features:</p><ul><li><strong>Cloud-Based Torrenting:</strong> Delegate torrent downloads to high-speed cloud servers.</li><li><strong>Direct to Storage:</strong> Automatically save downloaded files directly to your OfficeX integrated cloud storage (e.g., AWS S3).</li><li><strong>Bandwidth Efficiency:</strong> Utilize vendor's bandwidth for faster downloads without impacting your local network.</li><li><strong>Privacy & Security:</strong> Enhance privacy by offloading torrent activity from your personal devices.</li><li><strong>Automated & Scheduled:</strong> Option to schedule downloads or set up automated processes for new torrents.</li></ul><p>Streamline your file acquisition process by delegating torrent downloads to secure cloud vendors, ensuring direct delivery to your OfficeX storage.</p>",
-        price: 0.05,
-        priceUnit: "/GB",
-        priceExplanation: "per GB of data downloaded",
-        bookmarks: 350,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 100,
-        cumulativeSales: 35000,
-        callToAction: "Book Service",
-        vendors: [
-          {
-            id: "tpb-vendor1",
-            name: "Data Harvest Solutions",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=DHS",
-            needsAuth: true,
-            needsCloudOfficeX: true,
-            aboutUrl: "#",
-            uptimeScore: 99.5,
-            reviewsScore: 4.1,
-            communityLinks: [
-              {
-                label: "Support Forum",
-                url: "#",
-              },
-            ],
-            priceLine: "$0.05/record",
-            viewPageLink: "#",
-            verificationUrl: "#",
-            installationUrl:
-              "http://localhost:3000/officex/install/click-worker-complex-task",
-            description:
-              "We promise the best results and have a 30 day money back guarantee.",
-            callToAction: "Book Service",
-            requirements: [
-              {
-                id: "tpb-vendor1-requirement1",
-                title: "Save to Disk",
-                explanation: "Select the disk to save the data to",
-                type: IDPrefixEnum.Disk,
-                required: true,
-              },
-              {
-                id: "tpb-vendor1-requirement2",
-                title: "Disk Type",
-                explanation: "Select the disk type",
-                type: DiskTypeEnum.AwsBucket,
-                required: true,
-              },
-              {
-                id: "tpb-vendor1-requirement3",
-                title: "Save to Folder",
-                explanation: "Select the folder to save the data to",
-                type: IDPrefixEnum.Folder,
-                required: true,
-              },
-            ],
-            depositOptions: [
-              {
-                title: "USDC on Base",
-                amount: 60,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "Circle USD",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "To initialize the vendor",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "20",
-    name: "Clickworker",
-    subheading: "Bulk volunteers for online gigwork & microtasks.",
-    coverImage:
-      "https://static.vecteezy.com/system/resources/previews/029/182/639/non_2x/black-corporate-id-card-template-clean-id-card-design-with-realistic-lanyard-mockup-free-vector.jpg", // "https://res.cloudinary.com/people-matters/image/upload/fl_immutable_cache,w_624,h_351,q_auto,f_auto/v1717428082/1717428081.jpg", // "https://cdn.prod.website-files.com/643a3434759b024418ea32c0/64a3e22aeb0e06778d2e4cfc_Gig-Economy.png", //"https://www.keka.com/us/wp-content/uploads/2024/10/gig-worker-rights-1.png",
-    isFeatured: true,
-    offers: [
-      {
-        id: "offer-clickworker-100-simple-task",
-        title: "25 Volunteers for Simple Task",
-        images: [],
-        description:
-          "<p>Quickly complete **25 simple, repetitive microtasks** using the Clickworker crowd. This offer is perfect for large-volume, straightforward assignments such as data entry, image tagging, sentiment analysis of short texts, or basic data validation. Get fast and accurate results for tasks that don't require complex decision-making.</p><p>Key benefits:</p><ul><li><strong>High Volume, Fast Turnaround:</strong> Ideal for large datasets and quick completion.</li><li><strong>Cost-Effective:</strong> Efficiently process many simple tasks at a lower unit cost.</li><li><strong>Scalable Workforce:</strong> Access a massive pool of Clickworkers.</li><li><strong>Automated Quality Checks:</strong> Benefit from Clickworker's streamlined quality assurance for microtasks.</li><li><strong>Seamless Integration:</strong> Easily integrate task submission and result retrieval.</li></ul><p>Automate your microtask workflows with the power of the Clickworker crowd.</p>",
-        price: 25,
-        priceUnit: "/project",
-        priceExplanation:
-          "Starting price for 25 simple tasks, varies by task type",
-        bookmarks: 300,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 1000,
-        cumulativeSales: 100000,
-        callToAction: "Configure Project",
-        vendors: [
-          {
-            id: "clickworker-vendor1",
-            name: "Clickworker GmbH",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
-            needsAuth: true,
-            needsCloudOfficeX: false,
-            aboutUrl: "https://www.clickworker.com/how-it-works/",
-            uptimeScore: 99.7,
-            reviewsScore: 4.6,
-            communityLinks: [
-              {
-                label: "API Docs",
-                url: "http://docs.clickworker.com/swagger.html",
-              },
-            ],
-            priceLine: "Pricing varies by task",
-            viewPageLink: "https://www.clickworker.com/",
-            verificationUrl: "https://www.clickworker.com/",
-            installationUrl:
-              "http://localhost:3000/officex/install/click-worker-simple-task",
-            description:
-              "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
-            callToAction: "Access Platform",
-            requirements: [
-              {
-                id: "clickworker-vendor1-requirement3",
-                title: "Data Input CSV URL",
-                explanation:
-                  "URL to a CSV file containing the data for simple tasks",
-                type: "url",
-                required: true,
-              },
-            ],
-            depositOptions: [
-              {
-                title: "USDC on Base",
-                amount: 10000,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "USDC",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "Deposit USDC to fund your Clickworker projects",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: "offer-clickworker-25-complex-task",
-        title: "10 Volunteers for Complex Task",
-        images: [],
-        description:
-          "<p>Leverage the Clickworker crowd to tackle **25 complex tasks** requiring human intelligence and nuanced understanding. This offer is ideal for projects such as detailed web research, content creation, data categorization with intricate rules, or in-depth data verification. Clickworkers are qualified based on your specific requirements to ensure high-quality results for challenging assignments.</p><p>Key benefits:</p><ul><li><strong>High-Quality Output:</strong> Access Clickworkers trained for complex tasks.</li><li><strong>Scalable Workforce:</strong> Get tasks completed efficiently by a large crowd.</li><li><strong>Customizable Requirements:</strong> Define specific skills or qualifications needed.</li><li><strong>Integrated Quality Control:</strong> Benefit from Clickworker's quality assurance processes.</li><li><strong>Flexible & On-Demand:</strong> Hire exactly when and how many you need.</li></ul><p>Empower your business with human intelligence for tasks that AI can't handle alone.</p>",
-        price: 30,
-        priceUnit: "/project",
-        priceExplanation:
-          "Starting price for 25 complex tasks, varies by task type and complexity",
-        bookmarks: 120,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 2500,
-        cumulativeSales: 62500,
-        callToAction: "Configure Project",
-        vendors: [
-          {
-            id: "clickworker-vendor1",
-            name: "Clickworker GmbH",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
-            needsAuth: true,
-            needsCloudOfficeX: false,
-            aboutUrl: "https://www.clickworker.com/how-it-works/",
-            uptimeScore: 99.7,
-            reviewsScore: 4.6,
-            communityLinks: [
-              {
-                label: "API Docs",
-                url: "http://docs.clickworker.com/swagger.html",
-              },
-            ],
-            priceLine: "Pricing varies by task",
-            viewPageLink: "https://www.clickworker.com/",
-            verificationUrl: "https://www.clickworker.com/",
-            installationUrl:
-              "http://localhost:3000/officex/install/click-worker-complex-task",
-            description:
-              "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
-            callToAction: "Access Platform",
-            requirements: [
-              {
-                id: "clickworker-vendor1-requirement3",
-                title: "Instructions Document URL",
-                explanation:
-                  "URL to a detailed document outlining task instructions and quality guidelines",
-                type: "url",
-                required: true,
-              },
-            ],
-            depositOptions: [
-              {
-                title: "USDC on Base",
-                amount: 50000,
-                depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
-                tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                tokenName: "USDC",
-                tokenSymbol: "USDC",
-                tokenDecimals: 6,
-                explanation: "Deposit USDC to fund your Clickworker projects",
-                chain: "BASE_L2",
-                depositUrlCheckout: "",
-                chainExplorerUrl: "https://basescan.org/",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "american-express",
-    name: "American Express",
-    subheading: "Global financial services. Credit card points.",
-    coverImage:
-      "https://icm.aexp-static.com/Internet/internationalcardshop/en_in/images/cards/Gold_Card.png",
-    isFeatured: false,
-    offers: [
-      {
-        id: "offer-amex-transaction-csv",
-        title: "Signup Bonus $100",
-        images: [],
-        description:
-          "<p>Sign up for a new American Express card through this offer and receive a **$100 signup bonus**! This exclusive promotion provides a direct incentive for new cardmembers, giving you a valuable boost when you join the American Express family. Enjoy the benefits and services of an Amex card along with this special bonus.</p><p>Key features of this offer:</p><ul><li><strong>$100 Signup Bonus:</strong> Receive a $100 bonus credited to your account after meeting initial spending requirements.</li><li><strong>Access to American Express Benefits:</strong> Enjoy premium customer service, purchase protection, and travel perks.</li><li><strong>Global Acceptance:</strong> Use your American Express card worldwide.</li><li><strong>Flexible Rewards Programs:</strong> Earn points on your spending, redeemable for travel, gift cards, or statement credits.</li><li><strong>Secure Transactions:</strong> Benefit from American Express's robust security features for peace of mind.</li></ul><p>Take advantage of this limited-time offer to earn a $100 signup bonus and experience the premium services of American Express.</p>",
-        price: 120,
-        priceUnit: "/year",
-        priceExplanation:
-          "American Express Gold Card starting at $10k/month credit limit",
-        bookmarks: 100,
-        bookmarkUrl: "#",
-        avgCustomerLifetimeValue: 600,
-        cumulativeSales: 60000,
-        callToAction: "Signup Free",
-        vendors: [
-          {
-            id: "amex-vendor1",
-            name: "Financial Data Solutions Inc.",
-            avatar: "https://api.dicebear.com/7.x/initials/svg?seed=FDSI",
-            checkoutVideo:
-              "https://www.youtube.com/embed/EbLmCRuoW1w?si=YHaM5gX1MgbFhmTG",
-            needsAuth: false,
-            needsCloudOfficeX: false,
-            aboutUrl: "#",
-            verificationUrl: "#",
-            installationUrl: "https://obedient-airline-13.webhook.cool",
-            uptimeScore: 99.9,
-            reviewsScore: 4.8,
-            communityLinks: [
-              {
-                label: "Support",
-                url: "#",
-              },
-            ],
-            priceLine: "$90/month",
-            viewPageLink: "#",
-            requirements: [],
-            description:
-              "We promise the best results and have a 30 day money back guarantee.",
-            depositOptions: [],
-            callToAction: "Signup Free",
-          },
-        ],
-      },
-    ],
-  },
+
+  // {
+  //   id: "17",
+  //   name: "The Pirate Bay",
+  //   subheading: "Upload to your storage. Delegate torrenting to cloud vendors",
+  //   coverImage:
+  //     "https://www.prsformusic.com/-/media/images/mmagazine/images/2017/08/piratebayresize.ashx?h=358&w=637&la=en&hash=0C7EFCAF4BED538A4A2E8A0D855333CD",
+  //   isFeatured: true,
+  //   offers: [
+  //     {
+  //       id: "offer-piratebay-data-scraping",
+  //       title: "Delegate Torrent Download",
+  //       images: [],
+  //       description:
+  //         "<p>Delegate torrent downloads to cloud vendors for seamless integration with your Anonymous OfficeX storage. This service allows you to initiate torrent downloads remotely, with the downloaded content automatically saved to your designated cloud storage. Free up your local resources and ensure efficient, secure file acquisition for your projects.</p><p>Key features:</p><ul><li><strong>Cloud-Based Torrenting:</strong> Delegate torrent downloads to high-speed cloud servers.</li><li><strong>Direct to Storage:</strong> Automatically save downloaded files directly to your OfficeX integrated cloud storage (e.g., AWS S3).</li><li><strong>Bandwidth Efficiency:</strong> Utilize vendor's bandwidth for faster downloads without impacting your local network.</li><li><strong>Privacy & Security:</strong> Enhance privacy by offloading torrent activity from your personal devices.</li><li><strong>Automated & Scheduled:</strong> Option to schedule downloads or set up automated processes for new torrents.</li></ul><p>Streamline your file acquisition process by delegating torrent downloads to secure cloud vendors, ensuring direct delivery to your OfficeX storage.</p>",
+  //       price: 0.05,
+  //       priceUnit: "/GB",
+  //       priceExplanation: "per GB of data downloaded",
+  //       bookmarks: 350,
+  //       bookmarkUrl: "#",
+  //       avgCustomerLifetimeValue: 100,
+  //       cumulativeSales: 35000,
+  //       callToAction: "Book Service",
+  //       vendors: [
+  //         {
+  //           id: "tpb-vendor1",
+  //           name: "Data Harvest Solutions",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=DHS",
+  //           needs_auth_installation: true,
+  //           need_cloud_officex: true,
+  //           aboutUrl: "#",
+  //           uptimeScore: 99.5,
+  //           reviewsScore: 4.1,
+  //           communityLinks: [
+  //             {
+  //               label: "Support Forum",
+  //               url: "#",
+  //             },
+  //           ],
+  //           priceLine: "$0.05/record",
+  //           viewPageLink: "#",
+  //           verificationUrl: "#",
+  //           auth_installation_url:
+  //             "http://localhost:3000/officex/install/click-worker-complex-task",
+  //           description:
+  //             "We promise the best results and have a 30 day money back guarantee.",
+  //           callToAction: "Book Service",
+  //           requirements: [
+  //             {
+  //               id: "tpb-vendor1-requirement1",
+  //               title: "Save to Disk",
+  //               explanation: "Select the disk to save the data to",
+  //               type: IDPrefixEnum.Disk,
+  //               required: true,
+  //             },
+  //             {
+  //               id: "tpb-vendor1-requirement2",
+  //               title: "Disk Type",
+  //               explanation: "Select the disk type",
+  //               type: DiskTypeEnum.AwsBucket,
+  //               required: true,
+  //             },
+  //             {
+  //               id: "tpb-vendor1-requirement3",
+  //               title: "Save to Folder",
+  //               explanation: "Select the folder to save the data to",
+  //               type: IDPrefixEnum.Folder,
+  //               required: true,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             {
+  //               title: "USDC on Base",
+  //               amount: 60,
+  //               depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
+  //               tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  //               tokenName: "Circle USD",
+  //               tokenSymbol: "USDC",
+  //               tokenDecimals: 6,
+  //               explanation: "To initialize the vendor",
+  //               chain: "BASE_L2",
+  //               depositUrlCheckout: "",
+  //               chainExplorerUrl: "https://basescan.org/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "21-t",
+  //   name: "Tornado Cash",
+  //   subheading: "Decentralized crypto mixer for enhanced transaction privacy.",
+  //   coverImage:
+  //     "https://img.freepik.com/premium-vector/tornado-cash-torn-coin-cryptocurrency-concept-banner-background_32996-2281.jpg", // Placeholder image, replace with a suitable one if available
+  //   isFeatured: true,
+  //   offers: [
+  //     {
+  //       id: "offer-tornado-cash-0-1-eth",
+  //       title: "Mix 0.1 ETH",
+  //       images: [],
+  //       description:
+  //         "<p>Deposit <strong>0.1 ETH</strong> into the Tornado Cash privacy pool to break the on-chain link between your deposit and withdrawal addresses. This service enhances transaction anonymity by mixing your funds with those of other users in a large liquidity pool.</p><p>Key benefits:</p><ul><li><strong>Enhanced Privacy:</strong> Obfuscates transaction history.</li><li><strong>Decentralized:</strong> Operated by smart contracts, not a central entity.</li><li><strong>Permissionless:</strong> Accessible to anyone with an Ethereum wallet.</li><li><strong>Fixed Denomination:</strong> Standardized pool sizes for consistent mixing.</li></ul><p>Please ensure you understand the mechanics of crypto mixers and the associated risks before proceeding. A 'note' (secret) is generated upon deposit, which is required for withdrawal.</p>",
+  //       price: 0.1, // This represents the denomination of the pool
+  //       priceUnit: "ETH",
+  //       priceExplanation:
+  //         "The fixed denomination for this mixing pool. A small relayer fee (paid in ETH) is typically required for withdrawal.",
+  //       bookmarks: 500000, // Represents approximate number of transactions processed through this pool
+  //       bookmarkUrl: "https://dune.com/queries/100000/200000", // Example: Link to a Dune Analytics dashboard for Tornado Cash stats
+  //       avgCustomerLifetimeValue: 10, // Not applicable for a mixer in this context
+  //       cumulativeSales: 50000, // Represents total ETH mixed through this specific pool (0.1 ETH * 500,000 transactions)
+  //       callToAction: "Deposit 0.1 ETH",
+  //       vendors: [
+  //         {
+  //           id: "tornado-cash-protocol",
+  //           name: "Tornado Cash Protocol",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TCP",
+  //           needs_auth_installation: false, // Permissionless protocol
+  //           need_cloud_officex: false,
+  //           aboutUrl: "https://tornado-cash.info/", // Link to a general info page or historical archive
+  //           uptimeScore: 99.9, // Represents smart contract reliability/availability
+  //           reviewsScore: 5, // Not applicable for a protocol
+  //           communityLinks: [
+  //             {
+  //               label: "GitHub (Archived)",
+  //               url: "https://github.com/tornadocash",
+  //             },
+  //             {
+  //               label: "Audit Reports",
+  //               url: "https://tornado-cash.info/audits/",
+  //             },
+  //           ],
+  //           priceLine: "Variable relayer fees for withdrawal",
+  //           viewPageLink: "https://tornado-cash.info/", // Link to a general info page or historical archive
+  //           verificationUrl:
+  //             "https://etherscan.io/address/0x47ce0c6ed5b0ce3d3967a0cf4e132c820fbcab09", // Example: Etherscan link to the 0.1 ETH pool contract
+  //           auth_installation_url: "", // Not an installable application
+  //           description:
+  //             "Tornado Cash is a fully decentralized, non-custodial protocol that improves transaction privacy on Ethereum by breaking the on-chain link between sender and receiver addresses.",
+  //           callToAction: "Access Mixer Interface",
+  //           requirements: [
+  //             {
+  //               id: "tornado-cash-requirement-recipient",
+  //               title: "Recipient Ethereum Address",
+  //               explanation:
+  //                 "The address where you want the mixed funds to be sent. This should be a new, clean address.",
+  //               type: "text", // Or 'address' if a specific type is supported
+  //               required: true,
+  //             },
+  //             {
+  //               id: "tornado-cash-requirement-relayer",
+  //               title: "Relayer Fee (Optional)",
+  //               explanation:
+  //                 "An optional fee paid to a relayer to withdraw funds without revealing your IP address or using your original wallet.",
+  //               type: "number",
+  //               required: false,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             // This section describes the *input* to the mixer, which is the "deposit" itself
+  //             {
+  //               title: "Deposit 0.1 ETH",
+  //               amount: 0.1,
+  //               depositAddress: "0x47ce0c6ed5b0ce3d3967a0cf4e132c820fbcab09", // Tornado Cash 0.1 ETH pool contract address
+  //               tokenAddress: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH address on Ethereum Mainnet
+  //               tokenName: "Wrapped Ether",
+  //               tokenSymbol: "WETH",
+  //               tokenDecimals: 18,
+  //               explanation: "Deposit 0.1 ETH into the privacy pool.",
+  //               chain: "ETHEREUM_MAINNET",
+  //               depositUrlCheckout: "", // User interacts directly with smart contract
+  //               chainExplorerUrl: "https://etherscan.io/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       id: "offer-tornado-cash-1-eth",
+  //       title: "Mix 1 ETH",
+  //       images: [],
+  //       description:
+  //         "<p>Utilize the <strong>1 ETH</strong> Tornado Cash pool for enhanced privacy of larger Ethereum transactions. Similar to other denominations, this pool allows you to deposit 1 ETH and withdraw it to a new address, breaking the on-chain link and improving your financial anonymity.</p><p>Key benefits:</p><ul><li><strong>Higher Denomination:</strong> Suitable for larger amounts of ETH.</li><li><strong>Proven Mechanism:</strong> Operates on the same audited smart contract principles.</li><li><strong>Community Supported:</strong> Relayers and interfaces maintained by the community.</li><li><strong>Non-Custodial:</strong> You retain control of your funds throughout the process.</li></ul><p>Remember to securely store your generated 'note' (secret) as it is essential for withdrawing your funds. Consider using a relayer for withdrawal to maximize privacy.</p>",
+  //       price: 1, // Denomination
+  //       priceUnit: "ETH",
+  //       priceExplanation:
+  //         "The fixed denomination for this mixing pool. A small relayer fee (paid in ETH) is typically required for withdrawal.",
+  //       bookmarks: 200000, // Approximate number of transactions
+  //       bookmarkUrl: "https://dune.com/queries/100000/200000", // Example: Link to a Dune Analytics dashboard
+  //       avgCustomerLifetimeValue: 10,
+  //       cumulativeSales: 200000, // Total ETH mixed (1 ETH * 200,000 transactions)
+  //       callToAction: "Deposit 1 ETH",
+  //       vendors: [
+  //         {
+  //           id: "tornado-cash-protocol",
+  //           name: "Tornado Cash Protocol",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=TCP",
+  //           needs_auth_installation: false,
+  //           need_cloud_officex: false,
+  //           aboutUrl: "https://tornado-cash.info/",
+  //           uptimeScore: 99.9,
+  //           reviewsScore: 5,
+  //           communityLinks: [
+  //             {
+  //               label: "GitHub (Archived)",
+  //               url: "https://github.com/tornadocash",
+  //             },
+  //             {
+  //               label: "Audit Reports",
+  //               url: "https://tornado-cash.info/audits/",
+  //             },
+  //           ],
+  //           priceLine: "Variable relayer fees for withdrawal",
+  //           viewPageLink: "https://tornado-cash.info/",
+  //           verificationUrl:
+  //             "https://etherscan.io/address/0x910CebD20aC4626E3D63C7d6bF8d4fF86Ff3aE17", // Example: Etherscan link to the 1 ETH pool contract
+  //           auth_installation_url: "",
+  //           description:
+  //             "Tornado Cash is a fully decentralized, non-custodial protocol that improves transaction privacy on Ethereum by breaking the on-chain link between sender and receiver addresses.",
+  //           callToAction: "Access Mixer Interface",
+  //           requirements: [
+  //             {
+  //               id: "tornado-cash-requirement-recipient",
+  //               title: "Recipient Ethereum Address",
+  //               explanation:
+  //                 "The address where you want the mixed funds to be sent. This should be a new, clean address.",
+  //               type: "text",
+  //               required: true,
+  //             },
+  //             {
+  //               id: "tornado-cash-requirement-relayer",
+  //               title: "Relayer Fee (Optional)",
+  //               explanation:
+  //                 "An optional fee paid to a relayer to withdraw funds without revealing your IP address or using your original wallet.",
+  //               type: "number",
+  //               required: false,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             {
+  //               title: "Deposit 1 ETH",
+  //               amount: 1,
+  //               depositAddress: "0x910CebD20aC4626E3D63C7d6bF8d4fF86Ff3aE17", // Tornado Cash 1 ETH pool contract address
+  //               tokenAddress: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH address on Ethereum Mainnet
+  //               tokenName: "Wrapped Ether",
+  //               tokenSymbol: "WETH",
+  //               tokenDecimals: 18,
+  //               explanation: "Deposit 1 ETH into the privacy pool.",
+  //               chain: "ETHEREUM_MAINNET",
+  //               depositUrlCheckout: "",
+  //               chainExplorerUrl: "https://etherscan.io/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "20",
+  //   name: "Clickworker",
+  //   subheading: "Bulk volunteers for online gigwork & microtasks.",
+  //   coverImage:
+  //     "https://static.vecteezy.com/system/resources/previews/029/182/639/non_2x/black-corporate-id-card-template-clean-id-card-design-with-realistic-lanyard-mockup-free-vector.jpg", // "https://res.cloudinary.com/people-matters/image/upload/fl_immutable_cache,w_624,h_351,q_auto,f_auto/v1717428082/1717428081.jpg", // "https://cdn.prod.website-files.com/643a3434759b024418ea32c0/64a3e22aeb0e06778d2e4cfc_Gig-Economy.png", //"https://www.keka.com/us/wp-content/uploads/2024/10/gig-worker-rights-1.png",
+  //   isFeatured: true,
+  //   offers: [
+  //     {
+  //       id: "offer-clickworker-100-simple-task",
+  //       title: "25 Volunteers for Simple Task",
+  //       images: [],
+  //       description:
+  //         "<p>Quickly complete 25 simple, repetitive microtasks using the Clickworker crowd. This offer is perfect for large-volume, straightforward assignments such as data entry, image tagging, sentiment analysis of short texts, or basic data validation. Get fast and accurate results for tasks that don't require complex decision-making.</p><p>Key benefits:</p><ul><li><strong>High Volume, Fast Turnaround:</strong> Ideal for large datasets and quick completion.</li><li><strong>Cost-Effective:</strong> Efficiently process many simple tasks at a lower unit cost.</li><li><strong>Scalable Workforce:</strong> Access a massive pool of Clickworkers.</li><li><strong>Automated Quality Checks:</strong> Benefit from Clickworker's streamlined quality assurance for microtasks.</li><li><strong>Seamless Integration:</strong> Easily integrate task submission and result retrieval.</li></ul><p>Automate your microtask workflows with the power of the Clickworker crowd.</p>",
+  //       price: 25,
+  //       priceUnit: "/project",
+  //       priceExplanation:
+  //         "Starting price for 25 simple tasks, varies by task type",
+  //       bookmarks: 300,
+  //       bookmarkUrl: "#",
+  //       avgCustomerLifetimeValue: 1000,
+  //       cumulativeSales: 100000,
+  //       callToAction: "Configure Project",
+  //       vendors: [
+  //         {
+  //           id: "clickworker-vendor1",
+  //           name: "Clickworker GmbH",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
+  //           needs_auth_installation: true,
+  //           need_cloud_officex: false,
+  //           aboutUrl: "https://www.clickworker.com/how-it-works/",
+  //           uptimeScore: 99.7,
+  //           reviewsScore: 4.6,
+  //           communityLinks: [
+  //             {
+  //               label: "API Docs",
+  //               url: "http://docs.clickworker.com/swagger.html",
+  //             },
+  //           ],
+  //           priceLine: "Pricing varies by task",
+  //           viewPageLink: "https://www.clickworker.com/",
+  //           verificationUrl: "https://www.clickworker.com/",
+  //           auth_installation_url:
+  //             "http://localhost:3000/officex/install/click-worker-simple-task",
+  //           description:
+  //             "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
+  //           callToAction: "Access Platform",
+  //           requirements: [
+  //             {
+  //               id: "clickworker-vendor1-requirement3",
+  //               title: "Data Input CSV URL",
+  //               explanation:
+  //                 "URL to a CSV file containing the data for simple tasks",
+  //               type: "url",
+  //               required: true,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             {
+  //               title: "USDC on Base",
+  //               amount: 10000,
+  //               depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
+  //               tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  //               tokenName: "USDC",
+  //               tokenSymbol: "USDC",
+  //               tokenDecimals: 6,
+  //               explanation: "Deposit USDC to fund your Clickworker projects",
+  //               chain: "BASE_L2",
+  //               depositUrlCheckout: "",
+  //               chainExplorerUrl: "https://basescan.org/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       id: "offer-clickworker-25-complex-task",
+  //       title: "10 Volunteers for Complex Task",
+  //       images: [],
+  //       description:
+  //         "<p>Leverage the Clickworker crowd to tackle 25 complex tasks requiring human intelligence and nuanced understanding. This offer is ideal for projects such as detailed web research, content creation, data categorization with intricate rules, or in-depth data verification. Clickworkers are qualified based on your specific requirements to ensure high-quality results for challenging assignments.</p><p>Key benefits:</p><ul><li><strong>High-Quality Output:</strong> Access Clickworkers trained for complex tasks.</li><li><strong>Scalable Workforce:</strong> Get tasks completed efficiently by a large crowd.</li><li><strong>Customizable Requirements:</strong> Define specific skills or qualifications needed.</li><li><strong>Integrated Quality Control:</strong> Benefit from Clickworker's quality assurance processes.</li><li><strong>Flexible & On-Demand:</strong> Hire exactly when and how many you need.</li></ul><p>Empower your business with human intelligence for tasks that AI can't handle alone.</p>",
+  //       price: 30,
+  //       priceUnit: "/project",
+  //       priceExplanation:
+  //         "Starting price for 25 complex tasks, varies by task type and complexity",
+  //       bookmarks: 120,
+  //       bookmarkUrl: "#",
+  //       avgCustomerLifetimeValue: 2500,
+  //       cumulativeSales: 62500,
+  //       callToAction: "Configure Project",
+  //       vendors: [
+  //         {
+  //           id: "clickworker-vendor1",
+  //           name: "Clickworker GmbH",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=CWG",
+  //           needs_auth_installation: true,
+  //           need_cloud_officex: false,
+  //           aboutUrl: "https://www.clickworker.com/how-it-works/",
+  //           uptimeScore: 99.7,
+  //           reviewsScore: 4.6,
+  //           communityLinks: [
+  //             {
+  //               label: "API Docs",
+  //               url: "http://docs.clickworker.com/swagger.html",
+  //             },
+  //           ],
+  //           priceLine: "Pricing varies by task",
+  //           viewPageLink: "https://www.clickworker.com/",
+  //           verificationUrl: "https://www.clickworker.com/",
+  //           auth_installation_url:
+  //             "http://localhost:3000/officex/install/click-worker-complex-task",
+  //           description:
+  //             "Clickworker is a leading crowdsourcing platform providing human intelligence for diverse tasks.",
+  //           callToAction: "Access Platform",
+  //           requirements: [
+  //             {
+  //               id: "clickworker-vendor1-requirement3",
+  //               title: "Instructions Document URL",
+  //               explanation:
+  //                 "URL to a detailed document outlining task instructions and quality guidelines",
+  //               type: "url",
+  //               required: true,
+  //             },
+  //           ],
+  //           depositOptions: [
+  //             {
+  //               title: "USDC on Base",
+  //               amount: 50000,
+  //               depositAddress: "0x3e3715629f3Df9f315B647f6BedF91615A3BAF65",
+  //               tokenAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  //               tokenName: "USDC",
+  //               tokenSymbol: "USDC",
+  //               tokenDecimals: 6,
+  //               explanation: "Deposit USDC to fund your Clickworker projects",
+  //               chain: "BASE_L2",
+  //               depositUrlCheckout: "",
+  //               chainExplorerUrl: "https://basescan.org/",
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "american-express",
+  //   name: "American Express",
+  //   subheading: "Global financial services. Credit card points.",
+  //   coverImage:
+  //     "https://icm.aexp-static.com/Internet/internationalcardshop/en_in/images/cards/Gold_Card.png",
+  //   isFeatured: false,
+  //   offers: [
+  //     {
+  //       id: "offer-amex-transaction-csv",
+  //       title: "Signup Bonus $100",
+  //       images: [],
+  //       description:
+  //         "<p>Sign up for a new American Express card through this offer and receive a $100 signup bonus! This exclusive promotion provides a direct incentive for new cardmembers, giving you a valuable boost when you join the American Express family. Enjoy the benefits and services of an Amex card along with this special bonus.</p><p>Key features of this offer:</p><ul><li><strong>$100 Signup Bonus:</strong> Receive a $100 bonus credited to your account after meeting initial spending requirements.</li><li><strong>Access to American Express Benefits:</strong> Enjoy premium customer service, purchase protection, and travel perks.</li><li><strong>Global Acceptance:</strong> Use your American Express card worldwide.</li><li><strong>Flexible Rewards Programs:</strong> Earn points on your spending, redeemable for travel, gift cards, or statement credits.</li><li><strong>Secure Transactions:</strong> Benefit from American Express's robust security features for peace of mind.</li></ul><p>Take advantage of this limited-time offer to earn a $100 signup bonus and experience the premium services of American Express.</p>",
+  //       price: 120,
+  //       priceUnit: "/year",
+  //       priceExplanation:
+  //         "American Express Gold Card starting at $10k/month credit limit",
+  //       bookmarks: 100,
+  //       bookmarkUrl: "#",
+  //       avgCustomerLifetimeValue: 600,
+  //       cumulativeSales: 60000,
+  //       callToAction: "Signup Free",
+  //       vendors: [
+  //         {
+  //           id: "amex-vendor1",
+  //           name: "Financial Data Solutions Inc.",
+  //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=FDSI",
+  //           checkout_video:
+  //             "https://www.youtube.com/embed/EbLmCRuoW1w?si=YHaM5gX1MgbFhmTG",
+  //           needs_auth_installation: false,
+  //           need_cloud_officex: false,
+  //           aboutUrl: "#",
+  //           verificationUrl: "#",
+  //           auth_installation_url: "https://obedient-airline-13.webhook.cool",
+  //           uptimeScore: 99.9,
+  //           reviewsScore: 4.8,
+  //           communityLinks: [
+  //             {
+  //               label: "Support",
+  //               url: "#",
+  //             },
+  //           ],
+  //           priceLine: "$90/month",
+  //           viewPageLink: "#",
+  //           requirements: [],
+  //           description:
+  //             "We promise the best results and have a 30 day money back guarantee.",
+  //           depositOptions: [],
+  //           callToAction: "Signup Free",
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
   // {
   //   id: "30",
   //   name: "Gemini Agent",
@@ -456,7 +548,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Gemini AI on DoBrowser",
   //       images: [],
   //       description:
-  //         "<p>Integrate Gemini's powerful AI capabilities directly into your Anonymous OfficeX DoBrowser for **intelligent web Browse, content summarization, and interactive assistance**. This offer provides API access to Gemini, allowing you to use AI to enhance your Browse experience, extract key information from web pages, and get instant answers without leaving your browser environment.</p><p>Key benefits:</p><ul><li><strong>Intelligent Web Browse:</strong> Ask natural language questions about web content and get AI-driven answers.</li><li><strong>Content Summarization:</strong> Quickly summarize lengthy articles or documents directly within your browser.</li><li><strong>Interactive Assistance:</strong> Get real-time help with research, data extraction, and content generation.</li><li><strong>Secure & Private:</strong> Your Browse data is processed securely to maintain privacy within your Anonymous OfficeX platform.</li><li><strong>Seamless Integration:</strong> Easy setup to link Gemini AI with your DoBrowser instance.</li></ul><p>Transform your DoBrowser into a powerful AI-powered research and productivity tool with Gemini AI.</p>",
+  //         "<p>Integrate Gemini's powerful AI capabilities directly into your Anonymous OfficeX DoBrowser for intelligent web Browse, content summarization, and interactive assistance. This offer provides API access to Gemini, allowing you to use AI to enhance your Browse experience, extract key information from web pages, and get instant answers without leaving your browser environment.</p><p>Key benefits:</p><ul><li><strong>Intelligent Web Browse:</strong> Ask natural language questions about web content and get AI-driven answers.</li><li><strong>Content Summarization:</strong> Quickly summarize lengthy articles or documents directly within your browser.</li><li><strong>Interactive Assistance:</strong> Get real-time help with research, data extraction, and content generation.</li><li><strong>Secure & Private:</strong> Your Browse data is processed securely to maintain privacy within your Anonymous OfficeX platform.</li><li><strong>Seamless Integration:</strong> Easy setup to link Gemini AI with your DoBrowser instance.</li></ul><p>Transform your DoBrowser into a powerful AI-powered research and productivity tool with Gemini AI.</p>",
   //       price: 0.007,
   //       priceUnit: "/1K tokens",
   //       priceExplanation: "for AI processing and generation",
@@ -470,7 +562,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //           id: "gemini-vendor1",
   //           name: "AI Innovators Hub",
   //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=AIH",
-  //           needsAuth: true,
+  //           needs_auth_installation: true,
   //           aboutUrl: "#",
   //           uptimeScore: 99.9,
   //           reviewsScore: 4.9,
@@ -483,7 +575,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //           priceLine: "Starting from $0.007/1K tokens",
   //           viewPageLink: "#",
   //           verificationUrl: "#",
-  //           installationUrl: "https://obedient-airline-13.webhook.cool",
+  //           auth_installation_url: "https://obedient-airline-13.webhook.cool",
   //           description:
   //             "We specialize in cutting-edge AI integrations and offer unparalleled support for our solutions.",
   //           callToAction: "Install App",
@@ -538,7 +630,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //         "Gnosis Safe Integration for Secure Cloud Folder Access (Multisig)",
   //       images: [],
   //       description: `
-  //         <p>Integrate Gnosis Safe with your Anonymous OfficeX cloud storage to create **multi-signature protected secret folders and documents**. This offer provides a robust security layer, requiring multiple authorized signatures (e.g., from team members or specific roles) to access, modify, or download sensitive files. Ideal for highly confidential documents, financial records, or strategic plans that demand an extra layer of access control.</p>
+  //         <p>Integrate Gnosis Safe with your Anonymous OfficeX cloud storage to create multi-signature protected secret folders and documents. This offer provides a robust security layer, requiring multiple authorized signatures (e.g., from team members or specific roles) to access, modify, or download sensitive files. Ideal for highly confidential documents, financial records, or strategic plans that demand an extra layer of access control.</p>
   //         <p>Services include:</p>
   //         <ul>
   //           <li><strong>Multi-sig Folder Setup:</strong> Configure specific cloud folders to require Gnosis Safe multi-signature approval for access.</li>
@@ -583,7 +675,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Bulk YouTube Content Archiving to OfficeX Cloud Storage",
   //       images: [],
   //       description: `
-  //         <p>This offer provides a service for **bulk downloading and archiving YouTube video and audio content** directly into your Anonymous OfficeX cloud storage. Ideal for researchers, content creators, or businesses needing to retain large volumes of public YouTube data (e.g., competitor analysis, public sentiment, trend analysis) in a structured and accessible format. We can provide accompanying metadata in **CSV format**.</p>
+  //         <p>This offer provides a service for bulk downloading and archiving YouTube video and audio content directly into your Anonymous OfficeX cloud storage. Ideal for researchers, content creators, or businesses needing to retain large volumes of public YouTube data (e.g., competitor analysis, public sentiment, trend analysis) in a structured and accessible format. We can provide accompanying metadata in CSV format.</p>
   //         <p>Features include:</p>
   //         <ul>
   //           <li><strong>Bulk Video/Audio Downloads:</strong> Download entire YouTube channels, playlists, or specific video lists.</li>
@@ -627,7 +719,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Bulk Download TikTok Videos",
   //       images: [],
   //       description: `
-  //         <p>This service allows you to **extract detailed analytics and trend data from TikTok**, delivering it as structured **CSV files** for analysis within your Anonymous OfficeX environment. Gain insights into video performance, hashtag trends, audience demographics, and popular sounds to inform your content strategy or market research.</p>
+  //         <p>This service allows you to extract detailed analytics and trend data from TikTok, delivering it as structured CSV files for analysis within your Anonymous OfficeX environment. Gain insights into video performance, hashtag trends, audience demographics, and popular sounds to inform your content strategy or market research.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Video Performance Data:</strong> Export metrics like views, likes, shares, comments, and watch time for your TikTok content.</li>
@@ -672,7 +764,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Exa AI Web Data Extraction & CSV Export",
   //       images: [], // Will be populated with app.coverImage at runtime
   //       description: `
-  //         <p>Integrate **exa.ai's advanced AI-powered search capabilities** with your Anonymous OfficeX environment to perform highly targeted web data extraction and receive results as structured **CSV files**. This service leverages exa.ai's ability to find and understand hyper-relevant information across the web, making it ideal for market research, competitive analysis, trend identification, and gathering specific data points for your OfficeX spreadsheets.</p>
+  //         <p>Integrate exa.ai's advanced AI-powered search capabilities with your Anonymous OfficeX environment to perform highly targeted web data extraction and receive results as structured CSV files. This service leverages exa.ai's ability to find and understand hyper-relevant information across the web, making it ideal for market research, competitive analysis, trend identification, and gathering specific data points for your OfficeX spreadsheets.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>AI-Powered Targeted Search:</strong> Utilize exa.ai to conduct deep, semantic searches across the web for specific information.</li>
@@ -718,7 +810,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Human Microtasks",
   //       images: [],
   //       description: `
-  //         <p>This service offers **fulfillment of various microtasks on SproutGigs**, delivering structured data or completed tasks directly to your Anonymous OfficeX. Ideal for businesses needing rapid completion of repetitive digital tasks, data collection, content moderation, or simple verification processes.</p>
+  //         <p>This service offers fulfillment of various microtasks on SproutGigs, delivering structured data or completed tasks directly to your Anonymous OfficeX. Ideal for businesses needing rapid completion of repetitive digital tasks, data collection, content moderation, or simple verification processes.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Diverse Task Categories:</strong> Fulfill tasks like data entry, categorization, image tagging, content moderation, surveys, and more.</li>
@@ -762,7 +854,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Facebook Marketplace Listing Data Extraction (CSV Export)",
   //       images: [],
   //       description: `
-  //         <p>This service enables **extraction of public listing data from Facebook Marketplace**, providing it to your Anonymous OfficeX as structured **CSV files**. Ideal for market researchers, resellers, or businesses looking to analyze product trends, pricing strategies, or inventory availability within local or specific regions.</p>
+  //         <p>This service enables extraction of public listing data from Facebook Marketplace, providing it to your Anonymous OfficeX as structured CSV files. Ideal for market researchers, resellers, or businesses looking to analyze product trends, pricing strategies, or inventory availability within local or specific regions.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Targeted Listing Search:</strong> Extract data based on keywords, categories, price range, and location.</li>
@@ -807,7 +899,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Rent LinkedIn Accounts",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting targeted lead and company data from LinkedIn** for your Anonymous OfficeX, delivered as organized **CSV files**. Ideal for sales teams, recruiters, and market researchers looking to build prospect lists, analyze industry trends, or gather competitive intelligence from the world's largest professional network.</p>
+  //         <p>This service focuses on extracting targeted lead and company data from LinkedIn for your Anonymous OfficeX, delivered as organized CSV files. Ideal for sales teams, recruiters, and market researchers looking to build prospect lists, analyze industry trends, or gather competitive intelligence from the world's largest professional network.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Targeted Lead Extraction:</strong> Identify and extract professional profiles based on industry, role, location, and seniority.</li>
@@ -855,7 +947,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Marketplace Transaction Verification",
   //       images: [],
   //       description: `
-  //         <p>Leverage the **UMA Protocol's Optimistic Oracle** for robust and decentralized verification of marketplace transactions within your Anonymous OfficeX ecosystem. This service provides a crowd-sourced mechanism to ensure the accuracy and integrity of transaction data, minimizing disputes and building trust.</p>
+  //         <p>Leverage the UMA Protocol's Optimistic Oracle for robust and decentralized verification of marketplace transactions within your Anonymous OfficeX ecosystem. This service provides a crowd-sourced mechanism to ensure the accuracy and integrity of transaction data, minimizing disputes and building trust.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Optimistic Verification:</strong> Transactions are optimistically assumed correct, with a challenge period for disputes.</li>
@@ -902,7 +994,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Bulk Download TikTok Videos",
   //       images: [],
   //       description: `
-  //         <p>This service allows you to **extract detailed analytics and trend data from TikTok**, delivering it as structured **CSV files** for analysis within your Anonymous OfficeX environment. Gain insights into video performance, hashtag trends, audience demographics, and popular sounds to inform your content strategy or market research.</p>
+  //         <p>This service allows you to extract detailed analytics and trend data from TikTok, delivering it as structured CSV files for analysis within your Anonymous OfficeX environment. Gain insights into video performance, hashtag trends, audience demographics, and popular sounds to inform your content strategy or market research.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Video Performance Data:</strong> Export metrics like views, likes, shares, comments, and watch time for your TikTok content.</li>
@@ -949,7 +1041,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //         "AI-Driven Workflows for CSV Uploads in Anonymous OfficeX Sheets",
   //       images: [],
   //       description: `
-  //         <p>This offer provides advanced services to build **AI-driven workflows directly within Anonymous OfficeX Spreadsheets**, specifically designed for handling CSV data uploads. Automate tasks like data cleaning, categorization, enrichment via web scraping, or even trigger AI models for predictive analysis immediately after a CSV is uploaded to your cloud storage or imported into a sheet.</p>
+  //         <p>This offer provides advanced services to build AI-driven workflows directly within Anonymous OfficeX Spreadsheets, specifically designed for handling CSV data uploads. Automate tasks like data cleaning, categorization, enrichment via web scraping, or even trigger AI models for predictive analysis immediately after a CSV is uploaded to your cloud storage or imported into a sheet.</p>
   //         <p>Services include:</p>
   //         <ul>
   //           <li><strong>Automated CSV Data Cleaning:</strong> AI identifies and corrects inconsistencies, duplicates, or missing values upon upload.</li>
@@ -995,7 +1087,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Telegram Media Archive Bot",
   //       images: [],
   //       description:
-  //         "<p>This offer provides a custom Telegram bot designed to help you **archive media and files from your Telegram chats directly to your OfficeX cloud storage**. Never lose important photos, videos, or documents shared in your Telegram conversations. The bot automates the process of saving media to your designated OfficeX-connected cloud folders, keeping your valuable data organized and accessible.</p><p>Features include:</p><ul><li><strong>Automated Media Archiving:</strong> Automatically save photos, videos, and documents from Telegram chats to OfficeX storage.</li><li><strong>Configurable Storage Locations:</strong> Choose specific OfficeX cloud folders for different types of media or chats.</li><li><strong>Real-time Sync:</strong> Media is archived as it's shared, ensuring you have the latest content.</li><li><strong>Secure & Private:</strong> Ensures your media is securely transferred and stored in your private OfficeX environment.</li><li><strong>Easy Setup:</strong> Simple installation and configuration to link your Telegram with OfficeX storage.</li></ul><p>Transform your Telegram into a powerful media archiving tool, securing all your shared content within your Anonymous OfficeX platform.</p>",
+  //         "<p>This offer provides a custom Telegram bot designed to help you archive media and files from your Telegram chats directly to your OfficeX cloud storage. Never lose important photos, videos, or documents shared in your Telegram conversations. The bot automates the process of saving media to your designated OfficeX-connected cloud folders, keeping your valuable data organized and accessible.</p><p>Features include:</p><ul><li><strong>Automated Media Archiving:</strong> Automatically save photos, videos, and documents from Telegram chats to OfficeX storage.</li><li><strong>Configurable Storage Locations:</strong> Choose specific OfficeX cloud folders for different types of media or chats.</li><li><strong>Real-time Sync:</strong> Media is archived as it's shared, ensuring you have the latest content.</li><li><strong>Secure & Private:</strong> Ensures your media is securely transferred and stored in your private OfficeX environment.</li><li><strong>Easy Setup:</strong> Simple installation and configuration to link your Telegram with OfficeX storage.</li></ul><p>Transform your Telegram into a powerful media archiving tool, securing all your shared content within your Anonymous OfficeX platform.</p>",
   //       price: 10,
   //       priceUnit: "/month",
   //       priceExplanation:
@@ -1010,7 +1102,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //           id: "telegram-vendor1",
   //           name: "Bot Builders Co.",
   //           avatar: "https://api.dicebear.com/7.x/initials/svg?seed=BBC",
-  //           needsAuth: true,
+  //           needs_auth_installation: true,
   //           aboutUrl: "#",
   //           uptimeScore: 99.8,
   //           reviewsScore: 4.5,
@@ -1023,7 +1115,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //           priceLine: "From $10/month",
   //           viewPageLink: "#",
   //           verificationUrl: "#",
-  //           installationUrl: "https://obedient-airline-13.webhook.cool",
+  //           auth_installation_url: "https://obedient-airline-13.webhook.cool",
   //           description:
   //             "We promise the best results and have a 30 day money back guarantee.",
   //           callToAction: "Install App",
@@ -1092,7 +1184,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //         "DeFi Data Analytics for OfficeX: Uniswap Trading & LP CSV Exports",
   //       images: [],
   //       description: `
-  //         <p>This offer provides specialized data analytics services focused on Decentralized Finance (DeFi) platforms like Uniswap. We help you **scrape and organize your on-chain transaction data, liquidity provision activities, and yield farming metrics into comprehensive CSV files**, ready for detailed analysis within your Anonymous OfficeX spreadsheets. Understand your crypto portfolio performance, impermanent loss, and fee generation with clear, structured data.</p>
+  //         <p>This offer provides specialized data analytics services focused on Decentralized Finance (DeFi) platforms like Uniswap. We help you scrape and organize your on-chain transaction data, liquidity provision activities, and yield farming metrics into comprehensive CSV files, ready for detailed analysis within your Anonymous OfficeX spreadsheets. Understand your crypto portfolio performance, impermanent loss, and fee generation with clear, structured data.</p>
   //         <p>What you'll get:</p>
   //         <ul>
   //           <li><strong>Uniswap Transaction CSVs:</strong> Export detailed records of your swaps, liquidity additions, and removals.</li>
@@ -1138,7 +1230,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "n8n Automation for AI Web Scraping & CSV Processing in OfficeX",
   //       images: [],
   //       description: `
-  //         <p>This offer provides expert development of custom n8n workflows specifically tailored for your Anonymous OfficeX environment, focusing on **AI-powered web scraping, automated CSV data dumps, and actions triggered by CSV uploads**. Build complex, multi-step automations that interact with websites, extract data, transform it into CSVs, and then use that data to update or trigger actions within your OfficeX documents and cloud storage.</p>
+  //         <p>This offer provides expert development of custom n8n workflows specifically tailored for your Anonymous OfficeX environment, focusing on AI-powered web scraping, automated CSV data dumps, and actions triggered by CSV uploads. Build complex, multi-step automations that interact with websites, extract data, transform it into CSVs, and then use that data to update or trigger actions within your OfficeX documents and cloud storage.</p>
   //         <p>Services include:</p>
   //         <ul>
   //           <li><strong>AI Web Scraping Workflows:</strong> Design n8n workflows that use AI to intelligently extract data from websites, even complex or unstructured content.</li>
@@ -1184,7 +1276,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "AI-Powered Google Maps Business Lead Generation & CSV Export",
   //       images: [],
   //       description: `
-  //         <p>This offer provides an **AI-enhanced service for generating targeted business leads from Google Maps**, delivering them directly to your Anonymous OfficeX as organized **CSV dumps**. Leverage AI to refine search criteria, filter for high-potential leads, and extract richer data points (e.g., website contact info, social media links) beyond standard listings, all formatted for immediate use in your OfficeX spreadsheets or CRM.</p>
+  //         <p>This offer provides an AI-enhanced service for generating targeted business leads from Google Maps, delivering them directly to your Anonymous OfficeX as organized CSV dumps. Leverage AI to refine search criteria, filter for high-potential leads, and extract richer data points (e.g., website contact info, social media links) beyond standard listings, all formatted for immediate use in your OfficeX spreadsheets or CRM.</p>
   //         <p>What you'll get:</p>
   //         <ul>
   //           <li><strong>AI-Optimized Lead Filtering:</strong> Use AI to identify businesses matching complex criteria (e.g., specific keywords in reviews, business activity signals).</li>
@@ -1229,7 +1321,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Dmail Integration for CSV-Driven Bulk Email Campaigns",
   //       images: [],
   //       description: `
-  //         <p>Integrate Dmail's secure, decentralized email capabilities with your Anonymous OfficeX platform to launch **CSV-driven bulk email campaigns**. This offer allows you to upload recipient lists and email content via CSV files, then leverage Dmail for secure, privacy-focused outreach. Ideal for newsletters, transactional emails, or secure communications where privacy and decentralization are paramount.</p>
+  //         <p>Integrate Dmail's secure, decentralized email capabilities with your Anonymous OfficeX platform to launch CSV-driven bulk email campaigns. This offer allows you to upload recipient lists and email content via CSV files, then leverage Dmail for secure, privacy-focused outreach. Ideal for newsletters, transactional emails, or secure communications where privacy and decentralization are paramount.</p>
   //         <p>Benefits include:</p>
   //         <ul>
   //           <li><strong>CSV-to-Email Automation:</strong> Use recipient lists and personalized content from OfficeX CSVs to send bulk emails via Dmail.</li>
@@ -1273,7 +1365,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Instagram Profile & Engagement Data Scraper (CSV Export)",
   //       images: [],
   //       description: `
-  //         <p>This service provides tools for **extracting public data from Instagram profiles, posts, and engagement metrics**, delivering the insights directly to your Anonymous OfficeX as structured **CSV files**. Ideal for social media marketers, influencers, or businesses looking to analyze trends, monitor competitor activity, or identify potential collaborators.</p>
+  //         <p>This service provides tools for extracting public data from Instagram profiles, posts, and engagement metrics, delivering the insights directly to your Anonymous OfficeX as structured CSV files. Ideal for social media marketers, influencers, or businesses looking to analyze trends, monitor competitor activity, or identify potential collaborators.</p>
   //         <p>Features include:</p>
   //         <ul>
   //           <li><strong>Profile Data Export:</strong> Scrape public profile information like follower count, following count, bio, and contact details.</li>
@@ -1318,7 +1410,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "ChatGPT for CSV-Driven Document Generation & AI Actions",
   //       images: [], // Will be populated with app.coverImage at runtime
   //       description: `
-  //         <p>Integrate ChatGPT's advanced AI capabilities with your Anonymous OfficeX workflows to enable **document generation and AI actions driven by CSV data uploads**. This service allows you to use content from your spreadsheets as prompts for ChatGPT, generating reports, drafting emails, summarizing data, or performing complex text-based tasks directly within your cloud office environment. Upload a CSV, and let AI generate structured documents or perform bulk text operations.</p>
+  //         <p>Integrate ChatGPT's advanced AI capabilities with your Anonymous OfficeX workflows to enable document generation and AI actions driven by CSV data uploads. This service allows you to use content from your spreadsheets as prompts for ChatGPT, generating reports, drafting emails, summarizing data, or performing complex text-based tasks directly within your cloud office environment. Upload a CSV, and let AI generate structured documents or perform bulk text operations.</p>
   //         <p>Benefits include:</p>
   //         <ul>
   //           <li><strong>CSV-to-Document Automation:</strong> Generate reports, contracts, or personalized emails by feeding data from OfficeX CSVs to ChatGPT.</li>
@@ -1363,7 +1455,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Secure LastPass CSV Password Import & Audit",
   //       images: [],
   //       description: `
-  //         <p>This offer facilitates **secure import and auditing of LastPass-exported CSV password data** into a protected environment linked with your Anonymous OfficeX. We help you securely migrate, organize, and analyze your password vault data (e.g., for compliance, identifying weak passwords, or consolidating logins) while ensuring maximum privacy and security.</p>
+  //         <p>This offer facilitates secure import and auditing of LastPass-exported CSV password data into a protected environment linked with your Anonymous OfficeX. We help you securely migrate, organize, and analyze your password vault data (e.g., for compliance, identifying weak passwords, or consolidating logins) while ensuring maximum privacy and security.</p>
   //         <p>Services include:</p>
   //         <ul>
   //           <li><strong>Secure CSV Import:</strong> Guided process for safely importing LastPass CSV exports.</li>
@@ -1408,7 +1500,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Reddit Sentiment Analysis & Trend Data (CSV Export)",
   //       images: [],
   //       description: `
-  //         <p>This service offers **in-depth sentiment analysis and trend data extraction from Reddit**, delivering valuable insights as structured **CSV files** to your Anonymous OfficeX. Monitor brand mentions, public opinion, trending topics, and community discussions to inform your marketing, product development, or public relations strategies.</p>
+  //         <p>This service offers in-depth sentiment analysis and trend data extraction from Reddit, delivering valuable insights as structured CSV files to your Anonymous OfficeX. Monitor brand mentions, public opinion, trending topics, and community discussions to inform your marketing, product development, or public relations strategies.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Keyword & Subreddit Monitoring:</strong> Track specific keywords, phrases, or subreddits for relevant discussions.</li>
@@ -1454,7 +1546,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Discord Community Activity & Sentiment Analysis (CSV Export)",
   //       images: [],
   //       description: `
-  //         <p>This service provides tools for **extracting and analyzing public activity and sentiment from Discord servers**, delivering the insights as structured **CSV files** to your Anonymous OfficeX. Monitor discussions, identify key community members, track sentiment around specific topics or products, and understand engagement patterns for community management, market research, or brand monitoring.</p>
+  //         <p>This service provides tools for extracting and analyzing public activity and sentiment from Discord servers, delivering the insights as structured CSV files to your Anonymous OfficeX. Monitor discussions, identify key community members, track sentiment around specific topics or products, and understand engagement patterns for community management, market research, or brand monitoring.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Server & Channel Monitoring:</strong> Track activity within specified public Discord servers and channels.</li>
@@ -1499,7 +1591,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Pinterest Trend & Idea Pin Data Extraction (CSV Export)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting trending visual content data and idea pin insights from Pinterest**, delivering them as structured **CSV files** to your Anonymous OfficeX. Ideal for content creators, marketers, and product developers to identify visual trends, popular product ideas, and user preferences to inform their creative and business strategies.</p>
+  //         <p>This service focuses on extracting trending visual content data and idea pin insights from Pinterest, delivering them as structured CSV files to your Anonymous OfficeX. Ideal for content creators, marketers, and product developers to identify visual trends, popular product ideas, and user preferences to inform their creative and business strategies.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Trending Topic Extraction:</strong> Identify popular and emerging visual trends across Pinterest categories.</li>
@@ -1544,7 +1636,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "GitHub Repository & Developer Data Extraction (CSV Export)",
   //       images: [],
   //       description: `
-  //         <p>This service provides tools for **extracting public data from GitHub repositories and developer profiles**, delivering insights as structured **CSV files** to your Anonymous OfficeX. Ideal for recruiters, researchers, or project managers to analyze open-source projects, track developer activity, or identify potential collaborators and talent.</p>
+  //         <p>This service provides tools for extracting public data from GitHub repositories and developer profiles, delivering insights as structured CSV files to your Anonymous OfficeX. Ideal for recruiters, researchers, or project managers to analyze open-source projects, track developer activity, or identify potential collaborators and talent.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Repository Metrics:</strong> Extract data on stars, forks, issues, pull requests, and commit activity for public repos.</li>
@@ -1589,7 +1681,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "SendGrid Email Log & Analytics Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of detailed email logs and analytics from SendGrid**, delivering them as structured **CSV files** to your Anonymous OfficeX. Gain comprehensive insights into your email campaign performance, delivery rates, bounces, clicks, and opens for in-depth analysis and reporting within your spreadsheets.</p>
+  //         <p>This service provides extraction of detailed email logs and analytics from SendGrid, delivering them as structured CSV files to your Anonymous OfficeX. Gain comprehensive insights into your email campaign performance, delivery rates, bounces, clicks, and opens for in-depth analysis and reporting within your spreadsheets.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Detailed Email Event Logs:</strong> Export data on delivered, opened, clicked, bounced, and unsubscribed emails.</li>
@@ -1634,7 +1726,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Twilio Call & SMS Log (CDR) Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of detailed Call Detail Records (CDRs) and SMS logs from Twilio**, delivering them as structured **CSV files** to your Anonymous OfficeX. Analyze your communication patterns, track call durations, message statuses, costs, and identify trends for optimizing your customer interactions and communication workflows.</p>
+  //         <p>This service provides extraction of detailed Call Detail Records (CDRs) and SMS logs from Twilio, delivering them as structured CSV files to your Anonymous OfficeX. Analyze your communication patterns, track call durations, message statuses, costs, and identify trends for optimizing your customer interactions and communication workflows.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Call Log Export:</strong> Extract data on incoming/outgoing calls, duration, status, and associated numbers.</li>
@@ -1681,7 +1773,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //         "Deepseek AI for Codebase Analysis & Data Export (CSV) to OfficeX",
   //       images: [],
   //       description: `
-  //         <p>This offer integrates **Deepseek AI's advanced code analysis capabilities** with your Anonymous OfficeX environment, enabling the processing of code repositories and delivering insights as structured **CSV files**. Ideal for software development teams, auditors, or researchers needing to analyze codebase structure, identify vulnerabilities, extract function lists, or track code quality metrics.</p>
+  //         <p>This offer integrates Deepseek AI's advanced code analysis capabilities with your Anonymous OfficeX environment, enabling the processing of code repositories and delivering insights as structured CSV files. Ideal for software development teams, auditors, or researchers needing to analyze codebase structure, identify vulnerabilities, extract function lists, or track code quality metrics.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Codebase Structure Analysis:</strong> Generate CSVs outlining file structure, module dependencies, and function calls.</li>
@@ -1727,7 +1819,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Semrush SEO & Competitor Data Export (CSV) to OfficeX",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of comprehensive SEO and competitor data from Semrush**, delivering it as structured **CSV files** to your Anonymous OfficeX. Gain deep insights into keyword rankings, organic traffic, backlink profiles, competitor strategies, and content performance for in-depth analysis and reporting within your spreadsheets.</p>
+  //         <p>This service provides extraction of comprehensive SEO and competitor data from Semrush, delivering it as structured CSV files to your Anonymous OfficeX. Gain deep insights into keyword rankings, organic traffic, backlink profiles, competitor strategies, and content performance for in-depth analysis and reporting within your spreadsheets.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Keyword Ranking & Traffic Data:</strong> Export current and historical keyword positions and estimated organic traffic.</li>
@@ -1771,7 +1863,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "eBay Listing & Sales Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public listing and sales data from eBay**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for e-commerce businesses, resellers, and market researchers to analyze product trends, pricing strategies, competitor activity, and sales performance on the eBay platform.</p>
+  //         <p>This service focuses on extracting public listing and sales data from eBay, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for e-commerce businesses, resellers, and market researchers to analyze product trends, pricing strategies, competitor activity, and sales performance on the eBay platform.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Active & Completed Listings:</strong> Extract data on product titles, descriptions, prices, seller info, and condition.</li>
@@ -1816,7 +1908,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Amazon Product & Review Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public product and customer review data from Amazon**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for product developers, market researchers, and e-commerce businesses to analyze product trends, competitor offerings, customer sentiment, and optimize their Amazon listings.</p>
+  //         <p>This service focuses on extracting public product and customer review data from Amazon, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for product developers, market researchers, and e-commerce businesses to analyze product trends, competitor offerings, customer sentiment, and optimize their Amazon listings.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Product Listing Data:</strong> Extract product titles, descriptions, ASINs, prices, and availability.</li>
@@ -1861,7 +1953,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Product Hunt Launch & Trend Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public launch data, trend information, and user comments from Product Hunt**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for product managers, investors, and entrepreneurs to monitor new product launches, identify emerging trends, analyze market reception, and discover potential competitors or collaborators.</p>
+  //         <p>This service focuses on extracting public launch data, trend information, and user comments from Product Hunt, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for product managers, investors, and entrepreneurs to monitor new product launches, identify emerging trends, analyze market reception, and discover potential competitors or collaborators.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Product Launch Data:</strong> Extract product names, descriptions, creators, upvotes, and comments from launches.</li>
@@ -1906,7 +1998,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Crunchbase Company & Funding Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public company, funding, and M&A data from Crunchbase**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for investors, sales teams, and market researchers to build target lists, analyze industry landscapes, track funding rounds, and monitor competitive activity.</p>
+  //         <p>This service focuses on extracting public company, funding, and M&A data from Crunchbase, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for investors, sales teams, and market researchers to build target lists, analyze industry landscapes, track funding rounds, and monitor competitive activity.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Company Profile Data:</strong> Extract company name, industry, location, description, and founding date.</li>
@@ -1951,7 +2043,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Bitly Link Click & Analytics Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of detailed click data and analytics from your Bitly links**, delivering them as structured **CSV files** to your Anonymous OfficeX. Gain comprehensive insights into link performance, geographic clicks, referral sources, and more for in-depth analysis and reporting within your spreadsheets.</p>
+  //         <p>This service provides extraction of detailed click data and analytics from your Bitly links, delivering them as structured CSV files to your Anonymous OfficeX. Gain comprehensive insights into link performance, geographic clicks, referral sources, and more for in-depth analysis and reporting within your spreadsheets.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Link Performance Metrics:</strong> Export total clicks, unique clicks, and click-through rates for your Bitly links.</li>
@@ -1995,7 +2087,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Veo3 Match Event & Player Performance Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of detailed match events and player performance data from Veo3 footage**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for sports coaches, analysts, and recruiters to analyze game strategies, individual player statistics, and team performance for in-depth tactical planning and scouting.</p>
+  //         <p>This service provides extraction of detailed match events and player performance data from Veo3 footage, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for sports coaches, analysts, and recruiters to analyze game strategies, individual player statistics, and team performance for in-depth tactical planning and scouting.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Match Event Data:</strong> Export timestamps and descriptions of key events (goals, fouls, passes, shots).</li>
@@ -2041,7 +2133,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "TaskRabbit Task & Tasker Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public task listings and tasker profile data from TaskRabbit**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for market researchers, businesses analyzing gig economy trends, or individuals tracking service availability and pricing in specific regions.</p>
+  //         <p>This service focuses on extracting public task listings and tasker profile data from TaskRabbit, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for market researchers, businesses analyzing gig economy trends, or individuals tracking service availability and pricing in specific regions.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Task Listing Data:</strong> Extract task descriptions, requested skills, estimated duration, and pricing (if public).</li>
@@ -2086,7 +2178,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Shopee Product & Seller Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public product listings and seller information from Shopee**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for e-commerce businesses, market researchers, and competitive analysts looking to understand product trends, pricing strategies, and seller performance in the Southeast Asian and Taiwanese markets.</p>
+  //         <p>This service focuses on extracting public product listings and seller information from Shopee, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for e-commerce businesses, market researchers, and competitive analysts looking to understand product trends, pricing strategies, and seller performance in the Southeast Asian and Taiwanese markets.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Product Listing Data:</strong> Extract product names, descriptions, prices, categories, and stock availability.</li>
@@ -2132,7 +2224,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Taobao Product & Pricing Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public product listings and pricing information from Taobao**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for e-commerce businesses, sourcing agents, and market researchers looking to understand product availability, pricing trends, and supplier information within the Chinese e-commerce market.</p>
+  //         <p>This service focuses on extracting public product listings and pricing information from Taobao, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for e-commerce businesses, sourcing agents, and market researchers looking to understand product availability, pricing trends, and supplier information within the Chinese e-commerce market.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Product Listing Data:</strong> Extract product names, descriptions, prices, and available variations.</li>
@@ -2177,7 +2269,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Uber Ride & Expense Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of your Uber ride history and associated expense data**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for business professionals, accountants, or individuals looking to track transportation expenses, analyze travel patterns, or reconcile company spending.</p>
+  //         <p>This service provides extraction of your Uber ride history and associated expense data, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for business professionals, accountants, or individuals looking to track transportation expenses, analyze travel patterns, or reconcile company spending.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Ride History Export:</strong> Extract date, time, pickup/dropoff locations, distance, and trip cost.</li>
@@ -2222,7 +2314,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Grab Ride, Food, & Payment Transaction Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of your Grab transaction history, including rides, food deliveries, and payments**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses in Southeast Asia to track expenses, analyze spending patterns across different services, or reconcile financial records.</p>
+  //         <p>This service provides extraction of your Grab transaction history, including rides, food deliveries, and payments, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for individuals and businesses in Southeast Asia to track expenses, analyze spending patterns across different services, or reconcile financial records.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Comprehensive Transaction History:</strong> Export data on Grab rides, GrabFood orders, GrabMart purchases, and GrabPay transactions.</li>
@@ -2267,7 +2359,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Brex Transaction & Expense Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of detailed transaction and expense data from your Brex account**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for finance teams, accountants, and business owners looking to reconcile corporate spending, manage budgets, and perform in-depth financial analysis directly within their spreadsheets.</p>
+  //         <p>This service provides extraction of detailed transaction and expense data from your Brex account, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for finance teams, accountants, and business owners looking to reconcile corporate spending, manage budgets, and perform in-depth financial analysis directly within their spreadsheets.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Transaction History Export:</strong> Extract date, merchant, amount, category, and associated notes for all Brex transactions.</li>
@@ -2311,7 +2403,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "PayPal Transaction History & Fee Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of your detailed PayPal transaction history, including payments sent, received, and associated fees**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses to reconcile financial records, track income and expenses, and analyze payment processing costs directly within their spreadsheets.</p>
+  //         <p>This service provides extraction of your detailed PayPal transaction history, including payments sent, received, and associated fees, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for individuals and businesses to reconcile financial records, track income and expenses, and analyze payment processing costs directly within their spreadsheets.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Transaction History Export:</strong> Extract date, type, status, gross amount, fees, and net amount for all transactions.</li>
@@ -2355,7 +2447,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Cash App Transaction History Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of your Cash App transaction history**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals to track personal spending, manage budgets, and reconcile financial records from their Cash App activities.</p>
+  //         <p>This service provides extraction of your Cash App transaction history, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for individuals to track personal spending, manage budgets, and reconcile financial records from their Cash App activities.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Transaction History Export:</strong> Extract date, type (sent/received), amount, and transaction description for all activities.</li>
@@ -2400,7 +2492,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Google Drive File Metadata & Usage Report Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of detailed file metadata and usage reports from your Google Drive**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for organizations and individuals managing large Drive accounts to audit file access, track storage usage, organize documents, and manage permissions efficiently.</p>
+  //         <p>This service provides extraction of detailed file metadata and usage reports from your Google Drive, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for organizations and individuals managing large Drive accounts to audit file access, track storage usage, organize documents, and manage permissions efficiently.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>File Metadata Export:</strong> Extract file names, types, sizes, creation/modification dates, and owner information.</li>
@@ -2445,7 +2537,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Agoda Hotel Listing & Pricing Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public hotel listings, pricing, and review data from Agoda**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for hospitality businesses, travel agencies, and market researchers to analyze accommodation trends, competitive pricing, customer feedback, and optimize their online presence.</p>
+  //         <p>This service focuses on extracting public hotel listings, pricing, and review data from Agoda, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for hospitality businesses, travel agencies, and market researchers to analyze accommodation trends, competitive pricing, customer feedback, and optimize their online presence.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Hotel Listing Data:</strong> Extract hotel names, locations, star ratings, amenities, and image URLs.</li>
@@ -2490,7 +2582,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Do Not Pay Case & Document Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of your own Do Not Pay case data and generated document metadata**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals tracking their legal disputes, managing appeals, or organizing generated legal documents for personal record-keeping or further analysis.</p>
+  //         <p>This service provides extraction of your own Do Not Pay case data and generated document metadata, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for individuals tracking their legal disputes, managing appeals, or organizing generated legal documents for personal record-keeping or further analysis.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Case Status Export:</strong> Extract data on case type, current status, and relevant deadlines.</li>
@@ -2535,7 +2627,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "FedEx Shipping & Tracking Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of your FedEx shipping history and tracking data**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for businesses and individuals managing high volumes of shipments to analyze shipping costs, delivery performance, track packages, and reconcile logistics records.</p>
+  //         <p>This service provides extraction of your FedEx shipping history and tracking data, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for businesses and individuals managing high volumes of shipments to analyze shipping costs, delivery performance, track packages, and reconcile logistics records.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Shipment History Export:</strong> Extract data on package details, origin/destination, service type, and shipping costs.</li>
@@ -2580,7 +2672,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Airbnb Listing & Market Trend Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public Airbnb listing data and market trend insights**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for property managers, real estate investors, and market researchers to analyze occupancy rates, pricing strategies, competitor listings, and identify profitable investment opportunities in specific regions.</p>
+  //         <p>This service focuses on extracting public Airbnb listing data and market trend insights, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for property managers, real estate investors, and market researchers to analyze occupancy rates, pricing strategies, competitor listings, and identify profitable investment opportunities in specific regions.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Listing Details Export:</strong> Extract property type, number of bedrooms/bathrooms, amenities, and host information.</li>
@@ -2628,7 +2720,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "MakerWorld 3D Model & Creator Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of public 3D model data and creator statistics from MakerWorld**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for 3D printing businesses, designers, and market researchers to analyze trending designs, popular creators, model specifications, and user engagement for product development or content strategy.</p>
+  //         <p>This service provides extraction of public 3D model data and creator statistics from MakerWorld, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for 3D printing businesses, designers, and market researchers to analyze trending designs, popular creators, model specifications, and user engagement for product development or content strategy.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>3D Model Metadata:</strong> Extract model names, descriptions, categories, download counts, and print statistics.</li>
@@ -2673,7 +2765,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Home Depot Product Inventory & Pricing Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public product inventory, pricing, and specification data from Home Depot**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for contractors, resellers, and market researchers to analyze product availability, competitive pricing, and trending home improvement items across various locations.</p>
+  //         <p>This service focuses on extracting public product inventory, pricing, and specification data from Home Depot, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for contractors, resellers, and market researchers to analyze product availability, competitive pricing, and trending home improvement items across various locations.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Product Catalog Export:</strong> Extract product names, descriptions, categories, SKUs, and online availability.</li>
@@ -2718,7 +2810,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Shopify Store & Product Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public product listings, pricing, and store information from Shopify-powered online stores**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for competitive analysis, market research, or dropshippers looking to identify trending products, pricing strategies, and successful store setups.</p>
+  //         <p>This service focuses on extracting public product listings, pricing, and store information from Shopify-powered online stores, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for competitive analysis, market research, or dropshippers looking to identify trending products, pricing strategies, and successful store setups.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Product Listing Data:</strong> Extract product titles, descriptions, images, prices, and inventory levels (if publicly available).</li>
@@ -2763,7 +2855,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "DraftKings Contest & Player Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public contest details, player statistics, and outcome data from DraftKings**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for sports analysts, data scientists, or serious players looking to optimize strategies, identify trends, and perform in-depth statistical analysis on player performance and contest outcomes.</p>
+  //         <p>This service focuses on extracting public contest details, player statistics, and outcome data from DraftKings, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for sports analysts, data scientists, or serious players looking to optimize strategies, identify trends, and perform in-depth statistical analysis on player performance and contest outcomes.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Contest Details:</strong> Export data on contest types, entry fees, prize pools, and number of entries.</li>
@@ -2808,7 +2900,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Geek Squad Service History Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service provides **extraction of your Geek Squad service history and associated details**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for individuals and businesses managing multiple devices or tech assets to track repair history, warranty information, service costs, and maintenance schedules directly within their spreadsheets.</p>
+  //         <p>This service provides extraction of your Geek Squad service history and associated details, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for individuals and businesses managing multiple devices or tech assets to track repair history, warranty information, service costs, and maintenance schedules directly within their spreadsheets.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Service History Export:</strong> Extract date of service, service type, device serviced, issue description, and resolution.</li>
@@ -2853,7 +2945,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Turo Rental & Host Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public Turo car rental listing data and host performance metrics**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for car owners considering Turo, rental market analysts, or competitors looking to understand rental trends, pricing strategies, and successful host practices.</p>
+  //         <p>This service focuses on extracting public Turo car rental listing data and host performance metrics, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for car owners considering Turo, rental market analysts, or competitors looking to understand rental trends, pricing strategies, and successful host practices.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Vehicle Listing Data:</strong> Extract car make/model, year, location, daily rate, and availability details.</li>
@@ -2898,7 +2990,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Timeleft Event & User Interaction Data Export (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public event details and aggregated, anonymized user interaction data from Timeleft**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for social researchers, event organizers, or businesses interested in networking trends, social preferences, and group dynamics.</p>
+  //         <p>This service focuses on extracting public event details and aggregated, anonymized user interaction data from Timeleft, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for social researchers, event organizers, or businesses interested in networking trends, social preferences, and group dynamics.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Event Details:</strong> Export data on event dates, locations (general), participant counts (anonymized), and themes.</li>
@@ -2943,7 +3035,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Craigslist Classifieds & Listings Data Extraction (CSV)",
   //       images: [],
   //       description: `
-  //         <p>This service focuses on **extracting public classified advertisements and listings from Craigslist**, delivering it as structured **CSV files** to your Anonymous OfficeX. Ideal for market researchers, resellers, or businesses tracking local demand, pricing trends, and product/service availability in specific geographical areas.</p>
+  //         <p>This service focuses on extracting public classified advertisements and listings from Craigslist, delivering it as structured CSV files to your Anonymous OfficeX. Ideal for market researchers, resellers, or businesses tracking local demand, pricing trends, and product/service availability in specific geographical areas.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Categorized Listing Export:</strong> Extract data on titles, descriptions, prices, categories, and posting dates for various sections (e.g., for sale, housing, services).</li>
@@ -2988,7 +3080,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "Aged Social Media Accounts (Telegram, Facebook, etc.)",
   //       images: [],
   //       description: `
-  //         <p>This service provides access to a catalog of **aged social media accounts for various platforms like Telegram, Facebook, and more**, delivered with credentials suitable for integration into your Anonymous OfficeX workflows. These accounts are presented as having a history of activity, which can be desirable for specific digital marketing or engagement strategies.</p>
+  //         <p>This service provides access to a catalog of aged social media accounts for various platforms like Telegram, Facebook, and more, delivered with credentials suitable for integration into your Anonymous OfficeX workflows. These accounts are presented as having a history of activity, which can be desirable for specific digital marketing or engagement strategies.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Diverse Platform Availability:</strong> Access accounts for popular platforms including Telegram, Facebook, Instagram, and potentially others.</li>
@@ -3032,7 +3124,7 @@ export const appstore_apps: AppInfoWithOffers[] = [
   //       title: "High-Spend Facebook Agency Ads Accounts",
   //       images: [],
   //       description: `
-  //         <p>This service offers **agency-level Facebook Ads accounts with significantly higher spending limits and enhanced stability**, delivered for seamless integration into your Anonymous OfficeX advertising management. These accounts are designed for advertisers running large-scale campaigns or those who frequently face spending limits or restrictions with standard ad accounts.</p>
+  //         <p>This service offers agency-level Facebook Ads accounts with significantly higher spending limits and enhanced stability, delivered for seamless integration into your Anonymous OfficeX advertising management. These accounts are designed for advertisers running large-scale campaigns or those who frequently face spending limits or restrictions with standard ad accounts.</p>
   //         <p>Key features:</p>
   //         <ul>
   //           <li><strong>Elevated Spending Limits:</strong> Access accounts pre-configured with high daily or monthly spending capacities.</li>

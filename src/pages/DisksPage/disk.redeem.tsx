@@ -27,18 +27,11 @@ import {
   DiskTypeEnum,
   GenerateID,
   IRequestCreateDisk,
+  RedeemDiskGiftCard_BTOA,
 } from "@officexapp/types";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
-
-export interface RedeemDiskGiftCard_BTOA {
-  name: string;
-  disk_type: string;
-  public_note: string;
-  auth_json: string;
-  endpoint: string;
-}
 
 const RedeemDiskGiftCard = () => {
   const params = useParams();

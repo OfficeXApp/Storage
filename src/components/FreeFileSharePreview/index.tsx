@@ -1,4 +1,9 @@
-import { FileID, FileRecordFE, FolderID } from "@officexapp/types";
+import {
+  FileID,
+  fileRawUrl_BTOA,
+  FileRecordFE,
+  FolderID,
+} from "@officexapp/types";
 import { useIdentitySystem } from "../../framework/identity";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -6,11 +11,6 @@ import { urlSafeBase64Decode } from "../../api/helpers";
 import { message, Typography } from "antd";
 import FilePage from "../FilePage";
 import Title from "antd/es/skeleton/Title";
-
-export interface fileRawUrl_BTOA {
-  note: string;
-  original: FileRecordFE;
-}
 
 const FreeFileSharePreview = () => {
   const params = useParams();

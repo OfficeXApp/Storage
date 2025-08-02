@@ -72,7 +72,11 @@ export const SPREADSHEET_APP_ENDPOINT = LOCAL_DEV_MODE
 
 export const WEB2_FACTORY_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:8888"
-  : "https://free-001.officex.app";
+  : "https://officex.otterpad.cc";
+
+export const AI_CHAT_ENDPOINT = LOCAL_DEV_MODE
+  ? "http://localhost:3000"
+  : "https://chat.otterpad.cc";
 
 // Hardcoded Gift Card Options
 export const initialGiftCardOptions: GiftCardOption[] = [

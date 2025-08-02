@@ -48,6 +48,7 @@ import {
   DriveClippedFilePath,
   LabelValue,
   FileConflictResolutionEnum,
+  fileRawUrl_BTOA,
 } from "@officexapp/types";
 import DirectoryPermissionAddDrawer, {
   PreExistingStateForEdit,
@@ -70,7 +71,7 @@ import {
   defaultTempCloudSharingDiskID,
   defaultTempCloudSharingTrashFolderID,
 } from "../../api/dexie-database";
-import { fileRawUrl_BTOA } from "../FreeFileSharePreview";
+
 import {
   FileFEO,
   FolderFEO,

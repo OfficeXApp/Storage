@@ -117,7 +117,6 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           status: values.status,
           description: values.description || undefined,
           about_url: values.about_url,
-          run_url: values.run_url || undefined,
           billing_url: values.billing_url || undefined,
           support_url: values.support_url || undefined,
           delivery_url: values.delivery_url || undefined,

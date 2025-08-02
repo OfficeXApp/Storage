@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "sandbox-drive",
+    "site": "staging-frontend-officex",
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [

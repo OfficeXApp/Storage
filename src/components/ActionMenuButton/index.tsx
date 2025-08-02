@@ -43,7 +43,7 @@ import {
 import { useMultiUploader } from "../../framework/uploader/hook";
 import { shouldBehaveOfflineDiskUIIntent } from "../../redux-offline/directory/directory.reducer";
 import { extractDiskInfo, urlSafeBase64Encode } from "../../api/helpers";
-import { ENABLE_CHAT_WITH_AI } from "../../framework/flags/feature-flags";
+import { isAIChatEnabled } from "../../framework/flags/feature-flags";
 
 interface ActionMenuButtonProps {
   isBigButton?: boolean; // Determines the button style
@@ -182,7 +182,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   };
 
   const newButtonItems: MenuProps["items"] = [
-    ENABLE_CHAT_WITH_AI
+    isAIChatEnabled()
       ? {
           label: (
             <Space>
@@ -320,7 +320,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
     },
   ];
 
-  if (isBigButton && ENABLE_CHAT_WITH_AI) {
+  if (isBigButton && isAIChatEnabled()) {
     return (
       <div style={{ width: "100%", display: "flex", flexDirection: "row" }}>
         <Dropdown menu={{ items: newButtonItems }}>

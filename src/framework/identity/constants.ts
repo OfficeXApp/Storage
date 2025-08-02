@@ -50,7 +50,7 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
   return result;
 };
 
-export const LOCAL_DEV_MODE = true;
+export const LOCAL_DEV_MODE = false;
 
 // LOCAL vs. PROD
 export const FACTORY_CANISTER_ENDPOINT = LOCAL_DEV_MODE
@@ -72,7 +72,7 @@ export const SPREADSHEET_APP_ENDPOINT = LOCAL_DEV_MODE
 
 export const WEB2_FACTORY_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:8888"
-  : "https://officex.otterpad.cc";
+  : "https://free-001.officex.app";
 
 // Hardcoded Gift Card Options
 export const initialGiftCardOptions: GiftCardOption[] = [

@@ -131,6 +131,15 @@ const AppPage = () => {
         It's 100% crypto payments, permissionless, and your reputation directly
         impacts your success!
       </Paragraph>
+      <Button
+        onClick={() => {
+          window.open("https://tally.so/r/mVOkBa", "_blank");
+        }}
+        size="small"
+        style={{ marginTop: "16px" }}
+      >
+        Get Started
+      </Button>
     </div>
   );
 
@@ -491,9 +500,6 @@ const AppPage = () => {
                                       {" "}
                                       <Button
                                         type="default"
-                                        href={vendor.view_page_link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
                                         onClick={() =>
                                           handleRunVendorJob(offer, vendor)
                                         }

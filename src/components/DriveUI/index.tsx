@@ -1620,7 +1620,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   listDirectoryResults.breadcrumbs.length - 1
                 ]?.resource_name || "Folder | OfficeX"}
         </title>
-        <link rel="icon" href="/simple-grad-star.ico" />
+        <link rel="icon" href="/globe-star.ico" />
       </Helmet>
       {contextHolder}
       {renderViewTitle()}

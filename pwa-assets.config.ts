@@ -9,5 +9,5 @@ export default defineConfig({
     preset: "2023",
   },
   preset,
-  images: ["public/simple-grad-star.ico"],
+  images: ["public/globe-star.ico"],
 });

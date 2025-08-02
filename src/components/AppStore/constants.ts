@@ -62,7 +62,7 @@ export const appstore_apps: ServiceWithOffersFromVendors[] = [
                 title: "USDC on Base",
                 note: "To initialize the vendor (Note: Actual deposit address and details would be provided by the backend after initiating this checkout option)",
                 checkout_init_endpoint:
-                  "http://localhost:3001/v1/checkout/initiate",
+                  "https://vendorofficex.otterpad.cc/v1/checkout/initiate", //"http://localhost:3001/v1/checkout/initiate",
                 checkout_pattern: CartCheckoutPatternEnum.CRYPTO_WALLET_TOPUP,
                 vendor_notes: "You will receive a giftcard for AWS S3",
                 vendor_disclaimer:

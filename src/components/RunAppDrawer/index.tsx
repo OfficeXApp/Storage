@@ -1148,55 +1148,55 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
 
         {/* Third Section: Preferences (formerly App Requirements) */}
         {checkoutInitResponse?.requirements?.length &&
-          checkoutInitResponse?.requirements?.length > 0 && (
-            <Card
-              size="small"
-              style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
-            >
-              <b>3. Additional Details</b>
-              <br />
-              <span style={{ fontSize: "13px", color: "#666" }}>
-                The vendor may require additional information to run the app.
-              </span>
-              <br />
-              <br />
-              {checkoutInitResponse?.requirements?.length > 0 ? (
-                checkoutInitResponse?.requirements?.map((req) => (
-                  <div key={req.id} style={{ marginBottom: 12 }}>
-                    <label style={{ display: "block", marginBottom: 8 }}>
-                      <Space size={4}>
-                        <Text>{req.title}</Text>
-                        <Popover
-                          content={DepositInfoPopoverContent(req.explanation)}
-                          title={`${req.title} Explanation`}
-                          trigger="hover"
-                        >
-                          <InfoCircleOutlined
-                            style={{ color: "rgba(0,0,0,.45)" }}
-                          />
-                        </Popover>
-                      </Space>
-                      {req.required && <Text type="danger">*</Text>}
-                    </label>
-                    {/* Placeholder: Later implement specific input fields based on req.type */}
-                    <Input
-                      placeholder={
-                        req.placeholder ||
-                        `Enter value for ${req.title} (${req.type})`
-                      }
-                      value={preferenceInputs[req.id] || ""}
-                      onChange={(e) =>
-                        handlePreferenceInputChange(req.id, e.target.value)
-                      }
-                      suffix={req.suffix}
-                    />
-                  </div>
-                ))
-              ) : (
-                <Paragraph>No additional details required.</Paragraph>
-              )}
-            </Card>
-          )}
+        checkoutInitResponse?.requirements?.length > 0 ? (
+          <Card
+            size="small"
+            style={{ marginBottom: 20, backgroundColor: "#fbfbfb" }}
+          >
+            <b>3. Additional Details</b>
+            <br />
+            <span style={{ fontSize: "13px", color: "#666" }}>
+              The vendor may require additional information to run the app.
+            </span>
+            <br />
+            <br />
+            {checkoutInitResponse?.requirements?.length > 0 ? (
+              checkoutInitResponse?.requirements?.map((req) => (
+                <div key={req.id} style={{ marginBottom: 12 }}>
+                  <label style={{ display: "block", marginBottom: 8 }}>
+                    <Space size={4}>
+                      <Text>{req.title}</Text>
+                      <Popover
+                        content={DepositInfoPopoverContent(req.explanation)}
+                        title={`${req.title} Explanation`}
+                        trigger="hover"
+                      >
+                        <InfoCircleOutlined
+                          style={{ color: "rgba(0,0,0,.45)" }}
+                        />
+                      </Popover>
+                    </Space>
+                    {req.required && <Text type="danger">*</Text>}
+                  </label>
+                  {/* Placeholder: Later implement specific input fields based on req.type */}
+                  <Input
+                    placeholder={
+                      req.placeholder ||
+                      `Enter value for ${req.title} (${req.type})`
+                    }
+                    value={preferenceInputs[req.id] || ""}
+                    onChange={(e) =>
+                      handlePreferenceInputChange(req.id, e.target.value)
+                    }
+                    suffix={req.suffix}
+                  />
+                </div>
+              ))
+            ) : (
+              <Paragraph>No additional details required.</Paragraph>
+            )}
+          </Card>
+        ) : null}
 
         {checkoutInitResponse?.validation_endpoint && !validatedPayment ? (
           <Divider>

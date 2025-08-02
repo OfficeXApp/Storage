@@ -79,7 +79,10 @@ import Marquee from "react-fast-marquee";
 import SlimAppHeader from "../../components/SlimAppHeader";
 import { useMultiUploader } from "../../framework/uploader/hook";
 import DirectoryGuard from "../../components/DriveUI/DirectoryGuard";
-import { DOCUMENTS_APP_ENDPOINT } from "../../framework/identity/constants";
+import {
+  AI_CHAT_ENDPOINT,
+  DOCUMENTS_APP_ENDPOINT,
+} from "../../framework/identity/constants";
 
 const { Text } = Typography;
 
@@ -1064,7 +1067,7 @@ const ChatWithAI = () => {
       </Helmet>
       <iframe
         ref={iframeRef}
-        src={"http://localhost:3000"}
+        src={AI_CHAT_ENDPOINT}
         allow="clipboard-read; clipboard-write"
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
         style={{ width: "100%", height: "90vh", border: "none" }}

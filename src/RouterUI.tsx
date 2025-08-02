@@ -117,7 +117,7 @@ import WalletControlPopover from "./components/WalletControlPopover";
 import ChatWithAI from "./apps/ChatWithAI";
 import {
   ENABLE_APPSTORE,
-  ENABLE_CHAT_WITH_AI,
+  isAIChatEnabled,
   ENABLE_WALLET,
 } from "./framework/flags/feature-flags";
 import JobRunPage from "./pages/JobRunsPage/jobruns.page";
@@ -722,7 +722,7 @@ const RouterUI = () => {
                           element={<Navigate to="/org/current/appstore" />}
                         />
                       )}
-                      {ENABLE_CHAT_WITH_AI && (
+                      {isAIChatEnabled() && (
                         <Route
                           path="/chat"
                           element={<Navigate to="/org/current/chat" />}
@@ -785,7 +785,7 @@ const RouterUI = () => {
                           element={<AppPage />}
                         />
                       )}
-                      {ENABLE_CHAT_WITH_AI && (
+                      {isAIChatEnabled() && (
                         <Route
                           path="/org/:orgcode/chat"
                           element={<ChatWithAI />}

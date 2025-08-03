@@ -435,9 +435,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           }
         });
         setPreferenceInputs(initialPreferenceInputs);
-        message.success(
-          "Payment Confirmed | You may now proceed to finalizing the purchase"
-        );
+        message.info("Checkout has begun, please proceed with payment");
       }
     } catch (error) {
       console.error("Error initiating checkout:", error);
@@ -476,7 +474,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       }
     } catch (error) {
       console.error("Error validating payment:", error);
-      message.error(`Error validating payment`, 30);
+      message.error(`Error validating payment`, 10);
     } finally {
       setIsValidatingLoading(false);
     }

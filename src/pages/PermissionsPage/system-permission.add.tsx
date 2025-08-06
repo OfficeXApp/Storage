@@ -618,7 +618,7 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
           >
             <Form.Item>
               <Input
-                placeholder="Enter name@userid or paste UserID"
+                placeholder="Enter UserID"
                 value={userIdInput}
                 onChange={handleUserIdChange}
                 suffix={

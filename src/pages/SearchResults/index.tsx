@@ -411,7 +411,7 @@ const SearchResultsPage: React.FC = () => {
                   urlLink = wrapOrgCode(`/drive${item.metadata}`);
                 } else if (item.resource_id.startsWith("FolderID_")) {
                   urlLink = wrapOrgCode(`/drive${item.metadata}`);
-                } else if (item.resource_id.startsWith("ContactID_")) {
+                } else if (item.resource_id.startsWith("UserID_")) {
                   urlLink = wrapOrgCode(
                     `/resources/contacts/${item.resource_id}`
                   );
@@ -430,6 +430,7 @@ const SearchResultsPage: React.FC = () => {
                     `/resources/drives/${item.resource_id}`
                   );
                 }
+                console.log(`>>>> result`, item);
                 return (
                   <Link to={urlLink}>
                     <List.Item

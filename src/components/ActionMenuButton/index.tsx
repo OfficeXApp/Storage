@@ -221,6 +221,19 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       label: (
         <Space>
           <FolderOutlined />
+          New Folder
+        </Space>
+      ),
+      key: "newFolder",
+      disabled,
+      onClick: () => {
+        setIsModalVisible(true);
+      },
+    },
+    {
+      label: (
+        <Space>
+          <FolderOutlined />
           Upload Folder
         </Space>
       ),

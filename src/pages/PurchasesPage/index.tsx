@@ -1,27 +1,27 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Button, Drawer, Layout, Typography, Space, Input, Form } from "antd";
 import type {
-  JobRunFE,
-  IRequestCreateJobRun,
-  IRequestListJobRuns,
-  IResponseCreateJobRun,
-  IResponseListJobRuns,
+  PurchaseFE,
+  IRequestCreatePurchase,
+  IRequestListPurchases,
+  IResponseCreatePurchase,
+  IResponseListPurchases,
   UserID,
 } from "@officexapp/types";
 import { SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
-  createJobRunAction,
-  listJobRunsAction,
-} from "../../redux-offline/job-runs/job-runs.actions";
+  createPurchaseAction,
+  listPurchasesAction,
+} from "../../redux-offline/purchases/purchases.actions";
 import { CloseOutlined, PlusOutlined, RocketOutlined } from "@ant-design/icons";
-import JobRunsAddDrawer from "./jobruns.add";
-import JobRunTab from "./jobruns.tab";
-import JobRunsTableList from "./jobruns.table";
+import PurchasesAddDrawer from "./purchases.add";
+import PurchaseTab from "./purchases.tab";
+import PurchasesTableList from "./purchases.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
-import { checkJobRunsTablePermissionsAction } from "../../redux-offline/job-runs/job-runs.actions";
+import { checkPurchasesTablePermissionsAction } from "../../redux-offline/purchases/purchases.actions";
 import { pastLastCheckedCacheLimit } from "../../api/helpers";
 import { Helmet } from "react-helmet";
 
@@ -36,7 +36,7 @@ type TabItem = {
   closable?: boolean;
 };
 
-const JobRunsPage: React.FC = () => {
+const PurchasesPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
@@ -44,8 +44,8 @@ const JobRunsPage: React.FC = () => {
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
   const { tablePermissions, lastChecked } = useSelector(
     (state: ReduxAppState) => ({
-      tablePermissions: state.jobRuns.tablePermissions,
-      lastChecked: state.jobRuns.lastChecked,
+      tablePermissions: state.purchases.tablePermissions,
+      lastChecked: state.purchases.lastChecked,
     })
   );
   const dispatch = useDispatch();
@@ -65,7 +65,7 @@ const JobRunsPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Job Runs List",
+      label: "Purchases List",
       children: null,
       closable: false,
     },
@@ -75,10 +75,10 @@ const JobRunsPage: React.FC = () => {
   const tabItemsRef = useRef(tabItems);
 
   useEffect(() => {
-    console.log(`jobRunsPage last checked`, lastChecked);
+    console.log(`purchasesPage last checked`, lastChecked);
     if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
-      dispatch(checkJobRunsTablePermissionsAction(currentProfile.userID));
-      dispatch(listJobRunsAction({}));
+      dispatch(checkPurchasesTablePermissionsAction(currentProfile.userID));
+      dispatch(listPurchasesAction({}));
     }
   }, [currentProfile, lastChecked]);
 
@@ -90,38 +90,38 @@ const JobRunsPage: React.FC = () => {
     }
   }, [tabItems]);
 
-  // Function to handle clicking on a job run
+  // Function to handle clicking on a purchase
   const handleClickContentTab = useCallback(
-    (jobRun: JobRunFE, focus_tab = false) => {
-      setLastClickedId(jobRun.id);
+    (purchase: PurchaseFE, focus_tab = false) => {
+      setLastClickedId(purchase.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
       console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
-        (item) => item.key === jobRun.id
+        (item) => item.key === purchase.id
       );
       console.log(`existingTabIndex`, existingTabIndex);
 
       if (existingTabIndex !== -1 && focus_tab == true) {
-        setActiveKey(jobRun.id);
+        setActiveKey(purchase.id);
         return;
       }
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it
         const updatedTabs = currentTabItems.filter(
-          (item) => item.key !== jobRun.id
+          (item) => item.key !== purchase.id
         );
         setTabItems(updatedTabs);
       } else {
         // Create new tab
         const newTab: TabItem = {
-          key: jobRun.id,
-          label: jobRun.title,
+          key: purchase.id,
+          label: purchase.title,
           children: (
-            <JobRunTab
-              jobRunCache={jobRun}
+            <PurchaseTab
+              purchaseCache={purchase}
               onDelete={handleDeletionCloseTabs}
             />
           ),
@@ -135,18 +135,18 @@ const JobRunsPage: React.FC = () => {
           return updatedTabs;
         });
 
-        // Switch to the clicked job run's tab
+        // Switch to the clicked purchase's tab
         if (focus_tab) {
-          setActiveKey(jobRun.id);
+          setActiveKey(purchase.id);
         }
       }
     },
     [] // No dependencies needed since we use the ref
   );
 
-  const handleDeletionCloseTabs = (jobRunID: string) => {
+  const handleDeletionCloseTabs = (purchaseID: string) => {
     setActiveKey("list");
-    const updatedTabs = tabItems.filter((item) => item.key !== jobRunID);
+    const updatedTabs = tabItems.filter((item) => item.key !== purchaseID);
     setTabItems(updatedTabs);
     tabItemsRef.current = updatedTabs;
   };
@@ -155,10 +155,10 @@ const JobRunsPage: React.FC = () => {
   const onTabChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
     if (newActiveKey === "list") {
-      const newUrl = wrapOrgCode(`/resources/job-runs`);
+      const newUrl = wrapOrgCode(`/resources/purchases`);
       window.history.pushState({}, "", newUrl);
     } else {
-      const newUrl = wrapOrgCode(`/resources/job-runs/${newActiveKey}`);
+      const newUrl = wrapOrgCode(`/resources/purchases/${newActiveKey}`);
       window.history.pushState({}, "", newUrl);
     }
   };
@@ -244,7 +244,7 @@ const JobRunsPage: React.FC = () => {
             style={{ marginBottom: screenType.isMobile ? "8px" : 0 }}
             disabled={!tablePermissions.includes(SystemPermissionType.CREATE)}
           >
-            Create Job Run
+            Create Purchase
           </Button>
         </div>
 
@@ -362,7 +362,7 @@ const JobRunsPage: React.FC = () => {
                   overflow: "hidden",
                 }}
               >
-                <JobRunsTableList
+                <PurchasesTableList
                   isContentTabOpen={isContentTabOpen}
                   handleClickContentTab={handleClickContentTab}
                 />
@@ -392,13 +392,13 @@ const JobRunsPage: React.FC = () => {
         </div>
       </Content>
 
-      <JobRunsAddDrawer
+      <PurchasesAddDrawer
         open={drawerOpen}
         onClose={toggleDrawer}
-        onAddJobRun={() => {}}
+        onAddPurchase={() => {}}
       />
     </Layout>
   );
 };
 
-export default JobRunsPage;
+export default PurchasesPage;

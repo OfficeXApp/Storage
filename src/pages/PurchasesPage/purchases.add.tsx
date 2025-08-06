@@ -1,4 +1,4 @@
-// src/pages/JobRunsPage/jobruns.add.tsx
+// src/pages/PurchasesPage/purchases.add.tsx
 
 import React, { useState, useEffect } from "react";
 import {
@@ -28,12 +28,12 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  IRequestCreateJobRun,
-  JobRunStatus, // Import JobRunStatus
+  IRequestCreatePurchase,
+  PurchaseStatus, // Import PurchaseStatus
   GenerateID,
   UserID, // Assuming UserID is used for vendor_id
 } from "@officexapp/types";
-import { createJobRunAction } from "../../redux-offline/job-runs/job-runs.actions";
+import { createPurchaseAction } from "../../redux-offline/purchases/purchases.actions";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useIdentitySystem } from "../../framework/identity"; // To get current user ID
 
@@ -41,16 +41,16 @@ const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-interface JobRunsAddDrawerProps {
+interface PurchasesAddDrawerProps {
   open: boolean;
   onClose: () => void;
-  onAddJobRun: (jobRunData: IRequestCreateJobRun) => void;
+  onAddPurchase: (purchaseData: IRequestCreatePurchase) => void;
 }
 
-const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
+const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
   open,
   onClose,
-  onAddJobRun,
+  onAddPurchase,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
@@ -73,7 +73,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
       setInputValue("");
       setFormChanged(false);
       form.setFieldsValue({
-        status: JobRunStatus.REQUESTED, // Default status
+        status: PurchaseStatus.REQUESTED, // Default status
         vendor_id: currentProfile?.userID, // Prefill with current user's ID
       });
     }
@@ -103,13 +103,13 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
     setFormChanged(true);
   };
 
-  const handleAddJobRun = () => {
+  const handleAddPurchase = () => {
     form
       .validateFields()
       .then((values) => {
-        // Create job run data from form values
-        const jobRunData: IRequestCreateJobRun = {
-          id: GenerateID.JobRunID(), // Generate a new ID
+        // Create purchase data from form values
+        const purchaseData: IRequestCreatePurchase = {
+          id: GenerateID.PurchaseID(), // Generate a new ID
           template_id: values.template_id || undefined,
           title: values.title,
           vendor_name: values.vendor_name,
@@ -135,17 +135,17 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
 
         setLoading(true);
 
-        // Dispatch the create job run action
-        dispatch(createJobRunAction(jobRunData));
+        // Dispatch the create purchase action
+        dispatch(createPurchaseAction(purchaseData));
 
         message.info(
           isOnline
-            ? "Creating job run..."
-            : "Queued job run creation for when you're back online"
+            ? "Creating purchase..."
+            : "Queued purchase creation for when you're back online"
         );
 
-        // Call the parent's onAddJobRun for any additional handling
-        onAddJobRun(jobRunData);
+        // Call the parent's onAddPurchase for any additional handling
+        onAddPurchase(purchaseData);
 
         // Close the drawer
         onClose();
@@ -160,7 +160,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
 
   return (
     <Drawer
-      title="Create New Job Run"
+      title="Create New Purchase"
       placement="right"
       onClose={onClose}
       open={open}
@@ -171,13 +171,13 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
             Cancel
           </Button>
           <Button
-            onClick={handleAddJobRun}
+            onClick={handleAddPurchase}
             type="primary"
             size="large"
             loading={loading}
             disabled={!formChanged || loading} // Disable save button if no changes
           >
-            Create Job Run
+            Create Purchase
           </Button>
         </div>
       }
@@ -186,7 +186,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
         form={form}
         layout="vertical"
         initialValues={{
-          status: JobRunStatus.REQUESTED, // Default status
+          status: PurchaseStatus.REQUESTED, // Default status
           vendor_id: currentProfile?.userID, // Prefill with current user's ID
           labels: [],
           related_resources: [],
@@ -196,7 +196,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
         <Form.Item
           name="title"
           label={
-            <Tooltip title="Title of the job run">
+            <Tooltip title="Title of the purchase">
               <Space>
                 Title <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -207,7 +207,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Input
             prefix={<RocketOutlined />}
             size="large"
-            placeholder="Enter job run title"
+            placeholder="Enter purchase title"
             variant="borderless"
             style={{ backgroundColor: "#fafafa" }}
           />
@@ -216,7 +216,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
         <Form.Item
           name="status"
           label={
-            <Tooltip title="Current status of the job run">
+            <Tooltip title="Current status of the purchase">
               <Space>
                 Status <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -225,11 +225,11 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           rules={[{ required: true, message: "Please select a status" }]}
         >
           <Select
-            placeholder="Select job run status"
+            placeholder="Select purchase status"
             variant="borderless"
             style={{ backgroundColor: "#fafafa" }}
           >
-            {Object.values(JobRunStatus).map((status) => (
+            {Object.values(PurchaseStatus).map((status) => (
               <Option key={status} value={status}>
                 {status}
               </Option>
@@ -258,7 +258,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="vendor_name"
             label={
-              <Tooltip title="Name of the vendor providing this job run">
+              <Tooltip title="Name of the vendor providing this purchase">
                 <Space>
                   Vendor Name <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -277,7 +277,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="about_url"
             label={
-              <Tooltip title="URL with more information about this job run">
+              <Tooltip title="URL with more information about this purchase">
                 <Space>
                   About URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -286,7 +286,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           >
             <Input
               prefix={<LinkOutlined />}
-              placeholder="e.g., https://your-service.com/about-job"
+              placeholder="e.g., https://your-service.com/about-purchase"
               variant="borderless"
               style={{ backgroundColor: "#fafafa" }}
             />
@@ -295,7 +295,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="template_id"
             label={
-              <Tooltip title="ID of the job template this run is based on">
+              <Tooltip title="ID of the purchase template this run is based on">
                 <Space>
                   Template ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -312,7 +312,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="description"
             label={
-              <Tooltip title="Detailed description of the job run">
+              <Tooltip title="Detailed description of the purchase">
                 <Space>
                   Description <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -320,7 +320,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
             }
           >
             <TextArea
-              placeholder="Detailed description of the job run"
+              placeholder="Detailed description of the purchase"
               rows={2}
               variant="borderless"
               style={{ backgroundColor: "#fafafa" }}
@@ -330,7 +330,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="subtitle"
             label={
-              <Tooltip title="A short subtitle for the job run">
+              <Tooltip title="A short subtitle for the purchase">
                 <Space>
                   Subtitle <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -347,7 +347,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="pricing"
             label={
-              <Tooltip title="Pricing information for the job run">
+              <Tooltip title="Pricing information for the purchase">
                 <Space>
                   Pricing <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -402,7 +402,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="run_url"
             label={
-              <Tooltip title="URL to run or access the job">
+              <Tooltip title="URL to run or access the purchase">
                 <Space>
                   Run URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -411,7 +411,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           >
             <Input
               prefix={<LinkOutlined />}
-              placeholder="URL to initiate or access the job"
+              placeholder="URL to initiate or access the purchase"
               variant="borderless"
               style={{ backgroundColor: "#fafafa" }}
             />
@@ -420,7 +420,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="billing_url"
             label={
-              <Tooltip title="URL for billing details related to this job run">
+              <Tooltip title="URL for billing details related to this purchase">
                 <Space>
                   Billing URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -438,7 +438,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="support_url"
             label={
-              <Tooltip title="URL for support related to this job run">
+              <Tooltip title="URL for support related to this purchase">
                 <Space>
                   Support URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -456,7 +456,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="delivery_url"
             label={
-              <Tooltip title="URL for delivery status or output of the job">
+              <Tooltip title="URL for delivery status or output of the purchase">
                 <Space>
                   Delivery URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -474,7 +474,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="verification_url"
             label={
-              <Tooltip title="URL for verifying job completion or output">
+              <Tooltip title="URL for verifying purchase completion or output">
                 <Space>
                   Verification URL{" "}
                   <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -493,7 +493,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="auth_installation_url"
             label={
-              <Tooltip title="URL to the script or instructions for installing the job">
+              <Tooltip title="URL to the script or instructions for installing the purchase">
                 <Space>
                   Installation URL{" "}
                   <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -512,7 +512,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="related_resources"
             label={
-              <Tooltip title="IDs of resources related to this job run">
+              <Tooltip title="IDs of resources related to this purchase">
                 <Space>
                   Related Resources (IDs){" "}
                   <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -548,7 +548,7 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
           <Form.Item
             name="labels"
             label={
-              <Tooltip title="Labels to categorize this job run">
+              <Tooltip title="Labels to categorize this purchase">
                 <Space>
                   Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -627,4 +627,4 @@ const JobRunsAddDrawer: React.FC<JobRunsAddDrawerProps> = ({
   );
 };
 
-export default JobRunsAddDrawer;
+export default PurchasesAddDrawer;

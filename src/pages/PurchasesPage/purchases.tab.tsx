@@ -1,4 +1,4 @@
-// src/pages/JobRunsPage/jobruns.tab.tsx
+// src/pages/PurchasesPage/purchases.tab.tsx
 
 import React, { useEffect, useState } from "react";
 import {
@@ -42,10 +42,10 @@ import {
   GiftFilled, // For URLs
 } from "@ant-design/icons";
 import {
-  IRequestUpdateJobRun,
+  IRequestUpdatePurchase,
   SystemPermissionType,
-  JobRunID,
-  JobRunStatus, // Import JobRunStatus
+  PurchaseID,
+  PurchaseStatus, // Import PurchaseStatus
 } from "@officexapp/types";
 import {
   LOCAL_STORAGE_TOGGLE_REST_API_DOCS,
@@ -56,11 +56,11 @@ import useScreenType from "react-screentype-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
-  deleteJobRunAction,
-  getJobRunAction,
-  updateJobRunAction,
-} from "../../redux-offline/job-runs/job-runs.actions";
-import { JobRunFEO } from "../../redux-offline/job-runs/job-runs.reducer";
+  deletePurchaseAction,
+  getPurchaseAction,
+  updatePurchaseAction,
+} from "../../redux-offline/purchases/purchases.actions";
+import { PurchaseFEO } from "../../redux-offline/purchases/purchases.reducer";
 import { useNavigate } from "react-router-dom";
 import TagCopy from "../../components/TagCopy";
 
@@ -68,15 +68,15 @@ const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-// Define the props for the JobRunTab component
-interface JobRunTabProps {
-  jobRunCache: JobRunFEO;
-  onSave?: (updatedJobRun: Partial<JobRunFEO>) => void;
-  onDelete?: (jobRunID: JobRunID) => void;
+// Define the props for the PurchaseTab component
+interface PurchaseTabProps {
+  purchaseCache: PurchaseFEO;
+  onSave?: (updatedPurchase: Partial<PurchaseFEO>) => void;
+  onDelete?: (purchaseID: PurchaseID) => void;
 }
 
-const JobRunTab: React.FC<JobRunTabProps> = ({
-  jobRunCache,
+const PurchaseTab: React.FC<PurchaseTabProps> = ({
+  purchaseCache,
   onSave,
   onDelete,
 }) => {
@@ -89,10 +89,10 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
   const screenType = useScreenType();
   const navigate = useNavigate();
 
-  const jobRun =
+  const purchase =
     useSelector(
-      (state: ReduxAppState) => state.jobRuns.jobRunMap[jobRunCache.id]
-    ) || jobRunCache;
+      (state: ReduxAppState) => state.purchases.purchaseMap[purchaseCache.id]
+    ) || purchaseCache;
 
   useEffect(() => {
     const _showCodeSnippets = localStorage.getItem(
@@ -113,10 +113,12 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
   const handleSave = () => {
     form.validateFields().then((values) => {
       // Determine which fields have changed
-      const changedFields: IRequestUpdateJobRun = { id: jobRun.id as JobRunID };
+      const changedFields: IRequestUpdatePurchase = {
+        id: purchase.id as PurchaseID,
+      };
 
       // Define the specific fields we care about
-      const fieldsToCheck: (keyof IRequestUpdateJobRun)[] = [
+      const fieldsToCheck: (keyof IRequestUpdatePurchase)[] = [
         "status",
         "subtitle",
         "pricing",
@@ -139,7 +141,9 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
         if (!(field in values)) return;
 
         const valueFromForm = values[field];
-        const originalValue = jobRun[field as keyof JobRunFEO];
+
+        // @ts-ignore
+        const originalValue = purchase[field as keyof PurchaseFEO];
 
         // Special handling for array fields like labels or related_resources
         if (Array.isArray(valueFromForm) && Array.isArray(originalValue)) {
@@ -171,15 +175,15 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
         // More than just the ID
         // Dispatch the update action if we're online
         dispatch(
-          updateJobRunAction({
+          updatePurchaseAction({
             ...changedFields,
           })
         );
 
         message.success(
           isOnline
-            ? "Updating job run..."
-            : "Queued job run update for when you're back online"
+            ? "Updating purchase..."
+            : "Queued purchase update for when you're back online"
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -272,37 +276,37 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
     );
   };
 
-  if (!jobRun) return null;
+  if (!purchase) return null;
 
   const initialValues = {
-    title: jobRun.title,
-    subtitle: jobRun.subtitle || "",
-    description: jobRun.description || "",
-    vendor_name: jobRun.vendor_name,
-    vendor_id: jobRun.vendor_id,
-    status: jobRun.status,
-    pricing: jobRun.pricing || "",
-    vendor_notes: jobRun.vendor_notes || "",
-    notes: jobRun.notes || "",
-    about_url: jobRun.about_url || "",
-    billing_url: jobRun.billing_url || "",
-    support_url: jobRun.support_url || "",
-    delivery_url: jobRun.delivery_url || "",
-    verification_url: jobRun.verification_url || "",
-    auth_installation_url: jobRun.auth_installation_url || "",
-    related_resources: jobRun.related_resources || [],
-    tracer: jobRun.tracer || "",
-    labels: jobRun.labels || [],
-    external_id: jobRun.external_id || "",
-    external_payload: jobRun.external_payload || "",
+    title: purchase.title,
+    subtitle: purchase.subtitle || "",
+    description: purchase.description || "",
+    vendor_name: purchase.vendor_name,
+    vendor_id: purchase.vendor_id,
+    status: purchase.status,
+    pricing: purchase.pricing || "",
+    vendor_notes: purchase.vendor_notes || "",
+    notes: purchase.notes || "",
+    about_url: purchase.about_url || "",
+    billing_url: purchase.billing_url || "",
+    support_url: purchase.support_url || "",
+    delivery_url: purchase.delivery_url || "",
+    verification_url: purchase.verification_url || "",
+    auth_installation_url: purchase.auth_installation_url || "",
+    related_resources: purchase.related_resources || [],
+    tracer: purchase.tracer || "",
+    labels: purchase.labels || [],
+    external_id: purchase.external_id || "",
+    external_payload: purchase.external_payload || "",
   };
 
   const renderCodeSnippets = () => {
-    const jsCode_GET = `function getJobRun(id) {\n  return fetch(\`/job-runs/get/\${id}\`, {\n    method: 'GET',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n  }).then(response => response.json());\n}`;
-    const jsCode_CREATE = `function createJobRun(jobRunData) {\n  return fetch('/job-runs/create', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(jobRunData),\n  }).then(response => response.json());\n}`;
-    const jsCode_UPDATE = `function updateJobRun(jobRunData) {\n  return fetch('/job-runs/update', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(jobRunData),\n  }).then(response => response.json());\n}`;
-    const jsCode_DELETE = `function deleteJobRun(id) {\n  return fetch('/job-runs/delete', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify({ id }),\n  }).then(response => response.json());\n}`;
-    const jsCode_LIST = `function listJobRuns(params) {\n  return fetch('/job-runs/list', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(params),\n  }).then(response => response.json());\n}`;
+    const jsCode_GET = `function getPurchase(id) {\n  return fetch(\`/purchases/get/\${id}\`, {\n    method: 'GET',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n  }).then(response => response.json());\n}`;
+    const jsCode_CREATE = `function createPurchase(purchaseData) {\n  return fetch('/purchases/create', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(purchaseData),\n  }).then(response => response.json());\n}`;
+    const jsCode_UPDATE = `function updatePurchase(purchaseData) {\n  return fetch('/purchases/update', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(purchaseData),\n  }).then(response => response.json());\n}`;
+    const jsCode_DELETE = `function deletePurchase(id) {\n  return fetch('/purchases/delete', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify({ id }),\n  }).then(response => response.json());\n}`;
+    const jsCode_LIST = `function listPurchases(params) {\n  return fetch('/purchases/list', {\n    method: 'POST',\n    headers: {\n      'Content-Type': 'application/json',\n    },\n    body: JSON.stringify(params),\n  }).then(response => response.json());\n}`;
 
     return (
       <Card
@@ -319,27 +323,27 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
               <CodeBlock
                 code={jsCode_GET}
                 language="javascript"
-                title="GET Job Run"
+                title="GET Purchase"
               />
               <CodeBlock
                 code={jsCode_CREATE}
                 language="javascript"
-                title="CREATE Job Run"
+                title="CREATE Purchase"
               />
               <CodeBlock
                 code={jsCode_UPDATE}
                 language="javascript"
-                title="UPDATE Job Run"
+                title="UPDATE Purchase"
               />
               <CodeBlock
                 code={jsCode_DELETE}
                 language="javascript"
-                title="DELETE Job Run"
+                title="DELETE Purchase"
               />
               <CodeBlock
                 code={jsCode_LIST}
                 language="javascript"
-                title="LIST Job Runs"
+                title="LIST Purchases"
               />
             </Space>
           </Tabs.TabPane>
@@ -352,25 +356,25 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
   };
 
   const syncLatest = () => {
-    dispatch(getJobRunAction(jobRun.id));
+    dispatch(getPurchaseAction(purchase.id));
   };
 
-  // Function to get appropriate tag color for JobRunStatus
-  const getStatusTagColor = (status: JobRunStatus) => {
+  // Function to get appropriate tag color for PurchaseStatus
+  const getStatusTagColor = (status: PurchaseStatus) => {
     switch (status) {
-      case JobRunStatus.COMPLETED:
+      case PurchaseStatus.COMPLETED:
         return "success";
-      case JobRunStatus.RUNNING:
+      case PurchaseStatus.RUNNING:
         return "processing";
-      case JobRunStatus.FAILED:
+      case PurchaseStatus.FAILED:
         return "error";
-      case JobRunStatus.CANCELED:
-      case JobRunStatus.REFUNDED:
+      case PurchaseStatus.CANCELED:
+      case PurchaseStatus.REFUNDED:
         return "default";
-      case JobRunStatus.REQUESTED:
-      case JobRunStatus.AWAITING:
+      case PurchaseStatus.REQUESTED:
+      case PurchaseStatus.AWAITING:
         return "warning";
-      case JobRunStatus.BLOCKED:
+      case PurchaseStatus.BLOCKED:
         return "red";
       default:
         return "default";
@@ -421,7 +425,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                   size={screenType.isMobile ? "small" : "middle"}
                   ghost
                   disabled={
-                    !jobRun.permission_previews.includes(
+                    !purchase.permission_previews.includes(
                       SystemPermissionType.EDIT
                     )
                   }
@@ -431,11 +435,11 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
 
                 <Button
                   icon={<GiftFilled />}
-                  href={jobRun.delivery_url}
+                  href={purchase.delivery_url}
                   target="_blank"
                   type="primary"
                   size={screenType.isMobile ? "small" : "middle"}
-                  disabled={!jobRun.delivery_url}
+                  disabled={!purchase.delivery_url}
                 >
                   View Delivery
                 </Button>
@@ -455,14 +459,14 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item name="title" label="Title">
                   <Input
-                    placeholder="Job Run Title"
+                    placeholder="Purchase Title"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
                 <Form.Item name="subtitle" label="Subtitle">
                   <Input
-                    placeholder="Job Run Subtitle"
+                    placeholder="Purchase Subtitle"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -470,7 +474,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                 <Form.Item name="description" label="Description">
                   <TextArea
                     rows={4}
-                    placeholder="Detailed description of the job run"
+                    placeholder="Detailed description of the purchase"
                     variant="borderless"
                   />
                 </Form.Item>
@@ -480,7 +484,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   >
-                    {Object.values(JobRunStatus).map((status) => (
+                    {Object.values(PurchaseStatus).map((status) => (
                       <Option key={status} value={status}>
                         {status}
                       </Option>
@@ -506,7 +510,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                 <Form.Item name="about_url" label="About URL">
                   <Input
                     prefix={<LinkOutlined />}
-                    placeholder="URL for more info about this job"
+                    placeholder="URL for more info about this purchase"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -514,7 +518,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                 <Form.Item name="run_url" label="Run URL">
                   <Input
                     prefix={<LinkOutlined />}
-                    placeholder="URL to run or access the job"
+                    placeholder="URL to run or access the purchase"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -557,7 +561,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                 >
                   <Input
                     prefix={<LinkOutlined />}
-                    placeholder="URL to install the job script"
+                    placeholder="URL to install the purchase script"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
@@ -606,24 +610,24 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this job run?"
+                    title="Are you sure you want to delete this purchase?"
                     okText="Yes"
                     cancelText="No"
                     onConfirm={() => {
-                      dispatch(deleteJobRunAction({ id: jobRun.id }));
+                      dispatch(deletePurchaseAction({ id: purchase.id }));
                       message.success(
                         isOnline
-                          ? "Deleting job run..."
-                          : "Queued job run delete for when you're back online"
+                          ? "Deleting purchase..."
+                          : "Queued purchase delete for when you're back online"
                       );
                       if (onDelete) {
-                        onDelete(jobRun.id);
+                        onDelete(purchase.id);
                       }
                     }}
                   >
                     <Button
                       disabled={
-                        !jobRun.permission_previews.includes(
+                        !purchase.permission_previews.includes(
                           SystemPermissionType.DELETE
                         )
                       }
@@ -631,7 +635,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                       type="primary"
                       danger
                     >
-                      Delete Job Run
+                      Delete Purchase
                     </Button>
                   </Popconfirm>
                 </Form.Item>
@@ -684,14 +688,14 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                               level={3}
                               style={{ marginBottom: 0, marginRight: "12px" }}
                             >
-                              {jobRun.title}
+                              {purchase.title}
                             </Title>
-                            <TagCopy id={jobRun.id} />
-                            <Tag color={getStatusTagColor(jobRun.status)}>
-                              {jobRun.status}
+                            <TagCopy id={purchase.id} />
+                            <Tag color={getStatusTagColor(purchase.status)}>
+                              {purchase.status}
                             </Tag>
                             <div style={{ marginTop: "0px" }}>
-                              {jobRun.isLoading ? (
+                              {purchase.isLoading ? (
                                 <span>
                                   <LoadingOutlined />
                                   <i
@@ -716,7 +720,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                           </div>
                           <Space>
                             <Text type="secondary">
-                              {jobRun.subtitle || "No subtitle"}
+                              {purchase.subtitle || "No subtitle"}
                             </Text>
                           </Space>
                         </div>
@@ -736,8 +740,8 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                           flexWrap: "wrap",
                         }}
                       >
-                        {jobRun.labels &&
-                          jobRun.labels.map((label, index) => (
+                        {purchase.labels &&
+                          purchase.labels.map((label, index) => (
                             <Tag
                               key={index}
                               style={{ marginBottom: 4, marginLeft: 4 }}
@@ -753,18 +757,18 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                         marginBottom: screenType.isMobile ? 8 : 16,
                         marginTop: screenType.isMobile
                           ? 16
-                          : jobRun.labels && jobRun.labels.length > 0
+                          : purchase.labels && purchase.labels.length > 0
                             ? 0
                             : 32,
                       }}
                     >
                       <Card size="small" style={{ marginTop: 8 }}>
                         <InfoCircleOutlined style={{ marginRight: 8 }} />
-                        {jobRun.description || "No description available"}
+                        {purchase.description || "No description available"}
                       </Card>
                     </div>
 
-                    {screenType.isMobile && jobRun.labels && (
+                    {screenType.isMobile && purchase.labels && (
                       <div
                         style={{
                           marginTop: 4,
@@ -773,7 +777,7 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                           flexWrap: "wrap",
                         }}
                       >
-                        {jobRun.labels.map((label, index) => (
+                        {purchase.labels.map((label, index) => (
                           <Tag
                             key={index}
                             style={{ marginBottom: 4, marginLeft: 4 }}
@@ -812,91 +816,91 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
                           "Vendor Name",
-                          jobRun.vendor_name,
+                          purchase.vendor_name,
                           <UserOutlined />
                         )}
                         {renderReadOnlyField(
                           "Vendor ID",
-                          jobRun.vendor_id,
+                          purchase.vendor_id,
                           <UserOutlined />
                         )}
                         {renderReadOnlyField(
                           "Status",
-                          jobRun.status,
-                          <Tag color={getStatusTagColor(jobRun.status)} />
+                          purchase.status,
+                          <Tag color={getStatusTagColor(purchase.status)} />
                         )}
                         {renderReadOnlyField(
                           "Pricing",
-                          jobRun.pricing,
+                          purchase.pricing,
                           <DollarOutlined />
                         )}
-                        {jobRun.permission_previews.includes(
+                        {purchase.permission_previews.includes(
                           SystemPermissionType.EDIT
                         ) &&
                           renderReadOnlyField(
                             "Vendor Notes",
-                            jobRun.vendor_notes,
+                            purchase.vendor_notes,
                             <FileTextOutlined />
                           )}
                         {renderReadOnlyField(
                           "About URL",
-                          jobRun.about_url,
+                          purchase.about_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
                           "Billing URL",
-                          jobRun.billing_url,
+                          purchase.billing_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
                           "Support URL",
-                          jobRun.support_url,
+                          purchase.support_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
                           "Delivery URL",
-                          jobRun.delivery_url,
+                          purchase.delivery_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
                           "Verification URL",
-                          jobRun.verification_url,
+                          purchase.verification_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
                           "Installation URL",
-                          jobRun.auth_installation_url,
+                          purchase.auth_installation_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
                           "Tracer",
-                          jobRun.tracer,
+                          purchase.tracer,
                           <FileTextOutlined />
                         )}
                         {renderReadOnlyField(
                           "External ID",
-                          jobRun.external_id,
+                          purchase.external_id,
                           <FileTextOutlined />
                         )}
                         {renderReadOnlyField(
                           "External Payload",
-                          jobRun.external_payload,
+                          purchase.external_payload,
                           <FileTextOutlined />
                         )}
                         <div style={{ marginTop: "16px" }}>
                           <Space align="center">
                             <ClockCircleOutlined />
                             <Text type="secondary">
-                              Created on {formatDate(jobRun.created_at)}
+                              Created on {formatDate(purchase.created_at)}
                             </Text>
                           </Space>
-                          {jobRun.updated_at && (
+                          {purchase.updated_at && (
                             <div style={{ marginTop: 8 }}>
                               <Space align="center">
                                 <ClockCircleOutlined />
                                 <Text type="secondary">
                                   Last updated on{" "}
-                                  {formatDate(jobRun.updated_at)}
+                                  {formatDate(purchase.updated_at)}
                                 </Text>
                               </Space>
                             </div>
@@ -939,4 +943,4 @@ const JobRunTab: React.FC<JobRunTabProps> = ({
   );
 };
 
-export default JobRunTab;
+export default PurchaseTab;

@@ -48,6 +48,7 @@ const getCategoryColor = (category: SearchCategoryEnum): string => {
     [SearchCategoryEnum.DISKS]: "magenta",
     [SearchCategoryEnum.DRIVES]: "purple",
     [SearchCategoryEnum.GROUPS]: "gold",
+    [SearchCategoryEnum.PURCHASES]: "orange",
   };
   return colorMap[category] || "default";
 };

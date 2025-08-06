@@ -1,6 +1,6 @@
-# Job Runs Front
+# Purchases Front
 
-Please help me write the equivalent of the "Disks" code, for my new "Job Runs" resource. Assume the imports exists. focus on the react components and the redux-offline code.
+Please help me write the equivalent of the "Disks" code, for my new "Purchases" resource. Assume the imports exists. focus on the react components and the redux-offline code.
 
 ## Typescript Types
 
@@ -22,7 +22,7 @@ DriveID,
 ExternalID,
 ExternalPayload,
 GranteeID,
-JobRunID,
+PurchaseID,
 SystemPermissionID,
 SystemPermissionType,
 SystemRecordIDEnum,
@@ -44,7 +44,7 @@ PERMISSIONS = "PERMISSIONS",
 WEBHOOKS = "WEBHOOKS",
 LABELS = "LABELS",
 INBOX = "INBOX",
-JOB_RUNS = "JOB_RUNS",
+PURCHASES = "PURCHASES",
 }
 
 /\*_ Unique identifier for a system table resource _/
@@ -237,12 +237,12 @@ grantee_id: string;
 permissions: SystemPermissionType[];
 }
 
-export interface JobRun {
-id: JobRunID;
+export interface Purchase {
+id: PurchaseID;
 template_id?: string; // no guarnatees on this, only set on create
 vendor_name: string; // cannot be updated, only set on create
 vendor_id: UserID; // cannot be updated, only set on create
-status: JobRunStatus; // can be updated by vendor
+status: PurchaseStatus; // can be updated by vendor
 description: string; // cannot be updated, only set on create
 about_url: string; // can be updated by vendor
 run_url: string; // can be updated by vendor
@@ -265,7 +265,7 @@ tracer?: string; // can be updated by vendor
 external_id?: string; // can be updated by vendor
 external_payload?: string; // can be updated by vendor
 }
-export enum JobRunStatus {
+export enum PurchaseStatus {
 REQUESTED = "REQUESTED",
 AWAITING = "AWAITING",
 RUNNING = "RUNNING",
@@ -278,8 +278,8 @@ ARCHIVED = "ARCHIVED",
 UNKNOWN = "UNKNOWN",
 }
 
-export interface InitJobRunRequestBody {
-job_id: JobRunID;
+export interface InitPurchaseRequestBody {
+job_id: PurchaseID;
 customer_notes: string;
 payload?: string; // json string encoded object
 template_id?: string;
@@ -296,21 +296,21 @@ metadata?: string; // json string encoded object
 /\*\*
 
 Example #1
-JobRun: Buy Storage Giftcard from Amazon
+Purchase: Buy Storage Giftcard from Amazon
 
 1. Receive install request body with temp auth
 2. Create contact for vendor
-3. Create job run record
+3. Create purchase record
 4. Create disk
 5. Grant vendor permission to disk root & trash
-6. Update the job run record
-7. End the job run
+6. Update the purchase record
+7. End the purchase
 
 Example #2
-JobRun: YouTube Downloader
+Purchase: YouTube Downloader
 
 Example #3
-JobRun: Delegate Reddit Farming
+Purchase: Delegate Reddit Farming
 
 \*/
 
@@ -354,7 +354,7 @@ GiftcardRefuel = "GiftcardRefuelID*",
 InboxNotifID = "InboxNotifID*",
 FileVersionID = "FileVersionID*",
 RedeemTokenID = "RedeemTokenID*",
-JobRunID = "JobRunID\_",
+PurchaseID = "PurchaseID\_",
 }
 
 export const GenerateID = {
@@ -387,7 +387,7 @@ Label: () => `${IDPrefixEnum.LabelID}${uuidv4()}` as LabelID,
 RedeemCode: () => `${IDPrefixEnum.RedeemCode}${uuidv4()}`,
 InboxNotifID: () => `${IDPrefixEnum.InboxNotifID}${uuidv4()}`,
 FileVersionID: () => `${IDPrefixEnum.FileVersionID}${uuidv4()}`,
-JobRunID: () => `${IDPrefixEnum.JobRunID}${uuidv4()}`,
+PurchaseID: () => `${IDPrefixEnum.PurchaseID}${uuidv4()}`,
 };
 
 /\*_ Unique identifier for a file _/
@@ -455,7 +455,7 @@ export type SystemPermissionID = string;
 /\*_ ICP principal identifier _/
 export type ICPPrincipalString = string;
 
-export type JobRunID = string;
+export type PurchaseID = string;
 
 /\*_ EVM public address _/
 export type EvmPublicAddress = string;
@@ -633,11 +633,11 @@ FactoryApiKey,
 GiftcardSpawnOrg,
 GiftcardRefuel,
 ExternalIDsDriveResponseData,
-JobRunFE,
+PurchaseFE,
 } from "./core";
 import {
 DirectoryPermissionFE,
-JobRunStatus,
+PurchaseStatus,
 PermissionMetadata,
 SystemPermissionFE,
 } from "./permissions";
@@ -668,7 +668,7 @@ ApiKeyValue,
 GiftcardRefuelID,
 SystemPermissionType,
 DirectoryPermissionType,
-JobRunID,
+PurchaseID,
 } from "./primitives";
 
 /\*\*
@@ -718,33 +718,33 @@ direction?: SortDirection;
 }
 
 // =========================================================================
-// JobRuns Routes
+// Purchases Routes
 // =========================================================================
 
-/\*_ Request body for listing JobRuns. _/
-export interface IRequestListJobRuns extends IPaginationParams {}
+/\*_ Request body for listing Purchases. _/
+export interface IRequestListPurchases extends IPaginationParams {}
 
-/\*_ Response data for listing JobRuns. _/
-export interface IResponseListJobRuns
-extends ISuccessResponse<IPaginatedResponse<JobRunFE>> {}
+/\*_ Response data for listing Purchases. _/
+export interface IResponseListPurchases
+extends ISuccessResponse<IPaginatedResponse<PurchaseFE>> {}
 
-/\*_ Request body for getting a JobRun. _/
-export interface IRequestGetJobRun {
-id: JobRunID;
+/\*_ Request body for getting a Purchase. _/
+export interface IRequestGetPurchase {
+id: PurchaseID;
 }
 
-/\*_ Response data for getting a JobRun. _/
-export type IResponseGetJobRun = ISuccessResponse<JobRunFE>;
+/\*_ Response data for getting a Purchase. _/
+export type IResponseGetPurchase = ISuccessResponse<PurchaseFE>;
 
-/\*_ Request body for creating a new JobRun. _/
-export interface IRequestCreateJobRun {
-id?: JobRunID;
+/\*_ Request body for creating a new Purchase. _/
+export interface IRequestCreatePurchase {
+id?: PurchaseID;
 template_id?: string;
 title: string;
 vendor_name: string;
 vendor_id: UserID;
 about_url: string;
-status?: JobRunStatus;
+status?: PurchaseStatus;
 description?: string;
 billing_url?: string;
 support_url?: string;
@@ -762,13 +762,13 @@ external_id?: string;
 external_payload?: string;
 }
 
-/\*_ Response data for creating a JobRun. _/
-export type IResponseCreateJobRun = ISuccessResponse<JobRunFE>;
+/\*_ Response data for creating a Purchase. _/
+export type IResponseCreatePurchase = ISuccessResponse<PurchaseFE>;
 
-/\*_ Request body for updating an existing JobRun. _/
-export interface IRequestUpdateJobRun {
-id: JobRunID;
-status?: JobRunStatus;
+/\*_ Request body for updating an existing Purchase. _/
+export interface IRequestUpdatePurchase {
+id: PurchaseID;
+status?: PurchaseStatus;
 billing_url?: string;
 support_url?: string;
 delivery_url?: string;
@@ -784,17 +784,17 @@ external_id?: string;
 external_payload?: string;
 }
 
-/\*_ Response data for updating a JobRun. _/
-export type IResponseUpdateJobRun = ISuccessResponse<JobRunFE>;
+/\*_ Response data for updating a Purchase. _/
+export type IResponseUpdatePurchase = ISuccessResponse<PurchaseFE>;
 
-/\*_ Request body for deleting a JobRun. _/
-export interface IRequestDeleteJobRun {
-id: JobRunID;
+/\*_ Request body for deleting a Purchase. _/
+export interface IRequestDeletePurchase {
+id: PurchaseID;
 }
 
-/\*_ Response data after deleting a JobRun. _/
-export type IResponseDeleteJobRun = ISuccessResponse<{
-id: JobRunID;
+/\*_ Response data after deleting a Purchase. _/
+export type IResponseDeletePurchase = ISuccessResponse<{
+id: PurchaseID;
 deleted: boolean;
 }>;
 
@@ -2343,7 +2343,7 @@ export type AboutDriveResponse = ISuccessResponse<AboutDriveResponseData>;
 - Derived from OpenAPI v3.0.3 specification
   \*/
 
-import { JobRun } from "../main";
+import { Purchase } from "../main";
 import {
 ApiKeyID,
 ApiKeyValue,
@@ -2793,7 +2793,7 @@ export interface ExternalIDsDriveResponseData {
 results: ExternalIDvsInternalIDMap[];
 }
 
-export interface JobRunFE extends JobRun {
+export interface PurchaseFE extends Purchase {
 permission_previews: SystemPermissionType[];
 }
 

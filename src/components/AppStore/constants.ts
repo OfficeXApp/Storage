@@ -800,7 +800,7 @@ export const appstore_apps: ServiceWithOffersFromVendors[] = [
   //   id: "sproutgigs",
   //   name: "SproutGigs",
   //   subheading:
-  //     "Earn money by completing micro-jobs like social media engagement.",
+  //     "Earn money by completing micro-purchases like social media engagement.",
   //   coverImage:
   //     "https://prabumulihpos.bacakoran.co/upload/02dbaa6f8e781dc7585fb835dccf2abb.jpg", // Placeholder for a microtask-related image
   //   isFeatured: Math.random() > 0.5,
@@ -904,7 +904,7 @@ export const appstore_apps: ServiceWithOffersFromVendors[] = [
   //         <ul>
   //           <li><strong>Targeted Lead Extraction:</strong> Identify and extract professional profiles based on industry, role, location, and seniority.</li>
   //           <li><strong>Company Data Enrichment:</strong> Gather public company information including size, industry, location, and key employees.</li>
-  //           <li><strong>Job Posting Data:</strong> Extract data from job postings for talent market analysis.</li>
+  //           <li><strong>Purchase Posting Data:</strong> Extract data from purchase postings for talent market analysis.</li>
   //           <li><strong>Network Mapping:</strong> Visualize connections and influence within specific professional networks (optional add-on).</li>
   //           <li><strong>CSV Export for OfficeX:</strong> Receive clean, structured CSVs ready for CRM import or analysis in OfficeX Sheets.</li>
   //         </ul>
@@ -4058,7 +4058,7 @@ export const appstore_apps: ServiceWithOffersFromVendors[] = [
 //   {
 //     id: "8d",
 //     name: "Upwork",
-//     subheading: "Find freelance jobs and connect with top talent.",
+//     subheading: "Find freelance purchases and connect with top talent.",
 //     coverImage:
 //       "https://images.g2crowd.com/uploads/product/image/social_share/social_share_97e42d7637841c73c8868c2ee03e7e22/upwork.png", // Placeholder, find actual
 //     isFeatured: false,

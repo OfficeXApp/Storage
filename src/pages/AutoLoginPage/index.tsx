@@ -102,7 +102,7 @@ const AutoLoginPage = () => {
         driveID: data.org_id,
         nickname: data.org_name || "Recovered Organization",
         icpPublicAddress: data.org_id.replace("DriveID_", ""), // Use profile_id as ICP address
-        endpoint: data.org_endpoint,
+        host: data.org_host,
         note: `Recovered organization for ${data.profile_name || "user"}`,
         defaultProfile: newProfile.userID,
       });
@@ -119,9 +119,9 @@ const AutoLoginPage = () => {
         apiKeyID: `ApiKey_${uuidv4()}`,
         userID: newProfile.userID,
         driveID: data.org_id,
-        note: `Auto-generated during auto-login for ${data.profile_name || "user"} (${data.org_endpoint})`,
+        note: `Auto-generated during auto-login for ${data.profile_name || "user"} (${data.org_host})`,
         value: data.profile_api_key,
-        endpoint: data.org_endpoint,
+        host: data.org_host,
       });
       message.success("Redirecting... please wait");
 
@@ -235,7 +235,7 @@ const AutoLoginPage = () => {
                         fontFamily: "monospace",
                       }}
                     >
-                      {autoLoginData.org_endpoint}
+                      {autoLoginData.org_host}
                     </td>
                   </tr>
 

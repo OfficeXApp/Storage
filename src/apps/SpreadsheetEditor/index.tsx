@@ -534,7 +534,7 @@ const SpreadsheetEditor = () => {
 
       if (!file || !fileType) return;
 
-      // if (!currentOrg?.endpoint) {
+      // if (!currentOrg?.host) {
       //   setFileUrl(file.raw_url || "");
       //   setIsLoading(false);
       //   return;
@@ -543,7 +543,7 @@ const SpreadsheetEditor = () => {
       // // Check if file is fully uploaded
       // if (
       //   file.upload_status !== "COMPLETED" &&
-      //   currentOrg?.endpoint &&
+      //   currentOrg?.host &&
       //   !offlineDisk
       // ) {
       //   setIsLoading(false);
@@ -639,7 +639,7 @@ const SpreadsheetEditor = () => {
     try {
       // 1. Fetch metadata
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/directory/raw_download/meta?file_id=${fileId}`,
+        `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}/directory/raw_download/meta?file_id=${fileId}`,
         {
           "Content-Type": "application/json",
         },
@@ -663,7 +663,7 @@ const SpreadsheetEditor = () => {
 
       for (let i = 0; i < total_chunks; i++) {
         const { url, headers } = wrapAuthStringOrHeader(
-          `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
+          `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
           {
             "Content-Type": "application/json",
           },
@@ -733,7 +733,7 @@ const SpreadsheetEditor = () => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
-    if (currentOrg?.endpoint && url?.includes(currentOrg.endpoint)) {
+    if (currentOrg?.host && url?.includes(currentOrg.host)) {
       if (url.includes("?")) {
         return `${url}&auth=${auth_token}`;
       } else {

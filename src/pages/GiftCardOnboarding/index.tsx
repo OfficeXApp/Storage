@@ -357,11 +357,11 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       message.info("Promoting you to Admin...");
       await sleep(5000);
 
-      const { drive_id, endpoint, redeem_code, disk_auth_json } =
+      const { drive_id, host, redeem_code, disk_auth_json } =
         redeemData.ok.data;
 
       // Complete the organization setup
-      const completeRedeemUrl = `${endpoint}/v1/drive/${drive_id}/organization/redeem`;
+      const completeRedeemUrl = `${host}/v1/drive/${drive_id}/organization/redeem`;
       const completeRedeemResponse = await fetch(completeRedeemUrl, {
         method: "POST",
         headers: {
@@ -420,7 +420,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
         driveID: driveID,
         nickname: orgName,
         icpPublicAddress: driveID.replace("DriveID_", ""),
-        endpoint: adminEndpoint,
+        host: adminEndpoint,
         note: `Organization created with gift card ${giftCardID}`,
         defaultProfile: currentProfile.userID,
       });
@@ -432,7 +432,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
         driveID: driveID,
         note: `Auto-generated from gift card for ${orgName} (${adminEndpoint})`,
         value: password,
-        endpoint: adminEndpoint,
+        host: adminEndpoint,
       });
 
       // Switch to this organization with the profile

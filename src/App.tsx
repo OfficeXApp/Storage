@@ -72,7 +72,7 @@ function App() {
     const incrementalFetchData = async () => {
       if (currentProfile && currentOrg) {
         let bufferTime = 0;
-        if (currentOrg.endpoint) {
+        if (currentOrg.host) {
           bufferTime = 1000;
           if (window.location.pathname.includes("/drive")) {
             bufferTime = 2000;
@@ -80,7 +80,7 @@ function App() {
         }
 
         dispatch(listDisksAction({}));
-        if (!currentOrg.endpoint.includes("icp0.io")) {
+        if (!currentOrg.host.includes("icp0.io")) {
           await sleep(bufferTime);
           dispatch(listContactsAction({}));
           await sleep(bufferTime);
@@ -113,7 +113,7 @@ function App() {
       }
     };
     incrementalFetchData();
-  }, [currentOrg?.endpoint, currentProfile?.userID]);
+  }, [currentOrg?.host, currentProfile?.userID]);
 
   useEffect(() => {
     setupAnalytics();

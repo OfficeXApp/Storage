@@ -55,15 +55,15 @@ export class CanisterAdapter implements IUploadAdapter {
    * Initialize the Canister adapter
    */
   public async initialize(config: CanisterAdapterConfig): Promise<void> {
-    if (!config.endpoint) {
-      throw new Error("Canister endpoint is required");
+    if (!config.host) {
+      throw new Error("Canister host is required");
     }
 
     if (!config.apiKey) {
       throw new Error("Canister API key is required");
     }
 
-    this.baseUrl = config.endpoint;
+    this.baseUrl = config.host;
     this.apiKey = config.apiKey;
     this.diskID = config.diskID;
     this.generateSignature = config.generateSignature;
@@ -72,7 +72,7 @@ export class CanisterAdapter implements IUploadAdapter {
       this.maxChunkSize = config.maxChunkSize;
     }
 
-    // console.log(`Initialized Canister adapter with endpoint: ${this.baseUrl}`);
+    // console.log(`Initialized Canister adapter with host: ${this.baseUrl}`);
   }
 
   /**

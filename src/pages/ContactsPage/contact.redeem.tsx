@@ -195,7 +195,7 @@ const ContactRedeem = () => {
       };
       const auth_token = currentAPIKey?.value || (await generateSignature());
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/contacts/redeem`,
+        `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}/contacts/redeem`,
         {
           "Content-Type": "application/json",
         },
@@ -210,7 +210,7 @@ const ContactRedeem = () => {
 
       const redeem_data: IResponseRedeemContact = await redeem_response.json();
       const { url: url2, headers: headers2 } = wrapAuthStringOrHeader(
-        `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/whoami`,
+        `${currentOrg.host}/v1/drive/${currentOrg.driveID}/organization/whoami`,
         {},
         redeem_data.ok.data.api_key
       );
@@ -235,7 +235,7 @@ const ContactRedeem = () => {
         driveID: currentOrg?.driveID || "",
         note: `API Key for ${orgName}`,
         value: redeem_data.ok.data.api_key,
-        endpoint: currentOrg?.endpoint || "",
+        host: currentOrg?.host || "",
       };
       await createApiKey(apiKey);
 
@@ -243,7 +243,7 @@ const ContactRedeem = () => {
         driveID: currentOrg?.driveID || "",
         nickname: orgName,
         icpPublicAddress: currentOrg?.icpPublicAddress || "",
-        endpoint: currentOrg?.endpoint || "",
+        host: currentOrg?.host || "",
         note: `Organization owned by ${orgName}`,
         defaultProfile: selectedProfile.userID,
       };
@@ -282,7 +282,7 @@ const ContactRedeem = () => {
     }
     console.log("Processing auto login contact", data);
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/whoami`,
+      `${currentOrg.host}/v1/drive/${currentOrg.driveID}/organization/whoami`,
       {},
       data.api_key
     );
@@ -314,7 +314,7 @@ const ContactRedeem = () => {
       driveID: currentOrg?.driveID || "",
       nickname: orgName,
       icpPublicAddress: currentOrg?.icpPublicAddress || "",
-      endpoint: currentOrg?.endpoint || "",
+      host: currentOrg?.host || "",
       note: `Organization owned by ${orgName}`,
       defaultProfile: data.profile_id,
     };
@@ -325,7 +325,7 @@ const ContactRedeem = () => {
       driveID: currentOrg?.driveID || "",
       note: `API Key for ${orgName}`,
       value: data.api_key,
-      endpoint: currentOrg?.endpoint || "",
+      host: currentOrg?.host || "",
     };
     await createApiKey(apiKey);
     await switchOrganization(org);
@@ -350,7 +350,7 @@ const ContactRedeem = () => {
     }
     const auth_token = data.api_key || (await generateSignature());
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/whoami`,
+      `${currentOrg.host}/v1/drive/${currentOrg.driveID}/organization/whoami`,
       {},
       auth_token
     );
@@ -382,7 +382,7 @@ const ContactRedeem = () => {
       driveID: currentOrg?.driveID || "",
       nickname: orgName,
       icpPublicAddress: currentOrg?.icpPublicAddress || "",
-      endpoint: currentOrg?.endpoint || "",
+      host: currentOrg?.host || "",
       note: `Organization owned by ${orgName}`,
       defaultProfile: data.profile_id,
     };
@@ -394,7 +394,7 @@ const ContactRedeem = () => {
         driveID: currentOrg?.driveID || "",
         note: `API Key for ${orgName}`,
         value: data.api_key,
-        endpoint: currentOrg?.endpoint || "",
+        host: currentOrg?.host || "",
       };
       await createApiKey(apiKey);
     }

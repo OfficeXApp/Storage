@@ -135,7 +135,7 @@ const OrganizationSwitcher = () => {
       ) as IndexDB_Organization;
       if (org) {
         setEditOrgNickname(org.nickname || "");
-        setEditOrgEndpoint(org.endpoint || "");
+        setEditOrgEndpoint(org.host || "");
         setEditOrgNote(org.note || "");
         setHasChanges(false); // Reset changes flag when loading org details
 
@@ -167,7 +167,7 @@ const OrganizationSwitcher = () => {
       if (org) {
         setHasChanges(
           editOrgNickname !== org.nickname ||
-            editOrgEndpoint !== org.endpoint ||
+            editOrgEndpoint !== org.host ||
             editOrgNote !== org.note
         );
       }
@@ -561,12 +561,12 @@ const OrganizationSwitcher = () => {
       return;
     }
 
-    // Extract driveID, password and endpoint
+    // Extract driveID, password and host
     const driveID = importApiKey.substring(0, colonIndex).trim();
     const password = importApiKey
       .substring(colonIndex + 1, atSymbolIndex)
       .trim();
-    let endpoint = importApiKey.substring(atSymbolIndex + 1).trim();
+    let host = importApiKey.substring(atSymbolIndex + 1).trim();
 
     // Validate driveID
     if (!driveID.startsWith("DriveID_")) {
@@ -577,8 +577,8 @@ const OrganizationSwitcher = () => {
     }
 
     // Remove trailing slash if present in endpoint
-    if (endpoint.endsWith("/")) {
-      endpoint = endpoint.slice(0, -1);
+    if (host.endsWith("/")) {
+      host = host.slice(0, -1);
     }
 
     try {
@@ -620,7 +620,7 @@ const OrganizationSwitcher = () => {
         driveID: importApiPreviewData.driveID as DriveID,
         nickname: orgNickToUse,
         icpPublicAddress: importApiPreviewData.driveID.replace("DriveID_", ""),
-        endpoint: endpoint,
+        host,
         note: `Organization imported via API for user ${profileNickToUse}`,
         defaultProfile: profileToUse.userID,
       });
@@ -630,9 +630,9 @@ const OrganizationSwitcher = () => {
         apiKeyID: `ApiKey_${uuidv4()}`,
         userID: profileToUse.userID,
         driveID: driveID,
-        note: `Auto-generated for ${orgNickToUse} (${endpoint})`,
+        note: `Auto-generated for ${orgNickToUse} (${host})`,
         value: password,
-        endpoint,
+        host,
       });
 
       // Switch to this organization with the profile
@@ -794,11 +794,11 @@ const OrganizationSwitcher = () => {
 
           console.log(`redeem data spawn org`, redeemData.ok.data);
 
-          const { drive_id, endpoint, redeem_code, disk_auth_json } =
+          const { drive_id, host, redeem_code, disk_auth_json } =
             redeemData.ok.data;
 
           // Step 2: Make the second POST request to complete the organization setup
-          const completeRedeemUrl = `${endpoint}/v1/drive/${drive_id}/organization/redeem`;
+          const completeRedeemUrl = `${host}/v1/drive/${drive_id}/organization/redeem`;
           const completeRedeemResponse = await fetch(completeRedeemUrl, {
             method: "POST",
             headers: {
@@ -867,7 +867,7 @@ const OrganizationSwitcher = () => {
             driveID: driveID as DriveID,
             nickname: orgNickToUse,
             icpPublicAddress: driveID.replace("DriveID_", ""),
-            endpoint: adminEndpoint,
+            host: adminEndpoint,
             note: `Organization created with gift card ${giftCardValue}`,
             defaultProfile: profile.userID,
           });
@@ -879,7 +879,7 @@ const OrganizationSwitcher = () => {
             driveID: driveID,
             note: `Auto-generated from gift card for ${orgNickToUse} (${adminEndpoint})`,
             value: password,
-            endpoint: adminEndpoint,
+            host: adminEndpoint,
           });
 
           // Switch to this organization with the profile
@@ -950,7 +950,7 @@ const OrganizationSwitcher = () => {
           driveID: newDriveID as DriveID,
           nickname: newOrgNickname,
           icpPublicAddress: tempProfile.icpPublicAddress,
-          endpoint: "",
+          host: "",
           note: `Created on ${new Date().toLocaleDateString()}`,
           defaultProfile: selectedProfileId, // Use the selectedProfileId
         });
@@ -981,7 +981,7 @@ const OrganizationSwitcher = () => {
       // Validate endpoint URL if it has changed
       if (
         editOrgEndpoint &&
-        editOrgEndpoint !== org.endpoint &&
+        editOrgEndpoint !== org.host &&
         !isValidUrl(editOrgEndpoint)
       ) {
         message.error("Please enter a valid URL for the endpoint");
@@ -991,12 +991,12 @@ const OrganizationSwitcher = () => {
       if (org) {
         const normalizedEndpoint = editOrgEndpoint
           ? normalizeUrl(editOrgEndpoint)
-          : org.endpoint;
+          : org.host;
 
         const updatedOrg = {
           ...org,
           nickname: editOrgNickname || org.nickname,
-          endpoint: normalizedEndpoint,
+          host: normalizedEndpoint,
           note: editOrgNote,
         };
 
@@ -1061,7 +1061,7 @@ const OrganizationSwitcher = () => {
     }
   };
 
-  const renderPreviewSection = (endpoint: string) => {
+  const renderPreviewSection = (host: string) => {
     return (
       <details style={{ marginBottom: "12px", marginTop: "8px" }}>
         <summary
@@ -1162,7 +1162,7 @@ const OrganizationSwitcher = () => {
               onClick={() => {
                 navigator.clipboard
                   .writeText(
-                    `DriveID_${typedCurrentOrg.icpPublicAddress}@${typedCurrentOrg.endpoint}`
+                    `DriveID_${typedCurrentOrg.icpPublicAddress}@${typedCurrentOrg.host}`
                   )
                   .then(() => {
                     message.success("Copied to clipboard!");

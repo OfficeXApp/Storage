@@ -57,9 +57,9 @@ interface EphemeralConfig {
 
 interface InjectedConfig {
   host: string;
-  org_id: DriveID;
+  drive_id: DriveID;
   org_name?: string;
-  profile_id: UserID;
+  user_id: UserID;
   profile_name?: string;
   api_key_value?: ApiKeyValue; // only provide apiKey if you are subsidizing for users
   redirect_to?: string; // optional, default is the drive path
@@ -81,17 +81,17 @@ interface CurrentConnection {
 // About Child IFrame Instance response type
 interface AboutChildIFrameInstanceResponse {
   organization_name: string;
-  organization_id: string;
-  profile_id: string;
+  drive_id: string;
+  user_id: string;
   profile_name: string;
-  endpoint?: string;
+  host?: string;
   frontend_domain?: string;
 }
 
 interface AuthTokenIFrameResponse {
-  organization_id: string;
-  profile_id: string;
-  endpoint?: string;
+  drive_id: string;
+  user_id: string;
+  host?: string;
   auth_token: string;
 }
 
@@ -282,11 +282,11 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         const response: AboutChildIFrameInstanceResponse = {
           organization_name:
             currentOrg.nickname || `Org ${currentConnection?.domain}`,
-          organization_id: currentOrg.driveID,
-          profile_id: currentProfile.userID,
+          drive_id: currentOrg.driveID,
+          user_id: currentProfile.userID,
           profile_name:
             currentProfile.nickname || `Profile ${currentConnection?.domain}`,
-          endpoint: currentOrg.endpoint || undefined,
+          host: currentOrg.host || undefined,
           frontend_domain: `${window.location.origin}`,
         };
 
@@ -352,9 +352,9 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
       }
 
       const response: AuthTokenIFrameResponse = {
-        organization_id: currentOrg.driveID,
-        profile_id: currentProfile.userID,
-        endpoint: currentOrg.endpoint || undefined,
+        drive_id: currentOrg.driveID,
+        user_id: currentProfile.userID,
+        host: currentOrg.host || undefined,
         auth_token: auth_token,
       };
 
@@ -414,7 +414,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
             driveID: orgDriveID,
             nickname: `${domain} | ${ephemeralConfig.org_name}`,
             icpPublicAddress: orgIdentityProfile.icpPublicAddress,
-            endpoint: "",
+            host: "",
             note: `Created via iframe from ${domain}`,
             defaultProfile: "",
           });
@@ -493,25 +493,25 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         const domain = extractDomainFromOrigin(origin);
         const {
           host,
-          org_id,
+          drive_id,
           org_name,
-          profile_id,
+          user_id,
           profile_name,
           api_key_value, // only provide apiKey if you are subsidizing for users
           redirect_to, // optional, default is the drive path
         } = injectedConfig;
 
-        // check if injectedConfig.profile_id & injectedConfig.org_id already exist in indexdb, switch to it if found
+        // check if injectedConfig.user_id & injectedConfig.drive_id already exist in indexdb, switch to it if found
 
-        let targetOrg = await readOrganization(org_id);
+        let targetOrg = await readOrganization(drive_id);
 
         if (!targetOrg) {
           console.log("No existing organization found, creating new one...");
           targetOrg = await createOrganization({
-            driveID: org_id,
+            driveID: drive_id,
             nickname: `${domain} | ${org_name || "Org"}`,
-            icpPublicAddress: org_id.replace("DriveID_", ""),
-            endpoint: host,
+            icpPublicAddress: drive_id.replace("DriveID_", ""),
+            host: host,
             note: `Created via iframe from ${domain}`,
             defaultProfile: "",
           });
@@ -519,7 +519,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         }
 
         // 3. Check for existing Profile, or create if it doesn't exist.
-        let targetProfile = await readProfile(profile_id);
+        let targetProfile = await readProfile(user_id);
 
         if (!targetProfile) {
           console.log("No existing profile found, creating new one...");
@@ -536,9 +536,9 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
             return;
           }
           const newProfile = {
-            userID: profile_id,
+            userID: user_id,
             nickname: `${domain} | ${profile_name || "Profile"}`,
-            icpPublicAddress: profile_id.replace("UserID_", ""),
+            icpPublicAddress: user_id.replace("UserID_", ""),
             evmPublicAddress: "",
             seedPhrase: "",
             note: `Created via iframe from ${domain}`,
@@ -548,11 +548,11 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           // use injectedConfig.api_key_value to create a new org and profile
           await createApiKey({
             apiKeyID: `ApiKey_${uuidv4()}`,
-            userID: profile_id,
-            driveID: org_id,
+            userID: user_id,
+            driveID: drive_id,
             note: `Created via iframe from ${domain}`,
             value: api_key_value,
-            endpoint: host,
+            host: host,
           });
           message.success(`New profile for ${domain} created.`);
         }
@@ -587,6 +587,10 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         if (redirect_to) {
           navigate(redirect_to);
         }
+
+        // await 500ms and refresh page
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        window.location.reload();
       } catch (error) {
         console.error("Injected init failed:", error);
         sendMessageToParent(

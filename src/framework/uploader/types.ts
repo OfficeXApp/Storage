@@ -161,7 +161,7 @@ export interface LocalS3AdapterConfig {
 // Canister specific config
 export interface CanisterAdapterConfig {
   diskID: DiskID;
-  endpoint: string;
+  host: string;
   maxChunkSize?: number;
   apiKey: string;
   generateSignature?: () => Promise<string>;

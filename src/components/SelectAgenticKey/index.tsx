@@ -189,9 +189,9 @@ const SelectAgenticKey: React.FC = () => {
         try {
           const url = new URL(decodeURIComponent(redirectUrl));
           url.searchParams.set("api_key_value", selectedKey.value);
-          url.searchParams.set("profile_id", selectedKey.user_id);
-          url.searchParams.set("org_id", currentOrg?.driveID || "");
-          url.searchParams.set("endpoint", currentOrg?.endpoint || "");
+          url.searchParams.set("user_id", selectedKey.user_id);
+          url.searchParams.set("drive_id", currentOrg?.driveID || "");
+          url.searchParams.set("host", currentOrg?.host || "");
           url.searchParams.set("tracer", tracer || "");
           window.location.href = url.toString();
         } catch (error) {
@@ -285,7 +285,7 @@ const SelectAgenticKey: React.FC = () => {
       });
   };
 
-  if (currentOrg && !currentOrg.endpoint) {
+  if (currentOrg && !currentOrg.host) {
     return (
       <Layout
         style={{
@@ -393,7 +393,7 @@ const SelectAgenticKey: React.FC = () => {
               >
                 {appName}
               </Tag>{" "}
-              to connect with your profile
+              to connect with {currentOrg?.nickname}
             </div>
 
             <Paragraph
@@ -455,7 +455,7 @@ const SelectAgenticKey: React.FC = () => {
                     color: "#262626",
                   }}
                 >
-                  Select an existing API key
+                  {currentProfile?.nickname}
                 </Title>
 
                 <Space direction="vertical" size={12} style={{ width: "100%" }}>

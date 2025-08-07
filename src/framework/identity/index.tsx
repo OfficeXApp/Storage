@@ -50,7 +50,7 @@ export interface IndexDB_Organization {
   driveID: string;
   nickname: string;
   icpPublicAddress: string;
-  endpoint: string;
+  host: string;
   note: string;
   defaultProfile: string; // the userID string of a IndexDB_Profile
 }
@@ -71,14 +71,14 @@ export interface IndexDB_ApiKey {
   driveID: string;
   note: string;
   value: string;
-  endpoint: string;
+  host: string;
 }
 
 export interface IndexDB_AgenticKeyGrant {
   agenticKeyGrantID: string;
   profileID: UserID;
   driveID: DriveID;
-  endpoint: string;
+  host: string;
   note: string;
   apiKeyID: string;
   apiKeyValue: string;
@@ -116,14 +116,14 @@ interface IdentitySystemContextType {
     driveID,
     nickname,
     icpPublicAddress,
-    endpoint,
+    host,
     note,
     defaultProfile,
   }: {
     driveID: DriveID;
     nickname: string;
     icpPublicAddress: string;
-    endpoint: string;
+    host: string;
     note: string;
     defaultProfile: string;
   }) => Promise<IndexDB_Organization>;
@@ -205,7 +205,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   );
   const currentProfileRef = useRef(currentProfile);
   const currentOrgRef = useRef(currentOrg);
-  const isOfflineOrg = currentOrg?.endpoint === "";
+  const isOfflineOrg = currentOrg?.host === "";
   const [listOfOrgs, setListOfOrgs] = useState<IndexDB_Organization[]>([]);
   const [listOfProfiles, setListOfProfiles] = useState<IndexDB_Profile[]>([]);
   const [listOfAPIKeys, setListOfAPIKeys] = useState<IndexDB_ApiKey[]>([]);
@@ -321,7 +321,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
                 driveID: newDriveID,
                 nickname: "Anonymous Org",
                 icpPublicAddress: tempProfile.icpPublicAddress,
-                endpoint: "",
+                host: "",
                 note: "",
               });
               setCurrentOrg(newOrg);
@@ -797,13 +797,13 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       driveID,
       nickname,
       icpPublicAddress,
-      endpoint,
+      host,
       note,
     }: {
       driveID: DriveID;
       nickname: string;
       icpPublicAddress: string;
-      endpoint: string;
+      host: string;
       note: string;
     }) => {
       if (!db.current) {
@@ -815,7 +815,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
           driveID,
           nickname,
           icpPublicAddress,
-          endpoint,
+          host,
           note,
           defaultProfile: "",
         };
@@ -962,7 +962,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         const routeSuffix = match[2] || "";
 
         // Generate new org code
-        const btoaEndpoint = urlSafeBase64Encode(org.endpoint || "");
+        const btoaEndpoint = urlSafeBase64Encode(org.host || "");
         const newOrgCode = `${org.driveID}__${btoaEndpoint}`;
 
         console.log(
@@ -1103,19 +1103,19 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       return;
     }
     const [driveID, endpointBtoa] = orgcode.split("__");
-    const endpoint = urlSafeBase64Decode(endpointBtoa);
-    console.log(`enterByOrgCode: ${driveID}`, endpoint);
+    const host = urlSafeBase64Decode(endpointBtoa);
+    console.log(`enterByOrgCode: ${driveID}`, host);
     if (!driveID) {
       console.error("Invalid orgcode");
       setIsInitialized(true);
       return;
     }
     console.log(`driveID: ${driveID}`, listOfOrgs);
-    console.log(`endpoint: ${endpoint}`);
+    console.log(`host: ${host}`);
     const org = listOfOrgsRef.current?.find((org) => org.driveID === driveID);
     console.log(`>> org: ${org}`, org);
-    if (!org && (!endpoint || endpoint === "undefined")) {
-      console.log(`Skipping offline anon org`, org, endpoint);
+    if (!org && (!host || host === "undefined")) {
+      console.log(`Skipping offline anon org`, org, host);
       setIsInitialized(true);
       return;
     }
@@ -1134,7 +1134,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         driveID,
         nickname: `Unknown Shared Org`,
         icpPublicAddress: driveID.replace("DriveID_", ""),
-        endpoint,
+        host,
         note: "",
       });
       await switchOrganization(newOrg);
@@ -1160,7 +1160,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   };
 
   const wrapOrgCode = (route: string) => {
-    const btoaEndpoint = urlSafeBase64Encode(currentOrg?.endpoint || "");
+    const btoaEndpoint = urlSafeBase64Encode(currentOrg?.host || "");
     const orgcode = `${currentOrg?.driveID}__${btoaEndpoint}`;
 
     return `/org/${orgcode}${route}`;

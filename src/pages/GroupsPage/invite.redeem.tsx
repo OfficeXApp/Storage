@@ -138,7 +138,7 @@ const RedeemGroupInvite = () => {
 
     // Call the API to redeem the group invite
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/groups/invites/redeem`,
+      `${currentOrg.host}/v1/drive/${currentOrg.driveID}/groups/invites/redeem`,
       {
         "Content-Type": "application/json",
       },

@@ -908,7 +908,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                   driveID: importApiPreviewData.driveID,
                   nickname: importApiOrgNickname || "Imported Organization",
                   icpPublicAddress: importApiPreviewData.icpAddress,
-                  endpoint: endpoint,
+                  host: endpoint,
                   note: `Organization imported via API for user ${nickToUse}`,
                   defaultProfile: newProfile.userID,
                 });
@@ -921,7 +921,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                   driveID: driveID,
                   note: `Auto-generated for ${nickToUse} (${endpoint})`,
                   value: password,
-                  endpoint,
+                  host: endpoint,
                 });
 
                 message.success(`Successfully logged in as ${nickToUse}`);

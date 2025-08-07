@@ -148,7 +148,7 @@ const RedeemDirectoryPermitPage = () => {
 
     // Call the API to redeem the directory permission
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/permissions/directory/redeem`,
+      `${currentOrg.host}/v1/drive/${currentOrg.driveID}/permissions/directory/redeem`,
       {
         "Content-Type": "application/json",
       },

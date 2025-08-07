@@ -99,7 +99,7 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
           name: values.name,
           public_note: values.publicNote || "",
           private_note: values.privateNote || "",
-          endpoint_url: values.endpointUrl || undefined,
+          host_url: values.endpointUrl || undefined,
           external_id: values.externalId || undefined,
           external_payload: values.externalPayload || undefined,
         };

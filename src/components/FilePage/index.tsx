@@ -46,6 +46,8 @@ import {
   wrapAuthStringOrHeader,
 } from "../../api/helpers";
 import {
+  GET_FILE,
+  getFileAction,
   UPDATE_FILE,
   updateFileAction,
 } from "../../redux-offline/directory/directory.actions";
@@ -94,7 +96,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   const [fileContentError, setFileContentError] = useState<string>("");
 
-  console.log(`file,`, file);
+  console.log(`--- file,`, file);
   console.log(`--- fileUrl loading=${isLoading}`, fileUrl);
 
   const objectStoreNameRef = useRef<string>("files");
@@ -494,6 +496,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       } else {
         console.error("Error fetching presigned URL:", response.status);
         setFileContentError(`HTTP error: ${response.status}`);
+
         throw new Error(`HTTP error: ${response.status}`);
       }
     } catch (error) {
@@ -691,6 +694,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         loading={false}
         fetchResource={() => {
           if (!file.id) return;
+          // refresh page
           window.location.reload();
         }}
       />

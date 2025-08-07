@@ -273,9 +273,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     if (rowGrid) {
       setViewRowTile(rowGrid === "grid" ? "grid" : "row");
     }
-  }, []);
 
-  useEffect(() => {
     const updateFreshSignature = async () => {
       const signature = await generateSignature();
       setFreshGeneratedSignature(signature);
@@ -428,8 +426,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   useEffect(() => {
     if (currentFileId && !getFileResult) {
       setIs404NotFound(true);
-
       setSingleFile(null);
+      setTimeout(() => {
+        const getAction = {
+          action: GET_FILE as "GET_FILE",
+          payload: {
+            id: currentFileId,
+          },
+        };
+        dispatch(getFileAction(getAction, false));
+      }, 1000);
     } else if (currentFileId && getFileResult) {
       setIs404NotFound(false);
 
@@ -1486,6 +1492,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
+    console.log(`ze first`);
     return (
       <DirectoryGuard
         resourceID={"currentFolderId"}
@@ -1500,6 +1507,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   console.log(`getFileResult`, getFileResult);
   console.log(`isOfflineDisk`, isOfflineDisk);
   if (!isOfflineDisk && currentFileId && !getFileResult) {
+    console.log(`ze second`);
     return (
       <DirectoryGuard
         resourceID={currentFileId}

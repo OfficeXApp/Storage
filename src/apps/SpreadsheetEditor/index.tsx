@@ -169,6 +169,15 @@ const SpreadsheetEditor = () => {
       file.name.replace(".officex-spreadsheet", "") || "Untitled Spreadsheet";
     setCurrentFileName(defaultName);
     currentFileNameRef.current = defaultName;
+
+    console.log(`=+=+>>> fileFromRedux`, fileFromRedux);
+    console.log(`=+=+>>> fileID`, fileID);
+    if (!fileFromRedux) {
+      if (!fileID) return;
+      setTimeout(() => {
+        fetchFileById(fileID);
+      }, 1000);
+    }
   }, []);
 
   useEffect(() => {
@@ -1029,7 +1038,7 @@ const SpreadsheetEditor = () => {
           id: fileId,
         },
       };
-
+      console.log(`=+=+>>> getAction`, getAction, offlineDisk);
       dispatch(getFileAction(getAction, offlineDisk));
 
       setTimeout(() => {

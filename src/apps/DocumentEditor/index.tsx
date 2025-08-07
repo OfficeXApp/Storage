@@ -168,6 +168,15 @@ const DocumentEditor = () => {
       file.name.replace(".officex-document", "") || "Untitled Document";
     setCurrentFileName(defaultName);
     currentFileNameRef.current = defaultName;
+
+    console.log(`=+=+>>> fileFromRedux`, fileFromRedux);
+    console.log(`=+=+>>> fileID`, fileID);
+    if (!fileFromRedux) {
+      if (!fileID) return;
+      setTimeout(() => {
+        fetchFileById(fileID);
+      }, 1000);
+    }
   }, []);
 
   useEffect(() => {
@@ -1056,8 +1065,6 @@ const DocumentEditor = () => {
       />
     );
   }
-
-  console.log(`fileID=${fileID}, fileContentError=${fileContentError}`);
 
   if (fileID && fileContentError) {
     return (

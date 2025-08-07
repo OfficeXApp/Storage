@@ -748,12 +748,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               public_note: disk.public_note,
               isAncillary:
                 disks.length > 3
-                  ? disk.id === defaultBrowserCacheDiskID ||
-                    disk.id === defaultTempCloudSharingDiskID ||
+                  ? disk.id === defaultTempCloudSharingDiskID ||
                     disk.disk_type === DiskTypeEnum.IcpCanister
                   : disks.length === 3
-                    ? disk.id === defaultBrowserCacheDiskID ||
-                      disk.disk_type === DiskTypeEnum.IcpCanister
+                    ? disk.disk_type === DiskTypeEnum.IcpCanister
                     : false,
               breadcrumbs: [],
             };

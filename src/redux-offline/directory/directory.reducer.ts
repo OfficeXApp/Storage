@@ -457,6 +457,7 @@ export const directoryReducer = (
               _syncConflict: true,
               _isOptimistic: false,
               isLoading: false,
+              error: action.error_message || "Failed to fetch file",
             };
           }
           return file;
@@ -535,6 +536,7 @@ export const directoryReducer = (
               _syncSuccess: false,
               _syncConflict: true,
               _isOptimistic: false,
+              error: action.error_message || "Failed to fetch folder",
             };
           }
           return folder;

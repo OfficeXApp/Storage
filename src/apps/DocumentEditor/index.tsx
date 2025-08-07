@@ -150,6 +150,11 @@ const DocumentEditor = () => {
 
   const file = fileFromRedux || redeemData?.original || emptyFile;
 
+  console.log(`file=`, file);
+  console.log(`fileFromRedux=`, fileFromRedux);
+  console.log(`redeemData=`, redeemData);
+  console.log(`emptyFile=`, emptyFile);
+
   const [currentFileName, setCurrentFileName] = useState("Untitled Document");
   const currentFileNameRef = useRef<string>(currentFileName);
 
@@ -216,6 +221,7 @@ const DocumentEditor = () => {
       const response = await fetch(url);
 
       if (!response.ok) {
+        setFileContentError(`HTTP error: ${response.status}`);
         throw new Error(`HTTP error: ${response.status}`);
       }
 
@@ -624,10 +630,12 @@ const DocumentEditor = () => {
         return response.url;
       } else {
         console.error("Error fetching presigned URL:", response.status);
+        setFileContentError(`HTTP error: ${response.status}`);
         throw new Error(`HTTP error: ${response.status}`);
       }
     } catch (error) {
       console.error("Failed to get presigned URL:", error);
+      setFileContentError(`Failed to get presigned URL: ${error}`);
       throw error;
     }
   }
@@ -951,14 +959,7 @@ const DocumentEditor = () => {
     }, []),
   };
   const { diskID: extractedDiskID } = extractDiskInfo();
-  const offlineDisk = file
-    ? shouldBehaveOfflineDiskUIIntent(extractedDiskID)
-    : true;
-
-  console.log(
-    `offlineDisk=${extractedDiskID} shouldBehaveOfflineDiskUIIntent`,
-    offlineDisk
-  );
+  const offlineDisk = shouldBehaveOfflineDiskUIIntent(extractedDiskID);
 
   const setupPenpal = async () => {
     // Ensure iframeRef.current and its contentWindow exist before proceeding
@@ -1013,7 +1014,7 @@ const DocumentEditor = () => {
 
   const fetchFileById = (fileId: FileID) => {
     console.log(`fetching file by id`, fileId);
-
+    console.log(`is it offline disk?`, offlineDisk);
     try {
       // Create the get file action
       const getAction = {
@@ -1048,6 +1049,21 @@ const DocumentEditor = () => {
       <DirectoryGuard
         resourceID={fileID}
         loading={(fileFromRedux as any)?.isLoading}
+        fetchResource={() => {
+          if (!fileID) return;
+          fetchFileById(fileID);
+        }}
+      />
+    );
+  }
+
+  console.log(`fileID=${fileID}, fileContentError=${fileContentError}`);
+
+  if (fileID && fileContentError) {
+    return (
+      <DirectoryGuard
+        resourceID={fileID}
+        loading={false}
         fetchResource={() => {
           if (!fileID) return;
           fetchFileById(fileID);

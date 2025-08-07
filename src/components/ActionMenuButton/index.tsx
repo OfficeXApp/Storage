@@ -259,7 +259,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           to={wrapOrgCode(
             `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/docs`
           )}
-          target="_blank"
         >
           <div
             style={{
@@ -294,7 +293,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           to={wrapOrgCode(
             `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/sheets`
           )}
-          target="_blank"
         >
           <div
             style={{

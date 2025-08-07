@@ -42,6 +42,10 @@ import { purchasesOptimisticDexieMiddleware } from "./purchases/purchases.optimi
 
 // Custom discard function
 const discard = (error: any) => {
+  console.log(`discard....`, error);
+  console.log(`discard....`, error.status);
+  console.log(`discard....`, error.response);
+  console.log(`discard....`, error.response.status);
   // If there's no response, it's a network error, so don't discard
   if (!error.response) return false;
 
@@ -54,7 +58,7 @@ const discard = (error: any) => {
   // 404 - Not Found (resource doesn't exist)
   // 409 - Conflict (data conflict)
   // 422 - Unprocessable Entity (validation error)
-  return [400, 403, 404, 409, 422].includes(status);
+  return [400, 409, 422].includes(status);
 
   // Keep retrying:
   // 401 - Unauthorized (token might refresh)
@@ -246,6 +250,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           ],
         },
         retry: (action: any, retries: number) => {
+          return;
           if (!currentOrgRef.current?.endpoint) return;
           // If we've exceeded our retry schedule, stop retrying
           if (retries >= retrySchedule.length) {

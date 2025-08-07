@@ -192,7 +192,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         tracer: checkoutInitResponse.tracer || "",
         proxy_buyer_data: {
           org_id: currentOrg?.driveID || "",
-          org_endpoint: currentOrg?.endpoint || "",
+          org_host: currentOrg?.host || "",
           user_id: currentProfile?.userID || "",
         },
         sweep_tokens: (checkoutInitResponse as IResponseCheckoutInit_Crypto)
@@ -282,7 +282,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           checkout_session_id: checkoutInitResponse.checkout_session_id,
           requirements: preferenceInputs, // All dynamic form fields go here
           org_id: currentOrg?.driveID,
-          org_endpoint: currentOrg?.endpoint,
+          org_host: currentOrg?.host,
           org_api_key: finalApiKey,
           user_id: currentProfile?.userID,
         };
@@ -567,7 +567,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
               Customer Support
             </span>
             {checkoutInitResponse?.post_payment?.needs_cloud_officex &&
-              !currentOrg?.endpoint && (
+              !currentOrg?.host && (
                 <span style={{ color: "#ff0000" }}>Connect Cloud</span>
               )}
             {finalRedirectUrl && finalRedirectCta && isFinalizedCheckout ? (

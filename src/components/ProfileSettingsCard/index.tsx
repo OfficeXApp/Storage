@@ -78,7 +78,7 @@ const ProfileSettingsCard = () => {
         throw new Error("Organization information is missing");
       }
 
-      const whoamiUrl = `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/whoami`;
+      const whoamiUrl = `${currentOrg.host}/v1/drive/${currentOrg.driveID}/organization/whoami`;
 
       // Use the new API key value for the test
       const { url, headers } = wrapAuthStringOrHeader(
@@ -157,7 +157,7 @@ const ProfileSettingsCard = () => {
   };
 
   const loginMultipleDeviceString = apiKeyValue
-    ? `${currentOrg?.driveID}:${apiKeyValue}@${currentOrg?.endpoint}`
+    ? `${currentOrg?.driveID}:${apiKeyValue}@${currentOrg?.host}`
     : "";
 
   // Prepare API key request payload
@@ -183,7 +183,7 @@ const ProfileSettingsCard = () => {
       const auth_token = currentAPIKey?.value || (await generateSignature());
       // Make the actual API call to create an API key
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/api_keys/create`,
+        `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}/api_keys/create`,
         {
           "Content-Type": "application/json",
         },
@@ -227,7 +227,7 @@ const ProfileSettingsCard = () => {
     const autoLoginUrl = generateAutoLoginBTOA({
       org_name: currentOrg.nickname,
       org_id: currentOrg.driveID,
-      org_endpoint: currentOrg.endpoint,
+      org_host: currentOrg.host,
       profile_id: currentProfile.userID,
       profile_name: currentProfile.nickname,
       profile_api_key: backupApiKey.value,
@@ -251,7 +251,7 @@ If that doesn't work, then you manually login like so:
 3. In the popup modal, select the tab "Login Existing"
 4. Enter the below password string:
 
-${`${currentOrg?.driveID}:${backupApiKey.value}@${currentOrg?.endpoint}`}
+${`${currentOrg?.driveID}:${backupApiKey.value}@${currentOrg?.host}`}
 
 5. Wait for it to verify the legitimacy of the password string
 6. Once verified, click "Login Organization" to proceed
@@ -261,7 +261,7 @@ ${`${currentOrg?.driveID}:${backupApiKey.value}@${currentOrg?.endpoint}`}
 
 Organization ID: ${currentOrg?.driveID}
 Organization Name: ${currentOrg?.nickname}
-Organization Endpoint: ${currentOrg?.endpoint}
+Organization Endpoint: ${currentOrg?.host}
 
 Profile ID: ${currentProfile?.userID}
 Profile Name: ${currentProfile?.nickname}

@@ -82,7 +82,7 @@ const RedeemDiskGiftCard = () => {
   }, [location]);
 
   const handleRedeem = async () => {
-    if (!currentOrg?.endpoint) {
+    if (!currentOrg?.host) {
       message.error(
         "Cannot redeem gift card unless you connect cloud. You are currently in an offline organization."
       );
@@ -115,7 +115,7 @@ const RedeemDiskGiftCard = () => {
 
       // Manually create the disk using fetch
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/disks/create`,
+        `${currentOrg.host}/v1/drive/${currentOrg.driveID}/disks/create`,
         {
           "Content-Type": "application/json",
         },

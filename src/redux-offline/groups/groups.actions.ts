@@ -12,7 +12,6 @@ import {
   GroupFE,
   DriveID,
   GroupInviteID,
-  URLEndpoint,
   ExternalID,
   ExternalPayload,
 } from "@officexapp/types";

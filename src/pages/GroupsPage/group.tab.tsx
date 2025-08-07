@@ -137,7 +137,7 @@ const GroupTab: React.FC<GroupTabProps> = ({
         "name",
         "public_note",
         "private_note",
-        "endpoint_url",
+        "host_url",
         "external_id",
         "external_payload",
       ];
@@ -264,7 +264,7 @@ const GroupTab: React.FC<GroupTabProps> = ({
     name: group.name,
     public_note: group.public_note,
     private_note: group.private_note || "",
-    endpoint_url: group.endpoint_url,
+    host_url: group.host_url,
     external_id: group.external_id || "",
     external_payload: group.external_payload || "",
   };
@@ -291,7 +291,7 @@ const response = await fetch('/groups/create', {
     name: 'New Group Name',
     public_note: 'Public information about the group',
     private_note: 'Private information about the group',
-    endpoint_url: 'https://example.com/api/webhook',
+    host_url: 'https://example.com/api/webhook',
     external_id: 'external-id-123',
     external_payload: '{"custom":"data"}'
   })
@@ -519,7 +519,7 @@ const data = await response.json();`;
                     />
                   </Form.Item>
 
-                  <Form.Item name="endpoint_url" label="Endpoint">
+                  <Form.Item name="host_url" label="Endpoint">
                     <Input
                       prefix={<GlobalOutlined />}
                       placeholder="https://example.com/api/webhook"
@@ -788,10 +788,10 @@ const data = await response.json();`;
                           <TeamOutlined />
                         )}
 
-                        {group.endpoint_url &&
+                        {group.host_url &&
                           renderReadOnlyField(
                             "Endpoint",
-                            group.endpoint_url,
+                            group.host_url,
                             <GlobalOutlined />
                           )}
 
@@ -1001,7 +1001,7 @@ const data = await response.json();`;
                                                   (await generateSignature());
                                                 const { url, headers } =
                                                   wrapAuthStringOrHeader(
-                                                    `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/groups/invites/get/${member.invite_id}`,
+                                                    `${currentOrg.host}/v1/drive/${currentOrg.driveID}/groups/invites/get/${member.invite_id}`,
                                                     {
                                                       "Content-Type":
                                                         "application/json",

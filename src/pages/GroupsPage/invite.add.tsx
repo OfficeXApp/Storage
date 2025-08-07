@@ -224,7 +224,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
 
     const auth_token = currentAPIKey?.value || (await generateSignature());
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/groups/invites/create`,
+      `${currentOrg.host}/v1/drive/${currentOrg.driveID}/groups/invites/create`,
       {
         "Content-Type": "application/json",
       },
@@ -334,7 +334,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
         // dispatch(createGroupInviteAction(groupInviteData));
         const auth_token = currentAPIKey?.value || (await generateSignature());
         const { url, headers } = wrapAuthStringOrHeader(
-          `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/groups/invites/create`,
+          `${currentOrg.host}/v1/drive/${currentOrg.driveID}/groups/invites/create`,
           {
             "Content-Type": "application/json",
           },

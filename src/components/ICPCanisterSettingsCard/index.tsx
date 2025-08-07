@@ -49,7 +49,7 @@ const ICPCanisterSettingsCard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [driveAbout, setDriveAbout] = useState({
     canister_id: "",
-    endpoint: "",
+    host: "",
     gas_cycles: "0",
     organization_id: "",
     organization_name: "",
@@ -60,7 +60,7 @@ const ICPCanisterSettingsCard = () => {
   });
 
   useEffect(() => {
-    if (currentOrg?.endpoint) {
+    if (currentOrg?.host) {
       checkGasBalance();
     }
   }, [currentOrg]);
@@ -70,7 +70,7 @@ const ICPCanisterSettingsCard = () => {
     setIsLoading(true);
     let auth_token = currentAPIKey?.value || (await generateSignature());
     const { url, headers } = wrapAuthStringOrHeader(
-      `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/organization/about`,
+      `${currentOrg.host}/v1/drive/${currentOrg.driveID}/organization/about`,
       {
         "Content-Type": "application/json",
       },
@@ -230,7 +230,7 @@ const ICPCanisterSettingsCard = () => {
         <Input
           value={driveAbout.organization_id || currentOrg?.driveID || ""}
           readOnly
-          addonBefore={driveAbout?.organization_name || "Organization"}
+          addonBefore={"DriveID"}
           addonAfter={
             <Button
               type="text"
@@ -253,19 +253,19 @@ const ICPCanisterSettingsCard = () => {
         />
         <Input
           value={
-            driveAbout.endpoint ||
-            currentOrg?.endpoint ||
+            driveAbout.host ||
+            currentOrg?.host ||
             "Offline Organization has no endpoint url"
           }
           readOnly
-          addonBefore={"Endpoint"}
+          addonBefore={"Host"}
           addonAfter={
             <Button
               type="text"
               icon={<CopyOutlined />}
               onClick={() => {
                 navigator.clipboard
-                  .writeText(driveAbout?.endpoint || "")
+                  .writeText(driveAbout?.host || "")
                   .then(() => {
                     message.success(
                       "Organization Endpoint URL copied to clipboard"
@@ -323,7 +323,7 @@ const ICPCanisterSettingsCard = () => {
       <div style={{ maxWidth: "300px" }}>
         <ConnectICPButton />
       </div>
-      {currentOrg && currentOrg.endpoint && currentOrg.icpPublicAddress && (
+      {currentOrg && currentOrg.host && currentOrg.icpPublicAddress && (
         <Space direction="vertical">
           <Statistic
             title={

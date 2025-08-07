@@ -604,7 +604,7 @@ const RouterUI = () => {
                         >
                           <ConnectICPButton />
 
-                          {currentOrg && currentOrg.endpoint && (
+                          {currentOrg && currentOrg.host && (
                             <ActionMenuButton
                               isBigButton={true}
                               toggleUploadPanel={setUploadPanelVisible}
@@ -709,7 +709,7 @@ const RouterUI = () => {
                         element={
                           <Navigate
                             to={
-                              currentOrg && currentOrg.endpoint
+                              currentOrg && currentOrg.host
                                 ? `/org/current/drive/`
                                 : `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/`
                             }

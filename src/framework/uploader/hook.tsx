@@ -333,7 +333,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             const canisterAdapter = new CanisterAdapter();
             const canisterConfig = {
               diskID: diskId,
-              endpoint: `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}`,
+              endpoint: `${currentOrg.host}/v1/drive/${currentOrg.driveID}`,
               apiKey: auth_token,
               maxChunkSize: (1 * 1024 * 1024) / 2, // 0.5MB
             };
@@ -355,7 +355,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               currentAPIKey?.value || (await generateSignature());
             const cloudS3Adapter = new CloudS3Adapter();
             const cloudS3Config = {
-              endpoint: `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}`,
+              endpoint: `${currentOrg.host}/v1/drive/${currentOrg.driveID}`,
               maxChunkSize: 5 * 1024 * 1024,
               rawUrlProxyPath: `/v1/drive/${currentOrg.driveID}/directory/asset/`,
               apiKey: auth_token,
@@ -379,7 +379,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               currentAPIKey?.value || (await generateSignature());
             const cloudS3Adapter = new CloudS3Adapter();
             const cloudS3Config = {
-              endpoint: `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}`,
+              endpoint: `${currentOrg.host}/v1/drive/${currentOrg.driveID}`,
               maxChunkSize: 5 * 1024 * 1024,
               rawUrlProxyPath: `/v1/drive/${currentOrg.driveID}/directory/asset/`,
               apiKey: auth_token,
@@ -438,8 +438,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       if (!uploadManagerRef.current) {
         console.log(`Creating new upload manager`);
         uploadManagerRef.current = new UploadManager(
-          currentOrg?.endpoint
-            ? `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}`
+          currentOrg?.host
+            ? `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}`
             : "",
           generateAuthToken
         );

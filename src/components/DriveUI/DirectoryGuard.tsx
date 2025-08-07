@@ -68,7 +68,7 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
         },
       };
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg.endpoint}/v1/drive/${currentOrg.driveID}/directory/action`,
+        `${currentOrg.host}/v1/drive/${currentOrg.driveID}/directory/action`,
         {
           "Content-Type": "application/json",
         },

@@ -113,7 +113,7 @@ const DriveTab: React.FC<DriveTabProps> = ({
         "name",
         "public_note",
         "private_note",
-        "endpoint_url",
+        "host_url",
         "external_id",
         "external_payload",
       ];
@@ -238,7 +238,7 @@ const DriveTab: React.FC<DriveTabProps> = ({
 
   const initialValues = {
     name: drive.name,
-    endpoint_url: drive.endpoint_url,
+    host_url: drive.host_url,
     icp_principal: drive.icp_principal,
     public_note: drive.public_note || "",
     private_note: drive.private_note || "",
@@ -415,7 +415,7 @@ const listDrives = async (page = 1, limit = 10) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="endpoint_url" label="Endpoint URL">
+                <Form.Item name="host_url" label="Endpoint URL">
                   <Input
                     prefix={<GlobalOutlined />}
                     placeholder="https://example.com/endpoint"
@@ -619,15 +619,15 @@ const listDrives = async (page = 1, limit = 10) => {
                             : 32,
                       }}
                     >
-                      {drive.endpoint_url && (
+                      {drive.host_url && (
                         <Card size="small" style={{ marginTop: 8 }}>
                           <GlobalOutlined style={{ marginRight: 8 }} />
                           <a
-                            href={`${drive.endpoint_url}/v1/drive/${drive.id}`}
+                            href={`${drive.host_url}/v1/drive/${drive.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            {`${drive.endpoint_url}/v1/drive/${drive.id}`}
+                            {`${drive.host_url}/v1/drive/${drive.id}`}
                           </a>
                         </Card>
                       )}

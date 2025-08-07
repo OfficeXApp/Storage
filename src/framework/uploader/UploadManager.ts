@@ -69,7 +69,7 @@ export class UploadManager {
   private resumeAllUploads$ = new Subject<void>();
 
   private apiKey = () => Promise.resolve("");
-  private endpoint = "";
+  private host = "";
 
   // Storage for resumable uploads
   private uploadStorage: Storage;
@@ -82,11 +82,11 @@ export class UploadManager {
   /**
    * Create a new UploadManager
    */
-  constructor(endpoint: string, apiKey: () => Promise<string>) {
+  constructor(host: string, apiKey: () => Promise<string>) {
     // Use localStorage for small metadata, actual chunks would be in IndexedDB
     this.uploadStorage = localStorage;
 
-    this.endpoint = endpoint;
+    this.host = host;
     this.apiKey = apiKey;
 
     // Setup network status monitoring
@@ -1348,14 +1348,11 @@ export class UploadManager {
       },
     };
 
-    if (
-      this.endpoint &&
-      !shouldBehaveOfflineDiskUIIntent(folderConfig.disk_id)
-    ) {
+    if (this.host && !shouldBehaveOfflineDiskUIIntent(folderConfig.disk_id)) {
       const auth_token = await this.apiKey();
       // Make direct API call following the /directory/action pattern
       const { url, headers } = wrapAuthStringOrHeader(
-        `${this.endpoint}/directory/action`,
+        `${this.host}/directory/action`,
         {
           "Content-Type": "application/json",
         },

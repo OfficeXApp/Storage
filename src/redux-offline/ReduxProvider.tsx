@@ -164,7 +164,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         );
         if (
           !currentOrgRef.current ||
-          !currentOrgRef.current.endpoint ||
+          !currentOrgRef.current.host ||
           !currentProfileRef.current
         )
           return;
@@ -186,7 +186,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         // Construct full URL if needed
         let fullUrl = url;
         if (!url.includes("http")) {
-          fullUrl = `${currentOrgRef.current.endpoint}/v1/drive/${currentOrgRef.current.driveID}${url}`;
+          fullUrl = `${currentOrgRef.current.host}/v1/drive/${currentOrgRef.current.driveID}${url}`;
         }
 
         // Get fresh auth token right when executing the request
@@ -251,7 +251,7 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
         },
         retry: (action: any, retries: number) => {
           return;
-          if (!currentOrgRef.current?.endpoint) return;
+          if (!currentOrgRef.current?.host) return;
           // If we've exceeded our retry schedule, stop retrying
           if (retries >= retrySchedule.length) {
             console.log(

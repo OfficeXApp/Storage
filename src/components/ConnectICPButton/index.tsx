@@ -223,11 +223,11 @@ const ConnectICPButton = () => {
       message.info("Promoting you to Admin...");
       await sleep(isWeb3 ? 5000 : 0);
 
-      const { drive_id, endpoint, redeem_code, disk_auth_json } =
+      const { drive_id, host, redeem_code, disk_auth_json } =
         redeemData.ok.data;
 
       // Complete the organization setup
-      const completeRedeemUrl = `${endpoint}/v1/drive/${drive_id}/organization/redeem`;
+      const completeRedeemUrl = `${host}/v1/drive/${drive_id}/organization/redeem`;
       const completeRedeemResponse = await fetch(completeRedeemUrl, {
         method: "POST",
         headers: {
@@ -286,7 +286,7 @@ const ConnectICPButton = () => {
         driveID: driveID,
         nickname: orgName,
         icpPublicAddress: driveID.replace("DriveID_", ""),
-        endpoint: adminEndpoint,
+        host: adminEndpoint,
         note: `Organization created with gift card ${giftCardValue}`,
         defaultProfile: profile.userID,
       });
@@ -298,7 +298,7 @@ const ConnectICPButton = () => {
         driveID: driveID,
         note: `Auto-generated from gift card for ${orgName} (${adminEndpoint})`,
         value: password,
-        endpoint: adminEndpoint,
+        host: adminEndpoint,
       });
 
       // Switch to this organization with the profile
@@ -406,7 +406,7 @@ const ConnectICPButton = () => {
     return initialGiftCardOptions.find((option) => option.value === value);
   };
 
-  if (currentOrg?.endpoint) {
+  if (currentOrg?.host) {
     return null;
   }
 

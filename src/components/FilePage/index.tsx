@@ -406,7 +406,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     const loadFileContent = async () => {
       if (!file || !fileType) return;
 
-      if (!currentOrg?.endpoint && diskTypeEnum !== DiskTypeEnum.BrowserCache) {
+      if (!currentOrg?.host && diskTypeEnum !== DiskTypeEnum.BrowserCache) {
         setFileUrl(file.raw_url || "");
         setIsLoading(false);
         return;
@@ -415,7 +415,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       // Check if file is fully uploaded
       if (
         file.upload_status !== "COMPLETED" &&
-        currentOrg?.endpoint &&
+        currentOrg?.host &&
         !offlineDisk
       ) {
         setIsLoading(false);
@@ -511,7 +511,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     try {
       // 1. Fetch metadata
       const { url, headers } = wrapAuthStringOrHeader(
-        `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/directory/raw_download/meta?file_id=${fileId}`,
+        `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}/directory/raw_download/meta?file_id=${fileId}`,
         {
           "Content-Type": "application/json",
         },
@@ -535,7 +535,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
       for (let i = 0; i < total_chunks; i++) {
         const { url, headers } = wrapAuthStringOrHeader(
-          `${currentOrg?.endpoint}/v1/drive/${currentOrg?.driveID}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
+          `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}/directory/raw_download/chunk?file_id=${fileId}&chunk_index=${i}`,
           {
             "Content-Type": "application/json",
           },
@@ -666,7 +666,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
-    if (currentOrg?.endpoint && url?.includes(currentOrg.endpoint)) {
+    if (currentOrg?.host && url?.includes(currentOrg.host)) {
       if (url.includes("?")) {
         return `${url}&auth=${auth_token}`;
       } else {
@@ -815,7 +815,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           </div>
         </div>
       </div>
-      {currentOrg?.endpoint &&
+      {currentOrg?.host &&
         !offlineDisk &&
         file.upload_status !== "COMPLETED" && (
           <Alert
@@ -826,7 +826,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           />
         )}
 
-      {currentOrg?.endpoint &&
+      {currentOrg?.host &&
         !offlineDisk &&
         file.upload_status === "COMPLETED" &&
         !isFileSizeValidForPreview(file) && (
@@ -847,9 +847,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           />
         )}
 
-      {!currentOrg?.endpoint ||
+      {!currentOrg?.host ||
       (offlineDisk && fileUrl) ||
-      (currentOrg?.endpoint && isFileSizeValidForPreview(file)) ? (
+      (currentOrg?.host && isFileSizeValidForPreview(file)) ? (
         <div
           style={{
             display: "flex",

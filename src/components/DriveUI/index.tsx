@@ -242,11 +242,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   );
 
   const [showInitialLoading, setShowInitialLoading] = useState(
-    !currentOrg?.endpoint || isOfflineDisk ? false : true
+    !currentOrg?.host || isOfflineDisk ? false : true
   );
 
   console.log(`showInitialLoading`, showInitialLoading);
-  console.log(`currentOrg.endpoint`, currentOrg?.endpoint);
+  console.log(`currentOrg.host`, currentOrg?.host);
   console.log(`isOfflineDisk`, isOfflineDisk);
 
   const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
@@ -359,7 +359,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
-    if (currentOrg?.endpoint && url?.includes(currentOrg.endpoint)) {
+    if (currentOrg?.host && url?.includes(currentOrg.host)) {
       if (url.includes("?")) {
         return `${url}&auth=${auth_token}`;
       } else {
@@ -601,7 +601,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const fetchRecentsGlobal = async () => {
     if (!currentOrg || !currentProfile) return;
-    if (!currentOrg.endpoint) {
+    if (!currentOrg.host) {
       fetchContent({});
       return;
     }
@@ -1700,7 +1700,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 disabled={
                   isOfflineDisk
                     ? false
-                    : currentOrg?.endpoint
+                    : currentOrg?.host
                       ? listDirectoryResults?.isFirstTime ||
                         !listDirectoryResults?.permission_previews.includes(
                           DirectoryPermissionType.UPLOAD
@@ -1982,7 +1982,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               disabled={
                                 isOfflineDisk
                                   ? false
-                                  : currentOrg?.endpoint
+                                  : currentOrg?.host
                                     ? listDirectoryResults?.isFirstTime ||
                                       !listDirectoryResults?.permission_previews.includes(
                                         DirectoryPermissionType.UPLOAD
@@ -1999,7 +1999,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               disabled={
                                 isOfflineDisk
                                   ? false
-                                  : currentOrg?.endpoint
+                                  : currentOrg?.host
                                     ? listDirectoryResults?.isFirstTime ||
                                       !listDirectoryResults?.permission_previews.includes(
                                         DirectoryPermissionType.UPLOAD

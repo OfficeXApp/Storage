@@ -184,7 +184,7 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
         const driveData: IRequestCreateDrive = {
           name: driveName,
           icp_principal: driveIcpPrincipal,
-          endpoint_url: driveEndpoint || undefined,
+          host_url: driveEndpoint || undefined,
           public_note: values.publicNote || "",
           private_note: values.privateNote || "",
           external_id: values.externalId || undefined,

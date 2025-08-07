@@ -46,17 +46,17 @@ import {
   VendorOfferReqField,
   IRequestCheckoutFinalize,
   GenerateID,
-  JobRunStatus,
+  PurchaseStatus,
   IResponseCheckoutFinalize,
   IRequestCheckoutValidate,
   IResponseCheckoutValidate,
-  JobRunID,
+  PurchaseID,
 } from "@officexapp/types";
 import useScreenType from "react-screentype-hook";
 import { Link, useNavigate } from "react-router-dom";
 import { isValidEmail } from "../../api/helpers";
 import { parseUnits } from "viem";
-import { createJobRunAction } from "../../redux-offline/job-runs/job-runs.actions";
+import { createPurchaseAction } from "../../redux-offline/purchases/purchases.actions";
 
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
@@ -88,7 +88,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     useState<boolean>(true);
   const [finalRedirectUrl, setFinalRedirectUrl] = useState<string>("");
   const [finalRedirectCta, setFinalRedirectCta] = useState<string>("");
-  const [jobRunId, setJobRunId] = useState<JobRunID>("");
+  const [purchaseId, setPurchaseId] = useState<PurchaseID>("");
   const [isFinalizedCheckout, setIsFinalizedCheckout] =
     useState<boolean>(false);
   const [checkoutInitResponse, setCheckoutInitResponse] =
@@ -182,12 +182,12 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     message.info("Finalizing checkout... This can take up to 2 mins...");
     try {
       // create the purchase record
-      const job_run_id = GenerateID.JobRunID();
+      const purchase_id = GenerateID.PurchaseID();
 
       const payload_finalize_checkout: IRequestCheckoutFinalize = {
         checkout_flow_id: checkoutInitResponse?.checkout_flow_id || "",
         checkout_session_id: checkoutInitResponse?.checkout_session_id || "",
-        officex_purchase_id: job_run_id,
+        officex_purchase_id: purchase_id,
         note: "", // depends on vendor server,
         tracer: checkoutInitResponse.tracer || "",
         proxy_buyer_data: {
@@ -226,8 +226,8 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       }
       const receipt = data_finalize_checkout.receipt;
       dispatch(
-        createJobRunAction({
-          id: job_run_id,
+        createPurchaseAction({
+          id: purchase_id,
           title: receipt?.title || checkoutRun.offerName,
           vendor_name: receipt?.vendor_name || checkoutRun.vendorName,
           vendor_id: receipt?.vendor_id || checkoutRun.vendorID,
@@ -235,7 +235,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
             receipt?.about_url ||
             checkoutRun.aboutUrl ||
             "https://google.com?search=officex",
-          status: receipt?.status || JobRunStatus.PAID,
+          status: receipt?.status || PurchaseStatus.PAID,
           description: receipt?.description || checkoutRun.offerDescription,
           pricing: receipt?.pricing || checkoutRun.priceLine,
           notes: `From checkout init route ${selectedDepositOption?.checkout_init_endpoint} with checkout session id ${checkoutInitResponse?.checkout_session_id}`,
@@ -310,19 +310,19 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       message.success(
         <span>
           Checkout successful! View your{" "}
-          <Link to={wrapOrgCode(`/resources/job_runs`)}>purchase history</Link>
+          <Link to={wrapOrgCode(`/resources/purchases`)}>purchase history</Link>
         </span>
       );
       setFinalRedirectUrl(
         data_finalize_checkout.receipt?.skip_to_final_redirect ||
-          `${window.location.origin}/org/current/resources/job-runs`
+          `${window.location.origin}/org/current/resources/purchases`
       );
       setFinalRedirectCta(
         data_finalize_checkout.receipt?.skip_to_final_cta ||
           checkoutInitResponse.final_cta ||
           "View Purchase History"
       );
-      setJobRunId(job_run_id);
+      setPurchaseId(purchase_id);
       setIsFinalizedCheckout(true);
       setIsFinalizingLoading(false);
     } catch (error: any) {
@@ -575,7 +575,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                 type="primary"
                 onClick={() => {
                   window.open(
-                    `${window.location.origin}${wrapOrgCode(`/resources/job-runs/${jobRunId}`)}`,
+                    `${window.location.origin}${wrapOrgCode(`/resources/purchases/${purchaseId}`)}`,
                     "_blank"
                   );
                 }}
@@ -1224,9 +1224,9 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
               After you click{" "}
               {`"${checkoutInitResponse?.final_cta}"` || "Finish"}, your request
               will be securely sent to the vendor. The vendor will then process
-              the job based on the details you've provided. You'll be able to
-              monitor the status and see the progress of your job on the{" "}
-              <Link to={wrapOrgCode(`/resources/job-runs`)} target="_blank">
+              the purchase based on the details you've provided. You'll be able
+              to monitor the status and see the progress of your purchase on the{" "}
+              <Link to={wrapOrgCode(`/resources/purchases`)} target="_blank">
                 Purchase History Page
               </Link>
               , where updates will be provided until the goods or services are

@@ -1,33 +1,33 @@
 import { useNavigate, useParams } from "react-router-dom";
-import JobRunTab from "./jobruns.tab";
+import PurchaseTab from "./purchases.tab";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useEffect } from "react";
-import { getJobRunAction } from "../../redux-offline/job-runs/job-runs.actions";
+import { getPurchaseAction } from "../../redux-offline/purchases/purchases.actions";
 import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import useScreenType from "react-screentype-hook";
 import { LeftOutlined } from "@ant-design/icons";
 import { useIdentitySystem } from "../../framework/identity";
 
-const JobRunPage = () => {
+const PurchasePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { wrapOrgCode } = useIdentitySystem();
   const screenType = useScreenType();
   const params = useParams();
-  const jobRunID = params.jobRunID; // Changed from diskID to jobRunID
-  const jobRun = useSelector(
-    (state: ReduxAppState) => state.jobRuns.jobRunMap[jobRunID || ""] // Changed from disks.diskMap to jobRuns.jobRunMap
+  const purchaseID = params.purchaseID; // Changed from diskID to purchaseID
+  const purchase = useSelector(
+    (state: ReduxAppState) => state.purchases.purchaseMap[purchaseID || ""] // Changed from disks.diskMap to purchases.purchaseMap
   );
 
   useEffect(() => {
-    if (jobRunID) {
-      dispatch(getJobRunAction(jobRunID));
+    if (purchaseID) {
+      dispatch(getPurchaseAction(purchaseID));
     }
-  }, [jobRunID, dispatch]); // Added dispatch to dependency array
+  }, [purchaseID, dispatch]); // Added dispatch to dependency array
 
-  if (!jobRun) {
+  if (!purchase) {
     return null; // Or a loading spinner
   }
 
@@ -53,14 +53,14 @@ const JobRunPage = () => {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={() => navigate(wrapOrgCode("/resources/job-runs"))} // Changed route
+          onClick={() => navigate(wrapOrgCode("/resources/purchases"))} // Changed route
           style={{
             display: "flex",
             alignItems: "center",
             fontSize: "14px",
           }}
         >
-          Search Job Runs
+          Search Purchases
         </Button>
       </div>
       <Content
@@ -72,10 +72,10 @@ const JobRunPage = () => {
           overflow: "hidden",
         }}
       >
-        <JobRunTab
-          jobRunCache={jobRun}
+        <PurchaseTab
+          purchaseCache={purchase}
           onDelete={() => {
-            navigate(wrapOrgCode(`/resources/job-runs`)); // Changed route
+            navigate(wrapOrgCode(`/resources/purchases`)); // Changed route
           }}
         />
       </Content>
@@ -83,4 +83,4 @@ const JobRunPage = () => {
   );
 };
 
-export default JobRunPage;
+export default PurchasePage;

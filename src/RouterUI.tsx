@@ -112,7 +112,7 @@ import AppStorePage from "./components/AppStore";
 import AppPage from "./components/AppPage";
 import TagCopy from "./components/TagCopy";
 import { DriveProvider } from "./framework";
-import JobRunsPage from "./pages/JobRunsPage";
+import PurchasesPage from "./pages/PurchasesPage";
 import WalletControlPopover from "./components/WalletControlPopover";
 import ChatWithAI from "./apps/ChatWithAI";
 import {
@@ -120,7 +120,7 @@ import {
   isAIChatEnabled,
   ENABLE_WALLET,
 } from "./framework/flags/feature-flags";
-import JobRunPage from "./pages/JobRunsPage/jobruns.page";
+import PurchasePage from "./pages/PurchasesPage/purchases.page";
 
 const { Sider, Content } = Layout;
 
@@ -414,7 +414,7 @@ const SideMenu = ({
                   key: "apps",
                   label: (
                     <Link
-                      to={wrapOrgCode("/resources/job-runs")}
+                      to={wrapOrgCode("/resources/purchases")}
                       onClick={() => {
                         if (setSidebarVisible) {
                           setSidebarVisible(false);
@@ -927,15 +927,15 @@ const RouterUI = () => {
                       />
                       {ENABLE_APPSTORE && (
                         <Route
-                          path="/org/:orgcode/resources/job-runs"
-                          element={<JobRunsPage />}
+                          path="/org/:orgcode/resources/purchases"
+                          element={<PurchasesPage />}
                         />
                       )}
 
                       {ENABLE_APPSTORE && (
                         <Route
-                          path="/org/:orgcode/resources/job-runs/:jobRunID"
-                          element={<JobRunPage />}
+                          path="/org/:orgcode/resources/purchases/:purchaseID"
+                          element={<PurchasePage />}
                         />
                       )}
                       <Route path="*" element={<NotFoundPage />} />

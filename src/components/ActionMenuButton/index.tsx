@@ -221,6 +221,19 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       label: (
         <Space>
           <FolderOutlined />
+          New Folder
+        </Space>
+      ),
+      key: "newFolder",
+      disabled,
+      onClick: () => {
+        setIsModalVisible(true);
+      },
+    },
+    {
+      label: (
+        <Space>
+          <FolderOutlined />
           Upload Folder
         </Space>
       ),
@@ -246,7 +259,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           to={wrapOrgCode(
             `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/docs`
           )}
-          target="_blank"
         >
           <div
             style={{
@@ -281,7 +293,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           to={wrapOrgCode(
             `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/sheets`
           )}
-          target="_blank"
         >
           <div
             style={{

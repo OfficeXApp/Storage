@@ -55,6 +55,7 @@ import {
   SearchOutlined,
   AppstoreOutlined,
   ExperimentOutlined,
+  DatabaseOutlined,
 } from "@ant-design/icons";
 import sheetsLogo from "../../assets/sheets-logo.png";
 import docsLogo from "../../assets/docs-logo.png";
@@ -273,9 +274,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     if (rowGrid) {
       setViewRowTile(rowGrid === "grid" ? "grid" : "row");
     }
-  }, []);
 
-  useEffect(() => {
     const updateFreshSignature = async () => {
       const signature = await generateSignature();
       setFreshGeneratedSignature(signature);
@@ -428,8 +427,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   useEffect(() => {
     if (currentFileId && !getFileResult) {
       setIs404NotFound(true);
-
       setSingleFile(null);
+      setTimeout(() => {
+        const getAction = {
+          action: GET_FILE as "GET_FILE",
+          payload: {
+            id: currentFileId,
+          },
+        };
+        dispatch(getFileAction(getAction, false));
+      }, 1000);
     } else if (currentFileId && getFileResult) {
       setIs404NotFound(false);
 
@@ -748,12 +755,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               public_note: disk.public_note,
               isAncillary:
                 disks.length > 3
-                  ? disk.id === defaultBrowserCacheDiskID ||
-                    disk.id === defaultTempCloudSharingDiskID ||
+                  ? disk.id === defaultTempCloudSharingDiskID ||
                     disk.disk_type === DiskTypeEnum.IcpCanister
                   : disks.length === 3
-                    ? disk.id === defaultBrowserCacheDiskID ||
-                      disk.disk_type === DiskTypeEnum.IcpCanister
+                    ? disk.disk_type === DiskTypeEnum.IcpCanister
                     : false,
               breadcrumbs: [],
             };
@@ -1488,6 +1493,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
+    console.log(`ze first`);
     return (
       <DirectoryGuard
         resourceID={"currentFolderId"}
@@ -1502,6 +1508,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   console.log(`getFileResult`, getFileResult);
   console.log(`isOfflineDisk`, isOfflineDisk);
   if (!isOfflineDisk && currentFileId && !getFileResult) {
+    console.log(`ze second`);
     return (
       <DirectoryGuard
         resourceID={currentFileId}
@@ -1919,7 +1926,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             />
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>
-              {content.folders.length === 0 && content.files.length === 0 ? (
+              {content.folders.length === 0 &&
+              content.files.length === 0 &&
+              window.location.pathname.split("/").pop() !== "drive" ? (
                 <div
                   style={{
                     display: "flex",
@@ -2048,7 +2057,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       backgroundColor: "rgba(0,0,0,0.01)",
                     }}
                   />
-                  {viewRowTile === "row" ? (
+                  {tableRows.length === 0 ? (
+                    <Result
+                      icon={<DatabaseOutlined />}
+                      title="No Disks Shared with You"
+                      subTitle="Ask the admin to give you access to a disk"
+                      style={{ marginTop: "10vh" }}
+                    />
+                  ) : viewRowTile === "row" ? (
                     <Table
                       {...(!isDiskRootPage && {
                         rowSelection: {

@@ -80,6 +80,8 @@ export const fetchDemoGalleryFiles = (
 
   // All files from the screenshot
   const files: FileFEO[] = [
+    createDemoFile("About OfficeX.officex-document", 488000),
+    createDemoFile("About Industry.officex-spreadsheet", 239400),
     createDemoFile("admin multisigs.jpeg", 353200),
     createDemoFile("advanced permissions.jpeg", 284500),
     createDemoFile("anonymous filesharing.jpeg", 155800),

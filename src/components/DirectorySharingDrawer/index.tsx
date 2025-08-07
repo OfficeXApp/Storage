@@ -448,6 +448,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       );
     } else {
       setShareUrl(window.location.href);
+      refetchPermissions();
     }
   }, [resourceID]);
 

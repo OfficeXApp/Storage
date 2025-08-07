@@ -1,36 +1,36 @@
-// src/redux-offline/jobRuns/jobRuns.optimistic.ts
+// src/redux-offline/purchases/purchases.optimistic.ts
 
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from "redux";
 import { getDexieDb, markSyncConflict } from "../../api/dexie-database";
 import {
-  LIST_JOB_RUNS,
-  LIST_JOB_RUNS_COMMIT,
-  LIST_JOB_RUNS_ROLLBACK,
-  CREATE_JOB_RUN,
-  CREATE_JOB_RUN_COMMIT,
-  CREATE_JOB_RUN_ROLLBACK,
-  GET_JOB_RUN,
-  GET_JOB_RUN_COMMIT,
-  GET_JOB_RUN_ROLLBACK,
-  UPDATE_JOB_RUN,
-  UPDATE_JOB_RUN_COMMIT,
-  UPDATE_JOB_RUN_ROLLBACK,
-  DELETE_JOB_RUN,
-  DELETE_JOB_RUN_COMMIT,
-  DELETE_JOB_RUN_ROLLBACK,
-  CHECK_JOB_RUNS_TABLE_PERMISSIONS,
-  CHECK_JOB_RUNS_TABLE_PERMISSIONS_COMMIT,
-  CHECK_JOB_RUNS_TABLE_PERMISSIONS_ROLLBACK,
-} from "./job-runs.actions";
+  LIST_PURCHASES,
+  LIST_PURCHASES_COMMIT,
+  LIST_PURCHASES_ROLLBACK,
+  CREATE_PURCHASE,
+  CREATE_PURCHASE_COMMIT,
+  CREATE_PURCHASE_ROLLBACK,
+  GET_PURCHASE,
+  GET_PURCHASE_COMMIT,
+  GET_PURCHASE_ROLLBACK,
+  UPDATE_PURCHASE,
+  UPDATE_PURCHASE_COMMIT,
+  UPDATE_PURCHASE_ROLLBACK,
+  DELETE_PURCHASE,
+  DELETE_PURCHASE_COMMIT,
+  DELETE_PURCHASE_ROLLBACK,
+  CHECK_PURCHASES_TABLE_PERMISSIONS,
+  CHECK_PURCHASES_TABLE_PERMISSIONS_COMMIT,
+  CHECK_PURCHASES_TABLE_PERMISSIONS_ROLLBACK,
+} from "./purchases.actions";
 import { AuthProfile, IndexDB_Organization } from "../../framework/identity";
-import { JobRunFEO, JOB_RUNS_DEXIE_TABLE } from "./job-runs.reducer";
+import { PurchaseFEO, PURCHASES_DEXIE_TABLE } from "./purchases.reducer";
 import { SystemPermissionType } from "@officexapp/types";
 import { SYSTEM_PERMISSIONS_DEXIE_TABLE } from "../permissions/permissions.reducer"; // Assuming this path is correct
 
 /**
- * Middleware for handling optimistic updates for the job runs table
+ * Middleware for handling optimistic updates for the purchases table
  */
-export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
+export const purchasesOptimisticDexieMiddleware = (currentIdentitySet: {
   currentOrg: IndexDB_Organization;
   currentProfile: AuthProfile;
 }): Middleware => {
@@ -42,24 +42,24 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
       // Skip actions we don't care about
       if (
         ![
-          GET_JOB_RUN,
-          GET_JOB_RUN_COMMIT,
-          GET_JOB_RUN_ROLLBACK,
-          LIST_JOB_RUNS,
-          LIST_JOB_RUNS_COMMIT,
-          LIST_JOB_RUNS_ROLLBACK,
-          CREATE_JOB_RUN,
-          CREATE_JOB_RUN_COMMIT,
-          CREATE_JOB_RUN_ROLLBACK,
-          UPDATE_JOB_RUN,
-          UPDATE_JOB_RUN_COMMIT,
-          UPDATE_JOB_RUN_ROLLBACK,
-          DELETE_JOB_RUN,
-          DELETE_JOB_RUN_COMMIT,
-          DELETE_JOB_RUN_ROLLBACK,
-          CHECK_JOB_RUNS_TABLE_PERMISSIONS,
-          CHECK_JOB_RUNS_TABLE_PERMISSIONS_COMMIT,
-          CHECK_JOB_RUNS_TABLE_PERMISSIONS_ROLLBACK,
+          GET_PURCHASE,
+          GET_PURCHASE_COMMIT,
+          GET_PURCHASE_ROLLBACK,
+          LIST_PURCHASES,
+          LIST_PURCHASES_COMMIT,
+          LIST_PURCHASES_ROLLBACK,
+          CREATE_PURCHASE,
+          CREATE_PURCHASE_COMMIT,
+          CREATE_PURCHASE_ROLLBACK,
+          UPDATE_PURCHASE,
+          UPDATE_PURCHASE_COMMIT,
+          UPDATE_PURCHASE_ROLLBACK,
+          DELETE_PURCHASE,
+          DELETE_PURCHASE_COMMIT,
+          DELETE_PURCHASE_ROLLBACK,
+          CHECK_PURCHASES_TABLE_PERMISSIONS,
+          CHECK_PURCHASES_TABLE_PERMISSIONS_COMMIT,
+          CHECK_PURCHASES_TABLE_PERMISSIONS_ROLLBACK,
         ].includes(action.type)
       ) {
         return next(action);
@@ -78,38 +78,38 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
 
       // Get db instance for this user+org pair
       const db = getDexieDb(userID, orgID);
-      const table = db.table<JobRunFEO, string>(JOB_RUNS_DEXIE_TABLE);
+      const table = db.table<PurchaseFEO, string>(PURCHASES_DEXIE_TABLE);
       let enhancedAction = action;
 
       try {
         // Process action based on type
         switch (action.type) {
           // ------------------------------ GET JOB RUN --------------------------------- //
-          case GET_JOB_RUN: {
+          case GET_PURCHASE: {
             // Get cached data from IndexedDB
             const optimisticID = action.meta.optimisticID;
-            const cachedJobRun = await table.get(optimisticID);
-            if (cachedJobRun) {
+            const cachedPurchase = await table.get(optimisticID);
+            if (cachedPurchase) {
               enhancedAction = {
                 ...action,
                 optimistic: {
-                  ...cachedJobRun,
+                  ...cachedPurchase,
                   _isOptimistic: true,
                   _optimisticID: optimisticID,
                   _syncSuccess: false,
                   _syncConflict: false,
-                  _syncWarning: `Awaiting Sync. This job run was fetched offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be refetched. Anything else depending on it may also be affected.`,
+                  _syncWarning: `Awaiting Sync. This purchase was fetched offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be refetched. Anything else depending on it may also be affected.`,
                 },
               };
             }
             break;
           }
 
-          case GET_JOB_RUN_COMMIT: {
-            const realJobRun = action.payload?.ok?.data;
-            if (realJobRun) {
+          case GET_PURCHASE_COMMIT: {
+            const realPurchase = action.payload?.ok?.data;
+            if (realPurchase) {
               await table.put({
-                ...realJobRun,
+                ...realPurchase,
                 _optimisticID: null,
                 _isOptimistic: false,
                 _syncSuccess: true,
@@ -120,13 +120,13 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case GET_JOB_RUN_ROLLBACK: {
+          case GET_PURCHASE_ROLLBACK: {
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
-                const error_message = `Failed to get job run - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to get purchase - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,
@@ -141,15 +141,15 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ LIST JOB RUNS --------------------------------- //
 
-          case LIST_JOB_RUNS: {
+          case LIST_PURCHASES: {
             // Get cached data from IndexedDB
-            const cachedJobRuns = await table.toArray();
+            const cachedPurchases = await table.toArray();
 
             // Enhance action with cached data if available
-            if (cachedJobRuns && cachedJobRuns.length > 0) {
+            if (cachedPurchases && cachedPurchases.length > 0) {
               enhancedAction = {
                 ...action,
-                optimistic: cachedJobRuns.map((jr) => ({
+                optimistic: cachedPurchases.map((jr) => ({
                   ...jr,
                   _isOptimistic: true,
                   _optimisticID: jr.id,
@@ -159,18 +159,18 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case LIST_JOB_RUNS_COMMIT: {
-            // Extract job runs from the response
-            const jobRuns = action.payload?.ok?.data?.items || [];
+          case LIST_PURCHASES_COMMIT: {
+            // Extract purchases from the response
+            const purchases = action.payload?.ok?.data?.items || [];
 
             // Update IndexedDB with fresh data
             await db.transaction("rw", table, async () => {
               // Clear existing data and add fresh data
               await table.clear(); // This might be too aggressive depending on your caching strategy
-              for (const jobRun of jobRuns) {
+              for (const purchase of purchases) {
                 await table.put({
-                  ...jobRun,
-                  _optimisticID: jobRun.id,
+                  ...purchase,
+                  _optimisticID: purchase.id,
                   _isOptimistic: false,
                   _syncConflict: false,
                   _syncWarning: "",
@@ -181,11 +181,11 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case LIST_JOB_RUNS_ROLLBACK: {
+          case LIST_PURCHASES_ROLLBACK: {
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
-              const error_message = `Failed to fetch job runs - ${err.err.message}`;
+              const error_message = `Failed to fetch purchases - ${err.err.message}`;
               enhancedAction = {
                 ...action,
                 error_message,
@@ -198,16 +198,16 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ CREATE JOB RUN --------------------------------- //
 
-          case CREATE_JOB_RUN: {
-            // Only handle actions with job run data
+          case CREATE_PURCHASE: {
+            // Only handle actions with purchase data
             if (action.meta?.offline?.effect?.data) {
-              const jobRunData = action.meta.offline.effect.data;
+              const purchaseData = action.meta.offline.effect.data;
               const optimisticID = action.meta.optimisticID;
 
-              // Create optimistic job run object
-              const optimisticJobRun: JobRunFEO = {
+              // Create optimistic purchase object
+              const optimisticPurchase: PurchaseFEO = {
                 id: optimisticID,
-                ...jobRunData,
+                ...purchaseData,
                 created_at: Date.now(),
                 updated_at: Date.now(),
                 last_updated_at: Date.now(),
@@ -219,34 +219,34 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
                   SystemPermissionType.VIEW,
                 ],
                 _optimisticID: optimisticID,
-                _syncWarning: `Awaiting Sync. This job run was created offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be recreated. Anything else depending on it may also be affected.`,
+                _syncWarning: `Awaiting Sync. This purchase was created offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be recreated. Anything else depending on it may also be affected.`,
                 _syncConflict: false,
                 _syncSuccess: false,
                 _isOptimistic: true,
               };
 
               // Save to IndexedDB
-              await table.put(optimisticJobRun);
+              await table.put(optimisticPurchase);
 
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
-                optimistic: optimisticJobRun,
+                optimistic: optimisticPurchase,
               };
             }
             break;
           }
 
-          case CREATE_JOB_RUN_COMMIT: {
+          case CREATE_PURCHASE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            const realJobRun = action.payload?.ok?.data;
-            if (optimisticID && realJobRun) {
+            const realPurchase = action.payload?.ok?.data;
+            if (optimisticID && realPurchase) {
               await db.transaction("rw", table, async () => {
                 // Remove optimistic version
                 await table.delete(optimisticID);
                 // Add real version
                 await table.put({
-                  ...realJobRun,
+                  ...realPurchase,
                   _optimisticID: null,
                   _syncSuccess: true,
                   _syncConflict: false,
@@ -258,13 +258,13 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case CREATE_JOB_RUN_ROLLBACK: {
+          case CREATE_PURCHASE_ROLLBACK: {
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
-                const error_message = `Failed to create job run - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to create purchase - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,
@@ -279,49 +279,49 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ UPDATE JOB RUN --------------------------------- //
 
-          case UPDATE_JOB_RUN: {
-            // Only handle actions with job run data
+          case UPDATE_PURCHASE: {
+            // Only handle actions with purchase data
             if (action.meta?.offline?.effect?.data) {
-              const jobRunData = action.meta.offline.effect.data;
+              const purchaseData = action.meta.offline.effect.data;
               const optimisticID = action.meta.optimisticID;
 
-              const cachedJobRun = await table.get(optimisticID);
+              const cachedPurchase = await table.get(optimisticID);
 
-              // Create optimistic job run object
-              const optimisticJobRun: JobRunFEO = {
-                id: jobRunData.id,
-                ...cachedJobRun, // Keep existing cached data
-                ...jobRunData, // Apply new data
+              // Create optimistic purchase object
+              const optimisticPurchase: PurchaseFEO = {
+                id: purchaseData.id,
+                ...cachedPurchase, // Keep existing cached data
+                ...purchaseData, // Apply new data
                 updated_at: Date.now(),
                 _isOptimistic: true,
                 _optimisticID: optimisticID,
-                _syncWarning: `Awaiting Sync. This job run was edited offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be reverted. Anything else depending on it may also be affected.`,
+                _syncWarning: `Awaiting Sync. This purchase was edited offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be reverted. Anything else depending on it may also be affected.`,
                 _syncConflict: false,
                 _syncSuccess: false,
               };
 
               // Save to IndexedDB
-              await table.put(optimisticJobRun);
+              await table.put(optimisticPurchase);
 
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
-                optimistic: optimisticJobRun,
+                optimistic: optimisticPurchase,
               };
             }
             break;
           }
 
-          case UPDATE_JOB_RUN_COMMIT: {
+          case UPDATE_PURCHASE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
-            const realJobRun = action.payload?.ok?.data;
-            if (optimisticID && realJobRun) {
+            const realPurchase = action.payload?.ok?.data;
+            if (optimisticID && realPurchase) {
               await db.transaction("rw", table, async () => {
                 // Remove optimistic version
                 await table.delete(optimisticID);
                 // Add real version
                 await table.put({
-                  ...realJobRun,
+                  ...realPurchase,
                   _optimisticID: null,
                   _syncSuccess: true,
                   _syncConflict: false,
@@ -333,13 +333,13 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case UPDATE_JOB_RUN_ROLLBACK: {
+          case UPDATE_PURCHASE_ROLLBACK: {
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
-                const error_message = `Failed to update job run - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to update purchase - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,
@@ -354,17 +354,17 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ DELETE JOB RUN --------------------------------- //
 
-          case DELETE_JOB_RUN: {
+          case DELETE_PURCHASE: {
             const optimisticID = action.meta.optimisticID;
 
-            const cachedJobRun = await table.get(optimisticID);
+            const cachedPurchase = await table.get(optimisticID);
 
-            if (cachedJobRun) {
-              const optimisticJobRun: JobRunFEO = {
-                ...cachedJobRun,
+            if (cachedPurchase) {
+              const optimisticPurchase: PurchaseFEO = {
+                ...cachedPurchase,
                 id: optimisticID,
                 _markedForDeletion: true, // Mark for deletion
-                _syncWarning: `Awaiting Sync. This job run was deleted offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be restored. Anything else depending on it may also be affected.`,
+                _syncWarning: `Awaiting Sync. This purchase was deleted offline and will auto-sync with cloud when you are online again. If there are errors, it may need to be restored. Anything else depending on it may also be affected.`,
                 _syncConflict: false,
                 _syncSuccess: false,
                 _isOptimistic: true,
@@ -372,18 +372,18 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
               };
 
               // mark for deletion in indexdb
-              await table.put(optimisticJobRun);
+              await table.put(optimisticPurchase);
 
               // Enhance action with optimisticID
               enhancedAction = {
                 ...action,
-                optimistic: optimisticJobRun,
+                optimistic: optimisticPurchase,
               };
             }
             break;
           }
 
-          case DELETE_JOB_RUN_COMMIT: {
+          case DELETE_PURCHASE_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
             if (optimisticID) {
               await db.transaction("rw", table, async () => {
@@ -394,13 +394,13 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case DELETE_JOB_RUN_ROLLBACK: {
+          case DELETE_PURCHASE_ROLLBACK: {
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
-                const error_message = `Failed to delete job run - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to delete purchase - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,
@@ -413,7 +413,7 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case CHECK_JOB_RUNS_TABLE_PERMISSIONS: {
+          case CHECK_PURCHASES_TABLE_PERMISSIONS: {
             // check dexie
             const systemPermissionsTable = db.table(
               SYSTEM_PERMISSIONS_DEXIE_TABLE
@@ -430,7 +430,7 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case CHECK_JOB_RUNS_TABLE_PERMISSIONS_COMMIT: {
+          case CHECK_PURCHASES_TABLE_PERMISSIONS_COMMIT: {
             const optimisticID = action.meta?.optimisticID;
             const permissions = action.payload?.ok?.data?.permissions;
 
@@ -441,13 +441,13 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
               );
               await systemPermissionsTable.put({
                 id: optimisticID,
-                resource_id: "TABLE_JOB_RUNS",
+                resource_id: "TABLE_PURCHASES",
                 granted_to: optimisticID.replace(
-                  "job_runs_table_permissions_",
+                  "purchases_table_permissions_",
                   ""
                 ),
                 granted_by: optimisticID.replace(
-                  "job_runs_table_permissions_",
+                  "purchases_table_permissions_",
                   ""
                 ),
                 permission_types: permissions,
@@ -462,7 +462,7 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
                 metadata: null,
                 external_id: null,
                 external_payload: null,
-                resource_name: "Job Runs Table",
+                resource_name: "Purchases Table",
                 grantee_name: "You",
                 grantee_avatar: null,
                 granter_name: "System",
@@ -476,13 +476,13 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
             break;
           }
 
-          case CHECK_JOB_RUNS_TABLE_PERMISSIONS_ROLLBACK: {
+          case CHECK_PURCHASES_TABLE_PERMISSIONS_ROLLBACK: {
             if (!action.payload.response) break;
             try {
               const err = await action.payload.response.json();
               const optimisticID = action.meta?.optimisticID;
               if (optimisticID) {
-                const error_message = `Failed to check job runs table permissions - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
+                const error_message = `Failed to check purchases table permissions - a sync conflict occurred between your offline local copy & the official cloud record. You may see sync conflicts in other related data. Error message for your request: ${err.err.message}`;
                 await markSyncConflict(table, optimisticID, error_message);
                 enhancedAction = {
                   ...action,
@@ -500,7 +500,7 @@ export const jobRunsOptimisticDexieMiddleware = (currentIdentitySet: {
         return next(enhancedAction);
       } catch (error) {
         console.error(
-          `Error in job runs middleware for ${action.type}:`,
+          `Error in purchases middleware for ${action.type}:`,
           error
         );
         // Continue with the original action if there's an error

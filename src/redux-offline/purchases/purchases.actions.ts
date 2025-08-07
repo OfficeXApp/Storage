@@ -1,51 +1,51 @@
-// src/redux-offline/jobRuns/jobRuns.actions.ts
+// src/redux-offline/purchases/purchases.actions.ts
 
 import {
-  JobRunID,
-  IRequestCreateJobRun,
-  IRequestDeleteJobRun,
-  IRequestListJobRuns,
-  IRequestUpdateJobRun,
+  PurchaseID,
+  IRequestCreatePurchase,
+  IRequestDeletePurchase,
+  IRequestListPurchases,
+  IRequestUpdatePurchase,
   UserID,
 } from "@officexapp/types";
 import { GenerateID } from "@officexapp/types"; // Assuming GenerateID is available
 
-export const GET_JOB_RUN = "GET_JOB_RUN";
-export const GET_JOB_RUN_COMMIT = "GET_JOB_RUN_COMMIT";
-export const GET_JOB_RUN_ROLLBACK = "GET_JOB_RUN_ROLLBACK";
+export const GET_PURCHASE = "GET_PURCHASE";
+export const GET_PURCHASE_COMMIT = "GET_PURCHASE_COMMIT";
+export const GET_PURCHASE_ROLLBACK = "GET_PURCHASE_ROLLBACK";
 
-export const LIST_JOB_RUNS = "LIST_JOB_RUNS";
-export const LIST_JOB_RUNS_COMMIT = "LIST_JOB_RUNS_COMMIT";
-export const LIST_JOB_RUNS_ROLLBACK = "LIST_JOB_RUNS_ROLLBACK";
+export const LIST_PURCHASES = "LIST_PURCHASES";
+export const LIST_PURCHASES_COMMIT = "LIST_PURCHASES_COMMIT";
+export const LIST_PURCHASES_ROLLBACK = "LIST_PURCHASES_ROLLBACK";
 
-export const CREATE_JOB_RUN = "CREATE_JOB_RUN";
-export const CREATE_JOB_RUN_COMMIT = "CREATE_JOB_RUN_COMMIT";
-export const CREATE_JOB_RUN_ROLLBACK = "CREATE_JOB_RUN_ROLLBACK";
+export const CREATE_PURCHASE = "CREATE_PURCHASE";
+export const CREATE_PURCHASE_COMMIT = "CREATE_PURCHASE_COMMIT";
+export const CREATE_PURCHASE_ROLLBACK = "CREATE_PURCHASE_ROLLBACK";
 
-export const UPDATE_JOB_RUN = "UPDATE_JOB_RUN";
-export const UPDATE_JOB_RUN_COMMIT = "UPDATE_JOB_RUN_COMMIT";
-export const UPDATE_JOB_RUN_ROLLBACK = "UPDATE_JOB_RUN_ROLLBACK";
+export const UPDATE_PURCHASE = "UPDATE_PURCHASE";
+export const UPDATE_PURCHASE_COMMIT = "UPDATE_PURCHASE_COMMIT";
+export const UPDATE_PURCHASE_ROLLBACK = "UPDATE_PURCHASE_ROLLBACK";
 
-export const DELETE_JOB_RUN = "DELETE_JOB_RUN";
-export const DELETE_JOB_RUN_COMMIT = "DELETE_JOB_RUN_COMMIT";
-export const DELETE_JOB_RUN_ROLLBACK = "DELETE_JOB_RUN_ROLLBACK";
+export const DELETE_PURCHASE = "DELETE_PURCHASE";
+export const DELETE_PURCHASE_COMMIT = "DELETE_PURCHASE_COMMIT";
+export const DELETE_PURCHASE_ROLLBACK = "DELETE_PURCHASE_ROLLBACK";
 
-export const CHECK_JOB_RUNS_TABLE_PERMISSIONS =
-  "CHECK_JOB_RUNS_TABLE_PERMISSIONS";
-export const CHECK_JOB_RUNS_TABLE_PERMISSIONS_COMMIT =
-  "CHECK_JOB_RUNS_TABLE_PERMISSIONS_COMMIT";
-export const CHECK_JOB_RUNS_TABLE_PERMISSIONS_ROLLBACK =
-  "CHECK_JOB_RUNS_TABLE_PERMISSIONS_ROLLBACK";
+export const CHECK_PURCHASES_TABLE_PERMISSIONS =
+  "CHECK_PURCHASES_TABLE_PERMISSIONS";
+export const CHECK_PURCHASES_TABLE_PERMISSIONS_COMMIT =
+  "CHECK_PURCHASES_TABLE_PERMISSIONS_COMMIT";
+export const CHECK_PURCHASES_TABLE_PERMISSIONS_ROLLBACK =
+  "CHECK_PURCHASES_TABLE_PERMISSIONS_ROLLBACK";
 
-// Get Job Run
-export const getJobRunAction = (id: JobRunID) => ({
-  type: GET_JOB_RUN,
+// Get Purchase
+export const getPurchaseAction = (id: PurchaseID) => ({
+  type: GET_PURCHASE,
   meta: {
     optimisticID: id,
     offline: {
       // Define the effect (the API call to make)
       effect: {
-        url: `/job_runs/get/${id}`,
+        url: `/purchases/get/${id}`,
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -54,9 +54,9 @@ export const getJobRunAction = (id: JobRunID) => ({
         data: {},
       },
       // Action to dispatch on success
-      commit: { type: GET_JOB_RUN_COMMIT },
+      commit: { type: GET_PURCHASE_COMMIT },
       // Action to dispatch on failure
-      rollback: { type: GET_JOB_RUN_ROLLBACK },
+      rollback: { type: GET_PURCHASE_ROLLBACK },
       discard: (error: any, _action: any, _retries: number) => {
         console.log("redux-offline discard error:", error);
         const { response } = error;
@@ -67,14 +67,14 @@ export const getJobRunAction = (id: JobRunID) => ({
   },
 });
 
-// List Job Runs
-export const listJobRunsAction = (payload: IRequestListJobRuns) => ({
-  type: LIST_JOB_RUNS,
+// List Purchases
+export const listPurchasesAction = (payload: IRequestListPurchases) => ({
+  type: LIST_PURCHASES,
   meta: {
     offline: {
       // Define the effect (the API call to make)
       effect: {
-        url: `/job_runs/list`,
+        url: `/purchases/list`,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -83,9 +83,9 @@ export const listJobRunsAction = (payload: IRequestListJobRuns) => ({
         data: payload,
       },
       // Action to dispatch on success
-      commit: { type: LIST_JOB_RUNS_COMMIT },
+      commit: { type: LIST_PURCHASES_COMMIT },
       // Action to dispatch on failure
-      rollback: { type: LIST_JOB_RUNS_ROLLBACK },
+      rollback: { type: LIST_PURCHASES_ROLLBACK },
       discard: (error: any, _action: any, _retries: number) => {
         console.log("redux-offline discard error:", error);
         const { response } = error;
@@ -96,20 +96,20 @@ export const listJobRunsAction = (payload: IRequestListJobRuns) => ({
   },
 });
 
-// Create Job Run
-export const createJobRunAction = (jobRunData: IRequestCreateJobRun) => {
-  const id = jobRunData.id || GenerateID.JobRunID(); // Use provided ID or generate
+// Create Purchase
+export const createPurchaseAction = (purchaseData: IRequestCreatePurchase) => {
+  const id = purchaseData.id || GenerateID.PurchaseID(); // Use provided ID or generate
   const payload = {
-    ...jobRunData,
+    ...purchaseData,
     id,
   };
   return {
-    type: CREATE_JOB_RUN,
+    type: CREATE_PURCHASE,
     meta: {
       optimisticID: id,
       offline: {
         effect: {
-          url: `/job_runs/create`,
+          url: `/purchases/create`,
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -118,77 +118,10 @@ export const createJobRunAction = (jobRunData: IRequestCreateJobRun) => {
           data: payload,
         },
         // Action to dispatch on success
-        commit: { type: CREATE_JOB_RUN_COMMIT, meta: { optimisticID: id } },
-        // Action to dispatch on failure
-        rollback: { type: CREATE_JOB_RUN_ROLLBACK, meta: { optimisticID: id } },
-        discard: (error: any, _action: any, _retries: number) => {
-          console.log("redux-offline discard error:", error);
-          const { response } = error;
-          // Don't retry on 4xx client errors
-          return response && response.status >= 400 && response.status < 500;
-        },
-      },
-    },
-  };
-};
-
-// Update Job Run
-export const updateJobRunAction = (jobRunData: IRequestUpdateJobRun) => {
-  const id = jobRunData.id;
-  const payload = {
-    ...jobRunData,
-  };
-  return {
-    type: UPDATE_JOB_RUN,
-    meta: {
-      optimisticID: id,
-      offline: {
-        effect: {
-          url: `/job_runs/update`,
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
-          },
-          data: payload,
-        },
-        // Action to dispatch on success
-        commit: { type: UPDATE_JOB_RUN_COMMIT, meta: { optimisticID: id } },
-        // Action to dispatch on failure
-        rollback: { type: UPDATE_JOB_RUN_ROLLBACK, meta: { optimisticID: id } },
-        discard: (error: any, _action: any, _retries: number) => {
-          console.log("redux-offline discard error:", error);
-          const { response } = error;
-          // Don't retry on 4xx client errors
-          return response && response.status >= 400 && response.status < 500;
-        },
-      },
-    },
-  };
-};
-
-// Delete Job Run
-export const deleteJobRunAction = (payload: IRequestDeleteJobRun) => {
-  const id = payload.id;
-  return {
-    type: DELETE_JOB_RUN,
-    meta: {
-      optimisticID: id,
-      offline: {
-        effect: {
-          url: `/job_runs/delete`,
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
-          },
-          data: payload,
-        },
-        // Action to dispatch on success
-        commit: { type: DELETE_JOB_RUN_COMMIT, meta: { optimisticID: id } },
+        commit: { type: CREATE_PURCHASE_COMMIT, meta: { optimisticID: id } },
         // Action to dispatch on failure
         rollback: {
-          type: DELETE_JOB_RUN_ROLLBACK,
+          type: CREATE_PURCHASE_ROLLBACK,
           meta: { optimisticID: id },
         },
         discard: (error: any, _action: any, _retries: number) => {
@@ -202,17 +135,90 @@ export const deleteJobRunAction = (payload: IRequestDeleteJobRun) => {
   };
 };
 
-// Check Job Runs Table Permissions
-export const checkJobRunsTablePermissionsAction = (userID: UserID) => {
-  const id = `job_runs_table_permissions_${userID}`;
+// Update Purchase
+export const updatePurchaseAction = (purchaseData: IRequestUpdatePurchase) => {
+  const id = purchaseData.id;
+  const payload = {
+    ...purchaseData,
+  };
+  return {
+    type: UPDATE_PURCHASE,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/purchases/update`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: { type: UPDATE_PURCHASE_COMMIT, meta: { optimisticID: id } },
+        // Action to dispatch on failure
+        rollback: {
+          type: UPDATE_PURCHASE_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+        discard: (error: any, _action: any, _retries: number) => {
+          console.log("redux-offline discard error:", error);
+          const { response } = error;
+          // Don't retry on 4xx client errors
+          return response && response.status >= 400 && response.status < 500;
+        },
+      },
+    },
+  };
+};
+
+// Delete Purchase
+export const deletePurchaseAction = (payload: IRequestDeletePurchase) => {
+  const id = payload.id;
+  return {
+    type: DELETE_PURCHASE,
+    meta: {
+      optimisticID: id,
+      offline: {
+        effect: {
+          url: `/purchases/delete`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer HANDLED_BY_OFFLINE_EFFECT_MIDDLEWARE`,
+          },
+          data: payload,
+        },
+        // Action to dispatch on success
+        commit: { type: DELETE_PURCHASE_COMMIT, meta: { optimisticID: id } },
+        // Action to dispatch on failure
+        rollback: {
+          type: DELETE_PURCHASE_ROLLBACK,
+          meta: { optimisticID: id },
+        },
+        discard: (error: any, _action: any, _retries: number) => {
+          console.log("redux-offline discard error:", error);
+          const { response } = error;
+          // Don't retry on 4xx client errors
+          return response && response.status >= 400 && response.status < 500;
+        },
+      },
+    },
+  };
+};
+
+// Check Purchases Table Permissions
+export const checkPurchasesTablePermissionsAction = (userID: UserID) => {
+  const id = `purchases_table_permissions_${userID}`;
 
   const payload = {
-    resource_id: "TABLE_JOB_RUNS", // Ensure this matches your SystemTableValueEnum
+    resource_id: "TABLE_PURCHASES", // Ensure this matches your SystemTableValueEnum
     grantee_id: userID,
   };
 
   return {
-    type: CHECK_JOB_RUNS_TABLE_PERMISSIONS,
+    type: CHECK_PURCHASES_TABLE_PERMISSIONS,
     meta: {
       optimisticID: id,
       offline: {
@@ -227,12 +233,12 @@ export const checkJobRunsTablePermissionsAction = (userID: UserID) => {
         },
         // Action to dispatch on success
         commit: {
-          type: CHECK_JOB_RUNS_TABLE_PERMISSIONS_COMMIT,
+          type: CHECK_PURCHASES_TABLE_PERMISSIONS_COMMIT,
           meta: { optimisticID: id },
         },
         // Action to dispatch on failure
         rollback: {
-          type: CHECK_JOB_RUNS_TABLE_PERMISSIONS_ROLLBACK,
+          type: CHECK_PURCHASES_TABLE_PERMISSIONS_ROLLBACK,
           meta: { optimisticID: id },
         },
         discard: (error: any, _action: any, _retries: number) => {

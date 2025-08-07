@@ -46,11 +46,15 @@ import {
   wrapAuthStringOrHeader,
 } from "../../api/helpers";
 import {
+  GET_FILE,
+  getFileAction,
   UPDATE_FILE,
   updateFileAction,
 } from "../../redux-offline/directory/directory.actions";
 import { useDispatch } from "react-redux";
 import VideoPlayer from "../VideoPlayer";
+import DirectoryGuard from "../DriveUI/DirectoryGuard";
+import { v4 as uuidv4 } from "uuid";
 
 const { Text } = Typography;
 
@@ -90,7 +94,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   const [freshGeneratedSignature, setFreshGeneratedSignature] =
     useState<string>("");
 
-  console.log(`file,`, file);
+  const [fileContentError, setFileContentError] = useState<string>("");
+
+  console.log(`--- file,`, file);
   console.log(`--- fileUrl loading=${isLoading}`, fileUrl);
 
   const objectStoreNameRef = useRef<string>("files");
@@ -489,10 +495,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         return response.url;
       } else {
         console.error("Error fetching presigned URL:", response.status);
+        setFileContentError(`HTTP error: ${response.status}`);
+
         throw new Error(`HTTP error: ${response.status}`);
       }
     } catch (error) {
       console.error("Failed to get presigned URL:", error);
+      setFileContentError(`Failed to get presigned URL: ${error}`);
       throw error;
     }
   }
@@ -677,6 +686,20 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   console.log(`fileUrl`, fileUrl);
   console.log(`isLoading`, isLoading);
+
+  if (file.id && fileContentError) {
+    return (
+      <DirectoryGuard
+        resourceID={file.id}
+        loading={false}
+        fetchResource={() => {
+          if (!file.id) return;
+          // refresh page
+          window.location.reload();
+        }}
+      />
+    );
+  }
 
   return (
     <>

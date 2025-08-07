@@ -155,7 +155,7 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
             <span style={{ fontSize: "1.7rem" }}>Unauthorized</span>
           </Space>
         }
-        subTitle={`You do not have permission to view this ${resourceID.startsWith("FolderID_") ? "folder" : "file"}. Click "Check Again" just in case.`}
+        subTitle={`You do not have permission to view this ${resourceID.startsWith("FolderID_") ? "folder" : "file"}. Click "Check Again" just in case old cache.`}
         extra={
           <div style={{ maxWidth: 400, margin: "0 auto" }}>
             <Space direction="vertical" size="large" style={{ width: "100%" }}>

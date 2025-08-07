@@ -32,62 +32,64 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { shortenAddress } from "../../framework/identity/constants";
 import {
-  JobRunFE,
-  JobRunStatus,
+  PurchaseFE,
+  PurchaseStatus,
   SystemPermissionType,
-} from "@officexapp/types"; // Import JobRunStatus
+} from "@officexapp/types"; // Import PurchaseStatus
 import useScreenType from "react-screentype-hook";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  checkJobRunsTablePermissionsAction,
-  listJobRunsAction,
-} from "../../redux-offline/job-runs/job-runs.actions";
-import { formatUserString, getLastOnlineStatus } from "../../api/helpers"; // Re-evaluate if needed for JobRuns
+  checkPurchasesTablePermissionsAction,
+  listPurchasesAction,
+} from "../../redux-offline/purchases/purchases.actions";
+import { formatUserString, getLastOnlineStatus } from "../../api/helpers"; // Re-evaluate if needed for Purchases
 import { useIdentitySystem } from "../../framework/identity";
 import { Link } from "react-router-dom";
 import TagCopy from "../../components/TagCopy";
 
-interface JobRunsTableListProps {
+interface PurchasesTableListProps {
   isContentTabOpen: (id: string) => boolean;
-  handleClickContentTab: (jobRun: JobRunFE, focus_tab?: boolean) => void;
+  handleClickContentTab: (purchase: PurchaseFE, focus_tab?: boolean) => void;
 }
 
-const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
+const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
   isContentTabOpen,
   handleClickContentTab,
 }) => {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
-  const { jobRuns, loading, tablePermissions } = useSelector(
+  const { purchases, loading, tablePermissions } = useSelector(
     (state: ReduxAppState) => ({
-      jobRuns: state.jobRuns.jobRuns,
-      loading: state.jobRuns.loading,
-      tablePermissions: state.jobRuns.tablePermissions,
+      purchases: state.purchases.purchases,
+      loading: state.purchases.loading,
+      tablePermissions: state.purchases.tablePermissions,
     })
   );
   const { wrapOrgCode, currentProfile } = useIdentitySystem();
-  console.log(`look at job runs`, jobRuns);
+  console.log(`look at purchases`, purchases);
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
-  const [filteredJobRuns, setFilteredJobRuns] = useState(jobRuns);
+  const [filteredPurchases, setFilteredPurchases] = useState(purchases);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // Update filtered job runs whenever search text or job runs change
+  // Update filtered purchases whenever search text or purchases change
   useEffect(() => {
-    const filtered = jobRuns
+    const filtered = purchases
       .filter((j) => j)
       .filter(
-        (jobRun) =>
-          jobRun.title.toLowerCase().includes(searchText.toLowerCase()) ||
-          jobRun.description
+        (purchase) =>
+          purchase.title.toLowerCase().includes(searchText.toLowerCase()) ||
+          purchase.description
             ?.toLowerCase()
             .includes(searchText.toLowerCase()) ||
-          jobRun.vendor_name.toLowerCase().includes(searchText.toLowerCase()) ||
-          jobRun.status.toLowerCase().includes(searchText.toLowerCase())
+          purchase.vendor_name
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          purchase.status.toLowerCase().includes(searchText.toLowerCase())
       );
-    setFilteredJobRuns(filtered);
-  }, [searchText, jobRuns]);
+    setFilteredPurchases(filtered);
+  }, [searchText, purchases]);
 
   // Handle responsive layout
   useEffect(() => {
@@ -140,22 +142,22 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
     },
   ];
 
-  // Function to get appropriate tag color for JobRunStatus
-  const getStatusTagColor = (status: JobRunStatus) => {
+  // Function to get appropriate tag color for PurchaseStatus
+  const getStatusTagColor = (status: PurchaseStatus) => {
     switch (status) {
-      case JobRunStatus.COMPLETED:
+      case PurchaseStatus.COMPLETED:
         return "success";
-      case JobRunStatus.RUNNING:
+      case PurchaseStatus.RUNNING:
         return "processing";
-      case JobRunStatus.FAILED:
+      case PurchaseStatus.FAILED:
         return "error";
-      case JobRunStatus.CANCELED:
-      case JobRunStatus.REFUNDED:
+      case PurchaseStatus.CANCELED:
+      case PurchaseStatus.REFUNDED:
         return "default";
-      case JobRunStatus.REQUESTED:
-      case JobRunStatus.AWAITING:
+      case PurchaseStatus.REQUESTED:
+      case PurchaseStatus.AWAITING:
         return "warning";
-      case JobRunStatus.BLOCKED:
+      case PurchaseStatus.BLOCKED:
         return "red";
       default:
         return "default";
@@ -163,12 +165,12 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
   };
 
   // Define table columns
-  const columns: ColumnsType<JobRunFE> = [
+  const columns: ColumnsType<PurchaseFE> = [
     {
-      title: "Job Run",
+      title: "Purchase",
       dataIndex: "title",
       key: "title",
-      render: (_, record: JobRunFE) => (
+      render: (_, record: PurchaseFE) => (
         <Space
           onClick={(e) => {
             e?.stopPropagation();
@@ -179,7 +181,7 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               handleClickContentTab(record, true);
-              const newUrl = wrapOrgCode(`/resources/job-runs/${record.id}`);
+              const newUrl = wrapOrgCode(`/resources/purchases/${record.id}`);
               window.history.pushState({}, "", newUrl);
             }}
           >
@@ -196,7 +198,7 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
       title: "Vendor",
       dataIndex: "vendor_name",
       key: "vendor_name",
-      render: (text: string, record: JobRunFE) => (
+      render: (text: string, record: PurchaseFE) => (
         <Space>
           <span>{text}</span>
           {record.vendor_id && <TagCopy id={record.vendor_id} />}
@@ -222,17 +224,17 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
     return (
       <List
         itemLayout="horizontal"
-        dataSource={filteredJobRuns}
-        renderItem={(jobRun: JobRunFE) => (
+        dataSource={filteredPurchases}
+        renderItem={(purchase: PurchaseFE) => (
           <List.Item
             style={{
               padding: "12px 16px",
               cursor: "pointer",
-              backgroundColor: isContentTabOpen(jobRun.id)
+              backgroundColor: isContentTabOpen(purchase.id)
                 ? "#e6f7ff"
                 : "transparent",
             }}
-            onClick={() => handleClickContentTab(jobRun, true)}
+            onClick={() => handleClickContentTab(purchase, true)}
           >
             <div
               style={{
@@ -247,7 +249,7 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
               >
                 <Avatar size="default" icon={<RocketOutlined />} />
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: "500" }}>{jobRun.title}</span>
+                  <span style={{ fontWeight: "500" }}>{purchase.title}</span>
                   <div
                     style={{
                       display: "flex",
@@ -255,14 +257,14 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
                       gap: "8px",
                     }}
                   >
-                    <Tag color={getStatusTagColor(jobRun.status)}>
-                      {jobRun.status}
+                    <Tag color={getStatusTagColor(purchase.status)}>
+                      {purchase.status}
                     </Tag>
                     <span
                       style={{ fontSize: "10px", color: "rgba(0,0,0,0.45)" }}
                     >
                       <ClockCircleOutlined style={{ marginRight: 4 }} />
-                      {new Date(jobRun.created_at).toLocaleDateString()}
+                      {new Date(purchase.created_at).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -270,7 +272,7 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                <Tag color="default">{shortenAddress(jobRun.id)}</Tag>
+                <Tag color="default">{shortenAddress(purchase.id)}</Tag>
                 <RightOutlined style={{ color: "rgba(0,0,0,0.4)" }} />
               </div>
             </div>
@@ -282,8 +284,8 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
 
   const syncLatest = () => {
     if (!currentProfile) return;
-    dispatch(listJobRunsAction({}));
-    dispatch(checkJobRunsTablePermissionsAction(currentProfile.userID));
+    dispatch(listPurchasesAction({}));
+    dispatch(checkPurchasesTablePermissionsAction(currentProfile.userID));
   };
 
   return (
@@ -312,7 +314,7 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
             {/* Search input */}
             <Space direction="horizontal">
               <Input
-                placeholder="Search Job Runs..."
+                placeholder="Search Purchases..."
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
@@ -394,7 +396,7 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
           >
             {/* Search input - always on top for mobile */}
             <Input
-              placeholder="Search job runs..."
+              placeholder="Search purchases..."
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -467,9 +469,9 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
         </div>
       </div>
 
-      {/* Job Runs Table */}
+      {/* Purchases Table */}
       {tablePermissions.includes(SystemPermissionType.VIEW) ||
-      jobRuns.length > 0 ? (
+      purchases.length > 0 ? (
         <div
           style={{ flex: 1, padding: "0 16px 16px 16px", overflowY: "auto" }}
         >
@@ -483,7 +485,7 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
                 columnWidth: 50,
               }}
               columns={columns}
-              dataSource={filteredJobRuns}
+              dataSource={filteredPurchases}
               rowKey="id"
               pagination={false}
               onRow={(record) => ({
@@ -509,7 +511,7 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
           title="Unauthorized"
           subTitle={
             <div>
-              <span>Sorry, you are not authorized to view job runs.</span>
+              <span>Sorry, you are not authorized to view purchases.</span>
               <br />
               <span>Contact your organization administrator.</span>
             </div>
@@ -529,4 +531,4 @@ const JobRunsTableList: React.FC<JobRunsTableListProps> = ({
   );
 };
 
-export default JobRunsTableList;
+export default PurchasesTableList;

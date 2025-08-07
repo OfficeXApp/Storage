@@ -169,6 +169,15 @@ const SpreadsheetEditor = () => {
       file.name.replace(".officex-spreadsheet", "") || "Untitled Spreadsheet";
     setCurrentFileName(defaultName);
     currentFileNameRef.current = defaultName;
+
+    console.log(`=+=+>>> fileFromRedux`, fileFromRedux);
+    console.log(`=+=+>>> fileID`, fileID);
+    if (!fileFromRedux) {
+      if (!fileID) return;
+      setTimeout(() => {
+        fetchFileById(fileID);
+      }, 1000);
+    }
   }, []);
 
   useEffect(() => {
@@ -203,6 +212,7 @@ const SpreadsheetEditor = () => {
       const response = await fetch(url);
 
       if (!response.ok) {
+        setFileContentError(`HTTP error: ${response.status}`);
         throw new Error(`HTTP error: ${response.status}`);
       }
 
@@ -614,10 +624,12 @@ const SpreadsheetEditor = () => {
         return response.url;
       } else {
         console.error("Error fetching presigned URL:", response.status);
+        setFileContentError(`HTTP error: ${response.status}`);
         throw new Error(`HTTP error: ${response.status}`);
       }
     } catch (error) {
       console.error("Failed to get presigned URL:", error);
+      setFileContentError(`Failed to get presigned URL: ${error}`);
       throw error;
     }
   }
@@ -858,7 +870,7 @@ const SpreadsheetEditor = () => {
         listDirectoryKey: generateListDirectoryKey({
           folder_id: parentFolderID || undefined,
         }),
-        fileConflictResolution: FileConflictResolutionEnum.KEEP_NEWER,
+        fileConflictResolution: FileConflictResolutionEnum.REPLACE,
       });
 
       setTimeout(() => {
@@ -1026,7 +1038,7 @@ const SpreadsheetEditor = () => {
           id: fileId,
         },
       };
-
+      console.log(`=+=+>>> getAction`, getAction, offlineDisk);
       dispatch(getFileAction(getAction, offlineDisk));
 
       setTimeout(() => {
@@ -1053,6 +1065,19 @@ const SpreadsheetEditor = () => {
       <DirectoryGuard
         resourceID={fileID}
         loading={(fileFromRedux as any)?.isLoading}
+        fetchResource={() => {
+          if (!fileID) return;
+          fetchFileById(fileID);
+        }}
+      />
+    );
+  }
+
+  if (fileID && fileContentError) {
+    return (
+      <DirectoryGuard
+        resourceID={fileID}
+        loading={false}
         fetchResource={() => {
           if (!fileID) return;
           fetchFileById(fileID);

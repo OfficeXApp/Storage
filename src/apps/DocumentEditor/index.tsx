@@ -848,7 +848,7 @@ const DocumentEditor = () => {
         listDirectoryKey: generateListDirectoryKey({
           folder_id: parentFolderID || undefined,
         }),
-        fileConflictResolution: FileConflictResolutionEnum.KEEP_NEWER,
+        fileConflictResolution: FileConflictResolutionEnum.REPLACE,
       });
 
       setTimeout(() => {

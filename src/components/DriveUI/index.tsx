@@ -55,6 +55,7 @@ import {
   SearchOutlined,
   AppstoreOutlined,
   ExperimentOutlined,
+  DatabaseOutlined,
 } from "@ant-design/icons";
 import sheetsLogo from "../../assets/sheets-logo.png";
 import docsLogo from "../../assets/docs-logo.png";
@@ -1925,7 +1926,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             />
           ) : (
             <UploadDropZone toggleUploadPanel={toggleUploadPanel}>
-              {content.folders.length === 0 && content.files.length === 0 ? (
+              {content.folders.length === 0 &&
+              content.files.length === 0 &&
+              window.location.pathname.split("/").pop() !== "drive" ? (
                 <div
                   style={{
                     display: "flex",
@@ -2054,7 +2057,14 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       backgroundColor: "rgba(0,0,0,0.01)",
                     }}
                   />
-                  {viewRowTile === "row" ? (
+                  {tableRows.length === 0 ? (
+                    <Result
+                      icon={<DatabaseOutlined />}
+                      title="No Disks Shared with You"
+                      subTitle="Ask the admin to give you access to a disk"
+                      style={{ marginTop: "10vh" }}
+                    />
+                  ) : viewRowTile === "row" ? (
                     <Table
                       {...(!isDiskRootPage && {
                         rowSelection: {

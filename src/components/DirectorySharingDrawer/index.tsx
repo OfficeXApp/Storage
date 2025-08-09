@@ -141,6 +141,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   );
   const objectStoreNameRef = React.useRef<string>("files");
 
+  const hasWeb2CloudWithShortlink =
+    currentOrg?.host && !currentOrg?.host.includes("icp0.io");
+
   React.useEffect(() => {
     if (currentOrg && currentProfile) {
       dbNameRef.current = `OFFICEX-browser-cache-storage-${currentOrg.driveID}-${currentProfile.userID}`;
@@ -397,6 +400,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [onTheFlyShareUrl, setOnTheFlyShareUrl] = useState("");
+  const [shortlinkUrl, setShortlinkUrl] = useState("");
   const [shareUrl, setShareUrl] = useState(window.location.href);
   const [searchText, setSearchText] = useState("");
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
@@ -422,7 +426,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       .filter((p) => p?.id.startsWith("DirectoryPermissionID_"));
   }, [permissionIDs, permissionMap]);
 
-  const { wrapOrgCode } = useIdentitySystem();
+  const { wrapOrgCode, currentAPIKey, generateSignature } = useIdentitySystem();
   const [permissionForEdit, setPermissionForEdit] =
     useState<PreExistingStateForEdit>();
   const { uploadFiles } = useMultiUploader();
@@ -431,6 +435,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   const isOfflineDisk =
     uploadTargetDiskID === defaultTempCloudSharingDiskID ||
     uploadTargetDiskID === defaultBrowserCacheDiskID;
+
+  console.log(`currentOrg`, currentOrg?.host);
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -441,16 +447,21 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         note: `${currentProfile?.userID} shared a file with you`,
         original: _file,
       };
-      setShareUrl(
-        `${window.location.origin}${wrapOrgCode("/share/free-cloud-filesharing")}?redeem=${urlSafeBase64Encode(
-          JSON.stringify(payload)
-        )}`
-      );
+      console.log(`hasWeb2CloudWithShortlink`, hasWeb2CloudWithShortlink);
+      if (!hasWeb2CloudWithShortlink) {
+        setShareUrl(
+          `${window.location.origin}${wrapOrgCode("/share/free-cloud-filesharing")}?redeem=${urlSafeBase64Encode(
+            JSON.stringify(payload)
+          )}`
+        );
+      } else {
+        setShareUrl("");
+      }
     } else {
       setShareUrl(window.location.href);
       refetchPermissions();
     }
-  }, [resourceID]);
+  }, [resourceID, hasWeb2CloudWithShortlink]);
 
   useEffect(() => {
     const should_default_advanced_open = localStorage.getItem(
@@ -768,6 +779,40 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     },
   ];
 
+  const generateShortLink = async (original_url: string) => {
+    if (!currentOrg?.host) {
+      // message.error("Organization host not found");
+      return original_url;
+    }
+
+    try {
+      const auth_token = currentAPIKey?.value || (await generateSignature());
+      const response = await fetch(
+        `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}/organization/shortlink`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth_token}`,
+          },
+          body: JSON.stringify({
+            original_url,
+          }),
+        }
+      );
+      const data = await response.json();
+      const slug = data.ok.data.slug;
+      const shortLink = `${window.location.origin}${wrapOrgCode(`/to/${slug}`)}`;
+      setShortlinkUrl(shortLink);
+      setShareUrl(shortLink);
+      return shortLink;
+    } catch (error) {
+      console.error("Error generating short link:", error);
+      message.error(`Failed to generate short link: ${error}`);
+      return null;
+    }
+  };
+
   const generateOnTheFlyShareLink = async (fileResource: FileFEO) => {
     if (!fileResource || !fileResource?.id?.startsWith("FileID_")) {
       message.error("Cannot share a folder or invalid resource on the fly.");
@@ -853,6 +898,15 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       )}`;
       setOnTheFlyShareUrl(_setOnTheFlyShareUrl);
       setIsGeneratingLink(false);
+
+      // generate short link
+      try {
+        const shortLink = await generateShortLink(_setOnTheFlyShareUrl);
+        setOnTheFlyShareUrl(shortLink || _setOnTheFlyShareUrl);
+      } catch (e) {
+        console.error("Error generating short link:", e);
+      }
+
       // copy to clipboard
       navigator.clipboard.writeText(_setOnTheFlyShareUrl);
       message.success("Generated & copied sharing link!");
@@ -886,11 +940,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
               ? onTheFlyShareUrl
               : shareUrl
           }
-          placeholder={
-            uploadTargetDiskID === defaultBrowserCacheDiskID
-              ? " Generate a temporary 8 hour sharing link"
-              : ""
-          }
+          placeholder={" Generate a temporary 8 hour sharing link"}
           readOnly
           size="large"
           variant="borderless"
@@ -910,7 +960,46 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
             )
           }
           suffix={
-            uploadTargetDiskID === defaultBrowserCacheDiskID ? (
+            shortlinkUrl ? (
+              <Button
+                type="primary"
+                icon={<CopyOutlined />}
+                onClick={() => {
+                  navigator.clipboard.writeText(shortlinkUrl);
+                  message.success("Share URL copied to clipboard");
+                }}
+                size="large"
+                style={{ marginLeft: 8 }}
+                disabled={uploadTargetDiskID === defaultBrowserCacheDiskID}
+              >
+                Copy Link
+              </Button>
+            ) : uploadTargetDiskID === defaultTempCloudSharingDiskID &&
+              hasWeb2CloudWithShortlink ? (
+              <Button
+                type="primary"
+                onClick={() => {
+                  const _file = resource as FileRecordFE;
+                  const payload: fileRawUrl_BTOA = {
+                    note: `${currentProfile?.userID} shared a file with you`,
+                    original: _file,
+                  };
+                  console.log(
+                    `hasWeb2CloudWithShortlink`,
+                    hasWeb2CloudWithShortlink
+                  );
+                  const original_url = `${window.location.origin}${wrapOrgCode("/share/free-cloud-filesharing")}?redeem=${urlSafeBase64Encode(
+                    JSON.stringify(payload)
+                  )}`;
+                  generateShortLink(original_url);
+                }}
+                size="large"
+                style={{ marginLeft: 8 }}
+                loading={isGeneratingLink}
+              >
+                Generate Share Link
+              </Button>
+            ) : uploadTargetDiskID === defaultBrowserCacheDiskID ? (
               <Button
                 type="primary"
                 onClick={() => generateOnTheFlyShareLink(resource as FileFEO)}

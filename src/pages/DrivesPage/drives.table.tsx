@@ -31,6 +31,7 @@ import {
   LoadingOutlined,
   SyncOutlined,
   LockOutlined,
+  CloudSyncOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { DriveFE, Drive, SystemPermissionType } from "@officexapp/types";
@@ -45,6 +46,7 @@ import { DriveFEO } from "../../redux-offline/drives/drives.reducer";
 import { useIdentitySystem } from "../../framework/identity";
 import { Link } from "react-router-dom";
 import { shortenAddress } from "../../framework/identity/constants";
+import ConnectICPButton from "../../components/ConnectICPButton";
 
 interface DrivesTableListProps {
   isDriveTabOpen: (id: string) => boolean;
@@ -69,7 +71,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
   const [searchText, setSearchText] = useState("");
   const [filteredDrives, setFilteredDrives] = useState(drives);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const { wrapOrgCode, currentProfile } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile, currentOrg } = useIdentitySystem();
 
   // Update filtered drives whenever search text or drives change
   useEffect(() => {
@@ -534,6 +536,35 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
           <br />
           <br />
         </div>
+      ) : !currentOrg?.host ? (
+        <Result
+          icon={<CloudSyncOutlined />}
+          title="Connect Cloud"
+          subTitle={
+            <div>
+              <span>This is an offline organization</span>
+              <br />
+              <span>You need to connect to free cloud to use this feature</span>
+            </div>
+          }
+          extra={
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              <div style={{ width: "300px" }}>
+                <ConnectICPButton />
+              </div>
+            </div>
+          }
+          style={{
+            marginTop: screenType.isMobile ? "0vh" : "10vh",
+            marginBottom: "20vh",
+          }}
+        />
       ) : (
         <Result
           icon={<LockOutlined />}

@@ -89,7 +89,7 @@ const OrganizationSwitcher = () => {
   const [apiNotifs, contextHolder] = notification.useNotification();
 
   // Form states for new organization
-  const [newOrgNickname, setNewOrgNickname] = useState("");
+  const [newOrgNickname, setNewOrgNickname] = useState("Anonymous Org");
 
   // Form states for existing organization import
   const [existingOrgNickname, setExistingOrgNickname] = useState("");
@@ -325,26 +325,6 @@ const OrganizationSwitcher = () => {
         nickname: "",
         driveNickname: "",
       });
-    }
-  };
-
-  const handleOrgSelect = (driveID: string) => {
-    if (driveID === "add-organization") {
-      // Reset form states
-      setNewOrgNickname("");
-      setExistingOrgNickname("");
-      setExistingOrgEndpoint("");
-      setPreviewEndpoint("");
-      setActiveTabKey("newOrg");
-      setModalMode("new");
-      setIsModalVisible(true);
-      setGiftCardValue("");
-    } else {
-      // For entering or editing an existing organization
-      setSelectedOrgId(driveID);
-      setModalMode("edit-enter");
-      setEnterOrgTabKey("enterOrg");
-      setIsModalVisible(true);
     }
   };
 
@@ -1587,7 +1567,7 @@ const OrganizationSwitcher = () => {
         options={renderOrganizationOptions()}
         onChange={(value) => {
           if (value === "add-organization") {
-            setNewOrgNickname("");
+            setNewOrgNickname("Anonymous Org");
             setExistingOrgNickname("");
             setExistingOrgEndpoint("");
             setActiveTabKey("newOrg");

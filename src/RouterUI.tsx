@@ -121,6 +121,8 @@ import {
   ENABLE_WALLET,
 } from "./framework/flags/feature-flags";
 import PurchasePage from "./pages/PurchasesPage/purchases.page";
+import PrettyUrlShortener from "./components/PrettyUrlShortener";
+import WelcomeAutoSpawn from "./components/WelcomeAutoSpawn";
 
 const { Sider, Content } = Layout;
 
@@ -716,6 +718,8 @@ const RouterUI = () => {
                           />
                         }
                       />
+
+                      <Route path="/welcome" element={<WelcomeAutoSpawn />} />
                       {ENABLE_APPSTORE && (
                         <Route
                           path="/appstore"
@@ -802,6 +806,10 @@ const RouterUI = () => {
                       <Route
                         path="/org/:orgcode/grant-agentic-key"
                         element={<SelectAgenticKey />}
+                      />
+                      <Route
+                        path="/org/:orgcode/to/:shortlink_slug"
+                        element={<PrettyUrlShortener />}
                       />
 
                       <Route path="/sandbox" element={<SandboxPage />} />

@@ -160,20 +160,15 @@ const AppStore = () => {
               <Col
                 key={app.id}
                 xs={24} // Full width on extra small screens
-                sm={12} // Half width on small screens
-                md={8} // One-third width on medium screens
-                lg={6} // One-fourth width on large screens
+                sm={24} // Full width on small screens
+                md={12} // Half width on medium screens
+                lg={12} // One-third width on large screens
                 xl={6} // One-fourth width on extra large screens
                 xxl={4} // One-sixth width on extra extra large screens
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }} // Center cards in their columns
               >
                 <Link
                   to={wrapOrgCode(`/appstore/app/${app.id}`)}
-                  style={{ cursor: "pointer" }}
+                  style={{ display: "block" }}
                 >
                   <AppCard app={app} />
                 </Link>

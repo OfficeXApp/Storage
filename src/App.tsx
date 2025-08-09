@@ -184,6 +184,22 @@ function App() {
         closable={false}
       /> */}
       <RouterUI />
+      <footer
+        style={{
+          textAlign: "center",
+          padding: "20px",
+          fontSize: "0.8em",
+          color: "#888",
+        }}
+      >
+        Powered by{" "}
+        <a
+          href="https://officex.app"
+          style={{ color: "#888", textDecoration: "none" }}
+        >
+          OfficeX
+        </a>
+      </footer>
     </div>
   );
 }

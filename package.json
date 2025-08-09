@@ -19,6 +19,7 @@
     "@officexapp/types": "^0.0.194",
     "@redux-offline/redux-offline": "^2.6.0",
     "@scure/bip39": "^1.4.0",
+    "@sentry/react": "^10.3.0",
     "antd": "^5.20.1",
     "dexie": "^4.0.11",
     "dotenv": "^16.4.5",

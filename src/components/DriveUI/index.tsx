@@ -432,7 +432,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             id: currentFileId,
           },
         };
-        dispatch(getFileAction(getAction, false));
+        dispatch(
+          getFileAction(
+            getAction,
+            shouldBehaveOfflineDiskUIIntent(currentDiskId || "")
+          )
+        );
       }, 1000);
     } else if (currentFileId && getFileResult) {
       setIs404NotFound(false);
@@ -1674,6 +1679,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               }}
             >
               <ActionMenuButton
+                key="action-menu-button"
                 isBigButton={false}
                 toggleUploadPanel={toggleUploadPanel}
                 optimisticListDirectoryKey={listDirectoryKey}
@@ -1956,6 +1962,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       _LOCALSTORAGE_ALREADY_VIEWED_DEMO_GALLERY
                         ? [
                             <ActionMenuButton
+                              key="action-menu-button"
                               isBigButton={false}
                               toggleUploadPanel={toggleUploadPanel}
                               optimisticListDirectoryKey={listDirectoryKey}
@@ -1973,6 +1980,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                           ]
                         : [
                             <ActionMenuButton
+                              key="action-menu-button"
                               isBigButton={false}
                               toggleUploadPanel={toggleUploadPanel}
                               optimisticListDirectoryKey={listDirectoryKey}
@@ -1988,6 +1996,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               }
                             />,
                             <Link
+                              key="demo-folder-link"
                               to={wrapOrgCode(
                                 `/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDemoGalleryFolderID}/`
                               )}

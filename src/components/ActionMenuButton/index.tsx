@@ -188,7 +188,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         }
       : null,
     {
-      type: "divider",
+      type: "divider" as const,
     },
     {
       label: (
@@ -241,7 +241,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       },
     },
     {
-      type: "divider",
+      type: "divider" as const,
     },
     {
       label: (
@@ -312,14 +312,14 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       disabled,
     },
     {
-      type: "divider",
+      type: "divider" as const,
     },
     {
       label: "Connect Hard Drive",
       key: "connectHardDrive",
       disabled: true,
     },
-  ];
+  ].filter(Boolean);
 
   if (isBigButton && isAIChatEnabled()) {
     return (

@@ -52,7 +52,7 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
   return result;
 };
 
-export const LOCAL_DEV_MODE = CONFIG.LOCAL_DEV_MODE;
+export const LOCAL_DEV_MODE = !CONFIG.IS_PRODUCTION;
 
 // LOCAL vs. PROD
 export const FACTORY_CANISTER_ENDPOINT = LOCAL_DEV_MODE

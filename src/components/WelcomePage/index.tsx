@@ -68,15 +68,6 @@ const WelcomePage = () => {
         margin: "0 auto",
       }}
     >
-      <button
-        type="button"
-        onClick={() => {
-          throw new Error("Sentry Test Error");
-        }}
-      >
-        Break the world
-      </button>
-
       <Card style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}>
         <Typography>
           <Title level={2} style={{ textAlign: "center", marginBottom: 16 }}>

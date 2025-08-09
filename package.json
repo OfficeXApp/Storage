@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && cp dist/sw.js public/dev-sw.js",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' tsc && NODE_OPTIONS='--max-old-space-size=8192' vite build && cp dist/sw.js public/dev-sw.js",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest"
@@ -20,6 +20,7 @@
     "@redux-offline/redux-offline": "^2.6.0",
     "@scure/bip39": "^1.4.0",
     "@sentry/react": "^10.3.0",
+    "@sentry/vite-plugin": "^4.0.2",
     "antd": "^5.20.1",
     "dexie": "^4.0.11",
     "dotenv": "^16.4.5",

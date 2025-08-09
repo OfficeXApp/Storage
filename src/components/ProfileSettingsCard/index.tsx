@@ -179,7 +179,7 @@ const ProfileSettingsCard = () => {
   const createApiKey = async (): Promise<ApiKey> => {
     try {
       const request = createApiKeyRequest();
-      console.log("Creating API key with request:", request);
+
       const auth_token = currentAPIKey?.value || (await generateSignature());
       // Make the actual API call to create an API key
       const { url, headers } = wrapAuthStringOrHeader(
@@ -203,13 +203,11 @@ const ProfileSettingsCard = () => {
 
       if (data && data.ok && data.ok.data) {
         const apiKey = data.ok.data as ApiKey;
-        console.log("API Key created successfully:", apiKey);
         return apiKey;
       } else {
         throw new Error("Failed to create API key. Invalid response format.");
       }
     } catch (error) {
-      console.error("Error creating API key:", error);
       message.error("Failed to create API key. Please try again.");
       throw error;
     }

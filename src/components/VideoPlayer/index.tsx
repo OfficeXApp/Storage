@@ -66,10 +66,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         ? `${url}&cb=${Date.now()}`
         : `${url}${cacheBuster}`;
 
-      console.log(
-        `Retrying after seeking error (attempt ${seekingState.seekRetries + 1})...`
-      );
-
       player.src({
         src: urlWithCacheBuster,
         type: getVideoType(url),

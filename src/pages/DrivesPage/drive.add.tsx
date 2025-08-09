@@ -160,12 +160,9 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
   };
 
   const handleAddDrive = () => {
-    console.log("Adding drive...");
     form
       .validateFields()
       .then((values) => {
-        console.log("Form values:", values);
-
         // Use either extracted values from share link or form values
         const driveName = displayedName || values.name;
         const driveIcpPrincipal = icpAddress || values.icpPrincipal;
@@ -190,8 +187,6 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
           external_id: values.externalId || undefined,
           external_payload: values.externalPayload || undefined,
         };
-
-        console.log("Drive data:", driveData);
 
         setLoading(true);
 

@@ -57,6 +57,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { isValidEmail } from "../../api/helpers";
 import { parseUnits } from "viem";
 import { createPurchaseAction } from "../../redux-offline/purchases/purchases.actions";
+import mixpanel from "mixpanel-browser";
 
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
@@ -109,6 +110,10 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     wrapOrgCode,
   } = useIdentitySystem();
   const [validatedPayment, setValidatedPayment] = useState<boolean>(false);
+
+  useEffect(() => {
+    mixpanel.track("Initiate Checkout");
+  }, []);
 
   useEffect(() => {
     if (isDrawerVisible && currentProfile) {
@@ -286,7 +291,6 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           org_api_key: finalApiKey,
           user_id: currentProfile?.userID,
         };
-        console.log("Final Checkout Payload:", payload);
         const response = await fetch(
           checkoutInitResponse?.post_payment?.auth_installation_url || "",
           {
@@ -304,7 +308,6 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           throw new Error(errorData.message || "Network response was not ok.");
         }
         const data: IResponseAuthInstallation = await response.json();
-        console.log(`Checkout Response:`, data);
       }
 
       message.success(
@@ -426,7 +429,6 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       );
       const data = await response.json();
       if (data) {
-        console.log(`Got IResponseCheckoutInit`, data);
         setCheckoutInitResponse(data);
         const initialPreferenceInputs: Record<string, string> = {};
         data.requirements.forEach((req: VendorOfferReqField) => {
@@ -443,6 +445,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
   };
 
   const validatePayment = async () => {
+    mixpanel.track("Validate Payment");
     setIsValidatingLoading(true);
     try {
       const payload: IRequestCheckoutValidate = {
@@ -462,7 +465,6 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         }
       );
       const data: IResponseCheckoutValidate = await response.json();
-      console.log(`Got IResponseCheckoutValidate`, data);
       if (data.success) {
         setValidatedPayment(true);
         message.success(
@@ -537,17 +539,19 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       }
       destroyOnClose={true}
       closeIcon={<CloseOutlined />}
-      bodyStyle={{ paddingBottom: 80 }}
-      footerStyle={{
-        position: "sticky",
-        bottom: 0,
-        width: "100%",
-        padding: "16px 24px",
-        background: "#fff",
-        borderTop: "1px solid #f0f0f0",
-        zIndex: 10,
-        display: "flex",
-        justifyContent: "space-between",
+      styles={{
+        body: { paddingBottom: 80 },
+        footer: {
+          position: "sticky",
+          bottom: 0,
+          width: "100%",
+          padding: "16px 24px",
+          background: "#fff",
+          borderTop: "1px solid #f0f0f0",
+          zIndex: 10,
+          display: "flex",
+          justifyContent: "space-between",
+        },
       }}
       footer={
         <Space style={{ width: "100%", justifyContent: "space-between" }}>

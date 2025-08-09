@@ -64,7 +64,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
       tablePermissions: state.webhooks.tablePermissions,
     })
   );
-  console.log(`look at webhooks`, webhooks);
+
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredWebhooks, setFilteredWebhooks] = useState(webhooks);

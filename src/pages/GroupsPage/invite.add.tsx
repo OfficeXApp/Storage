@@ -220,8 +220,6 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
       expires_at: expiresAt,
     };
 
-    console.log(`generating invite link...`);
-
     const auth_token = currentAPIKey?.value || (await generateSignature());
     const { url, headers } = wrapAuthStringOrHeader(
       `${currentOrg.host}/v1/drive/${currentOrg.driveID}/groups/invites/create`,
@@ -253,7 +251,6 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
         },
         wrapOrgCode
       );
-      console.log(`groupInviteRedeemLink`, groupInviteRedeemLink);
       setInviteLink(groupInviteRedeemLink);
       setLinkGenerated(true);
       setGeneratingLink(false);
@@ -364,7 +361,6 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             },
             wrapOrgCode
           );
-          console.log(`groupInviteRedeemLink`, groupInviteRedeemLink);
           setInviteCreated(groupInviteRedeemLink);
 
           message.success(

@@ -431,7 +431,7 @@ const SearchResultsPage: React.FC = () => {
                     `/resources/drives/${item.resource_id}`
                   );
                 }
-                console.log(`>>>> result`, item);
+
                 return (
                   <Link to={urlLink}>
                     <List.Item

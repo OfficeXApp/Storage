@@ -244,8 +244,6 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   };
 
   const handleDelete = () => {
-    console.log(`Deleting permission ${permission.id} `);
-
     const deleteData: IRequestDeleteSystemPermission = {
       permission_id: permission.id as SystemPermissionID,
     };

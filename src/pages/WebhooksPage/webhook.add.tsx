@@ -148,9 +148,6 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
     eventType: WebhookEventLabel,
     isAll: boolean
   ): string => {
-    console.log(
-      `Setting alt_index for ${eventType} (${isAll ? "ALL" : "ONLY"})`
-    );
     // For ALL mode with specific event types
     if (isAll) {
       // File operations use ALL_FILES
@@ -258,8 +255,6 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
   };
 
   const handleAddWebhook = () => {
-    console.log("Adding webhook...");
-
     // Validate required fields
     if (!url) {
       setUrlError("URL is required");
@@ -281,8 +276,6 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
       external_id: externalId,
       external_payload: externalPayload,
     };
-
-    console.log("Webhook data:", webhookData);
 
     setLoading(true);
 

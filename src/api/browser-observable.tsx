@@ -66,7 +66,6 @@ const UploadFiles: React.FC = () => {
           setUploadItems(getUploadQueue());
         },
         complete: () => {
-          console.log("All uploads complete");
           message.success("All files uploaded successfully");
         },
         error: (err) => {

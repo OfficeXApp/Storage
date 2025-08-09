@@ -49,7 +49,6 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
   onClose,
   organizationId,
 }) => {
-  console.log(`>> contact`, contact);
   const isOwnedUser = !Boolean(
     // @ts-ignore
     contact.is_placeholder || contact.from_placeholder_user_id
@@ -105,12 +104,10 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
       });
 
       if (!response.ok) {
-        console.log(`Permission check failed with status: ${response.status}`);
         setInitialCheckLoading(false);
       }
 
       const data = await response.json();
-      console.log("API Key permissions check result:", data);
 
       if (
         data &&
@@ -150,7 +147,6 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
     setIsLoading(true);
     try {
       const request = createApiKeyRequest();
-      console.log("Creating API key with request:", request);
       const auth_token = currentAPIKey?.value || (await generateSignature());
       // Make the actual API call to create an API key
       const { url, headers } = wrapAuthStringOrHeader(
@@ -174,7 +170,6 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
 
       if (data && data.ok && data.ok.data) {
         const apiKey = data.ok.data as ApiKey;
-        console.log("API Key created successfully:", apiKey);
         return apiKey;
       } else {
         throw new Error("Failed to create API key. Invalid response format.");
@@ -208,10 +203,6 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
               expires_at: apiKey.expires_at,
             },
           };
-          console.log(
-            "Created OrgOwnedContactApiKeyLogin_BTOA:",
-            autoLoginPayload
-          );
           return autoLoginPayload;
         } else if (contact.redeem_code) {
           // For not owned users, create SelfCustodySuperswapLogin_BTOA
@@ -224,7 +215,6 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
             org_name: currentOrg?.nickname || "",
             profile_name: contact.name,
           };
-          console.log("Created SelfCustodySuperswapLogin_BTOA:", redeemPayload);
           return redeemPayload;
         } else {
           // Simple invite without auto-login
@@ -236,7 +226,6 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
             api_key: apiKey.value,
             redirect_url: redirectUrl || undefined,
           };
-          console.log("Created simple invite payload:", simplePayload);
           return simplePayload;
         }
       } else {
@@ -248,7 +237,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
           profile_name: contact.name,
           redirect_url: redirectUrl || undefined,
         };
-        console.log("Created simple invite payload:", simplePayload);
+
         return simplePayload;
       }
     } catch (error) {

@@ -231,23 +231,14 @@ export const ReduxOfflineProvider: React.FC<{ children: React.ReactNode }> = ({
           ],
         },
         retry: (action: any, retries: number) => {
-          return;
           if (!currentOrgRef.current?.host) return;
           // If we've exceeded our retry schedule, stop retrying
           if (retries >= retrySchedule.length) {
-            console.log(
-              `Maximum retries (${retrySchedule.length}) reached for action:`,
-              action
-            );
             return;
           }
 
           // Get the appropriate delay from our schedule
           const delay = retrySchedule[retries];
-          console.log(
-            `Scheduling retry ${retries + 1}/${retrySchedule.length} in ${delay / 1000}s for:`,
-            action
-          );
           return delay;
         },
         persistCallback: () => {

@@ -55,6 +55,7 @@ import { useReduxOfflineMultiTenant } from "../../redux-offline/ReduxProvider";
 import { useNavigate } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
+import mixpanel from "mixpanel-browser";
 
 const { Text, Title } = Typography;
 const { TabPane } = Tabs;
@@ -183,7 +184,6 @@ const OrganizationSwitcher = () => {
 
   const debouncedFetchWhoAmI = useCallback(
     debounce(async (passwordInput: string) => {
-      console.log(`debouncedFetchWhoAmI`);
       if (!passwordInput || passwordInput.trim() === "") {
         setImportApiPreviewData({
           icpAddress: "",
@@ -253,7 +253,6 @@ const OrganizationSwitcher = () => {
         }
 
         const data = await response.json();
-        console.log("Received data:", data);
 
         // Handle nested structure where data is inside ok.data
         if (data && data.ok && data.ok.data) {
@@ -305,7 +304,6 @@ const OrganizationSwitcher = () => {
   );
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    console.log(`handlePasswordChange`);
     const newPassword = e.target.value;
     setImportApiKey(newPassword);
 
@@ -661,6 +659,7 @@ const OrganizationSwitcher = () => {
   };
 
   const handleCreateNewOrg = async () => {
+    mixpanel.track("Connect Cloud");
     try {
       // Set loading state
       setCreateLoading(true);
@@ -690,8 +689,6 @@ const OrganizationSwitcher = () => {
         );
 
         const giftcardSpawnOrgData = await giftcardSpawnOrgResponse.json();
-
-        console.log(giftcardSpawnOrgData);
 
         if (!giftcardSpawnOrgData.ok || !giftcardSpawnOrgData.ok.data) {
           throw new Error("Invalid response from voucher redemption");
@@ -771,8 +768,6 @@ const OrganizationSwitcher = () => {
           message.info("Promoting you to Admin...");
 
           await sleep(isWeb3 ? 5000 : 0);
-
-          console.log(`redeem data spawn org`, redeemData.ok.data);
 
           const { drive_id, host, redeem_code, disk_auth_json } =
             redeemData.ok.data;
@@ -1023,10 +1018,6 @@ const OrganizationSwitcher = () => {
       (profile) => profile.userID === selectedProfileId
     );
 
-    console.log(
-      `Entering org ${org.nickname} with profile ${profile?.nickname}`
-    );
-
     if (org) {
       // Switch profile if needed and if a valid profile is selected
       if (profile) {
@@ -1100,7 +1091,6 @@ const OrganizationSwitcher = () => {
               options={filteredGiftCardOptions.map(renderGiftCardOption)}
               value={selectedFactoryEndpoint?.value} // Binds to the input field's text
               onChange={(value) => {
-                console.log("Changing Factory Endpoint:", value);
                 setSelectedFactoryEndpoint(getFactoryEndpointFromValue(value));
               }}
               onSelect={(value, option) => {

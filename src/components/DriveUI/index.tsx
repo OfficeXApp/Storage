@@ -245,10 +245,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     !currentOrg?.host || isOfflineDisk ? false : true
   );
 
-  console.log(`showInitialLoading`, showInitialLoading);
-  console.log(`currentOrg.host`, currentOrg?.host);
-  console.log(`isOfflineDisk`, isOfflineDisk);
-
   const currentDisk = disks.find((d) => d.id === currentDiskId) || defaultDisk;
 
   const [content, setContent] = useState<{
@@ -291,6 +287,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   }, []);
 
   useEffect(() => {
+    mixpanel.track("Navigate Drive");
     if (
       !currentDiskId &&
       !currentFileId &&
@@ -482,9 +479,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
     setCurrentDiskId(diskID);
 
-    console.log(`diskID`, diskID);
-    console.log(`folderFileID`, folderFileID);
-
     if (pathParts[2] === "recent") {
       setShowInitialLoading(false);
       fetchRecentsGlobal();
@@ -504,7 +498,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           icon: <FieldTimeOutlined />,
           btn: (
             <Space>
-              <Link to="/settings">
+              <Link to={wrapOrgCode("/appstore")}>
                 <Button
                   onClick={() => {
                     mixpanel.track("Upgrade Intent");
@@ -543,12 +537,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         targetFolderId: folderId,
       });
     } else if (folderFileID.startsWith("FileID_")) {
-      console.log(`currently at fileID`, folderFileID);
       let fileId = folderFileID;
       setCurrentFolderId(null);
       // Only set currentFileId if it's different
       if (fileId !== currentFileId) {
-        console.log(`we are setting currentFileId to:`, fileId);
         setCurrentFileId(fileId);
         fetchFileById(fileId, diskID);
       }
@@ -561,7 +553,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         sharedWithMe: true,
       });
     } else {
-      console.log(`we nowhere known`);
     }
 
     if (diskType === DiskTypeEnum.IcpCanister) {
@@ -652,7 +643,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   };
 
   const fetchFileById = (fileId: FileID, diskID: DiskID) => {
-    console.log(`calling fetchFileById at disk`, diskID);
     if (!diskID) return;
     try {
       // Create the get file action
@@ -662,11 +652,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           id: fileId,
         },
       };
-
-      console.log(
-        `shouldBehaveOfflineDiskUIIntent(diskID || "")`,
-        shouldBehaveOfflineDiskUIIntent(diskID || "")
-      );
 
       dispatch(
         getFileAction(getAction, shouldBehaveOfflineDiskUIIntent(diskID || ""))
@@ -720,8 +705,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           folders: disks.map((disk) => {
             let name = disk.name;
             let id = disk.root_folder as FolderID;
-
-            console.log(`>>>>>>> disk`, disk);
 
             if (default_disk_action === DiskUIDefaultAction.shared) {
               name = `${name}`;
@@ -1495,7 +1478,6 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
-    console.log(`ze first`);
     return (
       <DirectoryGuard
         resourceID={"currentFolderId"}
@@ -1506,11 +1488,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   }
 
   // unauthorized access to file
-  console.log(`currentFileId`, currentFileId);
-  console.log(`getFileResult`, getFileResult);
-  console.log(`isOfflineDisk`, isOfflineDisk);
   if (!isOfflineDisk && currentFileId && !getFileResult) {
-    console.log(`ze second`);
     return (
       <DirectoryGuard
         resourceID={currentFileId}
@@ -2104,9 +2082,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       }}
                     >
                       {tableRows.map((item) => {
-                        console.log(`tr ....`, item);
                         return (
                           <Link
+                            key={item.key}
                             to={
                               item.isFolder
                                 ? wrapOrgCode(

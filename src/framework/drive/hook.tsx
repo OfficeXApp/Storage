@@ -432,7 +432,6 @@ export const DriveProvider: React.FC<DriveProviderProps> = ({
         receivedLength += value.length;
 
         // Report progress
-        console.log(`Received ${receivedLength} of ${contentLength} bytes`);
       }
 
       const blob = new Blob(chunks, { type: mimeType });

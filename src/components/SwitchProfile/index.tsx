@@ -266,7 +266,6 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
         value={currentProfile ? currentProfile.userID : undefined}
         options={renderUserOptions()}
         onChange={(value: UserID) => {
-          console.log(`Clicked on `, value);
           if (value === "add-currentProfile") {
             setNewUserNickname("Anon");
             setImportUserNickname("A Past Life");
@@ -719,7 +718,6 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
         }
 
         const data = await response.json();
-        console.log("Received data:", data);
 
         // Handle nested structure where data is inside ok.data
         if (data && data.ok && data.ok.data) {
@@ -733,7 +731,6 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
             nickname: whoAmI.nickname || "",
             driveNickname: whoAmI.drive_nickname || "",
           });
-          console.log(`importaApiPreview`, importApiPreviewData);
 
           // Auto-populate nickname field if it's empty and server returned a nickname
           if (!importApiUserNickname && whoAmI.nickname) {
@@ -1242,7 +1239,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                           );
                           return;
                         }
-                        console.log(`switching to `, selectedProfile);
+
                         await switchProfile(selectedProfile);
 
                         await sleep(1000);

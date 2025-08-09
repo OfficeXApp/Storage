@@ -199,11 +199,7 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   };
 
   useEffect(() => {
-    console.log(`useEffect on disks and window location`, disks);
-
     const pathParts = window.location.pathname.split("/").filter(Boolean);
-
-    console.log(`pathParts`, pathParts);
 
     if (pathParts.includes("drive")) {
       if (pathParts.length >= 5) {
@@ -245,12 +241,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
   }, [window.location.pathname, disks]);
 
   const registerDefaultAdapters = async () => {
-    console.log(`(0) registerDefaultAdapters...`);
-    console.log("uploadManagerRef.current", uploadManagerRef.current);
-    console.log("isInitialized", isInitialized);
-    console.log("currentOrg", currentOrg);
-    console.log("currentProfile", currentProfile);
-    console.log("registeredDefaultAdapters", registeredDefaultAdapters);
     if (
       !uploadManagerRef.current ||
       !isInitialized ||
@@ -258,17 +248,13 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       !currentProfile ||
       registeredDefaultAdapters
     ) {
-      console.log(`Not registering default adapters...`);
       return;
     }
 
-    console.log(`(1) Registering default adapters...`);
     try {
       // Get currently registered adapters
       const registeredAdapters =
         uploadManagerRef.current.getRegisteredAdapters();
-
-      console.log(`Registered adapters`, registeredAdapters);
 
       const registeredDiskIds = new Set(
         registeredAdapters.map((adapter) => adapter.diskID)
@@ -284,8 +270,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
             } as DiskFEO,
           ].filter((d) => d.id && d.disk_type);
 
-      console.log(`allDisks`, allDisks);
-      console.log(`registeredDiskIds`, registeredDiskIds);
       // Process all disks from the Redux store
       for (const disk of allDisks) {
         const diskId = disk.id;
@@ -308,9 +292,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               2, // Concurrency
               2 // Priority
             );
-            console.log(
-              `Registered default IndexedDB adapter for ${defaultBrowserCacheDiskID}`
-            );
             continue;
           } else if (disk.id === defaultTempCloudSharingDiskID) {
             const localS3Adapter = new LocalS3Adapter();
@@ -321,10 +302,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               DEFAULT_ADAPTER_CONFIGS[defaultTempCloudSharingDiskID],
               3, // Concurrency
               1 // Priority
-            );
-
-            console.log(
-              `Registered default LocalS3 adapter for ${defaultTempCloudSharingDiskID}`
             );
             continue;
           } else if (diskType === DiskTypeEnum.IcpCanister) {
@@ -348,7 +325,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               canisterConfig,
               1 // Concurrency
             );
-            console.log(`Registered ICP adapter for disk: ${diskId}`);
             continue;
           } else if (diskType === DiskTypeEnum.StorjWeb3) {
             const auth_token =
@@ -372,7 +348,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               cloudS3Config,
               3 // Concurrency
             );
-            console.log(`Registered StorjWeb3 adapter for disk: ${diskId}`);
             continue;
           } else if (diskType === DiskTypeEnum.AwsBucket) {
             const auth_token =
@@ -396,10 +371,8 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
               cloudS3Config,
               3 // Concurrency
             );
-            console.log(`Registered AWS Bucket adapter for disk: ${diskId}`);
             continue;
           } else if (diskType === DiskTypeEnum.LocalSSD) {
-            // console.log(`Registered LocalSSD adapter for disk: ${diskId}`);
             continue;
           }
         } catch (error) {
@@ -408,7 +381,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       }
       if (disks.length > 2) {
         setRegisteredDefaultAdapters(true);
-        console.log("(2) Default adapters registration complete", disks);
       }
     } catch (error) {
       console.error("Error during default adapter registration:", error);
@@ -417,7 +389,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
   useEffect(() => {
     if (currentProfile && currentOrg && isInitialized && disks.length > 0) {
-      // console.log("registering default adapters...");
       registerDefaultAdapters();
     }
   }, [currentProfile, currentOrg, isInitialized, disks]);
@@ -432,11 +403,9 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
 
   // Initialize the upload manager
   const initializeUploadManager = async () => {
-    console.log(`Initializing upload manager`);
     try {
       // Create new upload manager if it doesn't exist
       if (!uploadManagerRef.current) {
-        console.log(`Creating new upload manager`);
         uploadManagerRef.current = new UploadManager(
           currentOrg?.host
             ? `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}`
@@ -446,7 +415,6 @@ export const MultiUploaderProvider: React.FC<MultiUploaderProviderProps> = ({
       }
 
       const manager = uploadManagerRef.current;
-      console.log(`Upload manager used`, manager);
       // Subscribe to progress updates
       const subscription = manager.getProgress().subscribe((progress) => {
         setProgress(progress);

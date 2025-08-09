@@ -163,8 +163,6 @@ export class UploadManager {
     diskID: DiskID,
     options: Partial<UploadConfig> = {}
   ): UploadID {
-    console.log(`the upload file`, options);
-
     // Generate a unique ID for this upload
     const id = (options.metadata?.id as UploadID) || (uuidv4() as UploadID);
 
@@ -1291,8 +1289,6 @@ export class UploadManager {
         (fileObj.file as any).path;
       const pathParts = relativePath.split("/").filter((p: string) => p);
 
-      console.log(`spilit pathParts`, pathParts);
-
       // Get the parent folder path (everything except the filename)
       const parentFolderPath = pathParts
         .slice(0, pathParts.length - 1)
@@ -1373,10 +1369,6 @@ export class UploadManager {
       const result = (await response.json()) as any[];
 
       if (result[0].success) {
-        console.log(
-          `Folder created successfully: ${folderConfig.name}`,
-          result
-        );
         const folderResult = result[0].response.result.folder;
         dispatch({
           type: CREATE_FOLDER_COMMIT,

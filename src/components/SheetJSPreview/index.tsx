@@ -82,7 +82,6 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
 
     checkFileSizeAndFetch();
   }, [url, rowCount]);
-  console.log("url is", url);
 
   if (url.startsWith("blob") || !url.includes("http")) {
     return (

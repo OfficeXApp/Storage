@@ -81,7 +81,6 @@ const ContactsPage: React.FC = () => {
   const tabItemsRef = useRef(tabItems);
 
   useEffect(() => {
-    console.log(`contactspage last checked`, lastChecked);
     if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkContactTablePermissionsAction(currentProfile.userID));
       dispatch(listContactsAction({}));
@@ -102,12 +101,10 @@ const ContactsPage: React.FC = () => {
       setLastClickedId(contact.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
-      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
         (item) => item.key === contact.id
       );
-      console.log(`existingTabIndex`, existingTabIndex);
 
       if (existingTabIndex !== -1 && focus_tab == true) {
         setActiveKey(contact.id);

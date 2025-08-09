@@ -52,11 +52,11 @@ export class StorjClient {
         StorjClient.DEFAULT_BUCKET = auth.defaultBucketName;
       }
 
-      const command = new ListBucketsCommand({});
-      await StorjClient.s3.send(command);
-      console.log("Successfully connected to Storj");
+      // const command = new ListBucketsCommand({});
+      // await StorjClient.s3.send(command);
+      // console.log("Successfully connected to Storj");
 
-      await StorjClient.ensureDefaultBucket();
+      // await StorjClient.ensureDefaultBucket();
     } else {
       console.warn(
         "StorjClient.instance & StorjClient.s3 is already initialized."
@@ -335,15 +335,9 @@ export class StorjClient {
       throw new Error("S3 is not initialized. Please call initialize() first.");
     }
 
-    console.log(
-      `getSignedUrl: key=${key}, expires=${expires}, customFilename=${customFilename}`
-    );
-
     const isPDF =
       key.toLowerCase().endsWith(".pdf") ||
       customFilename?.toLowerCase().endsWith(".pdf");
-
-    console.log(`isPDF: ${isPDF}`);
 
     const command = new GetObjectCommand({
       Bucket: StorjClient.DEFAULT_BUCKET,

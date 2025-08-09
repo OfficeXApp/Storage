@@ -124,7 +124,7 @@ function App() {
 
   const setupAnalytics = useCallback(() => {
     if (window.location.hostname === "officex.app" && currentProfile) {
-      mixpanel.identify(evmPublicKey);
+      mixpanel.identify(icpPublicKey);
       mixpanel.people.set({
         $name: slug,
         evmAddress: evmPublicKey,

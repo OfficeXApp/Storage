@@ -200,12 +200,10 @@ const ContactsPage: React.FC = () => {
       setLastClickedId(profile.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
-      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
         (item) => item.key === profile.id
       );
-      console.log(`existingTabIndex`, existingTabIndex);
 
       if (existingTabIndex !== -1) {
         // Tab already exists, remove it

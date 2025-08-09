@@ -97,6 +97,7 @@ import {
   UploadState,
 } from "../../framework/uploader/types";
 import { freeTrialStorjCreds, uploadTempTrialSharing } from "../../api/storj";
+import mixpanel from "mixpanel-browser";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
@@ -308,7 +309,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   };
 
   const getFileFromIndexedDB = async (fileId: FileUUID): Promise<string> => {
-    console.log(`getFileFromIndexedDB`, fileId);
     return new Promise((resolve, reject) => {
       const openRequest = indexedDB.open(dbNameRef.current, 1);
 
@@ -334,11 +334,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           if (fileRequest.result) {
             // Check if we have the complete file
             if (fileRequest.result.uploadComplete) {
-              console.log(
-                "Found complete file in IndexedDB:",
-                fileRequest.result
-              );
-
               // For certain file types that need reconstruction from chunks
               if (
                 [
@@ -436,18 +431,14 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     uploadTargetDiskID === defaultTempCloudSharingDiskID ||
     uploadTargetDiskID === defaultBrowserCacheDiskID;
 
-  console.log(`currentOrg`, currentOrg?.host);
-
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log("....uploadTargetDiskID", uploadTargetDiskID);
     if (uploadTargetDiskID === defaultTempCloudSharingDiskID && resource) {
       const _file = resource as FileRecordFE;
       const payload: fileRawUrl_BTOA = {
         note: `${currentProfile?.userID} shared a file with you`,
         original: _file,
       };
-      console.log(`hasWeb2CloudWithShortlink`, hasWeb2CloudWithShortlink);
       if (!hasWeb2CloudWithShortlink) {
         setShareUrl(
           `${window.location.origin}${wrapOrgCode("/share/free-cloud-filesharing")}?redeem=${urlSafeBase64Encode(
@@ -471,6 +462,10 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     if (parseInt(should_default_advanced_open || "1")) {
       setIsAdvancedOpen(true);
     }
+
+    mixpanel.track("Share File", {
+      "File Type": fileType,
+    });
   }, []);
 
   const [dataSource, setDataSource] = useState<PermissionRecord[]>([]);
@@ -836,8 +831,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     try {
       let fileToUpload: File;
 
-      console.log(`fileResource`, fileResource);
-
       // Attempt to get file from IndexedDB
       if (!fileResource.id) {
         message.error("File ID is missing, cannot fetch from IndexedDB.");
@@ -852,7 +845,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           setIsGeneratingLink(false);
           return;
         }
-        console.log(`indexdb found url:`, blobUrl);
 
         // Fetch the blob from the blob URL
         const response = await fetch(blobUrl);
@@ -875,12 +867,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         return;
       }
 
-      console.log(`fileToUpload`, fileToUpload);
-      const tempFileID = `FileID_${uuidv4()}` as FileID;
-
       // TODO: Upload file to Storj
       const presignedUrl = await uploadTempTrialSharing(fileToUpload);
-      console.log("File uploaded successfully! URL:", presignedUrl);
 
       const payload: fileRawUrl_BTOA = {
         note: `${currentProfile?.nickname} shared a file with you`,
@@ -914,10 +902,6 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       console.error("Error generating on-the-fly share link:", error);
       message.error(`Failed to generate share link: ${error.message}`);
     }
-  };
-
-  const handleSave = (record: PermissionRecord) => {
-    console.log("Saving:", record);
   };
 
   return (
@@ -984,10 +968,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                     note: `${currentProfile?.userID} shared a file with you`,
                     original: _file,
                   };
-                  console.log(
-                    `hasWeb2CloudWithShortlink`,
-                    hasWeb2CloudWithShortlink
-                  );
+
                   const original_url = `${window.location.origin}${wrapOrgCode("/share/free-cloud-filesharing")}?redeem=${urlSafeBase64Encode(
                     JSON.stringify(payload)
                   )}`;

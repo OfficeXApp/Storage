@@ -146,11 +146,6 @@ const SpreadsheetEditor = () => {
 
   const file = fileFromRedux || redeemData?.original || emptyFile;
 
-  console.log(`>>> file`, file);
-  console.log(`>>> fileFromRedux`, fileFromRedux);
-  console.log(`>>> redeemData`, redeemData);
-  console.log(`>>> emptyFile`, emptyFile);
-
   const [currentFileName, setCurrentFileName] = useState(
     "Untitled Spreadsheet"
   );
@@ -164,14 +159,11 @@ const SpreadsheetEditor = () => {
   const objectStoreNameRef = useRef<string>("files");
 
   useEffect(() => {
-    console.log(`initial setting filename`);
     const defaultName =
       file.name.replace(".officex-spreadsheet", "") || "Untitled Spreadsheet";
     setCurrentFileName(defaultName);
     currentFileNameRef.current = defaultName;
 
-    console.log(`=+=+>>> fileFromRedux`, fileFromRedux);
-    console.log(`=+=+>>> fileID`, fileID);
     if (!fileFromRedux) {
       if (!fileID) return;
       setTimeout(() => {
@@ -200,15 +192,12 @@ const SpreadsheetEditor = () => {
   }, [location]);
 
   const fetchJsonContent = useCallback(async (url: string) => {
-    console.log(`fetchJsonContent`, url);
-
     if (!url) return;
 
     setFileContentLoading(true);
     setFileContentError(null);
 
     try {
-      console.log(`Fetching JSON content from URL: ${url}`);
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -223,8 +212,6 @@ const SpreadsheetEditor = () => {
         // Parse as JSON
         const jsonData = JSON.parse(text);
 
-        console.log(`parsed json data`, jsonData);
-
         // Store in ref instead of state
         fileContentRef.current = jsonData;
 
@@ -232,7 +219,6 @@ const SpreadsheetEditor = () => {
         setFileContentVersion((prev) => prev + 1);
         setIframeReady(true);
         setIsContentLoaded(true); // Set content loaded to true on success
-        console.log("Successfully loaded and parsed JSON content");
       } catch (parseError) {
         console.error("Error parsing JSON:", parseError);
         fileContentRef.current = { raw: text };
@@ -250,7 +236,6 @@ const SpreadsheetEditor = () => {
   }, []);
 
   useEffect(() => {
-    console.log(`useEffect for fileUrl`, fileUrl);
     if (fileUrl) {
       fetchJsonContent(fileUrl);
     }
@@ -299,12 +284,14 @@ const SpreadsheetEditor = () => {
   };
 
   useEffect(() => {
-    console.log("SpreadsheetEditor mounted");
     if (fileID) {
       if (fileID === "new") {
         setIframeReady(true);
+        mixpanel.track("New Spreadsheet");
       } else {
         fetchFileById(fileID);
+        mixpanel.track("View Spreadsheet");
+        mixpanel.track("View File");
       }
     }
   }, [location]);
@@ -319,7 +306,6 @@ const SpreadsheetEditor = () => {
 
   // New method to handle files from IndexedDB
   const getFileFromIndexedDB = async (fileId: FileUUID): Promise<string> => {
-    console.log(`getFileFromIndexedDB`, fileId);
     return new Promise((resolve, reject) => {
       const openRequest = indexedDB.open(dbNameRef.current, 1);
 
@@ -345,11 +331,6 @@ const SpreadsheetEditor = () => {
           if (fileRequest.result) {
             // Check if we have the complete file
             if (fileRequest.result.uploadComplete) {
-              console.log(
-                "Found complete file in IndexedDB:",
-                fileRequest.result
-              );
-
               // For certain file types that need reconstruction from chunks
               if (
                 [
@@ -510,7 +491,6 @@ const SpreadsheetEditor = () => {
   };
 
   useEffect(() => {
-    console.log(`useEffect loop`);
     if (!file) return;
     // If file ID hasn't changed, don't reload
     if (file.id === lastLoadedFileRef.current) {
@@ -521,7 +501,6 @@ const SpreadsheetEditor = () => {
     if (currentLoadingFileRef.current === file.id) {
       return;
     }
-    console.log(`about ot start`);
     // Clear previous URL when switching to a new file
     if (fileUrl && file.id !== lastLoadedFileRef.current) {
       URL.revokeObjectURL(fileUrl);
@@ -529,9 +508,6 @@ const SpreadsheetEditor = () => {
       setIsContentLoaded(false);
     }
     const loadFileContent = async () => {
-      console.log(`loadFileContent`, file);
-      console.log(`fileType`, fileType);
-
       if (!file || !fileType) return;
 
       // if (!currentOrg?.host) {
@@ -558,26 +534,22 @@ const SpreadsheetEditor = () => {
 
       currentLoadingFileRef.current = file.id;
       setIsLoading(true);
-      console.log(`file --> `, file);
       try {
         if (file.disk_type === DiskTypeEnum.BrowserCache) {
           // Use IndexedDB approach instead of indexdbGetFileUrl
           const url = await getFileFromIndexedDB(file.id as FileUUID);
-          console.log(`indexdb url`, url);
           setFileUrl(url);
         } else if (
           file.disk_type === DiskTypeEnum.StorjWeb3 ||
           file.disk_type === DiskTypeEnum.AwsBucket
         ) {
           const url = await getPresignedUrl(file.raw_url as string);
-          console.log(`the presigned url`, url);
           setFileUrl(url as string);
         } else if (file.disk_type === DiskTypeEnum.IcpCanister) {
           // Handle IcpCanister files using the raw download endpoints
           // wait 3 seconds
           await sleep(3000);
           const blobUrl = await fetchFileContentFromCanister(file.id as string);
-          console.log(`blobUrl=blobUrl`, blobUrl);
           if (blobUrl) {
             setFileUrl(blobUrl);
           } else {
@@ -750,19 +722,12 @@ const SpreadsheetEditor = () => {
       return false;
     }
 
-    console.log(`currentFileName==`, currentFileName);
-    console.log(`currentFileNameRef==`, currentFileNameRef.current);
-
     const _currentFileName = currentFileNameRef.current;
-
-    console.log(`save fileContent`, fileContent);
 
     const _fileContent = {
       ...JSON.parse(fileContent),
       name: _currentFileName.replace(".officex-spreadsheet", ""),
     };
-
-    console.log(`aobut to save,`, _fileContent);
 
     message.info(`Saving file, please wait...`);
 
@@ -800,22 +765,10 @@ const SpreadsheetEditor = () => {
         fileID: file.id as FileID, // Use the existing file ID to overwrite
       };
 
-      console.log(`
-
-        Saving file with ID: ${file.id}
-        File name: ${fileObject.name}
-        File size: ${fileObject.size} bytes
-        Disk type: ${diskType}
-        Disk ID: ${diskID}
-        Parent folder ID: ${parentFolderID}
-        
-        `);
-
       // Upload the file (which will overwrite the existing one)
       // The useMultiUploader will handle all disk types appropriately
       uploadFiles([uploadFileObject], parentFolderID, diskType, diskID, {
         onFileComplete: (fileUUID) => {
-          console.log(`>>>>> File ${fileUUID} save completed`);
           // Refresh the file content after save
           // fetchFileById(file.id as FileID);
           dispatch(
@@ -887,8 +840,6 @@ const SpreadsheetEditor = () => {
 
   const parentMethods = {
     getFileData: () => {
-      console.log("Fetching file data from parent");
-
       if (!file) {
         return {
           error: "No file data available",
@@ -968,7 +919,6 @@ const SpreadsheetEditor = () => {
       return `File ${"fileName"} shared successfully.`;
     }, []),
     logMessage: useCallback((message: string) => {
-      console.log("Message from iframe:", message);
       return `Parent received: ${message}`;
     }, []),
   };
@@ -997,17 +947,13 @@ const SpreadsheetEditor = () => {
 
         // Wait for the connection to be established and remote methods to be available
         const remote = await connection.promise;
-        console.log(
-          "Penpal connection established. Remote methods from iframe:",
-          remote
-        );
+
         // @ts-ignore
         penpalRef.current = remote;
 
         // Example: Call a remote method from the iframe
         // You would typically call these based on user interactions or other logic
         // const multiplicationResult = await remote.multiply(2, 6);
-        // console.log('Multiplication Result from iframe:', multiplicationResult);
 
         // The cleanup function for this specific setup
         return () => {
@@ -1038,7 +984,7 @@ const SpreadsheetEditor = () => {
           id: fileId,
         },
       };
-      console.log(`=+=+>>> getAction`, getAction, offlineDisk);
+
       dispatch(getFileAction(getAction, offlineDisk));
 
       setTimeout(() => {

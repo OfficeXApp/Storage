@@ -62,7 +62,6 @@ const AutoLoginPage = () => {
       if (tokenParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(tokenParam));
-          console.log(`decodedData`, decodedData);
           setAutoLoginData(decodedData);
           proceedAutoLogin(decodedData);
         } catch (error) {

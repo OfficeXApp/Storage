@@ -119,8 +119,6 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
           ? userIdWithPrefix.substring(7)
           : userIdWithPrefix;
 
-        console.log("userId", userId);
-
         if (isValidIcpAddress(userId)) {
           form.setFieldsValue({ name });
           setIcpAddress(userId);
@@ -183,17 +181,11 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
   };
 
   const handleAddContact = () => {
-    console.log("Adding contact...");
     form
       .validateFields()
       .then((values) => {
-        console.log("Form values:", values);
-
         // Validate ICP address if not owned
         if (!isOwned && (!icpAddress || icpAddressError)) {
-          console.log(
-            `Invalid ICP address: ${icpAddress}, ${icpAddressError}, isOwned=${isOwned}`
-          );
           setIcpAddressError("Valid ICP address is required");
           return;
         }
@@ -206,8 +198,6 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
           external_id: values.externalId || undefined,
           is_placeholder: !isOwned,
         };
-
-        console.log("Contact data:", contactData);
 
         setLoading(true);
 

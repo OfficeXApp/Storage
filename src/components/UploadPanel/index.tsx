@@ -86,8 +86,6 @@ const UploadPanel: React.FC<{
   };
 
   const handleFileSelect = (files: FileList | null) => {
-    console.log(`files`, files);
-
     if (files) {
       const fileArray = Array.from(files);
       setSelectedFiles(
@@ -99,10 +97,6 @@ const UploadPanel: React.FC<{
       );
 
       const { parentFolderID, diskType, diskID } = getUploadFolderID();
-
-      console.log(`parentFolderID`, parentFolderID);
-      console.log(`diskType`, diskType);
-      console.log(`diskID`, diskID);
 
       // Create an array of file objects with generated FileIDs
       const uploadFilesArray = fileArray.map((file) => ({

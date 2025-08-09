@@ -30,23 +30,15 @@ const FreeFileSharePreview = () => {
     listOfProfiles,
   } = useIdentitySystem();
 
-  console.log(`redeemData`, redeemData);
-  console.log(`orgcode`, orgcode);
-  console.log(`currentOrg`, currentOrg);
-  console.log(`currentProfile`, currentProfile);
-
   useEffect(() => {
     const getRedeemParam = async () => {
       setLoading(true);
       const searchParams = new URLSearchParams(location.search);
       const redeemParam = searchParams.get("redeem");
 
-      console.log(`redeemParam`, redeemParam);
-
       if (redeemParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
-          console.log(`decodedData`, decodedData);
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);

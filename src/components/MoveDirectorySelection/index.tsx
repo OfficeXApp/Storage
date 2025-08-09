@@ -270,7 +270,7 @@ const MoveDirectorySelector: React.FC<MoveDirectorySelectorProps> = ({
     });
 
     const data = await res.json();
-    console.log(`Move/Copy operation completed`, data);
+
     if (data.every((d: any) => d.success)) {
       message.success(
         `Successfully ${mode === "move" ? "moved" : "copied"} all records`

@@ -96,9 +96,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   const [fileContentError, setFileContentError] = useState<string>("");
 
-  console.log(`--- file,`, file);
-  console.log(`--- fileUrl loading=${isLoading}`, fileUrl);
-
   const objectStoreNameRef = useRef<string>("files");
 
   useEffect(() => {
@@ -224,11 +221,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           if (fileRequest.result) {
             // Check if we have the complete file
             if (fileRequest.result.uploadComplete) {
-              console.log(
-                "Found complete file in IndexedDB:",
-                fileRequest.result
-              );
-
               // For certain file types that need reconstruction from chunks
               if (
                 [
@@ -387,7 +379,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   };
 
   useEffect(() => {
-    console.log(`useEffect loop`);
     // If file ID hasn't changed, don't reload
     if (file.id === lastLoadedFileRef.current) {
       return;
@@ -397,7 +388,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     if (currentLoadingFileRef.current === file.id) {
       return;
     }
-    console.log(`about ot start`);
     // Clear previous URL when switching to a new file
     if (fileUrl && file.id !== lastLoadedFileRef.current) {
       URL.revokeObjectURL(fileUrl);
@@ -405,6 +395,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     }
     const loadFileContent = async () => {
       if (!file || !fileType) return;
+
+      mixpanel.track("View File");
 
       if (!currentOrg?.host && diskTypeEnum !== DiskTypeEnum.BrowserCache) {
         setFileUrl(file.raw_url || "");
@@ -430,7 +422,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
       currentLoadingFileRef.current = file.id;
       setIsLoading(true);
-      console.log(`file --> `, file);
       try {
         if (file.disk_type === DiskTypeEnum.BrowserCache) {
           if (file.raw_url) {
@@ -445,7 +436,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           file.disk_type === DiskTypeEnum.AwsBucket
         ) {
           const url = await getPresignedUrl(file.raw_url as string);
-          console.log(`the presigned url`, url);
+
           setFileUrl(url as string);
         } else if (file.disk_type === DiskTypeEnum.IcpCanister) {
           // Handle IcpCanister files using the raw download endpoints
@@ -471,8 +462,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     loadFileContent();
 
     setFileName(file.name || "Unknown File");
-
-    console.log(`just set file name`, file.name);
 
     // Cleanup function
     return () => {
@@ -622,25 +611,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   const handleShare = async (url: string) => {
     setIsShareDrawerOpen(true);
-    // if (window.location.pathname.includes("/BrowserCache")) {
-    //   message.warning(
-    //     "Cannot share files from browser storage. Use cloud storage instead."
-    //   );
-    //   return;
-    // }
-    // setIsGeneratingShareLink(true);
-    // const shareLink = await createPseudoShareLink({
-    //   title: `${isFreeTrialStorj() ? `Expires in 24 hours - ` : ``}${file.name}`,
-    //   url,
-    //   ref: evmPublicKey,
-    // });
-    // message.info("Link copied to clipboard");
-    // navigator.clipboard.writeText(shareLink);
-    // setIsGeneratingShareLink(false);
-    // mixpanel.track("Share File", {
-    //   "File Type": file.name.split(".").pop(),
-    //   Link: shareLink,
-    // });
   };
 
   const formatFileSize = (size: number): string => {
@@ -683,9 +653,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   if (!currentOrg && !currentProfile) {
     return null;
   }
-
-  console.log(`fileUrl`, fileUrl);
-  console.log(`isLoading`, isLoading);
 
   if (file.id && fileContentError) {
     return (

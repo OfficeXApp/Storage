@@ -175,8 +175,6 @@ const ConnectICPButton = () => {
 
         const giftcardSpawnOrgData = await giftcardSpawnOrgResponse.json();
 
-        console.log(giftcardSpawnOrgData);
-
         if (!giftcardSpawnOrgData.ok || !giftcardSpawnOrgData.ok.data) {
           throw new Error("Invalid response from voucher redemption");
         }
@@ -418,7 +416,7 @@ const ConnectICPButton = () => {
         type="primary"
         onClick={() => {
           setIsModalVisible(true);
-          mixpanel.track("Connect Cloud Button Click");
+          mixpanel.track("Connect Cloud");
         }}
         style={{ marginBottom: "5px" }}
       >
@@ -514,7 +512,6 @@ const ConnectICPButton = () => {
                 options={filteredGiftCardOptions.map(renderGiftCardOption)}
                 value={selectedFactoryEndpoint?.value} // Binds to the input field's text
                 onChange={(value) => {
-                  console.log("Changing Factory Endpoint:", value);
                   setSelectedFactoryEndpoint(
                     getFactoryEndpointFromValue(value)
                   );

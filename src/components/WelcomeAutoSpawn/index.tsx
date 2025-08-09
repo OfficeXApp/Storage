@@ -38,8 +38,6 @@ const WelcomeAutoSpawn = () => {
   useEffect(() => {
     const selectedFactoryEndpoint = initialGiftCardOptions[0];
     if (selectedFactoryEndpoint && currentProfile) {
-      console.log(`selectedFactoryEndpoint`, selectedFactoryEndpoint);
-      console.log(`currentProfile`, currentProfile);
       spawnAnonymousCloud(currentProfile, selectedFactoryEndpoint);
     } else {
       navigate("/");
@@ -85,8 +83,6 @@ const WelcomeAutoSpawn = () => {
       );
 
       const giftcardSpawnOrgData = await giftcardSpawnOrgResponse.json();
-
-      console.log(giftcardSpawnOrgData);
 
       if (!giftcardSpawnOrgData.ok || !giftcardSpawnOrgData.ok.data) {
         throw new Error("Invalid response from voucher redemption");

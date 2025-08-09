@@ -648,7 +648,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ CREATE FILE --------------------------------- //
           case CREATE_FILE: {
-            console.log(`CREATE_FILE optimistic`, action);
             const listDirectoryKey = action.meta?.listDirectoryKey;
             // Only handle actions with file data
             if (action.meta?.offline?.effect?.data) {
@@ -770,7 +769,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ CREATE FOLDER --------------------------------- //
           case CREATE_FOLDER: {
-            console.log(`CREATE_FOLDER optimistic`, action);
             // Only handle actions with folder data
             let listDirectoryKey = action.meta?.listDirectoryKey;
 
@@ -843,10 +841,7 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
           case CREATE_FOLDER_COMMIT: {
             const attemptedID = action?.payload?.[0]?.request?.payload?.id;
             const actualID = action?.payload?.[0]?.response?.result?.folder?.id;
-            console.log(
-              `CREATE_FOLDER_COMMIT optimistic attemptedID=${attemptedID}, actualID=${actualID}`,
-              action
-            );
+
             const optimisticID = action.meta?.optimisticID;
             const listDirectoryKey = action.meta?.listDirectoryKey;
             let realFolder: FolderRecordFE | undefined;
@@ -956,7 +951,6 @@ export const directoryOptimisticDexieMiddleware = (currentIdentitySet: {
 
           // ------------------------------ UPDATE FILE --------------------------------- //
           case UPDATE_FILE: {
-            console.log(`UPDATE_FILE optimistic`, action);
             // Only handle actions with file data
             const listDirectoryKey = action.meta?.listDirectoryKey;
 

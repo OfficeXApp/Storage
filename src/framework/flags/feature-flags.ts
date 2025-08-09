@@ -11,7 +11,6 @@ export const isAIChatEnabled = () => {
   return enableChatWithAI === "true";
 };
 export const setAIChatEnabled = (enabled: boolean) => {
-  console.log("setAIChatEnabled", enabled);
   localStorage.setItem(
     LOCALSTORAGE_IS_AI_CHAT_ENABLED,
     enabled ? "true" : "false"

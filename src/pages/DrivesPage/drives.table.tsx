@@ -66,7 +66,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
       tablePermissions: state.drives.tablePermissions,
     })
   );
-  console.log(`look at drives`, drives);
+
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredDrives, setFilteredDrives] = useState(drives);

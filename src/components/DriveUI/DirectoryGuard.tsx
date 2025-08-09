@@ -49,17 +49,16 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
   } = useIdentitySystem();
 
   const handleSubmit = async () => {
-    console.log(`submitting...`, password, currentOrg);
     if (!password || !currentOrg) return;
     setIsLoading(true);
     const deterministic_seed_phrase = passwordToSeedPhrase(
       `${password}-${resourceID}`
     );
     const newProfile = await deriveProfileFromSeed(deterministic_seed_phrase);
-    console.log(`newProfile`, newProfile.userID);
+
     const auth_profile = await hydrateFullAuthProfile(newProfile, true);
     const auth_token = await generateSignature(auth_profile);
-    console.log(`auth_token`, auth_token);
+
     try {
       const action = {
         action: resourceID.startsWith("FolderID_") ? "GET_FOLDER" : "GET_FILE",
@@ -82,7 +81,7 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
         }),
       });
       const res = await check_response.json();
-      console.log("Check get file response:", res);
+
       if (!res || !res[0].response.result) {
         message.error(`Invalid password`);
       } else {

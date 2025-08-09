@@ -102,7 +102,6 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
     const filteredSystem = systemPermissions
       .filter((p) => p.permission_types.length > 0)
       .filter((permission) => {
-        console.log("permission", permission);
         return (
           permission.resource_id
             .toLowerCase()

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Card, Input, Row, Col, Layout, Tag, Badge } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { appstore_apps } from "./constants";
@@ -10,6 +10,7 @@ import {
   IDPrefixEnum,
 } from "@officexapp/types";
 import { Helmet } from "react-helmet";
+import mixpanel from "mixpanel-browser";
 
 const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
@@ -31,7 +32,9 @@ const AppCard = ({ app }: { app: ServiceWithOffersFromVendors }) => {
           transition: "all 0.3s ease", // Smooth transition for hover effect
           cursor: "default", // Ensure cursor doesn't change to pointer
         }}
-        bodyStyle={{ padding: "16px" }}
+        styles={{
+          body: { padding: "16px" },
+        }}
         cover={
           <div
             style={{
@@ -89,6 +92,10 @@ const AppCard = ({ app }: { app: ServiceWithOffersFromVendors }) => {
 const AppStore = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { wrapOrgCode } = useIdentitySystem();
+
+  useEffect(() => {
+    mixpanel.track("View App Store");
+  }, []);
 
   // Filter apps based on search term
   const filteredApps = appstore_apps.filter(

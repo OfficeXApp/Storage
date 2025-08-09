@@ -130,12 +130,6 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
     step3: true, // Advanced (optional, so default to true)
   });
 
-  // Debug form values function
-  const debugFormValues = () => {
-    console.log("Current form values:", form.getFieldsValue());
-    console.log("Permission types:", form.getFieldValue("permissionTypes"));
-  };
-
   // Handle permission type change with type parameter
   const handlePermissionTypeChange = (
     checked: boolean,
@@ -396,8 +390,6 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
           return;
         }
 
-        console.log(`values----`, values);
-
         setLoading(true);
 
         const now = dayjs().valueOf();
@@ -423,8 +415,6 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
           external_id: values.externalId,
           external_payload: values.externalPayload,
         };
-
-        console.log(`systemPermissionData----`, systemPermissionData);
 
         dispatch(createSystemPermissionAction(systemPermissionData));
         onAddPermission(systemPermissionData);

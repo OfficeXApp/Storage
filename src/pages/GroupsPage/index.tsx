@@ -93,12 +93,10 @@ const GroupsPage: React.FC = () => {
       setLastClickedId(group.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
-      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
         (item) => item.key === group.id
       );
-      console.log(`existingTabIndex`, existingTabIndex);
 
       if (existingTabIndex !== -1 && !focus_tab) {
         // Tab already exists, remove it
@@ -183,7 +181,7 @@ const GroupsPage: React.FC = () => {
   // Handle adding a new group
   const handleAddGroup = (groupData: IRequestCreateGroup) => {
     // This function can be expanded later if additional logic is needed
-    console.log("Group added:", groupData);
+    // console.log("Group added:", groupData);
   };
 
   return (

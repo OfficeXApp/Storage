@@ -695,8 +695,6 @@ export const directoryPermissionsReducer = (
         [resource_id]: permissions.map((p: DirectoryPermissionFEO) => p.id),
       };
 
-      console.log(`> newResourcePermissionsMap`, newResourcePermissionsMap);
-
       return {
         ...state,
         permissionMap,

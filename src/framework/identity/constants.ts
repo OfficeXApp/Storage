@@ -1,3 +1,5 @@
+import { CONFIG } from "../../config";
+
 // Constants - Adjust these based on your needs
 export const LOCAL_STORAGE_SEED_PHRASE = "LOCAL_STORAGE_SEED_PHRASE";
 export const LOCAL_STORAGE_ALIAS_NICKNAME = "LOCAL_STORAGE_ALIAS_NICKNAME";
@@ -50,7 +52,7 @@ export const hexStringToUint8Array = (hexString: string): Uint8Array => {
   return result;
 };
 
-export const LOCAL_DEV_MODE = true;
+export const LOCAL_DEV_MODE = !CONFIG.IS_PRODUCTION;
 
 // LOCAL vs. PROD
 export const FACTORY_CANISTER_ENDPOINT = LOCAL_DEV_MODE

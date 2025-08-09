@@ -39,3 +39,5 @@ test-logs/*
 prompts/*
 
 notes/DISKS_AUTH_PROD.md
+# Sentry Config File
+.env.sentry-build-plugin

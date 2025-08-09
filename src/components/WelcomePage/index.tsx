@@ -143,7 +143,6 @@ const WelcomePage = () => {
           </Paragraph>
         </div>
       </Card>
-
       <br />
       <br />
       <br />

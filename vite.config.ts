@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 // vite.config.ts
 
 import { VitePWA } from "vite-plugin-pwa";
@@ -63,15 +64,22 @@ export default defineConfig({
       gzipSize: true,
       brotliSize: true,
     }),
+    sentryVitePlugin({
+      org: "officex",
+      project: "officex-official",
+    }),
   ],
   build: {
     minify: "terser",
+
     terserOptions: {
       compress: {
         drop_console: isProduction ? true : false, // Keep console logs for debugging
       },
     },
+
     cssCodeSplit: true,
+
     // Ensure correct entry points and output
     rollupOptions: {
       input: {
@@ -84,5 +92,7 @@ export default defineConfig({
         format: "es",
       },
     },
+
+    sourcemap: true,
   },
 });

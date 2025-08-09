@@ -1,4 +1,5 @@
 // src/main.tsx
+import "./instrument";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
@@ -16,10 +17,12 @@ import "./fetch";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { IFrameProvider } from "./framework/iframe/index.tsx";
+import { CONFIG } from "./config.ts";
+import * as Sentry from "@sentry/react";
 
 dayjs.extend(relativeTime);
 
-mixpanel.init("cae2fd45d17ff2cdf642b1d8afd80aa8", {
+mixpanel.init(CONFIG.MIXPANEL_TOKEN, {
   debug: true,
   track_pageview: true,
   persistence: "localStorage",
@@ -61,20 +64,22 @@ registerServiceWorker({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AntDesignConfigProvider>
-      <BrowserRouter>
-        <IdentitySystemProvider>
-          <ReduxOfflineProvider>
-            <DriveProvider onUploadComplete={(fileUUID) => null}>
-              <MultiUploaderProvider>
-                <IFrameProvider>
-                  <App />
-                </IFrameProvider>
-              </MultiUploaderProvider>
-            </DriveProvider>
-          </ReduxOfflineProvider>
-        </IdentitySystemProvider>
-      </BrowserRouter>
-    </AntDesignConfigProvider>
+    <Sentry.ErrorBoundary fallback={<p>An error has occurred</p>}>
+      <AntDesignConfigProvider>
+        <BrowserRouter>
+          <IdentitySystemProvider>
+            <ReduxOfflineProvider>
+              <DriveProvider onUploadComplete={(fileUUID) => null}>
+                <MultiUploaderProvider>
+                  <IFrameProvider>
+                    <App />
+                  </IFrameProvider>
+                </MultiUploaderProvider>
+              </DriveProvider>
+            </ReduxOfflineProvider>
+          </IdentitySystemProvider>
+        </BrowserRouter>
+      </AntDesignConfigProvider>
+    </Sentry.ErrorBoundary>
   </React.StrictMode>
 );

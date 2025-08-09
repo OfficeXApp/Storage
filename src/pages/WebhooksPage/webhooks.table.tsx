@@ -29,6 +29,7 @@ import {
   LoadingOutlined,
   SyncOutlined,
   LockOutlined,
+  CloudSyncOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { SystemPermissionType, WebhookFE } from "@officexapp/types";
@@ -42,6 +43,7 @@ import {
 import TagCopy from "../../components/TagCopy";
 import { useIdentitySystem } from "../../framework/identity";
 import { Link } from "react-router-dom";
+import ConnectICPButton from "../../components/ConnectICPButton";
 
 interface WebhooksTableListProps {
   isWebhookTabOpen: (id: string) => boolean;
@@ -52,7 +54,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
   isWebhookTabOpen,
   handleClickContentTab,
 }) => {
-  const { wrapOrgCode, currentProfile } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile, currentOrg } = useIdentitySystem();
   const dispatch = useDispatch();
   const isOnline = useSelector((state: ReduxAppState) => state.offline?.online);
   const { webhooks, loading, tablePermissions } = useSelector(
@@ -506,6 +508,35 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
           <br />
           <br />
         </div>
+      ) : !currentOrg?.host ? (
+        <Result
+          icon={<CloudSyncOutlined />}
+          title="Connect Cloud"
+          subTitle={
+            <div>
+              <span>This is an offline organization</span>
+              <br />
+              <span>You need to connect to free cloud to use this feature</span>
+            </div>
+          }
+          extra={
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              <div style={{ width: "300px" }}>
+                <ConnectICPButton />
+              </div>
+            </div>
+          }
+          style={{
+            marginTop: screenType.isMobile ? "0vh" : "10vh",
+            marginBottom: "20vh",
+          }}
+        />
       ) : (
         <Result
           icon={<LockOutlined />}

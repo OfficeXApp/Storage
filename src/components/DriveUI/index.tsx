@@ -1042,28 +1042,30 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             );
           } else {
             return (
-              <span
-                onClick={() => {
-                  if (record.isDisabled) {
-                    return;
-                  } else {
-                    if (isTrashBin) {
-                      message.error(
-                        "You cannot access files in the Trash. Restore it first."
-                      );
+              <Popover content={(record as any).public_note}>
+                <span
+                  onClick={() => {
+                    if (record.isDisabled) {
+                      return;
                     } else {
-                      handleFileFolderClick(record);
+                      if (isTrashBin) {
+                        message.error(
+                          "You cannot access files in the Trash. Restore it first."
+                        );
+                      } else {
+                        handleFileFolderClick(record);
+                      }
                     }
-                  }
-                }}
-                style={{ color: "gray", width: "100%" }}
-              >
-                {record.hasDiskTrash || (record as any).isRecentShortcut
-                  ? (record as any).public_note
-                  : record.expires_at === -1
-                    ? `Active`
-                    : `Expires ${dayjs(record.expires_at).fromNow()}`}
-              </span>
+                  }}
+                  style={{ color: "gray", width: "100%" }}
+                >
+                  {record.hasDiskTrash || (record as any).isRecentShortcut
+                    ? `${(record as any).public_note.slice(0, 80)}...`
+                    : record.expires_at === -1
+                      ? `Active`
+                      : `Expires ${dayjs(record.expires_at).fromNow()}`}
+                </span>
+              </Popover>
             );
           }
         },

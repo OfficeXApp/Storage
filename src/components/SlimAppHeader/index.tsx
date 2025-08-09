@@ -1,6 +1,7 @@
 import { Space } from "antd";
 import SwitchProfile from "../SwitchProfile";
 import { Link } from "react-router-dom";
+import OrganizationSwitcher from "../SwitchOrganization";
 
 export interface SlimAppHeaderProps {
   title?: React.ReactNode;
@@ -36,7 +37,10 @@ const SlimAppHeader = ({ title }: SlimAppHeaderProps) => {
         </Link>
       )}
 
-      <SwitchProfile showAvatar />
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <SwitchProfile />
+        <OrganizationSwitcher />
+      </div>
     </div>
   );
 };

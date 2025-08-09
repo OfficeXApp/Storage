@@ -167,7 +167,6 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
               <span>{currentProfile.nickname || "Anon"}</span>
             </Space>
             <Tag
-              color="blue"
               onClick={() => {
                 if (currentProfile) {
                   const userstring = `${currentProfile.nickname.replace(" ", "_")}@${currentProfile.userID}`;

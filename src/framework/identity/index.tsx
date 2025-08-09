@@ -313,13 +313,14 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
               currentOrgRef.current = existingOrg;
               initial_org_id = existingOrg.driveID;
             } else {
+              // create the local offline org
               const seedPhrase = generateRandomSeed();
               const tempProfile = await deriveProfileFromSeed(seedPhrase);
               const newDriveID = `DriveID_${tempProfile.icpPublicAddress}`;
 
               const newOrg = await createOrganization({
                 driveID: newDriveID,
-                nickname: "Anonymous Org",
+                nickname: "Offline Org",
                 icpPublicAddress: tempProfile.icpPublicAddress,
                 host: "",
                 note: "",
@@ -434,6 +435,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
     },
     []
   );
+
   const syncLatestIdentities = useCallback(async () => {
     if (!db) {
       throw new Error("INDEXEDDB_NOT_INITIALIZED");

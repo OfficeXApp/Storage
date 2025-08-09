@@ -53,7 +53,7 @@ const ConnectICPButton = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [giftCardValue, setGiftCardValue] = useState("");
-  const [orgName, setOrgName] = useState("");
+  const [orgName, setOrgName] = useState("Anonymous Org");
   const [selectedProfileId, setSelectedProfileId] = useState("");
   const [errors, setErrors] = useState({
     giftCard: "",

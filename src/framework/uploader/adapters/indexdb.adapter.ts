@@ -199,7 +199,6 @@ export class IndexedDBAdapter implements IUploadAdapter {
     file: File,
     config: UploadConfig
   ): Observable<UploadProgressInfo> {
-    console.log(`..uploadFile config`, config);
     if (!this.db) {
       return of({
         id: config.file.name as UploadID,
@@ -266,7 +265,6 @@ export class IndexedDBAdapter implements IUploadAdapter {
     uploadId: UploadID
   ): Promise<FileID> {
     try {
-      console.log(`createFileRecord, config`, config);
       // Generate a file ID or use the one from metadata
       const fileID = config.fileID || GenerateID.File();
 
@@ -324,11 +322,7 @@ export class IndexedDBAdapter implements IUploadAdapter {
     let bytesUploaded = 0;
     const startTime = Date.now();
 
-    console.log(`processUpload`, config);
-
     const fileId = await this.createFileRecord(file, config, uploadId);
-
-    console.log(`>> fileId`, fileId);
 
     // Store metadata for resume capability
     const metadata: ResumableUploadMetadata = {
@@ -508,8 +502,6 @@ export class IndexedDBAdapter implements IUploadAdapter {
       const safeMetadata = { ...metadata };
       // @ts-ignore
       delete safeMetadata.customMetadata.dispatch;
-      console.log(`metadata`, metadata);
-      console.log(`safeMetadata`, safeMetadata);
 
       const transaction = this.db.transaction(
         [this.METADATA_STORE_NAME],
@@ -563,10 +555,6 @@ export class IndexedDBAdapter implements IUploadAdapter {
         return;
       }
 
-      console.log(
-        `Finalizing upload for ${uploadId} with file ${file.name} and id ${fileID}`
-      );
-
       const transaction = this.db.transaction(
         [this.FILES_STORE_NAME],
         "readwrite"
@@ -585,12 +573,9 @@ export class IndexedDBAdapter implements IUploadAdapter {
         metadata: config.metadata || {},
       };
 
-      // console.log("Storing file metadata:", fileData);
       const request = store.put(fileData);
-      console.log(`WE GOT IT`);
 
       request.onsuccess = () => {
-        // console.log(`File metadata stored successfully for ${uploadId}`);
         resolve(); // Resolve immediately, thumbnail generation should not block completion
 
         // Generate thumbnail if it's an image (after resolving)

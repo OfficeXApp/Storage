@@ -78,13 +78,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   const { diskTypeEnum, diskID } = extractDiskInfo();
 
   const handleFileSelect = (files: FileList | null) => {
-    console.log(
-      "handleFileSelect",
-      files,
-      uploadTargetFolderID,
-      uploadTargetDiskType,
-      diskID
-    );
     if (files && diskID && uploadTargetDiskType && uploadTargetFolderID) {
       const fileArray = Array.from(files);
 
@@ -102,7 +95,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         diskID,
         {
           onFileComplete: (fileUUID) => {
-            console.log(`Local callback: File ${fileUUID} upload completed`);
+            // console.log(`Local callback: File ${fileUUID} upload completed`);
           },
           metadata: {
             dispatch,
@@ -114,7 +107,6 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         }
       );
 
-      console.log("Selected files for upload:", fileArray);
       // Expand the UploadPanel after files are selected
       toggleUploadPanel(true);
     }
@@ -132,9 +124,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
 
   const handleCreateFolder = async () => {
     mixpanel.track("Create Folder");
-    console.log(
-      `Creating folder: ${newFolderName} in ${uploadTargetFolderID} of ${diskTypeEnum} ${diskID}`
-    );
+
     if (
       newFolderName.trim() &&
       diskTypeEnum &&
@@ -198,7 +188,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         }
       : null,
     {
-      type: "divider",
+      type: "divider" as const,
     },
     {
       label: (
@@ -251,7 +241,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       },
     },
     {
-      type: "divider",
+      type: "divider" as const,
     },
     {
       label: (
@@ -322,14 +312,14 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       disabled,
     },
     {
-      type: "divider",
+      type: "divider" as const,
     },
     {
       label: "Connect Hard Drive",
       key: "connectHardDrive",
       disabled: true,
     },
-  ];
+  ].filter(Boolean);
 
   if (isBigButton && isAIChatEnabled()) {
     return (

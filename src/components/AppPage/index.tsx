@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Card,
@@ -43,6 +43,7 @@ import {
   OfferPreview,
   VendorOffer,
 } from "@officexapp/types";
+import mixpanel from "mixpanel-browser";
 
 const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
@@ -60,6 +61,10 @@ const AppPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDrawerVisible, setIsDrawerVisible] = useState(false); // State for Drawer visibility
   const [checkoutRun, setCheckoutRun] = useState<CheckoutRun | null>(null);
+
+  useEffect(() => {
+    mixpanel.track("View App Store");
+  }, []);
 
   if (!app) {
     return <NotFoundPage />;
@@ -232,7 +237,9 @@ const AppPage = () => {
                     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
                     overflow: "hidden",
                   }}
-                  bodyStyle={{ padding: 0 }}
+                  styles={{
+                    body: { padding: 0 },
+                  }}
                 >
                   <Row align="stretch" gutter={16}>
                     {/* Carousel for Images */}
@@ -385,6 +392,7 @@ const AppPage = () => {
                               type="dashed"
                               size="large"
                               icon={<BookOutlined />}
+                              onClick={() => mixpanel.track("Bookmark App")}
                             >
                               Bookmark
                             </Button>
@@ -454,7 +462,9 @@ const AppPage = () => {
                                     borderRadius: "8px",
                                     width: "100%",
                                   }}
-                                  bodyStyle={{ padding: "12px 16px" }}
+                                  styles={{
+                                    body: { padding: "12px 16px" },
+                                  }}
                                 >
                                   <Row align="middle" justify="space-between">
                                     <Col>

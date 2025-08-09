@@ -69,7 +69,7 @@ const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
     })
   );
   const { wrapOrgCode, currentProfile, currentOrg } = useIdentitySystem();
-  console.log(`look at purchases`, purchases);
+
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredPurchases, setFilteredPurchases] = useState(purchases);

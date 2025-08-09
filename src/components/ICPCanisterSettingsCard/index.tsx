@@ -82,7 +82,6 @@ const ICPCanisterSettingsCard = () => {
     });
     const res = await about_response.json();
     const data = res.ok.data;
-    console.log("about org:", data);
 
     const billion = BigInt(1_000_000_000);
     setGasBalance(BigInt(data.gas_cycles) / billion);

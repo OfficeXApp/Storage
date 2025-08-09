@@ -65,11 +65,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <IdentitySystemProvider>
           <ReduxOfflineProvider>
-            <DriveProvider
-              onUploadComplete={(fileUUID) =>
-                console.log(`Uploaded ${fileUUID}`)
-              }
-            >
+            <DriveProvider onUploadComplete={(fileUUID) => null}>
               <MultiUploaderProvider>
                 <IFrameProvider>
                   <App />

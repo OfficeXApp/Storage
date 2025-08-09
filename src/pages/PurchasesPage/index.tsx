@@ -75,7 +75,6 @@ const PurchasesPage: React.FC = () => {
   const tabItemsRef = useRef(tabItems);
 
   useEffect(() => {
-    console.log(`purchasesPage last checked`, lastChecked);
     if (currentProfile && pastLastCheckedCacheLimit(lastChecked)) {
       dispatch(checkPurchasesTablePermissionsAction(currentProfile.userID));
       dispatch(listPurchasesAction({}));
@@ -96,12 +95,10 @@ const PurchasesPage: React.FC = () => {
       setLastClickedId(purchase.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
-      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
         (item) => item.key === purchase.id
       );
-      console.log(`existingTabIndex`, existingTabIndex);
 
       if (existingTabIndex !== -1 && focus_tab == true) {
         setActiveKey(purchase.id);

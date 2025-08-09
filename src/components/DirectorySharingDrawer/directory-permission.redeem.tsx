@@ -64,11 +64,6 @@ const RedeemDirectoryPermitPage = () => {
     listOfProfiles,
   } = useIdentitySystem();
 
-  console.log(`redeemData`, redeemData);
-  console.log(`orgcode`, orgcode);
-  console.log(`currentOrg`, currentOrg);
-  console.log(`currentProfile`, currentProfile);
-
   useEffect(() => {
     const getRedeemParam = async () => {
       setLoading(true);
@@ -78,7 +73,6 @@ const RedeemDirectoryPermitPage = () => {
       if (redeemParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
-          console.log(`decodedData`, decodedData);
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
@@ -129,8 +123,6 @@ const RedeemDirectoryPermitPage = () => {
   const processDirectoryPermissionRedeem = async (
     data: RedeemDirectoryPermission_BTOA
   ) => {
-    console.log("Processing redeem directory permission", data);
-
     if (!currentOrg || !selectedProfile) {
       console.error("No current organization or selected profile found");
       return;
@@ -170,7 +162,6 @@ const RedeemDirectoryPermitPage = () => {
 
     const redeem_data: IResponseRedeemDirectoryPermission =
       await redeem_response.json();
-    console.log("Redeem directory permission response:", redeem_data);
 
     // Verify the redemption was successful
     if (
@@ -179,7 +170,6 @@ const RedeemDirectoryPermitPage = () => {
       redeem_data.ok.data.permission
     ) {
       // Redirect to the resource page
-      console.log(`redeem_data`, redeem_data);
       message.success(
         `Successfully accepted file sharing! Redirecting to the file...`
       );

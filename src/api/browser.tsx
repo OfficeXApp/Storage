@@ -88,7 +88,6 @@ const BrowserSandbox: React.FC = () => {
           setIsUploading(false);
         },
         complete: () => {
-          console.log("Upload complete");
           setIsUploading(false);
           if (fileInputRef.current) {
             fileInputRef.current.value = "";

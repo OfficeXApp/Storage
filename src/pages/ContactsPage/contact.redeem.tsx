@@ -89,10 +89,6 @@ const ContactRedeem = () => {
     generateSignature,
   } = useIdentitySystem();
 
-  console.log(`redeemData`, redeemData);
-  console.log(`orgcode`, orgcode);
-  console.log(`currentOrg`, currentOrg);
-
   useEffect(() => {
     if (redeemData && currentProfile && !selectedProfile) {
       setProfileName(redeemData.profile_name);
@@ -138,7 +134,6 @@ const ContactRedeem = () => {
       if (redeemParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
-          console.log(`decodedData`, decodedData);
           setRedeemData(decodedData);
           setProfileName(decodedData.profile_name || "");
           setOrgName(decodedData.org_name || "");
@@ -178,15 +173,8 @@ const ContactRedeem = () => {
   const processSelfCustodySuperswapLogin = async (
     data: SelfCustodySuperswapLogin_BTOA
   ) => {
-    console.log("Processing redeem contact", data);
-
     // Use the selected profile if available
     if (selectedProfile && currentOrg) {
-      console.log(
-        "Using selected profile:",
-        selectedProfile.nickname,
-        selectedProfile.userID
-      );
       const superswap_payload: IRequestRedeemContact = {
         current_user_id: data.current_user_id,
         new_user_id: selectedProfile.userID,
@@ -206,7 +194,6 @@ const ContactRedeem = () => {
         headers,
         body: JSON.stringify(superswap_payload),
       });
-      console.log(`redeem_response`, redeem_response);
 
       const redeem_data: IResponseRedeemContact = await redeem_response.json();
       const { url: url2, headers: headers2 } = wrapAuthStringOrHeader(
@@ -218,8 +205,6 @@ const ContactRedeem = () => {
         headers: headers2,
       });
       const checkData = ((await check.json()) as IResponseWhoAmI).ok.data;
-
-      console.log("checkData", checkData);
 
       if (
         checkData.userID !== selectedProfile.userID ||
@@ -277,10 +262,8 @@ const ContactRedeem = () => {
     data: OrgOwnedContactApiKeyLogin_BTOA
   ) => {
     if (!currentOrg) {
-      console.error("No current organization found");
       return;
     }
-    console.log("Processing auto login contact", data);
     const { url, headers } = wrapAuthStringOrHeader(
       `${currentOrg.host}/v1/drive/${currentOrg.driveID}/organization/whoami`,
       {},
@@ -290,8 +273,6 @@ const ContactRedeem = () => {
       headers,
     });
     const checkData = ((await check.json()) as IResponseWhoAmI).ok.data;
-
-    console.log("checkData", checkData);
 
     if (
       checkData.userID !== data.profile_id ||
@@ -343,9 +324,7 @@ const ContactRedeem = () => {
   const processSovereignStrangerLogin = async (
     data: SovereignStrangerLogin_BTOA
   ) => {
-    console.log("Processing simple invite", data);
     if (!currentOrg || currentProfile?.userID !== data.profile_id) {
-      console.error("No current organization found or invalid profile");
       return;
     }
     const auth_token = data.api_key || (await generateSignature());
@@ -358,8 +337,6 @@ const ContactRedeem = () => {
       headers,
     });
     const checkData = ((await check.json()) as IResponseWhoAmI).ok.data;
-
-    console.log("checkData", checkData);
 
     if (
       checkData.userID !== data.profile_id ||

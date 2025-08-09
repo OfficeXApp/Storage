@@ -99,12 +99,10 @@ const DrivesPage: React.FC = () => {
       setLastClickedId(drive.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
-      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
         (item) => item.key === drive.id
       );
-      console.log(`existingTabIndex`, existingTabIndex);
 
       if (existingTabIndex !== -1 && focus_tab == true) {
         setActiveKey(drive.id);
@@ -389,7 +387,7 @@ const DrivesPage: React.FC = () => {
         onClose={toggleDrawer}
         onAddDrive={(driveData: IRequestCreateDrive) => {
           // This callback can be implemented if you need additional handling after adding a drive
-          console.log("Drive added:", driveData);
+          // console.log("Drive added:", driveData);
         }}
       />
     </Layout>

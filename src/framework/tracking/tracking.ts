@@ -1,8 +1,5 @@
 // Helper function to track user events
 export const trackUserSignup = async (icpPrincipal: string = "") => {
-  console.log("Tracking user signup...");
-  console.log("ICP Principal:", icpPrincipal);
-
   const isProd = checkIsProdByURL();
   if (!isProd) return;
 
@@ -11,7 +8,6 @@ export const trackUserSignup = async (icpPrincipal: string = "") => {
 
   // first track to Google Analytics
   if ((window as any).gtag) {
-    console.log("Tracking user signup in Google Analytics...");
     (window as any).gtag("event", "user_signup", {
       event_category: "engagement",
       event_label: "signup",

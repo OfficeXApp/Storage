@@ -12,7 +12,6 @@ const PrettyUrlShortener = () => {
   const { shortlink_slug } = useParams();
   const { currentOrg, currentAPIKey, generateSignature } = useIdentitySystem();
   const screenType = useScreenType();
-  console.log(`shortlink_slug`, shortlink_slug);
 
   useEffect(() => {
     if (shortlink_slug) {

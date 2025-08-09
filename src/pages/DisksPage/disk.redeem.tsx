@@ -52,11 +52,6 @@ const RedeemDiskGiftCard = () => {
     generateSignature,
   } = useIdentitySystem();
 
-  console.log(`redeemData`, redeemData);
-  console.log(`orgcode`, orgcode);
-  console.log(`currentOrg`, currentOrg);
-  console.log(`currentProfile`, currentProfile);
-
   useEffect(() => {
     const getRedeemParam = async () => {
       setLoading(true);
@@ -66,7 +61,7 @@ const RedeemDiskGiftCard = () => {
       if (redeemParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
-          console.log(`decodedData`, decodedData);
+
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
@@ -139,7 +134,6 @@ const RedeemDiskGiftCard = () => {
       }
 
       const responseData = await response.json();
-      console.log("Disk creation response:", responseData);
 
       // Show success message
       message.success(`Disk "${diskData.name}" has been successfully claimed!`);

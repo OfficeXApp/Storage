@@ -9,7 +9,7 @@ import { LOCAL_DEV_MODE } from "../../framework/identity/constants";
 export const appstore_apps_prod: ServiceWithOffersFromVendors[] = [
   {
     id: "19",
-    name: "Amazon Cloud",
+    name: "Bulk Cloud Storage",
     subheading: "Add storage to OfficeX with giftcards for $1 per 100GB/month",
     cover_image:
       "https://cdn2.interfaz.io/wp-content/uploads/2023/06/Blog_AWS_cover-1.png",
@@ -25,7 +25,7 @@ export const appstore_apps_prod: ServiceWithOffersFromVendors[] = [
         price_unit: "/GB",
         price_explanation: "per month for storage and processing, min $1",
         bookmarks: 180,
-        bookmarked_demand: 0,
+        bookmarked_demand: 240000,
         cumulative_sales: 105000,
         bookmark_url: "",
         call_to_action: "Buy Giftcard",
@@ -3162,7 +3162,7 @@ export const appstore_apps_prod: ServiceWithOffersFromVendors[] = [
 const appstore_apps_dev: ServiceWithOffersFromVendors[] = [
   {
     id: "19",
-    name: "Amazon Cloud",
+    name: "Bulk Cloud Storage",
     subheading: "Add storage to OfficeX with giftcards for $1 per 100GB/month",
     cover_image:
       "https://cdn2.interfaz.io/wp-content/uploads/2023/06/Blog_AWS_cover-1.png",
@@ -3178,7 +3178,7 @@ const appstore_apps_dev: ServiceWithOffersFromVendors[] = [
         price_unit: "/GB",
         price_explanation: "per month for storage and processing, min $1",
         bookmarks: 180,
-        bookmarked_demand: 0,
+        bookmarked_demand: 240000,
         cumulative_sales: 105000,
         bookmark_url: "",
         call_to_action: "Buy Giftcard",

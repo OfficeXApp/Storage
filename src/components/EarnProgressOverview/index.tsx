@@ -24,10 +24,6 @@ const EarnProgressOverview = () => {
       // This assumes each step (including gap) takes about 10px
       const calculatedSteps = Math.max(5, Math.floor(containerWidth / 4));
 
-      console.log(
-        `Container width: ${containerWidth}px, calculatedSteps: ${calculatedSteps}`
-      );
-
       setSteps(calculatedSteps);
     }
   };

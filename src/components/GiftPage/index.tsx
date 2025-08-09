@@ -121,7 +121,6 @@ const GiftPage: React.FC = () => {
       });
     mixpanel.track("Share File", {
       "File Type": giftTitle.split(".").pop(),
-      Link: newUrl,
     });
   };
 

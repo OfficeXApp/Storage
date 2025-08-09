@@ -745,7 +745,7 @@ class DriveDB {
         key,
         customFilename: file.originalFileName,
       });
-      console.log(`newSignedUrl`, newSignedUrl);
+
       // file.rawURL = newSignedUrl;
       // WARNING!! FIX(SIGNED_URL_INCONSISTENT): Theres a bug with where we cannot trust IDs since they may get overwritten by cloud version, thus breaking the rawUrl as it attempts to use use FileUUID when actual file is stored in cloud at old FileUUID.
       // solution may be to add a new persistentFileUUID to the file metadata and use that for rawURL
@@ -1530,7 +1530,6 @@ class DriveDB {
     for (const [fullFilePath, fileUUID] of Object.entries(
       this.fullFilePathToUUID
     )) {
-      console.log(fullFilePath);
       const fileMetadata = this.fileUUIDToMetadata[fileUUID];
       if (fileMetadata) {
         this.fuseIndex.add({
@@ -1547,7 +1546,7 @@ class DriveDB {
   }
   ping(): string {
     const message = `Current time is ${new Date()}`;
-    // console.log(message);
+
     return message;
   }
   checkIfInitialized(): boolean {

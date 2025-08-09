@@ -21,8 +21,6 @@ const GroupPage = () => {
     (state: ReduxAppState) => state.groups.groupMap[groupID || ""]
   );
 
-  console.log(`groupID`, groupID, params);
-
   useEffect(() => {
     if (groupID) {
       dispatch(getGroupAction(groupID));

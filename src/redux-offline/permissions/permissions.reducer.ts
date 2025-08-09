@@ -678,7 +678,6 @@ export const directoryPermissionsReducer = (
     }
 
     case LIST_DIRECTORY_PERMISSIONS_COMMIT: {
-      console.log(`> LIST_DIRECTORY_PERMISSIONS_COMMIT`, action);
       const permissions = action.payload.ok.data.items;
       const resource_id = permissions[0]?.resource_id || "";
       const permissionMap = permissions.reduce(
@@ -695,8 +694,6 @@ export const directoryPermissionsReducer = (
         ...state.resourcePermissionsMap,
         [resource_id]: permissions.map((p: DirectoryPermissionFEO) => p.id),
       };
-
-      console.log(`> newResourcePermissionsMap`, newResourcePermissionsMap);
 
       return {
         ...state,

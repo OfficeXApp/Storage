@@ -39,7 +39,6 @@ const SandboxPage = () => {
 
   const handleTestBackendRoute = async () => {
     const url = `https://is5sx-kqaaa-aaaak-apcoa-cai.icp0.io/v1/default/organization/snapshot`;
-    console.log(`firing at url test backend`, url);
     const password = "123";
     // Only the password part should go in the Authorization header
     const response = await fetch(url, {
@@ -56,11 +55,9 @@ const SandboxPage = () => {
     }
 
     const data = await response.json();
-    console.log("Received data:", data);
   };
   const handleWhoAmIRoute = async () => {
     const url = `https://is5sx-kqaaa-aaaak-apcoa-cai.icp0.io/v1/default/organization/whoami`;
-    console.log(`firing at url test backend`, url);
     const password = "_______";
     // Only the password part should go in the Authorization header
     const response = await fetch(`${url}?auth=${password}`, {

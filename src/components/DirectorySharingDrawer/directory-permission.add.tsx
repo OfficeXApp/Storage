@@ -299,12 +299,6 @@ const DirectoryPermissionAddDrawer: React.FC<
       const step2Valid = isStepValid(2);
 
       // For debugging
-      console.log("Step validation:", {
-        Who: step0Valid,
-        Can: step1Valid,
-        Advanced: step2Valid,
-        PermissionTypes: permissionTypes,
-      });
 
       setStepsValidation({
         step0: step0Valid,
@@ -636,7 +630,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         };
         directoryPermissionData.metadata = metadata;
       }
-      console.log(`isMagicLink=${isMagicLink}`);
+
       if (isMagicLink && currentOrg) {
         directoryPermissionData.granted_to = undefined;
 
@@ -668,7 +662,6 @@ const DirectoryPermissionAddDrawer: React.FC<
             redeemCode: res.ok.data.permission.redeem_code,
             daterange: { begins_at: beginDate, expires_at: expiryDate },
           });
-          console.log(`url=${url}`);
           setShareableURL(url);
         }
       } else if (isPublic) {
@@ -684,8 +677,6 @@ const DirectoryPermissionAddDrawer: React.FC<
         setShareableURL(window.location.href);
         dispatch(createDirectoryPermissionAction(directoryPermissionData));
       }
-
-      console.log(`directoryPermissionData----`, directoryPermissionData);
 
       onSubmitCallback();
 
@@ -997,7 +988,7 @@ const DirectoryPermissionAddDrawer: React.FC<
                     const newProfile = await deriveProfileFromSeed(
                       deterministic_seed_phrase
                     );
-                    console.log(`newProfile`, newProfile.userID);
+
                     setIsMagicLink(false);
                     setIsPublic(false);
                     setSelectedGrantee({

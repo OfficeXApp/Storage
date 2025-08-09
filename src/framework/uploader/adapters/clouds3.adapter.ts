@@ -113,20 +113,13 @@ export class CloudS3Adapter implements IUploadAdapter {
     signal: AbortSignal
   ): Promise<void> {
     const startTime = Date.now();
-    console.log(
-      `[CloudS3Adapter ${uploadId}] processUpload started for ${file.name}`
-    );
 
     try {
       // First create a file record in the system
-      console.log(`[CloudS3Adapter ${uploadId}] Calling createFileRecord...`);
       const { fileID, presignedData } = await this.createFileRecord(
         file,
         config,
         uploadId
-      );
-      console.log(
-        `[CloudS3Adapter ${uploadId}] createFileRecord SUCCEEDED. FileID: ${fileID}, Presigned URL: ${presignedData?.url}`
       );
 
       if (!presignedData || !presignedData.url) {
@@ -183,9 +176,6 @@ export class CloudS3Adapter implements IUploadAdapter {
       formData.append("file", file);
 
       // Upload using fetch with progress tracking
-      console.log(
-        `[CloudS3Adapter ${uploadId}] Calling uploadWithProgress to URL: ${presignedData.url}`
-      );
       await this.uploadWithProgress(
         presignedData.url,
         formData,
@@ -207,12 +197,9 @@ export class CloudS3Adapter implements IUploadAdapter {
         },
         signal
       );
-      console.log(`[CloudS3Adapter ${uploadId}] uploadWithProgress SUCCEEDED.`);
 
       // Update file status to completed
-      console.log(`[CloudS3Adapter ${uploadId}] Calling updateFileStatus...`);
       await this.updateFileStatus(fileID, UploadStatus.COMPLETED, config);
-      console.log(`[CloudS3Adapter ${uploadId}] updateFileStatus SUCCEEDED.`);
 
       // If we got here, upload is complete
       const finalProgress: UploadProgressInfo = {
@@ -230,9 +217,6 @@ export class CloudS3Adapter implements IUploadAdapter {
 
       progressSubject.next(finalProgress);
       progressSubject.complete();
-      console.log(
-        `[CloudS3Adapter ${uploadId}] processUpload COMPLETED for ${file.name}.`
-      );
     } catch (error) {
       console.error(
         `[CloudS3Adapter ${uploadId}] processUpload FAILED for ${file.name}:`,
@@ -316,8 +300,6 @@ export class CloudS3Adapter implements IUploadAdapter {
     uploadId: UploadID
   ): Promise<{ fileID: FileID; presignedData: any }> {
     try {
-      console.log(`CREATE_FILE`, file);
-
       // Generate a file ID or use the one from metadata
       const fileID = config.fileID || GenerateID.File();
 
@@ -368,8 +350,6 @@ export class CloudS3Adapter implements IUploadAdapter {
       }
 
       const result = await response.json();
-
-      console.log(`File record creation result:`, result);
 
       // Extract presigned URL data from the API response
       let presignedData = null;
@@ -460,8 +440,6 @@ export class CloudS3Adapter implements IUploadAdapter {
       }
 
       const data = await response.json();
-
-      console.log(`Upload status`, data);
 
       const updatedFile = data[0]?.response?.result;
 

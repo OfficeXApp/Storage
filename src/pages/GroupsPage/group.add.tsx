@@ -89,12 +89,9 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
   };
 
   const handleAddGroup = () => {
-    console.log("Adding group...");
     form
       .validateFields()
       .then((values) => {
-        console.log("Form values:", values);
-
         const groupData: IRequestCreateGroup = {
           name: values.name,
           public_note: values.publicNote || "",
@@ -103,8 +100,6 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
           external_id: values.externalId || undefined,
           external_payload: values.externalPayload || undefined,
         };
-
-        console.log("Group data:", groupData);
 
         setLoading(true);
 

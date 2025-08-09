@@ -64,7 +64,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     })
   );
   const { wrapOrgCode, currentProfile, currentOrg } = useIdentitySystem();
-  console.log(`look at contacts`, contacts);
+
   const screenType = useScreenType();
   const [searchText, setSearchText] = useState("");
   const [filteredContacts, setFilteredContacts] = useState(contacts);

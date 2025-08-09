@@ -30,15 +30,6 @@ const UploadDropZone: React.FC<UploadDropZoneProps> = ({
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      console.log(`Accepted files: ${acceptedFiles.length}`, acceptedFiles);
-      console.log(
-        `uploadTargetDisk & uploadTargetFolderID`,
-        uploadTargetDisk,
-        uploadTargetFolderID
-      );
-      console.log(
-        `uploadTargetDiskID=${uploadTargetDiskID}, uploadTargetDiskType = ${uploadTargetDiskType}`
-      );
       if (
         acceptedFiles.length > 0 &&
         uploadTargetDiskID &&
@@ -52,7 +43,7 @@ const UploadDropZone: React.FC<UploadDropZoneProps> = ({
           file,
           fileID: `FileID_${uuidv4()}` as FileID,
         }));
-        console.log("uploadFilesArray", uploadFilesArray);
+
         // Use uploadFiles from useMultiUploader
         uploadFiles(
           uploadFilesArray,
@@ -73,7 +64,6 @@ const UploadDropZone: React.FC<UploadDropZoneProps> = ({
           }
         );
 
-        console.log("Selected files for upload:", acceptedFiles);
         toggleUploadPanel(true);
       }
     },

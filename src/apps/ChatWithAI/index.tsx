@@ -160,11 +160,11 @@ const ChatWithAI = () => {
   const objectStoreNameRef = useRef<string>("files");
 
   useEffect(() => {
-    console.log(`initial setting filename`);
     const defaultName =
       file.name.replace(".officex-document", "") || "Untitled Document";
     setCurrentFileName(defaultName);
     currentFileNameRef.current = defaultName;
+    mixpanel.track("Chat Session");
   }, []);
 
   useEffect(() => {
@@ -188,12 +188,9 @@ const ChatWithAI = () => {
       const searchParams = new URLSearchParams(location.search);
       const redeemParam = searchParams.get("redeem");
 
-      console.log(`redeemParam`, redeemParam);
-
       if (redeemParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
-          console.log(`redeem-decodedData`, decodedData);
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
@@ -206,15 +203,12 @@ const ChatWithAI = () => {
   }, [location]);
 
   const fetchJsonContent = useCallback(async (url: string) => {
-    console.log(`fetchJsonContent`, url);
-
     if (!url) return;
 
     setFileContentLoading(true);
     setFileContentError(null);
 
     try {
-      console.log(`Fetching JSON content from URL: ${url}`);
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -228,8 +222,6 @@ const ChatWithAI = () => {
         // Parse as JSON
         const jsonData = JSON.parse(text);
 
-        console.log(`parsed json data`, jsonData);
-
         // Store in ref instead of state
         fileContentRef.current = jsonData;
 
@@ -237,9 +229,7 @@ const ChatWithAI = () => {
         setFileContentVersion((prev) => prev + 1);
         setIframeReady(true);
         setIsContentLoaded(true); // Set content loaded to true on success
-        console.log("Successfully loaded and parsed JSON content");
       } catch (parseError) {
-        console.error("Error parsing JSON:", parseError);
         fileContentRef.current = { raw: text };
         setFileContentVersion((prev) => prev + 1);
         setFileContentError("Could not parse file as JSON");
@@ -255,7 +245,6 @@ const ChatWithAI = () => {
   }, []);
 
   useEffect(() => {
-    console.log(`useEffect for fileUrl`, fileUrl);
     if (fileUrl) {
       fetchJsonContent(fileUrl);
     }
@@ -288,7 +277,6 @@ const ChatWithAI = () => {
   };
 
   useEffect(() => {
-    console.log("ChatWithAI mounted");
     if (fileID) {
       if (fileID === "new") {
         setIframeReady(true);
@@ -308,7 +296,6 @@ const ChatWithAI = () => {
 
   // New method to handle files from IndexedDB
   const getFileFromIndexedDB = async (fileId: FileUUID): Promise<string> => {
-    console.log(`getFileFromIndexedDB`, fileId);
     return new Promise((resolve, reject) => {
       const openRequest = indexedDB.open(dbNameRef.current, 1);
 
@@ -334,11 +321,6 @@ const ChatWithAI = () => {
           if (fileRequest.result) {
             // Check if we have the complete file
             if (fileRequest.result.uploadComplete) {
-              console.log(
-                "Found complete file in IndexedDB:",
-                fileRequest.result
-              );
-
               // For certain file types that need reconstruction from chunks
               if (
                 [
@@ -512,7 +494,6 @@ const ChatWithAI = () => {
   };
 
   useEffect(() => {
-    console.log(`useEffect loop`);
     if (!file) return;
     // If file ID hasn't changed, don't reload
     if (file.id === lastLoadedFileRef.current) {
@@ -523,7 +504,7 @@ const ChatWithAI = () => {
     if (currentLoadingFileRef.current === file.id) {
       return;
     }
-    console.log(`about ot start`);
+
     // Clear previous URL when switching to a new file
     if (fileUrl && file.id !== lastLoadedFileRef.current) {
       URL.revokeObjectURL(fileUrl);
@@ -531,9 +512,6 @@ const ChatWithAI = () => {
       setIsContentLoaded(false);
     }
     const loadFileContent = async () => {
-      console.log(`loadFileContent`, file);
-      console.log(`fileType`, fileType);
-
       if (!file || !fileType) return;
 
       // if (!currentOrg?.host) {
@@ -560,26 +538,22 @@ const ChatWithAI = () => {
 
       currentLoadingFileRef.current = file.id;
       setIsLoading(true);
-      console.log(`file --> `, file);
       try {
         if (file.disk_type === DiskTypeEnum.BrowserCache) {
           // Use IndexedDB approach instead of indexdbGetFileUrl
           const url = await getFileFromIndexedDB(file.id as FileUUID);
-          console.log(`indexdb url`, url);
           setFileUrl(url);
         } else if (
           file.disk_type === DiskTypeEnum.StorjWeb3 ||
           file.disk_type === DiskTypeEnum.AwsBucket
         ) {
           const url = await getPresignedUrl(file.raw_url as string);
-          console.log(`the presigned url`, url);
           setFileUrl(url as string);
         } else if (file.disk_type === DiskTypeEnum.IcpCanister) {
           // Handle IcpCanister files using the raw download endpoints
           // wait 3 seconds
           await sleep(3000);
           const blobUrl = await fetchFileContentFromCanister(file.id as string);
-          console.log(`blobUrl=blobUrl`, blobUrl);
           if (blobUrl) {
             setFileUrl(blobUrl);
           } else {
@@ -778,23 +752,11 @@ const ChatWithAI = () => {
         fileID: file.id as FileID, // Use the existing file ID to overwrite
       };
 
-      console.log(`
-
-        Saving file with ID: ${file.id}
-        File name: ${fileObject.name}
-        File size: ${fileObject.size} bytes
-        Disk type: ${diskType}
-        Disk ID: ${diskID}
-        Parent folder ID: ${parentFolderID}
-        
-        `);
-
       message.info(`Saving file, please wait...`);
       // Upload the file (which will overwrite the existing one)
       // The useMultiUploader will handle all disk types appropriately
       uploadFiles([uploadFileObject], parentFolderID, diskType, diskID, {
         onFileComplete: (fileUUID) => {
-          console.log(`>>>>> File ${fileUUID} save completed`);
           // Refresh the file content after save
           // fetchFileById(file.id as FileID);
           dispatch(
@@ -866,8 +828,6 @@ const ChatWithAI = () => {
 
   const parentMethods = {
     getFileData: () => {
-      console.log("Fetching file data from parent");
-
       if (!file) {
         return {
           error: "No file data available",
@@ -897,12 +857,7 @@ const ChatWithAI = () => {
       };
     },
     downloadFile: (fileContent: string) => {
-      console.log(`currentFileNameRef==`, currentFileNameRef.current);
       const _currentFileName = currentFileNameRef.current;
-      console.log(
-        `Downloading file ${_currentFileName} with content:`,
-        fileContent
-      );
       const blob = new Blob([fileContent], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -948,7 +903,6 @@ const ChatWithAI = () => {
       return `File ${"fileName"} shared successfully.`;
     }, []),
     logMessage: useCallback((message: string) => {
-      console.log("Message from iframe:", message);
       return `Parent received: ${message}`;
     }, []),
   };
@@ -956,11 +910,6 @@ const ChatWithAI = () => {
   const offlineDisk = file
     ? shouldBehaveOfflineDiskUIIntent(extractedDiskID)
     : true;
-
-  console.log(
-    `offlineDisk=${extractedDiskID} shouldBehaveOfflineDiskUIIntent`,
-    offlineDisk
-  );
 
   const setupPenpal = async () => {
     // Ensure iframeRef.current and its contentWindow exist before proceeding
@@ -981,10 +930,6 @@ const ChatWithAI = () => {
 
         // Wait for the connection to be established and remote methods to be available
         const remote = await connection.promise;
-        console.log(
-          "Penpal connection established. Remote methods from iframe:",
-          remote
-        );
         // @ts-ignore
         penpalRef.current = remote;
 
@@ -1014,8 +959,6 @@ const ChatWithAI = () => {
   }; // Depend on parentMethods and the endpoint URL
 
   const fetchFileById = (fileId: FileID) => {
-    console.log(`fetching file by id`, fileId);
-
     try {
       // Create the get file action
       const getAction = {

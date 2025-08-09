@@ -537,6 +537,7 @@ export const permissionsOptimisticDexieMiddleware = (currentIdentitySet: {
           case LIST_DIRECTORY_PERMISSIONS_COMMIT: {
             const permissions = action.payload?.ok?.data?.items || [];
             const resource_id = permissions[0]?.resource_id;
+            if (!resource_id) break;
             const cachedPermissions = await directoryTable
               .where("resource_id")
               .equals(resource_id)

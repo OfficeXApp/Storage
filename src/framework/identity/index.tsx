@@ -762,15 +762,11 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(LOCAL_STORAGE_ALIAS_NICKNAME, profile.nickname);
       await hydrateFullAuthProfile(profile);
       closeDexieDb();
-      console.log(`we have swiched profiles`);
-      console.log(`currentOrg on profile swtich`, currentOrg);
       if (currentOrg) {
-        console.log(`seeking api key...`);
         const apiKey = await findApiKeyForProfileAndOrg(
           profile.userID,
           currentOrg.driveID
         );
-        console.log(`found api key`, apiKey);
         setCurrentAPIKey(apiKey);
       }
     },
@@ -967,11 +963,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         const btoaEndpoint = urlSafeBase64Encode(org.host || "");
         const newOrgCode = `${org.driveID}__${btoaEndpoint}`;
 
-        console.log(
-          `window.location.href.split("?")`,
-          window.location.href.split("?")
-        );
-
         // Create new path with updated org code
         const winLocSplit = window.location.href.split("?");
         const lastParamsElement =
@@ -1099,25 +1090,19 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
   // Enter by orgcode
   const enterByOrgCode = async () => {
     const orgcode = getOrgCodeFromUrl();
-    console.log(`orgcode: ${orgcode}`);
     if (orgcode === "current") {
       setIsInitialized(true);
       return;
     }
     const [driveID, endpointBtoa] = orgcode.split("__");
     const host = urlSafeBase64Decode(endpointBtoa);
-    console.log(`enterByOrgCode: ${driveID}`, host);
     if (!driveID) {
       console.error("Invalid orgcode");
       setIsInitialized(true);
       return;
     }
-    console.log(`driveID: ${driveID}`, listOfOrgs);
-    console.log(`host: ${host}`);
     const org = listOfOrgsRef.current?.find((org) => org.driveID === driveID);
-    console.log(`>> org: ${org}`, org);
     if (!org && (!host || host === "undefined")) {
-      console.log(`Skipping offline anon org`, org, host);
       setIsInitialized(true);
       return;
     }
@@ -1125,7 +1110,6 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       const defaultProfile = listOfProfilesRef.current?.find(
         (profile) => profile.userID === org.defaultProfile
       );
-      console.log(`>> defaultProfile: ${defaultProfile}`, defaultProfile);
       await switchOrganization(org);
       if (defaultProfile) {
         await switchProfile(defaultProfile);

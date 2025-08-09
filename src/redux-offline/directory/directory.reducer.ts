@@ -363,7 +363,6 @@ export const directoryReducer = (
 
     // ------------------------------ GET FILE --------------------------------- //
     case GET_FILE: {
-      console.log(`GET_FILE reducer`, action);
       if (action.optimistic) {
         return {
           ...state,
@@ -388,7 +387,6 @@ export const directoryReducer = (
     }
 
     case GET_FILE_COMMIT: {
-      console.log(`GET_FILE_COMMIT reducer`, action);
       const optimisticID = action.meta?.optimisticID;
       let realFile;
 
@@ -443,7 +441,6 @@ export const directoryReducer = (
     }
 
     case GET_FILE_ROLLBACK: {
-      console.log(`GET_FILE_ROLLBACK reducer`, action);
       if (!action.payload.response) return state;
       const optimisticID = action.meta?.optimisticID;
       return {
@@ -548,7 +545,6 @@ export const directoryReducer = (
 
     // ------------------------------ CREATE FILE --------------------------------- //
     case CREATE_FILE: {
-      console.log(`CREATE_FILE reducer`, action);
       const optimisticFile = action.optimistic;
       return {
         ...state,
@@ -633,7 +629,6 @@ export const directoryReducer = (
 
     // ------------------------------ CREATE FOLDER --------------------------------- //
     case CREATE_FOLDER: {
-      console.log(`CREATE_FOLDER reducer`, action);
       const optimisticFolder = action.optimistic;
       const listDirectoryKey = action.meta?.listDirectoryKey;
 
@@ -676,10 +671,7 @@ export const directoryReducer = (
     case CREATE_FOLDER_COMMIT: {
       const attemptedID = action?.payload?.[0]?.request?.payload?.id;
       const actualID = action?.payload?.[0]?.response?.result?.folder?.id;
-      console.log(
-        `CREATE_FOLDER_COMMIT reducer attemptedID=${attemptedID}, actualID=${actualID}`,
-        action
-      );
+
       const optimisticID = action.meta?.optimisticID;
       const listDirectoryKey = action.meta?.listDirectoryKey;
       let realFolder;
@@ -815,7 +807,6 @@ export const directoryReducer = (
 
     // ------------------------------ UPDATE FILE --------------------------------- //
     case UPDATE_FILE: {
-      console.log(`UPDATE_FILE reducer`, action);
       const optimisticFile = action.optimistic;
       return {
         ...state,

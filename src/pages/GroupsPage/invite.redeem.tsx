@@ -57,11 +57,6 @@ const RedeemGroupInvite = () => {
     updateOrganization,
   } = useIdentitySystem();
 
-  console.log(`redeemData`, redeemData);
-  console.log(`orgcode`, orgcode);
-  console.log(`currentOrg`, currentOrg);
-  console.log(`currentProfile`, currentProfile);
-
   useEffect(() => {
     const getRedeemParam = async () => {
       setLoading(true);
@@ -71,7 +66,7 @@ const RedeemGroupInvite = () => {
       if (redeemParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
-          console.log(`decodedData`, decodedData);
+
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
@@ -119,8 +114,6 @@ const RedeemGroupInvite = () => {
   };
 
   const processGroupInviteRedeem = async (data: RedeemGroupInvite_BTOA) => {
-    console.log("Processing redeem group invite", data);
-
     if (!currentOrg || !selectedProfile) {
       console.error("No current organization or selected profile found");
       return;
@@ -152,8 +145,6 @@ const RedeemGroupInvite = () => {
 
     const redeem_data = await redeem_response.json();
 
-    console.log(`>> res`, redeem_data);
-
     if (!redeem_data.invite) {
       console.error("Redeem group invite error");
       throw new Error(`Failed to redeem group invite`);
@@ -163,7 +154,7 @@ const RedeemGroupInvite = () => {
     // Verify the redemption was successful
     if (redeem_data.invite) {
       // Redirect to the specified URL or groups page
-      console.log(`redeem_data`, redeem_data);
+
       message.success(`Successfully joined the group! Redirecting...`);
       if (redeemData && redeemData.org_name) {
         updateOrganization({

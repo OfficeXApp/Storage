@@ -93,12 +93,10 @@ const WebhooksPage: React.FC = () => {
       setLastClickedId(webhook.id);
       // Use the ref to access the current state
       const currentTabItems = tabItemsRef.current;
-      console.log("Current tabItems via ref:", currentTabItems);
 
       const existingTabIndex = currentTabItems.findIndex(
         (item) => item.key === webhook.id
       );
-      console.log(`existingTabIndex`, existingTabIndex);
 
       if (existingTabIndex !== -1 && focus_tab == true) {
         setActiveKey(webhook.id);

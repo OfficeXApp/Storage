@@ -990,7 +990,6 @@ const data = await response.json();`;
                                                   "PlaceholderGroupInviteeID_"
                                                 ),
                                               onClick: async () => {
-                                                console.log("Copy invite");
                                                 if (!currentOrg) return;
                                                 // we must make a REST call to /v1/driveid/team-invites/get/{invite_id}
                                                 message.info(
@@ -1016,10 +1015,6 @@ const data = await response.json();`;
                                                     });
                                                   const res =
                                                     await get_invite_response.json();
-                                                  console.log(
-                                                    "get_invite_response",
-                                                    res
-                                                  );
                                                   const invite = res.ok.data;
                                                   // and then create the magic link from FileRecordFE/FolderRecordFE data
                                                   const groupInviteRedeemLink =
@@ -1043,10 +1038,6 @@ const data = await response.json();`;
                                                       },
                                                       wrapOrgCode
                                                     );
-                                                  console.log(
-                                                    `groupInviteRedeemLink`,
-                                                    groupInviteRedeemLink
-                                                  );
                                                   // and auto-copy to clipboard with ant message.success()
                                                   navigator.clipboard.writeText(
                                                     groupInviteRedeemLink

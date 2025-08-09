@@ -135,7 +135,6 @@ const SystemPermissionsManager: React.FC<SystemPermissionsManagerProps> = ({
 
   // Handle grant permission button click
   const handleGrantPermission = () => {
-    console.log("Grant permission clicked");
     // Implementation would go here
   };
 

@@ -181,7 +181,6 @@ const SelectAgenticKey: React.FC = () => {
 
     const selectedKey = activeApiKeys.find((key) => key.id === selectedKeyId);
     if (selectedKey) {
-      console.log("Selected API Key:", selectedKey);
       message.success("API key selected successfully!");
 
       // Redirect back to the app if redirect URL is provided
@@ -260,7 +259,6 @@ const SelectAgenticKey: React.FC = () => {
         setLoading(true);
         dispatch(createApiKeyAction(apiKeyData));
 
-        console.log("Created new API Key:", apiKeyData);
         message.success("API key created successfully!");
 
         // Redirect back to the app if redirect URL is provided
@@ -482,8 +480,8 @@ const SelectAgenticKey: React.FC = () => {
                             ? "0 4px 12px rgba(24, 144, 255, 0.15)"
                             : "0 2px 8px rgba(0, 0, 0, 0.06)",
                       }}
-                      bodyStyle={{
-                        padding: "20px 24px",
+                      styles={{
+                        body: { padding: "20px 24px" },
                       }}
                     >
                       <div
@@ -615,8 +613,8 @@ const SelectAgenticKey: React.FC = () => {
                     ? "0 4px 12px rgba(82, 196, 26, 0.15)"
                     : "none",
                 }}
-                bodyStyle={{
-                  padding: "24px",
+                styles={{
+                  body: { padding: "24px" },
                 }}
               >
                 <div

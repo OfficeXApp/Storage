@@ -1015,8 +1015,12 @@ const ChatWithAI = () => {
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
         style={{
           width: "100%",
-          height: screenType.isMobile ? "85vh" : "90vh",
+          height: screenType.isMobile ? "83vh" : "90vh",
           border: "none",
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          paddingBottom: screenType.isMobile ? "0vh" : "0vh",
         }}
       />
     </div>

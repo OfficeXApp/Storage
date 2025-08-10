@@ -953,12 +953,14 @@ const RouterUI = () => {
                 {screenType.isMobile && (
                   <Drawer
                     title={
-                      <div>
-                        <b>OfficeX</b>
-                        <span style={{ fontWeight: 300, marginLeft: "5px" }}>
-                          Alpha
-                        </span>
-                      </div>
+                      <Link to={wrapOrgCode("/welcome")}>
+                        <div>
+                          <b>OfficeX</b>
+                          <span style={{ fontWeight: 300, marginLeft: "5px" }}>
+                            Alpha
+                          </span>
+                        </div>
+                      </Link>
                     }
                     placement="left"
                     onClose={() => setSidebarVisible(false)}

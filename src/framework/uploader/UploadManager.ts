@@ -226,7 +226,6 @@ export class UploadManager {
     options: Partial<BatchUploadConfig> = {}
   ): UploadID[] {
     const ids: UploadID[] = [];
-    console.log(`upload option`, options);
 
     const isFolderUpload =
       (files.length > 0 &&

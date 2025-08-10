@@ -39,6 +39,7 @@ const FreeFileSharePreview = () => {
       if (redeemParam) {
         try {
           const decodedData = JSON.parse(urlSafeBase64Decode(redeemParam));
+
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);

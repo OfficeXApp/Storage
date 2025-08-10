@@ -210,7 +210,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const [modalMoveCopyOperation, setModalMoveCopyOperation] = useState<
     "move" | "copy" | null
   >(null);
-  const [viewRowTile, setViewRowTile] = useState<"row" | "grid">("grid");
+  const [viewRowTile, setViewRowTile] = useState<"row" | "grid">("row");
 
   const [searchString, setSearchString] = useState("");
 
@@ -497,6 +497,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         freeTrialStorjCreds.access_key;
       if (isFreeTrialStorjCreds) {
         apiNotifs.open({
+          key: "free-public-sharing",
           message: "Free Public Sharing",
           description:
             "Public files are deleted every 24 hours. Please upgrade OfficeX for your own private storage.",
@@ -1060,7 +1061,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         responsive: ["md"] as Breakpoint[],
       },
       {
-        title: "Actions",
+        title: screenType.isMobile ? "" : "Actions",
         key: "actions",
         align: "right" as const,
         render: (_: any, record: DriveItemRow) => (
@@ -2049,7 +2050,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   {tableRows.length === 0 ? (
                     <Result
                       icon={<DatabaseOutlined />}
-                      title="No Disks Shared with You"
+                      title="No Disks Found"
                       subTitle="Ask the admin to give you access to a disk"
                       style={{ marginTop: "10vh" }}
                     />

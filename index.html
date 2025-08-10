@@ -25,7 +25,7 @@
     <title>OfficeX</title>
     <meta
       name="description"
-      content="Cloud Drive | Anonymous Workspace with documents, spreadsheets & cloud storage. Where Freedom Works"
+      content="OfficeX | Anonymous Workspace with documents, spreadsheets & cloud storage. Where Freedom Works"
     />
     <link rel="icon" href="/globe-star.ico" type="image/svg+xml" />
 
@@ -62,6 +62,26 @@
         padding: 0; /* Optional: If you want to remove padding as well */
       }
     </style>
+
+    <script type="text/javascript">
+      window.smartlook ||
+        (function (d) {
+          var o = (smartlook = function () {
+              o.api.push(arguments);
+            }),
+            h = d.getElementsByTagName("head")[0];
+          var c = d.createElement("script");
+          o.api = new Array();
+          c.async = true;
+          c.type = "text/javascript";
+          c.charset = "utf-8";
+          c.src = "https://web-sdk.smartlook.com/recorder.js";
+          h.appendChild(c);
+        })(document);
+      smartlook("init", "66c8a415012d3394a908fa5e017591d575d00895", {
+        region: "eu",
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

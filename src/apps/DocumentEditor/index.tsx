@@ -140,7 +140,8 @@ const DocumentEditor = () => {
 
   const [emptyFile, setEmptyFile] = useState({
     id: `FileID_${uuidv4()}`,
-    name: `Untitled Document - ${Date.now()}`,
+    name: `Untitled Document`,
+    isNewBlank: true,
   });
 
   const fileFromRedux: FileFEO | undefined = useSelector(
@@ -1116,7 +1117,11 @@ const DocumentEditor = () => {
                 setCurrentFileName(e.target.value);
                 currentFileNameRef.current = e.target.value;
               }}
-              style={{ marginLeft: 8, minWidth: 300 }}
+              style={{
+                marginLeft: 8,
+                minWidth: screenType.isMobile ? 100 : 300,
+                maxWidth: screenType.isMobile ? 200 : "unset",
+              }}
               variant="borderless"
             />
           </div>
@@ -1128,7 +1133,11 @@ const DocumentEditor = () => {
           src={DOCUMENTS_APP_ENDPOINT}
           allow="clipboard-read; clipboard-write"
           sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          style={{ width: "100%", height: "90vh", border: "none" }}
+          style={{
+            width: "100%",
+            height: screenType.isMobile ? "85vh" : "87vh",
+            border: "none",
+          }}
           onLoad={setupPenpal} // Trigger Penpal setup when the iframe content loads
         />
       ) : (
@@ -1150,17 +1159,15 @@ const DocumentEditor = () => {
           </p>
         </div>
       )}
-      {offlineDisk || (file && fileFromRedux) ? (
-        <DirectorySharingDrawer
-          open={isShareDrawerOpen}
-          onClose={() => setIsShareDrawerOpen(false)}
-          resourceID={file.id as DirectoryResourceID}
-          resourceName={currentFileName}
-          resource={file}
-          breadcrumbs={file?.breadcrumbs || []}
-          currentUserPermissions={file?.permission_previews || []}
-        />
-      ) : null}
+      <DirectorySharingDrawer
+        open={isShareDrawerOpen}
+        onClose={() => setIsShareDrawerOpen(false)}
+        resourceID={file.id as DirectoryResourceID}
+        resourceName={currentFileName}
+        resource={file}
+        breadcrumbs={file?.breadcrumbs || []}
+        currentUserPermissions={file?.permission_previews || []}
+      />
     </div>
   );
 };

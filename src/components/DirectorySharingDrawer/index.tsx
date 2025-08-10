@@ -439,7 +439,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         note: `${currentProfile?.userID} shared a file with you`,
         original: _file,
       };
-      if (!hasWeb2CloudWithShortlink) {
+      if (resource && (resource as any).isNewBlank) {
+        setShareUrl("");
+      } else if (!hasWeb2CloudWithShortlink) {
         setShareUrl(
           `${window.location.origin}${wrapOrgCode("/share/free-cloud-filesharing")}?redeem=${urlSafeBase64Encode(
             JSON.stringify(payload)
@@ -449,10 +451,14 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         setShareUrl("");
       }
     } else {
-      setShareUrl(window.location.href);
+      if (resource && (resource as any).isNewBlank) {
+        setShareUrl("");
+      } else {
+        setShareUrl(window.location.href);
+      }
       refetchPermissions();
     }
-  }, [resourceID, hasWeb2CloudWithShortlink]);
+  }, [resourceID, resource, hasWeb2CloudWithShortlink]);
 
   useEffect(() => {
     const should_default_advanced_open = localStorage.getItem(
@@ -924,7 +930,11 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
               ? onTheFlyShareUrl
               : shareUrl
           }
-          placeholder={" Generate a temporary 8 hour sharing link"}
+          placeholder={
+            resource && (resource as any).isNewBlank
+              ? "Save the file first"
+              : " Generate a temporary 8 hour sharing link"
+          }
           readOnly
           size="large"
           variant="borderless"
@@ -944,7 +954,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
             )
           }
           suffix={
-            shortlinkUrl ? (
+            resource && (resource as any).isNewBlank ? (
+              <Button disabled>Copy Link</Button>
+            ) : shortlinkUrl ? (
               <Button
                 type="primary"
                 icon={<CopyOutlined />}

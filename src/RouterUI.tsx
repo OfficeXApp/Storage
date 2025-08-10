@@ -726,7 +726,7 @@ const RouterUI = () => {
                           element={<Navigate to="/org/current/appstore" />}
                         />
                       )}
-                      {isAIChatEnabled() && (
+                      {true && (
                         <Route
                           path="/chat"
                           element={<Navigate to="/org/current/chat" />}
@@ -789,7 +789,7 @@ const RouterUI = () => {
                           element={<AppPage />}
                         />
                       )}
-                      {isAIChatEnabled() && (
+                      {true && (
                         <Route
                           path="/org/:orgcode/chat"
                           element={<ChatWithAI />}

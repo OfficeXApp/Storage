@@ -142,7 +142,7 @@ const ChatWithAI = () => {
 
   const [emptyFile, setEmptyFile] = useState({
     id: `FileID_${uuidv4()}`,
-    name: `Untitled Document - ${Date.now()}`,
+    name: `Untitled Chat`,
   });
 
   const fileFromRedux: FileFEO | undefined = useSelector(
@@ -1013,7 +1013,11 @@ const ChatWithAI = () => {
         src={AI_CHAT_ENDPOINT}
         allow="clipboard-read; clipboard-write"
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        style={{ width: "100%", height: "90vh", border: "none" }}
+        style={{
+          width: "100%",
+          height: screenType.isMobile ? "85vh" : "90vh",
+          border: "none",
+        }}
       />
     </div>
   );

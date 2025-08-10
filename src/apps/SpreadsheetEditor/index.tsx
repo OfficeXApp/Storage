@@ -136,7 +136,8 @@ const SpreadsheetEditor = () => {
 
   const [emptyFile, setEmptyFile] = useState({
     id: `FileID_${uuidv4()}`,
-    name: `Untitled Spreadsheet - ${Date.now()}`,
+    name: `Untitled Spreadsheet`,
+    isNewBlank: true,
   });
 
   const fileFromRedux: FileFEO | undefined = useSelector(
@@ -1130,7 +1131,8 @@ const SpreadsheetEditor = () => {
               }}
               style={{
                 marginLeft: 8,
-                minWidth: 300,
+                minWidth: screenType.isMobile ? 100 : 300,
+                maxWidth: screenType.isMobile ? 200 : "unset",
               }}
               variant="borderless"
             />
@@ -1143,7 +1145,11 @@ const SpreadsheetEditor = () => {
           src={SPREADSHEET_APP_ENDPOINT}
           allow="clipboard-read; clipboard-write"
           sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          style={{ width: "100%", height: "90vh", border: "none" }}
+          style={{
+            width: "100%",
+            height: screenType.isMobile ? "85vh" : "87vh",
+            border: "none",
+          }}
           onLoad={setupPenpal} // Trigger Penpal setup when the iframe content loads
         />
       ) : (
@@ -1165,17 +1171,16 @@ const SpreadsheetEditor = () => {
           </p>
         </div>
       )}
-      {offlineDisk || (file && fileFromRedux) ? (
-        <DirectorySharingDrawer
-          open={isShareDrawerOpen}
-          onClose={() => setIsShareDrawerOpen(false)}
-          resourceID={file.id as DirectoryResourceID}
-          resourceName={currentFileName}
-          resource={file}
-          breadcrumbs={file?.breadcrumbs || []}
-          currentUserPermissions={file?.permission_previews || []}
-        />
-      ) : null}
+
+      <DirectorySharingDrawer
+        open={isShareDrawerOpen}
+        onClose={() => setIsShareDrawerOpen(false)}
+        resourceID={file.id as DirectoryResourceID}
+        resourceName={currentFileName}
+        resource={file}
+        breadcrumbs={file?.breadcrumbs || []}
+        currentUserPermissions={file?.permission_previews || []}
+      />
     </div>
   );
 };

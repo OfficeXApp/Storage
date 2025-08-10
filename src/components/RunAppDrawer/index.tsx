@@ -415,6 +415,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         checkout_flow_id: selectedDepositOption.checkout_flow_id,
         org_id: currentOrg?.driveID || "",
         user_id: currentProfile?.userID || "",
+        host: currentOrg?.host || "",
         email,
       };
       const response = await fetch(

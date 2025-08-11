@@ -1013,15 +1013,22 @@ const ChatWithAI = () => {
         src={AI_CHAT_ENDPOINT}
         allow="clipboard-read; clipboard-write"
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        style={{
-          width: "100%",
-          height: screenType.isMobile ? "83vh" : "90vh",
-          border: "none",
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          paddingBottom: screenType.isMobile ? "0vh" : "0vh",
-        }}
+        style={
+          screenType.isMobile
+            ? {
+                width: "100%",
+                height: "83vh",
+                border: "none",
+                position: "fixed",
+                bottom: 0,
+                paddingBottom: "0vh",
+              }
+            : {
+                width: "100%",
+                height: "90vh",
+                border: "none",
+              }
+        }
       />
     </div>
   );

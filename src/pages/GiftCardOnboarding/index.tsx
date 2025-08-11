@@ -332,7 +332,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
           },
           body: JSON.stringify({
             giftcard_id: giftCardID,
-            owner_icp_principal: icpPrincipal,
+            owner_user_id: currentProfile.userID,
             organization_name: orgName,
             owner_name: currentProfile.nickname || "Anon Owner",
           }),

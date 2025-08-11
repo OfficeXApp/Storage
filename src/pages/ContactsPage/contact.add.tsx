@@ -192,11 +192,12 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
 
         const contactData: IRequestCreateContact = {
           name: values.name,
-          icp_principal: icpAddress || `principal_${uuidv4()}`,
+          id: `UserID_${icpAddress}`,
           evm_public_address: evmAddress || undefined,
           public_note: values.publicNote || "",
           external_id: values.externalId || undefined,
           is_placeholder: !isOwned,
+          seed_phrase: isOwned ? seedPhrase : undefined,
         };
 
         setLoading(true);

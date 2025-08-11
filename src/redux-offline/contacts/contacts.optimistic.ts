@@ -230,6 +230,7 @@ export const contactsOptimisticDexieMiddleware = (currentIdentitySet: {
               // Create optimistic contact object
               const optimisticContact: ContactFEO = {
                 id: optimisticID,
+                icp_principal: optimisticID.replace("UserID_", ""),
                 ...contactData,
                 labels: [],
                 group_previews: [],

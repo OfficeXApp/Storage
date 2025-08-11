@@ -192,7 +192,7 @@ const ConnectICPButton = () => {
           },
           body: JSON.stringify({
             giftcard_id: giftcardRedeemID,
-            owner_icp_principal: icpPrincipal,
+            owner_user_id: profile.userID,
             organization_name: orgName,
             owner_name: profile.nickname || "Anon Owner",
           }),

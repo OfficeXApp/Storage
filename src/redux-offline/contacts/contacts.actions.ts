@@ -11,6 +11,7 @@ import {
   IRequestRedeemContact,
   ContactFE,
 } from "@officexapp/types";
+import { v4 as uuidv4 } from "uuid";
 
 export const GET_CONTACT = "GET_CONTACT";
 export const GET_CONTACT_COMMIT = "GET_CONTACT_COMMIT";
@@ -94,7 +95,7 @@ export const listContactsAction = (payload: IRequestListContacts) => ({
 
 // Create Contact
 export const createContactAction = (contactData: IRequestCreateContact) => {
-  const id = contactData.id || GenerateID.User(contactData.icp_principal);
+  const id = contactData.id || GenerateID.User(uuidv4());
   const payload = {
     ...contactData,
     id,

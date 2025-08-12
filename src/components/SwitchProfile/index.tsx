@@ -169,7 +169,8 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
             <Tag
               onClick={() => {
                 if (currentProfile) {
-                  const userstring = `${currentProfile.nickname.replace(" ", "_")}@${currentProfile.userID}`;
+                  // const userstring = `${currentProfile.nickname.replace(" ", "_")}@${currentProfile.userID}`;
+                  const userstring = currentProfile.userID;
                   navigator.clipboard
                     .writeText(userstring)
                     .then(() => {

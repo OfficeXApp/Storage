@@ -138,7 +138,8 @@ export const formatDate = (timestamp: number) => {
 };
 
 export const formatUserString = (nickname: string, userID: UserID) => {
-  const userstring = `${nickname.replace(" ", "_")}@${userID}`;
+  // const userstring = `${nickname.replace(" ", "_")}@${userID}`;
+  const userstring = userID;
   navigator.clipboard.writeText(userstring);
 };
 

@@ -796,6 +796,10 @@ const RouterUI = () => {
                         />
                       )}
                       <Route
+                        path="/org/:orgcode"
+                        element={<Navigate to="/org/:orgcode/welcome" />}
+                      />
+                      <Route
                         path="/org/:orgcode/welcome"
                         element={<WelcomePage />}
                       />

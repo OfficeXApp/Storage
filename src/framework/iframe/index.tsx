@@ -49,8 +49,8 @@ interface IFrameMessage {
 }
 
 interface EphemeralConfig {
-  org_client_secret: string;
-  profile_client_secret: string;
+  optional_org_entropy: string;
+  optional_profile_entropy: string;
   org_name: string;
   profile_name: string;
 }
@@ -86,6 +86,8 @@ interface AboutChildIFrameInstanceResponse {
   profile_name: string;
   host?: string;
   frontend_domain?: string;
+  frontend_url?: string;
+  current_url?: string;
 }
 
 interface AuthTokenIFrameResponse {
@@ -288,6 +290,8 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
             currentProfile.nickname || `Profile ${currentConnection?.domain}`,
           host: currentOrg.host || undefined,
           frontend_domain: `${window.location.origin}`,
+          frontend_url: `${window.location.origin}${wrapOrgCode("")}`,
+          current_url: `${window.location.href}`,
         };
 
         sendMessageToParent(
@@ -392,10 +396,10 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
 
         // 1. Deterministically generate org and profile IDs from seeds
         const profileMnemonic = generateDeterministicMnemonic(
-          `${domain}-profile-${ephemeralConfig.profile_client_secret}`
+          `${domain}-profile-${ephemeralConfig.optional_profile_entropy}`
         );
         const orgMnemonic = generateDeterministicMnemonic(
-          `${domain}-organization-${ephemeralConfig.org_client_secret}`
+          `${domain}-organization-${ephemeralConfig.optional_org_entropy}`
         );
 
         const derivedProfile = await deriveProfileFromSeed(profileMnemonic);
@@ -650,10 +654,10 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
 
       const { route } = data;
 
-      if (typeof route === "string" && route.startsWith("org/current/")) {
+      if (typeof route === "string" && route.startsWith("/org/current/")) {
         try {
-          // Remove "org/current/" prefix and get the actual route
-          const actualRoute = route.replace("org/current/", "");
+          // Remove "/org/current/" prefix and get the actual route
+          const actualRoute = route.replace("/org/current/", "");
 
           // Use wrapOrgCode to create the proper organization-specific route
           const wrappedRoute = wrapOrgCode(`/${actualRoute}`);
@@ -683,7 +687,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           "officex-go-to-page-response",
           {
             success: false,
-            error: "Invalid route: only org/current/* routes are allowed",
+            error: "Invalid route: only /org/current/* routes are allowed",
             attemptedRoute: route,
           },
           tracer

@@ -12,6 +12,8 @@ import {
   Switch,
   Tooltip,
   Divider,
+  Popconfirm,
+  Popover,
 } from "antd";
 import {
   EditOutlined,
@@ -29,6 +31,8 @@ import { Link } from "react-router-dom";
 import { generateAutoLoginBTOA } from "../../pages/AutoLoginPage";
 import { ApiKey, IRequestCreateApiKey } from "@officexapp/types";
 import { LOCAL_STORAGE_SEED_PHRASE } from "../../framework/identity/constants";
+import useScreenType from "react-screentype-hook";
+import CopyIFrameButton from "../CopyIFrameButton";
 
 const { Text, Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -49,6 +53,7 @@ const ProfileSettingsCard = () => {
   const [testingApiKey, setTestingApiKey] = useState(false);
   const [testResult, setTestResult] = useState({ status: "", message: "" });
   const [loadingGenExport, setLoadingGenExport] = useState(false);
+  const screenType = useScreenType();
 
   // For login modal
   const [expirationTime, setExpirationTime] = useState<number>(0);
@@ -445,7 +450,10 @@ Click here to learn more about OfficeX: https://officex.app/learn-more
           </a>
         </Text>
 
-        <Space direction="horizontal" style={{ marginTop: 8 }}>
+        <Space
+          direction={screenType.isMobile ? "vertical" : "horizontal"}
+          style={{ marginTop: 8 }}
+        >
           <Link
             to={wrapOrgCode(`/resources/contacts/${currentProfile?.userID}`)}
           >
@@ -454,6 +462,7 @@ Click here to learn more about OfficeX: https://officex.app/learn-more
           <Button onClick={() => setShowModalGenSig(true)}>
             Generate Signature
           </Button>
+          <CopyIFrameButton />
         </Space>
 
         <Divider />

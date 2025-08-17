@@ -98,6 +98,7 @@ import {
 } from "../../framework/uploader/types";
 import { freeTrialStorjCreds, uploadTempTrialSharing } from "../../api/storj";
 import mixpanel from "mixpanel-browser";
+import { CONFIG } from "../../config";
 
 interface DirectorySharingDrawerProps {
   open: boolean;
@@ -143,7 +144,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   const objectStoreNameRef = React.useRef<string>("files");
 
   const hasWeb2CloudWithShortlink =
-    currentOrg?.host && !currentOrg?.host.includes("icp0.io");
+    !currentOrg?.host ||
+    (currentOrg?.host && !currentOrg?.host.includes("icp0.io"));
 
   React.useEffect(() => {
     if (currentOrg && currentProfile) {
@@ -781,26 +783,28 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
   ];
 
   const generateShortLink = async (original_url: string) => {
-    if (!currentOrg?.host) {
-      // message.error("Organization host not found");
+    let urlShortenerHost = "";
+
+    if (currentOrg?.host) {
+      urlShortenerHost = `${currentOrg.host}/v1/drive/${currentOrg?.driveID}/organization/shortlink`;
+    } else if (CONFIG.DEFAULT_ANON_SHORTLINK_HOST) {
+      urlShortenerHost = CONFIG.DEFAULT_ANON_SHORTLINK_HOST;
+    } else {
       return original_url;
     }
 
     try {
       const auth_token = currentAPIKey?.value || (await generateSignature());
-      const response = await fetch(
-        `${currentOrg?.host}/v1/drive/${currentOrg?.driveID}/organization/shortlink`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${auth_token}`,
-          },
-          body: JSON.stringify({
-            original_url,
-          }),
-        }
-      );
+      const response = await fetch(urlShortenerHost, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth_token}`,
+        },
+        body: JSON.stringify({
+          original_url,
+        }),
+      });
       const data = await response.json();
       const slug = data.ok.data.slug;
       const shortLink = `${window.location.origin}${wrapOrgCode(`/to/${slug}`)}`;

@@ -1,7 +1,7 @@
 // src/components/WebhooksPage/index.tsx
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { Button, Layout, Typography, Space } from "antd";
+import { Button, Layout, Typography, Space, Result } from "antd";
 import {
   type WebhookFE,
   type IRequestCreateWebhook,
@@ -10,7 +10,12 @@ import {
 } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { CloseOutlined, PlusOutlined, ApiOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  PlusOutlined,
+  ApiOutlined,
+  ExperimentOutlined,
+} from "@ant-design/icons";
 import WebhooksAddDrawer from "./webhook.add";
 import WebhookTab from "./webhook.tab";
 import WebhooksTableList from "./webhooks.table";
@@ -21,6 +26,7 @@ import {
   listWebhooksAction,
 } from "../../redux-offline/webhooks/webhooks.actions";
 import { pastLastCheckedCacheLimit } from "../../api/helpers";
+import { useNavigate } from "react-router-dom";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -36,8 +42,9 @@ type TabItem = {
 const WebhooksPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
   const screenType = useScreenType();
-  const { wrapOrgCode, currentProfile } = useIdentitySystem();
+  const { wrapOrgCode, currentProfile, currentOrg } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
   const { tablePermissions, lastChecked } = useSelector(
     (state: ReduxAppState) => ({
@@ -191,6 +198,22 @@ const WebhooksPage: React.FC = () => {
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   };
+
+  if (currentOrg && currentOrg.host && !currentOrg.host.includes("icp0.io")) {
+    return (
+      <Result
+        icon={<ExperimentOutlined />}
+        title="Coming Soon"
+        subTitle="This feature is coming soon for this organization."
+        extra={
+          <Button onClick={() => navigate(-1)} type="primary">
+            Back
+          </Button>
+        }
+        style={{ marginTop: "10vh" }}
+      />
+    );
+  }
 
   return (
     <Layout

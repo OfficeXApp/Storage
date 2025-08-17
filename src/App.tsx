@@ -80,7 +80,7 @@ function App() {
         }
 
         dispatch(listDisksAction({}));
-        if (!currentOrg.host.includes("icp0.io")) {
+        if (currentOrg.host && !currentOrg.host.includes("icp0.io")) {
           await sleep(bufferTime);
           dispatch(listContactsAction({}));
           await sleep(bufferTime);

@@ -865,6 +865,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               title={file.name}
               style={{
                 height: "calc(65vh)",
+                width: "70vw",
                 border: "none",
               }}
             />

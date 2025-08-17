@@ -1,11 +1,15 @@
 // src/components/LabelsPage/index.tsx
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { Button, Layout, Typography } from "antd";
+import { Button, Layout, Result, Typography } from "antd";
 import type { LabelFE, LabelID } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { listLabelsAction } from "../../redux-offline/labels/labels.actions";
-import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  ExperimentOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import LabelsAddDrawer from "./label.add";
 import LabelTab from "./label.tab";
 import LabelsTableList from "./labels.table";
@@ -13,6 +17,7 @@ import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import { pastLastCheckedCacheLimit } from "../../api/helpers";
+import { useNavigate } from "react-router-dom";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -30,7 +35,8 @@ const LabelsPage: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
   const dispatch = useDispatch();
-  const { wrapOrgCode, currentProfile } = useIdentitySystem();
+  const navigate = useNavigate();
+  const { wrapOrgCode, currentProfile, currentOrg } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
   const { lastChecked } = useSelector((state: ReduxAppState) => ({
     lastChecked: state.labels.lastChecked,
@@ -168,6 +174,22 @@ const LabelsPage: React.FC = () => {
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   };
+
+  if (currentOrg && currentOrg.host && !currentOrg.host.includes("icp0.io")) {
+    return (
+      <Result
+        icon={<ExperimentOutlined />}
+        title="Coming Soon"
+        subTitle="This feature is coming soon for this organization."
+        extra={
+          <Button onClick={() => navigate(-1)} type="primary">
+            Back
+          </Button>
+        }
+        style={{ marginTop: "10vh" }}
+      />
+    );
+  }
 
   return (
     <Layout

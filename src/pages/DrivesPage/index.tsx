@@ -1,7 +1,7 @@
 // src/components/DrivesPage/index.tsx
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { Button, Layout, Typography } from "antd";
+import { Button, Layout, Result, Typography } from "antd";
 import type {
   DriveFE,
   DriveID,
@@ -20,6 +20,7 @@ import {
   CloseOutlined,
   PlusOutlined,
   DatabaseOutlined,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 import DrivesAddDrawer from "./drive.add";
 import DriveTab from "./drive.tab";
@@ -27,6 +28,7 @@ import DrivesTableList from "./drives.table";
 import useScreenType from "react-screentype-hook";
 import { useIdentitySystem } from "../../framework/identity";
 import { pastLastCheckedCacheLimit } from "../../api/helpers";
+import { useNavigate } from "react-router-dom";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -43,7 +45,8 @@ const DrivesPage: React.FC = () => {
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const screenType = useScreenType();
-  const { wrapOrgCode, currentProfile } = useIdentitySystem();
+  const navigate = useNavigate();
+  const { wrapOrgCode, currentProfile, currentOrg } = useIdentitySystem();
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
   const { tablePermissions, lastChecked } = useSelector(
     (state: ReduxAppState) => ({
@@ -184,6 +187,22 @@ const DrivesPage: React.FC = () => {
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   };
+
+  if (currentOrg && currentOrg.host && !currentOrg.host.includes("icp0.io")) {
+    return (
+      <Result
+        icon={<ExperimentOutlined />}
+        title="Coming Soon"
+        subTitle="This feature is coming soon for this organization."
+        extra={
+          <Button onClick={() => navigate(-1)} type="primary">
+            Back
+          </Button>
+        }
+        style={{ marginTop: "10vh" }}
+      />
+    );
+  }
 
   return (
     <Layout

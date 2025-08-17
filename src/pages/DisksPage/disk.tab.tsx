@@ -135,7 +135,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
           if (valueFromForm === "" && !originalValue) {
             return;
           }
-
+          // @ts-ignore
           changedFields[field] = valueFromForm;
         }
       });

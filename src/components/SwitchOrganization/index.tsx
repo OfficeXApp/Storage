@@ -36,7 +36,7 @@ import {
   IndexDB_Organization,
   useIdentitySystem,
 } from "../../framework/identity";
-import { DiskTypeEnum, DriveID } from "@officexapp/types";
+import { BundleDefaultDisk, DiskTypeEnum, DriveID } from "@officexapp/types";
 import {
   FACTORY_CANISTER_ENDPOINT,
   GiftCardOption,
@@ -769,7 +769,7 @@ const OrganizationSwitcher = () => {
 
           await sleep(isWeb3 ? 5000 : 0);
 
-          const { drive_id, host, redeem_code, disk_auth_json } =
+          const { drive_id, host, redeem_code, bundled_default_disk } =
             redeemData.ok.data;
 
           // Step 2: Make the second POST request to complete the organization setup
@@ -866,7 +866,7 @@ const OrganizationSwitcher = () => {
           );
           setGiftCardValue("");
 
-          if (disk_auth_json) {
+          if (bundled_default_disk) {
             try {
               message.success("Setting up cloud storage...", 0);
 
@@ -876,16 +876,18 @@ const OrganizationSwitcher = () => {
                 {},
                 password
               );
+              const _bundled_default_disk =
+                bundled_default_disk as BundleDefaultDisk;
               const createDiskResponse = await fetch(url, {
                 method: "POST",
                 headers,
                 body: JSON.stringify({
-                  name: "Cloud Filesharing",
+                  name: _bundled_default_disk.name,
                   disk_type: DiskTypeEnum.StorjWeb3,
-                  public_note:
-                    "Default Cloud Filesharing. Use for everything by default.",
-                  private_note: "",
-                  auth_json: disk_auth_json,
+                  public_note: _bundled_default_disk.public_note,
+                  auth_json: _bundled_default_disk.auth_json,
+                  autoexpire_ms: _bundled_default_disk.autoexpire_ms,
+                  endpoint: _bundled_default_disk.endpoint,
                 }),
               });
 

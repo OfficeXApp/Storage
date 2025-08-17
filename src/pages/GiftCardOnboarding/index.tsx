@@ -26,7 +26,7 @@ import mixpanel from "mixpanel-browser";
 import { FACTORY_CANISTER_ENDPOINT } from "../../framework/identity/constants";
 import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
 import { v4 as uuidv4 } from "uuid";
-import { DiskTypeEnum } from "@officexapp/types";
+import { BundleDefaultDisk, DiskTypeEnum } from "@officexapp/types";
 
 interface GiftCardOnboardingProps {}
 
@@ -357,7 +357,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       message.info("Promoting you to Admin...");
       await sleep(5000);
 
-      const { drive_id, host, redeem_code, disk_auth_json } =
+      const { drive_id, host, redeem_code, bundled_default_disk } =
         redeemData.ok.data;
 
       // Complete the organization setup
@@ -442,7 +442,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
         `Successfully Created Organization "${orgName}" with Gift Card`
       );
 
-      if (disk_auth_json) {
+      if (bundled_default_disk) {
         try {
           message.success("Setting up cloud storage...");
 
@@ -452,16 +452,18 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
             {},
             password
           );
+          const _bundled_default_disk =
+            bundled_default_disk as BundleDefaultDisk;
           const createDiskResponse = await fetch(url, {
             method: "POST",
             headers,
             body: JSON.stringify({
-              name: "Cloud Filesharing",
-              disk_type: DiskTypeEnum.StorjWeb3,
-              public_note:
-                "Default Cloud Filesharing. Use for everything by default.",
-              private_note: "",
-              auth_json: disk_auth_json,
+              name: _bundled_default_disk.name,
+              disk_type: _bundled_default_disk.disk_type,
+              public_note: _bundled_default_disk.public_note,
+              auth_json: _bundled_default_disk.auth_json,
+              autoexpire_ms: _bundled_default_disk.autoexpire_ms,
+              endpoint: _bundled_default_disk.endpoint,
             }),
           });
 

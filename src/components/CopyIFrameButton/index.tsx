@@ -93,7 +93,7 @@ const OfficeXIFrame = () => {
           data: { injected: authJson },
           tracer: "my-tracer",
         };
-        iframeRef.current.contentWindow.postMessage(message, "http://officex.app");
+        iframeRef.current.contentWindow.postMessage(message, "https://officex.app");
       }
     };
 

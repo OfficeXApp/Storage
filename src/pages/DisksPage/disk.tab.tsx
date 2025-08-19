@@ -118,7 +118,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
         "auth_json",
         "external_id",
         "external_payload",
-        "endpoint",
+        "billing_url",
       ];
 
       // Only check the fields we care about
@@ -299,7 +299,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
     private_note: disk.private_note || "",
     external_id: disk.external_id || "",
     external_payload: disk.external_payload || "",
-    endpoint: disk.endpoint || "",
+    billing_url: disk.billing_url || "",
   };
 
   const renderCodeSnippets = () => {
@@ -368,7 +368,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
         disk_type: disk.disk_type,
         public_note: disk.public_note || "",
         auth_json: disk.auth_json || "",
-        endpoint: disk.endpoint || "",
+        billing_url: disk.billing_url || "",
       };
 
       // Generate the URL
@@ -782,10 +782,10 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                             <KeyOutlined />
                           )}
 
-                        {disk.endpoint &&
+                        {disk.billing_url &&
                           renderReadOnlyField(
                             "Billing",
-                            disk.endpoint,
+                            disk.billing_url,
                             <GlobalOutlined />
                           )}
 

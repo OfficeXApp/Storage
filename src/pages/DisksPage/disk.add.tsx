@@ -140,7 +140,7 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
           auth_json: values.authJson || undefined,
           external_id: values.externalId || undefined,
           external_payload: values.externalPayload || undefined,
-          endpoint: values.endpoint || undefined,
+          billing_url: values.billingUrl || undefined,
         };
 
         setLoading(true);
@@ -181,7 +181,7 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
         disk_type: formValues.diskType || diskType,
         public_note: formValues.publicNote || "",
         auth_json: formValues.authJson || "",
-        endpoint: formValues.endpoint || "",
+        billing_url: formValues.billingUrl || "",
       };
 
       // Generate the URL

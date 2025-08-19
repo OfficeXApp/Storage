@@ -102,7 +102,7 @@ const RedeemDiskGiftCard = () => {
         public_note: redeemData.public_note || "",
         private_note: `Redeemed from gift card, claimed by ${currentProfile.userID}`,
         auth_json: redeemData.auth_json || "",
-        endpoint: redeemData.endpoint || undefined,
+        billing_url: redeemData.billing_url || undefined,
       };
 
       // Get auth token
@@ -259,7 +259,7 @@ const RedeemDiskGiftCard = () => {
                   <Text type="secondary">Endpoint</Text>
                   <div style={{ marginTop: 8 }}>
                     <Tag color="green" style={{ marginBottom: "4px" }}>
-                      {redeemData.endpoint || "Default Endpoint"}
+                      {redeemData.billing_url || "Billing URL"}
                     </Tag>
                   </div>
                 </div>
@@ -293,14 +293,14 @@ export const generateRedeemDiskGiftCardURL = ({
   disk_type,
   public_note,
   auth_json,
-  endpoint,
+  billing_url,
 }: RedeemDiskGiftCard_BTOA) => {
   const payload: RedeemDiskGiftCard_BTOA = {
     name,
     disk_type,
     public_note,
     auth_json,
-    endpoint,
+    billing_url,
   };
 
   const finalUrl = `${window.location.origin}/org/current/redeem/disk-giftcard?redeem=${urlSafeBase64Encode(JSON.stringify(payload))}`;

@@ -463,7 +463,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
               public_note: _bundled_default_disk.public_note,
               auth_json: _bundled_default_disk.auth_json,
               autoexpire_ms: _bundled_default_disk.autoexpire_ms,
-              endpoint: _bundled_default_disk.endpoint,
+              billing_url: _bundled_default_disk.billing_url,
             }),
           });
 

@@ -20,6 +20,14 @@ import {
   ExternalPayload,
   UserID,
   ApiKeyValue,
+  IFrameEphemeralConfig,
+  IFrameInjectedConfig,
+  IFrameCommandResult,
+  IFrameCommandRes_About,
+  IFrameCommandType,
+  IFrameCommandRes_AuthToken,
+  IFrameCommandReq_CreateFile,
+  IFrameCommandReq_CreateFolder,
 } from "@officexapp/types";
 import { message } from "antd";
 import { v4 as uuidv4 } from "uuid";
@@ -39,35 +47,9 @@ import {
 } from "../../redux-offline/directory/directory.actions";
 import { useMultiUploader } from "../uploader/hook";
 
-// Types for iframe communication
-interface IFrameMessage {
-  type: string;
-  data: any;
-  tracer?: string;
-  success?: boolean;
-  error?: string;
-}
-
-interface EphemeralConfig {
-  optional_org_entropy: string;
-  optional_profile_entropy: string;
-  org_name: string;
-  profile_name: string;
-}
-
-interface InjectedConfig {
-  host: string;
-  drive_id: DriveID;
-  org_name?: string;
-  user_id: UserID;
-  profile_name?: string;
-  api_key_value?: ApiKeyValue; // only provide apiKey if you are subsidizing for users
-  redirect_to?: string; // optional, default is the drive path
-}
-
 interface InitData {
-  ephemeral?: EphemeralConfig;
-  injected?: InjectedConfig;
+  ephemeral?: IFrameEphemeralConfig;
+  injected?: IFrameInjectedConfig;
 }
 
 interface CurrentConnection {
@@ -78,68 +60,19 @@ interface CurrentConnection {
   profile_name: string;
 }
 
-// About Child IFrame Instance response type
-interface AboutChildIFrameInstanceResponse {
-  organization_name: string;
-  drive_id: string;
-  user_id: string;
-  profile_name: string;
-  host?: string;
-  frontend_domain?: string;
-  frontend_url?: string;
-  current_url?: string;
-}
-
-interface AuthTokenIFrameResponse {
-  drive_id: string;
-  user_id: string;
-  host?: string;
-  auth_token: string;
-}
-
-// REST Command types for CREATE_FILE
-interface CreateFileCommandPayload {
-  name: string;
-  file_size?: number;
-  expires_at?: number;
-  raw_url?: string;
-  base64?: string;
-  parent_folder_uuid?: FolderID; // Optional parent folder ID
-}
-
-interface CreateFileCommand {
-  action: "CREATE_FILE";
-  payload: CreateFileCommandPayload;
-}
-
-// REST Command types for CREATE_FOLDER
-interface CreateFolderCommandPayload {
-  name: string;
-  labels?: LabelValue[];
-  expires_at?: number;
-  file_conflict_resolution?: FileConflictResolutionEnum;
-  has_sovereign_permissions?: boolean;
-  shortcut_to?: FolderID;
-  external_id?: ExternalID;
-  external_payload?: ExternalPayload;
-  parent_folder_uuid?: FolderID; // Optional parent folder ID
-}
-
-interface CreateFolderCommand {
-  action: "CREATE_FOLDER";
-  payload: CreateFolderCommandPayload;
-}
-
-// Union type for all REST commands
-type RestCommand = CreateFileCommand | CreateFolderCommand;
-
 // Context type definition
 interface IFrameContextType {
   isIFrameMode: boolean;
   parentOrigin: string | null;
   isInitialized: boolean;
   currentConnection: CurrentConnection | null;
-  sendMessageToParent: (type: string, data: any, tracer?: string) => void;
+  sendMessageToParent: (data: {
+    type: IFrameCommandType;
+    data: any;
+    tracer?: string;
+    success?: boolean;
+    error?: string;
+  }) => void;
 }
 
 // Create the context
@@ -152,9 +85,6 @@ const generateDeterministicMnemonic = (secret: string): string => {
   const entropyBytes = hexToBytes(entropyHex);
   return entropyToMnemonic(entropyBytes, wordlist);
 };
-
-// Global emitter function type
-type GlobalEmitFunction = (message: IFrameMessage) => void;
 
 // Provider component
 export function IFrameProvider({ children }: { children: ReactNode }) {
@@ -191,7 +121,19 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
 
   // Send message to parent window
   const sendMessageToParent = useCallback(
-    (type: string, data: any, tracer?: string) => {
+    ({
+      type,
+      data,
+      tracer,
+      error,
+      success,
+    }: {
+      type: IFrameCommandType;
+      data: any;
+      tracer?: string;
+      error?: string;
+      success?: boolean;
+    }) => {
       const targetOrigin = parentOriginRef.current;
       if (!isIFrameMode || !targetOrigin) {
         console.warn(
@@ -199,7 +141,13 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         );
         return;
       }
-      const message: IFrameMessage = { type, data, tracer };
+      const message: IFrameCommandResult = {
+        type,
+        data,
+        tracer,
+        success: success || false,
+        error,
+      };
       if (window.parent && window.parent !== window) {
         window.parent.postMessage(message, targetOrigin);
       }
@@ -208,17 +156,15 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
   );
 
   // Global emit function that uses the provider's context
-  const globalEmit: GlobalEmitFunction = useCallback(
-    (message: IFrameMessage) => {
-      sendMessageToParent(
-        message.type,
-        {
-          success: message.success,
-          data: message.data,
-          error: message.error,
-        },
-        message.tracer
-      );
+  const globalEmit = useCallback(
+    (message: IFrameCommandResult) => {
+      sendMessageToParent({
+        type: message.type,
+        data: message.data,
+        tracer: message.tracer,
+        success: message.success,
+        error: message.error,
+      });
     },
     [sendMessageToParent]
   );
@@ -258,32 +204,29 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     async (origin: string, tracer?: string) => {
       try {
         if (!isInitialized || parentOriginRef.current !== origin) {
-          sendMessageToParent(
-            "officex-about-child-iframe-instance-response",
-            {
-              success: false,
-              error: "IFrame not initialized or unauthorized origin",
-            },
-            tracer
-          );
+          sendMessageToParent({
+            type: IFrameCommandType.ABOUT,
+            data: {},
+            tracer,
+            success: false,
+            error: "IFrame not initialized or unauthorized origin",
+          });
           return;
         }
 
         if (!currentOrg || !currentProfile) {
-          sendMessageToParent(
-            "officex-about-child-iframe-instance-response",
-            {
-              success: false,
-              error: "No current organization or profile found",
-            },
-            tracer
-          );
+          sendMessageToParent({
+            type: IFrameCommandType.ABOUT,
+            data: {},
+            tracer,
+            success: false,
+            error: "No current organization or profile found",
+          });
           return;
         }
 
-        const response: AboutChildIFrameInstanceResponse = {
-          organization_name:
-            currentOrg.nickname || `Org ${currentConnection?.domain}`,
+        const response: IFrameCommandRes_About = {
+          org_name: currentOrg.nickname || `Org ${currentConnection?.domain}`,
           drive_id: currentOrg.driveID,
           user_id: currentProfile.userID,
           profile_name:
@@ -294,24 +237,22 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           current_url: `${window.location.href}`,
         };
 
-        sendMessageToParent(
-          "officex-about-child-iframe-instance-response",
-          {
-            success: true,
-            data: response,
-          },
-          tracer
-        );
+        sendMessageToParent({
+          type: IFrameCommandType.ABOUT,
+          data: response,
+          tracer,
+          success: true,
+          error: "",
+        });
       } catch (error) {
         console.error("About Child IFrame Instance failed:", error);
-        sendMessageToParent(
-          "officex-about-child-iframe-instance-response",
-          {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-          },
-          tracer
-        );
+        sendMessageToParent({
+          type: IFrameCommandType.ABOUT,
+          data: {},
+          tracer,
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     },
     [
@@ -329,14 +270,13 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
   ) => {
     try {
       if (!isInitialized || parentOriginRef.current !== origin) {
-        sendMessageToParent(
-          "officex-auth-token-response",
-          {
-            success: false,
-            error: "IFrame not initialized or unauthorized origin",
-          },
-          tracer
-        );
+        sendMessageToParent({
+          type: IFrameCommandType.AUTH_TOKEN,
+          data: {},
+          tracer,
+          success: false,
+          error: "IFrame not initialized or unauthorized origin",
+        });
         return;
       }
 
@@ -344,49 +284,46 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
       let auth_token = currentAPIKey?.value || (await generateSignature());
 
       if (!currentOrg || !currentProfile || !auth_token) {
-        sendMessageToParent(
-          "officex-auth-token-response",
-          {
-            success: false,
-            error: "No current organization or profile or auth_token found",
-          },
-          tracer
-        );
+        sendMessageToParent({
+          type: IFrameCommandType.AUTH_TOKEN,
+          data: {},
+          tracer,
+          success: false,
+          error: "No current organization or profile or auth_token found",
+        });
         return;
       }
 
-      const response: AuthTokenIFrameResponse = {
+      const response: IFrameCommandRes_AuthToken = {
         drive_id: currentOrg.driveID,
         user_id: currentProfile.userID,
         host: currentOrg.host || undefined,
         auth_token: auth_token,
       };
 
-      sendMessageToParent(
-        "officex-auth-token-response",
-        {
-          success: true,
-          data: response,
-        },
-        tracer
-      );
+      sendMessageToParent({
+        type: IFrameCommandType.AUTH_TOKEN,
+        data: response,
+        tracer,
+        success: true,
+        error: "",
+      });
     } catch (error) {
       console.error("Auth Token Request failed:", error);
-      sendMessageToParent(
-        "officex-auth-token-response",
-        {
-          success: false,
-          error: error instanceof Error ? error.message : "Unknown error",
-        },
-        tracer
-      );
+      sendMessageToParent({
+        type: IFrameCommandType.AUTH_TOKEN,
+        data: {},
+        tracer,
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
   };
 
   // Handle ephemeral initialization
   const handleEphemeralInit = useCallback(
     async (
-      ephemeralConfig: EphemeralConfig,
+      ephemeralConfig: IFrameEphemeralConfig,
       origin: string,
       tracer?: string
     ) => {
@@ -396,10 +333,10 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
 
         // 1. Deterministically generate org and profile IDs from seeds
         const profileMnemonic = generateDeterministicMnemonic(
-          `${domain}-profile-${ephemeralConfig.optional_profile_entropy}`
+          `${domain}-profile-${ephemeralConfig.profile_entropy}`
         );
         const orgMnemonic = generateDeterministicMnemonic(
-          `${domain}-organization-${ephemeralConfig.optional_org_entropy}`
+          `${domain}-organization-${ephemeralConfig.org_entropy}`
         );
 
         const derivedProfile = await deriveProfileFromSeed(profileMnemonic);
@@ -416,7 +353,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("No existing organization found, creating new one...");
           targetOrg = await createOrganization({
             driveID: orgDriveID,
-            nickname: `${domain} | ${ephemeralConfig.org_name}`,
+            nickname: `${ephemeralConfig.org_name || "Anonymous Org"} | ${domain}`,
             icpPublicAddress: orgIdentityProfile.icpPublicAddress,
             host: "",
             note: `Created via iframe from ${domain}`,
@@ -432,7 +369,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("Found existing profile:", targetProfile.userID);
         } else {
           console.log("No existing profile found, creating new one...");
-          derivedProfile.nickname = `${domain} | ${ephemeralConfig.profile_name}`;
+          derivedProfile.nickname = `${ephemeralConfig.profile_name || "Anon"} | ${domain}`;
           derivedProfile.note = `Created via iframe from ${domain}`;
           targetProfile = await createProfile(derivedProfile);
           message.success(`New profile for ${domain} created.`);
@@ -446,34 +383,34 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           domain,
           orgID: targetOrg.driveID,
           profileID: targetProfile.userID,
-          org_name: `${domain} | ${ephemeralConfig.org_name}`,
-          profile_name: `${domain} | ${ephemeralConfig.profile_name}`,
+          org_name: `${ephemeralConfig.org_name || "Anonymous Org"} | ${domain}`,
+          profile_name: `${ephemeralConfig.profile_name || "Anon"} | ${domain}`,
         });
 
         setIsInitialized(true);
 
-        sendMessageToParent(
-          "officex-init-response",
-          {
-            success: true,
+        sendMessageToParent({
+          type: IFrameCommandType.INIT,
+          data: {
             mode: "ephemeral",
             orgID: targetOrg.driveID,
             profileID: targetProfile.userID,
             isPersistent: true,
             domain: domain,
           },
-          tracer
-        );
+          tracer,
+          success: true,
+          error: "",
+        });
       } catch (error) {
         console.error("Ephemeral init failed:", error);
-        sendMessageToParent(
-          "officex-init-response",
-          {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-          },
-          tracer
-        );
+        sendMessageToParent({
+          type: IFrameCommandType.INIT,
+          data: {},
+          tracer,
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     },
     [
@@ -491,7 +428,11 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
   );
 
   const handleInjectedInit = useCallback(
-    async (injectedConfig: InjectedConfig, origin: string, tracer?: string) => {
+    async (
+      injectedConfig: IFrameInjectedConfig,
+      origin: string,
+      tracer?: string
+    ) => {
       try {
         message.info("Starting ephemeral initialization...");
         const domain = extractDomainFromOrigin(origin);
@@ -513,7 +454,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("No existing organization found, creating new one...");
           targetOrg = await createOrganization({
             driveID: drive_id,
-            nickname: `${domain} | ${org_name || "Org"}`,
+            nickname: `${org_name || "Org"} | ${domain}`,
             icpPublicAddress: drive_id.replace("DriveID_", ""),
             host: host,
             note: `Created via iframe from ${domain}`,
@@ -529,19 +470,18 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("No existing profile found, creating new one...");
           if (!api_key_value) {
             // report error to tracer and end early
-            sendMessageToParent(
-              "officex-init-response",
-              {
-                success: false,
-                error: "API key value is required if no existing profile found",
-              },
-              tracer
-            );
+            sendMessageToParent({
+              type: IFrameCommandType.INIT,
+              data: {},
+              tracer,
+              success: false,
+              error: "API key value is required if no existing profile found",
+            });
             return;
           }
           const newProfile = {
             userID: user_id,
-            nickname: `${domain} | ${profile_name || "Profile"}`,
+            nickname: `${profile_name || "Profile"} | ${domain}`,
             icpPublicAddress: user_id.replace("UserID_", ""),
             evmPublicAddress: "",
             seedPhrase: "",
@@ -569,24 +509,25 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           domain,
           orgID: targetOrg.driveID,
           profileID: targetProfile.userID,
-          org_name: `${domain} | ${org_name}`,
-          profile_name: `${domain} | ${profile_name}`,
+          org_name: `${org_name} | ${domain}`,
+          profile_name: `${profile_name} | ${domain}`,
         });
 
         setIsInitialized(true);
 
-        sendMessageToParent(
-          "officex-init-response",
-          {
-            success: true,
+        sendMessageToParent({
+          type: IFrameCommandType.INIT,
+          data: {
             mode: "injected",
             orgID: targetOrg.driveID,
             profileID: targetProfile.userID,
             isPersistent: true,
             domain: domain,
           },
-          tracer
-        );
+          tracer,
+          success: true,
+          error: "",
+        });
 
         if (redirect_to) {
           navigate(redirect_to);
@@ -597,14 +538,13 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
         window.location.reload();
       } catch (error) {
         console.error("Injected init failed:", error);
-        sendMessageToParent(
-          "officex-init-response",
-          {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-          },
-          tracer
-        );
+        sendMessageToParent({
+          type: IFrameCommandType.INIT,
+          data: {},
+          tracer,
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     },
     []
@@ -629,13 +569,12 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
       } else if (initData.injected) {
         await handleInjectedInit(initData.injected, origin, tracer);
       } else {
-        const message: IFrameMessage = {
-          type: "officex-init-response",
-          data: {
-            success: false,
-            error: "Invalid init data: must provide ephemeral config",
-          },
+        const message: IFrameCommandResult = {
+          type: IFrameCommandType.INIT,
+          data: {},
           tracer,
+          success: false,
+          error: "Invalid init data: must provide ephemeral config",
         };
         if (window.parent && window.parent !== window) {
           window.parent.postMessage(message, origin);
@@ -665,49 +604,54 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           // Navigate using React Router
           navigate(wrappedRoute);
 
-          sendMessageToParent(
-            "officex-go-to-page-response",
-            { success: true, route: wrappedRoute },
-            tracer
-          );
+          sendMessageToParent({
+            type: IFrameCommandType.NAVIGATE,
+            data: { route: wrappedRoute },
+            tracer,
+            success: true,
+            error: "",
+          });
         } catch (error) {
           console.error("Navigation error:", error);
-          sendMessageToParent(
-            "officex-go-to-page-response",
-            {
-              success: false,
-              error: "Navigation failed",
+          sendMessageToParent({
+            type: IFrameCommandType.NAVIGATE,
+            data: {
               attemptedRoute: route,
             },
-            tracer
-          );
+            tracer,
+            success: false,
+            error: "Navigation failed",
+          });
         }
       } else {
-        sendMessageToParent(
-          "officex-go-to-page-response",
-          {
-            success: false,
-            error: "Invalid route: only /org/current/* routes are allowed",
+        sendMessageToParent({
+          type: IFrameCommandType.NAVIGATE,
+          data: {
             attemptedRoute: route,
           },
-          tracer
-        );
+          tracer,
+          success: false,
+          error: "Invalid route: only /org/current/* routes are allowed",
+        });
       }
     },
     [isInitialized, sendMessageToParent, navigate, wrapOrgCode]
   );
 
   const handleRestCommandIFrame = useCallback(
-    async (data: RestCommand, origin: string, tracer?: string) => {
+    async (
+      data: IFrameCommandReq_CreateFile | IFrameCommandReq_CreateFolder,
+      origin: string,
+      tracer?: string
+    ) => {
       if (!isInitialized || parentOriginRef.current !== origin) {
-        sendMessageToParent(
-          "officex-rest-command-response",
-          {
-            success: false,
-            error: "IFrame not initialized or unauthorized origin",
-          },
-          tracer
-        );
+        sendMessageToParent({
+          type: IFrameCommandType.DIRECTORY_ACTION,
+          data: {},
+          tracer,
+          success: false,
+          error: "IFrame not initialized or unauthorized origin",
+        });
         return;
       }
 
@@ -770,21 +714,19 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
               }),
             });
 
-            sendMessageToParent(
-              "officex-rest-command-response",
-              {
-                success: true,
-                data: {
-                  fileID,
-                  diskID,
-                  diskType,
-                  parentFolderID,
-                  message: "File upload initiated successfully",
-                  name: payload.name,
-                },
+            sendMessageToParent({
+              type: IFrameCommandType.DIRECTORY_ACTION,
+              data: {
+                fileID,
+                diskID,
+                diskType,
+                parentFolderID,
+                message: "File upload initiated successfully",
+                name: payload.name,
               },
-              tracer
-            );
+              success: true,
+              tracer,
+            });
           } else if (payload.raw_url) {
             // Handle URL-based file creation
             const createAction = {
@@ -813,31 +755,28 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
               )
             );
 
-            sendMessageToParent(
-              "officex-rest-command-response",
-              {
-                success: true,
-                data: {
-                  fileID,
-                  diskID,
-                  diskType,
-                  parentFolderID,
-                  raw_url: payload.raw_url,
-                  message: "File created successfully with URL",
-                  name: payload.name,
-                },
+            sendMessageToParent({
+              type: IFrameCommandType.DIRECTORY_ACTION,
+              data: {
+                fileID,
+                diskID,
+                diskType,
+                parentFolderID,
+                raw_url: payload.raw_url,
+                message: "File created successfully with URL",
+                name: payload.name,
               },
-              tracer
-            );
+              success: true,
+              tracer,
+            });
           } else {
-            sendMessageToParent(
-              "officex-rest-command-response",
-              {
-                success: false,
-                error: "Neither base64 nor raw_url provided",
-              },
-              tracer
-            );
+            sendMessageToParent({
+              type: IFrameCommandType.DIRECTORY_ACTION,
+              error: "Neither base64 nor raw_url provided",
+              success: false,
+              tracer,
+              data: {},
+            });
           }
         } else if (data.action === "CREATE_FOLDER") {
           const { payload } = data;
@@ -879,41 +818,37 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
             )
           );
 
-          sendMessageToParent(
-            "officex-rest-command-response",
-            {
-              success: true,
-              data: {
-                folderID,
-                diskID,
-                diskType,
-                parentFolderID,
-                message: "Folder created successfully",
-                name: payload.name,
-              },
+          sendMessageToParent({
+            type: IFrameCommandType.DIRECTORY_ACTION,
+            data: {
+              folderID,
+              diskID,
+              diskType,
+              parentFolderID,
+              message: "Folder created successfully",
+              name: payload.name,
             },
-            tracer
-          );
+            success: true,
+            tracer,
+          });
         } else {
-          sendMessageToParent(
-            "officex-rest-command-response",
-            {
-              success: false,
-              error: `Unknown action: ${(data as any).action}`,
-            },
-            tracer
-          );
+          sendMessageToParent({
+            type: IFrameCommandType.DIRECTORY_ACTION,
+            error: `Unknown action: ${(data as any).action}`,
+            success: false,
+            tracer,
+            data: {},
+          });
         }
       } catch (error) {
         console.error("REST command failed:", error);
-        sendMessageToParent(
-          "officex-rest-command-response",
-          {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-          },
-          tracer
-        );
+        sendMessageToParent({
+          type: IFrameCommandType.DIRECTORY_ACTION,
+          error: error instanceof Error ? error.message : "Unknown error",
+          success: false,
+          tracer,
+          data: {},
+        });
       }
     },
     [isInitialized, sendMessageToParent, uploadFiles, dispatch]
@@ -924,25 +859,25 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
     const handleMessage = async (event: MessageEvent) => {
       if (!event.origin || event.origin === "null") return;
 
-      const { type, data, tracer }: IFrameMessage = event.data;
+      const { type, data, tracer }: IFrameCommandResult = event.data;
 
       switch (type) {
-        case "officex-init":
+        case IFrameCommandType.INIT:
           await handleInitMessage(data as InitData, event.origin, tracer);
           break;
         // case "officex-switch-profile-org":
         //   await handleSwitchProfileOrgMessage(data, event.origin, tracer);
         //   break;
-        case "officex-go-to-page":
+        case IFrameCommandType.NAVIGATE:
           handleGoToPageMessage(data, event.origin, tracer);
           break;
-        case "officex-about-iframe":
+        case IFrameCommandType.ABOUT:
           await handleAboutChildIFrameInstance(event.origin, tracer);
           break;
-        case "officex-auth-token":
+        case IFrameCommandType.AUTH_TOKEN:
           await handleAuthTokenRequestIFrame(event.origin, tracer);
           break;
-        case "officex-rest-command":
+        case IFrameCommandType.DIRECTORY_ACTION:
           await handleRestCommandIFrame(data, event.origin, tracer);
           break;
         default:
@@ -1003,6 +938,6 @@ export function useIFrame() {
 // Global type declaration
 declare global {
   interface Window {
-    iframeEmit?: (message: IFrameMessage) => void;
+    iframeEmit?: (message: IFrameCommandResult) => void;
   }
 }

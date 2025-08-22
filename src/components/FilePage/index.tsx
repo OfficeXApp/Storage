@@ -481,6 +481,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
       if (response.ok) {
         // response.url will contain the final URL after all redirects
+        setFileContentError("");
         return response.url;
       } else {
         console.error("Error fetching presigned URL:", response.status);
@@ -636,6 +637,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
 
   const wrapUrlWithAuth = (url: string) => {
     let auth_token = currentAPIKey?.value || freshGeneratedSignature;
+    if (!auth_token) {
+      throw new Error("No auth token found");
+    }
     if (currentOrg?.host && url?.includes(currentOrg.host)) {
       if (url.includes("?")) {
         return `${url}&auth=${auth_token}`;
@@ -654,6 +658,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     return null;
   }
 
+  console.log(`fileContentError`, fileContentError);
   if (file.id && fileContentError) {
     return (
       <DirectoryGuard

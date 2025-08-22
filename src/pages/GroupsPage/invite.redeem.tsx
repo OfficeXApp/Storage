@@ -55,6 +55,7 @@ const RedeemGroupInvite = () => {
     generateSignature,
     listOfProfiles,
     updateOrganization,
+    switchProfile,
   } = useIdentitySystem();
 
   useEffect(() => {
@@ -94,7 +95,7 @@ const RedeemGroupInvite = () => {
         avatar: "",
       });
     }
-  }, [currentProfile, selectedProfile]);
+  }, [currentProfile]);
 
   const handleRedeem = async () => {
     if (!redeemData || !currentOrg || !selectedProfile) {
@@ -105,9 +106,9 @@ const RedeemGroupInvite = () => {
     setIsProcessing(true);
     try {
       await processGroupInviteRedeem(redeemData);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error processing group invite:", error);
-      message.error("Failed to process group invite");
+      message.error(error.message || "Failed to process group invite");
     } finally {
       setIsProcessing(false);
     }
@@ -143,13 +144,19 @@ const RedeemGroupInvite = () => {
       body: JSON.stringify(redeem_payload),
     });
 
-    const redeem_data = await redeem_response.json();
+    const _redeem_data = await redeem_response.json();
 
-    if (!redeem_data.invite) {
+    console.log(`redeem_data`, _redeem_data);
+
+    if (_redeem_data.err?.message) {
+      throw new Error(_redeem_data.err.message);
+    }
+    if (!_redeem_data?.ok?.data?.invite) {
       console.error("Redeem group invite error");
       throw new Error(`Failed to redeem group invite`);
-      return;
     }
+
+    const redeem_data = _redeem_data.ok.data;
 
     // Verify the redemption was successful
     if (redeem_data.invite) {
@@ -187,6 +194,8 @@ const RedeemGroupInvite = () => {
 
     return isAfterStart && isBeforeExpiry;
   };
+
+  console.log(`selectedProfile`, selectedProfile);
 
   return (
     <Layout style={{ minHeight: "100vh", backgroundColor: "white" }}>
@@ -286,6 +295,7 @@ const RedeemGroupInvite = () => {
                       );
                       if (profile) {
                         setSelectedProfile(profile);
+                        switchProfile(profile);
                       }
                     }}
                     filterOption={(input, option) => {

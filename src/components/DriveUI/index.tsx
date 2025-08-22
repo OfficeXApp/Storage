@@ -1484,7 +1484,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
     return (
       <DirectoryGuard
-        resourceID={"currentFolderId"}
+        resourceID={currentFolderId}
         loading={listDirectoryResults.isLoading}
         fetchResource={() => appendRefreshParam()}
       />

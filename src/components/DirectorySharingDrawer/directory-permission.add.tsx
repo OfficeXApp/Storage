@@ -63,9 +63,9 @@ import TagCopy from "../TagCopy";
 import { areArraysEqual, wrapAuthStringOrHeader } from "../../api/helpers";
 import { generateRedeemDirectoryPermitURL } from "./directory-permission.redeem";
 import { useIdentitySystem } from "../../framework/identity";
-import { passwordToSeedPhrase } from "../../api/icp";
 import { listContactsAction } from "../../redux-offline/contacts/contacts.actions";
 import { listGroupsAction } from "../../redux-offline/groups/groups.actions";
+import { generateDeterministicMnemonic } from "../../api/icp";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -982,9 +982,10 @@ const DirectoryPermissionAddDrawer: React.FC<
                   onChange={async (e) => {
                     const password = e.target.value.replace(" ", "");
                     setPasswordForGrantee(password);
-                    const deterministic_seed_phrase = passwordToSeedPhrase(
-                      `${password}-${resourceID}`
-                    );
+                    const deterministic_seed_phrase =
+                      generateDeterministicMnemonic(
+                        `${password}-${resourceID}`
+                      );
                     const newProfile = await deriveProfileFromSeed(
                       deterministic_seed_phrase
                     );

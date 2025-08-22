@@ -1,7 +1,7 @@
 import { Principal } from "@dfinity/principal";
 import { wordlist } from "@scure/bip39/wordlists/english";
-import { sha256, toBytes } from "viem";
-import { generateMnemonic } from "@scure/bip39";
+import { hexToBytes, sha256, toBytes } from "viem";
+import { entropyToMnemonic, generateMnemonic } from "@scure/bip39";
 import * as bip39 from "bip39";
 
 export const formatCycles = (cycles: bigint) => {
@@ -44,17 +44,10 @@ export const generateRandomSeed = (): string => {
   return generateMnemonic(wordlist, 128);
 };
 
-export const passwordToSeedPhrase = (password: string) => {
-  // 1. Generate a deterministic hash (entropy) from the password.
-  const passwordBytes = new TextEncoder().encode(password);
-
-  // The sha256 function from viem returns a hex string.
-  const entropyHex = sha256(passwordBytes);
-
-  // 2. Convert the hex string to a Uint8Array using viem's toBytes function.
-  const entropyBytes = toBytes(entropyHex);
-
-  // 3. Use bip39.entropyToMnemonic to convert the entropy into a mnemonic.
-  // The library expects a Buffer, so we need to convert our Uint8Array.
-  return bip39.entropyToMnemonic(Buffer.from(entropyBytes), wordlist);
+// Helper function to generate a deterministic mnemonic from a string
+export const generateDeterministicMnemonic = (secret: string): string => {
+  const secretBytes = new TextEncoder().encode(secret);
+  const entropyHex = sha256(secretBytes);
+  const entropyBytes = hexToBytes(entropyHex);
+  return entropyToMnemonic(entropyBytes, wordlist);
 };

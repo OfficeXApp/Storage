@@ -15,10 +15,10 @@ import {
   SyncOutlined,
 } from "@ant-design/icons";
 import { useIdentitySystem } from "../../framework/identity";
-import { passwordToSeedPhrase } from "../../api/icp";
 import { extractDiskInfo, wrapAuthStringOrHeader } from "../../api/helpers";
 import { Link } from "react-router-dom";
 import useScreenType from "react-screentype-hook";
+import { generateDeterministicMnemonic } from "../../api/icp";
 
 const { Text } = Typography;
 const { Password } = Input;
@@ -51,13 +51,15 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
   const handleSubmit = async () => {
     if (!password || !currentOrg) return;
     setIsLoading(true);
-    const deterministic_seed_phrase = passwordToSeedPhrase(
+    const deterministic_seed_phrase = generateDeterministicMnemonic(
       `${password}-${resourceID}`
     );
     const newProfile = await deriveProfileFromSeed(deterministic_seed_phrase);
 
     const auth_profile = await hydrateFullAuthProfile(newProfile, true);
     const auth_token = await generateSignature(auth_profile);
+
+    console.log(`resourceID====`, resourceID);
 
     try {
       const action = {

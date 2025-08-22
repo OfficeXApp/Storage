@@ -65,7 +65,13 @@ registerServiceWorker({
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Sentry.ErrorBoundary fallback={<p>An error has occurred</p>}>
-      <AntDesignConfigProvider>
+      <AntDesignConfigProvider
+        theme={{
+          token: {
+            colorPrimary: CONFIG.WHITELABEL_THEME_COLOR,
+          },
+        }}
+      >
         <BrowserRouter>
           <IdentitySystemProvider>
             <ReduxOfflineProvider>

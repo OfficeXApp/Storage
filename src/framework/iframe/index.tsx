@@ -28,6 +28,8 @@ import {
   IFrameCommandRes_AuthToken,
   IFrameCommandReq_CreateFile,
   IFrameCommandReq_CreateFolder,
+  IFrameCommandRes_CreateFile,
+  IFrameCommandRes_CreateFolder,
 } from "@officexapp/types";
 import { message } from "antd";
 import { v4 as uuidv4 } from "uuid";
@@ -46,6 +48,7 @@ import {
   updateFileAction,
 } from "../../redux-offline/directory/directory.actions";
 import { useMultiUploader } from "../uploader/hook";
+import { generateDeterministicMnemonic } from "../../api/icp";
 
 interface InitData {
   ephemeral?: IFrameEphemeralConfig;
@@ -77,14 +80,6 @@ interface IFrameContextType {
 
 // Create the context
 const IFrameContext = createContext<IFrameContextType | undefined>(undefined);
-
-// Helper function to generate a deterministic mnemonic from a string
-const generateDeterministicMnemonic = (secret: string): string => {
-  const secretBytes = new TextEncoder().encode(secret);
-  const entropyHex = sha256(secretBytes);
-  const entropyBytes = hexToBytes(entropyHex);
-  return entropyToMnemonic(entropyBytes, wordlist);
-};
 
 // Provider component
 export function IFrameProvider({ children }: { children: ReactNode }) {
@@ -723,7 +718,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
                 parentFolderID,
                 message: "File upload initiated successfully",
                 name: payload.name,
-              },
+              } as IFrameCommandRes_CreateFile,
               success: true,
               tracer,
             });
@@ -765,7 +760,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
                 raw_url: payload.raw_url,
                 message: "File created successfully with URL",
                 name: payload.name,
-              },
+              } as IFrameCommandRes_CreateFile,
               success: true,
               tracer,
             });
@@ -827,7 +822,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
               parentFolderID,
               message: "Folder created successfully",
               name: payload.name,
-            },
+            } as IFrameCommandRes_CreateFolder,
             success: true,
             tracer,
           });

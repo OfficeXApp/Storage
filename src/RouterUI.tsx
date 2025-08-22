@@ -123,6 +123,7 @@ import {
 import PurchasePage from "./pages/PurchasesPage/purchases.page";
 import PrettyUrlShortener from "./components/PrettyUrlShortener";
 import WelcomeAutoSpawn from "./components/WelcomeAutoSpawn";
+import { CONFIG } from "./config";
 
 const { Sider, Content } = Layout;
 
@@ -569,29 +570,61 @@ const RouterUI = () => {
                     >
                       <div style={{ flex: 1 }}>
                         <Link to="/org/current/welcome">
-                          <div
-                            style={{
-                              padding: "32px",
-                              fontWeight: "bold",
-                              height: "80px",
-                              display: "flex",
-                              justifyContent: "flex-start",
-                              alignItems: "center",
-                              color: "#1a1a3a",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            <h1>OfficeX</h1>
-                            <span
+                          {CONFIG.WHITELABEL_LOGO ? (
+                            <div
                               style={{
-                                fontWeight: 300,
-                                marginLeft: "10px",
-                                fontSize: "0.8rem",
+                                width: "100%",
+                                padding: "16px 16px 8px 16px",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
                               }}
                             >
-                              Beta v1.0
-                            </span>
-                          </div>
+                              <img
+                                src={CONFIG.WHITELABEL_LOGO}
+                                alt="Logo"
+                                style={{
+                                  width: "100%",
+                                }}
+                              />
+                              <span
+                                style={{
+                                  color: CONFIG.WHITELABEL_THEME_COLOR,
+                                  fontSize: "0.7rem",
+                                  width: "100%",
+                                  textAlign: "center",
+                                  marginTop: "8px",
+                                  fontWeight: 350,
+                                }}
+                              >
+                                Workspace by OfficeX
+                              </span>
+                            </div>
+                          ) : (
+                            <div
+                              style={{
+                                padding: "32px",
+                                fontWeight: "bold",
+                                height: "80px",
+                                display: "flex",
+                                justifyContent: "flex-start",
+                                alignItems: "center",
+                                color: "#1a1a3a",
+                                fontSize: "1rem",
+                              }}
+                            >
+                              <h1>OfficeX</h1>
+                              <span
+                                style={{
+                                  fontWeight: 300,
+                                  marginLeft: "10px",
+                                  fontSize: "0.8rem",
+                                }}
+                              >
+                                Beta v1.0
+                              </span>
+                            </div>
+                          )}
                         </Link>
                         <section
                           style={{

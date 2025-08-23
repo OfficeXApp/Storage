@@ -44,6 +44,7 @@ import { useMultiUploader } from "../../framework/uploader/hook";
 import { shouldBehaveOfflineDiskUIIntent } from "../../redux-offline/directory/directory.reducer";
 import { extractDiskInfo, urlSafeBase64Encode } from "../../api/helpers";
 import { isAIChatEnabled } from "../../framework/flags/feature-flags";
+import { checkGPUAvailablity } from "../../api/webllm";
 
 interface ActionMenuButtonProps {
   isBigButton?: boolean; // Determines the button style
@@ -182,7 +183,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           ),
           key: "newChat",
           disabled,
-          onClick: () => {
+          onClick: async () => {
             navigate(wrapOrgCode("/chat"));
           },
         }

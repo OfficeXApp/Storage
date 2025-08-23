@@ -10,6 +10,7 @@ import useScreenType from "react-screentype-hook";
 import { generate } from "random-words"; // Import random-words library
 import { useIdentitySystem } from "../../framework/identity"; // Import corrected useIdentity hook
 import SwitchProfile from "../SwitchProfile";
+import { checkGPUAvailablity } from "../../api/webllm";
 
 interface HeaderProps {
   onSearch?: (value: string) => void;
@@ -21,6 +22,14 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
   const screenType = useScreenType();
+
+  useEffect(() => {
+    const run = async () => {
+      const isGpuAvail = await checkGPUAvailablity();
+      console.log(`isGpuAvailable?`, isGpuAvail);
+    };
+    run();
+  }, []);
 
   const handleSearch = (query: string) => {
     const encodedQuery = encodeURIComponent(query);

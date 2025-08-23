@@ -80,6 +80,10 @@ export const AI_CHAT_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:3000"
   : "https://chat.otterpad.cc";
 
+export const LOCAL_CHAT_ENDPOINT = LOCAL_DEV_MODE
+  ? "http://localhost:3003"
+  : "https://webllm.web.app";
+
 // Hardcoded Gift Card Options
 export const initialGiftCardOptions: GiftCardOption[] = [
   {

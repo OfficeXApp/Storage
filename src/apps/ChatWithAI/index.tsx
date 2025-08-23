@@ -12,6 +12,7 @@ import {
   Tooltip,
   Popconfirm,
   Alert,
+  Switch,
 } from "antd";
 import docsLogo from "../../assets/docs-logo.png";
 import {
@@ -24,6 +25,7 @@ import {
   FileExcelOutlined,
   EditOutlined,
   CheckOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { v4 as uuidv4 } from "uuid";
 import { FileUUID, StorageLocationEnum, useDrive } from "../../framework";
@@ -82,7 +84,9 @@ import DirectoryGuard from "../../components/DriveUI/DirectoryGuard";
 import {
   AI_CHAT_ENDPOINT,
   DOCUMENTS_APP_ENDPOINT,
+  LOCAL_CHAT_ENDPOINT,
 } from "../../framework/identity/constants";
+import { checkGPUAvailablity } from "../../api/webllm";
 
 const { Text } = Typography;
 
@@ -104,6 +108,9 @@ const ChatWithAI = () => {
   const [isEditing, setIsEditing] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const penpalRef = useRef<RemoteProxy<Methods>>(null);
+  const [isGpuAvail, setIsGpuAvail] = useState(false);
+  const [selectedChatEndpoint, setSelectedChatEndpoint] =
+    useState(AI_CHAT_ENDPOINT);
   const {
     uploadFiles,
     uploadTargetDiskID,
@@ -165,6 +172,17 @@ const ChatWithAI = () => {
     setCurrentFileName(defaultName);
     currentFileNameRef.current = defaultName;
     mixpanel.track("Chat Session");
+    const run = async () => {
+      const isGpuAvail = await checkGPUAvailablity();
+      setIsGpuAvail(isGpuAvail);
+      if (isGpuAvail) {
+        setSelectedChatEndpoint(AI_CHAT_ENDPOINT);
+        // setSelectedChatEndpoint(LOCAL_CHAT_ENDPOINT);
+      } else {
+        setSelectedChatEndpoint(AI_CHAT_ENDPOINT);
+      }
+    };
+    run();
   }, []);
 
   useEffect(() => {
@@ -1010,7 +1028,7 @@ const ChatWithAI = () => {
       </Helmet>
       <iframe
         ref={iframeRef}
-        src={AI_CHAT_ENDPOINT}
+        src={selectedChatEndpoint}
         allow="clipboard-read; clipboard-write"
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
         style={
@@ -1030,6 +1048,60 @@ const ChatWithAI = () => {
               }
         }
       />
+      {isGpuAvail && (
+        <div
+          style={{
+            position: "absolute",
+            top: "10vh",
+            right: selectedChatEndpoint === AI_CHAT_ENDPOINT ? "10px" : "130px",
+            zIndex: 999,
+            display: "flex",
+            alignItems: "center",
+            gap: "8px", // Spacing between the text and the switch
+            padding: "5px 10px",
+            borderRadius: "15px",
+          }}
+        >
+          <Switch
+            checked={selectedChatEndpoint === AI_CHAT_ENDPOINT}
+            onChange={() => {
+              setSelectedChatEndpoint(
+                selectedChatEndpoint === AI_CHAT_ENDPOINT
+                  ? LOCAL_CHAT_ENDPOINT
+                  : AI_CHAT_ENDPOINT
+              );
+            }}
+            checkedChildren="ONLINE"
+            unCheckedChildren="OFFLINE"
+            style={{ minWidth: "60px" }} // Optional: Adjust width for better text fit
+          />
+        </div>
+        // <Button
+        //   type="default"
+        //   icon={<SettingOutlined />}
+        //   style={{
+        //     position: "absolute",
+        //     top: "10vh",
+        //     right: "10px",
+        //     zIndex: 999,
+        //     borderRadius: "50%",
+        //     width: "40px",
+        //     height: "40px",
+        //     display: "flex",
+        //     alignItems: "center",
+        //     justifyContent: "center",
+        //   }}
+        //   onClick={() => {
+        //     // Handle button click logic here
+        //     message.info("Floating button clicked!");
+        //     setSelectedChatEndpoint(
+        //       selectedChatEndpoint === AI_CHAT_ENDPOINT
+        //         ? LOCAL_CHAT_ENDPOINT
+        //         : AI_CHAT_ENDPOINT
+        //     );
+        //   }}
+        // />
+      )}
     </div>
   );
 };

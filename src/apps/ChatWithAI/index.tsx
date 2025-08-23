@@ -176,8 +176,7 @@ const ChatWithAI = () => {
       const isGpuAvail = await checkGPUAvailablity();
       setIsGpuAvail(isGpuAvail);
       if (isGpuAvail) {
-        setSelectedChatEndpoint(AI_CHAT_ENDPOINT);
-        // setSelectedChatEndpoint(LOCAL_CHAT_ENDPOINT);
+        setSelectedChatEndpoint(LOCAL_CHAT_ENDPOINT);
       } else {
         setSelectedChatEndpoint(AI_CHAT_ENDPOINT);
       }

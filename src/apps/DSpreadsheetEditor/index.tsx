@@ -80,7 +80,10 @@ import {
 } from "penpal";
 import DirectorySharingDrawer from "../../components/DirectorySharingDrawer";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { DSHEETS_ENDPOINT } from "../../framework/identity/constants";
+import {
+  DSHEETS_ENDPOINT,
+  LOCAL_DEV_MODE,
+} from "../../framework/identity/constants";
 import { Helmet } from "react-helmet";
 import Marquee from "react-fast-marquee";
 import SlimAppHeader from "../../components/SlimAppHeader";
@@ -995,6 +998,8 @@ const DSpreadsheetEditor = () => {
       ? shouldBehaveOfflineDiskUIIntent(file.disk_id)
       : true;
 
+    const signature = await generateSignature();
+    const auth_token = currentAPIKey?.value || signature;
     const payload = {
       file,
       contents: {
@@ -1002,6 +1007,11 @@ const DSpreadsheetEditor = () => {
         contentLoading: fileContentLoading || isLoading,
         contentError: fileContentError,
         contentVersion: fileContentVersion,
+        webrtc_handshake_servers: currentOrg?.host
+          ? [
+              `${LOCAL_DEV_MODE ? "ws" : "wss"}://${currentOrg?.host.replace("http://", "").replace("https://", "")}/v1/drive/${currentOrg?.driveID}/organization/webrtc?auth=${auth_token}&file_id=${file.id}`,
+            ]
+          : ["wss://webrtc-handshake.officex.app"],
         url: fileUrl,
         editable:
           fileID === "new" ||
@@ -1012,6 +1022,7 @@ const DSpreadsheetEditor = () => {
         id: currentProfile?.userID,
         name: currentProfile?.nickname,
         slug: currentProfile?.slug,
+        auth_token,
       },
     };
 

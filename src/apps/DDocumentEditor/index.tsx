@@ -80,7 +80,10 @@ import {
 } from "penpal";
 import DirectorySharingDrawer from "../../components/DirectorySharingDrawer";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { DDOCS_ENDPOINT } from "../../framework/identity/constants";
+import {
+  DDOCS_ENDPOINT,
+  LOCAL_DEV_MODE,
+} from "../../framework/identity/constants";
 import { Helmet } from "react-helmet";
 import Marquee from "react-fast-marquee";
 import SlimAppHeader from "../../components/SlimAppHeader";
@@ -992,7 +995,8 @@ const DDocumentEditor = () => {
     const _offlineDisk = file?.disk_type
       ? shouldBehaveOfflineDiskUIIntent(file.disk_id)
       : true;
-
+    const signature = await generateSignature();
+    const auth_token = currentAPIKey?.value || signature;
     const payload = {
       file,
       contents: {
@@ -1000,6 +1004,11 @@ const DDocumentEditor = () => {
         contentLoading: fileContentLoading || isLoading,
         contentError: fileContentError,
         contentVersion: fileContentVersion,
+        webrtc_handshake_servers: currentOrg?.host
+          ? [
+              `${LOCAL_DEV_MODE ? "ws" : "wss"}://${currentOrg?.host.replace(LOCAL_DEV_MODE ? "http://" : "https://", "")}/v1/drive/${currentOrg?.driveID}/organization/webrtc?auth=${auth_token}&file_id=${file.id}`,
+            ]
+          : ["wss://webrtc-handshake.officex.app"],
         url: fileUrl,
         editable:
           fileID === "new" ||
@@ -1010,6 +1019,7 @@ const DDocumentEditor = () => {
         id: currentProfile?.userID,
         name: currentProfile?.nickname,
         slug: currentProfile?.slug,
+        auth_token,
       },
     };
 

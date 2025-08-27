@@ -890,6 +890,22 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             style={{ width: viewRowTile === "row" ? "25px" : "100px" }}
           />
         );
+      case "officex-sheet":
+        return (
+          <img
+            src={sheetsLogo}
+            alt="Spreadsheet"
+            style={{ width: viewRowTile === "row" ? "25px" : "100px" }}
+          />
+        );
+      case "officex-doc":
+        return (
+          <img
+            src={docsLogo}
+            alt="Document"
+            style={{ width: viewRowTile === "row" ? "25px" : "100px" }}
+          />
+        );
       default:
         return <FileOutlined />;
     }
@@ -1004,7 +1020,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       <span style={{ marginLeft: 8 }}>
                         {text
                           .replace(".officex-spreadsheet", "")
-                          .replace(".officex-document", "")}
+                          .replace(".officex-document", "")
+                          .replace(".officex-sheet", "")
+                          .replace(".officex-doc", "")}
                       </span>
                     </>
                   )}
@@ -2328,7 +2346,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                                 >
                                   {item.title
                                     .replace(".officex-spreadsheet", "")
-                                    .replace(".officex-document", "")}
+                                    .replace(".officex-document", "")
+                                    .replace(".officex-sheet", "")
+                                    .replace(".officex-doc", "")}
                                 </div>
                               </Popover>
                             </div>

@@ -72,6 +72,14 @@ export const SPREADSHEET_APP_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:3002/sheets/"
   : "https://demoofidapps.web.app/sheets/";
 
+export const DDOCS_ENDPOINT = LOCAL_DEV_MODE
+  ? "http://localhost:5201"
+  : "https://docs-static.web.app";
+
+export const DSHEETS_ENDPOINT = LOCAL_DEV_MODE
+  ? "http://localhost:5202"
+  : "https://sheets-static.web.app";
+
 export const WEB2_FACTORY_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:8888"
   : "https://officex.otterpad.cc";

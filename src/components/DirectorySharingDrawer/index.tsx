@@ -161,6 +161,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     | "spreadsheet"
     | "officex-spreadsheet"
     | "officex-document"
+    | "officex-sheet"
+    | "officex-doc"
     | "other" => {
     const name = resource?.name || "";
     let extension =
@@ -171,6 +173,10 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       extension = "officex-spreadsheet";
     } else if (name.endsWith("officex-document")) {
       extension = "officex-document";
+    } else if (name.endsWith("officex-sheet")) {
+      extension = "officex-sheet";
+    } else if (name.endsWith("officex-doc")) {
+      extension = "officex-doc";
     }
 
     switch (extension) {
@@ -202,6 +208,10 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
         return "officex-spreadsheet";
       case "officex-document":
         return "officex-document";
+      case "officex-sheet":
+        return "officex-sheet";
+      case "officex-doc":
+        return "officex-doc";
       default:
         return "other";
     }
@@ -347,6 +357,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                   "other",
                   "officex-spreadsheet",
                   "officex-document",
+                  "officex-sheet",
+                  "officex-doc",
                 ].includes(fileType)
               ) {
                 try {

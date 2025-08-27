@@ -1,6 +1,12 @@
-// SpreadsheetEditor.tsx
+// DSpreadsheetEditor.tsx
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   Modal,
   Button,
@@ -67,13 +73,14 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   connect,
   Connection,
+  debug,
   Methods,
   RemoteProxy,
   WindowMessenger,
 } from "penpal";
 import DirectorySharingDrawer from "../../components/DirectorySharingDrawer";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
-import { SPREADSHEET_APP_ENDPOINT } from "../../framework/identity/constants";
+import { DSHEETS_ENDPOINT } from "../../framework/identity/constants";
 import { Helmet } from "react-helmet";
 import Marquee from "react-fast-marquee";
 import SlimAppHeader from "../../components/SlimAppHeader";
@@ -83,7 +90,7 @@ import DirectoryGuard from "../../components/DriveUI/DirectoryGuard";
 
 const { Text } = Typography;
 
-const SpreadsheetEditor = () => {
+const DSpreadsheetEditor = () => {
   const {
     orgcode,
     fileID,
@@ -101,6 +108,7 @@ const SpreadsheetEditor = () => {
   const [isEditing, setIsEditing] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const penpalRef = useRef<RemoteProxy<Methods>>(null);
+  const penpalConnectionRef = useRef<Connection | null>(null);
   const {
     uploadFiles,
     uploadTargetDiskID,
@@ -126,6 +134,7 @@ const SpreadsheetEditor = () => {
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
   );
   const fileContentRef = useRef<any>(null);
+  const loadingPromiseRef = useRef<Promise<any> | null>(null);
   const [fileContentVersion, setFileContentVersion] = useState(0);
   const [fileContentLoading, setFileContentLoading] = useState(false);
   const [fileContentError, setFileContentError] = useState<string | null>(null);
@@ -145,6 +154,8 @@ const SpreadsheetEditor = () => {
       state.directory.fileMap[fileID === "new" ? emptyFile.id : fileID || ""]
   );
 
+  console.log(`fileFromRedux`, fileFromRedux);
+
   const file = fileFromRedux || redeemData?.original || emptyFile;
 
   const [currentFileName, setCurrentFileName] = useState(
@@ -161,7 +172,7 @@ const SpreadsheetEditor = () => {
 
   useEffect(() => {
     const defaultName =
-      file.name.replace(".officex-spreadsheet", "") || "Untitled Spreadsheet";
+      file.name.replace(".officex-sheet", "") || "Untitled Spreadsheet";
     setCurrentFileName(defaultName);
     currentFileNameRef.current = defaultName;
 
@@ -211,10 +222,10 @@ const SpreadsheetEditor = () => {
 
       try {
         // Parse as JSON
-        const jsonData = JSON.parse(text);
+        // const jsonData = JSON.parse(text);
 
         // Store in ref instead of state
-        fileContentRef.current = jsonData;
+        fileContentRef.current = text;
 
         // Signal that content has been updated
         setFileContentVersion((prev) => prev + 1);
@@ -238,7 +249,7 @@ const SpreadsheetEditor = () => {
 
   useEffect(() => {
     if (fileUrl) {
-      fetchJsonContent(fileUrl);
+      loadingPromiseRef.current = fetchJsonContent(fileUrl);
     }
   }, [fileUrl, fetchJsonContent]);
 
@@ -303,7 +314,7 @@ const SpreadsheetEditor = () => {
     }
   }, [currentOrg, currentProfile]);
 
-  const fileType = "officex-spreadsheet";
+  const fileType = "officex-sheet";
 
   // New method to handle files from IndexedDB
   const getFileFromIndexedDB = async (fileId: FileUUID): Promise<string> => {
@@ -341,8 +352,8 @@ const SpreadsheetEditor = () => {
                   "pdf",
                   "spreadsheet",
                   "other",
-                  "officex-spreadsheet",
-                  "officex-document",
+                  "officex-sheet",
+                  "officex-doc",
                 ].includes(fileType)
               ) {
                 try {
@@ -571,7 +582,7 @@ const SpreadsheetEditor = () => {
 
     if (file.id !== lastLoadedFileRef.current) {
       const defaultName =
-        file.name.replace(".officex-spreadsheet", "") || "Unknown File";
+        file.name.replace(".officex-sheet", "") || "Unknown File";
       setCurrentFileName(defaultName);
       currentFileNameRef.current = defaultName;
     }
@@ -727,23 +738,18 @@ const SpreadsheetEditor = () => {
 
     const _currentFileName = currentFileNameRef.current;
 
-    const _fileContent = {
-      ...JSON.parse(fileContent),
-      name: _currentFileName.replace(".officex-spreadsheet", ""),
-    };
-
-    message.info(`Saving file, please wait...`);
+    const _fileContent = fileContent;
 
     try {
       // Convert string content to a file object
-      const blob = new Blob([JSON.stringify(_fileContent)], {
-        type: "application/json",
+      const blob = new Blob([_fileContent], {
+        type: "text/plain",
       });
       const fileObject = new File(
         [blob],
-        `${_currentFileName.replace(".officex-spreadsheet", "")}.officex-spreadsheet`,
+        `${_currentFileName.replace(".officex-sheet", "")}.officex-sheet`,
         {
-          type: "application/json",
+          type: "text/plain",
         }
       );
 
@@ -780,7 +786,7 @@ const SpreadsheetEditor = () => {
                 action: UPDATE_FILE as "UPDATE_FILE",
                 payload: {
                   id: file.id,
-                  name: `${_currentFileName.replace(".officex-spreadsheet", "")}.officex-spreadsheet`,
+                  name: `${_currentFileName.replace(".officex-sheet", "")}.officex-sheet`,
                 },
               },
               undefined,
@@ -829,9 +835,9 @@ const SpreadsheetEditor = () => {
         fileConflictResolution: FileConflictResolutionEnum.REPLACE,
       });
 
-      setTimeout(() => {
-        message.success(`File ${_currentFileName} saved successfully`);
-      }, 5000);
+      // setTimeout(() => {
+      //   message.success(`File ${_currentFileName} saved successfully`);
+      // }, 5000);
 
       return true;
     } catch (error) {
@@ -841,142 +847,253 @@ const SpreadsheetEditor = () => {
     }
   };
 
-  const parentMethods = {
-    getFileData: () => {
-      if (!file) {
-        return {
-          error: "No file data available",
-          loading: isLoading,
-        };
+  // const parentMethods = {
+  //   getFileData: () => {
+  //     if (!file) {
+  //       return {
+  //         error: "No file data available",
+  //         loading: isLoading,
+  //       };
+  //     }
+  //     const _offlineDisk =
+  //       file && file.disk_type
+  //         ? shouldBehaveOfflineDiskUIIntent(file.disk_id)
+  //         : true;
+  //     // Always return metadata, loading state, and content reference
+  //     return {
+  //       file,
+  //       contents: {
+  //         content: fileContentRef.current,
+  //         contentLoading: fileContentLoading || isLoading,
+  //         contentError: fileContentError,
+  //         contentVersion: fileContentVersion,
+  //         url: fileUrl,
+  //         editable:
+  //           fileID === "new" ||
+  //           file.permission_previews?.includes(DirectoryPermissionType.EDIT) ||
+  //           _offlineDisk,
+  //       },
+  //     };
+  //   },
+  //   downloadFile: (fileContent: string) => {
+  //     const _currentFileName = currentFileNameRef.current;
+  //     const blob = new Blob([fileContent], { type: "application/json" });
+  //     const url = URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     const _fileName = `${_currentFileName.replace(".officex-sheet", "")}.officex-sheet`;
+  //     a.download = _fileName;
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     document.body.removeChild(a);
+  //     URL.revokeObjectURL(url);
+  //     return `File ${_fileName} downloaded successfully.`;
+  //   },
+  //   saveFile: useCallback(
+  //     async (fileContent: string) => {
+  //       if (fileID !== "new") {
+  //         const shouldSave = window.confirm(
+  //           "Are you sure you want to save? Be careful not to overwrite other people's work. Realtime collab editing coming soon."
+  //         );
+  //         if (!shouldSave) return false;
+  //       }
+
+  //       const success = await saveFileContent(fileContent);
+
+  //       history.replaceState(
+  //         {},
+  //         "",
+  //         wrapOrgCode(
+  //           `/drive/${file.disk_type || diskTypeEnumFromUrl}/${
+  //             file.disk_id || diskIDFromUrl
+  //           }/${file.parent_folder_uuid || parentFolderIDFromUrl}/${file.id}/apps/sheets`
+  //         )
+  //       );
+
+  //       setTimeout(() => {
+  //         fetchFileById(file.id as FileID);
+  //       }, 5000);
+
+  //       if (success) {
+  //         return `File ${currentFileName} saved successfully.`;
+  //       } else {
+  //         return `Failed to save file ${currentFileName}.`;
+  //       }
+  //     },
+  //     [currentFileName, file, saveFileContent]
+  //   ),
+  //   shareFile: useCallback(() => {
+  //     setIsShareDrawerOpen(true);
+  //     // Implement your save logic here
+  //     return `File ${"fileName"} shared successfully.`;
+  //   }, []),
+  //   logMessage: useCallback((message: string) => {
+  //     return `Parent received: ${message}`;
+  //   }, []),
+  // };
+
+  useEffect(() => {
+    // This function will be returned and called only when DSpreadsheetEditor unmounts
+
+    return () => {
+      if (penpalConnectionRef.current) {
+        penpalConnectionRef.current.destroy();
       }
-      const _offlineDisk =
-        file && file.disk_type
-          ? shouldBehaveOfflineDiskUIIntent(file.disk_id)
-          : true;
-      // Always return metadata, loading state, and content reference
-      return {
-        file,
-        contents: {
-          content: fileContentRef.current,
-          contentLoading: fileContentLoading || isLoading,
-          contentError: fileContentError,
-          contentVersion: fileContentVersion,
-          url: fileUrl,
-          editable:
-            fileID === "new" ||
-            file.permission_previews?.includes(DirectoryPermissionType.EDIT) ||
-            _offlineDisk,
-        },
-      };
+    };
+  }, []);
+
+  const saveFile = useCallback(
+    async (fileContent: string) => {
+      // if (fileID !== "new") {
+      //   const shouldSave = window.confirm(
+      //     "Are you sure you want to save? Be careful not to overwrite other people's work. Realtime collab editing coming soon."
+      //   );
+      //   if (!shouldSave) return false;
+      // }
+
+      const success = await saveFileContent(fileContent);
+
+      history.replaceState(
+        {},
+        "",
+        wrapOrgCode(
+          `/drive/${file.disk_type || diskTypeEnumFromUrl}/${
+            file.disk_id || diskIDFromUrl
+          }/${file.parent_folder_uuid || parentFolderIDFromUrl}/${file.id}/apps/spreadsheets`
+        )
+      );
+
+      setTimeout(() => {
+        fetchFileById(file.id as FileID);
+      }, 5000);
+
+      if (success) {
+        return `File ${currentFileName} saved successfully.`;
+      } else {
+        return `Failed to save file ${currentFileName}.`;
+      }
     },
-    downloadFile: (fileContent: string) => {
-      const _currentFileName = currentFileNameRef.current;
-      const blob = new Blob([fileContent], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const _fileName = `${_currentFileName.replace(".officex-spreadsheet", "")}.officex-spreadsheet`;
-      a.download = _fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      return `File ${_fileName} downloaded successfully.`;
-    },
-    saveFile: useCallback(
-      async (fileContent: string) => {
-        if (fileID !== "new") {
-          const shouldSave = window.confirm(
-            "Are you sure you want to save? Be careful not to overwrite other people's work. Realtime collab editing coming soon."
-          );
-          if (!shouldSave) return false;
-        }
+    [currentFileName, file, saveFileContent]
+  );
+  const shareFile = useCallback(() => {
+    setIsShareDrawerOpen(true);
+    // Implement your save logic here
+    return `File ${"fileName"} shared successfully.`;
+  }, []);
+  const logMessage = useCallback((message: string) => {
+    return `Parent received: ${message}`;
+  }, []);
+  const getFileData = useCallback(async () => {
+    if (!file) {
+      return { error: "No file data available", loading: isLoading };
+    }
+    if (loadingPromiseRef.current) {
+      await loadingPromiseRef.current;
+    }
 
-        const success = await saveFileContent(fileContent);
+    const _offlineDisk = file?.disk_type
+      ? shouldBehaveOfflineDiskUIIntent(file.disk_id)
+      : true;
 
-        history.replaceState(
-          {},
-          "",
-          wrapOrgCode(
-            `/drive/${file.disk_type || diskTypeEnumFromUrl}/${
-              file.disk_id || diskIDFromUrl
-            }/${file.parent_folder_uuid || parentFolderIDFromUrl}/${file.id}/apps/sheets`
-          )
-        );
-
-        setTimeout(() => {
-          fetchFileById(file.id as FileID);
-        }, 5000);
-
-        if (success) {
-          return `File ${currentFileName} saved successfully.`;
-        } else {
-          return `Failed to save file ${currentFileName}.`;
-        }
+    const payload = {
+      file,
+      contents: {
+        content: fileContentRef.current,
+        contentLoading: fileContentLoading || isLoading,
+        contentError: fileContentError,
+        contentVersion: fileContentVersion,
+        url: fileUrl,
+        editable:
+          fileID === "new" ||
+          file.permission_previews?.includes(DirectoryPermissionType.EDIT) ||
+          _offlineDisk,
       },
-      [currentFileName, file, saveFileContent]
-    ),
-    shareFile: useCallback(() => {
-      setIsShareDrawerOpen(true);
-      // Implement your save logic here
-      return `File ${"fileName"} shared successfully.`;
-    }, []),
-    logMessage: useCallback((message: string) => {
-      return `Parent received: ${message}`;
-    }, []),
+      user: {
+        id: currentProfile?.userID,
+        name: currentProfile?.nickname,
+        slug: currentProfile?.slug,
+      },
+    };
+
+    if (_offlineDisk) {
+      payload.file.permission_previews = [
+        DirectoryPermissionType.EDIT,
+        DirectoryPermissionType.UPLOAD,
+        DirectoryPermissionType.MANAGE,
+        DirectoryPermissionType.VIEW,
+        DirectoryPermissionType.INVITE,
+        DirectoryPermissionType.DELETE,
+      ];
+    }
+
+    return payload;
+  }, [
+    file,
+    isLoading,
+    fileContentLoading,
+    fileContentError,
+    fileContentVersion,
+    fileUrl,
+    fileID,
+    saveFile,
+    shareFile,
+    logMessage,
+  ]);
+  const downloadFile = useCallback((fileContent: string) => {
+    const _currentFileName = currentFileNameRef.current;
+    const blob = new Blob([fileContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const _fileName = `${_currentFileName.replace(".officex-sheet", "")}.officex-sheet`;
+    a.download = _fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    return `File ${_fileName} downloaded successfully.`;
+  }, []);
+
+  const parentMethods = {
+    getFileData,
+    downloadFile,
+    saveFile,
+    shareFile,
+    logMessage,
+  };
+
+  // REPLACE it with this useCallback-wrapped version of setupPenpal
+  const setupPenpal = () => {
+    if (penpalConnectionRef.current) {
+      penpalConnectionRef.current.destroy();
+    }
+
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      // Define the methods right here, ensuring they close over the latest state and refs.
+
+      try {
+        const messenger = new WindowMessenger({
+          remoteWindow: iframeRef.current.contentWindow,
+          allowedOrigins: [new URL(DSHEETS_ENDPOINT).origin],
+        });
+
+        const connection = connect({
+          messenger,
+          methods: parentMethods,
+          // log: debug("Parent Penpal"),
+        });
+
+        penpalConnectionRef.current = connection;
+      } catch (error) {
+        console.error("Parent: Failed to establish Penpal connection:", error);
+      }
+    }
   };
 
   const { diskID: extractedDiskID } = extractDiskInfo();
   const offlineDisk = file
     ? shouldBehaveOfflineDiskUIIntent(extractedDiskID)
     : true;
-
-  const setupPenpal = async () => {
-    // Ensure iframeRef.current and its contentWindow exist before proceeding
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      let connection: Connection | undefined;
-
-      try {
-        const messenger = new WindowMessenger({
-          remoteWindow: iframeRef.current.contentWindow,
-          // Dynamically get the origin from your SPREADSHEET_APP_ENDPOINT
-          allowedOrigins: [new URL(SPREADSHEET_APP_ENDPOINT).origin],
-        });
-
-        connection = connect({
-          messenger,
-          methods: parentMethods,
-        });
-
-        // Wait for the connection to be established and remote methods to be available
-        const remote = await connection.promise;
-
-        // @ts-ignore
-        penpalRef.current = remote;
-
-        // Example: Call a remote method from the iframe
-        // You would typically call these based on user interactions or other logic
-        // const multiplicationResult = await remote.multiply(2, 6);
-
-        // The cleanup function for this specific setup
-        return () => {
-          if (connection) {
-            connection.destroy(); // Disconnect penpal when the iframe or component unmounts
-            console.log("Penpal connection destroyed.");
-          }
-        };
-      } catch (error) {
-        console.error(
-          "Failed to establish Penpal connection with iframe:",
-          error
-        );
-      }
-    } else {
-      console.warn(
-        "Iframe ref or contentWindow not available to set up Penpal."
-      );
-    }
-  }; // Depend on parentMethods and the endpoint URL
 
   const fetchFileById = (fileId: FileID) => {
     try {
@@ -990,9 +1107,9 @@ const SpreadsheetEditor = () => {
 
       dispatch(getFileAction(getAction, offlineDisk));
 
-      setTimeout(() => {
-        setIframeReady(true);
-      }, 10000);
+      // setTimeout(() => {
+      //   setIframeReady(true);
+      // }, 10000);
     } catch (error) {
       console.error("Error fetching file by ID:", error);
     }
@@ -1004,7 +1121,7 @@ const SpreadsheetEditor = () => {
 
   // unauthorized access to file
   if (
-    iframeReady &&
+    // iframeReady &&
     fileID &&
     !fileFromRedux &&
     !redeemData &&
@@ -1039,7 +1156,7 @@ const SpreadsheetEditor = () => {
     <div>
       <Helmet>
         <meta charSet="utf-8" />
-        <title>{currentFileName.replace(".officex-spreadsheet", "")}</title>
+        <title>{currentFileName.replace(".officex-sheet", "")}</title>
         <link rel="icon" href="/sheets-favicon.ico" />
       </Helmet>
       <Alert
@@ -1144,7 +1261,7 @@ const SpreadsheetEditor = () => {
       {file && iframeReady && isContentLoaded ? (
         <iframe
           ref={iframeRef} // Attach the ref here
-          src={SPREADSHEET_APP_ENDPOINT}
+          src={DSHEETS_ENDPOINT}
           allow="clipboard-read; clipboard-write"
           sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
           style={{
@@ -1187,4 +1304,4 @@ const SpreadsheetEditor = () => {
   );
 };
 
-export default SpreadsheetEditor;
+export default DSpreadsheetEditor;

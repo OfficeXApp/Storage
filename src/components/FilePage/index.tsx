@@ -122,6 +122,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     | "spreadsheet"
     | "officex-spreadsheet"
     | "officex-document"
+    | "officex-sheet"
+    | "officex-doc"
     | "other" => {
     const name = file.name || "";
     let extension =
@@ -131,6 +133,10 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       extension = "officex-spreadsheet";
     } else if (name.endsWith("officex-document")) {
       extension = "officex-document";
+    } else if (name.endsWith("officex-sheet")) {
+      extension = "officex-sheet";
+    } else if (name.endsWith("officex-doc")) {
+      extension = "officex-doc";
     }
 
     switch (extension) {
@@ -162,6 +168,10 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         return "officex-spreadsheet";
       case "officex-document":
         return "officex-document";
+      case "officex-sheet":
+        return "officex-sheet";
+      case "officex-doc":
+        return "officex-doc";
       default:
         return "other";
     }
@@ -474,7 +484,8 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
   async function getPresignedUrl(initialUrl: string) {
     try {
       // Make a GET request to follow redirects without downloading content
-      const response = await fetch(wrapUrlWithAuth(initialUrl), {
+      const url_with_auth = await wrapUrlWithAuth(initialUrl);
+      const response = await fetch(url_with_auth, {
         method: "GET",
         redirect: "follow",
       });
@@ -635,8 +646,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     }
   };
 
-  const wrapUrlWithAuth = (url: string) => {
-    let auth_token = currentAPIKey?.value || freshGeneratedSignature;
+  const wrapUrlWithAuth = async (url: string) => {
+    const signature = await generateSignature();
+    let auth_token = currentAPIKey?.value || signature;
     if (!auth_token) {
       throw new Error("No auth token found");
     }
@@ -658,7 +670,6 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     return null;
   }
 
-  console.log(`fileContentError`, fileContentError);
   if (file.id && fileContentError) {
     return (
       <DirectoryGuard
@@ -775,7 +786,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             <Button
               type={
                 file.name.endsWith(".officex-spreadsheet") ||
-                file.name.endsWith(".officex-document")
+                file.name.endsWith(".officex-document") ||
+                file.name.endsWith(".officex-sheet") ||
+                file.name.endsWith(".officex-doc")
                   ? "default"
                   : "primary"
               }
@@ -903,9 +916,23 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               <Button type="primary">Open Spreadsheet</Button>
             </Link>
           )}
+          {fileType === "officex-sheet" && (
+            <Link
+              to={`${wrapOrgCode(`/drive/${file.disk_type}/${file.disk_id}/${file.parent_folder_uuid}/${file.id}/apps/spreadsheets${redeemParam ? `?redeem=${redeemParam}` : ""}`)}`}
+            >
+              <Button type="primary">Open Spreadsheet</Button>
+            </Link>
+          )}
           {fileType === "officex-document" && (
             <Link
               to={`${wrapOrgCode(`/drive/${file.disk_type}/${file.disk_id}/${file.parent_folder_uuid}/${file.id}/apps/docs${redeemParam ? `?redeem=${redeemParam}` : ""}`)}`}
+            >
+              <Button type="primary">Open Document</Button>
+            </Link>
+          )}
+          {fileType === "officex-doc" && (
+            <Link
+              to={`${wrapOrgCode(`/drive/${file.disk_type}/${file.disk_id}/${file.parent_folder_uuid}/${file.id}/apps/documents${redeemParam ? `?redeem=${redeemParam}` : ""}`)}`}
             >
               <Button type="primary">Open Document</Button>
             </Link>

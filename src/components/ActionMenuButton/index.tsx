@@ -248,7 +248,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       label: (
         <Link
           to={wrapOrgCode(
-            `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/docs`
+            `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/documents`
           )}
         >
           <div
@@ -282,7 +282,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       label: (
         <Link
           to={wrapOrgCode(
-            `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/sheets`
+            `/drive/${uploadTargetDiskType}/${uploadTargetDisk?.id}/${uploadTargetFolderID}/new/apps/spreadsheets`
           )}
         >
           <div

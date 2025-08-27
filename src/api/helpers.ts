@@ -36,6 +36,8 @@ export const getFileType = (
   | "pdf"
   | "officex-spreadsheet"
   | "officex-document"
+  | "officex-sheet"
+  | "officex-doc"
   | "other" => {
   const extension = filename.split(".").pop()?.toLowerCase();
 
@@ -64,6 +66,10 @@ export const getFileType = (
       return "officex-spreadsheet";
     case "officex-document":
       return "officex-document";
+    case "officex-sheet":
+      return "officex-sheet";
+    case "officex-doc":
+      return "officex-doc";
     default:
       return "other";
   }

@@ -607,7 +607,8 @@ const ChatWithAI = () => {
   async function getPresignedUrl(initialUrl: string) {
     try {
       // Make a GET request to follow redirects without downloading content
-      const response = await fetch(wrapUrlWithAuth(initialUrl), {
+      const url_with_auth = wrapUrlWithAuth(initialUrl);
+      const response = await fetch(url_with_auth, {
         method: "GET",
         redirect: "follow",
       });

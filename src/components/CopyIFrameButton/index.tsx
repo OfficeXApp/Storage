@@ -25,8 +25,8 @@ const anonHtml = `<div class="iframe-container">
 
     iframeElement.onload = () => {
       const ephemeralConfig = {
-        optional_org_entropy: "____",
-        optional_profile_entropy: "____",
+        org_entropy: "____",
+        profile_entropy: "____",
         org_name: "Offline Org",
         profile_name: "Anon",
       };
@@ -35,7 +35,7 @@ const anonHtml = `<div class="iframe-container">
 
       iframeElement.contentWindow.postMessage(
         {
-          type: "officex-init",
+          type: "OFFICEX_INIT",
           data: initData,
           tracer: "my-tracer",
         },

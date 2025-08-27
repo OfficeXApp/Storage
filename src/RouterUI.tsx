@@ -119,11 +119,14 @@ import {
   ENABLE_APPSTORE,
   isAIChatEnabled,
   ENABLE_WALLET,
+  LOCALSTORAGE_IS_AI_CHAT_ENABLED,
 } from "./framework/flags/feature-flags";
 import PurchasePage from "./pages/PurchasesPage/purchases.page";
 import PrettyUrlShortener from "./components/PrettyUrlShortener";
 import WelcomeAutoSpawn from "./components/WelcomeAutoSpawn";
 import { CONFIG } from "./config";
+import DSpreadsheetEditor from "./apps/DSpreadsheetEditor";
+import DDocumentEditor from "./apps/DDocumentEditor";
 
 const { Sider, Content } = Layout;
 
@@ -521,7 +524,7 @@ const RouterUI = () => {
         path="/docs"
         element={
           <Navigate
-            to={`/org/current/drive/${DiskTypeEnum.BrowserCache}/${defaultBrowserCacheDiskID}/${defaultBrowserCacheRootFolderID}/new/apps/docs`}
+            to={`/org/current/drive/${DiskTypeEnum.BrowserCache}/${defaultBrowserCacheDiskID}/${defaultBrowserCacheRootFolderID}/new/apps/documents`}
           />
         }
       />
@@ -533,13 +536,21 @@ const RouterUI = () => {
         path="/sheets"
         element={
           <Navigate
-            to={`/org/current/drive/${DiskTypeEnum.BrowserCache}/${defaultBrowserCacheDiskID}/${defaultBrowserCacheRootFolderID}/new/apps/sheets`}
+            to={`/org/current/drive/${DiskTypeEnum.BrowserCache}/${defaultBrowserCacheDiskID}/${defaultBrowserCacheRootFolderID}/new/apps/spreadsheets`}
           />
         }
       />
       <Route
         path="/org/:orgcode/drive/:diskTypeEnum/:diskID/:parentFolderID/:fileID/apps/sheets"
         element={<SpreadsheetEditor />}
+      />
+      <Route
+        path="/org/:orgcode/drive/:diskTypeEnum/:diskID/:parentFolderID/:fileID/apps/spreadsheets"
+        element={<DSpreadsheetEditor />}
+      />
+      <Route
+        path="/org/:orgcode/drive/:diskTypeEnum/:diskID/:parentFolderID/:fileID/apps/documents"
+        element={<DDocumentEditor />}
       />
 
       <Route
@@ -744,9 +755,11 @@ const RouterUI = () => {
                         element={
                           <Navigate
                             to={
-                              currentOrg && currentOrg.host
-                                ? `/org/current/drive/`
-                                : `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/`
+                              isAIChatEnabled()
+                                ? "/org/current/chat"
+                                : currentOrg && currentOrg.host
+                                  ? `/org/current/drive/`
+                                  : `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/`
                             }
                           />
                         }

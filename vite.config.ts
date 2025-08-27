@@ -95,4 +95,7 @@ export default defineConfig({
 
     sourcemap: true,
   },
+  server: {
+    port: 7777,
+  },
 });

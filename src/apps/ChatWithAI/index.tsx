@@ -1048,7 +1048,7 @@ const ChatWithAI = () => {
               }
         }
       />
-      {isGpuAvail && (
+      {isGpuAvail && currentOrg?.host && (
         <div
           style={{
             position: "absolute",

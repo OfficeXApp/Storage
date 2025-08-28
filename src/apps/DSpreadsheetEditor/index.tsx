@@ -157,8 +157,6 @@ const DSpreadsheetEditor = () => {
       state.directory.fileMap[fileID === "new" ? emptyFile.id : fileID || ""]
   );
 
-  console.log(`fileFromRedux`, fileFromRedux);
-
   const file = fileFromRedux || redeemData?.original || emptyFile;
 
   const [currentFileName, setCurrentFileName] = useState(
@@ -1274,7 +1272,7 @@ const DSpreadsheetEditor = () => {
           ref={iframeRef} // Attach the ref here
           src={DSHEETS_ENDPOINT}
           allow="clipboard-read; clipboard-write"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-downloads"
           style={{
             width: "100%",
             height: screenType.isMobile ? "85vh" : "87vh",

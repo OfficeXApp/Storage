@@ -11,6 +11,7 @@ import { generate } from "random-words"; // Import random-words library
 import { useIdentitySystem } from "../../framework/identity"; // Import corrected useIdentity hook
 import SwitchProfile from "../SwitchProfile";
 import { checkGPUAvailablity } from "../../api/webllm";
+import RegionPicker from "../RegionPicker";
 
 interface HeaderProps {
   onSearch?: (value: string) => void;
@@ -94,6 +95,7 @@ const SearchHeader: React.FC<HeaderProps> = ({ setSidebarVisible }) => {
 
       <div style={{ display: "flex", alignItems: "center" }}>
         {/* <WalletOutlined color="rgba(165, 165, 165, 0.4)" /> */}
+        <RegionPicker />
         <SwitchProfile showAvatar />
       </div>
     </div>

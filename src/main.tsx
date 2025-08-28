@@ -19,6 +19,9 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { IFrameProvider } from "./framework/iframe/index.tsx";
 import { CONFIG } from "./config.ts";
 import * as Sentry from "@sentry/react";
+import { LingoProviderWrapper, loadDictionary } from "lingo.dev/react/client";
+
+import en_US from "antd/locale/en_US";
 
 dayjs.extend(relativeTime);
 
@@ -64,28 +67,33 @@ registerServiceWorker({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Sentry.ErrorBoundary fallback={<p>An error has occurred</p>}>
-      <AntDesignConfigProvider
-        theme={{
-          token: {
-            colorPrimary: CONFIG.WHITELABEL_THEME_COLOR,
-          },
-        }}
-      >
-        <BrowserRouter>
-          <IdentitySystemProvider>
-            <ReduxOfflineProvider>
-              <DriveProvider onUploadComplete={(fileUUID) => null}>
-                <MultiUploaderProvider>
-                  <IFrameProvider>
-                    <App />
-                  </IFrameProvider>
-                </MultiUploaderProvider>
-              </DriveProvider>
-            </ReduxOfflineProvider>
-          </IdentitySystemProvider>
-        </BrowserRouter>
-      </AntDesignConfigProvider>
-    </Sentry.ErrorBoundary>
+    <LingoProviderWrapper
+      loadDictionary={(locale: any) => loadDictionary(locale)}
+    >
+      <Sentry.ErrorBoundary fallback={<p>An error has occurred</p>}>
+        <AntDesignConfigProvider
+          locale={en_US}
+          theme={{
+            token: {
+              colorPrimary: CONFIG.WHITELABEL_THEME_COLOR,
+            },
+          }}
+        >
+          <BrowserRouter>
+            <IdentitySystemProvider>
+              <ReduxOfflineProvider>
+                <DriveProvider onUploadComplete={(fileUUID) => null}>
+                  <MultiUploaderProvider>
+                    <IFrameProvider>
+                      <App />
+                    </IFrameProvider>
+                  </MultiUploaderProvider>
+                </DriveProvider>
+              </ReduxOfflineProvider>
+            </IdentitySystemProvider>
+          </BrowserRouter>
+        </AntDesignConfigProvider>
+      </Sentry.ErrorBoundary>
+    </LingoProviderWrapper>
   </React.StrictMode>
 );

@@ -87,6 +87,10 @@ import {
   LOCAL_CHAT_ENDPOINT,
 } from "../../framework/identity/constants";
 import { checkGPUAvailablity } from "../../api/webllm";
+import {
+  isAIChatRemoteDefault,
+  setAIChatRemoteDefault,
+} from "../../framework/flags/feature-flags";
 
 const { Text } = Typography;
 
@@ -179,6 +183,11 @@ const ChatWithAI = () => {
         setSelectedChatEndpoint(LOCAL_CHAT_ENDPOINT);
       } else {
         setSelectedChatEndpoint(AI_CHAT_ENDPOINT);
+      }
+      if (isAIChatRemoteDefault()) {
+        setSelectedChatEndpoint(AI_CHAT_ENDPOINT);
+      } else {
+        setSelectedChatEndpoint(LOCAL_CHAT_ENDPOINT);
       }
     };
     run();
@@ -1065,6 +1074,11 @@ const ChatWithAI = () => {
           <Switch
             checked={selectedChatEndpoint === AI_CHAT_ENDPOINT}
             onChange={() => {
+              if (selectedChatEndpoint === AI_CHAT_ENDPOINT) {
+                setAIChatRemoteDefault(false);
+              } else {
+                setAIChatRemoteDefault(true);
+              }
               setSelectedChatEndpoint(
                 selectedChatEndpoint === AI_CHAT_ENDPOINT
                   ? LOCAL_CHAT_ENDPOINT

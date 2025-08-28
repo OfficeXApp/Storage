@@ -4,6 +4,7 @@ export const ENABLE_WALLET = false;
 export const LOCALSTORAGE_IS_AI_CHAT_ENABLED =
   "LOCALSTORAGE_IS_AI_CHAT_ENABLED";
 export const isAIChatEnabled = () => {
+  return true;
   // check if localstorage
   const enableChatWithAI = localStorage.getItem(
     LOCALSTORAGE_IS_AI_CHAT_ENABLED

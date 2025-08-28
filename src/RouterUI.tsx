@@ -650,6 +650,15 @@ const RouterUI = () => {
                         >
                           <ConnectICPButton />
 
+                          {!currentOrg?.host && (
+                            <Link
+                              to="/org/current/chat"
+                              style={{ width: "100%" }}
+                            >
+                              <Button block>Chat</Button>
+                            </Link>
+                          )}
+
                           {currentOrg && currentOrg.host && (
                             <ActionMenuButton
                               isBigButton={true}

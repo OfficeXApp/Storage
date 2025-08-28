@@ -1271,7 +1271,7 @@ const DDocumentEditor = () => {
           ref={iframeRef} // Attach the ref here
           src={DDOCS_ENDPOINT}
           allow="clipboard-read; clipboard-write"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"
           style={{
             width: "100%",
             height: screenType.isMobile ? "85vh" : "87vh",

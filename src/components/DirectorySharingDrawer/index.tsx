@@ -939,6 +939,11 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
     }
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(<span>Copied to clipboard</span>);
+  };
+
   return (
     <Drawer
       title="Share Directory"
@@ -972,8 +977,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
             uploadTargetDiskID === defaultBrowserCacheDiskID && (
               <div
                 onClick={() => {
-                  navigator.clipboard.writeText(onTheFlyShareUrl);
-                  toast.success(<span>Share URL copied to clipboard</span>);
+                  copyToClipboard(onTheFlyShareUrl);
                 }}
                 style={{ color: "gray", cursor: "pointer" }}
               >
@@ -990,8 +994,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                 type="primary"
                 icon={<CopyOutlined />}
                 onClick={() => {
-                  navigator.clipboard.writeText(shortlinkUrl);
-                  toast.success(<span>Share URL copied to clipboard</span>);
+                  copyToClipboard(shortlinkUrl);
                 }}
                 size="large"
                 style={{ marginLeft: 8 }}
@@ -1036,8 +1039,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                 type="primary"
                 icon={<CopyOutlined />}
                 onClick={() => {
-                  navigator.clipboard.writeText(shareUrl);
-                  toast.success(<span>Share URL copied to clipboard</span>);
+                  copyToClipboard(shareUrl);
                 }}
                 size="large"
                 style={{ marginLeft: 8 }}

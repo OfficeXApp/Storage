@@ -44,6 +44,7 @@ import {
   VendorOffer,
 } from "@officexapp/types";
 import mixpanel from "mixpanel-browser";
+import { fromLocale } from "../../locales";
 
 const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
@@ -190,7 +191,7 @@ const AppPage = () => {
           Back to Appstore
         </Button>
         <Input.Search
-          placeholder={`Search ${app.name} Offers...`}
+          placeholder={fromLocale().appstore.input_placeholders.search_offers}
           allowClear
           enterButton={<SearchOutlined />}
           size="middle"

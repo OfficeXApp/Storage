@@ -40,6 +40,7 @@ import {
 } from "@ant-design/icons";
 import TagCopy from "../../components/TagCopy";
 import { shortenAddress } from "../../framework/identity/constants";
+import { fromLocale } from "../../locales";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -315,7 +316,8 @@ const RedeemDirectoryPermitPage = () => {
                       );
                       if (profile) {
                         const nickname = (
-                          profile.nickname || "Anon"
+                          profile.nickname ||
+                          fromLocale().default_orgs.anon_org.profile_name
                         ).toLowerCase();
                         const icpAddress =
                           profile.icpPublicAddress.toLowerCase();
@@ -342,7 +344,10 @@ const RedeemDirectoryPermitPage = () => {
                         >
                           <Space>
                             <UserOutlined />
-                            <span>{profile.nickname || "Anon"}</span>
+                            <span>
+                              {profile.nickname ||
+                                fromLocale().default_orgs.anon_org.profile_name}
+                            </span>
                           </Space>
                           <Tag>{shortenAddress(profile.icpPublicAddress)}</Tag>
                         </Space>
@@ -354,7 +359,8 @@ const RedeemDirectoryPermitPage = () => {
                         key={profile.userID}
                         value={profile.userID}
                       >
-                        {profile.nickname || "Anon"}{" "}
+                        {profile.nickname ||
+                          fromLocale().default_orgs.anon_org.profile_name}{" "}
                         <Tag>{shortenAddress(profile.icpPublicAddress)}</Tag>
                       </Select.Option>
                     ))}

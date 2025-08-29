@@ -807,7 +807,7 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
   function renderResourceSelection() {
     return (
       <>
-        <Form.Item label="Resource Type">
+        <Form.Item label={<span>Resource Type</span>}>
           <Radio.Group onChange={handleResourceTypeChange} value={resourceType}>
             <Radio value="table">Table Resource</Radio>
             <Radio value="record">Record Resource</Radio>

@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
 import { BundleDefaultDisk, DiskTypeEnum } from "@officexapp/types";
 import { v4 as uuidv4 } from "uuid";
+import { fromLocale } from "../../locales";
 
 const { Text } = Typography;
 
@@ -49,7 +50,7 @@ const WelcomeAutoSpawn = () => {
     adminProfile: AuthProfile,
     selectedFactoryEndpoint: GiftCardOption
   ) => {
-    const orgName = "Anonymous Org";
+    const orgName = fromLocale().default_orgs.anon_org.org_name;
     const profile = listOfProfiles.find(
       (profile) => profile.userID === adminProfile.userID
     );

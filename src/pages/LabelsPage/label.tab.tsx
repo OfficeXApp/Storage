@@ -189,7 +189,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -379,7 +379,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="value"
-                  label="Label Name"
+                  label={<span>Label Name</span>}
                   rules={[
                     { required: true, message: "Please enter label name" },
                   ]}
@@ -391,7 +391,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="description" label="Description">
+                <Form.Item name="description" label={<span>Description</span>}>
                   <TextArea
                     rows={3}
                     placeholder="Description of this label"
@@ -400,11 +400,11 @@ const LabelTab: React.FC<LabelTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="color" label="Color">
+                <Form.Item name="color" label={<span>Color</span>}>
                   <ColorPicker />
                 </Form.Item>
 
-                <Form.Item name="external_id" label="External ID">
+                <Form.Item name="external_id" label={<span>External ID</span>}>
                   <Input
                     placeholder="External system identifier"
                     variant="borderless"
@@ -412,7 +412,10 @@ const LabelTab: React.FC<LabelTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="external_payload" label="External Payload">
+                <Form.Item
+                  name="external_payload"
+                  label={<span>External Payload</span>}
+                >
                   <TextArea
                     rows={2}
                     placeholder="Additional data for external systems"
@@ -589,13 +592,13 @@ const LabelTab: React.FC<LabelTabProps> = ({
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Label ID",
+                          <span>Label ID</span>,
                           label.id,
                           <TagOutlined />
                         )}
 
                         {renderReadOnlyField(
-                          "Color",
+                          <span>Color</span>,
                           label.color || "",
                           <div
                             style={{
@@ -609,14 +612,14 @@ const LabelTab: React.FC<LabelTabProps> = ({
 
                         {label.external_id &&
                           renderReadOnlyField(
-                            "External ID",
+                            <span>External ID</span>,
                             label.external_id,
                             <InfoCircleOutlined />
                           )}
 
                         {label.external_payload &&
                           renderReadOnlyField(
-                            "Ext. Payload",
+                            <span>External Payload</span>,
                             label.external_payload,
                             <InfoCircleOutlined />
                           )}

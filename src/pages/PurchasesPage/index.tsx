@@ -196,7 +196,7 @@ const PurchasesPage: React.FC = () => {
       }}
     >
       <Helmet>
-        <title>Purchase History - OfficeX</title>
+        <title>Purchase History</title>
       </Helmet>
       <Content
         style={{

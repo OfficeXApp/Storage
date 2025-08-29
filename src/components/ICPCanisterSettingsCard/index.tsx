@@ -460,7 +460,7 @@ const ICPCanisterSettingsCard = () => {
           </Text>
           <div style={{ marginTop: 16 }}>
             <Form layout="vertical">
-              <Form.Item label="Gift Card ID">
+              <Form.Item label={<span>Gift Card ID</span>}>
                 <Input
                   value={giftCardId}
                   onChange={(e) => setGiftCardId(e.target.value)}

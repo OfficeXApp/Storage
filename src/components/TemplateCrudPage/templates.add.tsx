@@ -59,7 +59,7 @@ const TemplatesAddDrawer: React.FC<TemplatesAddDrawerProps> = ({
       }
     >
       <Form layout="vertical">
-        <Form.Item label="Name" required>
+        <Form.Item label={<span>Name</span>} required>
           <Input
             prefix={<UserOutlined />}
             placeholder="Enter name"

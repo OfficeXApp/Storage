@@ -185,7 +185,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -456,7 +456,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="name"
-                  label="Name"
+                  label={<span>Name</span>}
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
@@ -468,7 +468,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
                 <Form.Item
                   name="disk_type"
-                  label="Disk Type"
+                  label={<span>Disk Type</span>}
                   rules={[
                     { required: true, message: "Please select disk type" },
                   ]}
@@ -492,7 +492,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                   </Select>
                 </Form.Item>
 
-                <Form.Item name="public_note" label="Public Note">
+                <Form.Item name="public_note" label={<span>Public Note</span>}>
                   <TextArea
                     rows={6}
                     placeholder="Public information about this disk"
@@ -505,7 +505,10 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                   SystemPermissionType.EDIT
                 ) && (
                   <>
-                    <Form.Item name="endpoint" label="Endpoint URL">
+                    <Form.Item
+                      name="endpoint"
+                      label={<span>Endpoint URL</span>}
+                    >
                       <Input
                         prefix={<GlobalOutlined />}
                         placeholder="URL for disk billing and info"
@@ -515,8 +518,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                     </Form.Item>
                     <Form.Item
                       name="private_note"
-                      label="Private Note"
-                      extra="Only organization owners and editors can view this note"
+                      label={<span>Private Note</span>}
+                      extra={
+                        <span>
+                          Only organization owners and editors can view this note
+                        </span>
+                      }
                     >
                       <TextArea
                         rows={6}
@@ -529,8 +536,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                     {disk.disk_type !== DiskTypeEnum.BrowserCache && (
                       <Form.Item
                         name="auth_json"
-                        label="Authentication JSON"
-                        extra="Authentication information for cloud storage"
+                        label={<span>Authentication JSON</span>}
+                        extra={
+                          <span>
+                            Authentication information for cloud storage
+                          </span>
+                        }
                       >
                         <TextArea
                           rows={4}
@@ -541,7 +552,10 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                       </Form.Item>
                     )}
 
-                    <Form.Item name="external_id" label="External ID">
+                    <Form.Item
+                      name="external_id"
+                      label={<span>External ID</span>}
+                    >
                       <Input
                         placeholder="External identifier"
                         variant="borderless"
@@ -549,7 +563,10 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                       />
                     </Form.Item>
 
-                    <Form.Item name="external_payload" label="External Payload">
+                    <Form.Item
+                      name="external_payload"
+                      label={<span>External Payload</span>}
+                    >
                       <TextArea
                         rows={2}
                         placeholder="Additional data for external systems"
@@ -778,7 +795,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Disk ID",
+                          <span>Disk ID</span>,
                           disk.id,
                           <DatabaseOutlined />
                         )}
@@ -788,14 +805,14 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                             SystemPermissionType.EDIT
                           ) &&
                           renderReadOnlyField(
-                            "Auth JSON",
+                            <span>Auth JSON</span>,
                             disk.auth_json,
                             <KeyOutlined />
                           )}
 
                         {disk.billing_url &&
                           renderReadOnlyField(
-                            "Billing",
+                            <span>Billing</span>,
                             disk.billing_url,
                             <GlobalOutlined />
                           )}

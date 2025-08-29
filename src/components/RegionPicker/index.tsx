@@ -8,6 +8,7 @@ import {
   setLingoLocale,
 } from "lingo.dev/react-client";
 import toast from "react-hot-toast";
+import { setLingoLocaleCookie } from "../../locales";
 
 const { Option } = Select;
 
@@ -64,6 +65,7 @@ const RegionPicker = () => {
     );
     setTimeout(() => {
       setLingoLocale(value);
+      setLingoLocaleCookie(value);
       setIsModalVisible(false);
     }, 1000);
   };

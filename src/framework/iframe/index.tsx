@@ -50,6 +50,7 @@ import {
 } from "../../redux-offline/directory/directory.actions";
 import { useMultiUploader } from "../uploader/hook";
 import { generateDeterministicMnemonic } from "../../api/icp";
+import { fromLocale } from "../../locales";
 
 interface InitData {
   ephemeral?: IFrameEphemeralConfig;
@@ -349,7 +350,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("No existing organization found, creating new one...");
           targetOrg = await createOrganization({
             driveID: orgDriveID,
-            nickname: `${ephemeralConfig.org_name || "Anonymous Org"} | ${domain}`,
+            nickname: `${ephemeralConfig.org_name || fromLocale().default_orgs.anon_org.org_name} | ${domain}`,
             icpPublicAddress: orgIdentityProfile.icpPublicAddress,
             host: "",
             note: `Created via iframe from ${domain}`,
@@ -365,7 +366,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("Found existing profile:", targetProfile.userID);
         } else {
           console.log("No existing profile found, creating new one...");
-          derivedProfile.nickname = `${ephemeralConfig.profile_name || "Anon"} | ${domain}`;
+          derivedProfile.nickname = `${ephemeralConfig.profile_name || fromLocale().default_orgs.anon_org.profile_name} | ${domain}`;
           derivedProfile.note = `Created via iframe from ${domain}`;
           targetProfile = await createProfile(derivedProfile);
           toast.success(<span>New profile for {domain} created.</span>);
@@ -379,8 +380,8 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           domain,
           orgID: targetOrg.driveID,
           profileID: targetProfile.userID,
-          org_name: `${ephemeralConfig.org_name || "Anonymous Org"} | ${domain}`,
-          profile_name: `${ephemeralConfig.profile_name || "Anon"} | ${domain}`,
+          org_name: `${ephemeralConfig.org_name || fromLocale().default_orgs.anon_org.org_name} | ${domain}`,
+          profile_name: `${ephemeralConfig.profile_name || fromLocale().default_orgs.anon_org.profile_name} | ${domain}`,
         });
 
         setIsInitialized(true);

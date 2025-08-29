@@ -182,7 +182,7 @@ const DriveTab: React.FC<DriveTabProps> = ({
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -408,7 +408,7 @@ const listDrives = async (page = 1, limit = 10) => {
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="name"
-                  label="Name"
+                  label={<span>Name</span>}
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
@@ -418,7 +418,7 @@ const listDrives = async (page = 1, limit = 10) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="host_url" label="Endpoint URL">
+                <Form.Item name="host_url" label={<span>Endpoint URL</span>}>
                   <Input
                     prefix={<GlobalOutlined />}
                     placeholder="https://example.com/endpoint"
@@ -427,7 +427,7 @@ const listDrives = async (page = 1, limit = 10) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="public_note" label="Public Note">
+                <Form.Item name="public_note" label={<span>Public Note</span>}>
                   <TextArea
                     rows={2}
                     placeholder="Public information about this drive"
@@ -441,8 +441,12 @@ const listDrives = async (page = 1, limit = 10) => {
                 ) && (
                   <Form.Item
                     name="private_note"
-                    label="Private Note"
-                    extra="Only organization owners and editors can view this note"
+                    label={<span>Private Note</span>}
+                    extra={
+                      <span>
+                        Only organization owners and editors can view this note
+                      </span>
+                    }
                   >
                     <TextArea
                       rows={3}
@@ -453,7 +457,7 @@ const listDrives = async (page = 1, limit = 10) => {
                   </Form.Item>
                 )}
 
-                <Form.Item name="external_id" label="External ID">
+                <Form.Item name="external_id" label={<span>External ID</span>}>
                   <Input
                     placeholder="External identifier"
                     variant="borderless"
@@ -461,7 +465,10 @@ const listDrives = async (page = 1, limit = 10) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="external_payload" label="External Payload">
+                <Form.Item
+                  name="external_payload"
+                  label={<span>External Payload</span>}
+                >
                   <TextArea
                     rows={2}
                     placeholder="Additional data for external systems"
@@ -698,13 +705,13 @@ const listDrives = async (page = 1, limit = 10) => {
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Drive ID",
+                          <span>Drive ID</span>,
                           drive.id,
                           <DatabaseOutlined />
                         )}
 
                         {renderReadOnlyField(
-                          "ICP Principal",
+                          <span>ICP Principal</span>,
                           drive.icp_principal,
                           <WalletOutlined />
                         )}

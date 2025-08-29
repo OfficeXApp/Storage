@@ -211,7 +211,7 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -503,7 +503,7 @@ async function listWebhooks(page = 1, limit = 10) {
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="url"
-                  label="Endpoint URL"
+                  label={<span>Endpoint URL</span>}
                   rules={[
                     { required: true, message: "Please enter webhook URL" },
                     {
@@ -520,7 +520,7 @@ async function listWebhooks(page = 1, limit = 10) {
                   />
                 </Form.Item>
 
-                <Form.Item name="name" label="Name">
+                <Form.Item name="name" label={<span>Name</span>}>
                   <Input
                     prefix={<InfoCircleOutlined />}
                     placeholder="Name"
@@ -529,7 +529,7 @@ async function listWebhooks(page = 1, limit = 10) {
                   />
                 </Form.Item>
 
-                <Form.Item name="description" label="Description">
+                <Form.Item name="description" label={<span>Description</span>}>
                   <Input
                     prefix={<InfoCircleOutlined />}
                     placeholder="Description"
@@ -538,12 +538,16 @@ async function listWebhooks(page = 1, limit = 10) {
                   />
                 </Form.Item>
 
-                <Form.Item name="active" label="Active" valuePropName="checked">
+                <Form.Item
+                  name="active"
+                  label={<span>Active</span>}
+                  valuePropName="checked"
+                >
                   <Switch />
                 </Form.Item>
 
                 {/* Additional fields for advanced section */}
-                <Form.Item name="signature" label="Signature">
+                <Form.Item name="signature" label={<span>Signature</span>}>
                   <Input
                     prefix={<ApiOutlined />}
                     placeholder="Webhook signature"
@@ -552,7 +556,7 @@ async function listWebhooks(page = 1, limit = 10) {
                   />
                 </Form.Item>
 
-                <Form.Item name="filters" label="Filters">
+                <Form.Item name="filters" label={<span>Filters</span>}>
                   <TextArea
                     rows={2}
                     placeholder='{"key": "value"}'
@@ -562,7 +566,7 @@ async function listWebhooks(page = 1, limit = 10) {
                   />
                 </Form.Item>
 
-                <Form.Item name="external_id" label="External ID">
+                <Form.Item name="external_id" label={<span>External ID</span>}>
                   <Input
                     placeholder="External identifier"
                     variant="borderless"
@@ -570,7 +574,10 @@ async function listWebhooks(page = 1, limit = 10) {
                   />
                 </Form.Item>
 
-                <Form.Item name="external_payload" label="External Payload">
+                <Form.Item
+                  name="external_payload"
+                  label={<span>External Payload</span>}
+                >
                   <TextArea
                     rows={2}
                     placeholder='{"key": "value"}'
@@ -800,41 +807,41 @@ async function listWebhooks(page = 1, limit = 10) {
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Resource",
+                          <span>Resource</span>,
                           webhook.alt_index,
                           <AimOutlined />,
                           determineLinkForResource(webhook.alt_index)
                         )}
 
                         {renderReadOnlyField(
-                          "Full URL",
+                          <span>Full URL</span>,
                           webhook.url,
                           <LinkOutlined />
                         )}
 
                         {renderReadOnlyField(
-                          "Webhook ID",
+                          <span>Webhook ID</span>,
                           webhook.id,
                           <CodeOutlined />
                         )}
 
                         {webhook.signature &&
                           renderReadOnlyField(
-                            "Signature",
+                            <span>Signature</span>,
                             webhook.signature,
                             <ApiOutlined />
                           )}
 
                         {webhook.filters &&
                           renderReadOnlyField(
-                            "Filters",
+                            <span>Filters</span>,
                             webhook.filters,
                             <FileTextOutlined />
                           )}
 
                         {webhook.external_id &&
                           renderReadOnlyField(
-                            "External ID",
+                            <span>External ID</span>,
                             webhook.external_id,
                             <CodeOutlined />
                           )}

@@ -188,7 +188,7 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -495,7 +495,7 @@ const data = await response.json();`;
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="name"
-                  label="Name"
+                  label={<span>Name</span>}
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
@@ -505,7 +505,7 @@ const data = await response.json();`;
                   />
                 </Form.Item>
 
-                <Form.Item name="is_revoked" label="Status">
+                <Form.Item name="is_revoked" label={<span>Status</span>}>
                   <Switch
                     checked={!form.getFieldValue("is_revoked")}
                     onChange={(checked) => {
@@ -516,7 +516,7 @@ const data = await response.json();`;
                   />
                 </Form.Item>
 
-                <Form.Item label="Expiration">
+                <Form.Item label={<span>Expiration</span>}>
                   <div
                     style={{
                       display: "flex",
@@ -567,7 +567,10 @@ const data = await response.json();`;
                     </summary>
 
                     <div style={{ padding: "12px 0" }}>
-                      <Form.Item name="external_id" label="External ID">
+                      <Form.Item
+                        name="external_id"
+                        label={<span>External ID</span>}
+                      >
                         <Input
                           prefix={<GlobalOutlined />}
                           placeholder="External identifier"
@@ -578,7 +581,7 @@ const data = await response.json();`;
 
                       <Form.Item
                         name="external_payload"
-                        label="External Payload"
+                        label={<span>External Payload</span>}
                       >
                         <TextArea
                           rows={3}
@@ -816,14 +819,14 @@ const data = await response.json();`;
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "API Key ID",
+                          <span>API Key ID</span>,
                           apiKey.id,
                           <KeyOutlined />
                         )}
 
                         {apiKey.user_id &&
                           renderReadOnlyField(
-                            "User ID",
+                            <span>User ID</span>,
                             apiKey.user_id,
                             <UserOutlined />,
                             wrapOrgCode(`/resources/contacts/${apiKey.user_id}`)
@@ -831,7 +834,7 @@ const data = await response.json();`;
 
                         {apiKey.external_id &&
                           renderReadOnlyField(
-                            "External ID",
+                            <span>External ID</span>,
                             apiKey.external_id,
                             <GlobalOutlined />
                           )}

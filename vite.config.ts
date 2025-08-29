@@ -19,7 +19,8 @@ export default defineConfig(() =>
       ? [
           // Common languages from your original list
           "es",
-          "zh",
+          "zh-Hans-CN",
+          "zh-Hant-TW",
           "vi",
           "de",
           "ja",
@@ -148,7 +149,7 @@ export default defineConfig(() =>
           // "kn",
           // "ml",
         ]
-      : ["ar", "zh"],
+      : ["zh-Hans-CN"],
     models: {
       "*:*": "google:gemini-2.5-flash",
     },

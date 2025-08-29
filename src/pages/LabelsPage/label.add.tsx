@@ -105,7 +105,7 @@ const LabelsAddDrawer: React.FC<LabelsAddDrawerProps> = ({
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item
-          label="Label"
+          label={<span>Label</span>}
           name="value"
           rules={[
             { required: true, message: "Please enter a label text" },
@@ -139,22 +139,29 @@ const LabelsAddDrawer: React.FC<LabelsAddDrawerProps> = ({
           </summary>
 
           <div style={{ padding: "8px 0" }}>
-            <Form.Item label="Description" name="description">
+            <Form.Item label={<span>Description</span>} name="description">
               <Input.TextArea
                 rows={3}
                 placeholder="Enter description (optional)"
               />
             </Form.Item>
 
-            <Form.Item label="Color" name="color" initialValue="#1890ff">
+            <Form.Item
+              label={<span>Color</span>}
+              name="color"
+              initialValue="#1890ff"
+            >
               <ColorPicker />
             </Form.Item>
 
-            <Form.Item label="External ID" name="external_id">
+            <Form.Item label={<span>External ID</span>} name="external_id">
               <Input placeholder="External system identifier" />
             </Form.Item>
 
-            <Form.Item label="External Payload" name="external_payload">
+            <Form.Item
+              label={<span>External Payload</span>}
+              name="external_payload"
+            >
               <Input.TextArea
                 rows={2}
                 placeholder="Additional data for external systems"

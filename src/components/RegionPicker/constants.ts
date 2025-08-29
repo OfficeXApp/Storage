@@ -36,13 +36,13 @@ export const language_dropdown_options = [
   // Chinese Variants
   {
     id: "zh-Hans-CN",
-    code: "zh",
+    code: "zh-Hans-CN",
     title: "🇨🇳 简体中文 (中国大陆)",
     hint: "Chinese Simplified",
   },
   {
-    id: "zh-Hant-HK",
-    code: "zh",
+    id: "zh-Hant-TW",
+    code: "zh-Hant-TW",
     title: "🇭🇰 繁體中文 (香港)",
     hint: "Chinese Traditional",
   },

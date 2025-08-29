@@ -37,6 +37,7 @@ import { DiskTypeEnum } from "@officexapp/types";
 import { useNavigate } from "react-router-dom";
 import { listDisksAction } from "../../redux-offline/disks/disks.actions";
 import { useDispatch } from "react-redux";
+import { fromLocale } from "../../locales";
 
 const { Text, Title } = Typography;
 
@@ -67,6 +68,10 @@ const ConnectICPButton = () => {
   const [filteredGiftCardOptions, setFilteredGiftCardOptions] = useState(
     initialGiftCardOptions
   );
+
+  useEffect(() => {
+    setOrgName(fromLocale().default_orgs.anon_org.org_name);
+  }, []);
 
   // Set default selected profile when profiles list changes
   useEffect(() => {
@@ -111,7 +116,10 @@ const ConnectICPButton = () => {
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
           <Space>
             <UserOutlined />
-            <span>{profile.nickname || "Anon"}</span>
+            <span>
+              {profile.nickname ||
+                fromLocale().default_orgs.anon_org.profile_name}
+            </span>
           </Space>
           <span style={{ color: "#8c8c8c" }}>
             {shortenAddress(profile.icpPublicAddress)}

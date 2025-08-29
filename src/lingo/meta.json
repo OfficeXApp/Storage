@@ -430,6 +430,198 @@
           "skip": false,
           "overrides": {},
           "content": "Chat | OfficeX"
+        },
+        "31/0/init/body/39/expression/0/body/0/0/init/body/2/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d45f0c2223bfaba75ed48d7c7eda6c84",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid resource access link"
+        },
+        "31/0/init/body/40/expression/0/body/0/0/init/body/2/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d45f0c2223bfaba75ed48d7c7eda6c84",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid resource access link"
+        },
+        "31/0/init/body/53/0/init/body/2/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
+        },
+        "31/0/init/body/53/0/init/body/4/block/2/expression/0": {
+          "type": "element",
+          "hash": "25bf0ad539389118d7bd1ca726502cfc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File renamed successfully"
+        },
+        "31/0/init/body/53/0/init/body/4/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "8735303a20bec46786b7aa4f77a57361",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename file"
+        },
+        "31/0/init/body/54/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "962bccd00d917d96263f7d7f4a0ab38b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No file or content to save"
+        },
+        "31/0/init/body/54/0/init/body/2/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
+        },
+        "31/0/init/body/54/0/init/body/3/block/5/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7b9f4dfacccf1ecc8521f01134fa6d1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No disk ID available for saving"
+        },
+        "31/0/init/body/54/0/init/body/3/block/7/expression/0": {
+          "type": "element",
+          "hash": "e7c7572ee0076db2294e011a1302193a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Saving file, please wait..."
+        },
+        "31/0/init/body/54/0/init/body/3/block/9/expression/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "d6c21aaa8e6f5d717614a5825683be9c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File {_currentFileName} saved successfully"
+        },
+        "31/0/init/body/54/0/init/body/3/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "b5b7cd1a0f6adcf772c4b106d9e58365",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to save file"
+        },
+        "31/0/init/body/54/0/init/body/4/block/2/expression/0": {
+          "type": "element",
+          "hash": "25bf0ad539389118d7bd1ca726502cfc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File renamed successfully"
+        },
+        "31/0/init/body/54/0/init/body/4/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "8735303a20bec46786b7aa4f77a57361",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename file"
+        },
+        "31/0/init/body/55/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "962bccd00d917d96263f7d7f4a0ab38b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No file or content to save"
+        },
+        "31/0/init/body/55/0/init/body/3/block/5/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7b9f4dfacccf1ecc8521f01134fa6d1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No disk ID available for saving"
+        },
+        "31/0/init/body/55/0/init/body/3/block/7/expression/0": {
+          "type": "element",
+          "hash": "e7c7572ee0076db2294e011a1302193a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Saving file, please wait..."
+        },
+        "31/0/init/body/55/0/init/body/3/block/9/expression/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "d6c21aaa8e6f5d717614a5825683be9c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File {_currentFileName} saved successfully"
+        },
+        "31/0/init/body/55/0/init/body/3/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "b5b7cd1a0f6adcf772c4b106d9e58365",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to save file"
+        },
+        "31/0/init/body/62/argument/1/3": {
+          "type": "element",
+          "hash": "ef369a713798cf09b3d10c7562cfaa61",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat | OfficeX"
+        },
+        "31/0/init/body/63/argument/1/3": {
+          "type": "element",
+          "hash": "ef369a713798cf09b3d10c7562cfaa61",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat | OfficeX"
+        },
+        "31/0/init/body/63/argument/5/expression/right/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "e07311f23f1a81c7a2d7fd17b4d63d2b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ONLINE"
+        },
+        "31/0/init/body/63/argument/5/expression/right/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "d9e2ab937325e95ea81df5eed78d797e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "OFFLINE"
+        },
+        "31/0/init/body/63/argument/7/expression/right/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "e07311f23f1a81c7a2d7fd17b4d63d2b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ONLINE"
+        },
+        "31/0/init/body/63/argument/7/expression/right/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "d9e2ab937325e95ea81df5eed78d797e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "OFFLINE"
         }
       }
     },
@@ -1758,6 +1950,198 @@
           "skip": false,
           "overrides": {},
           "content": "${offer.price}<element:Text>{offer.price_unit}</element:Text>"
+        },
+        "15/0/init/body/15/0/init/1": {
+          "type": "element",
+          "hash": "4cae22072d34a24d3ca07294adb5d38d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Bookmarked demand represents the total potential revenue from users who have bookmarked this offer."
+        },
+        "15/0/init/body/15/0/init/3": {
+          "type": "element",
+          "hash": "d774944aafe60d41d4b05bc002ce8904",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Calculated as: # of Bookmarks × Avg. Customer Lifetime Value."
+        },
+        "15/0/init/body/16/0/init/1": {
+          "type": "element",
+          "hash": "114ce8561b23617edb43f2973f874888",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Anyone can become a vendor and start earning by fulfilling offers on our platform."
+        },
+        "15/0/init/body/16/0/init/3": {
+          "type": "element",
+          "hash": "b43053df456bb9e754fac7e49abbedd9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "It's 100% crypto payments, permissionless, and your reputation directly impacts your success!"
+        },
+        "15/0/init/body/16/0/init/5": {
+          "type": "element",
+          "hash": "5a1286e11084538b67b35c7fbd06045c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Get Started"
+        },
+        "15/0/init/body/17/argument/3/1": {
+          "type": "element",
+          "hash": "290ce0b184bc29202bb3d8b3ba5751fe",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "{app.name} - Appstore"
+        },
+        "15/0/init/body/17/argument/7/1": {
+          "type": "element",
+          "hash": "2458efea90e7216e4818177d2eae3349",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back to Appstore"
+        },
+        "15/0/init/body/17/argument/9/11/1/1": {
+          "type": "element",
+          "hash": "8881a977b86408427bbd497fa0a6c1bf",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add New Offer"
+        },
+        "15/0/init/body/17/argument/9/11/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "b96b15e4d2dda067fedc5707ed95f2ca",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Become a Vendor"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/alternate/1": {
+          "type": "element",
+          "hash": "5e1dc665ec7d1730fa98b76357f5215c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No offers or workflows found for \"{app.name}\" matching your search."
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "1d2d5ebbbed754e8137ad728c4a51787",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Bookmarks"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/3/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e982a3b82202f075ee1eab1c61254a52",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Bookmarked Demand"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9444cd36a8076a8c4ab09d1044444d41",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "What is Bookmarked Demand?"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/5/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "571fc945cae3cd34b5b5b7cc53543087",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cumulative Sales"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/3/1/1": {
+          "type": "element",
+          "hash": "c8a428231054705fc8c420f2f4f4faaf",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Bookmark"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/1/expression/alternate": {
+          "type": "element",
+          "hash": "f9463173d44877ca1c102e8fe1803b31",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No vendors currently fulfilling this offer."
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/1/expression/consequent/3/expression/0/body/1/1/3/3/1/3": {
+          "type": "element",
+          "hash": "1256b46135698644305a3a5f8e044805",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Price: {vendor.price_line}"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/1/expression/consequent/3/expression/0/body/1/1/3/3/1/5/1": {
+          "type": "element",
+          "hash": "f81ede6a86566387ea95cecf131d84bd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "{vendor.reviews_score} Reviews"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/1/expression/consequent/3/expression/0/body/1/1/3/3/1/5/3": {
+          "type": "element",
+          "hash": "9f942b329649e8095b69e09a3e68fae0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Uptime: {vendor.uptime_score}%"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/5/1/1": {
+          "type": "element",
+          "hash": "d1bec81ed7abb26d45dbd26b7efc72da",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Become a Vendor for this Offer"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/5/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "b96b15e4d2dda067fedc5707ed95f2ca",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Become a Vendor"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/openingElement/0/value/expression/1": {
+          "type": "element",
+          "hash": "ab1a4a30f48c231bf9d7ab67f5ac4d32",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": " <element:TeamOutlined></element:TeamOutlined> Vendors ({offer.vendors.length})"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/openingElement/0/value/expression/3": {
+          "type": "element",
+          "hash": "42a6b948d3584bac76dcdef21003378c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Click to view vendors"
+        },
+        "15/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/3": {
+          "type": "element",
+          "hash": "ca90f30a13314ce572c7efec3d358624",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "${offer.price}<element:Text>{offer.price_unit}</element:Text>"
         }
       }
     },
@@ -1796,6 +2180,38 @@
           "content": "Search for apps, agents & services..."
         },
         "12/0/init/body/4/argument/3/5/1/expression/alternate/1": {
+          "type": "element",
+          "hash": "fbf677c819be4494aea6b33ca4a167e8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No apps found matching your search."
+        },
+        "13/0/init/body/4/argument/1/1": {
+          "type": "element",
+          "hash": "8326d097ffd4249d30fee4cf5950be51",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "App Store | OfficeX"
+        },
+        "13/0/init/body/4/argument/3/1/1": {
+          "type": "element",
+          "hash": "a14e655ac69eee0406c42bd40394771c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Explore Appstore"
+        },
+        "13/0/init/body/4/argument/3/1/3": {
+          "type": "element",
+          "hash": "1f6b21c8c236e12dc7f667556186d151",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Agents Mall to install apps & shop vendors"
+        },
+        "13/0/init/body/4/argument/3/5/1/expression/alternate/1": {
           "type": "element",
           "hash": "fbf677c819be4494aea6b33ca4a167e8",
           "context": "",
@@ -2212,6 +2628,190 @@
           "content": "Powered by ICP Dfinity"
         },
         "15/0/init/body/20/argument/5/openingElement/0/value/expression/3": {
+          "type": "element",
+          "hash": "eece6097ff7d8216e832e81a7cfaf1d1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Connect World Computer"
+        },
+        "16/0/init/body/16/0/init/body/1/block/17/expression/0": {
+          "type": "element",
+          "hash": "d517e582287e414a238ebec3a7a21dd6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Minting Anonymous Blockchain..."
+        },
+        "16/0/init/body/16/0/init/body/1/block/19/expression/0": {
+          "type": "element",
+          "hash": "f7b74e5dcbb59be71a7954f8de17d3a9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Promoting you to Admin..."
+        },
+        "16/0/init/body/16/0/init/body/1/block/26/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "88d30d945686294e0e3f7f8c33d188f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Error deploying organization - {redeem_code}"
+        },
+        "16/0/init/body/16/0/init/body/1/block/39/expression/0": {
+          "type": "element",
+          "hash": "bddb614dacfbca27c37d569f0259de73",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully Created Organization \"${orgName}\" with Gift Card"
+        },
+        "16/0/init/body/16/0/init/body/1/block/4/expression/0/0/value": {
+          "type": "element",
+          "hash": "4f0a7b832f7bb21ada5e252803aa352b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Creating Organization"
+        },
+        "16/0/init/body/16/0/init/body/1/block/4/expression/0/1/value": {
+          "type": "element",
+          "hash": "46b7c247ace5d44bf32066976f786ad2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready."
+        },
+        "16/0/init/body/16/0/init/body/1/block/41/consequent/0/block/0/expression/0": {
+          "type": "element",
+          "hash": "60af3735372ddf3fe7dec8ddb42d463a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Setting up cloud storage..."
+        },
+        "16/0/init/body/16/0/init/body/1/block/41/consequent/0/block/3/alternate/0/expression/0": {
+          "type": "element",
+          "hash": "caa79f80dcaf0c90e9959f184231b77b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cloud storage configured successfully!"
+        },
+        "16/0/init/body/16/0/init/body/1/block/42/expression/0": {
+          "type": "element",
+          "hash": "e89d08130a59fe5bb876cd76025c033d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing... please wait"
+        },
+        "16/0/init/body/16/0/init/body/1/block/44/expression/0": {
+          "type": "element",
+          "hash": "93717e8a2e13c9e9415861bea8ad18eb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering new organization..."
+        },
+        "16/0/init/body/16/0/init/body/1/block/6/expression/0": {
+          "type": "element",
+          "hash": "9b50c5de7660412b1d7083e56d07fea1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Redeeming Gift Card..."
+        },
+        "16/0/init/body/16/0/init/body/1/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "3cd76e5313ede71848d4590fb9fcc291",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to connect: <expression/>"
+        },
+        "16/0/init/body/21/argument/3": {
+          "type": "element",
+          "hash": "b66a8aaf2af9902043a169f735bb9f71",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Connect Cloud"
+        },
+        "16/0/init/body/21/argument/5/1/1": {
+          "type": "element",
+          "hash": "851a1d89e4fcb5e321ba9ac20c92fb70",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "The world computer is an Encrypted Cloud owned by nobody. Nocorporation or government can access your private files - only you. <element:a>Learn more</element:a>"
+        },
+        "16/0/init/body/21/argument/5/1/3/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "73c9b31c9032a22bd84a07881942bb04",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization Name"
+        },
+        "16/0/init/body/21/argument/5/1/3/3/expression/right/1-placeholder": {
+          "type": "attribute",
+          "hash": "1ac4504cb3b631ba3456e73d327781ab",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Gift Card ID"
+        },
+        "16/0/init/body/21/argument/5/1/3/3/expression/right/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "9464c51c49763a053993ab220b57f7c8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Buy Now"
+        },
+        "16/0/init/body/21/argument/5/1/3/5/1-placeholder": {
+          "type": "attribute",
+          "hash": "3a2bc1948e1549dce55babe9ac4afc85",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Factory Endpoint"
+        },
+        "16/0/init/body/21/argument/5/1/3/7": {
+          "type": "element",
+          "hash": "d0754923685416ea8cb229bea00bd737",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Owner"
+        },
+        "16/0/init/body/21/argument/5/1/3/9/1-placeholder": {
+          "type": "attribute",
+          "hash": "f67d5c121f94be22fff6d66b576ef381",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Select Profile"
+        },
+        "16/0/init/body/21/argument/5/1/5": {
+          "type": "element",
+          "hash": "d4259f2e07494340098a45eacf7585e4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Connect Cloud"
+        },
+        "16/0/init/body/21/argument/5/1/7/1": {
+          "type": "element",
+          "hash": "2a4216d28f0c8914d15e3be6d93417c1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Powered by ICP Dfinity"
+        },
+        "16/0/init/body/21/argument/5/openingElement/0/value/expression/3": {
           "type": "element",
           "hash": "eece6097ff7d8216e832e81a7cfaf1d1",
           "context": "",
@@ -3426,6 +4026,118 @@
           "skip": false,
           "overrides": {},
           "content": "Invalid resource access link"
+        },
+        "13/0/init/body/11/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "fad244d7509a317721780ea699e8b4f6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Missing required data for redemption"
+        },
+        "13/0/init/body/11/0/init/body/2/block/1/expression/0": {
+          "type": "element",
+          "hash": "c2e9722609fb2e59d21d30c1fcca858b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully gained access to resource!"
+        },
+        "13/0/init/body/11/0/init/body/2/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "7d1dccc7ce7b07a6d2f75ddfcf1f75ae",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to process resource access"
+        },
+        "13/0/init/body/12/0/init/body/7/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "af1f33dc534b86b715dbf86faf8f74b2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully accepted file sharing! Redirecting to the file..."
+        },
+        "13/0/init/body/13/argument/1/1/expression/alternate/1/3": {
+          "type": "element",
+          "hash": "dc3ad113778938585f0515fa0b13794a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You've been invited to access a resource. Please review the details before continuing."
+        },
+        "13/0/init/body/13/argument/1/1/expression/alternate/3/expression/right/1/1": {
+          "type": "element",
+          "hash": "61a7e7d3a2b13250e5747b6e4ee44e0f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<expression/> from <expression/><expression/><expression/>"
+        },
+        "13/0/init/body/13/argument/1/1/expression/alternate/3/expression/right/3/1": {
+          "type": "element",
+          "hash": "2160be68b1d6b6577e64634e9feba2ed",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Permissions"
+        },
+        "13/0/init/body/13/argument/1/1/expression/alternate/3/expression/right/3/3/1/expression/alternate": {
+          "type": "element",
+          "hash": "61dc41031d9320aebc33c602073cd88d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No specific permissions"
+        },
+        "13/0/init/body/13/argument/1/1/expression/alternate/3/expression/right/3/3/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "4ef131822c04701f9793f9b7d551cecd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This determines what actions you can perform with this resource."
+        },
+        "13/0/init/body/13/argument/1/1/expression/alternate/3/expression/right/5/1": {
+          "type": "element",
+          "hash": "bee775ff7216747b2111e93cefa57ddc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "User Profile"
+        },
+        "13/0/init/body/13/argument/1/1/expression/alternate/3/expression/right/5/3-placeholder": {
+          "type": "attribute",
+          "hash": "f67d5c121f94be22fff6d66b576ef381",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Select Profile"
+        },
+        "13/0/init/body/13/argument/1/1/expression/consequent/3": {
+          "type": "element",
+          "hash": "99f8aa5b9fd3f80ef168618b8f1333d7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Processing resource access..."
+        },
+        "13/0/init/body/9/expression/0/body/0/0/init/body/3/alternate/0/expression/0": {
+          "type": "element",
+          "hash": "1528d6bbf0b6293091952d7ca6d3b04d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No resource access data found"
+        },
+        "13/0/init/body/9/expression/0/body/0/0/init/body/3/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d45f0c2223bfaba75ed48d7c7eda6c84",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid resource access link"
         }
       }
     },
@@ -4025,7 +4737,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Share URL copied to clipboard Copy Link"
+          "content": "Copy Link"
         },
         "34/0/init/body/39/argument/3/1/openingElement/7/value/expression/alternate/alternate/alternate/consequent": {
           "type": "element",
@@ -4049,7 +4761,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Share URL copied to clipboard Copy Link"
+          "content": "Copy Link"
         },
         "34/0/init/body/39/argument/3/1/openingElement/7/value/expression/consequent": {
           "type": "element",
@@ -4227,6 +4939,14 @@
           "overrides": {},
           "content": "Failed to generate share link"
         },
+        "35/0/init/body/39/0/init/body/1/expression/0": {
+          "type": "element",
+          "hash": "6a3c394a9a51646bad2f72d7311b242d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copied to clipboard"
+        },
         "35/0/init/body/39/argument-title": {
           "type": "attribute",
           "hash": "609a58a1964a5ef86ce9d3a85935b168",
@@ -4257,7 +4977,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Share URL copied to clipboard Copy Link"
+          "content": "Copy Link"
         },
         "35/0/init/body/39/argument/3/1/openingElement/7/value/expression/alternate/alternate/alternate/consequent": {
           "type": "element",
@@ -4281,7 +5001,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Share URL copied to clipboard Copy Link"
+          "content": "Copy Link"
         },
         "35/0/init/body/39/argument/3/1/openingElement/7/value/expression/consequent": {
           "type": "element",
@@ -4300,6 +5020,78 @@
           "content": "Advanced"
         },
         "35/0/init/body/39/argument/7/3-placeholder": {
+          "type": "attribute",
+          "hash": "1003b1bfb9d7cf248243dfaaccb07238",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Search by name"
+        },
+        "35/0/init/body/40/argument-title": {
+          "type": "attribute",
+          "hash": "609a58a1964a5ef86ce9d3a85935b168",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Share Directory"
+        },
+        "35/0/init/body/40/argument/3/1/openingElement/6/value/expression/right/3": {
+          "type": "element",
+          "hash": "627c00d2c850b9b45f7341a6ac01b6bb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy"
+        },
+        "35/0/init/body/40/argument/3/1/openingElement/7/value/expression/alternate/alternate/alternate/alternate": {
+          "type": "element",
+          "hash": "dac383725b6072b43300d3ba4f0a6ab9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy Link"
+        },
+        "35/0/init/body/40/argument/3/1/openingElement/7/value/expression/alternate/alternate/alternate/consequent": {
+          "type": "element",
+          "hash": "e2a219242aedd9e64ebf56de69fbc268",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Generate Share Link"
+        },
+        "35/0/init/body/40/argument/3/1/openingElement/7/value/expression/alternate/alternate/consequent": {
+          "type": "element",
+          "hash": "e2a219242aedd9e64ebf56de69fbc268",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Generate Share Link"
+        },
+        "35/0/init/body/40/argument/3/1/openingElement/7/value/expression/alternate/consequent": {
+          "type": "element",
+          "hash": "dac383725b6072b43300d3ba4f0a6ab9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy Link"
+        },
+        "35/0/init/body/40/argument/3/1/openingElement/7/value/expression/consequent": {
+          "type": "element",
+          "hash": "57a37acfe6d7ed71d00fbbc8079fbb35",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy Link"
+        },
+        "35/0/init/body/40/argument/7/1": {
+          "type": "element",
+          "hash": "2fdf82eb4b0720138e03822a3af73dac",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Advanced"
+        },
+        "35/0/init/body/40/argument/7/3-placeholder": {
           "type": "attribute",
           "hash": "1003b1bfb9d7cf248243dfaaccb07238",
           "context": "",
@@ -6667,6 +7459,14 @@
           "overrides": {},
           "content": "Enter gift card ID"
         },
+        "13/0/init/body/17/argument/23/5/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "1ac4504cb3b631ba3456e73d327781ab",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Gift Card ID"
+        },
         "13/0/init/body/17/argument/23/5/3/1/5/1": {
           "type": "element",
           "hash": "5b4c06fa155139f76fba8a282d2acdcf",
@@ -8815,6 +9615,38 @@
     },
     "components/RegionPicker/index.tsx": {
       "scopes": {
+        "10/0/init/body/5/0/init/body/0/expression/0": {
+          "type": "element",
+          "hash": "2233ea036033d78ca92dc78d8ffd3f6c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Language changing to {value}, please wait up to 30 seconds..."
+        },
+        "10/0/init/body/8/argument/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "a94934051da8664d93542a5b564582a5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Current Language: {selectedLanguage.title} ({selectedLanguage.hint})"
+        },
+        "10/0/init/body/8/argument/3-title": {
+          "type": "attribute",
+          "hash": "d75cf5fbce8a4c7a9055e2210af74480",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Select Language"
+        },
+        "10/0/init/body/8/argument/3/1-placeholder": {
+          "type": "attribute",
+          "hash": "de7e24e654f2dc4bea42667435beb128",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Search or select a language..."
+        },
         "8/0/init/body/8/argument/3-title": {
           "type": "attribute",
           "hash": "d75cf5fbce8a4c7a9055e2210af74480",
@@ -11487,6 +12319,86 @@
           "overrides": {},
           "content": "Verifying password..."
         },
+        "18/0/init/body/34/0/init/body/0/argument/1": {
+          "type": "element",
+          "hash": "15ac6c9d2fcd5a4215648ee1b960117d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Preview"
+        },
+        "18/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/alternate": {
+          "type": "element",
+          "hash": "3da6a94510f4fcf5620d8ada7b9617f7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter a valid password to see organization details"
+        },
+        "18/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/1/1/1": {
+          "type": "element",
+          "hash": "4b585947c6cc054a2ad66032bad14934",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Org Name"
+        },
+        "18/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/1/3-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "18/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/3/1/1": {
+          "type": "element",
+          "hash": "b18bd0e85c7a5dad55f1657b60d99093",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Org ICP"
+        },
+        "18/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/5/1/1": {
+          "type": "element",
+          "hash": "48507a908ebbf8d399269a93d8e0e30d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Profile"
+        },
+        "18/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/5/3-placeholder": {
+          "type": "attribute",
+          "hash": "18fd87177479428206a5267f7114a227",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter profile nickname"
+        },
+        "18/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/7/1/1": {
+          "type": "element",
+          "hash": "3de1bba3a21f472933c08f0f354886d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP"
+        },
+        "18/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/9/1/1": {
+          "type": "element",
+          "hash": "e209099be31c5f48eb1e6bea3d606526",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "EVM"
+        },
+        "18/0/init/body/34/0/init/body/0/argument/3/1/expression/consequent/3": {
+          "type": "element",
+          "hash": "1514e0f052123970383cd8c1f98f70de",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Verifying password..."
+        },
         "18/0/init/body/34/0/init/body/0/consequent/0/expression/0": {
           "type": "element",
           "hash": "b118d94ace5f86e963d6f9ed7fcd83ff",
@@ -11528,6 +12440,54 @@
           "content": "Successfully logged in to organization \"${orgNickToUse}\""
         },
         "18/0/init/body/34/0/init/body/9/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "0ea6169d8c4bf06fa6dfc75cb9d38702",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to log in to organization. Please try again."
+        },
+        "18/0/init/body/35/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b118d94ace5f86e963d6f9ed7fcd83ff",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid or expired password"
+        },
+        "18/0/init/body/35/0/init/body/3/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b72d0b1aca515eca3aa525f8cdd7d4c4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid format. Expected: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)"
+        },
+        "18/0/init/body/35/0/init/body/7/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "d4b4d13b2e99708c7d08ba1485d541ce",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+        },
+        "18/0/init/body/35/0/init/body/9/block/14/expression/0": {
+          "type": "element",
+          "hash": "de5bf1dd33b9b18058a3432447aa89e3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering organization..."
+        },
+        "18/0/init/body/35/0/init/body/9/block/9/expression/0": {
+          "type": "element",
+          "hash": "4900641df92f1f2f33f0de8904675938",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully logged in to organization \"${orgNickToUse}\""
+        },
+        "18/0/init/body/35/0/init/body/9/handler/body/1/expression/0": {
           "type": "element",
           "hash": "0ea6169d8c4bf06fa6dfc75cb9d38702",
           "context": "",
@@ -11679,6 +12639,126 @@
           "overrides": {},
           "content": "Failed to update organization. Please try again."
         },
+        "18/0/init/body/38/0/init/body/1/block/5/alternate/5/expression/0": {
+          "type": "element",
+          "hash": "64a5a04ad5f9d610dec06da265dd157f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization \"${newOrgNickname}\" created successfully!"
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/0/expression/0/0/value": {
+          "type": "element",
+          "hash": "4f0a7b832f7bb21ada5e252803aa352b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Creating Organization"
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "42d390efa29ec27c363b04f01d44fd37",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready."
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/11/expression/0": {
+          "type": "element",
+          "hash": "d517e582287e414a238ebec3a7a21dd6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Minting Anonymous Blockchain..."
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/13/expression/0": {
+          "type": "element",
+          "hash": "f7b74e5dcbb59be71a7954f8de17d3a9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Promoting you to Admin..."
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/20/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "88d30d945686294e0e3f7f8c33d188f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Error deploying organization - {redeem_code}"
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/36/expression/0": {
+          "type": "element",
+          "hash": "f383874d2b3b21ef91757dc0afb9243d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully Created Organization \"${orgNickToUse}\" with Gift Card"
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/38/consequent/0/block/0/expression/0": {
+          "type": "element",
+          "hash": "60af3735372ddf3fe7dec8ddb42d463a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Setting up cloud storage..."
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/38/consequent/0/block/4/alternate/0/expression/0": {
+          "type": "element",
+          "hash": "caa79f80dcaf0c90e9959f184231b77b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cloud storage configured successfully!"
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/39/expression/0": {
+          "type": "element",
+          "hash": "e89d08130a59fe5bb876cd76025c033d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing... please wait"
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/4/expression/0": {
+          "type": "element",
+          "hash": "9b50c5de7660412b1d7083e56d07fea1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Redeeming Gift Card..."
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/41/expression/0": {
+          "type": "element",
+          "hash": "93717e8a2e13c9e9415861bea8ad18eb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering new organization..."
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/block/6/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b68d64138835ee907f13254afcc66068",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card"
+        },
+        "18/0/init/body/38/0/init/body/1/block/5/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "779256d1c6a26bf1d293d7b705e9df7e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card: <expression/>"
+        },
+        "18/0/init/body/38/0/init/body/1/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "cb2526ffb280834b9e8b31cc075d4dd2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to create organization. Please try again."
+        },
         "18/0/init/body/39/0/init/body/0/block/0/consequent/2/expression/0": {
           "type": "element",
           "hash": "b90cf4db7e776ab3dd5406b8af65c031",
@@ -11687,7 +12767,39 @@
           "overrides": {},
           "content": "Organization removed successfully!"
         },
+        "18/0/init/body/39/0/init/body/0/block/1/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b8642984ca6014ea463905f8e215b021",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Please enter a valid URL for the endpoint"
+        },
+        "18/0/init/body/39/0/init/body/0/block/2/consequent/3/expression/0": {
+          "type": "element",
+          "hash": "618a08abce4b0fc106fc849480f98cf9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization \"${editOrgNickname}\" updated successfully!"
+        },
         "18/0/init/body/39/0/init/body/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "c929aecd0bf339395ec938c12400ce06",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to update organization. Please try again."
+        },
+        "18/0/init/body/40/0/init/body/0/block/0/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "b90cf4db7e776ab3dd5406b8af65c031",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization removed successfully!"
+        },
+        "18/0/init/body/40/0/init/body/0/handler/body/1/expression/0": {
           "type": "element",
           "hash": "2b67a0515f49ca9049889131cac5a8aa",
           "context": "",
@@ -11760,6 +12872,70 @@
           "content": "Gift Cards let you connect to the world computer $ICP"
         },
         "18/0/init/body/41/0/init/body/0/argument/7/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "3a2bc1948e1549dce55babe9ac4afc85",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Factory Endpoint"
+        },
+        "18/0/init/body/41/0/init/body/2/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "d1733b8d8ecb5b56284504c2fc35b018",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Entering \"${org.nickname}\" organization..."
+        },
+        "18/0/init/body/42/0/init/body/0/argument/1": {
+          "type": "element",
+          "hash": "2fdf82eb4b0720138e03822a3af73dac",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Advanced"
+        },
+        "18/0/init/body/42/0/init/body/0/argument/3/1-placeholder": {
+          "type": "attribute",
+          "hash": "f67d5c121f94be22fff6d66b576ef381",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Select Profile"
+        },
+        "18/0/init/body/42/0/init/body/0/argument/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9c0b3aeca046c3ebd3bdc352edc83e88",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Owner"
+        },
+        "18/0/init/body/42/0/init/body/0/argument/5/expression/right/1-placeholder": {
+          "type": "attribute",
+          "hash": "cacf853452837722aac7686bd5e86491",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "GiftCardID_abc123"
+        },
+        "18/0/init/body/42/0/init/body/0/argument/5/expression/right/1/openingElement/4/value/expression": {
+          "type": "element",
+          "hash": "7a32095b63d0acbf8f629958e81e082f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Buy Now"
+        },
+        "18/0/init/body/42/0/init/body/0/argument/5/expression/right/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8b5a0fb508565d5e0f9dfcb8d8e0109f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Gift Card<element:Tooltip>Gift Cards let you connect to the world computer $ICP<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "18/0/init/body/42/0/init/body/0/argument/7/1/1-placeholder": {
           "type": "attribute",
           "hash": "3a2bc1948e1549dce55babe9ac4afc85",
           "context": "",
@@ -11856,6 +13032,94 @@
           "content": "Cancel"
         },
         "18/0/init/body/43/0/init/body/1/3/1/5/1/3": {
+          "type": "element",
+          "hash": "894f0dbbe82c225a106f78efd3208008",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Login Organization"
+        },
+        "18/0/init/body/43/0/init/body/1/consequent/1/expression/0/1/value/3/openingElement/0/value/expression/body/0/expression/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "e7c7181a28c54a377a48b5814c460ef4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to copy to clipboard."
+        },
+        "18/0/init/body/43/0/init/body/1/consequent/1/expression/0/1/value/3/openingElement/0/value/expression/body/0/expression/callee/object/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "db67e602babbabd7fd9c646ea33d4622",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copied to clipboard!"
+        },
+        "18/0/init/body/43/0/init/body/3/expression/0/1/value/3": {
+          "type": "element",
+          "hash": "d60df3948aded8e7fce7a17bced2ab1f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add Organization"
+        },
+        "18/0/init/body/44/0/init/body-title": {
+          "type": "attribute",
+          "hash": "d60df3948aded8e7fce7a17bced2ab1f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add Organization"
+        },
+        "18/0/init/body/44/0/init/body/1/1/1/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "18/0/init/body/44/0/init/body/1/1/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "73c9b31c9032a22bd84a07881942bb04",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization Name"
+        },
+        "18/0/init/body/44/0/init/body/1/1/1/5/1/1": {
+          "type": "element",
+          "hash": "25b06367926e28e1cf86d51b92ed9802",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "18/0/init/body/44/0/init/body/1/1/1/5/1/3": {
+          "type": "element",
+          "hash": "52de4615cbc6bcdd5654d8a12f47df9f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Create Organization"
+        },
+        "18/0/init/body/44/0/init/body/1/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "183841910818585612b0b17bd0e26f0c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Password<element:Tooltip>Format: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+        },
+        "18/0/init/body/44/0/init/body/1/3/1/5/1/1": {
+          "type": "element",
+          "hash": "25b06367926e28e1cf86d51b92ed9802",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "18/0/init/body/44/0/init/body/1/3/1/5/1/3": {
           "type": "element",
           "hash": "894f0dbbe82c225a106f78efd3208008",
           "context": "",
@@ -11999,7 +13263,703 @@
           "overrides": {},
           "content": "Update"
         },
+        "18/0/init/body/46/0/init/body/2/argument/1/1/1/3/1/1": {
+          "type": "element",
+          "hash": "643431b4a45271ffb02d2957be7884b3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/1/1/3/1/3": {
+          "type": "element",
+          "hash": "df6353d5e8e3aa11f4a024aae8725427",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter Organization"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "d9e5c1a40585b135e17dce3af6fc649b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization Name<element:Tooltip>Edit the organization nickname<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/3/1-placeholder": {
+          "type": "attribute",
+          "hash": "c74cc9a98a1495f289033c9bb0a3b522",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "https://api.officex.app"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "1d832c984ae4cd44e29354e05b124047",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Endpoint URL<element:Tooltip>Edit the endpoint URL of this organization<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/1": {
+          "type": "element",
+          "hash": "feb15e75efc81c54cb85538c42a7a5c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Remove"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "011dc03dec8dfd8d4b0e53b2951435a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to remove this organization?"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3d8b13374ffd3cefc0f3f7ce077bd9c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This action cannot be undone."
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/openingElement/4/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/7/3/1/1": {
+          "type": "element",
+          "hash": "7afaa05272026382c83d9f963f45e3e2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "18/0/init/body/46/0/init/body/2/argument/1/3/1/7/3/1/3": {
+          "type": "element",
+          "hash": "e6d0a1a8040f041c1da7149b270e1bbb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Update"
+        },
         "18/0/init/body/49/argument/3-placeholder": {
+          "type": "attribute",
+          "hash": "99080febce87d8a780622296d9e35f4c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Switch Organization"
+        },
+        "18/0/init/body/50/argument/3-placeholder": {
+          "type": "attribute",
+          "hash": "99080febce87d8a780622296d9e35f4c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Switch Organization"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/1": {
+          "type": "element",
+          "hash": "15ac6c9d2fcd5a4215648ee1b960117d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Preview"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/alternate": {
+          "type": "element",
+          "hash": "3da6a94510f4fcf5620d8ada7b9617f7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter a valid password to see organization details"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/1/1/1": {
+          "type": "element",
+          "hash": "4b585947c6cc054a2ad66032bad14934",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Org Name"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/1/3-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/3/1/1": {
+          "type": "element",
+          "hash": "b18bd0e85c7a5dad55f1657b60d99093",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Org ICP"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/5/1/1": {
+          "type": "element",
+          "hash": "48507a908ebbf8d399269a93d8e0e30d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Profile"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/5/3-placeholder": {
+          "type": "attribute",
+          "hash": "18fd87177479428206a5267f7114a227",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter profile nickname"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/7/1/1": {
+          "type": "element",
+          "hash": "3de1bba3a21f472933c08f0f354886d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/9/1/1": {
+          "type": "element",
+          "hash": "e209099be31c5f48eb1e6bea3d606526",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "EVM"
+        },
+        "19/0/init/body/34/0/init/body/0/argument/3/1/expression/consequent/3": {
+          "type": "element",
+          "hash": "1514e0f052123970383cd8c1f98f70de",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Verifying password..."
+        },
+        "19/0/init/body/35/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b118d94ace5f86e963d6f9ed7fcd83ff",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid or expired password"
+        },
+        "19/0/init/body/35/0/init/body/3/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b72d0b1aca515eca3aa525f8cdd7d4c4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid format. Expected: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)"
+        },
+        "19/0/init/body/35/0/init/body/7/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "d4b4d13b2e99708c7d08ba1485d541ce",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+        },
+        "19/0/init/body/35/0/init/body/9/block/14/expression/0": {
+          "type": "element",
+          "hash": "de5bf1dd33b9b18058a3432447aa89e3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering organization..."
+        },
+        "19/0/init/body/35/0/init/body/9/block/9/expression/0": {
+          "type": "element",
+          "hash": "4900641df92f1f2f33f0de8904675938",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully logged in to organization \"${orgNickToUse}\""
+        },
+        "19/0/init/body/35/0/init/body/9/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "0ea6169d8c4bf06fa6dfc75cb9d38702",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to log in to organization. Please try again."
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/alternate/5/expression/0": {
+          "type": "element",
+          "hash": "64a5a04ad5f9d610dec06da265dd157f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization \"${newOrgNickname}\" created successfully!"
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/0/expression/0/0/value": {
+          "type": "element",
+          "hash": "4f0a7b832f7bb21ada5e252803aa352b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Creating Organization"
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "42d390efa29ec27c363b04f01d44fd37",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready."
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/11/expression/0": {
+          "type": "element",
+          "hash": "d517e582287e414a238ebec3a7a21dd6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Minting Anonymous Blockchain..."
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/13/expression/0": {
+          "type": "element",
+          "hash": "f7b74e5dcbb59be71a7954f8de17d3a9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Promoting you to Admin..."
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/20/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "88d30d945686294e0e3f7f8c33d188f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Error deploying organization - {redeem_code}"
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/36/expression/0": {
+          "type": "element",
+          "hash": "f383874d2b3b21ef91757dc0afb9243d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully Created Organization \"${orgNickToUse}\" with Gift Card"
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/38/consequent/0/block/0/expression/0": {
+          "type": "element",
+          "hash": "60af3735372ddf3fe7dec8ddb42d463a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Setting up cloud storage..."
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/38/consequent/0/block/4/alternate/0/expression/0": {
+          "type": "element",
+          "hash": "caa79f80dcaf0c90e9959f184231b77b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cloud storage configured successfully!"
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/39/expression/0": {
+          "type": "element",
+          "hash": "e89d08130a59fe5bb876cd76025c033d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing... please wait"
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/4/expression/0": {
+          "type": "element",
+          "hash": "9b50c5de7660412b1d7083e56d07fea1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Redeeming Gift Card..."
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/41/expression/0": {
+          "type": "element",
+          "hash": "93717e8a2e13c9e9415861bea8ad18eb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering new organization..."
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/block/6/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b68d64138835ee907f13254afcc66068",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card"
+        },
+        "19/0/init/body/38/0/init/body/1/block/5/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "779256d1c6a26bf1d293d7b705e9df7e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card: <expression/>"
+        },
+        "19/0/init/body/38/0/init/body/1/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "cb2526ffb280834b9e8b31cc075d4dd2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to create organization. Please try again."
+        },
+        "19/0/init/body/39/0/init/body/0/block/1/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b8642984ca6014ea463905f8e215b021",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Please enter a valid URL for the endpoint"
+        },
+        "19/0/init/body/39/0/init/body/0/block/2/consequent/3/expression/0": {
+          "type": "element",
+          "hash": "618a08abce4b0fc106fc849480f98cf9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization \"${editOrgNickname}\" updated successfully!"
+        },
+        "19/0/init/body/39/0/init/body/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "c929aecd0bf339395ec938c12400ce06",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to update organization. Please try again."
+        },
+        "19/0/init/body/40/0/init/body/0/block/0/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "b90cf4db7e776ab3dd5406b8af65c031",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization removed successfully!"
+        },
+        "19/0/init/body/40/0/init/body/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "2b67a0515f49ca9049889131cac5a8aa",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to remove organization. Please try again."
+        },
+        "19/0/init/body/41/0/init/body/2/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "d1733b8d8ecb5b56284504c2fc35b018",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Entering \"${org.nickname}\" organization..."
+        },
+        "19/0/init/body/42/0/init/body/0/argument/1": {
+          "type": "element",
+          "hash": "2fdf82eb4b0720138e03822a3af73dac",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Advanced"
+        },
+        "19/0/init/body/42/0/init/body/0/argument/3/1-placeholder": {
+          "type": "attribute",
+          "hash": "f67d5c121f94be22fff6d66b576ef381",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Select Profile"
+        },
+        "19/0/init/body/42/0/init/body/0/argument/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9c0b3aeca046c3ebd3bdc352edc83e88",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Owner"
+        },
+        "19/0/init/body/42/0/init/body/0/argument/5/expression/right/1-placeholder": {
+          "type": "attribute",
+          "hash": "cacf853452837722aac7686bd5e86491",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "GiftCardID_abc123"
+        },
+        "19/0/init/body/42/0/init/body/0/argument/5/expression/right/1/openingElement/4/value/expression": {
+          "type": "element",
+          "hash": "7a32095b63d0acbf8f629958e81e082f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Buy Now"
+        },
+        "19/0/init/body/42/0/init/body/0/argument/5/expression/right/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8b5a0fb508565d5e0f9dfcb8d8e0109f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Gift Card<element:Tooltip>Gift Cards let you connect to the world computer $ICP<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "19/0/init/body/42/0/init/body/0/argument/7/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "3a2bc1948e1549dce55babe9ac4afc85",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Factory Endpoint"
+        },
+        "19/0/init/body/43/0/init/body/1/consequent/1/expression/0/1/value/3/openingElement/0/value/expression/body/0/expression/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "e7c7181a28c54a377a48b5814c460ef4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to copy to clipboard."
+        },
+        "19/0/init/body/43/0/init/body/1/consequent/1/expression/0/1/value/3/openingElement/0/value/expression/body/0/expression/callee/object/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "db67e602babbabd7fd9c646ea33d4622",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copied to clipboard!"
+        },
+        "19/0/init/body/43/0/init/body/3/expression/0/1/value/3": {
+          "type": "element",
+          "hash": "d60df3948aded8e7fce7a17bced2ab1f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add Organization"
+        },
+        "19/0/init/body/44/0/init/body-title": {
+          "type": "attribute",
+          "hash": "d60df3948aded8e7fce7a17bced2ab1f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add Organization"
+        },
+        "19/0/init/body/44/0/init/body/1/1/1/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "19/0/init/body/44/0/init/body/1/1/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "73c9b31c9032a22bd84a07881942bb04",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization Name"
+        },
+        "19/0/init/body/44/0/init/body/1/1/1/5/1/1": {
+          "type": "element",
+          "hash": "25b06367926e28e1cf86d51b92ed9802",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "19/0/init/body/44/0/init/body/1/1/1/5/1/3": {
+          "type": "element",
+          "hash": "52de4615cbc6bcdd5654d8a12f47df9f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Create Organization"
+        },
+        "19/0/init/body/44/0/init/body/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7fb29fa0ab25d2942a33f184ece4ac7d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Create New"
+        },
+        "19/0/init/body/44/0/init/body/1/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "183841910818585612b0b17bd0e26f0c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Password<element:Tooltip>Format: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+        },
+        "19/0/init/body/44/0/init/body/1/3/1/5/1/1": {
+          "type": "element",
+          "hash": "25b06367926e28e1cf86d51b92ed9802",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "19/0/init/body/44/0/init/body/1/3/1/5/1/3": {
+          "type": "element",
+          "hash": "894f0dbbe82c225a106f78efd3208008",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Login Organization"
+        },
+        "19/0/init/body/44/0/init/body/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "6bdf250878600d873955eea27673fc05",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Login Existing"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/1/1/3/1/1": {
+          "type": "element",
+          "hash": "643431b4a45271ffb02d2957be7884b3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/1/1/3/1/3": {
+          "type": "element",
+          "hash": "df6353d5e8e3aa11f4a024aae8725427",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter Organization"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "fec7631f877e94026b5b0f5252a2f95d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter Organization"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "d9e5c1a40585b135e17dce3af6fc649b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization Name<element:Tooltip>Edit the organization nickname<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/3/1-placeholder": {
+          "type": "attribute",
+          "hash": "c74cc9a98a1495f289033c9bb0a3b522",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "https://api.officex.app"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "1d832c984ae4cd44e29354e05b124047",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Endpoint URL<element:Tooltip>Edit the endpoint URL of this organization<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/1": {
+          "type": "element",
+          "hash": "feb15e75efc81c54cb85538c42a7a5c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Remove"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "011dc03dec8dfd8d4b0e53b2951435a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to remove this organization?"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3d8b13374ffd3cefc0f3f7ce077bd9c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This action cannot be undone."
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/7/1/1/openingElement/4/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/7/3/1/1": {
+          "type": "element",
+          "hash": "7afaa05272026382c83d9f963f45e3e2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/1/7/3/1/3": {
+          "type": "element",
+          "hash": "e6d0a1a8040f041c1da7149b270e1bbb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Update"
+        },
+        "19/0/init/body/46/0/init/body/2/argument/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "4b94332ab39fdd49706a2bbde9aab60b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Edit Org"
+        },
+        "19/0/init/body/50/argument/3-placeholder": {
           "type": "attribute",
           "hash": "99080febce87d8a780622296d9e35f4c",
           "context": "",
@@ -13170,6 +15130,470 @@
           "skip": false,
           "overrides": {},
           "content": "Switch Profile <element:TagCopy></element:TagCopy>"
+        },
+        "17/0/init/body/24/0/init/body/1/consequent/0/expression/0/1/value/3/openingElement/0/value/expression/body/0/consequent/1/expression/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "e7c7181a28c54a377a48b5814c460ef4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to copy to clipboard."
+        },
+        "17/0/init/body/24/0/init/body/1/consequent/0/expression/0/1/value/3/openingElement/0/value/expression/body/0/consequent/1/expression/callee/object/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "db67e602babbabd7fd9c646ea33d4622",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copied to clipboard!"
+        },
+        "17/0/init/body/24/0/init/body/3/expression/0/1/value/3": {
+          "type": "element",
+          "hash": "a218c0c3a0823f2e56fb7cdf33626c3b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add Profile"
+        },
+        "17/0/init/body/25/0/init/body/0/argument-placeholder": {
+          "type": "attribute",
+          "hash": "75fbfd937748901f1fa4c18843eb3363",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Switch Profile"
+        },
+        "17/0/init/body/26/0/init/body/1/argument/1": {
+          "type": "element",
+          "hash": "15ac6c9d2fcd5a4215648ee1b960117d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Preview"
+        },
+        "17/0/init/body/26/0/init/body/1/argument/3/1/expression/right/3/1/1": {
+          "type": "element",
+          "hash": "a049e8b6022a8a2db8eeb9ccabb3b4aa",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Seed"
+        },
+        "17/0/init/body/26/0/init/body/1/argument/3/3/1/1": {
+          "type": "element",
+          "hash": "3de1bba3a21f472933c08f0f354886d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP"
+        },
+        "17/0/init/body/26/0/init/body/1/argument/3/5/1/1": {
+          "type": "element",
+          "hash": "e209099be31c5f48eb1e6bea3d606526",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "EVM"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/1": {
+          "type": "element",
+          "hash": "15ac6c9d2fcd5a4215648ee1b960117d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Preview"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/3/1/expression/alternate/alternate/alternate": {
+          "type": "element",
+          "hash": "476012f803f45606eb98f4fc4d56e4d3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter a valid password to see account details"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/1/1/1": {
+          "type": "element",
+          "hash": "4b585947c6cc054a2ad66032bad14934",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Org Name"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/1/3-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/3/1/1": {
+          "type": "element",
+          "hash": "b18bd0e85c7a5dad55f1657b60d99093",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Org ICP"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/5/1/1": {
+          "type": "element",
+          "hash": "48507a908ebbf8d399269a93d8e0e30d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Profile"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/5/3-placeholder": {
+          "type": "attribute",
+          "hash": "411b7e5141bf17e1c020f5e4c2ff37d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter nickname"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/7/1/1": {
+          "type": "element",
+          "hash": "07851c7b68d1b8ba406eaba1920d2cb2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/9/1/1": {
+          "type": "element",
+          "hash": "e209099be31c5f48eb1e6bea3d606526",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "EVM"
+        },
+        "17/0/init/body/27/0/init/body/0/argument/3/1/expression/consequent/3": {
+          "type": "element",
+          "hash": "1514e0f052123970383cd8c1f98f70de",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Verifying password..."
+        },
+        "17/0/init/body/30/0/init/body-title": {
+          "type": "attribute",
+          "hash": "a218c0c3a0823f2e56fb7cdf33626c3b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add Profile"
+        },
+        "17/0/init/body/30/0/init/body/1/1/1/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "411b7e5141bf17e1c020f5e4c2ff37d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter nickname"
+        },
+        "17/0/init/body/30/0/init/body/1/1/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e15cefebe5e78fba87e455bf246cee89",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Nickname"
+        },
+        "17/0/init/body/30/0/init/body/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "39152725fc08bb190c46a530ecc827b7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "New Profile"
+        },
+        "17/0/init/body/30/0/init/body/1/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "183841910818585612b0b17bd0e26f0c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Password<element:Tooltip>Format: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+        },
+        "17/0/init/body/30/0/init/body/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "6bdf250878600d873955eea27673fc05",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Login Existing"
+        },
+        "17/0/init/body/30/0/init/body/1/5/1/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "411b7e5141bf17e1c020f5e4c2ff37d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter nickname"
+        },
+        "17/0/init/body/30/0/init/body/1/5/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e15cefebe5e78fba87e455bf246cee89",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Nickname"
+        },
+        "17/0/init/body/30/0/init/body/1/5/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e108a7a0700f79cf7edb69629cd33641",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Seed Phrase"
+        },
+        "17/0/init/body/30/0/init/body/1/5/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "594890001c87e529d4d8a403ad310de6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Import from Seed"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/0": {
+          "type": "element",
+          "hash": "e9503e06a84b67576a3dc533990ed361",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/1/1/expression/alternate/alternate": {
+          "type": "element",
+          "hash": "6bdf250878600d873955eea27673fc05",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Login Existing"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/1/1/expression/alternate/consequent": {
+          "type": "element",
+          "hash": "578272d2ffb16b6dbb0828b4a8de423a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Import Profile"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/1/1/expression/consequent": {
+          "type": "element",
+          "hash": "d7de66a5236bb12599067ad116202018",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Create Profile"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/1/openingElement/3/value/expression/body/0/block/0/alternate/consequent/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b118d94ace5f86e963d6f9ed7fcd83ff",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid or expired password"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/1/openingElement/3/value/expression/body/0/block/0/alternate/consequent/15/expression/0": {
+          "type": "element",
+          "hash": "4ab524aa2487a51eb444dee74c2fbb60",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully logged in as {nickToUse}"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/1/openingElement/3/value/expression/body/0/block/0/alternate/consequent/3/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7fdb27f16cdd8cd67cb4792a980d498c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid format. Expected: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/1/openingElement/3/value/expression/body/0/block/0/alternate/consequent/7/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "dd7ac28df5be96d46f5fae5e1b3362f8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/1/openingElement/3/value/expression/body/0/block/0/consequent/5/expression/0": {
+          "type": "element",
+          "hash": "783d3fc7093b7c6cb261c45c4269eccc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "User {nicknameToUse} added successfully!"
+        },
+        "17/0/init/body/30/0/init/body/openingElement/3/value/expression/1/openingElement/3/value/expression/body/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "560c3156361c37748dfdd76bd75e348c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to add user. Please try again."
+        },
+        "17/0/init/body/31/0/init/body/0/argument/1": {
+          "type": "element",
+          "hash": "15ac6c9d2fcd5a4215648ee1b960117d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Preview"
+        },
+        "17/0/init/body/31/0/init/body/0/argument/3/1/1/1": {
+          "type": "element",
+          "hash": "3de1bba3a21f472933c08f0f354886d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP"
+        },
+        "17/0/init/body/31/0/init/body/0/argument/3/3/1/1": {
+          "type": "element",
+          "hash": "e209099be31c5f48eb1e6bea3d606526",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "EVM"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "411b7e5141bf17e1c020f5e4c2ff37d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter nickname"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e15cefebe5e78fba87e455bf246cee89",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Nickname"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/1/1/1": {
+          "type": "element",
+          "hash": "01dea4f6d9333a21546086b8df252084",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Remove"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "639d42aee899a43c8c78aea3ccc25be6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to remove this profile?"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/1/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3d8b13374ffd3cefc0f3f7ce077bd9c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This action cannot be undone."
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/1/1/openingElement/2/value/expression/body/0/block/0/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "ad07ffd06a4cc35e29e741f0fa4ec3f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Profile removed successfully!"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/1/1/openingElement/2/value/expression/body/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "62a4690ef7768a4180e399af4117bad2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to remove currentProfile. Please try again."
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/1/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/1/1/openingElement/4/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/3/1/1": {
+          "type": "element",
+          "hash": "25b06367926e28e1cf86d51b92ed9802",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/3/1/3/openingElement/2/value/expression/body/1/consequent/0/block/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "f05e3ea99bbf2cf6d8cb27f262689693",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to read preexisting profile. Please try again."
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/3/1/3/openingElement/2/value/expression/body/1/consequent/0/block/3/expression/0": {
+          "type": "element",
+          "hash": "90326335534442e096fab4db71940f8d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Profile updated to {existingUserNickname} successfully!"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/3/1/3/openingElement/2/value/expression/body/1/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "ce47e94aa8aec506261eea1024698598",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to update currentProfile. Please try again."
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/3/1/3/openingElement/2/value/expression/body/2/consequent/0/block/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7be83c61919bec2a8328073d6df23bdd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to read selected profile. Please try again."
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/3/1/3/openingElement/2/value/expression/body/2/consequent/0/block/3/expression/0": {
+          "type": "element",
+          "hash": "fb10a5d603f548fce9fbe67b69971285",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Switched to <expression/> (<function:shortenAddress/>)"
+        },
+        "17/0/init/body/32/0/init/body/3/argument/1/7/3/1/3/openingElement/2/value/expression/body/2/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "cd8622fcf66c8efcc0d34f96c4a7f426",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to switch currentProfile. Please try again."
+        },
+        "17/0/init/body/32/0/init/body/3/argument/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "473c2d5644b9423699f10c8d6b3f1583",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Switch Profile <element:TagCopy></element:TagCopy>"
         }
       }
     },
@@ -13238,6 +15662,14 @@
           "skip": false,
           "overrides": {},
           "content": "Enter name"
+        },
+        "6/0/init/body/2/argument/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9368b5a047572b6051f334af5aa76819",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name"
         },
         "6/0/init/body/2/argument/1/3": {
           "type": "element",
@@ -14086,6 +16518,70 @@
           "skip": false,
           "overrides": {},
           "content": "You will automatically be redirected to your new organization..."
+        },
+        "14/0/init/body/4/0/init/body/21/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "88d30d945686294e0e3f7f8c33d188f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Error deploying organization - {redeem_code}"
+        },
+        "14/0/init/body/4/0/init/body/34/expression/0": {
+          "type": "element",
+          "hash": "eec8c6a1344c8f5f10d8a755196a635a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully Created Organization \"${orgName}\" with Gift Card"
+        },
+        "14/0/init/body/4/0/init/body/35/consequent/0/block/0/expression/0": {
+          "type": "element",
+          "hash": "60af3735372ddf3fe7dec8ddb42d463a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Setting up cloud storage..."
+        },
+        "14/0/init/body/4/0/init/body/35/consequent/0/block/4/alternate/0/expression/0": {
+          "type": "element",
+          "hash": "caa79f80dcaf0c90e9959f184231b77b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cloud storage configured successfully!"
+        },
+        "14/0/init/body/4/0/init/body/36/expression/0": {
+          "type": "element",
+          "hash": "e89d08130a59fe5bb876cd76025c033d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing... please wait"
+        },
+        "14/0/init/body/4/0/init/body/38/expression/0": {
+          "type": "element",
+          "hash": "93717e8a2e13c9e9415861bea8ad18eb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering new organization..."
+        },
+        "14/0/init/body/5/argument/1/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "ac8a8528802b36fec3f6b273446e84ee",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:LoadingOutlined></element:LoadingOutlined> Creating Anonymous Cloud..."
+        },
+        "14/0/init/body/5/argument/1/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "d7ac64a3b1b29565138db57be9d09c6f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You will automatically be redirected to your new organization..."
         }
       }
     },
@@ -14198,6 +16694,30 @@
           "skip": false,
           "overrides": {},
           "content": "Learn More"
+        },
+        "35/declaration/body/42/0/init/body/7/alternate/2/expression/0/0/value": {
+          "type": "element",
+          "hash": "9fc3522f8280b3174a738826a16a2468",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Unknown Organization"
+        },
+        "35/declaration/body/42/0/init/body/7/alternate/2/expression/0/1/value": {
+          "type": "element",
+          "hash": "15403551155a47c3242b1df516b1db45",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You're accessing an unknown organization. Please be careful and remember to remove it later if not needed."
+        },
+        "35/declaration/body/42/0/init/body/7/alternate/2/expression/0/5/value/1": {
+          "type": "element",
+          "hash": "0b2570f410d05ae6ee5deb14c77a8997",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Learn More"
         }
       }
     },
@@ -14292,6 +16812,54 @@
           "content": "New organization for {domain} created."
         },
         "19/declaration/body/17/0/init/0/body/0/block/6/consequent/5/expression/0": {
+          "type": "element",
+          "hash": "f1bc375e8bf5e7130cccbb915610a805",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "New profile for {domain} created."
+        },
+        "20/declaration/body/16/0/init/0/body/0/block/0/expression/0": {
+          "type": "element",
+          "hash": "a0f581546e97b7e26554a781f5ff2d10",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Starting ephemeral initialization..."
+        },
+        "20/declaration/body/16/0/init/0/body/0/block/10/alternate/4/expression/0": {
+          "type": "element",
+          "hash": "f1bc375e8bf5e7130cccbb915610a805",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "New profile for {domain} created."
+        },
+        "20/declaration/body/16/0/init/0/body/0/block/8/alternate/2/expression/0": {
+          "type": "element",
+          "hash": "b506492f1655f4a3b48a80002f03b1ca",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "New organization for {domain} created."
+        },
+        "20/declaration/body/17/0/init/0/body/0/block/0/expression/0": {
+          "type": "element",
+          "hash": "a0f581546e97b7e26554a781f5ff2d10",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Starting ephemeral initialization..."
+        },
+        "20/declaration/body/17/0/init/0/body/0/block/4/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "b506492f1655f4a3b48a80002f03b1ca",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "New organization for {domain} created."
+        },
+        "20/declaration/body/17/0/init/0/body/0/block/6/consequent/5/expression/0": {
           "type": "element",
           "hash": "f1bc375e8bf5e7130cccbb915610a805",
           "context": "",
@@ -15283,6 +17851,14 @@
           "overrides": {},
           "content": "Advanced<expression/>"
         },
+        "20/0/init/body/23/argument/3/1/1/1/expression/alternate/3/1/11/3/1/expression/0": {
+          "type": "element",
+          "hash": "f809576abae9e34fac662c1d76c7dce3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "API Key ID"
+        },
         "20/0/init/body/23/argument/3/1/1/1/expression/alternate/3/1/11/3/11/1/3": {
           "type": "element",
           "hash": "1719429e761a0f3661b7be300ab19efa",
@@ -15290,6 +17866,22 @@
           "skip": false,
           "overrides": {},
           "content": "Expires on <function:formatDate/>"
+        },
+        "20/0/init/body/23/argument/3/1/1/1/expression/alternate/3/1/11/3/3/expression/right/0": {
+          "type": "element",
+          "hash": "37f5ba37f71cb50607af32a6a203b1d4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "User ID"
+        },
+        "20/0/init/body/23/argument/3/1/1/1/expression/alternate/3/1/11/3/5/expression/right/0": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
         },
         "20/0/init/body/23/argument/3/1/1/1/expression/alternate/3/1/11/3/7/expression/right/1/1": {
           "type": "element",
@@ -15322,6 +17914,14 @@
           "skip": false,
           "overrides": {},
           "content": "API key name"
+        },
+        "20/0/init/body/23/argument/3/1/1/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9368b5a047572b6051f334af5aa76819",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name"
         },
         "20/0/init/body/23/argument/3/1/1/1/expression/consequent/13/1-title": {
           "type": "attribute",
@@ -15379,6 +17979,14 @@
           "overrides": {},
           "content": "Deleting API key..."
         },
+        "20/0/init/body/23/argument/3/1/1/1/expression/consequent/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "4e1fcce15854d824919b4a582c697c90",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Status"
+        },
         "20/0/init/body/23/argument/3/1/1/1/expression/consequent/5/1/3": {
           "type": "element",
           "hash": "2a3ec437391a59b86e8b28fdf00d0a29",
@@ -15394,6 +18002,14 @@
           "skip": false,
           "overrides": {},
           "content": "Select expiry date and time"
+        },
+        "20/0/init/body/23/argument/3/1/1/1/expression/consequent/5/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "ae95c3fff4ffd087a40fc824b67389cc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Expiration"
         },
         "20/0/init/body/23/argument/3/1/1/1/expression/consequent/9/1/1": {
           "type": "element",
@@ -15411,6 +18027,14 @@
           "overrides": {},
           "content": "External identifier"
         },
+        "20/0/init/body/23/argument/3/1/1/1/expression/consequent/9/1/3/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
         "20/0/init/body/23/argument/3/1/1/1/expression/consequent/9/1/3/3/1-placeholder": {
           "type": "attribute",
           "hash": "0af31551dedeae5ed5c047925d94af32",
@@ -15418,6 +18042,14 @@
           "skip": false,
           "overrides": {},
           "content": "Additional data for external systems (JSON, etc.)"
+        },
+        "20/0/init/body/23/argument/3/1/1/1/expression/consequent/9/1/3/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
         }
       }
     },
@@ -16755,6 +19387,38 @@
           "overrides": {},
           "content": "12-word seed phrase to generate wallet addresses"
         },
+        "16/0/init/body/30/argument/1/5/3/7/expression/consequent/3/expression/0": {
+          "type": "element",
+          "hash": "e56e503cc44c72cf01a54b5a3e860fb9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP Address"
+        },
+        "16/0/init/body/30/argument/1/5/3/7/expression/consequent/3/expression/3": {
+          "type": "element",
+          "hash": "b648ce48fe054406f5648eee7327cb7a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP wallet address derived from seed phrase"
+        },
+        "16/0/init/body/30/argument/1/5/3/7/expression/consequent/5/expression/0": {
+          "type": "element",
+          "hash": "6d0a690bc7509bb025111e3bdd448e76",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "EVM Address"
+        },
+        "16/0/init/body/30/argument/1/5/3/7/expression/consequent/5/expression/3": {
+          "type": "element",
+          "hash": "4594db7940b154823c5a60a073abae52",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Ethereum wallet address derived from seed phrase"
+        },
         "16/0/init/body/30/argument/1/5/3/9/1-placeholder": {
           "type": "attribute",
           "hash": "c946c57063944e6a898e3cb0863dbbae",
@@ -17931,6 +20595,38 @@
           "overrides": {},
           "content": "Advanced<expression/>"
         },
+        "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/1/expression/0": {
+          "type": "element",
+          "hash": "37f5ba37f71cb50607af32a6a203b1d4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "User ID"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/11/expression/0": {
+          "type": "element",
+          "hash": "9c0b3aeca046c3ebd3bdc352edc83e88",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Owner"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/11/expression/1/alternate": {
+          "type": "element",
+          "hash": "12468a8b5a0a90066cbef9f0f1b45f8e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Owned by Organization"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/11/expression/1/consequent": {
+          "type": "element",
+          "hash": "6fd20a7286c13d53afaa561825320dca",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Self-Custodied Account"
+        },
         "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/13/expression/right/1/1": {
           "type": "element",
           "hash": "57d3f3b03a63b24ee174fc1a4c486190",
@@ -17971,6 +20667,38 @@
           "overrides": {},
           "content": "External ID: {contact.external_id}"
         },
+        "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/3/expression/0": {
+          "type": "element",
+          "hash": "e7f34943a0c2fb849db1839ff6ef5cb5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Email"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/5/expression/right/0": {
+          "type": "element",
+          "hash": "c52df856139b50dbb1cae7bfb1cf73bb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Notifications"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/7/expression/right/0": {
+          "type": "element",
+          "hash": "0f86520cb008d2bfdc8d0f3c07142ab1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "EVM Wallet"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/9/expression/right/0": {
+          "type": "element",
+          "hash": "671ff937692a36a172088f6812b4175c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP Wallet"
+        },
         "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/5/1/3/expression/right": {
           "type": "element",
           "hash": "db65092789273807f3640e7e55c1476d",
@@ -18003,6 +20731,14 @@
           "overrides": {},
           "content": "Contact name"
         },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9368b5a047572b6051f334af5aa76819",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name"
+        },
         "19/0/init/body/21/argument/3/1/1/1/expression/consequent/11/1-placeholder": {
           "type": "attribute",
           "hash": "c946c57063944e6a898e3cb0863dbbae",
@@ -18011,6 +20747,14 @@
           "overrides": {},
           "content": "Public information about this contact"
         },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/11/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "720edb7b9c75f196feef3ef63cc49313",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public Note"
+        },
         "19/0/init/body/21/argument/3/1/1/1/expression/consequent/13/expression/right/1-placeholder": {
           "type": "attribute",
           "hash": "dcf57cafbfe7a5a9faefe8309c9da16d",
@@ -18018,6 +20762,22 @@
           "skip": false,
           "overrides": {},
           "content": "Private notes (only visible to owners and editors)"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/13/expression/right/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "65b124844397707d4bde584f3dcfe979",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Private Note"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/13/expression/right/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "bde74e0f9bf6b50f5e5299d64f614d19",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only organization owners and editors can view this note"
         },
         "19/0/init/body/21/argument/3/1/1/1/expression/consequent/17/1-title": {
           "type": "attribute",
@@ -18083,6 +20843,14 @@
           "overrides": {},
           "content": "Email address"
         },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "e7f34943a0c2fb849db1839ff6ef5cb5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Email"
+        },
         "19/0/init/body/21/argument/3/1/1/1/expression/consequent/5/1-placeholder": {
           "type": "attribute",
           "hash": "b0d6a705ef42c766070d15f5d3fc051d",
@@ -18091,8 +20859,24 @@
           "overrides": {},
           "content": "EVM wallet address"
         },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/5/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "d7f27f04037ab39a1e3c717fc7111d54",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "EVM Wallet Address"
+        },
         "19/0/init/body/21/argument/3/1/1/1/expression/consequent/9/1-placeholder": {
           "type": "attribute",
+          "hash": "c52df856139b50dbb1cae7bfb1cf73bb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Notifications"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/9/openingElement/1/value/expression": {
+          "type": "element",
           "hash": "c52df856139b50dbb1cae7bfb1cf73bb",
           "context": "",
           "skip": false,
@@ -20131,6 +22915,14 @@
           "overrides": {},
           "content": "Advanced<expression/>"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/1/expression/0": {
+          "type": "element",
+          "hash": "eefd1c02212e60e7187b46d840abd21f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Disk ID"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/11/1/3": {
           "type": "element",
           "hash": "dd822cb566de6e25b5cf0c329e7234f8",
@@ -20154,6 +22946,22 @@
           "skip": false,
           "overrides": {},
           "content": "External Payload: {disk.external_payload}"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/3/expression/right/0": {
+          "type": "element",
+          "hash": "e8b196fbe345ff934a1dfd46143afc9b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Auth JSON"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/5/expression/right/0": {
+          "type": "element",
+          "hash": "b01dbdd049ebbd4a349fa64d6ce65a3b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Billing"
         },
         "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/7/expression/right/1/1": {
           "type": "element",
@@ -20202,6 +23010,14 @@
           "skip": false,
           "overrides": {},
           "content": "Disk name"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9368b5a047572b6051f334af5aa76819",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name"
         },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/11/1-title": {
           "type": "attribute",
@@ -20299,6 +23115,14 @@
           "overrides": {},
           "content": "StorjWeb3 Bucket"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "faedd8b25303accb4e8310b4189e3375",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Disk Type"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/5/1-placeholder": {
           "type": "attribute",
           "hash": "d6bf637d0e8781a3530f898637855ec8",
@@ -20306,6 +23130,14 @@
           "skip": false,
           "overrides": {},
           "content": "Public information about this disk"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/5/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "720edb7b9c75f196feef3ef63cc49313",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public Note"
         },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/1/1-placeholder": {
           "type": "attribute",
@@ -20315,6 +23147,14 @@
           "overrides": {},
           "content": "URL for disk billing and info"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec2d6c138275592a2f945c029ae9ffde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Endpoint URL"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/3/1-placeholder": {
           "type": "attribute",
           "hash": "dcf57cafbfe7a5a9faefe8309c9da16d",
@@ -20322,6 +23162,22 @@
           "skip": false,
           "overrides": {},
           "content": "Private notes (only visible to owners and editors)"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "65b124844397707d4bde584f3dcfe979",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Private Note"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/3/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "bd4d2d4103b0464f38894bc14c28b6c0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only organization owners and editors can view this note"
         },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/5/expression/right/1-placeholder": {
           "type": "attribute",
@@ -20331,6 +23187,22 @@
           "overrides": {},
           "content": "{\"key\": \"value\", ...}"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/5/expression/right/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "7e45f9c0697f70ffeabcff5b54edfb21",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Authentication JSON"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/5/expression/right/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "9164a139df568b1216e016c1ad95da01",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Authentication information for cloud storage"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/7/1-placeholder": {
           "type": "attribute",
           "hash": "515c2bd7e7e5827dc1c7f0b1bd8c3c46",
@@ -20339,6 +23211,14 @@
           "overrides": {},
           "content": "External identifier"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/7/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/9/1-placeholder": {
           "type": "attribute",
           "hash": "c21a7b72df47f92d1948e2ab336495a8",
@@ -20346,6 +23226,14 @@
           "skip": false,
           "overrides": {},
           "content": "Additional data for external systems"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/expression/right/9/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
         }
       }
     },
@@ -21839,6 +24727,22 @@
           "overrides": {},
           "content": "Advanced<expression/>"
         },
+        "17/0/init/body/19/argument/3/1/1/1/expression/alternate/3/1/11/3/1/expression/0": {
+          "type": "element",
+          "hash": "a0687363ff81986157c5a2d871bb717e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Drive ID"
+        },
+        "17/0/init/body/19/argument/3/1/1/1/expression/alternate/3/1/11/3/3/expression/0": {
+          "type": "element",
+          "hash": "660a4d8a7736ad466f1d827c908ab444",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP Principal"
+        },
         "17/0/init/body/19/argument/3/1/1/1/expression/alternate/3/1/11/3/5/expression/right/1/1": {
           "type": "element",
           "hash": "57d3f3b03a63b24ee174fc1a4c486190",
@@ -21895,6 +24799,14 @@
           "overrides": {},
           "content": "Drive name"
         },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9368b5a047572b6051f334af5aa76819",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name"
+        },
         "17/0/init/body/19/argument/3/1/1/1/expression/consequent/11/1-placeholder": {
           "type": "attribute",
           "hash": "c21a7b72df47f92d1948e2ab336495a8",
@@ -21902,6 +24814,14 @@
           "skip": false,
           "overrides": {},
           "content": "Additional data for external systems"
+        },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/11/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
         },
         "17/0/init/body/19/argument/3/1/1/1/expression/consequent/15/1-title": {
           "type": "attribute",
@@ -21967,6 +24887,14 @@
           "overrides": {},
           "content": "https://example.com/endpoint"
         },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec2d6c138275592a2f945c029ae9ffde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Endpoint URL"
+        },
         "17/0/init/body/19/argument/3/1/1/1/expression/consequent/5/1-placeholder": {
           "type": "attribute",
           "hash": "17f0fd320f6c767e3c626d8d4360fc64",
@@ -21974,6 +24902,14 @@
           "skip": false,
           "overrides": {},
           "content": "Public information about this drive"
+        },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/5/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "720edb7b9c75f196feef3ef63cc49313",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public Note"
         },
         "17/0/init/body/19/argument/3/1/1/1/expression/consequent/7/expression/right/1-placeholder": {
           "type": "attribute",
@@ -21983,6 +24919,22 @@
           "overrides": {},
           "content": "Private notes (only visible to owners and editors)"
         },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/7/expression/right/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "65b124844397707d4bde584f3dcfe979",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Private Note"
+        },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/7/expression/right/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "bde74e0f9bf6b50f5e5299d64f614d19",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only organization owners and editors can view this note"
+        },
         "17/0/init/body/19/argument/3/1/1/1/expression/consequent/9/1-placeholder": {
           "type": "attribute",
           "hash": "515c2bd7e7e5827dc1c7f0b1bd8c3c46",
@@ -21990,6 +24942,14 @@
           "skip": false,
           "overrides": {},
           "content": "External identifier"
+        },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/9/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
         }
       }
     },
@@ -23975,6 +26935,22 @@
           "overrides": {},
           "content": "Advanced<expression/>"
         },
+        "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/1/11/3/1/expression/0": {
+          "type": "element",
+          "hash": "4ac57295e742d0996b0625436ee6103c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Group ID"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/1/11/3/3/expression/right/0": {
+          "type": "element",
+          "hash": "51b08ccb9bd5c9c467863bfa239ef16b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Endpoint"
+        },
         "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/1/11/3/5/expression/right/1/1": {
           "type": "element",
           "hash": "57d3f3b03a63b24ee174fc1a4c486190",
@@ -24135,6 +27111,14 @@
           "overrides": {},
           "content": "Group name"
         },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "76797f0870c6436b91ebf3675a3970b8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Group Name"
+        },
         "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/11/1-placeholder": {
           "type": "attribute",
           "hash": "36179e11331dbf6d107752d2b98ec79c",
@@ -24142,6 +27126,14 @@
           "skip": false,
           "overrides": {},
           "content": "JSON or other data format"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/11/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
         },
         "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/15/1-title": {
           "type": "attribute",
@@ -24207,6 +27199,14 @@
           "overrides": {},
           "content": "https://example.com/api/webhook"
         },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "51b08ccb9bd5c9c467863bfa239ef16b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Endpoint"
+        },
         "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/5/1-placeholder": {
           "type": "attribute",
           "hash": "e94bd3d85e755c295c10aedbe3cc80a0",
@@ -24214,6 +27214,14 @@
           "skip": false,
           "overrides": {},
           "content": "Public information about this group"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/5/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "720edb7b9c75f196feef3ef63cc49313",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public Note"
         },
         "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/7/expression/right/1-placeholder": {
           "type": "attribute",
@@ -24223,6 +27231,22 @@
           "overrides": {},
           "content": "Private notes (only visible to owners and editors)"
         },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/7/expression/right/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "65b124844397707d4bde584f3dcfe979",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Private Note"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/7/expression/right/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "ffa95e8f6a7b9888152dd60e09d8c74a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only group owners and editors can view this note"
+        },
         "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/9/1-placeholder": {
           "type": "attribute",
           "hash": "515c2bd7e7e5827dc1c7f0b1bd8c3c46",
@@ -24230,6 +27254,14 @@
           "skip": false,
           "overrides": {},
           "content": "External identifier"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/9/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
         }
       }
     },
@@ -25122,6 +28154,14 @@
           "skip": false,
           "overrides": {},
           "content": "Success! Share this link with anyone you want to invite to the group."
+        },
+        "23/0/init/body/27/argument/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7c3709e2cf8405509a059e5880a09eb3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Magic Invite Link"
         },
         "23/0/init/body/27/argument/1/5/1": {
           "type": "element",
@@ -26275,6 +29315,14 @@
           "overrides": {},
           "content": "Enter label text"
         },
+        "10/0/init/body/9/argument/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "a5c71bf158481233f8215dbd38cc196b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Label"
+        },
         "10/0/init/body/9/argument/1/5/1": {
           "type": "element",
           "hash": "b09cc773a732327fdd54686adde326db",
@@ -26283,6 +29331,22 @@
           "overrides": {},
           "content": "Advanced Settings<expression/>"
         },
+        "10/0/init/body/9/argument/1/5/3/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e17686a22ffad04cc7bb70524ed4478b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Description"
+        },
+        "10/0/init/body/9/argument/1/5/3/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9d53d1d120e8b8954bcae9a322573748",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Color"
+        },
         "10/0/init/body/9/argument/1/5/3/5/1-placeholder": {
           "type": "attribute",
           "hash": "8c8dd9a10a0087c70ba3142d195941a5",
@@ -26290,6 +29354,22 @@
           "skip": false,
           "overrides": {},
           "content": "External system identifier"
+        },
+        "10/0/init/body/9/argument/1/5/3/5/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
+        "10/0/init/body/9/argument/1/5/3/7/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
         },
         "10/0/init/body/9/argument/openingElement/6/value/expression/1/1": {
           "type": "element",
@@ -26699,6 +29779,38 @@
           "overrides": {},
           "content": "Advanced<expression/>"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/5/3/1/expression/0": {
+          "type": "element",
+          "hash": "2374000d3df709079bb4fc5292589d5c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Label ID"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/5/3/3/expression/0": {
+          "type": "element",
+          "hash": "9d53d1d120e8b8954bcae9a322573748",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Color"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/5/3/5/expression/right/0": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/5/3/7/expression/right/0": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/5/3/9/1/3": {
           "type": "element",
           "hash": "0e50831094434f99a49251e8d6c7dc7c",
@@ -26738,6 +29850,14 @@
           "skip": false,
           "overrides": {},
           "content": "Label name"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "682eade7443c047bc680664f821c9e0d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Label Name"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/13/1-title": {
           "type": "attribute",
@@ -26803,6 +29923,22 @@
           "overrides": {},
           "content": "Description of this label"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "e17686a22ffad04cc7bb70524ed4478b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Description"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/5/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9d53d1d120e8b8954bcae9a322573748",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Color"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/7/1-placeholder": {
           "type": "attribute",
           "hash": "8c8dd9a10a0087c70ba3142d195941a5",
@@ -26811,6 +29947,14 @@
           "overrides": {},
           "content": "External system identifier"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/7/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/9/1-placeholder": {
           "type": "attribute",
           "hash": "c21a7b72df47f92d1948e2ab336495a8",
@@ -26818,6 +29962,14 @@
           "skip": false,
           "overrides": {},
           "content": "Additional data for external systems"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/9/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
         }
       }
     },
@@ -27451,6 +30603,150 @@
           "overrides": {},
           "content": "External identifier"
         },
+        "22/0/init/body/10/0/init/body/3/alternate/alternate/alternate/alternate/alternate/alternate/alternate/alternate/alternate/0/argument": {
+          "type": "element",
+          "hash": "a366a3b360fc938a8bc7ae966ac2f24b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "System Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/alternate/alternate/alternate/alternate/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "2fd9dbe53d712267d1ccde2824181395",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Permission Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/alternate/alternate/alternate/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "1921285263b44630e939ec39875f19e7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Label Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/alternate/alternate/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "5b23cd9e0dda9d96e1d4c2c2aa424d0f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Webhook Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/alternate/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "82a953628eb9d9635d71b753d0a2bfeb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "API Key Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "faf82732043cd7c9ce1421acbc0c443e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Group Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "93e0a0147b034ba5602da8cf22a7f122",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "User Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "1e654ae8774302ed51a1fff1db8f816d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Disk Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "ea6725559e75d9b8a3ac7249533bdd73",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Drive Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/consequent/1/0/0/argument": {
+          "type": "element",
+          "hash": "dbac88133b6bed61aa64e42ba9507f68",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Drives Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/consequent/1/1/0/argument": {
+          "type": "element",
+          "hash": "adaea299d3ece823dc7046055fc2479b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Disks Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/consequent/1/2/0/argument": {
+          "type": "element",
+          "hash": "fda0dba1efd5f4e22bd8ff894e8c2ba6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Contacts Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/consequent/1/3/0/argument": {
+          "type": "element",
+          "hash": "273becb7540dc491c7c9ef1d00b875ee",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Groups Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/consequent/1/4/0/argument": {
+          "type": "element",
+          "hash": "a4d4d8a4c4e505fb59565f8306f2a5c1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Webhooks Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/consequent/1/5/0/argument": {
+          "type": "element",
+          "hash": "23fb3ee778969f2e5aec695fc1813848",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All API Keys Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/consequent/1/6/0/argument": {
+          "type": "element",
+          "hash": "63036cdb57090a67af74909ff49451bc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Permissions Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/consequent/1/7/0/argument": {
+          "type": "element",
+          "hash": "9ab2781232d83747c68d03699e16357c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Labels Permit"
+        },
+        "22/0/init/body/10/0/init/body/3/consequent/1/8/0/argument": {
+          "type": "element",
+          "hash": "a366a3b360fc938a8bc7ae966ac2f24b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "System Permit"
+        },
         "22/0/init/body/12/0/init/body/0/expression/0/body/6/expression/0/alternate": {
           "type": "element",
           "hash": "b4942511b8ec61135f2dc4983755be50",
@@ -27675,6 +30971,38 @@
           "overrides": {},
           "content": "Advanced<expression/>"
         },
+        "22/0/init/body/29/argument/3/1/1/1/expression/alternate/3/1/9/3/1/expression/0": {
+          "type": "element",
+          "hash": "6a34be423e0070204815ae6879cf6eab",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Permission ID"
+        },
+        "22/0/init/body/29/argument/3/1/1/1/expression/alternate/3/1/9/3/3/expression/0": {
+          "type": "element",
+          "hash": "f23c90ba52d5a7c1ee25e5cda2055aa6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Granted By"
+        },
+        "22/0/init/body/29/argument/3/1/1/1/expression/alternate/3/1/9/3/5/expression/right/0": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
+        "22/0/init/body/29/argument/3/1/1/1/expression/alternate/3/1/9/3/7/expression/right/0": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
+        },
         "22/0/init/body/29/argument/3/1/1/1/expression/alternate/3/1/9/3/9/1/3": {
           "type": "element",
           "hash": "00dda993e614ee52b21323825307b1b4",
@@ -27691,6 +31019,14 @@
           "overrides": {},
           "content": "Last Modified: <function:formatDate/>"
         },
+        "22/0/init/body/29/argument/3/1/1/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9a3a9ecb431514c62f64d594d7f57a11",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Permission Types"
+        },
         "22/0/init/body/29/argument/3/1/1/1/expression/consequent/11/1-placeholder": {
           "type": "attribute",
           "hash": "7e5ecfd9cb34e005f3d3a507c252840b",
@@ -27698,6 +31034,14 @@
           "skip": false,
           "overrides": {},
           "content": "{\"key\": \"value\"}"
+        },
+        "22/0/init/body/29/argument/3/1/1/1/expression/consequent/11/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
         },
         "22/0/init/body/29/argument/3/1/1/1/expression/consequent/15/1-title": {
           "type": "attribute",
@@ -27739,6 +31083,14 @@
           "overrides": {},
           "content": "No"
         },
+        "22/0/init/body/29/argument/3/1/1/1/expression/consequent/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "f92726b0d032e7bf31ea0b784dfcd365",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Active Date Range"
+        },
         "22/0/init/body/29/argument/3/1/1/1/expression/consequent/5/1-placeholder": {
           "type": "attribute",
           "hash": "7e4025b9bc5f30dd7fcc617134ad472a",
@@ -27747,6 +31099,14 @@
           "overrides": {},
           "content": "Add notes about this permission"
         },
+        "22/0/init/body/29/argument/3/1/1/1/expression/consequent/5/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "93c7ef9bc767f51fbe360afcf6b1fecb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Notes"
+        },
         "22/0/init/body/29/argument/3/1/1/1/expression/consequent/9/1-placeholder": {
           "type": "attribute",
           "hash": "515c2bd7e7e5827dc1c7f0b1bd8c3c46",
@@ -27754,6 +31114,14 @@
           "skip": false,
           "overrides": {},
           "content": "External identifier"
+        },
+        "22/0/init/body/29/argument/3/1/1/1/expression/consequent/9/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
         }
       }
     },
@@ -27998,6 +31366,158 @@
           "skip": false,
           "overrides": {},
           "content": "+<expression/>"
+        },
+        "22/0/init/body/20/0/init/body/0/alternate/0/argument": {
+          "type": "element",
+          "hash": "168fbf791e1f351b4277c572e940fb51",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Directory Permit"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/alternate/alternate/alternate/alternate/alternate/alternate/alternate/alternate/alternate/0/argument": {
+          "type": "element",
+          "hash": "cc2ed7274bd8267f9e0a10b079584d8b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Permission"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/alternate/alternate/alternate/alternate/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "a366a3b360fc938a8bc7ae966ac2f24b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "System Permit"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/alternate/alternate/alternate/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "488a8911d6ff235f56a400b4a1327e39",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Single Label"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/alternate/alternate/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "1231ce5d991edcca379cd88ad4d1e0b3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Single Webhook"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/alternate/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "da824dc617e1c1f63ede26345820aeb0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Single API Key"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/alternate/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "369c4718d4f7a5e11939cf2934e80350",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Single Group"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/alternate/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "20d123a5703a6e5b040211036f655cdb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Single User"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/alternate/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "259dc2d4cb1f40838222638f112beaa4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Single Disk"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/alternate/consequent/0/argument": {
+          "type": "element",
+          "hash": "be4c04b9b986f9493bb4ff58bed37fa6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Single Drive"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/consequent/1/0/0/argument": {
+          "type": "element",
+          "hash": "0ed9d5ef8827c4f86109acfde7699c06",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Drives"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/consequent/1/1/0/argument": {
+          "type": "element",
+          "hash": "cad31ff642ead443289894462fa6649b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Disks"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/consequent/1/2/0/argument": {
+          "type": "element",
+          "hash": "03b3e78ea62c8c1c1094f7b1c0419dd4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Contacts"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/consequent/1/3/0/argument": {
+          "type": "element",
+          "hash": "52a29a58274e920f964c08b677caa1c7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Groups"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/consequent/1/4/0/argument": {
+          "type": "element",
+          "hash": "24646d7dbc4bb4dc6b0c0149749ef6a6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Webhooks"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/consequent/1/5/0/argument": {
+          "type": "element",
+          "hash": "bf0410c5ea1b2750c7951f2a0053c1a5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All API Keys"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/consequent/1/6/0/argument": {
+          "type": "element",
+          "hash": "05c97f1dbaf0840277f45b9a4daf279e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Permissions"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/consequent/1/7/0/argument": {
+          "type": "element",
+          "hash": "96c474c7e460e88f970f9639c0a3ced2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "All Labels"
+        },
+        "22/0/init/body/20/0/init/body/0/consequent/3/consequent/1/8/0/argument": {
+          "type": "element",
+          "hash": "803281c327a02a2feba182f4a2b38311",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "System"
         },
         "22/0/init/body/22/argument/3/1/3/3/1-placeholder": {
           "type": "attribute",
@@ -28659,6 +32179,14 @@
           "overrides": {},
           "content": "Record Resource"
         },
+        "19/0/init/body/47/body/0/argument/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "b8731f5a141e6c907ba4d763ce782cf6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Resource Type"
+        },
         "19/0/init/body/47/body/0/argument/3/1/expression/alternate-placeholder": {
           "type": "attribute",
           "hash": "46a41cba51ce8a42e8e7395a854c1557",
@@ -28857,11 +32385,11 @@
       "scopes": {
         "19/0/init/body/17/argument/1/1": {
           "type": "element",
-          "hash": "c2449f96957025af4feb19894114e1b4",
+          "hash": "7b22aa763778d2d8948a504a4e532879",
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Purchase History - OfficeX"
+          "content": "Purchase History"
         },
         "19/0/init/body/17/argument/3/1/1": {
           "type": "element",
@@ -30675,6 +34203,86 @@
           "overrides": {},
           "content": "Advanced<expression/>"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/1/expression/0": {
+          "type": "element",
+          "hash": "5dcb1af87430d4e3bd1341e88531bb9e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Vendor Name"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/11/expression/0": {
+          "type": "element",
+          "hash": "30402d7d0b5ecb0ffccf003ba34bf695",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "About URL"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/13/expression/0": {
+          "type": "element",
+          "hash": "a73964d6a1d4700f358366c9d2deef8f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Billing URL"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/15/expression/0": {
+          "type": "element",
+          "hash": "3982a7ec4a4451e312387e12dc7afb2c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Support URL"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/17/expression/0": {
+          "type": "element",
+          "hash": "439c8e1e6e8863ded7fc1932ea1361a4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Delivery URL"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/19/expression/0": {
+          "type": "element",
+          "hash": "cdd9e740c83cde8a524a14e215b14b93",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Verification URL"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/21/expression/0": {
+          "type": "element",
+          "hash": "ef30a9e019f7544beb6a8d1014083700",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Installation URL"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/23/expression/0": {
+          "type": "element",
+          "hash": "9c8c859e29db47f0f917a99e737848bc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Tracer"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/25/expression/0": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/27/expression/0": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/29/1/3": {
           "type": "element",
           "hash": "dd822cb566de6e25b5cf0c329e7234f8",
@@ -30691,6 +34299,38 @@
           "overrides": {},
           "content": "Last updated on <function:formatDate/>"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/3/expression/0": {
+          "type": "element",
+          "hash": "3a888709294884621be705390fe96dc1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Vendor ID"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/5/expression/0": {
+          "type": "element",
+          "hash": "4e1fcce15854d824919b4a582c697c90",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Status"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/7/expression/0": {
+          "type": "element",
+          "hash": "ce27f1aeacccc542a174c4b2bce022b0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Pricing"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/alternate/3/1/9/3/9/expression/right/0": {
+          "type": "element",
+          "hash": "a2fde7cbbdc78561eca478a4eff1a095",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Vendor Notes"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/1/1-placeholder": {
           "type": "attribute",
           "hash": "c631e24446a11c592795546ad990cafb",
@@ -30698,6 +34338,14 @@
           "skip": false,
           "overrides": {},
           "content": "Purchase Title"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "344e64395eaff6822a57d18623853e1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Title"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/11/1-placeholder": {
           "type": "attribute",
@@ -30707,6 +34355,14 @@
           "overrides": {},
           "content": "Notes from the vendor"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/11/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "a2fde7cbbdc78561eca478a4eff1a095",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Vendor Notes"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/13/1-placeholder": {
           "type": "attribute",
           "hash": "2627893a4c4fddce78bacc7650b12ae4",
@@ -30714,6 +34370,14 @@
           "skip": false,
           "overrides": {},
           "content": "URL for more info about this purchase"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/13/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "30402d7d0b5ecb0ffccf003ba34bf695",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "About URL"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/15/1-placeholder": {
           "type": "attribute",
@@ -30723,6 +34387,14 @@
           "overrides": {},
           "content": "URL to run or access the purchase"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/15/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "67e537795287c3403985c506f68f23ee",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Run URL"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/17/1-placeholder": {
           "type": "attribute",
           "hash": "944b3e72cfe9afe0e9d706ba02d7da2b",
@@ -30730,6 +34402,14 @@
           "skip": false,
           "overrides": {},
           "content": "URL for billing details"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/17/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "a73964d6a1d4700f358366c9d2deef8f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Billing URL"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/19/1-placeholder": {
           "type": "attribute",
@@ -30739,6 +34419,14 @@
           "overrides": {},
           "content": "URL for support"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/19/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3982a7ec4a4451e312387e12dc7afb2c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Support URL"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/21/1-placeholder": {
           "type": "attribute",
           "hash": "f96600ce2a7af339fb5200752cd9bdf8",
@@ -30746,6 +34434,14 @@
           "skip": false,
           "overrides": {},
           "content": "URL for delivery status/info"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/21/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "439c8e1e6e8863ded7fc1932ea1361a4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Delivery URL"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/23/1-placeholder": {
           "type": "attribute",
@@ -30755,6 +34451,14 @@
           "overrides": {},
           "content": "URL for verification"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/23/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "cdd9e740c83cde8a524a14e215b14b93",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Verification URL"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/25/1-placeholder": {
           "type": "attribute",
           "hash": "f2ecec62e71e848fef2fc5be0b167717",
@@ -30762,6 +34466,14 @@
           "skip": false,
           "overrides": {},
           "content": "URL to install the purchase script"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/25/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ef30a9e019f7544beb6a8d1014083700",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Installation URL"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/27/1-placeholder": {
           "type": "attribute",
@@ -30771,6 +34483,14 @@
           "overrides": {},
           "content": "Add related resource IDs"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/27/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "be6957b493156ba3faf65fd278e2823c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Related Resources (IDs)"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/29/1-placeholder": {
           "type": "attribute",
           "hash": "156e65e04a20334eb7c06061b9ded398",
@@ -30778,6 +34498,14 @@
           "skip": false,
           "overrides": {},
           "content": "Add labels"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/29/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "6f15627a90002323eac018274b6922d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Labels"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/3/1-placeholder": {
           "type": "attribute",
@@ -30787,6 +34515,14 @@
           "overrides": {},
           "content": "Purchase Subtitle"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "bbf00a1e463fc9f5b807848da6a7dbd1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Subtitle"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/31/1-placeholder": {
           "type": "attribute",
           "hash": "eda0a949d11fd4fa164e50f9e28829d1",
@@ -30794,6 +34530,14 @@
           "skip": false,
           "overrides": {},
           "content": "Tracer string"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/31/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9c8c859e29db47f0f917a99e737848bc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Tracer"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/33/1-placeholder": {
           "type": "attribute",
@@ -30803,6 +34547,14 @@
           "overrides": {},
           "content": "External identifier"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/33/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/35/1-placeholder": {
           "type": "attribute",
           "hash": "c21a7b72df47f92d1948e2ab336495a8",
@@ -30810,6 +34562,14 @@
           "skip": false,
           "overrides": {},
           "content": "Additional data for external systems"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/35/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/39/1-title": {
           "type": "attribute",
@@ -30875,6 +34635,14 @@
           "overrides": {},
           "content": "Detailed description of the purchase"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/5/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "e17686a22ffad04cc7bb70524ed4478b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Description"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/7/1-placeholder": {
           "type": "attribute",
           "hash": "1575a397d6b39d3ef472488f9c0adbf6",
@@ -30883,6 +34651,14 @@
           "overrides": {},
           "content": "Select Status"
         },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/7/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "4e1fcce15854d824919b4a582c697c90",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Status"
+        },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/9/1-placeholder": {
           "type": "attribute",
           "hash": "fb22dd7399a4ca5f30d5c86eeab18b3e",
@@ -30890,6 +34666,14 @@
           "skip": false,
           "overrides": {},
           "content": "Pricing information"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/9/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ce27f1aeacccc542a174c4b2bce022b0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Pricing"
         }
       }
     },
@@ -32787,6 +36571,22 @@
           "overrides": {},
           "content": "Advanced<expression/>"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/1/expression/0": {
+          "type": "element",
+          "hash": "68030b4549deb1c02d1dd5f29b1fb45e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Resource"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/11/expression/right/0": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/13/expression/right/1/1": {
           "type": "element",
           "hash": "73aa1b2bd8f99276f4418dbc00bd8d33",
@@ -32819,6 +36619,38 @@
           "overrides": {},
           "content": "Created on <function:formatDate/>"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/3/expression/0": {
+          "type": "element",
+          "hash": "c270ca35b47a1b03353b1226ab586db4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Full URL"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/5/expression/0": {
+          "type": "element",
+          "hash": "b4105071f0bb705763e2486053afcc5a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Webhook ID"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/7/expression/right/0": {
+          "type": "element",
+          "hash": "f27cd2bc9c74af4be75578c6417dad41",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Signature"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/9/expression/right/0": {
+          "type": "element",
+          "hash": "acf5accc113ff3c1992688058576732c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filters"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/1/1-placeholder": {
           "type": "attribute",
           "hash": "bcdd0587f422ba9ccf9821079f613468",
@@ -32826,6 +36658,14 @@
           "skip": false,
           "overrides": {},
           "content": "https://example.com/webhook"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec2d6c138275592a2f945c029ae9ffde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Endpoint URL"
         },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/11/1-placeholder": {
           "type": "attribute",
@@ -32835,6 +36675,14 @@
           "overrides": {},
           "content": "Webhook signature"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/11/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "f27cd2bc9c74af4be75578c6417dad41",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Signature"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/13/1-placeholder": {
           "type": "attribute",
           "hash": "7e5ecfd9cb34e005f3d3a507c252840b",
@@ -32842,6 +36690,14 @@
           "skip": false,
           "overrides": {},
           "content": "{\"key\": \"value\"}"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/13/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "acf5accc113ff3c1992688058576732c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filters"
         },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/15/1-placeholder": {
           "type": "attribute",
@@ -32851,6 +36707,14 @@
           "overrides": {},
           "content": "External identifier"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/15/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "0e2f087f5c7bac1a4563cd03d1581ec5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External ID"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/17/1-placeholder": {
           "type": "attribute",
           "hash": "7e5ecfd9cb34e005f3d3a507c252840b",
@@ -32858,6 +36722,14 @@
           "skip": false,
           "overrides": {},
           "content": "{\"key\": \"value\"}"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/17/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "21335b559e29a897c21e389b0b023987",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External Payload"
         },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/21/1-title": {
           "type": "attribute",
@@ -32923,6 +36795,14 @@
           "overrides": {},
           "content": "Name"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9368b5a047572b6051f334af5aa76819",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/5/1-placeholder": {
           "type": "attribute",
           "hash": "e17686a22ffad04cc7bb70524ed4478b",
@@ -32930,6 +36810,22 @@
           "skip": false,
           "overrides": {},
           "content": "Description"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/5/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "e17686a22ffad04cc7bb70524ed4478b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Description"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/7/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3e1ec025c4a50830bbb9ad57a176630a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Active"
         }
       }
     },

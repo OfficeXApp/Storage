@@ -229,10 +229,10 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
-    tooltip: string
+    tooltip: React.ReactNode
   ) => {
     return (
       <Form.Item
@@ -547,17 +547,17 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
                 </Form.Item>
 
                 {renderReadOnlyField(
-                  "ICP Address",
+                  <span>ICP Address</span>,
                   icpAddress,
                   <WalletOutlined />,
-                  "ICP wallet address derived from seed phrase"
+                  <span>ICP wallet address derived from seed phrase</span>
                 )}
 
                 {renderReadOnlyField(
-                  "EVM Address",
+                  <span>EVM Address</span>,
                   evmAddress,
                   <WalletOutlined />,
-                  "Ethereum wallet address derived from seed phrase"
+                  <span>Ethereum wallet address derived from seed phrase</span>
                 )}
               </>
             ) : (

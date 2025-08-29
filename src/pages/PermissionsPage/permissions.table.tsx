@@ -444,48 +444,48 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
         // Map table names to titles
         switch (tableName) {
           case "DRIVES":
-            return "All Drives";
+            return <span>All Drives</span>;
           case "DISKS":
-            return "All Disks";
+            return <span>All Disks</span>;
           case "CONTACTS":
-            return "All Contacts";
+            return <span>All Contacts</span>;
           case "GROUPS":
-            return "All Groups";
+            return <span>All Groups</span>;
           case "WEBHOOKS":
-            return "All Webhooks";
+            return <span>All Webhooks</span>;
           case "API_KEYS":
-            return "All API Keys";
+            return <span>All API Keys</span>;
           case "PERMISSIONS":
-            return "All Permissions";
+            return <span>All Permissions</span>;
           case "LABELS":
-            return "All Labels";
+            return <span>All Labels</span>;
           default:
-            return "System";
+            return <span>System</span>;
         }
       }
       // Handle specific resource types
       else if (resourceId.startsWith("DriveID_")) {
-        return "Single Drive";
+        return <span>Single Drive</span>;
       } else if (resourceId.startsWith("DiskID_")) {
-        return "Single Disk";
+        return <span>Single Disk</span>;
       } else if (resourceId.startsWith("UserID_")) {
-        return "Single User";
+        return <span>Single User</span>;
       } else if (resourceId.startsWith("GroupID_")) {
-        return "Single Group";
+        return <span>Single Group</span>;
       } else if (resourceId.startsWith("ApiKeyID_")) {
-        return "Single API Key";
+        return <span>Single API Key</span>;
       } else if (resourceId.startsWith("WebhookID_")) {
-        return "Single Webhook";
+        return <span>Single Webhook</span>;
       } else if (resourceId.startsWith("LabelID_")) {
-        return "Single Label";
+        return <span>Single Label</span>;
       } else if (resourceId.startsWith("SystemPermissionID_")) {
-        return "System Permit";
+        return <span>System Permit</span>;
       } else {
-        return "Permission";
+        return <span>Permission</span>;
       }
     } else {
       // For directory permissions
-      return "Directory Permit";
+      return <span>Directory Permit</span>;
     }
   };
 

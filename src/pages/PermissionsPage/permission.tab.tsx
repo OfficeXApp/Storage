@@ -141,47 +141,47 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
       // Map table names to titles
       switch (tableName) {
         case "DRIVES":
-          return "All Drives Permit";
+          return <span>All Drives Permit</span>;
         case "DISKS":
-          return "All Disks Permit";
+          return <span>All Disks Permit</span>;
         case "CONTACTS":
-          return "All Contacts Permit";
+          return <span>All Contacts Permit</span>;
         case "GROUPS":
-          return "All Groups Permit";
+          return <span>All Groups Permit</span>;
         case "WEBHOOKS":
-          return "All Webhooks Permit";
+          return <span>All Webhooks Permit</span>;
         case "API_KEYS":
-          return "All API Keys Permit";
+          return <span>All API Keys Permit</span>;
         case "PERMISSIONS":
-          return "All Permissions Permit";
+          return <span>All Permissions Permit</span>;
         case "LABELS":
-          return "All Labels Permit";
+          return <span>All Labels Permit</span>;
         default:
-          return "System Permit";
+          return <span>System Permit</span>;
       }
     }
     // Handle specific resource types
     else if (resourceId.startsWith("DriveID_")) {
-      return "Drive Permit";
+      return <span>Drive Permit</span>;
     } else if (resourceId.startsWith("DiskID_")) {
-      return "Disk Permit";
+      return <span>Disk Permit</span>;
     } else if (resourceId.startsWith("UserID_")) {
-      return "User Permit";
+      return <span>User Permit</span>;
     } else if (resourceId.startsWith("GroupID_")) {
-      return "Group Permit";
+      return <span>Group Permit</span>;
     } else if (resourceId.startsWith("ApiKeyID_")) {
-      return "API Key Permit";
+      return <span>API Key Permit</span>;
     } else if (resourceId.startsWith("WebhookID_")) {
-      return "Webhook Permit";
+      return <span>Webhook Permit</span>;
     } else if (resourceId.startsWith("LabelID_")) {
-      return "Label Permit";
+      return <span>Label Permit</span>;
     } else if (
       resourceId.startsWith("SystemPermissionID_") ||
       resourceId.startsWith("DirectoryPermissionID_")
     ) {
-      return "Permission Permit";
+      return <span>Permission Permit</span>;
     } else {
-      return "System Permit";
+      return <span>System Permit</span>;
     }
   };
 
@@ -385,7 +385,7 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -593,7 +593,7 @@ const deletePermission = async (permissionId) => {
               <Form form={form} layout="vertical">
                 <Form.Item
                   name="permissionTypes"
-                  label="Permission Types"
+                  label={<span>Permission Types</span>}
                   rules={[
                     {
                       required: true,
@@ -620,7 +620,7 @@ const deletePermission = async (permissionId) => {
                   </Checkbox.Group>
                 </Form.Item>
 
-                <Form.Item name="dateRange" label="Active Date Range">
+                <Form.Item name="dateRange" label={<span>Active Date Range</span>}>
                   <RangePicker
                     showTime
                     format="YYYY-MM-DD HH:mm:ss"
@@ -629,7 +629,7 @@ const deletePermission = async (permissionId) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="note" label="Notes">
+                <Form.Item name="note" label={<span>Notes</span>}>
                   <TextArea
                     rows={3}
                     placeholder="Add notes about this permission"
@@ -638,7 +638,7 @@ const deletePermission = async (permissionId) => {
 
                 <Divider />
 
-                <Form.Item name="externalId" label="External ID">
+                <Form.Item name="externalId" label={<span>External ID</span>}>
                   <Input
                     placeholder="External identifier"
                     variant="borderless"
@@ -646,7 +646,10 @@ const deletePermission = async (permissionId) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="externalPayload" label="External Payload">
+                <Form.Item
+                  name="externalPayload"
+                  label={<span>External Payload</span>}
+                >
                   <TextArea
                     rows={2}
                     placeholder='{"key": "value"}'
@@ -961,13 +964,13 @@ const deletePermission = async (permissionId) => {
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Permission ID",
+                          <span>Permission ID</span>,
                           permission.id,
                           <LockOutlined />
                         )}
 
                         {renderReadOnlyField(
-                          "Granted By",
+                          <span>Granted By</span>,
                           permission.granted_by,
                           <UserOutlined />,
                           `/resources/contacts/${permission.granted_by}`
@@ -975,14 +978,14 @@ const deletePermission = async (permissionId) => {
 
                         {permission.external_id &&
                           renderReadOnlyField(
-                            "External ID",
+                            <span>External ID</span>,
                             permission.external_id,
                             <FileTextOutlined />
                           )}
 
                         {permission.external_payload &&
                           renderReadOnlyField(
-                            "External Payload",
+                            <span>External Payload</span>,
                             permission.external_payload,
                             <FileTextOutlined />
                           )}

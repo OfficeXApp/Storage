@@ -479,7 +479,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
           inviteType: InviteType.MAGIC_LINK,
         }}
       >
-        <Form.Item label="Magic Invite Link">
+        <Form.Item label={<span>Magic Invite Link</span>}>
           <Input
             prefix={
               <span

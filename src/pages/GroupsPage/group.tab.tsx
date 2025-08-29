@@ -209,7 +209,7 @@ const GroupTab: React.FC<GroupTabProps> = ({
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -513,7 +513,7 @@ const data = await response.json();`;
                 >
                   <Form.Item
                     name="name"
-                    label="Group Name"
+                    label={<span>Group Name</span>}
                     rules={[
                       { required: true, message: "Please enter group name" },
                     ]}
@@ -525,7 +525,7 @@ const data = await response.json();`;
                     />
                   </Form.Item>
 
-                  <Form.Item name="host_url" label="Endpoint">
+                  <Form.Item name="host_url" label={<span>Endpoint</span>}>
                     <Input
                       prefix={<GlobalOutlined />}
                       placeholder="https://example.com/api/webhook"
@@ -534,7 +534,10 @@ const data = await response.json();`;
                     />
                   </Form.Item>
 
-                  <Form.Item name="public_note" label="Public Note">
+                  <Form.Item
+                    name="public_note"
+                    label={<span>Public Note</span>}
+                  >
                     <TextArea
                       rows={2}
                       placeholder="Public information about this group"
@@ -548,8 +551,12 @@ const data = await response.json();`;
                   ) && (
                     <Form.Item
                       name="private_note"
-                      label="Private Note"
-                      extra="Only group owners and editors can view this note"
+                      label={<span>Private Note</span>}
+                      extra={
+                        <span>
+                          Only group owners and editors can view this note
+                        </span>
+                      }
                     >
                       <TextArea
                         rows={3}
@@ -560,7 +567,10 @@ const data = await response.json();`;
                     </Form.Item>
                   )}
 
-                  <Form.Item name="external_id" label="External ID">
+                  <Form.Item
+                    name="external_id"
+                    label={<span>External ID</span>}
+                  >
                     <Input
                       placeholder="External identifier"
                       variant="borderless"
@@ -568,7 +578,10 @@ const data = await response.json();`;
                     />
                   </Form.Item>
 
-                  <Form.Item name="external_payload" label="External Payload">
+                  <Form.Item
+                    name="external_payload"
+                    label={<span>External Payload</span>}
+                  >
                     <TextArea
                       rows={2}
                       placeholder="JSON or other data format"
@@ -795,14 +808,14 @@ const data = await response.json();`;
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Group ID",
+                          <span>Group ID</span>,
                           group.id,
                           <TeamOutlined />
                         )}
 
                         {group.host_url &&
                           renderReadOnlyField(
-                            "Endpoint",
+                            <span>Endpoint</span>,
                             group.host_url,
                             <GlobalOutlined />
                           )}

@@ -57,6 +57,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
 import mixpanel from "mixpanel-browser";
+import { fromLocale } from "../../locales";
 
 const { Text, Title } = Typography;
 const { TabPane } = Tabs;
@@ -128,6 +129,10 @@ const OrganizationSwitcher = () => {
   const [filteredGiftCardOptions, setFilteredGiftCardOptions] = useState(
     initialGiftCardOptions
   );
+
+  useEffect(() => {
+    setNewOrgNickname(fromLocale().default_orgs.anon_org.org_name);
+  }, []);
 
   // Effect to set existing org details when editing
   useEffect(() => {
@@ -1240,7 +1245,7 @@ const OrganizationSwitcher = () => {
       width={500}
     >
       <Tabs activeKey={activeTabKey} onChange={setActiveTabKey}>
-        <TabPane tab="Create New" key="newOrg">
+        <TabPane tab={<span>Create New</span>} key="newOrg">
           <Form layout="vertical">
             <Form.Item
               label={<Space>Organization Name</Space>}
@@ -1281,7 +1286,7 @@ const OrganizationSwitcher = () => {
           </Form>
         </TabPane>
 
-        <TabPane tab="Login Existing" key="existingOrg">
+        <TabPane tab={<span>Login Existing</span>} key="existingOrg">
           <Form layout="vertical">
             <Form.Item
               label={
@@ -1351,7 +1356,10 @@ const OrganizationSwitcher = () => {
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
           <Space>
             <UserOutlined />
-            <span>{profile.nickname || "Anon"}</span>
+            <span>
+              {profile.nickname ||
+                fromLocale().default_orgs.anon_org.profile_name}
+            </span>
           </Space>
           <Tag
             color={
@@ -1388,7 +1396,7 @@ const OrganizationSwitcher = () => {
         width={500}
       >
         <Tabs activeKey={enterOrgTabKey} onChange={setEnterOrgTabKey}>
-          <TabPane tab="Enter Organization" key="enterOrg">
+          <TabPane tab={<span>Enter Organization</span>} key="enterOrg">
             <Form layout="vertical">
               <Form.Item
                 label={`Enter as Profile:`}
@@ -1425,7 +1433,7 @@ const OrganizationSwitcher = () => {
             </Form>
           </TabPane>
 
-          <TabPane tab="Edit Org" key="editOrg">
+          <TabPane tab={<span>Edit Org</span>} key="editOrg">
             <Form layout="vertical">
               <Form.Item
                 label={
@@ -1609,7 +1617,7 @@ const OrganizationSwitcher = () => {
         options={renderOrganizationOptions()}
         onChange={(value) => {
           if (value === "add-organization") {
-            setNewOrgNickname("Anonymous Org");
+            setNewOrgNickname(fromLocale().default_orgs.anon_org.org_name);
             setExistingOrgNickname("");
             setExistingOrgEndpoint("");
             setActiveTabKey("newOrg");

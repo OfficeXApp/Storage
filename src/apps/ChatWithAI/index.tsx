@@ -92,6 +92,7 @@ import {
   isAIChatRemoteDefault,
   setAIChatRemoteDefault,
 } from "../../framework/flags/feature-flags";
+import { useLingoLocale } from "lingo.dev/react-client";
 
 const { Text } = Typography;
 
@@ -104,6 +105,7 @@ const ChatWithAI = () => {
     parentFolderID: parentFolderIDFromUrl,
   } = useParams();
   const screenType = useScreenType();
+  const currentLocale = useLingoLocale();
   const navigate = useNavigate();
   const isMobile = screenType.isMobile;
   const [redeemData, setRedeemData] = useState<fileRawUrl_BTOA | null>(null);
@@ -114,8 +116,10 @@ const ChatWithAI = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const penpalRef = useRef<RemoteProxy<Methods>>(null);
   const [isGpuAvail, setIsGpuAvail] = useState(false);
-  const [selectedChatEndpoint, setSelectedChatEndpoint] =
-    useState(AI_CHAT_ENDPOINT);
+  const [selectedChatEndpoint, setSelectedChatEndpoint] = useState(
+    `${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
+  );
+  console.log(`currentLocale`, currentLocale);
   const {
     uploadFiles,
     uploadTargetDiskID,
@@ -181,18 +185,27 @@ const ChatWithAI = () => {
       const isGpuAvail = await checkGPUAvailablity();
       setIsGpuAvail(isGpuAvail);
       if (isGpuAvail) {
-        setSelectedChatEndpoint(LOCAL_CHAT_ENDPOINT);
+        setSelectedChatEndpoint(
+          `${LOCAL_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
+        );
       } else {
-        setSelectedChatEndpoint(AI_CHAT_ENDPOINT);
+        // relplace all instances of -
+        setSelectedChatEndpoint(
+          `${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
+        );
       }
       if (isAIChatRemoteDefault()) {
-        setSelectedChatEndpoint(AI_CHAT_ENDPOINT);
+        setSelectedChatEndpoint(
+          `${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
+        );
       } else {
-        setSelectedChatEndpoint(LOCAL_CHAT_ENDPOINT);
+        setSelectedChatEndpoint(
+          `${LOCAL_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
+        );
       }
     };
     run();
-  }, []);
+  }, [currentLocale]);
 
   useEffect(() => {
     const updateFreshSignature = async () => {
@@ -1063,7 +1076,11 @@ const ChatWithAI = () => {
           style={{
             position: "absolute",
             top: "10vh",
-            right: selectedChatEndpoint === AI_CHAT_ENDPOINT ? "10px" : "130px",
+            right:
+              selectedChatEndpoint ===
+              `${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
+                ? "10px"
+                : "130px",
             zIndex: 999,
             display: "flex",
             alignItems: "center",
@@ -1073,21 +1090,21 @@ const ChatWithAI = () => {
           }}
         >
           <Switch
-            checked={selectedChatEndpoint === AI_CHAT_ENDPOINT}
+            checked={selectedChatEndpoint.startsWith(AI_CHAT_ENDPOINT)}
             onChange={() => {
-              if (selectedChatEndpoint === AI_CHAT_ENDPOINT) {
+              if (selectedChatEndpoint.startsWith(AI_CHAT_ENDPOINT)) {
                 setAIChatRemoteDefault(false);
               } else {
                 setAIChatRemoteDefault(true);
               }
               setSelectedChatEndpoint(
-                selectedChatEndpoint === AI_CHAT_ENDPOINT
-                  ? LOCAL_CHAT_ENDPOINT
-                  : AI_CHAT_ENDPOINT
+                selectedChatEndpoint.startsWith(AI_CHAT_ENDPOINT)
+                  ? `${LOCAL_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
+                  : `${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
               );
             }}
-            checkedChildren="ONLINE"
-            unCheckedChildren="OFFLINE"
+            checkedChildren={<span>ONLINE</span>}
+            unCheckedChildren={<span>OFFLINE</span>}
             style={{ minWidth: "60px" }} // Optional: Adjust width for better text fit
           />
         </div>

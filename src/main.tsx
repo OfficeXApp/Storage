@@ -81,7 +81,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           }}
         >
           <>
-            <Toaster position="top-center" />
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                style: {
+                  fontFamily: "Inter, sans-serif",
+                },
+              }}
+            />
             <BrowserRouter>
               <IdentitySystemProvider>
                 <ReduxOfflineProvider>

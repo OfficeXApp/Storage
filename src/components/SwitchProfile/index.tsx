@@ -37,6 +37,7 @@ import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
 import TabPane from "antd/es/tabs/TabPane";
 import TagCopy from "../TagCopy";
 import { shortenAddress } from "../../framework/identity/constants";
+import { fromLocale } from "../../locales";
 
 const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
   const navigate = useNavigate();
@@ -107,6 +108,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
   } = useIdentitySystem();
   const { deleteReduxOfflineStore } = useReduxOfflineMultiTenant();
 
+  useEffect(() => {
+    setNewUserNickname(fromLocale().default_orgs.anon_org.profile_name);
+  }, []);
+
   // Effect to preview addresses based on current tab and seed phrase - now updated to use separate states
   useEffect(() => {
     const previewWalletAddresses = async () => {
@@ -165,7 +170,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
           <Space style={{ width: "100%", justifyContent: "space-between" }}>
             <Space>
               <UserOutlined />
-              <span>{currentProfile.nickname || "Anon"}</span>
+              <span>
+                {currentProfile.nickname ||
+                  fromLocale().default_orgs.anon_org.profile_name}
+              </span>
             </Space>
             <Tag
               onClick={() => {
@@ -203,7 +211,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
             <Space style={{ width: "100%", justifyContent: "space-between" }}>
               <Space>
                 <UserOutlined />
-                <span>{profile.nickname || "Anon"}</span>
+                <span>
+                  {profile.nickname ||
+                    fromLocale().default_orgs.anon_org.profile_name}
+                </span>
               </Space>
               <Tag color="default">
                 {shortenAddress(profile.icpPublicAddress)}
@@ -250,7 +261,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
 
           // If we have a profile, check if input matches nickname or address
           if (profile) {
-            const nickname = (profile.nickname || "Anon").toLowerCase();
+            const nickname = (
+              profile.nickname ||
+              fromLocale().default_orgs.anon_org.profile_name
+            ).toLowerCase();
             const icpAddress = profile.icpPublicAddress.toLowerCase();
             const inputLower = input.toLowerCase();
 
@@ -269,7 +283,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
         options={renderUserOptions()}
         onChange={(value: UserID) => {
           if (value === "add-currentProfile") {
-            setNewUserNickname("Anon");
+            setNewUserNickname(fromLocale().default_orgs.anon_org.profile_name);
             setImportUserNickname("A Past Life");
             setNewSeedPhrase(generateRandomSeed());
             setImportSeedPhrase("");
@@ -282,7 +296,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
             );
             if (currentProfile) {
               setSelectedProfileId(value);
-              setExistingUserNickname(currentProfile.nickname || "Anon");
+              setExistingUserNickname(
+                currentProfile.nickname ||
+                  fromLocale().default_orgs.anon_org.profile_name
+              );
               setModalMode("existing");
               setIsModalVisible(true);
             }
@@ -954,19 +971,24 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
             }
           }}
         >
-          {activeTabKey === "newUser"
-            ? "Create Profile"
-            : activeTabKey === "importSeed"
-              ? "Import Profile"
-              : "Login Existing"}
+          {activeTabKey === "newUser" ? (
+            <span>Create Profile</span>
+          ) : activeTabKey === "importSeed" ? (
+            <span>Import Profile</span>
+          ) : (
+            <span>Login Existing</span>
+          )}
         </Button>,
       ]}
       width={500}
     >
       <Tabs activeKey={activeTabKey} onChange={setActiveTabKey}>
-        <TabPane tab="New Profile" key="newUser">
+        <TabPane tab={<span>New Profile</span>} key="newUser">
           <Form layout="vertical" style={{ marginBottom: "12px" }}>
-            <Form.Item label="Nickname" style={{ marginBottom: "12px" }}>
+            <Form.Item
+              label={<span>Nickname</span>}
+              style={{ marginBottom: "12px" }}
+            >
               <Input
                 value={newUserNickname}
                 onChange={(e) => setNewUserNickname(e.target.value)}
@@ -978,7 +1000,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
           {renderPreviewSection()}
         </TabPane>
 
-        <TabPane tab="Login Existing" key="importApi">
+        <TabPane tab={<span>Login Existing</span>} key="importApi">
           <Form layout="vertical">
             <Form.Item
               label={
@@ -1012,9 +1034,12 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
           {renderApiLoginPreviewSection()}
         </TabPane>
 
-        <TabPane tab="Import from Seed" key="importSeed">
+        <TabPane tab={<span>Import from Seed</span>} key="importSeed">
           <Form layout="vertical">
-            <Form.Item label="Nickname" style={{ marginBottom: "12px" }}>
+            <Form.Item
+              label={<span>Nickname</span>}
+              style={{ marginBottom: "12px" }}
+            >
               <Input
                 value={importUserNickname}
                 onChange={(e) => setImportUserNickname(e.target.value)}
@@ -1022,7 +1047,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
               />
             </Form.Item>
 
-            <Form.Item label="Seed Phrase" style={{ marginBottom: "16px" }}>
+            <Form.Item
+              label={<span>Seed Phrase</span>}
+              style={{ marginBottom: "16px" }}
+            >
               <Input.TextArea
                 value={importSeedPhrase}
                 onChange={(e) => setImportSeedPhrase(e.target.value)}
@@ -1143,7 +1171,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
         footer={null}
       >
         <Form layout="vertical">
-          <Form.Item label="Nickname">
+          <Form.Item label={<span>Nickname</span>}>
             <Input
               value={existingUserNickname}
               onChange={(e) => setExistingUserNickname(e.target.value)}
@@ -1278,8 +1306,11 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                         await sleep(1000);
                         toast.success(
                           <span>
-                            Switched to {existingUserNickname || "Anon"} (
-                            {shortenAddress(selectedProfile.icpPublicAddress)})
+                            Switched to{" "}
+                            {existingUserNickname ||
+                              fromLocale().default_orgs.anon_org
+                                .profile_name}{" "}
+                            ({shortenAddress(selectedProfile.icpPublicAddress)})
                           </span>
                         );
                         window.location.reload();

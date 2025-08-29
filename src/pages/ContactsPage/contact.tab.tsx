@@ -187,7 +187,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -389,7 +389,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="name"
-                  label="Name"
+                  label={<span>Name</span>}
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
@@ -399,7 +399,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="email" label="Email">
+                <Form.Item name="email" label={<span>Email</span>}>
                   <Input
                     prefix={<MailOutlined />}
                     placeholder="Email address"
@@ -408,7 +408,10 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="evm_public_address" label="EVM Wallet Address">
+                <Form.Item
+                  name="evm_public_address"
+                  label={<span>EVM Wallet Address</span>}
+                >
                   <Input
                     prefix={<WalletOutlined />}
                     placeholder="EVM wallet address"
@@ -418,7 +421,10 @@ const ContactTab: React.FC<ContactTabProps> = ({
                 </Form.Item>
 
                 {/* Advanced section in edit mode */}
-                <Form.Item name="notifications_url" label="Notifications">
+                <Form.Item
+                  name="notifications_url"
+                  label={<span>Notifications</span>}
+                >
                   <Input
                     prefix={<BellOutlined />}
                     placeholder="Notifications"
@@ -427,7 +433,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="public_note" label="Public Note">
+                <Form.Item name="public_note" label={<span>Public Note</span>}>
                   <TextArea
                     rows={2}
                     placeholder="Public information about this contact"
@@ -441,8 +447,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
                 ) && (
                   <Form.Item
                     name="private_note"
-                    label="Private Note"
-                    extra="Only organization owners and editors can view this note"
+                    label={<span>Private Note</span>}
+                    extra={
+                      <span>
+                        Only organization owners and editors can view this note
+                      </span>
+                    }
                   >
                     <TextArea
                       rows={3}
@@ -661,45 +671,47 @@ const ContactTab: React.FC<ContactTabProps> = ({
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "User ID",
+                          <span>User ID</span>,
                           contact.id,
                           <UserOutlined />
                         )}
 
                         {renderReadOnlyField(
-                          "Email",
+                          <span>Email</span>,
                           contact.email,
                           <MailOutlined />
                         )}
 
                         {contact.notifications_url &&
                           renderReadOnlyField(
-                            "Notifications",
+                            <span>Notifications</span>,
                             contact.notifications_url,
                             <BellOutlined />
                           )}
 
                         {contact.evm_public_address &&
                           renderReadOnlyField(
-                            "EVM Wallet",
+                            <span>EVM Wallet</span>,
                             contact.evm_public_address,
                             <WalletOutlined />
                           )}
 
                         {contact.icp_principal &&
                           renderReadOnlyField(
-                            "ICP Wallet",
+                            <span>ICP Wallet</span>,
                             contact.icp_principal,
                             <WalletOutlined />
                           )}
 
                         {renderReadOnlyField(
-                          "Owner",
+                          <span>Owner</span>,
                           // @ts-ignore
                           contact.is_placeholder ||
-                            contact.from_placeholder_user_id
-                            ? "Self-Custodied Account"
-                            : "Owned by Organization",
+                            contact.from_placeholder_user_id ? (
+                            <span>Self-Custodied Account</span>
+                          ) : (
+                            <span>Owned by Organization</span>
+                          ),
                           <WalletOutlined />
                         )}
 

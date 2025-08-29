@@ -396,7 +396,13 @@ const ContactRedeem = () => {
         return (
           <span>
             Self-Custody Profile{" "}
-            <Tooltip title="You own this profile and its keys are stored on your device.">
+            <Tooltip
+              title={
+                <span>
+                  You own this profile and its keys are stored on your device.
+                </span>
+              }
+            >
               <QuestionCircleOutlined />
             </Tooltip>{" "}
           </span>
@@ -405,7 +411,14 @@ const ContactRedeem = () => {
         return (
           <span>
             Assigned Profile{" "}
-            <Tooltip title="This profile is owned by the organization and you are being granted access.">
+            <Tooltip
+              title={
+                <span>
+                  This profile is owned by the organization and you are being
+                  granted access.
+                </span>
+              }
+            >
               <QuestionCircleOutlined />
             </Tooltip>
           </span>
@@ -414,7 +427,14 @@ const ContactRedeem = () => {
         return (
           <span>
             Invitee{" "}
-            <Tooltip title="You are being invited to join the organization with your existing profile.">
+            <Tooltip
+              title={
+                <span>
+                  You are being invited to join the organization with your
+                  existing profile.
+                </span>
+              }
+            >
               <QuestionCircleOutlined />
             </Tooltip>
           </span>

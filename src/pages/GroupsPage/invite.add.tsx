@@ -540,7 +540,9 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             <Form.Item
               name="inviteType"
               label={
-                <Tooltip title="Choose how to invite people to this group">
+                <Tooltip
+                  title={<span>Choose how to invite people to this group</span>}
+                >
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> Invite Type
                   </Space>
@@ -584,7 +586,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
               <Form.Item
                 name="contact"
                 label={
-                  <Tooltip title="Select a contact to invite">
+                  <Tooltip title={<span>Select a contact to invite</span>}>
                     <Space>
                       <InfoCircleOutlined style={{ color: "#aaa" }} /> Select
                       Contact
@@ -654,7 +656,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
               <Form.Item
                 name="userlabel"
                 label={
-                  <Tooltip title="Enter a user ID to invite">
+                  <Tooltip title={<span>Enter a user ID to invite</span>}>
                     <Space>
                       <InfoCircleOutlined style={{ color: "#aaa" }} /> User ID
                     </Space>
@@ -707,7 +709,9 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Role to assign to the invited user">
+                <Tooltip
+                  title={<span>Role to assign to the invited user</span>}
+                >
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> Role
                   </Space>
@@ -725,7 +729,11 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="When this invite becomes active and expires">
+                <Tooltip
+                  title={
+                    <span>When this invite becomes active and expires</span>
+                  }
+                >
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> Date Range
                   </Space>
@@ -748,7 +756,9 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             <Form.Item
               name="note"
               label={
-                <Tooltip title="Note to include with this invitation">
+                <Tooltip
+                  title={<span>Note to include with this invitation</span>}
+                >
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> Note
                   </Space>

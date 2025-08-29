@@ -344,7 +344,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     }
   };
 
-  const DepositInfoPopoverContent = (explanation: string) => (
+  const DepositInfoPopoverContent = (explanation: React.ReactNode) => (
     <div>
       <Paragraph style={{ margin: 0 }}>{explanation}</Paragraph>
     </div>
@@ -647,7 +647,10 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                   Select Payment Option
                   <Popover
                     content={DepositInfoPopoverContent(
-                      "Choose your preferred method for depositing funds to run the app."
+                      <span>
+                        Choose your preferred method for depositing funds to run
+                        the app.
+                      </span>
                     )}
                     trigger="hover"
                   >
@@ -837,9 +840,13 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                               <Text strong>Receiver</Text>{" "}
                               <Popover
                                 content={DepositInfoPopoverContent(
-                                  "The unique address for the deposit on the selected chain. Click to view on chain explorer."
+                                  <span>
+                                    The unique address for the deposit on the
+                                    selected chain. Click to view on chain
+                                    explorer.
+                                  </span>
                                 )}
-                                title="Deposit Address Explanation"
+                                title={<span>Deposit Address Explanation</span>}
                                 trigger="hover"
                               >
                                 <InfoCircleOutlined
@@ -906,9 +913,12 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                               <Text strong>Amount</Text>
                               <Popover
                                 content={DepositInfoPopoverContent(
-                                  "The exact amount of tokens required for this deposit."
+                                  <span>
+                                    The exact amount of tokens required for this
+                                    deposit.
+                                  </span>
                                 )}
-                                title="Amount Explanation"
+                                title={<span>Amount Explanation</span>}
                                 trigger="hover"
                               >
                                 <InfoCircleOutlined
@@ -1058,7 +1068,9 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                   Please review the permission scopes below.
                 </Paragraph>
                 <Alert
-                  message="Vendor Verification & API Key Best Practices"
+                  message={
+                    <span>Vendor Verification & API Key Best Practices</span>
+                  }
                   description={
                     <>
                       <Paragraph style={{ marginBottom: "8px" }}>
@@ -1067,7 +1079,14 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                         code being executed.
                       </Paragraph>
                       <Paragraph>
-                        <Tooltip title="View vendor's terms and conditions or general information.">
+                        <Tooltip
+                          title={
+                            <span>
+                              View vendor's terms and conditions or general
+                              information.
+                            </span>
+                          }
+                        >
                           <a
                             href={checkoutRun.aboutUrl}
                             target="_blank"
@@ -1082,7 +1101,15 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                           </a>
                         </Tooltip>
                         <Divider type="vertical" />
-                        <Tooltip title="Verify the code to be executed on checkout, usually pointing to a Trusted Execution Environment (TEE).">
+                        <Tooltip
+                          title={
+                            <span>
+                              Verify the code to be executed on checkout,
+                              usually pointing to a Trusted Execution
+                              Environment (TEE).
+                            </span>
+                          }
+                        >
                           <a
                             href={
                               checkoutInitResponse?.post_payment
@@ -1100,7 +1127,16 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                           </a>
                         </Tooltip>
                         <Divider type="vertical" />
-                        <Tooltip title="OfficeX is a permissionless platform and thus does not verify 3rd party apps. Appstore list providers and users to be responsible for their own security.">
+                        <Tooltip
+                          title={
+                            <span>
+                              OfficeX is a permissionless platform and thus does
+                              not verify 3rd party apps. Appstore list providers
+                              and users to be responsible for their own
+                              security.
+                            </span>
+                          }
+                        >
                           <a
                             href="#" // Replace with actual link to "Learn more about verification"
                             target="_blank"
@@ -1130,7 +1166,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                       Grant API Key Scope
                       <Popover
                         content={SecurityDisclaimerPopoverContent}
-                        title="API Key Security Hygiene"
+                        title={<span>API Key Security Hygiene</span>}
                         trigger="hover"
                       >
                         <InfoCircleOutlined
@@ -1178,7 +1214,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                       <Text>{req.title}</Text>
                       <Popover
                         content={DepositInfoPopoverContent(req.explanation)}
-                        title={`${req.title} Explanation`}
+                        title={<span>{req.title} Explanation</span>}
                         trigger="hover"
                       >
                         <InfoCircleOutlined
@@ -1279,7 +1315,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         {finalRedirectUrl && finalRedirectCta && isFinalizedCheckout && (
           <>
             <Alert
-              message="🎉 Checkout Completed - View Your Purchase"
+              message={<span>🎉 Checkout Completed - View Your Purchase</span>}
               type="success"
               style={{ textAlign: "center" }}
             />

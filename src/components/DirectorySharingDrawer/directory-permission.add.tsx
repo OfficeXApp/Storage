@@ -705,7 +705,9 @@ const DirectoryPermissionAddDrawer: React.FC<
     return (
       <Form.Item
         label={
-          <Tooltip title="User or group to grant this permission to">
+          <Tooltip
+            title={<span>User or group to grant this permission to</span>}
+          >
             <Space>
               Granted To <InfoCircleOutlined style={{ color: "#aaa" }} />
             </Space>
@@ -1033,7 +1035,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     return (
       <Form.Item
         label={
-          <Tooltip title="Types of permissions to grant">
+          <Tooltip title={<span>Types of permissions to grant</span>}>
             <Space>
               Permission Types <InfoCircleOutlined style={{ color: "#aaa" }} />
             </Space>
@@ -1233,7 +1235,13 @@ const DirectoryPermissionAddDrawer: React.FC<
         {resourceID.startsWith("FolderID_") && (
           <div style={{ marginBottom: 24 }}>
             <label>
-              <Tooltip title="Whether this permission applies to subfolders and files">
+              <Tooltip
+                title={
+                  <span>
+                    Whether this permission applies to subfolders and files
+                  </span>
+                }
+              >
                 <Space>
                   Inheritable <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -1254,7 +1262,13 @@ const DirectoryPermissionAddDrawer: React.FC<
         {/* Date Range */}
         <div style={{ marginBottom: 24 }}>
           <label>
-            <Tooltip title="Set optional date range for when this permission is active">
+            <Tooltip
+              title={
+                <span>
+                  Set optional date range for when this permission is active
+                </span>
+              }
+            >
               <Space>
                 Date Range <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -1277,7 +1291,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         {/* Notes */}
         <div style={{ marginBottom: 24 }}>
           <label>
-            <Tooltip title="Optional notes about this permission">
+            <Tooltip title={<span>Optional notes about this permission</span>}>
               <Space>
                 Notes <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -1304,7 +1318,7 @@ const DirectoryPermissionAddDrawer: React.FC<
       <div style={{ padding: "12px 0" }}>
         <div style={{ marginBottom: 24 }}>
           <label>
-            <Tooltip title="Copy this link to share">
+            <Tooltip title={<span>Copy this link to share</span>}>
               <Space>
                 Share This Link <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>

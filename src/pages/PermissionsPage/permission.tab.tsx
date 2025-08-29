@@ -423,7 +423,7 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -567,7 +567,7 @@ const deletePermission = async (permissionId) => {
                 >
                   Edit
                 </Button>
-                <Popover content="Coming soon">
+                <Popover content={<span>Coming soon</span>}>
                   <Button
                     icon={<CopyOutlined />}
                     type="primary"
@@ -659,9 +659,13 @@ const deletePermission = async (permissionId) => {
 
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this permission?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>
+                        Are you sure you want to delete this permission?
+                      </span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={handleDelete}
                   >
                     <Button ghost type="primary" danger>

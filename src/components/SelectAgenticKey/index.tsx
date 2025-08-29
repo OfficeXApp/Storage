@@ -415,8 +415,15 @@ const SelectAgenticKey: React.FC = () => {
 
         {/* Security Notice */}
         <Alert
-          message="Security Best Practice"
-          description="Each API key has full access to your profile. Creating separate keys for each app allows you to revoke access individually if needed. For max security, create an entirely new profile just for the app."
+          message={<span>Security Best Practice</span>}
+          description={
+            <span>
+              Each API key has full access to your profile. Creating separate
+              keys for each app allows you to revoke access individually if
+              needed. For max security, create an entirely new profile just for
+              the app.
+            </span>
+          }
           type="info"
           showIcon
           icon={<SafetyOutlined />}
@@ -769,7 +776,7 @@ const SelectAgenticKey: React.FC = () => {
           <Form.Item
             name="name"
             label={
-              <Tooltip title="Name for this API key">
+              <Tooltip title={<span>Name for this API key</span>}>
                 <Space>
                   Name <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -791,7 +798,7 @@ const SelectAgenticKey: React.FC = () => {
 
           <Form.Item
             label={
-              <Tooltip title="API key expiration settings">
+              <Tooltip title={<span>API key expiration settings</span>}>
                 <Space>
                   Expiration <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -822,7 +829,7 @@ const SelectAgenticKey: React.FC = () => {
 
           <Form.Item
             label={
-              <Tooltip title="Labels to categorize this API key">
+              <Tooltip title={<span>Labels to categorize this API key</span>}>
                 <Space>
                   Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -868,7 +875,7 @@ const SelectAgenticKey: React.FC = () => {
           <Form.Item
             name="externalId"
             label={
-              <Tooltip title="External identifier for integration">
+              <Tooltip title={<span>External identifier for integration</span>}>
                 <Space>
                   External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>

@@ -255,7 +255,7 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -582,9 +582,11 @@ async function listWebhooks(page = 1, limit = 10) {
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this webhook?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this webhook?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteWebhookAction({ id: webhook.id }));
                       toast.success(
@@ -842,7 +844,11 @@ async function listWebhooks(page = 1, limit = 10) {
                             <Space align="center">
                               <Text strong>External Payload:</Text>
                               <Popover
-                                content="Additional data for external integrations"
+                                content={
+                                  <span>
+                                    Additional data for external integrations
+                                  </span>
+                                }
                                 trigger="hover"
                               >
                                 <InfoCircleOutlined

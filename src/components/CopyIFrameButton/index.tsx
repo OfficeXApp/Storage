@@ -163,7 +163,7 @@ export default OfficeXIFrame;`;
             outline: "none",
           }}
         />
-        <Tooltip title="Copy to clipboard">
+        <Tooltip title={<span>Copy to clipboard</span>}>
           <Button
             type="text"
             icon={<CopyOutlined />}

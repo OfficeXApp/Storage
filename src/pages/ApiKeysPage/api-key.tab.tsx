@@ -232,7 +232,7 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -446,8 +446,12 @@ const data = await response.json();`;
                   Edit
                 </Button>
                 <Popconfirm
-                  title="Do you want to revoke this API key?"
-                  description="This will immediately prevent this key from being used."
+                  title={<span>Do you want to revoke this API key?</span>}
+                  description={
+                    <span>
+                      This will immediately prevent this key from being used.
+                    </span>
+                  }
                   onConfirm={() => {
                     dispatch(
                       updateApiKeyAction({
@@ -590,9 +594,11 @@ const data = await response.json();`;
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this API key?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this API key?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteApiKeyAction({ id: apiKey.id }));
                       toast.success(

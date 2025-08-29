@@ -231,7 +231,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -455,9 +455,11 @@ const ContactTab: React.FC<ContactTabProps> = ({
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this contact?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this contact?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteContactAction({ id: contact.id }));
                       toast.success(
@@ -709,7 +711,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
                               <Space align="center">
                                 <Text strong>Private Note:</Text>
                                 <Popover
-                                  content="Only organization owners and editors can view this note"
+                                  content={
+                                    <span>
+                                      Only organization owners and editors can
+                                      view this note
+                                    </span>
+                                  }
                                   trigger="hover"
                                 >
                                   <InfoCircleOutlined

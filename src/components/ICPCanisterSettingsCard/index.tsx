@@ -197,7 +197,15 @@ const ICPCanisterSettingsCard = () => {
           label={
             <Space>
               Vendor Endpoint URL
-              <Tooltip title="Enter the endpoint URL of the vendor who will deposit gas for you. You can buy gift cards from any vendor that supports the Internet Computer.">
+              <Tooltip
+                title={
+                  <span>
+                    Enter the endpoint URL of the vendor who will deposit gas
+                    for you. You can buy gift cards from any vendor that
+                    supports the Internet Computer.
+                  </span>
+                }
+              >
                 <QuestionCircleOutlined />
               </Tooltip>
             </Space>
@@ -335,7 +343,15 @@ const ICPCanisterSettingsCard = () => {
           <Statistic
             title={
               <span>
-                <Tooltip title="Gas cycles power your canister on the Internet World Computer, guaranteeing computational sovereignty and keeping your data private.">
+                <Tooltip
+                  title={
+                    <span>
+                      Gas cycles power your canister on the Internet World
+                      Computer, guaranteeing computational sovereignty and
+                      keeping your data private.
+                    </span>
+                  }
+                >
                   Canister Gas Balance{" "}
                   <QuestionCircleOutlined style={{ marginRight: 8 }} />
                   {isLoading ? (
@@ -362,9 +378,27 @@ const ICPCanisterSettingsCard = () => {
             suffix={
               <Tooltip
                 title={
-                  gasBalance === 0n
-                    ? "Daily idle burn rate stats will appear here"
-                    : `Daily idle burn rate of ${(BigInt(driveAbout.daily_idle_cycle_burn_rate.replace(/_/g, "") || "1") / 1_000_000n).toString()} million gas cycles. Approximately ${(gasBalance * BigInt(1_000_000_000)) / BigInt(driveAbout.daily_idle_cycle_burn_rate || 1)} days remaining.`
+                  gasBalance === 0n ? (
+                    <span>Daily idle burn rate stats will appear here</span>
+                  ) : (
+                    <span>
+                      Daily idle burn rate of $
+                      {(
+                        BigInt(
+                          driveAbout.daily_idle_cycle_burn_rate.replace(
+                            /_/g,
+                            ""
+                          ) || "1"
+                        ) / 1_000_000n
+                      ).toString()}{" "}
+                      million gas cycles. Approximately $
+                      {(
+                        (gasBalance * BigInt(1_000_000_000)) /
+                        BigInt(driveAbout.daily_idle_cycle_burn_rate || 1)
+                      ).toString()}{" "}
+                      days remaining.
+                    </span>
+                  )
                 }
               >
                 <i style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.3)" }}>

@@ -279,7 +279,14 @@ const RedeemDirectoryPermitPage = () => {
                     ) : (
                       <Tag color="blue">No specific permissions</Tag>
                     )}
-                    <Tooltip title="This determines what actions you can perform with this resource.">
+                    <Tooltip
+                      title={
+                        <span>
+                          This determines what actions you can perform with this
+                          resource.
+                        </span>
+                      }
+                    >
                       <QuestionCircleOutlined
                         style={{ marginLeft: 8, color: "#1890ff" }}
                       />

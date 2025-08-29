@@ -192,7 +192,7 @@ const ApiKeyAddDrawer: React.FC<ApiKeyAddDrawerProps> = ({
         <Form.Item
           name="name"
           label={
-            <Tooltip title="Name for this API key">
+            <Tooltip title={<span>Name for this API key</span>}>
               <Space>
                 Nickname <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -231,7 +231,7 @@ const ApiKeyAddDrawer: React.FC<ApiKeyAddDrawerProps> = ({
           <div style={{ padding: "12px 0" }}>
             <Form.Item
               label={
-                <Tooltip title="API key expiration settings">
+                <Tooltip title={<span>API key expiration settings</span>}>
                   <Space>
                     Expiration <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -270,7 +270,7 @@ const ApiKeyAddDrawer: React.FC<ApiKeyAddDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Labels to categorize this API key">
+                <Tooltip title={<span>Labels to categorize this API key</span>}>
                   <Space>
                     Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -311,7 +311,13 @@ const ApiKeyAddDrawer: React.FC<ApiKeyAddDrawerProps> = ({
             <Form.Item
               name="externalId"
               label={
-                <Tooltip title="External identifier for integration with other systems">
+                <Tooltip
+                  title={
+                    <span>
+                      External identifier for integration with other systems
+                    </span>
+                  }
+                >
                   <Space>
                     External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -330,7 +336,9 @@ const ApiKeyAddDrawer: React.FC<ApiKeyAddDrawerProps> = ({
             <Form.Item
               name="externalPayload"
               label={
-                <Tooltip title="Additional data for external systems">
+                <Tooltip
+                  title={<span>Additional data for external systems</span>}
+                >
                   <Space>
                     External Payload{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />

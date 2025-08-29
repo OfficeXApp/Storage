@@ -240,7 +240,14 @@ const RedeemDiskGiftCard = () => {
                     >
                       {redeemData.disk_type || "Standard"}
                     </Tag>
-                    <Tooltip title="This determines the capabilities and limitations of the disk.">
+                    <Tooltip
+                      title={
+                        <span>
+                          This determines the capabilities and limitations of
+                          the disk.
+                        </span>
+                      }
+                    >
                       <QuestionCircleOutlined
                         style={{ marginLeft: 8, color: "#1890ff" }}
                       />

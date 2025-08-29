@@ -279,7 +279,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
     return (
       <Form.Item
         label={
-          <Tooltip title="ICP wallet address for this contact">
+          <Tooltip title={<span>ICP wallet address for this contact</span>}>
             <Space>
               ICP Address <InfoCircleOutlined style={{ color: "#aaa" }} />
             </Space>
@@ -297,7 +297,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
           variant="borderless"
           style={{ backgroundColor: "#fafafa" }}
           suffix={
-            <Tooltip title="Generate random ICP address">
+            <Tooltip title={<span>Generate random ICP address</span>}>
               <Button
                 type="text"
                 icon={<ReloadOutlined />}
@@ -353,7 +353,14 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
         <Form.Item
           name="name"
           label={
-            <Tooltip title="Contact name or user string (format: Name_With_Underscores@UserID_xyz)">
+            <Tooltip
+              title={
+                <span>
+                  Contact name or user string (format:
+                  Name_With_Underscores@UserID_xyz)
+                </span>
+              }
+            >
               <Space>
                 Name <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -414,7 +421,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
             <Form.Item
               name="email"
               label={
-                <Tooltip title="Email address for contact">
+                <Tooltip title={<span>Email address for contact</span>}>
                   <Space>
                     Email <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -433,7 +440,11 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
             <Form.Item
               name="notificationsUrl"
               label={
-                <Tooltip title="URL for sending notifications to this contact">
+                <Tooltip
+                  title={
+                    <span>URL for sending notifications to this contact</span>
+                  }
+                >
                   <Space>
                     Notifications URL{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -452,7 +463,14 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Control whether you own this contact's wallet with a seed phrase">
+                <Tooltip
+                  title={
+                    <span>
+                      Control whether you own this contact's wallet with a seed
+                      phrase
+                    </span>
+                  }
+                >
                   <Space>
                     Own this profile with seed phrase{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -490,7 +508,13 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
               <>
                 <Form.Item
                   label={
-                    <Tooltip title="12-word seed phrase to generate wallet addresses">
+                    <Tooltip
+                      title={
+                        <span>
+                          12-word seed phrase to generate wallet addresses
+                        </span>
+                      }
+                    >
                       <Space>
                         Seed Phrase{" "}
                         <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -543,7 +567,9 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
             <Form.Item
               name="publicNote"
               label={
-                <Tooltip title="Public information about this contact">
+                <Tooltip
+                  title={<span>Public information about this contact</span>}
+                >
                   <Space>
                     Public Note <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -559,7 +585,7 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Labels to categorize this contact">
+                <Tooltip title={<span>Labels to categorize this contact</span>}>
                   <Space>
                     Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -600,7 +626,13 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
             <Form.Item
               name="externalId"
               label={
-                <Tooltip title="External identifier for integration with other systems">
+                <Tooltip
+                  title={
+                    <span>
+                      External identifier for integration with other systems
+                    </span>
+                  }
+                >
                   <Space>
                     External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>

@@ -257,7 +257,13 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
         <Form.Item
           name="shareLink"
           label={
-            <Tooltip title="Organization share link format: {org_name}:{drive_id}@{endpoint}">
+            <Tooltip
+              title={
+                <span>
+                  Organization share link format: org_name:drive_id@endpoint
+                </span>
+              }
+            >
               <Space>
                 Organization Share Link{" "}
                 <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -317,7 +323,7 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
             <Form.Item
               name="name"
               label={
-                <Tooltip title="Drive name">
+                <Tooltip title={<span>Drive name</span>}>
                   <Space>
                     Name <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -340,7 +346,7 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
             <Form.Item
               name="icpPrincipal"
               label={
-                <Tooltip title="ICP principal for this drive">
+                <Tooltip title={<span>ICP principal for this drive</span>}>
                   <Space>
                     ICP Principal{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -364,7 +370,7 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
             <Form.Item
               name="endpointUrl"
               label={
-                <Tooltip title="Endpoint URL for this drive">
+                <Tooltip title={<span>Endpoint URL for this drive</span>}>
                   <Space>
                     Endpoint URL{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -388,7 +394,9 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
             <Form.Item
               name="publicNote"
               label={
-                <Tooltip title="Public information about this drive">
+                <Tooltip
+                  title={<span>Public information about this drive</span>}
+                >
                   <Space>
                     Public Note <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -405,7 +413,13 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
             <Form.Item
               name="privateNote"
               label={
-                <Tooltip title="Private information about this drive (only visible to you)">
+                <Tooltip
+                  title={
+                    <span>
+                      Private information about this drive (only visible to you)
+                    </span>
+                  }
+                >
                   <Space>
                     Private Note{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -422,7 +436,7 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Labels to categorize this drive">
+                <Tooltip title={<span>Labels to categorize this drive</span>}>
                   <Space>
                     Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -463,7 +477,13 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
             <Form.Item
               name="externalId"
               label={
-                <Tooltip title="External identifier for integration with other systems">
+                <Tooltip
+                  title={
+                    <span>
+                      External identifier for integration with other systems
+                    </span>
+                  }
+                >
                   <Space>
                     External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -481,7 +501,9 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
             <Form.Item
               name="externalPayload"
               label={
-                <Tooltip title="Additional data for external systems">
+                <Tooltip
+                  title={<span>Additional data for external systems</span>}
+                >
                   <Space>
                     External Payload{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />

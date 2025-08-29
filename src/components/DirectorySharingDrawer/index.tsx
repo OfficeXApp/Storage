@@ -648,7 +648,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       width: "45%",
       render: (name: string, record: PermissionRecord) => (
         <span style={{ fontSize: "16px" }}>
-          <Popover content={record.original.note || "Add Custom Notes"}>
+          <Popover
+            content={record.original.note || <span>Add Custom Notes</span>}
+          >
             {name}
           </Popover>
           {record.who_id !== "PUBLIC" && (

@@ -337,7 +337,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {error && (
         <Alert
           type="error"
-          message="Video Playback Error"
+          message={<span>Video Playback Error</span>}
           description={
             <div>
               <p>{error}</p>

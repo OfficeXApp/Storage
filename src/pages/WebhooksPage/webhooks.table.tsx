@@ -165,7 +165,11 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
                 window.history.pushState({}, "", newUrl);
               }}
             >
-              <Popover content={record.active ? "Active" : "Inactive"}>
+              <Popover
+                content={
+                  record.active ? <span>Active</span> : <span>Inactive</span>
+                }
+              >
                 <Badge
                   status={record.active ? "success" : "error"}
                   dot

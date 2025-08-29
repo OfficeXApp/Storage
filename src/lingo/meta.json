@@ -1591,6 +1591,14 @@
           "overrides": {},
           "content": "Add New Offer"
         },
+        "14/0/init/body/17/argument/9/11/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "b96b15e4d2dda067fedc5707ed95f2ca",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Become a Vendor"
+        },
         "14/0/init/body/17/argument/9/7/1/expression/alternate/1": {
           "type": "element",
           "hash": "5e1dc665ec7d1730fa98b76357f5215c",
@@ -1601,6 +1609,14 @@
         },
         "14/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/1-title": {
           "type": "attribute",
+          "hash": "1d2d5ebbbed754e8137ad728c4a51787",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Bookmarks"
+        },
+        "14/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/1/openingElement/0/value/expression": {
+          "type": "element",
           "hash": "1d2d5ebbbed754e8137ad728c4a51787",
           "context": "",
           "skip": false,
@@ -1623,8 +1639,32 @@
           "overrides": {},
           "content": "Bookmarked Demand"
         },
+        "14/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/3/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e982a3b82202f075ee1eab1c61254a52",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Bookmarked Demand"
+        },
+        "14/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "9444cd36a8076a8c4ab09d1044444d41",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "What is Bookmarked Demand?"
+        },
         "14/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/5-title": {
           "type": "attribute",
+          "hash": "571fc945cae3cd34b5b5b7cc53543087",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cumulative Sales"
+        },
+        "14/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/15/1/5/5/openingElement/0/value/expression": {
+          "type": "element",
           "hash": "571fc945cae3cd34b5b5b7cc53543087",
           "context": "",
           "skip": false,
@@ -1687,6 +1727,14 @@
           "overrides": {},
           "content": "Become a Vendor for this Offer"
         },
+        "14/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/5/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "b96b15e4d2dda067fedc5707ed95f2ca",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Become a Vendor"
+        },
         "14/0/init/body/17/argument/9/7/1/expression/consequent/0/body/1/1/7/19/1/openingElement/0/value/expression/1": {
           "type": "element",
           "hash": "ab1a4a30f48c231bf9d7ab67f5ac4d32",
@@ -1739,6 +1787,14 @@
           "overrides": {},
           "content": "Agents Mall to install apps & shop vendors"
         },
+        "12/0/init/body/4/argument/3/3/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "fdcbcfc33cc906b032e368ba5e04e9cc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Search for apps, agents & services..."
+        },
         "12/0/init/body/4/argument/3/5/1/expression/alternate/1": {
           "type": "element",
           "hash": "fbf677c819be4494aea6b33ca4a167e8",
@@ -1777,6 +1833,14 @@
         },
         "7/0/init/body/5/argument/1/3-title": {
           "type": "attribute",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
+        "7/0/init/body/5/argument/1/3/openingElement/0/value/expression": {
+          "type": "element",
           "hash": "8992c838874db83e3cc89c9fb4442bfd",
           "context": "",
           "skip": false,
@@ -2237,6 +2301,14 @@
         },
         "8/0/init/body/4/0/init/body/5/3-title": {
           "type": "attribute",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
+        "8/0/init/body/4/0/init/body/5/3/openingElement/0/value/expression": {
+          "type": "element",
           "hash": "8992c838874db83e3cc89c9fb4442bfd",
           "context": "",
           "skip": false,
@@ -2887,6 +2959,14 @@
           "overrides": {},
           "content": "Granted To <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "24/0/init/body/56/body/1/argument/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "5f90537fd18a4afc9a4d716d7cef7f56",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "User or group to grant this permission to"
+        },
         "24/0/init/body/57/body/0/argument/1/1/3": {
           "type": "element",
           "hash": "3e08d4b7f667783900e6acd54f4175f8",
@@ -2959,6 +3039,14 @@
           "overrides": {},
           "content": "Permission Types <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "24/0/init/body/57/body/0/argument/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "298f2c886b868454da572deb716f735b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Types of permissions to grant"
+        },
         "24/0/init/body/58/body/0/argument/11/1/1-title": {
           "type": "attribute",
           "hash": "7907ee68814faab5a13bb04e96672853",
@@ -2974,6 +3062,14 @@
           "skip": false,
           "overrides": {},
           "content": "Notes <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "24/0/init/body/58/body/0/argument/11/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7907ee68814faab5a13bb04e96672853",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Optional notes about this permission"
         },
         "24/0/init/body/58/body/0/argument/11/3/1-placeholder": {
           "type": "attribute",
@@ -2999,6 +3095,14 @@
           "overrides": {},
           "content": "Inheritable <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "24/0/init/body/58/body/0/argument/3/expression/right/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "45102f3124a5cb27d0f4deff60ccaccb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Whether this permission applies to subfolders and files"
+        },
         "24/0/init/body/58/body/0/argument/7/1/1-title": {
           "type": "attribute",
           "hash": "942fd70570d2935eb559f9dc9e10fa37",
@@ -3015,6 +3119,14 @@
           "overrides": {},
           "content": "Date Range <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "24/0/init/body/58/body/0/argument/7/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "92414ed7663f9f3f91b8c901681ada59",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Set optional date range for when this permission is active"
+        },
         "24/0/init/body/59/body/0/argument/1/1/1-title": {
           "type": "attribute",
           "hash": "345b6624188eb4b14ec2a1afe48911ac",
@@ -3030,6 +3142,14 @@
           "skip": false,
           "overrides": {},
           "content": "Share This Link <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "24/0/init/body/59/body/0/argument/1/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "345b6624188eb4b14ec2a1afe48911ac",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy this link to share"
         },
         "24/0/init/body/59/body/0/argument/1/3/1/openingElement/2/value/expression": {
           "type": "element",
@@ -3259,6 +3379,14 @@
           "overrides": {},
           "content": "This determines what actions you can perform with this resource."
         },
+        "12/0/init/body/13/argument/1/1/expression/alternate/3/expression/right/3/3/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "4ef131822c04701f9793f9b7d551cecd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This determines what actions you can perform with this resource."
+        },
         "12/0/init/body/13/argument/1/1/expression/alternate/3/expression/right/5/1": {
           "type": "element",
           "hash": "bee775ff7216747b2111e93cefa57ddc",
@@ -3303,7 +3431,431 @@
     },
     "components/DirectorySharingDrawer/directory-warning.tsx": {
       "scopes": {
+        "9/0/init/body/12/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "b2f891d3b179eeea6efce672b71918cf",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": " via ancestor folder \"${ancestorWithPermission.resource_name}\""
+        },
+        "9/0/init/body/12/consequent/1/expression/right": {
+          "type": "element",
+          "hash": "b2f891d3b179eeea6efce672b71918cf",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": " via ancestor folder \"${ancestorWithPermission.resource_name}\""
+        },
+        "9/0/init/body/13/alternate/2/alternate/alternate/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "f70bba716910680316f2c1178df65195",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "shared with an EXCLUSIVE LIST"
+        },
+        "9/0/init/body/13/alternate/2/alternate/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "23f6092daad74a0af76fe8dd2a0b2597",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only specific users or groups have access to this {resource}"
+        },
+        "9/0/init/body/13/alternate/2/alternate/alternate/consequent/3/alternate/0/expression/right": {
+          "type": "element",
+          "hash": "6925e2a48fcb998147ebbd82af771f4d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only specific users or groups have access to this {resource} with view-only permission"
+        },
+        "9/0/init/body/13/alternate/2/alternate/alternate/consequent/3/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "ead95bfd16104c7c3678f2a32cab8221",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only specific users or groups have access to this {resource} with edit permission"
+        },
+        "9/0/init/body/13/alternate/2/alternate/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "df54f4b97e6d064abce47619a7d07a9d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "PUBLIC VIEW ONLY"
+        },
+        "9/0/init/body/13/alternate/2/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "b037421d417a72221180179c4a8d7fc8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} can be viewed by anyone with the link"
+        },
+        "9/0/init/body/13/alternate/2/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "0732dfbb431c9030b585febe52a566fc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "PUBLIC EDITABLE"
+        },
+        "9/0/init/body/13/alternate/2/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "d4fa81f040a878f7c94163c528620531",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} can be edited by anyone with the link"
+        },
+        "9/0/init/body/13/alternate/3/alternate/0/expression/right": {
+          "type": "element",
+          "hash": "f1b09514688d19c2364525044953d032",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is {directStatus} directly"
+        },
+        "9/0/init/body/13/alternate/3/consequent/3/alternate/0/expression/right": {
+          "type": "element",
+          "hash": "c356ed5735da614b9ad43f93c4d51666",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} has EXCLUSIVE LIST permissions directly but is PUBLIC via ancestor folder"
+        },
+        "9/0/init/body/13/alternate/3/consequent/3/alternate/1/expression/right": {
+          "type": "element",
+          "hash": "40c83f87f7f2c52e8e749e9c400bff82",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This ${resource} has public access via its ancestor folder which overrides its direct exclusive sharing"
+        },
+        "9/0/init/body/13/alternate/3/consequent/3/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "fae9af97393b5b34e5a64827e0a843d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is {directStatus} directly and via ancestor folder"
+        },
+        "9/0/init/body/13/alternate/3/consequent/3/consequent/1/expression/right": {
+          "type": "element",
+          "hash": "fae9af97393b5b34e5a64827e0a843d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is {directStatus} directly and via ancestor folder"
+        },
+        "9/0/init/body/13/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "b2f891d3b179eeea6efce672b71918cf",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": " via ancestor folder \"${ancestorWithPermission.resource_name}\""
+        },
+        "9/0/init/body/13/consequent/0/alternate/0/expression/right": {
+          "type": "element",
+          "hash": "1a97dd491e116fe73f1f3c81f9209e04",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is PRIVATE and hidden. Only you can see it."
+        },
+        "9/0/init/body/13/consequent/0/alternate/2/expression/right": {
+          "type": "element",
+          "hash": "91129fc1fd36c003ec667e5c0361dafe",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You are the only one who can see it"
+        },
+        "9/0/init/body/13/consequent/0/consequent/1/alternate/alternate/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "83dc8d96a3dbcf904e3f75a92b2e2067",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is shared with an EXCLUSIVE LIST via ancestor folder"
+        },
+        "9/0/init/body/13/consequent/0/consequent/1/alternate/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "42eb1486a10b79b8fdfc9979458ceb2f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is accessible to specific users because its ancestor folder has been shared with them"
+        },
+        "9/0/init/body/13/consequent/0/consequent/1/alternate/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "f51b8b367acd05719e8f58b285e524da",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is PUBLIC VIEW ONLY via ancestor folder"
+        },
+        "9/0/init/body/13/consequent/0/consequent/1/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "b61f704b759db0a3faa5cdb97fc8cbc2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is visible to anyone because its ancestor folder has public visibility"
+        },
+        "9/0/init/body/13/consequent/0/consequent/1/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "12912d1bc61fcfe3eb7f5b9a010de153",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is PUBLIC EDITABLE via ancestor folder"
+        },
+        "9/0/init/body/13/consequent/0/consequent/1/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "703a126bc249ec0cdb6b79509a033d05",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} can be modified by anyone because its ancestor folder has public edit permission"
+        },
+        "9/0/init/body/13/consequent/1/expression/right": {
+          "type": "element",
+          "hash": "b2f891d3b179eeea6efce672b71918cf",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": " via ancestor folder \"${ancestorWithPermission.resource_name}\""
+        },
+        "9/0/init/body/14/alternate/2/alternate/alternate/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "f70bba716910680316f2c1178df65195",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "shared with an EXCLUSIVE LIST"
+        },
+        "9/0/init/body/14/alternate/2/alternate/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "23f6092daad74a0af76fe8dd2a0b2597",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only specific users or groups have access to this {resource}"
+        },
+        "9/0/init/body/14/alternate/2/alternate/alternate/consequent/3/alternate/0/expression/right": {
+          "type": "element",
+          "hash": "6925e2a48fcb998147ebbd82af771f4d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only specific users or groups have access to this {resource} with view-only permission"
+        },
+        "9/0/init/body/14/alternate/2/alternate/alternate/consequent/3/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "ead95bfd16104c7c3678f2a32cab8221",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only specific users or groups have access to this {resource} with edit permission"
+        },
+        "9/0/init/body/14/alternate/2/alternate/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "df54f4b97e6d064abce47619a7d07a9d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "PUBLIC VIEW ONLY"
+        },
+        "9/0/init/body/14/alternate/2/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "b037421d417a72221180179c4a8d7fc8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} can be viewed by anyone with the link"
+        },
+        "9/0/init/body/14/alternate/2/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "0732dfbb431c9030b585febe52a566fc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "PUBLIC EDITABLE"
+        },
+        "9/0/init/body/14/alternate/2/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "d4fa81f040a878f7c94163c528620531",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} can be edited by anyone with the link"
+        },
+        "9/0/init/body/14/alternate/3/alternate/0/expression/right": {
+          "type": "element",
+          "hash": "f1b09514688d19c2364525044953d032",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is {directStatus} directly"
+        },
+        "9/0/init/body/14/alternate/3/consequent/3/alternate/0/expression/right": {
+          "type": "element",
+          "hash": "c356ed5735da614b9ad43f93c4d51666",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} has EXCLUSIVE LIST permissions directly but is PUBLIC via ancestor folder"
+        },
+        "9/0/init/body/14/alternate/3/consequent/3/alternate/1/expression/right": {
+          "type": "element",
+          "hash": "40c83f87f7f2c52e8e749e9c400bff82",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This ${resource} has public access via its ancestor folder which overrides its direct exclusive sharing"
+        },
+        "9/0/init/body/14/alternate/3/consequent/3/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "fae9af97393b5b34e5a64827e0a843d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is {directStatus} directly and via ancestor folder"
+        },
+        "9/0/init/body/14/alternate/3/consequent/3/consequent/1/expression/right": {
+          "type": "element",
+          "hash": "6502ec7525d5a0e0beeac5625c6aefb4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": " (both directly and via its ancestor folder)"
+        },
+        "9/0/init/body/14/consequent/0/alternate/0/expression/right": {
+          "type": "element",
+          "hash": "1a97dd491e116fe73f1f3c81f9209e04",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is PRIVATE and hidden. Only you can see it."
+        },
+        "9/0/init/body/14/consequent/0/alternate/2/expression/right": {
+          "type": "element",
+          "hash": "91129fc1fd36c003ec667e5c0361dafe",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You are the only one who can see it"
+        },
+        "9/0/init/body/14/consequent/0/consequent/1/alternate/alternate/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "83dc8d96a3dbcf904e3f75a92b2e2067",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is shared with an EXCLUSIVE LIST via ancestor folder"
+        },
+        "9/0/init/body/14/consequent/0/consequent/1/alternate/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "42eb1486a10b79b8fdfc9979458ceb2f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is accessible to specific users because its ancestor folder has been shared with them"
+        },
+        "9/0/init/body/14/consequent/0/consequent/1/alternate/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "f51b8b367acd05719e8f58b285e524da",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is PUBLIC VIEW ONLY via ancestor folder"
+        },
+        "9/0/init/body/14/consequent/0/consequent/1/alternate/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "b61f704b759db0a3faa5cdb97fc8cbc2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is visible to anyone because its ancestor folder has public visibility"
+        },
+        "9/0/init/body/14/consequent/0/consequent/1/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "12912d1bc61fcfe3eb7f5b9a010de153",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} is PUBLIC EDITABLE via ancestor folder"
+        },
+        "9/0/init/body/14/consequent/0/consequent/1/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "703a126bc249ec0cdb6b79509a033d05",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This {resource} can be modified by anyone because its ancestor folder has public edit permission"
+        },
+        "9/0/init/body/14/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "3b3fb799d6c85b93e173ff3e32cc144e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This ${resource} is PUBLIC on internet via free public filesharing disk"
+        },
+        "9/0/init/body/14/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "d9a7db0f4f60c4b105d3ab5f300e3bd2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This ${resource} is accessible to anyone on the internet because it is stored on a free public filesharing disk"
+        },
+        "9/0/init/body/15/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "3b3fb799d6c85b93e173ff3e32cc144e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This ${resource} is PUBLIC on internet via free public filesharing disk"
+        },
+        "9/0/init/body/15/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "d9a7db0f4f60c4b105d3ab5f300e3bd2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This ${resource} is accessible to anyone on the internet because it is stored on a free public filesharing disk"
+        },
         "9/0/init/body/16/argument/1/1/1/3/expression/right/3": {
+          "type": "element",
+          "hash": "42c37de4f6e5efa4432817a62828bb16",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "\"{ancestorWithPermission.resource_name}\""
+        },
+        "9/0/init/body/16/consequent/0/expression/right": {
+          "type": "element",
+          "hash": "758037a6fab1b0c8986ec7ac54210176",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This ${resource} is OFFLINE and hidden. You can generate a temporary 8 hour sharing link"
+        },
+        "9/0/init/body/16/consequent/2/expression/right": {
+          "type": "element",
+          "hash": "11c7bd7a9deb4476fb811a378c23d249",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You are the only one who can see it until you generate a temporary link, which lasts less than 24h hours."
+        },
+        "9/0/init/body/17/argument/1/1/1/3/expression/right/3": {
           "type": "element",
           "hash": "42c37de4f6e5efa4432817a62828bb16",
           "context": "",
@@ -3546,6 +4098,14 @@
           "skip": false,
           "overrides": {},
           "content": "Syncing"
+        },
+        "35/0/init/body/36/0/init/0/4/value/body/1/openingElement/0/value/expression/right": {
+          "type": "element",
+          "hash": "364237338ace0a8af7598f4d7099fec4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add Custom Notes"
         },
         "35/0/init/body/36/0/init/1/0/value": {
           "type": "element",
@@ -4697,7 +5257,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Restore Trash"
+          "content": "Confirm RestoreAre you sure you want to restore trash? Restore Trash"
         },
         "39/0/init/body/52/0/init/body/2/consequent/0/expression/0/1/value-description": {
           "type": "attribute",
@@ -5319,6 +5879,14 @@
           "overrides": {},
           "content": "Rename"
         },
+        "23/0/init/body/40/argument/1/1/1/3/1/expression/alternate/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "6f9413e4606e8d83a010685008fb2931",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Rename"
+        },
         "23/0/init/body/40/argument/1/1/1/3/3": {
           "type": "element",
           "hash": "0d4d46e225a65748d9375b211433cd28",
@@ -5358,6 +5926,38 @@
           "skip": false,
           "overrides": {},
           "content": "File is still uploading and cannot be previewed yet. Please wait for the upload to complete or try uploading again."
+        },
+        "23/0/init/body/40/argument/3/expression/right/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "57147ab3e4d0cbae56b3328b140211f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File Uploading"
+        },
+        "23/0/init/body/40/argument/3/expression/right/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "ca28d16a88ab3cabe29355f168298360",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File is still uploading and cannot be previewed yet. Please wait for the upload to complete or try uploading again."
+        },
+        "23/0/init/body/40/argument/5/expression/right/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "440c35fa8ea8c9ecd957d96a8f26e910",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File Too Large for Preview"
+        },
+        "23/0/init/body/40/argument/5/expression/right/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "fffec697fb0e963429c52110d9936c76",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This file is too large to preview ($<function:formatFileSize/>). $<expression/> Please download the file instead."
         },
         "23/0/init/body/40/argument/7/expression/consequent/11/expression/right/1/openingElement/1/value/expression": {
           "type": "element",
@@ -5961,7 +6561,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Vendor Endpoint URL<element:Tooltip><element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+          "content": "Vendor Endpoint URL<element:Tooltip>Enter the endpoint URL of the vendor who will deposit gas for you. You can buy gift cards from any vendor that supports the Internet Computer.<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
         },
         "13/0/init/body/16/0/init/body/0/argument/3/openingElement/0/value/expression/1-title": {
           "type": "attribute",
@@ -5993,7 +6593,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Canister Gas Balance <element:QuestionCircleOutlined></element:QuestionCircleOutlined><expression/>"
+          "content": "Gas cycles power your canister on the Internet World Computer, guaranteeing computational sovereignty and keeping your data private.Canister Gas Balance <element:QuestionCircleOutlined></element:QuestionCircleOutlined><expression/>"
         },
         "13/0/init/body/17/argument/21/expression/right/1/openingElement/0/value/expression/1-title": {
           "type": "attribute",
@@ -6010,6 +6610,22 @@
           "skip": false,
           "overrides": {},
           "content": "Billion Cycles <element:QuestionCircleOutlined></element:QuestionCircleOutlined>"
+        },
+        "13/0/init/body/17/argument/21/expression/right/1/openingElement/3/value/expression/openingElement/0/value/expression/alternate": {
+          "type": "element",
+          "hash": "39fafe0deb73bd4f0635e83c9c7a1843",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Daily idle burn rate of $<function:toString/> million gas cycles. Approximately $<function:toString/> days remaining."
+        },
+        "13/0/init/body/17/argument/21/expression/right/1/openingElement/3/value/expression/openingElement/0/value/expression/consequent": {
+          "type": "element",
+          "hash": "834d88848d83395ee2a4582e53f87bbf",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Daily idle burn rate stats will appear here"
         },
         "13/0/init/body/17/argument/21/expression/right/3": {
           "type": "element",
@@ -8239,6 +8855,14 @@
           "overrides": {},
           "content": "Language changing to {value}, please wait up to 30 seconds..."
         },
+        "9/0/init/body/8/argument/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "a94934051da8664d93542a5b564582a5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Current Language: {selectedLanguage.title} ({selectedLanguage.hint})"
+        },
         "9/0/init/body/8/argument/3-title": {
           "type": "attribute",
           "hash": "d75cf5fbce8a4c7a9055e2210af74480",
@@ -8883,6 +9507,14 @@
           "overrides": {},
           "content": "This application requires certain permissions to function. Please review the permission scopes below."
         },
+        "18/0/init/body/33/argument/1/13/expression/right/5/expression/consequent/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "5c4439194808b82387526c2b496359fe",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Vendor Verification & API Key Best Practices"
+        },
         "18/0/init/body/33/argument/1/13/expression/right/5/expression/consequent/3/openingElement/1/value/expression/1": {
           "type": "element",
           "hash": "6171e02e377d75bfc52afaaed42d90f1",
@@ -8907,6 +9539,14 @@
           "overrides": {},
           "content": "About this vendor <element:LinkOutlined></element:LinkOutlined>"
         },
+        "18/0/init/body/33/argument/1/13/expression/right/5/expression/consequent/3/openingElement/1/value/expression/3/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "4c93341f4cfb81b2bf6d3ed7eac52b00",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "View vendor's terms and conditions or general information."
+        },
         "18/0/init/body/33/argument/1/13/expression/right/5/expression/consequent/3/openingElement/1/value/expression/3/5-title": {
           "type": "attribute",
           "hash": "16af96cf8aed7196cd130f4da5aff9ca",
@@ -8922,6 +9562,14 @@
           "skip": false,
           "overrides": {},
           "content": "Verify execution code <element:LinkOutlined></element:LinkOutlined>"
+        },
+        "18/0/init/body/33/argument/1/13/expression/right/5/expression/consequent/3/openingElement/1/value/expression/3/5/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c08617b69121745f758e34e3815096d9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Verify the code to be executed on checkout, usually pointing to a Trusted Execution Environment (TEE)."
         },
         "18/0/init/body/33/argument/1/13/expression/right/5/expression/consequent/3/openingElement/1/value/expression/3/9-title": {
           "type": "attribute",
@@ -8939,13 +9587,21 @@
           "overrides": {},
           "content": "Learn more about 3rd party app verification onOfficeX <element:LinkOutlined></element:LinkOutlined>"
         },
+        "18/0/init/body/33/argument/1/13/expression/right/5/expression/consequent/3/openingElement/1/value/expression/3/9/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "32eae9c6cb77e9784d33f965e041b289",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "OfficeX is a permissionless platform and thus does not verify 3rd party apps. Appstore list providers and users to be responsible for their own security."
+        },
         "18/0/init/body/33/argument/1/13/expression/right/5/expression/consequent/7/1/1": {
           "type": "element",
           "hash": "ad25395e6d3bac4c9da600b2acddfb6a",
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Grant API Key Scope<element:Popover><element:InfoCircleOutlined></element:InfoCircleOutlined></element:Popover>"
+          "content": "Grant API Key Scope<element:Popover>API Key Security Hygiene<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Popover>"
         },
         "18/0/init/body/33/argument/1/13/expression/right/5/expression/consequent/7/1/1/1-title": {
           "type": "attribute",
@@ -8970,6 +9626,14 @@
           "skip": false,
           "overrides": {},
           "content": "No additional details required."
+        },
+        "18/0/init/body/33/argument/1/17/expression/consequent/11/expression/consequent/0/body/1/1/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "315dcd38fe1675a36ee9dd0c8e64bce2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "{req.title} Explanation"
         },
         "18/0/init/body/33/argument/1/17/expression/consequent/11/expression/consequent/0/body/1/3/expression/right": {
           "type": "element",
@@ -9011,6 +9675,14 @@
           "overrides": {},
           "content": "After you click <expression/>, your request will be securely sent to the vendor. The vendor will then process the purchase based on the details you've provided. You'll be ableto monitor the status and see the progress of your purchase on the <element:Link>Purchase History Page</element:Link> , where updates will be provided until the goods or services are delivered."
         },
+        "18/0/init/body/33/argument/1/27/expression/right/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "b6b676e5d0fa813891b0ad003cc5d315",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "🎉 Checkout Completed - View Your Purchase"
+        },
         "18/0/init/body/33/argument/1/9/expression/alternate/1": {
           "type": "element",
           "hash": "ad99179be9d75447cb0bcc3e3d2ebe46",
@@ -9041,7 +9713,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Select Payment Option<element:Popover><element:InfoCircleOutlined></element:InfoCircleOutlined></element:Popover>"
+          "content": "Select Payment Option<element:Popover>Choose your preferred method for depositing funds to run the app.<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Popover>"
         },
         "18/0/init/body/33/argument/1/9/expression/consequent/11/11/expression/right/1/expression/alternate": {
           "type": "element",
@@ -9107,6 +9779,22 @@
           "overrides": {},
           "content": "Deposit Address Explanation"
         },
+        "18/0/init/body/33/argument/1/9/expression/consequent/11/9/expression/right/3/7/1/1/openingElement/3/value/expression/4/openingElement/0/value/expression/0": {
+          "type": "element",
+          "hash": "b916ac41c0183bee3c06615cbd9bdb3f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "The unique address for the deposit on the selected chain. Click to view on chain explorer."
+        },
+        "18/0/init/body/33/argument/1/9/expression/consequent/11/9/expression/right/3/7/1/1/openingElement/3/value/expression/4/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "1be7ae75a10708f9396c68f03e2cdfbc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Deposit Address Explanation"
+        },
         "18/0/init/body/33/argument/1/9/expression/consequent/11/9/expression/right/3/7/3/1/openingElement/5/value/expression/1": {
           "type": "element",
           "hash": "a0ae9c6ff98b57475cdce56f66066aa4",
@@ -9117,6 +9805,22 @@
         },
         "18/0/init/body/33/argument/1/9/expression/consequent/11/9/expression/right/3/7/3/1/openingElement/5/value/expression/3-title": {
           "type": "attribute",
+          "hash": "f113ef9c3d3a18400311851c32657794",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Amount Explanation"
+        },
+        "18/0/init/body/33/argument/1/9/expression/consequent/11/9/expression/right/3/7/3/1/openingElement/5/value/expression/3/openingElement/0/value/expression/0": {
+          "type": "element",
+          "hash": "46c75d01d5f8599cbe9426bafc3a7a4d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "The exact amount of tokens required for this deposit."
+        },
+        "18/0/init/body/33/argument/1/9/expression/consequent/11/9/expression/right/3/7/3/1/openingElement/5/value/expression/3/openingElement/1/value/expression": {
+          "type": "element",
           "hash": "f113ef9c3d3a18400311851c32657794",
           "context": "",
           "skip": false,
@@ -9863,6 +10567,22 @@
           "overrides": {},
           "content": "Each API key has full access to your profile. Creating separate keys for each app allows you to revoke access individually if needed. For max security, create an entirely new profile just for the app."
         },
+        "19/0/init/body/32/argument/1/7/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c1f1ac30494cc64490821e614901462c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Security Best Practice"
+        },
+        "19/0/init/body/32/argument/1/7/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "a5722a6b0bdc057d092e39fcd15b5d66",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Each API key has full access to your profile. Creating separate keys for each app allows you to revoke access individually if needed. For max security, create an entirely new profile just for the app."
+        },
         "19/0/init/body/32/argument/5/1/1/1-placeholder": {
           "type": "attribute",
           "hash": "790638068e1ff4a84e2bcbb9b0c62fd3",
@@ -9886,6 +10606,14 @@
           "skip": false,
           "overrides": {},
           "content": "Name <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "19/0/init/body/32/argument/5/1/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "b1e7e314447d0d02d4b768a5602994ee",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name for this API key"
         },
         "19/0/init/body/32/argument/5/1/3/1/3": {
           "type": "element",
@@ -9919,6 +10647,14 @@
           "overrides": {},
           "content": "Expiration <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "19/0/init/body/32/argument/5/1/3/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "90d33ac08d24c8cc9c0e6b1bb79b1277",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "API key expiration settings"
+        },
         "19/0/init/body/32/argument/5/1/5/1/3/expression/alternate": {
           "type": "element",
           "hash": "ee03e23f62418e2f2ebca5bb3330d965",
@@ -9943,6 +10679,14 @@
           "overrides": {},
           "content": "Labels <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "19/0/init/body/32/argument/5/1/5/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "251cf3cfa4c2d79ccefe9ce01f27bcb8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Labels to categorize this API key"
+        },
         "19/0/init/body/32/argument/5/1/7/1-placeholder": {
           "type": "attribute",
           "hash": "680da0012a79cc2695d9609be4fa0392",
@@ -9966,6 +10710,14 @@
           "skip": false,
           "overrides": {},
           "content": "External ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "19/0/init/body/32/argument/5/1/7/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "fcba2c56c95d02ac386b13247695fcf8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for integration"
         },
         "19/0/init/body/32/argument/5/openingElement/0/value/expression": {
           "type": "element",
@@ -10997,7 +11749,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Gift Card<element:Tooltip><element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+          "content": "Gift Card<element:Tooltip>Gift Cards let you connect to the world computer $ICP<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
         },
         "18/0/init/body/41/0/init/body/0/argument/5/expression/right/openingElement/0/value/expression/1-title": {
           "type": "attribute",
@@ -11085,7 +11837,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Password<element:Tooltip><element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+          "content": "Password<element:Tooltip>Format: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
         },
         "18/0/init/body/43/0/init/body/1/3/1/1/openingElement/0/value/expression/1-title": {
           "type": "attribute",
@@ -11141,7 +11893,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Organization Name<element:Tooltip><element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+          "content": "Organization Name<element:Tooltip>Edit the organization nickname<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
         },
         "18/0/init/body/45/0/init/body/2/argument/1/3/1/1/openingElement/0/value/expression/1-title": {
           "type": "attribute",
@@ -11165,7 +11917,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Endpoint URL<element:Tooltip><element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+          "content": "Endpoint URL<element:Tooltip>Edit the endpoint URL of this organization<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
         },
         "18/0/init/body/45/0/init/body/2/argument/1/3/1/3/openingElement/0/value/expression/1-title": {
           "type": "attribute",
@@ -11198,6 +11950,38 @@
           "skip": false,
           "overrides": {},
           "content": "Remove"
+        },
+        "18/0/init/body/45/0/init/body/2/argument/1/3/1/7/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "011dc03dec8dfd8d4b0e53b2951435a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to remove this organization?"
+        },
+        "18/0/init/body/45/0/init/body/2/argument/1/3/1/7/1/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3d8b13374ffd3cefc0f3f7ce077bd9c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This action cannot be undone."
+        },
+        "18/0/init/body/45/0/init/body/2/argument/1/3/1/7/1/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "18/0/init/body/45/0/init/body/2/argument/1/3/1/7/1/1/openingElement/4/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "18/0/init/body/45/0/init/body/2/argument/1/3/1/7/3/1/1": {
           "type": "element",
@@ -12145,7 +12929,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Password<element:Tooltip><element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+          "content": "Password<element:Tooltip>Format: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
         },
         "16/0/init/body/29/0/init/body/1/3/1/1/openingElement/0/value/expression/1-title": {
           "type": "attribute",
@@ -12275,6 +13059,22 @@
           "overrides": {},
           "content": "Remove"
         },
+        "16/0/init/body/31/0/init/body/3/argument/1/7/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "639d42aee899a43c8c78aea3ccc25be6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to remove this profile?"
+        },
+        "16/0/init/body/31/0/init/body/3/argument/1/7/1/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3d8b13374ffd3cefc0f3f7ce077bd9c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This action cannot be undone."
+        },
         "16/0/init/body/31/0/init/body/3/argument/1/7/1/1/openingElement/2/value/expression/body/0/block/0/consequent/2/expression/0": {
           "type": "element",
           "hash": "ad07ffd06a4cc35e29e741f0fa4ec3f5",
@@ -12290,6 +13090,22 @@
           "skip": false,
           "overrides": {},
           "content": "Failed to remove currentProfile. Please try again."
+        },
+        "16/0/init/body/31/0/init/body/3/argument/1/7/1/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "16/0/init/body/31/0/init/body/3/argument/1/7/1/1/openingElement/4/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "16/0/init/body/31/0/init/body/3/argument/1/7/3/1/1": {
           "type": "element",
@@ -12695,6 +13511,14 @@
     },
     "components/VideoPlayer/index.tsx": {
       "scopes": {
+        "8/0/init/body/14/argument/3/expression/right/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "f9f7c4fac57316f57386b6d6428d7681",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Video Playback Error"
+        },
         "8/0/init/body/14/argument/3/expression/right/openingElement/2/value/expression/3/1": {
           "type": "element",
           "hash": "afc46d3f8880aabf23a2e32a1554a327",
@@ -12978,6 +13802,30 @@
           "skip": false,
           "overrides": {},
           "content": "Send"
+        },
+        "8/0/init/body/13/0/init/1/2/value/13/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e39f673491408f0125aac90b4af58387",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure to send this transaction?"
+        },
+        "8/0/init/body/13/0/init/1/2/value/13/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "8/0/init/body/13/0/init/1/2/value/13/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "8/0/init/body/13/0/init/1/2/value/5-placeholder": {
           "type": "attribute",
@@ -13699,6 +14547,14 @@
           "overrides": {},
           "content": "Nickname <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "14/0/init/body/21/argument/1/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "b1e7e314447d0d02d4b768a5602994ee",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name for this API key"
+        },
         "14/0/init/body/21/argument/1/5/1": {
           "type": "element",
           "hash": "038608166eb01145afb62a1f68fa3910",
@@ -13739,6 +14595,14 @@
           "overrides": {},
           "content": "Expiration <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "14/0/init/body/21/argument/1/5/3/1/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "90d33ac08d24c8cc9c0e6b1bb79b1277",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "API key expiration settings"
+        },
         "14/0/init/body/21/argument/1/5/3/3/1/3/expression/alternate": {
           "type": "element",
           "hash": "54c9f4ffd409d131933394d53123a0e4",
@@ -13762,6 +14626,14 @@
           "skip": false,
           "overrides": {},
           "content": "Labels <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "14/0/init/body/21/argument/1/5/3/3/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "251cf3cfa4c2d79ccefe9ce01f27bcb8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Labels to categorize this API key"
         },
         "14/0/init/body/21/argument/1/5/3/5/1-placeholder": {
           "type": "attribute",
@@ -13787,6 +14659,14 @@
           "overrides": {},
           "content": "External ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "14/0/init/body/21/argument/1/5/3/5/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9e3e1889741c9f3624a4eb4ebff7f45c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for integration with other systems"
+        },
         "14/0/init/body/21/argument/1/5/3/7/1-placeholder": {
           "type": "attribute",
           "hash": "0af31551dedeae5ed5c047925d94af32",
@@ -13810,6 +14690,14 @@
           "skip": false,
           "overrides": {},
           "content": "External Payload <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "14/0/init/body/21/argument/1/5/3/7/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c21a7b72df47f92d1948e2ab336495a8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Additional data for external systems"
         },
         "14/0/init/body/21/argument/openingElement/5/value/expression/1": {
           "type": "element",
@@ -14203,6 +15091,14 @@
           "overrides": {},
           "content": "Copy to clipboard"
         },
+        "20/0/init/body/16/0/init/body/1/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
         "20/0/init/body/20/0/init/body/0/consequent/0/argument": {
           "type": "element",
           "hash": "1e8feb40a233b6ee8171336f22a64d0a",
@@ -14315,6 +15211,22 @@
           "overrides": {},
           "content": "Revoke"
         },
+        "20/0/init/body/23/argument/1/3/1/1/expression/alternate/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "682cb8b19307191c4c5d13804e577e30",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Do you want to revoke this API key?"
+        },
+        "20/0/init/body/23/argument/1/3/1/1/expression/alternate/3/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "a12d184bdf652f8400a455368f85f1bc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This will immediately prevent this key from being used."
+        },
         "20/0/init/body/23/argument/1/3/1/1/expression/alternate/3/openingElement/2/value/expression/body/1/expression/0": {
           "type": "element",
           "hash": "c2926b778f59c2bfdafd79762730d87b",
@@ -14426,6 +15338,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete API Key"
+        },
+        "20/0/init/body/23/argument/3/1/1/1/expression/consequent/13/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "ead186d73054a4108d8f963a2d5cf5b0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this API key?"
+        },
+        "20/0/init/body/23/argument/3/1/1/1/expression/consequent/13/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "20/0/init/body/23/argument/3/1/1/1/expression/consequent/13/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "20/0/init/body/23/argument/3/1/1/1/expression/consequent/13/1/openingElement/3/value/expression/body/1/expression/0/alternate": {
           "type": "element",
@@ -15555,6 +16491,14 @@
           "overrides": {},
           "content": "Generate random ICP address"
         },
+        "16/0/init/body/29/0/init/body/0/argument/1/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "1f756e0e831cef2a05c50cad524e45bd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Generate random ICP address"
+        },
         "16/0/init/body/29/0/init/body/0/argument/openingElement/0/value/expression-title": {
           "type": "attribute",
           "hash": "71e2a559c2dc136054cb839178a46a9f",
@@ -15570,6 +16514,14 @@
           "skip": false,
           "overrides": {},
           "content": "ICP Address <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "16/0/init/body/29/0/init/body/0/argument/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "71e2a559c2dc136054cb839178a46a9f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP wallet address for this contact"
         },
         "16/0/init/body/30/argument-title": {
           "type": "attribute",
@@ -15603,6 +16555,14 @@
           "overrides": {},
           "content": "Name <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/30/argument/1/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "bffd09286bea56447f2d66702d26328c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Contact name or user string (format: Name_With_Underscores@UserID_xyz)"
+        },
         "16/0/init/body/30/argument/1/5/1": {
           "type": "element",
           "hash": "038608166eb01145afb62a1f68fa3910",
@@ -15635,6 +16595,14 @@
           "overrides": {},
           "content": "Email <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/30/argument/1/5/3/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "87f09f4fc9451886d41104906c6e3506",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Email address for contact"
+        },
         "16/0/init/body/30/argument/1/5/3/11/1/3/expression/alternate": {
           "type": "element",
           "hash": "54c9f4ffd409d131933394d53123a0e4",
@@ -15658,6 +16626,14 @@
           "skip": false,
           "overrides": {},
           "content": "Labels <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "16/0/init/body/30/argument/1/5/3/11/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "337cf07e8ffa9405c5e6cc40d1fc16bd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Labels to categorize this contact"
         },
         "16/0/init/body/30/argument/1/5/3/13/1-placeholder": {
           "type": "attribute",
@@ -15683,6 +16659,14 @@
           "overrides": {},
           "content": "External ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/30/argument/1/5/3/13/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9e3e1889741c9f3624a4eb4ebff7f45c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for integration with other systems"
+        },
         "16/0/init/body/30/argument/1/5/3/3/1-placeholder": {
           "type": "attribute",
           "hash": "dde9527dae5aa2c50754b2afc3d32141",
@@ -15707,6 +16691,14 @@
           "overrides": {},
           "content": "Notifications URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/30/argument/1/5/3/3/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "6301b0f2b65073c74d6f098afe2cbd31",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL for sending notifications to this contact"
+        },
         "16/0/init/body/30/argument/1/5/3/5/openingElement/0/value/expression-title": {
           "type": "attribute",
           "hash": "807ca647353acffdc87af1902c449863",
@@ -15722,6 +16714,14 @@
           "skip": false,
           "overrides": {},
           "content": "Own this profile with seed phrase <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "16/0/init/body/30/argument/1/5/3/5/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "2fa4df17c3c34467ed69ce7fadd25d17",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Control whether you own this contact's wallet with a seed phrase"
         },
         "16/0/init/body/30/argument/1/5/3/7/expression/consequent/1/3/1": {
           "type": "element",
@@ -15747,6 +16747,14 @@
           "overrides": {},
           "content": "Seed Phrase <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/30/argument/1/5/3/7/expression/consequent/1/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "98b91b86d5dceea7ebbe09fbed4df514",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "12-word seed phrase to generate wallet addresses"
+        },
         "16/0/init/body/30/argument/1/5/3/9/1-placeholder": {
           "type": "attribute",
           "hash": "c946c57063944e6a898e3cb0863dbbae",
@@ -15770,6 +16778,14 @@
           "skip": false,
           "overrides": {},
           "content": "Public Note <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "16/0/init/body/30/argument/1/5/3/9/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c946c57063944e6a898e3cb0863dbbae",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public information about this contact"
         },
         "16/0/init/body/30/argument/openingElement/5/value/expression/1": {
           "type": "element",
@@ -16093,7 +17109,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Login with API Key <element:Tooltip><element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+          "content": "Login with API Key <element:Tooltip>This will generate a new API key for the user. Disabled if you don't have authorization to create API keys on behalf of other users. Speak with your org admin.<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
         },
         "15/0/init/body/18/argument/1/1/9/3/1/openingElement/0/value/expression/3-title": {
           "type": "attribute",
@@ -16109,7 +17125,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "API Key Validity Period <element:Tooltip><element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+          "content": "API Key Validity Period <element:Tooltip>If not specified, the API key will never expire<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
         },
         "15/0/init/body/18/argument/1/1/9/3/3/expression/right/openingElement/0/value/expression/3-title": {
           "type": "attribute",
@@ -16133,7 +17149,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Redirect URL <element:Tooltip><element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+          "content": "Redirect URL <element:Tooltip>Where to redirect the user after successful login<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
         },
         "15/0/init/body/18/argument/1/1/9/3/5/openingElement/0/value/expression/3-title": {
           "type": "attribute",
@@ -16157,7 +17173,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "API Key Nickname <element:Tooltip><element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+          "content": "API Key Nickname <element:Tooltip>A nickname for the API key<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
         },
         "15/0/init/body/18/argument/1/1/9/3/7/openingElement/0/value/expression/3-title": {
           "type": "attribute",
@@ -16389,7 +17405,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Self-Custody Profile <element:Tooltip><element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip> "
+          "content": "Self-Custody Profile <element:Tooltip>You own this profile and its keys are stored on your device.<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip> "
         },
         "14/0/init/body/20/0/init/body/1/0/0/argument/3-title": {
           "type": "attribute",
@@ -16405,7 +17421,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Assigned Profile <element:Tooltip><element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+          "content": "Assigned Profile <element:Tooltip>This profile is owned by the organization and you are being granted access.<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
         },
         "14/0/init/body/20/0/init/body/1/1/0/argument/3-title": {
           "type": "attribute",
@@ -16421,7 +17437,7 @@
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Invitee <element:Tooltip><element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+          "content": "Invitee <element:Tooltip>You are being invited to join the organization with your existing profile.<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
         },
         "14/0/init/body/20/0/init/body/1/2/0/argument/3-title": {
           "type": "attribute",
@@ -16803,6 +17819,14 @@
           "overrides": {},
           "content": "Copy to clipboard"
         },
+        "19/0/init/body/15/0/init/body/1/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
         "19/0/init/body/19/0/init/body/5/argument-title": {
           "type": "attribute",
           "hash": "7dcc877064bfdf889ec55dbc9e06a242",
@@ -16923,6 +17947,14 @@
           "overrides": {},
           "content": "Only organization owners and editors can view this note"
         },
+        "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/13/expression/right/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "84d3b7722c5aa9d8a751062201e5e413",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only organization owners and editors can view this note"
+        },
         "19/0/init/body/21/argument/3/1/1/1/expression/alternate/3/1/11/3/15/1/3": {
           "type": "element",
           "hash": "0a3c4aa6d95f0ee819f828e8720e94cc",
@@ -17002,6 +18034,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete Contact"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/17/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c6237a084e36323f8f606bfc4f0e0e20",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this contact?"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/17/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "19/0/init/body/21/argument/3/1/1/1/expression/consequent/17/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "19/0/init/body/21/argument/3/1/1/1/expression/consequent/17/1/openingElement/3/value/expression/body/1/expression/0/alternate": {
           "type": "element",
@@ -17919,6 +18975,14 @@
           "overrides": {},
           "content": "Disk Type <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "14/0/init/body/22/argument/1/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9d5f96052a71e677474fb459662588eb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Type of disk storage"
+        },
         "14/0/init/body/22/argument/1/3/1-placeholder": {
           "type": "attribute",
           "hash": "e9bff1445de84b6d44268f8bb7e04fa3",
@@ -17943,6 +19007,14 @@
           "overrides": {},
           "content": "Name <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "14/0/init/body/22/argument/1/3/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "fcfc22b618c33132699800b509827a04",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name for the disk"
+        },
         "14/0/init/body/22/argument/1/5/expression/right/1-placeholder": {
           "type": "attribute",
           "hash": "2af319936e26d1c423391e127d4fb0dc",
@@ -17966,6 +19038,14 @@
           "skip": false,
           "overrides": {},
           "content": "Auth JSON <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "14/0/init/body/22/argument/1/5/expression/right/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "52889e9576586c0201be752445391abe",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Authentication JSON for cloud storage"
         },
         "14/0/init/body/22/argument/1/9/1": {
           "type": "element",
@@ -17999,6 +19079,14 @@
           "overrides": {},
           "content": "Public Note <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "14/0/init/body/22/argument/1/9/3/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "d6bf637d0e8781a3530f898637855ec8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public information about this disk"
+        },
         "14/0/init/body/22/argument/1/9/5/1/1-placeholder": {
           "type": "attribute",
           "hash": "b62910888f5805b0cee82360084fffc3",
@@ -18022,6 +19110,14 @@
           "skip": false,
           "overrides": {},
           "content": "Private Note <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "14/0/init/body/22/argument/1/9/5/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "eeba7f1093017a9d85cc742b55519495",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Private notes for this disk (only visible to you)"
         },
         "14/0/init/body/22/argument/1/9/5/13/1": {
           "type": "element",
@@ -18047,6 +19143,14 @@
           "overrides": {},
           "content": "Generate Gift Link"
         },
+        "14/0/init/body/22/argument/1/9/5/13/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9f150fcbe2629102b2d6ad86e8c510e9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You can share this link with a friend for them to redeem the disk. You do not need to click \"Add Disk\""
+        },
         "14/0/init/body/22/argument/1/9/5/3/1/3/expression/alternate": {
           "type": "element",
           "hash": "54c9f4ffd409d131933394d53123a0e4",
@@ -18070,6 +19174,14 @@
           "skip": false,
           "overrides": {},
           "content": "Labels <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "14/0/init/body/22/argument/1/9/5/3/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c085e48600a283019ec92c2061e9ea58",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Labels to categorize this disk"
         },
         "14/0/init/body/22/argument/1/9/5/5/1-placeholder": {
           "type": "attribute",
@@ -18095,6 +19207,14 @@
           "overrides": {},
           "content": "Endpoint URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "14/0/init/body/22/argument/1/9/5/5/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e9a916f236a52c19a66ec94ee81b3e7e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL for info about this disk, including billing"
+        },
         "14/0/init/body/22/argument/1/9/5/7/1-placeholder": {
           "type": "attribute",
           "hash": "515c2bd7e7e5827dc1c7f0b1bd8c3c46",
@@ -18119,6 +19239,14 @@
           "overrides": {},
           "content": "External ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "14/0/init/body/22/argument/1/9/5/7/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9e3e1889741c9f3624a4eb4ebff7f45c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for integration with other systems"
+        },
         "14/0/init/body/22/argument/1/9/5/9/1-placeholder": {
           "type": "attribute",
           "hash": "df7c25c0954a10179e5748f73f294281",
@@ -18142,6 +19270,14 @@
           "skip": false,
           "overrides": {},
           "content": "External Payload <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "14/0/init/body/22/argument/1/9/5/9/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c21a7b72df47f92d1948e2ab336495a8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Additional data for external systems"
         },
         "14/0/init/body/22/argument/openingElement/5/value/expression/1": {
           "type": "element",
@@ -18346,6 +19482,14 @@
         "12/0/init/body/10/argument/1/1/expression/alternate/3/expression/right/3/3/3-title": {
           "type": "attribute",
           "hash": "22b266df1fe3f49ed022319a8fb11e87",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This determines the capabilities and limitations of the disk."
+        },
+        "12/0/init/body/10/argument/1/1/expression/alternate/3/expression/right/3/3/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "dea457fa2379d8d9bc6a8c39d595ab3e",
           "context": "",
           "skip": false,
           "overrides": {},
@@ -18843,8 +19987,24 @@
           "overrides": {},
           "content": "Copy to clipboard"
         },
+        "20/0/init/body/15/0/init/body/1/consequent/0/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
         "20/0/init/body/15/0/init/body/2/argument/openingElement/6/value/expression-title": {
           "type": "attribute",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
+        "20/0/init/body/15/0/init/body/2/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
           "hash": "8992c838874db83e3cc89c9fb4442bfd",
           "context": "",
           "skip": false,
@@ -19011,6 +20171,14 @@
           "overrides": {},
           "content": "Only organization owners and editors can view this note"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/7/expression/right/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "84d3b7722c5aa9d8a751062201e5e413",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only organization owners and editors can view this note"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/9/expression/right/openingElement/2/value/expression": {
           "type": "element",
           "hash": "8cfd09001932d16cf95c4906160c3972",
@@ -19050,6 +20218,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete Disk"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/11/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "44387f7ea317d989a885d53190039ce7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this disk?"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/11/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/11/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/11/1/openingElement/3/value/expression/body/1/expression/0/alternate": {
           "type": "element",
@@ -19935,6 +21127,14 @@
           "overrides": {},
           "content": "Organization Share Link <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/21/argument/1/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "01fd0d4237cb8156f2d5d97e21001810",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization share link format: org_name:drive_id@endpoint"
+        },
         "13/0/init/body/21/argument/1/5/1": {
           "type": "element",
           "hash": "038608166eb01145afb62a1f68fa3910",
@@ -19967,6 +21167,14 @@
           "overrides": {},
           "content": "Name <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/21/argument/1/5/3/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "602e2f820228bb6df878fec49f0860c2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Drive name"
+        },
         "13/0/init/body/21/argument/1/5/3/11/1/3/expression/alternate": {
           "type": "element",
           "hash": "54c9f4ffd409d131933394d53123a0e4",
@@ -19990,6 +21198,14 @@
           "skip": false,
           "overrides": {},
           "content": "Labels <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/21/argument/1/5/3/11/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "2b6616039271133b2374134525f330d2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Labels to categorize this drive"
         },
         "13/0/init/body/21/argument/1/5/3/13/1-placeholder": {
           "type": "attribute",
@@ -20015,6 +21231,14 @@
           "overrides": {},
           "content": "External ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/21/argument/1/5/3/13/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9e3e1889741c9f3624a4eb4ebff7f45c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for integration with other systems"
+        },
         "13/0/init/body/21/argument/1/5/3/15/openingElement/1/value/expression-title": {
           "type": "attribute",
           "hash": "c21a7b72df47f92d1948e2ab336495a8",
@@ -20030,6 +21254,14 @@
           "skip": false,
           "overrides": {},
           "content": "External Payload <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/21/argument/1/5/3/15/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c21a7b72df47f92d1948e2ab336495a8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Additional data for external systems"
         },
         "13/0/init/body/21/argument/1/5/3/3/1-placeholder": {
           "type": "attribute",
@@ -20055,6 +21287,14 @@
           "overrides": {},
           "content": "ICP Principal <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/21/argument/1/5/3/3/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "3306fd250013ac35091d3fa066cdae9e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP principal for this drive"
+        },
         "13/0/init/body/21/argument/1/5/3/5/1-placeholder": {
           "type": "attribute",
           "hash": "cbb46e52f27596168e983e2fdb98de8a",
@@ -20078,6 +21318,14 @@
           "skip": false,
           "overrides": {},
           "content": "Endpoint URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/21/argument/1/5/3/5/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "65273a5826995b5b1ea2b7cf520bfa41",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Endpoint URL for this drive"
         },
         "13/0/init/body/21/argument/1/5/3/7/1-placeholder": {
           "type": "attribute",
@@ -20103,6 +21351,14 @@
           "overrides": {},
           "content": "Public Note <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/21/argument/1/5/3/7/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "17f0fd320f6c767e3c626d8d4360fc64",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public information about this drive"
+        },
         "13/0/init/body/21/argument/1/5/3/9/1-placeholder": {
           "type": "attribute",
           "hash": "eaffb2eec6a2a997cabcd5d02d87de15",
@@ -20126,6 +21382,14 @@
           "skip": false,
           "overrides": {},
           "content": "Private Note <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/21/argument/1/5/3/9/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "bf87059e67469ecfbcbb1f48d355a646",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Private information about this drive (only visible to you)"
         },
         "13/0/init/body/21/argument/openingElement/5/value/expression/1": {
           "type": "element",
@@ -20463,6 +21727,14 @@
           "overrides": {},
           "content": "Copy to clipboard"
         },
+        "17/0/init/body/14/0/init/body/1/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
         "17/0/init/body/17/0/init/body/5/argument-title": {
           "type": "attribute",
           "hash": "7dcc877064bfdf889ec55dbc9e06a242",
@@ -20583,6 +21855,14 @@
           "overrides": {},
           "content": "Only organization owners and editors can view this note"
         },
+        "17/0/init/body/19/argument/3/1/1/1/expression/alternate/3/1/11/3/5/expression/right/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "84d3b7722c5aa9d8a751062201e5e413",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only organization owners and editors can view this note"
+        },
         "17/0/init/body/19/argument/3/1/1/1/expression/alternate/3/1/11/3/7/1/3": {
           "type": "element",
           "hash": "dd822cb566de6e25b5cf0c329e7234f8",
@@ -20638,6 +21918,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete Drive"
+        },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/15/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "586760638915c7a53249fa00b21bfce3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this drive?"
+        },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/15/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "17/0/init/body/19/argument/3/1/1/1/expression/consequent/15/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "17/0/init/body/19/argument/3/1/1/1/expression/consequent/15/1/openingElement/3/value/expression/body/1/expression/0/alternate": {
           "type": "element",
@@ -21911,6 +23215,14 @@
           "overrides": {},
           "content": "Name <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "12/0/init/body/15/argument/1/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "08a92d16f65cb33fed902661d36fca46",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Group name"
+        },
         "12/0/init/body/15/argument/1/5/1": {
           "type": "element",
           "hash": "038608166eb01145afb62a1f68fa3910",
@@ -21943,6 +23255,14 @@
           "overrides": {},
           "content": "Public Note <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "12/0/init/body/15/argument/1/5/3/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e94bd3d85e755c295c10aedbe3cc80a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public information about this group"
+        },
         "12/0/init/body/15/argument/1/5/3/11/1-placeholder": {
           "type": "attribute",
           "hash": "36179e11331dbf6d107752d2b98ec79c",
@@ -21966,6 +23286,14 @@
           "skip": false,
           "overrides": {},
           "content": "External Payload <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "12/0/init/body/15/argument/1/5/3/11/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c21a7b72df47f92d1948e2ab336495a8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Additional data for external systems"
         },
         "12/0/init/body/15/argument/1/5/3/3/1-placeholder": {
           "type": "attribute",
@@ -21991,6 +23319,14 @@
           "overrides": {},
           "content": "Private Note <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "12/0/init/body/15/argument/1/5/3/3/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "3fb47ee7c817d84d27bb546c9d8bfaa2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Private information about this group (only visible to you)"
+        },
         "12/0/init/body/15/argument/1/5/3/5/1-placeholder": {
           "type": "attribute",
           "hash": "92fdb1e8450ad0294d8932c02208ddda",
@@ -22014,6 +23350,14 @@
           "skip": false,
           "overrides": {},
           "content": "Endpoint URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "12/0/init/body/15/argument/1/5/3/5/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "b8b5c23d73b57e92a02efc363cc48ce0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL endpoint for this group"
         },
         "12/0/init/body/15/argument/1/5/3/7/1/3/expression/alternate": {
           "type": "element",
@@ -22039,6 +23383,14 @@
           "overrides": {},
           "content": "Labels <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "12/0/init/body/15/argument/1/5/3/7/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "a506d5429b0dc0982af30a363c654e12",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Labels to categorize this group"
+        },
         "12/0/init/body/15/argument/1/5/3/9/1-placeholder": {
           "type": "attribute",
           "hash": "515c2bd7e7e5827dc1c7f0b1bd8c3c46",
@@ -22062,6 +23414,14 @@
           "skip": false,
           "overrides": {},
           "content": "External ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "12/0/init/body/15/argument/1/5/3/9/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9e3e1889741c9f3624a4eb4ebff7f45c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for integration with other systems"
         },
         "12/0/init/body/15/argument/openingElement/5/value/expression/1": {
           "type": "element",
@@ -22463,6 +23823,14 @@
           "overrides": {},
           "content": "Copy to clipboard"
         },
+        "24/0/init/body/20/0/init/body/1/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
         "24/0/init/body/23/0/init/body/5/argument-title": {
           "type": "attribute",
           "hash": "7dcc877064bfdf889ec55dbc9e06a242",
@@ -22623,6 +23991,14 @@
           "overrides": {},
           "content": "Only group owners and editors can view this note"
         },
+        "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/1/11/3/5/expression/right/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "244e9aa61348e9c5a3bc394796291d23",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Only group owners and editors can view this note"
+        },
         "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/1/11/3/7/1/3": {
           "type": "element",
           "hash": "dd822cb566de6e25b5cf0c329e7234f8",
@@ -22654,6 +24030,38 @@
           "skip": false,
           "overrides": {},
           "content": "Invite"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/3/expression/right/5/openingElement/2/value/expression/body/1/argument/1/3/1/1/expression/alternate/alternate/alternate": {
+          "type": "element",
+          "hash": "9b06541455edf4d2de026bcfa335f376",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Unnamed Contact"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/3/expression/right/5/openingElement/2/value/expression/body/1/argument/1/3/1/1/expression/alternate/alternate/consequent": {
+          "type": "element",
+          "hash": "eba81d5f9a217611af97b44ebe32eac7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public Invite Link"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/3/expression/right/5/openingElement/2/value/expression/body/1/argument/1/3/1/1/expression/alternate/consequent": {
+          "type": "element",
+          "hash": "282fc3dd5f6a40f504900f1e44964349",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Awaiting Anon"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/3/expression/right/5/openingElement/2/value/expression/body/1/argument/1/5/expression/right/openingElement/0/value/expression/right": {
+          "type": "element",
+          "hash": "779421f037fcf1b9ce9da470d433bdf7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add notes to keep track of who received magic links"
         },
         "24/0/init/body/26/argument/3/1/1/1/expression/alternate/alternate/alternate/3/3/expression/right/5/openingElement/2/value/expression/body/1/argument/1/7/expression/consequent": {
           "type": "element",
@@ -22750,6 +24158,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete Group"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/15/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7ab1bd2639adc89efb22827c9523bcda",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this group?"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/15/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/15/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "24/0/init/body/26/argument/3/1/1/1/expression/consequent/1/15/1/openingElement/3/value/expression/body/1/expression/0/alternate": {
           "type": "element",
@@ -23747,6 +25179,14 @@
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> Invite Type"
         },
+        "23/0/init/body/27/argument/1/5/3/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c2acdac8822160a9f3a049ee23d3cc8a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Choose how to invite people to this group"
+        },
         "23/0/init/body/27/argument/1/5/3/11/expression/right/1": {
           "type": "element",
           "hash": "c87ad6d69e733cc9981c4c03ad306c34",
@@ -23787,6 +25227,14 @@
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> Role"
         },
+        "23/0/init/body/27/argument/1/5/3/13/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "3b72826659be4b9b97cb9aa1bc69d2ec",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Role to assign to the invited user"
+        },
         "23/0/init/body/27/argument/1/5/3/15/3": {
           "type": "element",
           "hash": "002b76456a6be33751395f2eebc3cb11",
@@ -23811,6 +25259,14 @@
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> Date Range"
         },
+        "23/0/init/body/27/argument/1/5/3/15/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "08719482df6aef6c6146713d44b8a7ed",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "When this invite becomes active and expires"
+        },
         "23/0/init/body/27/argument/1/5/3/17/1-placeholder": {
           "type": "attribute",
           "hash": "230d4978d52688fe828e120b64a901bf",
@@ -23834,6 +25290,14 @@
           "skip": false,
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> Note"
+        },
+        "23/0/init/body/27/argument/1/5/3/17/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "d1d62c60422628b9edd96bfcf103dd76",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Note to include with this invitation"
         },
         "23/0/init/body/27/argument/1/5/3/5/expression/right/1-placeholder": {
           "type": "attribute",
@@ -23866,6 +25330,14 @@
           "skip": false,
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> Select Contact"
+        },
+        "23/0/init/body/27/argument/1/5/3/5/expression/right/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e4b5d24d18b4979d591de6373166c3a4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Select a contact to invite"
         },
         "23/0/init/body/27/argument/1/5/3/7/expression/right/1-placeholder": {
           "type": "attribute",
@@ -23906,6 +25378,14 @@
           "skip": false,
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> User ID"
+        },
+        "23/0/init/body/27/argument/1/5/3/7/expression/right/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7c515a42fcbf37313d9ed19e970fbbae",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter a user ID to invite"
         },
         "23/0/init/body/27/argument/1/5/3/9/expression/right/1": {
           "type": "element",
@@ -24239,6 +25719,14 @@
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> Note"
         },
+        "17/0/init/body/15/argument/1/expression/alternate/alternate/11/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "1fdd6486f8ed01ce7ffded634c9c899f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Note included with this invitation"
+        },
         "17/0/init/body/15/argument/1/expression/alternate/alternate/13/expression/right/openingElement/1/value/expression-title": {
           "type": "attribute",
           "hash": "e7ef9ff3fe49e686306d5656325a243e",
@@ -24255,6 +25743,14 @@
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> External ID"
         },
+        "17/0/init/body/15/argument/1/expression/alternate/alternate/13/expression/right/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e7ef9ff3fe49e686306d5656325a243e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for this invite"
+        },
         "17/0/init/body/15/argument/1/expression/alternate/alternate/15/expression/right/openingElement/1/value/expression-title": {
           "type": "attribute",
           "hash": "31beb6b50f9c1eb2f893474c7b12010d",
@@ -24270,6 +25766,14 @@
           "skip": false,
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> External Payload"
+        },
+        "17/0/init/body/15/argument/1/expression/alternate/alternate/15/expression/right/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "31beb6b50f9c1eb2f893474c7b12010d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External data payload"
         },
         "17/0/init/body/15/argument/1/expression/alternate/alternate/3/1/3": {
           "type": "element",
@@ -24311,6 +25815,14 @@
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> Role"
         },
+        "17/0/init/body/15/argument/1/expression/alternate/alternate/5/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "3b72826659be4b9b97cb9aa1bc69d2ec",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Role to assign to the invited user"
+        },
         "17/0/init/body/15/argument/1/expression/alternate/alternate/7/openingElement/1/value/expression-title": {
           "type": "attribute",
           "hash": "18ec45e64ab49273eb022c84739a3e52",
@@ -24327,6 +25839,14 @@
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> Active From"
         },
+        "17/0/init/body/15/argument/1/expression/alternate/alternate/7/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "18ec45e64ab49273eb022c84739a3e52",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "When this invite becomes active"
+        },
         "17/0/init/body/15/argument/1/expression/alternate/alternate/9/openingElement/1/value/expression-title": {
           "type": "attribute",
           "hash": "6993bf889c1b335038bce4c615237d9b",
@@ -24342,6 +25862,14 @@
           "skip": false,
           "overrides": {},
           "content": "<element:InfoCircleOutlined></element:InfoCircleOutlined> Expires At"
+        },
+        "17/0/init/body/15/argument/1/expression/alternate/alternate/9/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "6993bf889c1b335038bce4c615237d9b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "When this invite expires"
         },
         "17/0/init/body/15/argument/1/expression/alternate/consequent/1": {
           "type": "element",
@@ -24382,6 +25910,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete"
+        },
+        "17/0/init/body/15/argument/openingElement/5/value/expression/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "20ca77467fce717f3b429c132fc277b4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this invite?"
+        },
+        "17/0/init/body/15/argument/openingElement/5/value/expression/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "17/0/init/body/15/argument/openingElement/5/value/expression/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "17/0/init/body/15/argument/openingElement/5/value/expression/3/1": {
           "type": "element",
@@ -24582,6 +26134,14 @@
         "13/0/init/body/15/argument/1/1/expression/alternate/3/expression/right/3/3/3-title": {
           "type": "attribute",
           "hash": "72e100365a800e40a4d4572765bd28e7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This determines what actions you can perform within this group."
+        },
+        "13/0/init/body/15/argument/1/1/expression/alternate/3/expression/right/3/3/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "1ba00639bffdfb23ae87f443c7223c9a",
           "context": "",
           "skip": false,
           "overrides": {},
@@ -25035,6 +26595,14 @@
           "overrides": {},
           "content": "Copy to clipboard"
         },
+        "18/0/init/body/15/0/init/body/1/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
         "18/0/init/body/18/0/init/body/5/argument-title": {
           "type": "attribute",
           "hash": "7dcc877064bfdf889ec55dbc9e06a242",
@@ -25186,6 +26754,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete Label"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/13/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "037fbaf1d04356937e6afb574714f51f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this label?"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/13/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/13/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/13/1/openingElement/3/value/expression/body/1/expression/0/alternate": {
           "type": "element",
@@ -25947,6 +27539,14 @@
           "overrides": {},
           "content": "Copy to clipboard"
         },
+        "22/0/init/body/22/0/init/body/1/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
         "22/0/init/body/23/0/init/body/3/argument-title": {
           "type": "attribute",
           "hash": "7dcc877064bfdf889ec55dbc9e06a242",
@@ -25978,6 +27578,14 @@
           "skip": false,
           "overrides": {},
           "content": "Duplicate"
+        },
+        "22/0/init/body/29/argument/1/3/1/1/expression/alternate/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "ee2b0671e00972773210c5be5a9ccb89",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Coming soon"
         },
         "22/0/init/body/29/argument/1/3/1/1/expression/consequent/1": {
           "type": "element",
@@ -26106,6 +27714,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete Permission"
+        },
+        "22/0/init/body/29/argument/3/1/1/1/expression/consequent/15/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8d34da075fd6a62a5f452acdcc787185",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this permission?"
+        },
+        "22/0/init/body/29/argument/3/1/1/1/expression/consequent/15/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "22/0/init/body/29/argument/3/1/1/1/expression/consequent/15/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "22/0/init/body/29/argument/3/1/1/1/expression/consequent/5/1-placeholder": {
           "type": "attribute",
@@ -26939,6 +28571,14 @@
           "overrides": {},
           "content": "Granted To <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "19/0/init/body/45/body/0/argument/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "5f90537fd18a4afc9a4d716d7cef7f56",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "User or group to grant this permission to"
+        },
         "19/0/init/body/46/body/0/argument/1/1/1/3": {
           "type": "element",
           "hash": "27b8295307e0a5dcc7ca603f1111baba",
@@ -26995,6 +28635,14 @@
           "overrides": {},
           "content": "Permission Types <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "19/0/init/body/46/body/0/argument/openingElement/0/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "298f2c886b868454da572deb716f735b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Types of permissions to grant"
+        },
         "19/0/init/body/47/body/0/argument/1/1/1": {
           "type": "element",
           "hash": "76ddb3356f94dcb95d703a3f483b0251",
@@ -27027,6 +28675,14 @@
           "overrides": {},
           "content": "Careful to only paste a valid ID. It should say UserID_... or FileID_..., no prefix or suffix"
         },
+        "19/0/init/body/47/body/0/argument/3/1/expression/alternate/openingElement/4/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "003132a7e0a426960b397950cc4228e7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Careful to only paste a valid ID. It should say UserID_... or FileID_..., no prefix or suffix"
+        },
         "19/0/init/body/47/body/0/argument/3/openingElement/1/value/expression/1": {
           "type": "element",
           "hash": "7e5dde2287cae39868441bf488cad69c",
@@ -27034,6 +28690,22 @@
           "skip": false,
           "overrides": {},
           "content": "Resource <expression/> <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "19/0/init/body/47/body/0/argument/3/openingElement/1/value/expression/openingElement/0/value/expression/alternate": {
+          "type": "element",
+          "hash": "f86fd57c5f01e6e7635a3a8a8ad8c3af",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "System record to grant permissions for"
+        },
+        "19/0/init/body/47/body/0/argument/3/openingElement/1/value/expression/openingElement/0/value/expression/consequent": {
+          "type": "element",
+          "hash": "f6d9d9a7f66a9f1e3830df636781cbce",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "System table to grant permissions for"
         },
         "19/0/init/body/48/body/0/argument/11/1-placeholder": {
           "type": "attribute",
@@ -27059,6 +28731,14 @@
           "overrides": {},
           "content": "External Payload <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "19/0/init/body/48/body/0/argument/11/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "42ecd58438c833b4e0a2d1fe039f6b7f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Additional data for external systems (JSON)"
+        },
         "19/0/init/body/48/body/0/argument/3/openingElement/1/value/expression-title": {
           "type": "attribute",
           "hash": "942fd70570d2935eb559f9dc9e10fa37",
@@ -27074,6 +28754,14 @@
           "skip": false,
           "overrides": {},
           "content": "Date Range <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "19/0/init/body/48/body/0/argument/3/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "92414ed7663f9f3f91b8c901681ada59",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Set optional date range for when this permission is active"
         },
         "19/0/init/body/48/body/0/argument/7/1-placeholder": {
           "type": "attribute",
@@ -27099,6 +28787,14 @@
           "overrides": {},
           "content": "Notes <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "19/0/init/body/48/body/0/argument/7/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7907ee68814faab5a13bb04e96672853",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Optional notes about this permission"
+        },
         "19/0/init/body/48/body/0/argument/9/1-placeholder": {
           "type": "attribute",
           "hash": "515c2bd7e7e5827dc1c7f0b1bd8c3c46",
@@ -27122,6 +28818,14 @@
           "skip": false,
           "overrides": {},
           "content": "External ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "19/0/init/body/48/body/0/argument/9/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "16abba6fde3f12c9900f6e3651febcf2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for integration with other systems"
         },
         "19/0/init/body/53/argument-title": {
           "type": "attribute",
@@ -27795,6 +29499,14 @@
           "overrides": {},
           "content": "Title <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/1/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "3df8674059473ca94748c6253a026162",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Title of the purchase"
+        },
         "13/0/init/body/16/argument/1/3/1-placeholder": {
           "type": "attribute",
           "hash": "9052e88eaec9734e314c862e09df23ce",
@@ -27818,6 +29530,14 @@
           "skip": false,
           "overrides": {},
           "content": "Status <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/3/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "fc3dabe6960c0bd9aa6adb4bee1dc3e6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Current status of the purchase"
         },
         "13/0/init/body/16/argument/1/7/1": {
           "type": "element",
@@ -27851,6 +29571,14 @@
           "overrides": {},
           "content": "Subtitle <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/11/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "0605538eaca4fa53b724c9d52506b430",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "A short subtitle for the purchase"
+        },
         "13/0/init/body/16/argument/1/7/13/1-placeholder": {
           "type": "attribute",
           "hash": "3f310154799ac779a4458ee868d674a2",
@@ -27874,6 +29602,14 @@
           "skip": false,
           "overrides": {},
           "content": "Pricing <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/7/13/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "dcd3c419341490c0a69084b5b75baf7f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Pricing information for the purchase"
         },
         "13/0/init/body/16/argument/1/7/15/1-placeholder": {
           "type": "attribute",
@@ -27899,6 +29635,14 @@
           "overrides": {},
           "content": "Vendor Notes <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/15/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7e7f5798b1232a90892fbe1b7d8f7a03",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Notes visible only to the vendor (you)"
+        },
         "13/0/init/body/16/argument/1/7/17/1-placeholder": {
           "type": "attribute",
           "hash": "39a88ab9301196be6fa247696044445c",
@@ -27922,6 +29666,14 @@
           "skip": false,
           "overrides": {},
           "content": "Internal Notes <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/7/17/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8cef3c914ec77bc53ac7d88a96a17b1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Internal notes, not viewable by vendor"
         },
         "13/0/init/body/16/argument/1/7/19/1-placeholder": {
           "type": "attribute",
@@ -27947,6 +29699,14 @@
           "overrides": {},
           "content": "Run URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/19/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "20b943581db0dcd02a05a940507c1e15",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL to run or access the purchase"
+        },
         "13/0/init/body/16/argument/1/7/21/1-placeholder": {
           "type": "attribute",
           "hash": "2b7e374fb2b4ec7adcf4468d5e2d3e64",
@@ -27970,6 +29730,14 @@
           "skip": false,
           "overrides": {},
           "content": "Billing URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/7/21/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9d17da8bb3e7625ffe396d1b63e9fbb6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL for billing details related to this purchase"
         },
         "13/0/init/body/16/argument/1/7/23/1-placeholder": {
           "type": "attribute",
@@ -27995,6 +29763,14 @@
           "overrides": {},
           "content": "Support URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/23/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "b762763991ceb4f8196b61c8786a1990",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL for support related to this purchase"
+        },
         "13/0/init/body/16/argument/1/7/25/1-placeholder": {
           "type": "attribute",
           "hash": "7f478dc998dbb76d53bf927e7bb2a1ec",
@@ -28018,6 +29794,14 @@
           "skip": false,
           "overrides": {},
           "content": "Delivery URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/7/25/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "97f494fde6156de2ef2bf0e41de4ce4c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL for delivery status or output of the purchase"
         },
         "13/0/init/body/16/argument/1/7/27/1-placeholder": {
           "type": "attribute",
@@ -28043,6 +29827,14 @@
           "overrides": {},
           "content": "Verification URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/27/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "dd4893ad05aeb9a03e5e92f58190d9d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL for verifying purchase completion or output"
+        },
         "13/0/init/body/16/argument/1/7/29/1-placeholder": {
           "type": "attribute",
           "hash": "128214c0135f139be465171ac4d496b2",
@@ -28066,6 +29858,14 @@
           "skip": false,
           "overrides": {},
           "content": "Installation URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/7/29/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "95e96a535ada3c685c52623842e6dd9b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL to the script or instructions for installing the purchase"
         },
         "13/0/init/body/16/argument/1/7/3/1-placeholder": {
           "type": "attribute",
@@ -28091,6 +29891,14 @@
           "overrides": {},
           "content": "Vendor Name <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/3/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "ba427ec4a77ab0643e2420571c56965e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name of the vendor providing this purchase"
+        },
         "13/0/init/body/16/argument/1/7/31/1-placeholder": {
           "type": "attribute",
           "hash": "0b5d334d3ef584669fa091fe676fb50b",
@@ -28114,6 +29922,14 @@
           "skip": false,
           "overrides": {},
           "content": "Related Resources (IDs) <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/7/31/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7a9711a31ac48e7da3a515d5e4515b87",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "IDs of resources related to this purchase"
         },
         "13/0/init/body/16/argument/1/7/33/1-placeholder": {
           "type": "attribute",
@@ -28139,6 +29955,14 @@
           "overrides": {},
           "content": "Tracer <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/33/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "f50facb58587ec77013587315dc685db",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "An optional tracer string for tracking"
+        },
         "13/0/init/body/16/argument/1/7/35/1/3/expression/alternate": {
           "type": "element",
           "hash": "ee03e23f62418e2f2ebca5bb3330d965",
@@ -28162,6 +29986,14 @@
           "skip": false,
           "overrides": {},
           "content": "Labels <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/7/35/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "092ab8f6f46bb6dbe1a8ded7fd93542b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Labels to categorize this purchase"
         },
         "13/0/init/body/16/argument/1/7/37/1-placeholder": {
           "type": "attribute",
@@ -28187,6 +30019,14 @@
           "overrides": {},
           "content": "External ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/37/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "f0b90fefa0ea3905bac4e0cc286fcaf9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for integration with other systems"
+        },
         "13/0/init/body/16/argument/1/7/39/1-placeholder": {
           "type": "attribute",
           "hash": "df7c25c0954a10179e5748f73f294281",
@@ -28210,6 +30050,14 @@
           "skip": false,
           "overrides": {},
           "content": "External Payload <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/7/39/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c21a7b72df47f92d1948e2ab336495a8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Additional data for external systems"
         },
         "13/0/init/body/16/argument/1/7/5/1-placeholder": {
           "type": "attribute",
@@ -28235,6 +30083,14 @@
           "overrides": {},
           "content": "About URL <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/5/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7eec3c52a6292aa3942892d00a8f5eeb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL with more information about this purchase"
+        },
         "13/0/init/body/16/argument/1/7/7/1-placeholder": {
           "type": "attribute",
           "hash": "2da4bd77520680e7cbe1043b8f9c81da",
@@ -28259,6 +30115,14 @@
           "overrides": {},
           "content": "Template ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "13/0/init/body/16/argument/1/7/7/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "c0d6b17c1ac38c8f6ce4c00bf5d9983d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ID of the purchase template this run is based on"
+        },
         "13/0/init/body/16/argument/1/7/9/1-placeholder": {
           "type": "attribute",
           "hash": "6fce34c6688a10ce00a05611c7586e08",
@@ -28282,6 +30146,14 @@
           "skip": false,
           "overrides": {},
           "content": "Description <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "13/0/init/body/16/argument/1/7/9/openingElement/1/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "6fce34c6688a10ce00a05611c7586e08",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Detailed description of the purchase"
         },
         "13/0/init/body/16/argument/openingElement/5/value/expression/1": {
           "type": "element",
@@ -28691,6 +30563,14 @@
           "overrides": {},
           "content": "Copy to clipboard"
         },
+        "18/0/init/body/14/0/init/body/3/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
         "18/0/init/body/17/0/init/body/5/argument-title": {
           "type": "attribute",
           "hash": "7dcc877064bfdf889ec55dbc9e06a242",
@@ -28946,6 +30826,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete Purchase"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/39/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "cae250c12ee672b36b7751a55d82a71f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this purchase?"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/39/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "18/0/init/body/20/argument/3/1/1/1/expression/consequent/39/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "18/0/init/body/20/argument/3/1/1/1/expression/consequent/39/1/openingElement/3/value/expression/body/1/expression/0/alternate": {
           "type": "element",
@@ -29642,6 +31546,22 @@
           "skip": false,
           "overrides": {},
           "content": "Reindex Drive"
+        },
+        "12/0/init/body/23/argument/1/9/expression/right/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "627afdb0f657e4c3df1f326c0c3b69e8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Reindexing the drive will allow new items to be searchable."
+        },
+        "12/0/init/body/23/argument/1/9/expression/right/3/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "b8d1cccacabd4d66f74364570f2df025",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Proceed"
         }
       }
     },
@@ -30043,6 +31963,14 @@
           "overrides": {},
           "content": "Topic Filter <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/31/0/init/body/4/consequent/0/argument/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "65ecbcccc12e4cbe4b658e54148fbe13",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filter inbox notifications by topic"
+        },
         "16/0/init/body/31/0/init/body/4/consequent/0/argument/3/1-placeholder": {
           "type": "attribute",
           "hash": "df577bc0d738e5faa58ed8e27e2f3b52",
@@ -30058,6 +31986,14 @@
           "skip": false,
           "overrides": {},
           "content": "Listen To<element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "16/0/init/body/31/0/init/body/5/argument/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "ddc89211aceed9b0082410b25cd4ae42",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Alternative index for the webhook"
         },
         "16/0/init/body/31/0/init/body/5/argument/3/1-placeholder": {
           "type": "attribute",
@@ -30091,6 +32027,14 @@
           "overrides": {},
           "content": "Endpoint URL <element:InfoCircleOutlined></element:InfoCircleOutlined> <element:span>*</element:span>"
         },
+        "16/0/init/body/32/argument/1/1/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "395c862c41b33113aa42f75987d52a52",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "URL to send webhook events to"
+        },
         "16/0/init/body/32/argument/1/1/3-placeholder": {
           "type": "attribute",
           "hash": "bcdd0587f422ba9ccf9821079f613468",
@@ -30123,6 +32067,14 @@
           "overrides": {},
           "content": "Name <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/32/argument/1/11/3/1/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "2f066bf55d3ba47249c1aac2161e9bfc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name of this webhook"
+        },
         "16/0/init/body/32/argument/1/11/3/1/3-placeholder": {
           "type": "attribute",
           "hash": "38042faf357650d6aceb3bca7368431a",
@@ -30146,6 +32098,14 @@
           "skip": false,
           "overrides": {},
           "content": "External ID <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "16/0/init/body/32/argument/1/11/3/11/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9e3e1889741c9f3624a4eb4ebff7f45c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "External identifier for integration with other systems"
         },
         "16/0/init/body/32/argument/1/11/3/11/3-placeholder": {
           "type": "attribute",
@@ -30171,6 +32131,14 @@
           "overrides": {},
           "content": "External Payload <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/32/argument/1/11/3/13/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e1396c4b7ae181652a5358644696b290",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Additional data for external integrations (JSON format)"
+        },
         "16/0/init/body/32/argument/1/11/3/13/3-placeholder": {
           "type": "attribute",
           "hash": "7e5ecfd9cb34e005f3d3a507c252840b",
@@ -30194,6 +32162,14 @@
           "skip": false,
           "overrides": {},
           "content": "Description <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "16/0/init/body/32/argument/1/11/3/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "3105cae2d60353e8d19420c8367f59d5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Description of this webhook"
         },
         "16/0/init/body/32/argument/1/11/3/3/3-placeholder": {
           "type": "attribute",
@@ -30219,6 +32195,14 @@
           "overrides": {},
           "content": "Signature <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/32/argument/1/11/3/5/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "99acb1e76c2dce5d4b4d79129e5a05a1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Signature for webhook verification"
+        },
         "16/0/init/body/32/argument/1/11/3/5/3-placeholder": {
           "type": "attribute",
           "hash": "eadc37a7307fe780acd31e79f4544c92",
@@ -30243,6 +32227,14 @@
           "overrides": {},
           "content": "Active <element:InfoCircleOutlined></element:InfoCircleOutlined>"
         },
+        "16/0/init/body/32/argument/1/11/3/7/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "1fe504fa8cf8ca9633114cb9e68e7798",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Whether the webhook is active"
+        },
         "16/0/init/body/32/argument/1/11/3/9/1/1-title": {
           "type": "attribute",
           "hash": "a466b02f344f56f177f8fea041a4f1ab",
@@ -30258,6 +32250,14 @@
           "skip": false,
           "overrides": {},
           "content": "Labels <element:InfoCircleOutlined></element:InfoCircleOutlined>"
+        },
+        "16/0/init/body/32/argument/1/11/3/9/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "a466b02f344f56f177f8fea041a4f1ab",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Labels to categorize this webhook"
         },
         "16/0/init/body/32/argument/1/11/3/9/3/3/expression/alternate": {
           "type": "element",
@@ -30282,6 +32282,14 @@
           "skip": false,
           "overrides": {},
           "content": "Event Type <element:InfoCircleOutlined></element:InfoCircleOutlined> <element:span>*</element:span>"
+        },
+        "16/0/init/body/32/argument/1/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "d0ff0ea8a29afc72d9bd47166c22dd15",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Event type to trigger the webhook"
         },
         "16/0/init/body/32/argument/1/3/3-placeholder": {
           "type": "attribute",
@@ -30667,6 +32675,14 @@
           "overrides": {},
           "content": "Copy to clipboard"
         },
+        "20/0/init/body/16/0/init/body/1/argument/openingElement/6/value/expression/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8992c838874db83e3cc89c9fb4442bfd",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy to clipboard"
+        },
         "20/0/init/body/19/0/init/body/5/argument-title": {
           "type": "attribute",
           "hash": "7dcc877064bfdf889ec55dbc9e06a242",
@@ -30787,6 +32803,14 @@
           "overrides": {},
           "content": "Additional data for external integrations"
         },
+        "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/13/expression/right/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "e0056e9ed66d2768a86356b462ef1632",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Additional data for external integrations"
+        },
         "20/0/init/body/22/argument/3/1/1/1/expression/alternate/3/1/11/3/15/1/3": {
           "type": "element",
           "hash": "dd822cb566de6e25b5cf0c329e7234f8",
@@ -30850,6 +32874,30 @@
           "skip": false,
           "overrides": {},
           "content": "Delete Webhook"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/21/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "21f2297937655ba040fb8f629dae1c81",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to delete this webhook?"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/21/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "20/0/init/body/22/argument/3/1/1/1/expression/consequent/21/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
         },
         "20/0/init/body/22/argument/3/1/1/1/expression/consequent/21/1/openingElement/3/value/expression/body/1/expression/0/alternate": {
           "type": "element",
@@ -31078,6 +33126,22 @@
           "skip": false,
           "overrides": {},
           "content": "Webhook"
+        },
+        "15/0/init/body/13/0/init/0/3/value/body/0/argument/1/1/openingElement/0/value/expression/alternate": {
+          "type": "element",
+          "hash": "239e3b722db75bbafc6c628a2685eed2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Inactive"
+        },
+        "15/0/init/body/13/0/init/0/3/value/body/0/argument/1/1/openingElement/0/value/expression/consequent": {
+          "type": "element",
+          "hash": "3e1ec025c4a50830bbb9ad57a176630a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Active"
         },
         "15/0/init/body/13/0/init/1/0/value": {
           "type": "element",

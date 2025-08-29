@@ -233,7 +233,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -424,9 +424,11 @@ const LabelTab: React.FC<LabelTabProps> = ({
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this label?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this label?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteLabelAction({ id: label.id }));
                       toast.success(

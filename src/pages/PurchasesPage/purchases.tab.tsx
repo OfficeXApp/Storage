@@ -268,7 +268,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -613,9 +613,13 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this purchase?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>
+                        Are you sure you want to delete this purchase?
+                      </span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deletePurchaseAction({ id: purchase.id }));
                       toast.success(

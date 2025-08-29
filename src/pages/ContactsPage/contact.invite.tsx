@@ -385,7 +385,16 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 label={
                   <span>
                     Login with API Key{" "}
-                    <Tooltip title="This will generate a new API key for the user. Disabled if you don't have authorization to create API keys on behalf of other users. Speak with your org admin.">
+                    <Tooltip
+                      title={
+                        <span>
+                          This will generate a new API key for the user.
+                          Disabled if you don't have authorization to create API
+                          keys on behalf of other users. Speak with your org
+                          admin.
+                        </span>
+                      }
+                    >
                       <InfoCircleOutlined style={{ color: "#aaa" }} />
                     </Tooltip>
                   </span>
@@ -404,7 +413,13 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                   label={
                     <span>
                       API Key Validity Period{" "}
-                      <Tooltip title="If not specified, the API key will never expire">
+                      <Tooltip
+                        title={
+                          <span>
+                            If not specified, the API key will never expire
+                          </span>
+                        }
+                      >
                         <InfoCircleOutlined style={{ color: "#aaa" }} />
                       </Tooltip>
                     </span>
@@ -423,7 +438,13 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 label={
                   <span>
                     Redirect URL{" "}
-                    <Tooltip title="Where to redirect the user after successful login">
+                    <Tooltip
+                      title={
+                        <span>
+                          Where to redirect the user after successful login
+                        </span>
+                      }
+                    >
                       <InfoCircleOutlined style={{ color: "#aaa" }} />
                     </Tooltip>
                   </span>
@@ -442,7 +463,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 label={
                   <span>
                     API Key Nickname{" "}
-                    <Tooltip title="A nickname for the API key">
+                    <Tooltip title={<span>A nickname for the API key</span>}>
                       <InfoCircleOutlined style={{ color: "#aaa" }} />
                     </Tooltip>
                   </span>

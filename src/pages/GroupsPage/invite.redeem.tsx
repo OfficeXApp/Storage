@@ -275,7 +275,14 @@ const RedeemGroupInvite = () => {
                     >
                       {redeemData.role || "Member"}
                     </Tag>
-                    <Tooltip title="This determines what actions you can perform within this group.">
+                    <Tooltip
+                      title={
+                        <span>
+                          This determines what actions you can perform within
+                          this group.
+                        </span>
+                      }
+                    >
                       <QuestionCircleOutlined
                         style={{ marginLeft: 8, color: "#1890ff" }}
                       />

@@ -1194,8 +1194,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         key: "restore",
         label: (
           <Popconfirm
-            title="Confirm Restore"
-            description="Are you sure you want to restore trash?"
+            title={<span>Confirm Restore</span>}
+            description={<span>Are you sure you want to restore trash?</span>}
             onConfirm={() => handleRestore(record)}
           >
             Restore Trash

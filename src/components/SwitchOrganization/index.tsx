@@ -1089,7 +1089,13 @@ const OrganizationSwitcher = () => {
             label={
               <Space>
                 Gift Card
-                <Tooltip title="Gift Cards let you connect to the world computer $ICP">
+                <Tooltip
+                  title={
+                    <span>
+                      Gift Cards let you connect to the world computer $ICP
+                    </span>
+                  }
+                >
                   <QuestionCircleOutlined />
                 </Tooltip>
               </Space>
@@ -1281,7 +1287,14 @@ const OrganizationSwitcher = () => {
               label={
                 <span>
                   Password&nbsp;
-                  <Tooltip title="Format: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)">
+                  <Tooltip
+                    title={
+                      <span>
+                        Format: drive:password@endpoint (e.g.
+                        DriveID_abc123:password123@https://endpoint.com)
+                      </span>
+                    }
+                  >
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Tooltip>
                 </span>
@@ -1418,7 +1431,9 @@ const OrganizationSwitcher = () => {
                 label={
                   <Space>
                     Organization Name
-                    <Tooltip title="Edit the organization nickname">
+                    <Tooltip
+                      title={<span>Edit the organization nickname</span>}
+                    >
                       <QuestionCircleOutlined />
                     </Tooltip>
                   </Space>
@@ -1437,7 +1452,11 @@ const OrganizationSwitcher = () => {
                 label={
                   <Space>
                     Endpoint URL
-                    <Tooltip title="Edit the endpoint URL of this organization">
+                    <Tooltip
+                      title={
+                        <span>Edit the endpoint URL of this organization</span>
+                      }
+                    >
                       <QuestionCircleOutlined />
                     </Tooltip>
                   </Space>
@@ -1465,11 +1484,15 @@ const OrganizationSwitcher = () => {
               >
                 <div>
                   <Popconfirm
-                    title="Are you sure you want to remove this organization?"
-                    description="This action cannot be undone."
+                    title={
+                      <span>
+                        Are you sure you want to remove this organization?
+                      </span>
+                    }
+                    description={<span>This action cannot be undone.</span>}
                     onConfirm={handleDeleteOrg}
-                    okText="Yes"
-                    cancelText="No"
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     disabled={listOfOrgs.length <= 1}
                   >
                     <Button

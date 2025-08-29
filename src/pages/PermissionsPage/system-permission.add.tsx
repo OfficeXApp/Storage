@@ -450,7 +450,9 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
     return (
       <Form.Item
         label={
-          <Tooltip title="User or group to grant this permission to">
+          <Tooltip
+            title={<span>User or group to grant this permission to</span>}
+          >
             <Space>
               Granted To <InfoCircleOutlined style={{ color: "#aaa" }} />
             </Space>
@@ -650,7 +652,7 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
     return (
       <Form.Item
         label={
-          <Tooltip title="Types of permissions to grant">
+          <Tooltip title={<span>Types of permissions to grant</span>}>
             <Space>
               Permission Types <InfoCircleOutlined style={{ color: "#aaa" }} />
             </Space>
@@ -817,9 +819,11 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
           label={
             <Tooltip
               title={
-                resourceType === "table"
-                  ? "System table to grant permissions for"
-                  : "System record to grant permissions for"
+                resourceType === "table" ? (
+                  <span>System table to grant permissions for</span>
+                ) : (
+                  <span>System record to grant permissions for</span>
+                )
               }
             >
               <Space>
@@ -850,7 +854,14 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
               }}
               value={targetResourceId}
               suffix={
-                <Tooltip title="Careful to only paste a valid ID. It should say UserID_... or FileID_..., no prefix or suffix">
+                <Tooltip
+                  title={
+                    <span>
+                      Careful to only paste a valid ID. It should say UserID_...
+                      or FileID_..., no prefix or suffix
+                    </span>
+                  }
+                >
                   <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Tooltip>
               }
@@ -869,7 +880,13 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
         <Form.Item
           name="dateRange"
           label={
-            <Tooltip title="Set optional date range for when this permission is active">
+            <Tooltip
+              title={
+                <span>
+                  Set optional date range for when this permission is active
+                </span>
+              }
+            >
               <Space>
                 Date Range <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -888,7 +905,7 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
         <Form.Item
           name="note"
           label={
-            <Tooltip title="Optional notes about this permission">
+            <Tooltip title={<span>Optional notes about this permission</span>}>
               <Space>
                 Notes <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -905,7 +922,13 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
         <Form.Item
           name="externalId"
           label={
-            <Tooltip title="External identifier for integration with other systems">
+            <Tooltip
+              title={
+                <span>
+                  External identifier for integration with other systems
+                </span>
+              }
+            >
               <Space>
                 External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -921,7 +944,9 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
         <Form.Item
           name="externalPayload"
           label={
-            <Tooltip title="Additional data for external systems (JSON)">
+            <Tooltip
+              title={<span>Additional data for external systems (JSON)</span>}
+            >
               <Space>
                 External Payload{" "}
                 <InfoCircleOutlined style={{ color: "#aaa" }} />

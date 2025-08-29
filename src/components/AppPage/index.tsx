@@ -361,25 +361,25 @@ const AppPage = () => {
                             }}
                           >
                             <Statistic
-                              title="Bookmarks"
+                              title={<span>Bookmarks</span>}
                               value={offer.bookmarks}
                               prefix={<BookOutlined />}
                               valueStyle={{ fontSize: 16 }}
                             />
                             <Popover
                               content={BookmarkedDemandPopoverContent}
-                              title="What is Bookmarked Demand?"
+                              title={<span>What is Bookmarked Demand?</span>}
                               trigger="hover"
                             >
                               <Statistic
-                                title="Bookmarked Demand"
+                                title={<span>Bookmarked Demand</span>}
                                 value={offer.bookmarked_demand}
                                 prefix={<DollarCircleOutlined />}
                                 valueStyle={{ fontSize: 16 }}
                               />
                             </Popover>
                             <Statistic
-                              title="Cumulative Sales"
+                              title={<span>Cumulative Sales</span>}
                               value={offer.cumulative_sales}
                               prefix={<DollarOutlined />}
                               valueStyle={{ fontSize: 16 }}
@@ -536,7 +536,7 @@ const AppPage = () => {
                           >
                             <Popover
                               content={BecomeVendorPopoverContent}
-                              title="Become a Vendor"
+                              title={<span>Become a Vendor</span>}
                               trigger="hover"
                             >
                               <Button
@@ -569,7 +569,7 @@ const AppPage = () => {
         <div style={{ textAlign: "center", marginTop: "48px" }}>
           <Popover
             content={BecomeVendorPopoverContent}
-            title="Become a Vendor"
+            title={<span>Become a Vendor</span>}
             trigger="hover"
           >
             <Button

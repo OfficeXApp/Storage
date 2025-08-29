@@ -367,9 +367,13 @@ const SearchResultsPage: React.FC = () => {
               </Typography.Text>
             </Space>
             <Popconfirm
-              title="Reindexing the drive will allow new items to be searchable."
+              title={
+                <span>
+                  Reindexing the drive will allow new items to be searchable.
+                </span>
+              }
               onConfirm={handleReindex}
-              okText="Proceed"
+              okText={<span>Proceed</span>}
             >
               <Button icon={<SyncOutlined />}>Reindex Drive</Button>
             </Popconfirm>

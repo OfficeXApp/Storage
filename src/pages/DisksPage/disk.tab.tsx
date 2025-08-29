@@ -230,7 +230,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
             </div>
           }
           suffix={
-            <Tooltip title="Copy to clipboard">
+            <Tooltip title={<span>Copy to clipboard</span>}>
               <CopyOutlined
                 onClick={() => copyToClipboard(value)}
                 style={{ cursor: "pointer", color: "#1890ff" }}
@@ -264,7 +264,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -563,9 +563,11 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this disk?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this disk?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteDiskAction({ id: disk.id }));
                       toast(
@@ -806,7 +808,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                               <Space align="center">
                                 <Text strong>Private Note:</Text>
                                 <Popover
-                                  content="Only organization owners and editors can view this note"
+                                  content={
+                                    <span>
+                                      Only organization owners and editors can
+                                      view this note
+                                    </span>
+                                  }
                                   trigger="hover"
                                 >
                                   <InfoCircleOutlined

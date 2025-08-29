@@ -743,7 +743,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
                   <Text strong style={{ marginRight: "8px" }}>
                     {fileName}
                   </Text>
-                  <Tooltip title="Rename">
+                  <Tooltip title={<span>Rename</span>}>
                     <Button
                       type="link"
                       icon={<EditOutlined />}
@@ -806,8 +806,13 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         file.upload_status !== "COMPLETED" && (
           <Alert
             type="warning"
-            message="File Uploading"
-            description="File is still uploading and cannot be previewed yet. Please wait for the upload to complete or try uploading again."
+            message={<span>File Uploading</span>}
+            description={
+              <span>
+                File is still uploading and cannot be previewed yet. Please wait
+                for the upload to complete or try uploading again.
+              </span>
+            }
             style={{ marginBottom: "16px" }}
           />
         )}
@@ -818,17 +823,32 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         !isFileSizeValidForPreview(file) && (
           <Alert
             type="info"
-            message="File Too Large for Preview"
-            description={`This file is too large to preview (${formatFileSize(file.file_size)}). ${
-              isMobile &&
-              (file.disk_type === DiskTypeEnum.BrowserCache ||
-                file.disk_type === DiskTypeEnum.IcpCanister)
-                ? "Mobile preview is limited to 200MB for browser storage and ICP canister files."
-                : file.disk_type === DiskTypeEnum.BrowserCache ||
-                    file.disk_type === DiskTypeEnum.IcpCanister
-                  ? "Preview is limited to 1GB for browser storage and ICP canister files."
-                  : "Preview is limited to 2GB for cloud storage files."
-            } Please download the file instead.`}
+            message={<span>File Too Large for Preview</span>}
+            description={
+              <span>
+                This file is too large to preview ($
+                {formatFileSize(file.file_size)}). $
+                {isMobile &&
+                (file.disk_type === DiskTypeEnum.BrowserCache ||
+                  file.disk_type === DiskTypeEnum.IcpCanister) ? (
+                  <span>
+                    Mobile preview is limited to 200MB for browser storage and
+                    ICP canister files.
+                  </span>
+                ) : file.disk_type === DiskTypeEnum.BrowserCache ||
+                  file.disk_type === DiskTypeEnum.IcpCanister ? (
+                  <span>
+                    Preview is limited to 1GB for browser storage and ICP
+                    canister files.
+                  </span>
+                ) : (
+                  <span>
+                    Preview is limited to 2GB for cloud storage files.
+                  </span>
+                )}{" "}
+                Please download the file instead.
+              </span>
+            }
             style={{ marginBottom: "16px" }}
           />
         )}

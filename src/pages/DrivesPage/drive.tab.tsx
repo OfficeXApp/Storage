@@ -226,7 +226,7 @@ const DriveTab: React.FC<DriveTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -473,9 +473,11 @@ const listDrives = async (page = 1, limit = 10) => {
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this drive?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this drive?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteDriveAction({ id: drive.id }));
                       toast.success(
@@ -715,7 +717,12 @@ const listDrives = async (page = 1, limit = 10) => {
                               <Space align="center">
                                 <Text strong>Private Note:</Text>
                                 <Popover
-                                  content="Only organization owners and editors can view this note"
+                                  content={
+                                    <span>
+                                      Only organization owners and editors can
+                                      view this note
+                                    </span>
+                                  }
                                   trigger="hover"
                                 >
                                   <InfoCircleOutlined

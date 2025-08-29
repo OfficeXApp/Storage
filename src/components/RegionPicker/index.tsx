@@ -226,7 +226,11 @@ const RegionPicker = () => {
   return (
     <>
       <Tooltip
-        title={`Current Language: ${selectedLanguage.title} (${selectedLanguage.hint})`}
+        title={
+          <span>
+            Current Language: {selectedLanguage.title} ({selectedLanguage.hint})
+          </span>
+        }
       >
         <Button
           onClick={showModal}

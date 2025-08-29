@@ -77,7 +77,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
         >
           {displayTitle}
         </span>
-        <Tooltip title="Copy to clipboard">
+        <Tooltip title={<span>Copy to clipboard</span>}>
           <div onClick={copyToClipboard} style={{ cursor: "pointer" }}>
             <span style={{ fontSize: "0.7rem", marginRight: "8px" }}>
               {getLanguageLabel(language)}

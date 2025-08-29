@@ -168,7 +168,7 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
         <Form.Item
           name="name"
           label={
-            <Tooltip title="Group name">
+            <Tooltip title={<span>Group name</span>}>
               <Space>
                 Name <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -208,7 +208,9 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
             <Form.Item
               name="publicNote"
               label={
-                <Tooltip title="Public information about this group">
+                <Tooltip
+                  title={<span>Public information about this group</span>}
+                >
                   <Space>
                     Public Note <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -225,7 +227,13 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
             <Form.Item
               name="privateNote"
               label={
-                <Tooltip title="Private information about this group (only visible to you)">
+                <Tooltip
+                  title={
+                    <span>
+                      Private information about this group (only visible to you)
+                    </span>
+                  }
+                >
                   <Space>
                     Private Note{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -243,7 +251,7 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
             <Form.Item
               name="endpointUrl"
               label={
-                <Tooltip title="URL endpoint for this group">
+                <Tooltip title={<span>URL endpoint for this group</span>}>
                   <Space>
                     Endpoint URL{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -262,7 +270,7 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Labels to categorize this group">
+                <Tooltip title={<span>Labels to categorize this group</span>}>
                   <Space>
                     Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -303,7 +311,13 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
             <Form.Item
               name="externalId"
               label={
-                <Tooltip title="External identifier for integration with other systems">
+                <Tooltip
+                  title={
+                    <span>
+                      External identifier for integration with other systems
+                    </span>
+                  }
+                >
                   <Space>
                     External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -321,7 +335,9 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
             <Form.Item
               name="externalPayload"
               label={
-                <Tooltip title="Additional data for external systems">
+                <Tooltip
+                  title={<span>Additional data for external systems</span>}
+                >
                   <Space>
                     External Payload{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />

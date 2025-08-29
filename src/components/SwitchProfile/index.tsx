@@ -984,7 +984,14 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
               label={
                 <span>
                   Password&nbsp;
-                  <Tooltip title="Format: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)">
+                  <Tooltip
+                    title={
+                      <span>
+                        Format: drive:password@endpoint (e.g.
+                        DriveID_abc123:password123@https://endpoint.com)
+                      </span>
+                    }
+                  >
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Tooltip>
                 </span>
@@ -1160,8 +1167,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
           >
             <div>
               <Popconfirm
-                title="Are you sure you want to remove this profile?"
-                description="This action cannot be undone."
+                title={
+                  <span>Are you sure you want to remove this profile?</span>
+                }
+                description={<span>This action cannot be undone.</span>}
                 onConfirm={async () => {
                   try {
                     if (selectedProfileId) {
@@ -1186,8 +1195,8 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                     );
                   }
                 }}
-                okText="Yes"
-                cancelText="No"
+                okText={<span>Yes</span>}
+                cancelText={<span>No</span>}
               >
                 <Button
                   danger

@@ -233,10 +233,10 @@ const WalletControlPopover = ({ children }: { children: React.ReactNode }) => {
             onChange={(e) => setSignedNote(e.target.value)}
           />
           <Popconfirm
-            title="Are you sure to send this transaction?"
+            title={<span>Are you sure to send this transaction?</span>}
             onConfirm={handleSend}
-            okText="Yes"
-            cancelText="No"
+            okText={<span>Yes</span>}
+            cancelText={<span>No</span>}
           >
             <Button type="primary" style={{ width: "100%" }}>
               Send

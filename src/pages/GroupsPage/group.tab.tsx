@@ -253,7 +253,7 @@ const GroupTab: React.FC<GroupTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -580,9 +580,11 @@ const data = await response.json();`;
                   <Divider />
                   <Form.Item name="delete">
                     <Popconfirm
-                      title="Are you sure you want to delete this group?"
-                      okText="Yes"
-                      cancelText="No"
+                      title={
+                        <span>Are you sure you want to delete this group?</span>
+                      }
+                      okText={<span>Yes</span>}
+                      cancelText={<span>No</span>}
                       onConfirm={() => {
                         dispatch(deleteGroupAction({ id: group.id }));
                         toast.success(
@@ -813,7 +815,12 @@ const data = await response.json();`;
                               <Space align="center">
                                 <Text strong>Private Note:</Text>
                                 <Popover
-                                  content="Only group owners and editors can view this note"
+                                  content={
+                                    <span>
+                                      Only group owners and editors can view
+                                      this note
+                                    </span>
+                                  }
                                   trigger="hover"
                                 >
                                   <InfoCircleOutlined
@@ -1101,15 +1108,17 @@ const data = await response.json();`;
                                   />
                                   <Popover content={member.note || ""}>
                                     <Text>
-                                      {member.name
-                                        ? member.name
-                                        : member.user_id.startsWith(
-                                              "PlaceholderGroupInviteeID_"
-                                            )
-                                          ? "Awaiting Anon"
-                                          : member.user_id === "PUBLIC"
-                                            ? "Public Invite Link"
-                                            : "Unnamed Contact"}
+                                      {member.name ? (
+                                        member.name
+                                      ) : member.user_id.startsWith(
+                                          "PlaceholderGroupInviteeID_"
+                                        ) ? (
+                                        <span>Awaiting Anon</span>
+                                      ) : member.user_id === "PUBLIC" ? (
+                                        <span>Public Invite Link</span>
+                                      ) : (
+                                        <span>Unnamed Contact</span>
+                                      )}
                                     </Text>
                                   </Popover>
                                   {member.user_id.startsWith(
@@ -1117,8 +1126,12 @@ const data = await response.json();`;
                                   ) && (
                                     <Popover
                                       content={
-                                        member.note ||
-                                        "Add notes to keep track of who received magic links"
+                                        member.note || (
+                                          <span>
+                                            Add notes to keep track of who
+                                            received magic links
+                                          </span>
+                                        )
                                       }
                                     >
                                       <InfoCircleOutlined

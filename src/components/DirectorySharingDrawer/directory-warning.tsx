@@ -34,11 +34,12 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
   );
 
   // Determine visibility status based on breadcrumbs
-  let message = "";
+  let message = <span></span>;
   let messageColor = "";
-  let tooltipText = "";
+  let tooltipText = <span></span>;
+  let tooltipText2 = <span></span>;
   let ancestorWithPermission = null;
-  let ancestorPart = "";
+  let ancestorPart = <span></span>;
 
   // Check if current resource has any direct permissions
   const hasDirectPermissions =
@@ -67,7 +68,12 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
   // If public ancestor exists, use it as highest priority
   if (publicAncestor) {
     ancestorWithPermission = publicAncestor;
-    ancestorPart = ` via ancestor folder "${ancestorWithPermission.resource_name}"`;
+    ancestorPart = (
+      <span>
+        {" "}
+        via ancestor folder "${ancestorWithPermission.resource_name}"
+      </span>
+    );
   }
   // Otherwise, use the closest ancestor with any permissions
   else if (ancestorsWithPermission.length > 0) {
@@ -81,7 +87,12 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
     });
 
     ancestorWithPermission = sortedAncestors[0]; // Closest ancestor
-    ancestorPart = ` via ancestor folder "${ancestorWithPermission.resource_name}"`;
+    ancestorPart = (
+      <span>
+        {" "}
+        via ancestor folder "${ancestorWithPermission.resource_name}"
+      </span>
+    );
   }
 
   // If no visibility info available - assume private
@@ -100,15 +111,29 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
           BreadcrumbVisibilityPreviewEnum.PUBLIC_MODIFY
         )
       ) {
-        message = `This ${resource} is PUBLIC EDITABLE via ancestor folder`;
+        message = (
+          <span>This {resource} is PUBLIC EDITABLE via ancestor folder</span>
+        );
         messageColor = "red";
-        tooltipText = `This ${resource} can be modified by anyone because its ancestor folder has public edit permission`;
+        tooltipText = (
+          <span>
+            This {resource} can be modified by anyone because its ancestor
+            folder has public edit permission
+          </span>
+        );
       } else if (
         ancestorVisibility.includes(BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW)
       ) {
-        message = `This ${resource} is PUBLIC VIEW ONLY via ancestor folder`;
+        message = (
+          <span>This {resource} is PUBLIC VIEW ONLY via ancestor folder</span>
+        );
         messageColor = "red";
-        tooltipText = `This ${resource} is visible to anyone because its ancestor folder has public visibility`;
+        tooltipText = (
+          <span>
+            This {resource} is visible to anyone because its ancestor folder has
+            public visibility
+          </span>
+        );
       } else if (
         ancestorVisibility.includes(
           BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW
@@ -117,34 +142,49 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
           BreadcrumbVisibilityPreviewEnum.PRIVATE_MODIFY
         )
       ) {
-        message = `This ${resource} is shared with an EXCLUSIVE LIST via ancestor folder`;
+        message = (
+          <span>
+            This {resource} is shared with an EXCLUSIVE LIST via ancestor folder
+          </span>
+        );
         messageColor = "#1677ff"; // Blue
-        tooltipText = `This ${resource} is accessible to specific users because its ancestor folder has been shared with them`;
+        tooltipText = (
+          <span>
+            This {resource} is accessible to specific users because its ancestor
+            folder has been shared with them
+          </span>
+        );
       }
     } else {
       // Completely private
-      message = `This ${resource} is PRIVATE and hidden. Only you can see it.`;
+      message = (
+        <span>This {resource} is PRIVATE and hidden. Only you can see it.</span>
+      );
       messageColor = "green";
-      tooltipText = "You are the only one who can see it";
+      tooltipText = <span>You are the only one who can see it</span>;
     }
   } else {
     // Has direct permissions on this resource
     const visibility_preview = currentBreadcrumb.visibility_preview;
 
-    let directStatus = "";
+    let directStatus = <span></span>;
     // Public permissions take priority over private/exclusive
     if (
       visibility_preview.includes(BreadcrumbVisibilityPreviewEnum.PUBLIC_MODIFY)
     ) {
-      directStatus = `PUBLIC EDITABLE`;
+      directStatus = <span>PUBLIC EDITABLE</span>;
       messageColor = "red";
-      tooltipText = `This ${resource} can be edited by anyone with the link`;
+      tooltipText = (
+        <span>This {resource} can be edited by anyone with the link</span>
+      );
     } else if (
       visibility_preview.includes(BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW)
     ) {
-      directStatus = `PUBLIC VIEW ONLY`;
+      directStatus = <span>PUBLIC VIEW ONLY</span>;
       messageColor = "red";
-      tooltipText = `This ${resource} can be viewed by anyone with the link`;
+      tooltipText = (
+        <span>This {resource} can be viewed by anyone with the link</span>
+      );
     } else if (
       visibility_preview.includes(
         BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW
@@ -153,18 +193,32 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
         BreadcrumbVisibilityPreviewEnum.PRIVATE_MODIFY
       )
     ) {
-      directStatus = `shared with an EXCLUSIVE LIST`;
+      directStatus = <span>shared with an EXCLUSIVE LIST</span>;
       messageColor = "#1677ff"; // Blue
-      tooltipText = `Only specific users or groups have access to this ${resource}`;
+      tooltipText = (
+        <span>
+          Only specific users or groups have access to this {resource}
+        </span>
+      );
 
       if (
         visibility_preview.includes(
           BreadcrumbVisibilityPreviewEnum.PRIVATE_MODIFY
         )
       ) {
-        tooltipText += " with edit permission";
+        tooltipText = (
+          <span>
+            Only specific users or groups have access to this {resource} with
+            edit permission
+          </span>
+        );
       } else {
-        tooltipText += " with view-only permission";
+        tooltipText = (
+          <span>
+            Only specific users or groups have access to this {resource} with
+            view-only permission
+          </span>
+        );
       }
     }
 
@@ -188,36 +242,81 @@ const PermissionStatusMessage: React.FC<PermissionStatusMessageProps> = ({
 
       // If direct permissions are public or ancestor permissions are not public, show both
       if (hasDirectPublic || !hasAncestorPublic) {
-        message = `This ${resource} is ${directStatus} directly and via ancestor folder`;
-        tooltipText += ` (both directly and via its ancestor folder)`;
+        message = (
+          <span>
+            This {resource} is {directStatus} directly and via ancestor folder
+          </span>
+        );
+        tooltipText2 = (
+          <span> (both directly and via its ancestor folder)</span>
+        );
       } else {
         // If ancestor permissions are public and direct permissions are not, prioritize ancestor
-        message = `This ${resource} has EXCLUSIVE LIST permissions directly but is PUBLIC via ancestor folder`;
-        tooltipText = `This ${resource} has public access via its ancestor folder which overrides its direct exclusive sharing`;
+        message = (
+          <span>
+            This {resource} has EXCLUSIVE LIST permissions directly but is
+            PUBLIC via ancestor folder
+          </span>
+        );
+        tooltipText = (
+          <span>
+            This ${resource} has public access via its ancestor folder which
+            overrides its direct exclusive sharing
+          </span>
+        );
         messageColor = "red"; // Use red for public permissions
       }
     } else {
       // Only direct permissions
-      message = `This ${resource} is ${directStatus} directly`;
+      message = (
+        <span>
+          This {resource} is {directStatus} directly
+        </span>
+      );
     }
   }
 
   if (diskID === defaultTempCloudSharingDiskID) {
-    message = `This ${resource} is PUBLIC on internet via free public filesharing disk`;
+    message = (
+      <span>
+        This ${resource} is PUBLIC on internet via free public filesharing disk
+      </span>
+    );
     messageColor = "red";
-    tooltipText = `This ${resource} is accessible to anyone on the internet because it is stored on a free public filesharing disk`;
+    tooltipText = (
+      <span>
+        This ${resource} is accessible to anyone on the internet because it is
+        stored on a free public filesharing disk
+      </span>
+    );
   }
 
   if (diskID === defaultBrowserCacheDiskID) {
-    message = `This ${resource} is OFFLINE and hidden. You can generate a temporary 8 hour sharing link`;
+    message = (
+      <span>
+        This ${resource} is OFFLINE and hidden. You can generate a temporary 8
+        hour sharing link
+      </span>
+    );
     messageColor = "blue";
-    tooltipText =
-      "You are the only one who can see it until you generate a temporary link, which lasts less than 24h hours.";
+    tooltipText = (
+      <span>
+        You are the only one who can see it until you generate a temporary link,
+        which lasts less than 24h hours.
+      </span>
+    );
   }
 
   return (
     <div style={{ marginBottom: "8px" }}>
-      <Tooltip title={tooltipText}>
+      <Tooltip
+        title={
+          <span>
+            {tooltipText}
+            {tooltipText2}
+          </span>
+        }
+      >
         <Space>
           <span style={{ color: messageColor }}>
             {message}

@@ -22,31 +22,31 @@ const WelcomePage = () => {
   const [tasks, setTasks] = useState([
     {
       id: "1",
-      text: "Upload and share files",
+      text: <span>Upload and share files</span>,
       done: false,
       route: wrapOrgCode("/drive"),
     },
     {
       id: "2",
-      text: "Invite your team (optional)",
+      text: <span>Invite your team (optional)</span>,
       done: false,
       route: wrapOrgCode("/resources/groups"),
     },
     {
       id: "3",
-      text: "Login on multiple devices (optional)",
+      text: <span>Login on multiple devices (optional)</span>,
       done: false,
       route: wrapOrgCode("/settings"),
     },
     {
       id: "4",
-      text: "Setup advanced permissions (optional)",
+      text: <span>Setup advanced permissions (optional)</span>,
       done: false,
       route: wrapOrgCode("/resources/permissions"),
     },
     {
       id: "5",
-      text: "Automate with webhooks & REST API (optional)",
+      text: <span>Automate with webhooks & REST API (optional)</span>,
       done: false,
       route: wrapOrgCode("/resources/webhooks"),
     },
@@ -71,7 +71,7 @@ const WelcomePage = () => {
       <Card style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}>
         <Typography>
           <Title level={2} style={{ textAlign: "center", marginBottom: 16 }}>
-            {`Welcome to ${currentOrg?.nickname}`}{" "}
+            Welcome to {currentOrg?.nickname}{" "}
             <TagCopy
               id={currentOrg?.driveID || ""}
               style={{ marginLeft: 8, marginTop: -8 }}

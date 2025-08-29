@@ -16,6 +16,7 @@ import {
   Divider,
   Popover,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   RocketOutlined, // Changed icon
   TagOutlined,
@@ -138,10 +139,12 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
         // Dispatch the create purchase action
         dispatch(createPurchaseAction(purchaseData));
 
-        message.info(
-          isOnline
-            ? "Creating purchase..."
-            : "Queued purchase creation for when you're back online"
+        toast(
+          isOnline ? (
+            <span>Creating purchase...</span>
+          ) : (
+            <span>Queued purchase creation for when you're back online</span>
+          )
         );
 
         // Call the parent's onAddPurchase for any additional handling

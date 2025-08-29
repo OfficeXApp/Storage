@@ -1126,9 +1126,13 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       await switchOrganization(newOrg);
 
       notification.warning({
-        message: "Unknown Organization",
-        description:
-          "You're accessing an unknown organization. Please be careful and remember to remove it later if not needed.",
+        message: <span>Unknown Organization</span>,
+        description: (
+          <span>
+            You're accessing an unknown organization. Please be careful and
+            remember to remove it later if not needed.
+          </span>
+        ),
         duration: 10, // Show for 10 seconds
         placement: "topRight",
         key: "unknown-org-notification", // Unique key to prevent duplicates

@@ -11,6 +11,7 @@ import {
   message,
   Select,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   LinkOutlined,
   TagOutlined,
@@ -282,10 +283,12 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
     // Dispatch the create webhook action
     dispatch(createWebhookAction(webhookData));
 
-    message.success(
-      isOnline
-        ? "Creating webhook..."
-        : "Queued webhook creation for when you're back online"
+    toast.success(
+      isOnline ? (
+        <span>Creating webhook...</span>
+      ) : (
+        <span>Queued webhook creation for when you're back online</span>
+      )
     );
 
     // Call the parent's onAddWebhook for any additional handling

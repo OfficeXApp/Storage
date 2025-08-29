@@ -19,6 +19,7 @@ import {
   Divider,
   Alert,
 } from "antd";
+import toast from "react-hot-toast";
 import type { ApiKeyFE, IRequestCreateApiKey } from "@officexapp/types";
 import { SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
@@ -170,7 +171,9 @@ const SelectAgenticKey: React.FC = () => {
 
   const handleContinue = () => {
     if (!selectedKeyId && !isCreatingNew) {
-      message.warning("Please select an API key or choose to create a new one");
+      message.warning(
+        <span>Please select an API key or choose to create a new one</span>
+      );
       return;
     }
 
@@ -181,7 +184,7 @@ const SelectAgenticKey: React.FC = () => {
 
     const selectedKey = activeApiKeys.find((key) => key.id === selectedKeyId);
     if (selectedKey) {
-      message.success("API key selected successfully!");
+      toast.success(<span>API key selected successfully!</span>);
 
       // Redirect back to the app if redirect URL is provided
       if (redirectUrl) {
@@ -195,7 +198,7 @@ const SelectAgenticKey: React.FC = () => {
           window.location.href = url.toString();
         } catch (error) {
           console.error("Invalid redirect URL:", error);
-          message.error("Invalid redirect URL provided");
+          toast.error(<span>Invalid redirect URL provided</span>);
         }
       }
     }
@@ -259,7 +262,7 @@ const SelectAgenticKey: React.FC = () => {
         setLoading(true);
         dispatch(createApiKeyAction(apiKeyData));
 
-        message.success("API key created successfully!");
+        toast.success(<span>API key created successfully!</span>);
 
         // Redirect back to the app if redirect URL is provided
         if (redirectUrl) {
@@ -270,7 +273,7 @@ const SelectAgenticKey: React.FC = () => {
             window.location.href = url.toString();
           } catch (error) {
             console.error("Invalid redirect URL:", error);
-            message.error("Invalid redirect URL provided");
+            toast.error(<span>Invalid redirect URL provided</span>);
           }
         }
 

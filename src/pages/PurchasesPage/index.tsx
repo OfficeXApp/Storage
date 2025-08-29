@@ -65,7 +65,7 @@ const PurchasesPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Purchases List",
+      label: <span>Purchases List</span>,
       children: null,
       closable: false,
     },

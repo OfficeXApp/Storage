@@ -302,7 +302,7 @@
 //       return blobUrl;
 //     } catch (error) {
 //       console.error(`Error fetching content for ${fileId}:`, error);
-//       message.error(`Failed to prepare preview: ${(error as Error).message}`);
+//       toast.error(`Failed to prepare preview: ${(error as Error).message}`);
 //       return null;
 //     }
 //   };
@@ -422,7 +422,7 @@
 //       // Generate URL for the uploaded file
 //       fetchFileUrl(fileId);
 
-//       message.success(`File ${file.name} uploaded successfully`);
+//       toast.success(`File ${file.name} uploaded successfully`);
 //     } catch (error) {
 //       console.error(`Error uploading file ${file.name}:`, error);
 
@@ -438,7 +438,7 @@
 //         )
 //       );
 
-//       message.error(
+//       toast.error(
 //         `Failed to upload ${file.name}: ${(error as Error).message}`
 //       );
 //     } finally {
@@ -517,7 +517,7 @@
 //       )
 //     );
 
-//     message.info(
+//     toast(
 //       `Upload cancelled for file: ${uploads.find((item) => item.id === id)?.file.name}`
 //     );
 //   };
@@ -565,7 +565,7 @@
 //       )
 //     );
 
-//     message.info("All uploads cancelled");
+//     toast("All uploads cancelled");
 //   };
 
 //   // Download a file
@@ -631,10 +631,10 @@
 //         URL.revokeObjectURL(downloadUrl);
 //       }, 100);
 
-//       message.success(`File ${fileName} downloaded successfully`);
+//       toast.success(`File ${fileName} downloaded successfully`);
 //     } catch (error) {
 //       console.error("Error downloading file:", error);
-//       message.error(`Failed to download file: ${(error as Error).message}`);
+//       toast.error(`Failed to download file: ${(error as Error).message}`);
 //     }
 //   };
 
@@ -664,10 +664,10 @@
 //       setPreviewImage(blobUrl);
 //       setPreviewTitle(fileName);
 //       setPreviewVisible(true);
-//       message.success({ content: "Preview loaded", key: "preview" });
+//       toast.success({ content: "Preview loaded", key: "preview" });
 //     } catch (error) {
 //       console.error("Error preparing image preview:", error);
-//       message.error({
+//       toast.error({
 //         content: `Failed to preview image: ${(error as Error).message}`,
 //         key: "preview",
 //       });

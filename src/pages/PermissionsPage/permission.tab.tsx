@@ -21,6 +21,7 @@ import {
   DatePicker,
   Checkbox,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   InfoCircleOutlined,
@@ -233,10 +234,12 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
 
       dispatch(updateSystemPermissionAction(updateData));
 
-      message.success(
-        isOnline
-          ? "Updating permission..."
-          : "Queued permission update for when you're back online"
+      toast.success(
+        isOnline ? (
+          <span>Updating permission...</span>
+        ) : (
+          <span>Queued permission update for when you're back online</span>
+        )
       );
 
       setIsEditing(false);
@@ -250,10 +253,12 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
 
     dispatch(deleteSystemPermissionAction(deleteData));
 
-    message.success(
-      isOnline
-        ? "Deleting permission..."
-        : "Queued permission deletion for when you're back online"
+    toast.success(
+      isOnline ? (
+        <span>Deleting permission...</span>
+      ) : (
+        <span>Queued permission deletion for when you're back online</span>
+      )
     );
 
     if (onDelete) {
@@ -273,34 +278,34 @@ const PermissionTab: React.FC<PermissionTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   // Get permission type options based on permission type
   const getPermissionTypeOptions = () => {
     return [
       {
-        label: "Create",
+        label: <span>Create</span>,
         value: SystemPermissionType.CREATE,
         icon: <EditOutlined />,
       },
       {
-        label: "View",
+        label: <span>View</span>,
         value: SystemPermissionType.VIEW,
         icon: <EyeOutlined />,
       },
       {
-        label: "Edit",
+        label: <span>Edit</span>,
         value: SystemPermissionType.EDIT,
         icon: <EditOutlined />,
       },
       {
-        label: "Delete",
+        label: <span>Delete</span>,
         value: SystemPermissionType.DELETE,
         icon: <DeleteOutlined />,
       },
       {
-        label: "Invite",
+        label: <span>Invite</span>,
         value: SystemPermissionType.INVITE,
         icon: <UserAddOutlined />,
       },
@@ -733,7 +738,7 @@ const deletePermission = async (permissionId) => {
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}

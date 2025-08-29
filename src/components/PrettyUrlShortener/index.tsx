@@ -5,6 +5,7 @@ import { message, Typography } from "antd";
 import { useEffect } from "react";
 import { useIdentitySystem } from "../../framework/identity";
 import { IResponseShortLink } from "@officexapp/types";
+import toast from "react-hot-toast";
 
 const { Text } = Typography;
 
@@ -21,7 +22,7 @@ const PrettyUrlShortener = () => {
 
   const proceedToShortLink = async (slug: string) => {
     if (!currentOrg?.host) {
-      message.error("Organization host not found");
+      toast.error(<span>Organization host not found</span>);
       return;
     }
 
@@ -46,7 +47,7 @@ const PrettyUrlShortener = () => {
       window.location.href = original_url;
     } catch (error) {
       console.error("Error generating short link:", error);
-      message.error(`Failed to generate short link: ${error}`);
+      toast.error(<span>Failed to generate short link</span>);
       return null;
     }
   };

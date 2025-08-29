@@ -19,6 +19,7 @@ import {
   Divider,
   Popconfirm,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   MailOutlined,
@@ -50,7 +51,7 @@ import {
 } from "../../framework/identity/constants";
 import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
-import { getLastOnlineStatus } from "../../api/helpers";
+import { getLastOnlineStatus } from "../../api/helpers.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
@@ -152,10 +153,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating contact..."
-            : "Queued contact update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating contact...</span>
+          ) : (
+            <span>Queued contact update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -163,7 +166,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -180,7 +183,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
@@ -457,10 +460,14 @@ const ContactTab: React.FC<ContactTabProps> = ({
                     cancelText="No"
                     onConfirm={() => {
                       dispatch(deleteContactAction({ id: contact.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting contact..."
-                          : "Queued contact delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting contact...</span>
+                        ) : (
+                          <span>
+                            Queued contact delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(contact.id);
@@ -542,7 +549,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -601,7 +608,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                     >
                       <Card size="small" style={{ marginTop: 8 }}>
                         <GlobalOutlined style={{ marginRight: 8 }} />
-                        {contact.public_note || "Add a public note"}
+                        {contact.public_note || <span>Add a public note</span>}
                       </Card>
                     </div>
 

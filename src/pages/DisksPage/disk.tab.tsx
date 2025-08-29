@@ -20,6 +20,7 @@ import {
   Select,
   Switch,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   TagOutlined,
@@ -150,10 +151,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
           })
         );
 
-        message.info(
-          isOnline
-            ? "Updating disk..."
-            : "Queued disk update for when you're back online"
+        toast(
+          isOnline ? (
+            <span>Updating disk...</span>
+          ) : (
+            <span>Queued disk update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -161,7 +164,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -178,7 +181,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
@@ -376,11 +379,13 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
       // Copy to clipboard
       await navigator.clipboard.writeText(url);
-      message.success(`Gift link copied to clipboard!`);
+      toast.success(<span>Gift link copied to clipboard!</span>);
       setGiftLink(url);
     } catch (error) {
       console.error("Error generating gift link:", error);
-      message.error("Please fill in at least the name and disk type fields");
+      toast.error(
+        <span>Please fill in at least the name and disk type fields</span>
+      );
     }
   };
 
@@ -563,10 +568,14 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                     cancelText="No"
                     onConfirm={() => {
                       dispatch(deleteDiskAction({ id: disk.id }));
-                      message.info(
-                        isOnline
-                          ? "Deleting disk..."
-                          : "Queued disk delete for when you're back online"
+                      toast(
+                        isOnline ? (
+                          <span>Deleting disk...</span>
+                        ) : (
+                          <span>
+                            Queued disk delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(disk.id);
@@ -660,7 +669,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -829,7 +838,9 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                                 <span
                                   onClick={() => {
                                     navigator.clipboard.writeText(giftLink);
-                                    message.success("Copied to clipboard");
+                                    toast.success(
+                                      <span>Copied to clipboard</span>
+                                    );
                                   }}
                                   style={{ cursor: "pointer" }}
                                 >

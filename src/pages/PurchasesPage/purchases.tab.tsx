@@ -22,6 +22,7 @@ import {
   Select,
   Switch,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   TagOutlined,
@@ -180,10 +181,12 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating purchase..."
-            : "Queued purchase update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating purchase...</span>
+          ) : (
+            <span>Queued purchase update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -191,7 +194,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -211,7 +214,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
@@ -615,10 +618,14 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     cancelText="No"
                     onConfirm={() => {
                       dispatch(deletePurchaseAction({ id: purchase.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting purchase..."
-                          : "Queued purchase delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting purchase...</span>
+                        ) : (
+                          <span>
+                            Queued purchase delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(purchase.id);
@@ -710,7 +717,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}

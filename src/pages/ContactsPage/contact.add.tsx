@@ -15,6 +15,7 @@ import {
   message,
   Divider,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   UserOutlined,
   MailOutlined,
@@ -205,10 +206,12 @@ const ContactsAddDrawer: React.FC<ContactsAddDrawerProps> = ({
         // Dispatch the create contact action
         dispatch(createContactAction(contactData));
 
-        message.success(
-          isOnline
-            ? "Creating contact..."
-            : "Queued contact creation for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Creating contact...</span>
+          ) : (
+            <span>Queued contact creation for when you're back online</span>
+          )
         );
 
         // Call the parent's onAddContact for any additional handling

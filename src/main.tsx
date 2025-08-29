@@ -20,6 +20,7 @@ import { IFrameProvider } from "./framework/iframe/index.tsx";
 import { CONFIG } from "./config.ts";
 import * as Sentry from "@sentry/react";
 import { LingoProviderWrapper, loadDictionary } from "lingo.dev/react/client";
+import toast, { Toaster } from "react-hot-toast";
 
 import en_US from "antd/locale/en_US";
 
@@ -79,19 +80,22 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             },
           }}
         >
-          <BrowserRouter>
-            <IdentitySystemProvider>
-              <ReduxOfflineProvider>
-                <DriveProvider onUploadComplete={(fileUUID) => null}>
-                  <MultiUploaderProvider>
-                    <IFrameProvider>
-                      <App />
-                    </IFrameProvider>
-                  </MultiUploaderProvider>
-                </DriveProvider>
-              </ReduxOfflineProvider>
-            </IdentitySystemProvider>
-          </BrowserRouter>
+          <>
+            <Toaster position="top-center" />
+            <BrowserRouter>
+              <IdentitySystemProvider>
+                <ReduxOfflineProvider>
+                  <DriveProvider onUploadComplete={(fileUUID) => null}>
+                    <MultiUploaderProvider>
+                      <IFrameProvider>
+                        <App />
+                      </IFrameProvider>
+                    </MultiUploaderProvider>
+                  </DriveProvider>
+                </ReduxOfflineProvider>
+              </IdentitySystemProvider>
+            </BrowserRouter>
+          </>
         </AntDesignConfigProvider>
       </Sentry.ErrorBoundary>
     </LingoProviderWrapper>

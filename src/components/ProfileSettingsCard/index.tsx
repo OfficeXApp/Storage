@@ -15,6 +15,7 @@ import {
   Popconfirm,
   Popover,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   CloseCircleOutlined,
@@ -125,7 +126,7 @@ const ProfileSettingsCard = () => {
   const handleSaveApiKey = () => {
     // Here you would update the API key in the identity system
     // This is a placeholder - you'll need to implement the actual update
-    message.success("API Key updated successfully");
+    toast.success(<span>API Key updated successfully</span>);
     setIsEditingApiKey(false);
     setTestResult({ status: "", message: "" });
   };
@@ -133,10 +134,10 @@ const ProfileSettingsCard = () => {
   const copyToClipboard = (value: string) => {
     navigator.clipboard
       .writeText(value)
-      .then(() => message.success("Copied to clipboard!"))
+      .then(() => toast.success(<span>Copied to clipboard!</span>))
       .catch((err) => {
         console.error("Failed to copy:", err);
-        message.error("Failed to copy");
+        toast.error(<span>Failed to copy</span>);
       });
   };
 
@@ -144,18 +145,18 @@ const ProfileSettingsCard = () => {
     setIsGeneratingSignature(true);
     try {
       if (!currentProfile?.icpAccount) {
-        message.error("This profile doesn't have a seed phrase");
+        toast.error(<span>This profile doesn't have a seed phrase</span>);
         return;
       }
 
       const sig = await generateSignature();
       setSignature(sig);
       copyToClipboard(sig);
-      message.success("Signature generated successfully");
+      toast.success(<span>Signature generated successfully</span>);
       setExpirationTime(Date.now() + 30 * 1000);
     } catch (error) {
       console.error("Error generating signature:", error);
-      message.error("Failed to generate signature");
+      toast.error(<span>Failed to generate signature</span>);
     } finally {
       setIsGeneratingSignature(false);
     }
@@ -213,7 +214,7 @@ const ProfileSettingsCard = () => {
         throw new Error("Failed to create API key. Invalid response format.");
       }
     } catch (error) {
-      message.error("Failed to create API key. Please try again.");
+      toast.error(<span>Failed to create API key. Please try again.</span>);
       throw error;
     }
   };

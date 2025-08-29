@@ -2,7 +2,12 @@ import React, { useState, useMemo } from "react";
 import { Button, Modal, Select, Tooltip } from "antd";
 import { GlobalOutlined } from "@ant-design/icons";
 import { language_dropdown_options } from "./constants"; // Adjust path as needed
-import { LocaleSwitcher } from "lingo.dev/react-client";
+import {
+  LocaleSwitcher,
+  useLingoLocale,
+  setLingoLocale,
+} from "lingo.dev/react-client";
+import toast from "react-hot-toast";
 
 const { Option } = Select;
 
@@ -29,21 +34,19 @@ interface SelectOptionProps {
  * A language picker component for Ant Design.
  * Displays a flag emoji button which, when clicked, opens a modal
  * with a searchable single-select dropdown of languages.
- *
- * @param {object} props - Component props.
- * @param {string} [props.initialLanguageId='en-US'] - The ISO code of the initially selected language (e.g., "en-US").
  */
-const RegionPicker = ({ initialLanguageId = "en-US" }) => {
+const RegionPicker = () => {
+  const currentLocale = useLingoLocale();
+
   // Changed default to a full ID
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [currentLanguageId, setCurrentLanguageId] = useState(initialLanguageId);
 
   // Find the currently selected language object for the button display
   const selectedLanguage = useMemo(
     () =>
-      language_dropdown_options.find((lang) => lang.id === currentLanguageId) ||
+      language_dropdown_options.find((lang) => lang.code === currentLocale) ||
       language_dropdown_options[0], // Fallback to the first option if initial ID is not found
-    [currentLanguageId]
+    [currentLocale]
   );
 
   const showModal = () => {
@@ -56,8 +59,13 @@ const RegionPicker = ({ initialLanguageId = "en-US" }) => {
 
   // The 'value' received here will now be the full 'id' (e.g., "en-US")
   const handleSelectChange = (value: string) => {
-    setCurrentLanguageId(value);
-    setIsModalVisible(false);
+    toast.loading(
+      <span>Language changing to {value}, please wait up to 30 seconds...</span>
+    );
+    setTimeout(() => {
+      setLingoLocale(value);
+      setIsModalVisible(false);
+    }, 1000);
   };
 
   // Custom filter function for the Select component
@@ -78,7 +86,142 @@ const RegionPicker = ({ initialLanguageId = "en-US" }) => {
     return match ? match[0] : "🌐"; // Fallback to a globe emoji
   };
 
-  return <LocaleSwitcher locales={["en", "es", "zh", "vi"]} />;
+  // return (
+  //   <LocaleSwitcher
+  //     locales={[
+  //       // Common languages from your original list
+  //       "es",
+  //       "zh",
+  //       "vi",
+  //       "de",
+  //       "ja",
+  //       "ko",
+  //       "ru",
+  //       "ar",
+  //       "pt",
+  //       "it",
+  //       "nl",
+  //       "sv",
+  //       "pl",
+  //       "tr",
+  //       "th",
+  //       "id",
+  //       "ms",
+  //       "fil",
+  //       "hi",
+  //       "bn",
+  //       "ur",
+  //       "fa",
+  //       "ro",
+  //       "el",
+  //       "cs",
+  //       "hu",
+  //       "da",
+  //       "fi",
+  //       "uk",
+  //       "bg",
+  //       "sr",
+  //       "hr",
+  //       "sk",
+  //       "lt",
+  //       "lv",
+  //       "et",
+  //       "sl",
+  //       "is",
+  //       "ga",
+  //       "cy",
+  //       "he",
+  //       // "sw",
+  //       // "am",
+  //       // "yo",
+  //       // "ha",
+  //       // "om",
+  //       // "zu",
+  //       "af",
+
+  //       // Additional languages from your dropdown options
+  //       "en",
+  //       "fr",
+  //       "pa",
+  //       // "my",
+  //       "km",
+  //       // "lo",
+  //       // "ne",
+  //       // "si",
+  //       "ka",
+  //       // "hy",
+  //       "az",
+  //       "kk",
+  //       "uz",
+  //       // "mn",
+  //       // "bs",
+  //       // "mk",
+  //       "sq",
+  //       // "ee",
+  //       // "tw",
+  //       // "ig",
+  //       "rw",
+  //       // "mg",
+  //       // "mi",
+  //       // "sm",
+  //       // "to",
+  //       // "fj",
+  //       // "ht",
+  //       // "lb",
+  //       // "br",
+  //       // "kw",
+  //       // "gd",
+  //       // "gv",
+  //       // "ak",
+  //       // "ff",
+  //       // "ln",
+  //       // "lg",
+  //       // "sn",
+  //       // "st",
+  //       // "tn",
+  //       // "wo",
+  //       // "tzm",
+  //       "ti",
+  //       // "as",
+  //       // "or",
+  //       // "ks",
+  //       // "sd",
+  //       // "doi",
+  //       // "mai",
+  //       // "sat",
+  //       // "kok",
+  //       // "jv",
+  //       // "su",
+  //       // "ceb",
+  //       // "mnw",
+  //       // "sg",
+  //       // "ug",
+  //       // "bo",
+  //       // "ky",
+  //       // "tg",
+  //       // "tk",
+  //       // "fo",
+  //       // "se",
+  //       // "wa",
+  //       // "fy",
+  //       // "ay",
+  //       // "gn",
+  //       // "nah",
+  //       // "qu",
+  //       // "iu",
+  //       // "pap",
+  //       // "haw",
+  //       // "ty",
+  //       // "mh",
+  //       "ta",
+  //       "te",
+  //       // "mr",
+  //       // "gu",
+  //       // "kn",
+  //       // "ml",
+  //     ]}
+  //   />
+  // );
 
   return (
     <>
@@ -115,13 +258,13 @@ const RegionPicker = ({ initialLanguageId = "en-US" }) => {
           optionFilterProp="label" // This tells Select to filter based on the 'label' prop of Option
           filterOption={filterOption} // Use our custom filter function
           onChange={handleSelectChange}
-          value={currentLanguageId}
+          value={selectedLanguage.title}
           style={{ width: "100%" }}
         >
           {language_dropdown_options.map((lang) => (
             <Option
               key={lang.id}
-              value={lang.id}
+              value={lang.code}
               label={`${lang.title} ${lang.hint}`}
               hint={lang.hint}
             >

@@ -16,6 +16,7 @@ import {
   Result,
   Popconfirm,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   SearchOutlined,
   FilterOutlined,
@@ -133,7 +134,7 @@ const SearchResultsPage: React.FC = () => {
   const executeSearch = async (query: string) => {
     if (!currentOrg) return;
     if (!query.trim()) {
-      message.warning("Please enter a search query");
+      message.warning(<span>Please enter a search query</span>);
       return;
     }
 
@@ -176,7 +177,7 @@ const SearchResultsPage: React.FC = () => {
       }
     } catch (error) {
       console.error("Search error:", error);
-      message.error("An error occurred while searching");
+      toast.error(<span>An error occurred while searching</span>);
     } finally {
       setLoading(false);
     }
@@ -246,7 +247,7 @@ const SearchResultsPage: React.FC = () => {
       }
     } catch (error) {
       console.error("Load more error:", error);
-      message.error("An error occurred while loading more results");
+      toast.error(<span>An error occurred while loading more results</span>);
     } finally {
       setLoading(false);
     }
@@ -289,15 +290,18 @@ const SearchResultsPage: React.FC = () => {
 
       if (data.ok && data.ok.data) {
         const { indexed_count } = data.ok.data;
-        message.success(
-          `Drive reindexing started successfully! ${indexed_count} items indexed.`
+        toast.success(
+          <span>
+            Drive reindexing started successfully! {indexed_count} items
+            indexed.
+          </span>
         );
       } else {
         throw new Error("Reindex request was not successful");
       }
     } catch (error) {
       console.error("Reindex error:", error);
-      message.error("An error occurred while reindexing the drive");
+      toast.error(<span>An error occurred while reindexing the drive</span>);
     } finally {
       setReindexLoading(false);
     }
@@ -389,8 +393,13 @@ const SearchResultsPage: React.FC = () => {
                   style={{ fontSize: 72, color: "#1890ff" }}
                 />
               }
-              title="No Results Found"
-              subTitle="You might need to reindex your drive to get latest results. Click below to reindex."
+              title={<span>No Results Found</span>}
+              subTitle={
+                <span>
+                  You might need to reindex your drive to get latest results.
+                  Click below to reindex.
+                </span>
+              }
               extra={
                 <Button
                   type="primary"

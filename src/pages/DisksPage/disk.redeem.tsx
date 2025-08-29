@@ -9,6 +9,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   urlSafeBase64Decode,
   urlSafeBase64Encode,
@@ -65,10 +66,10 @@ const RedeemDiskGiftCard = () => {
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
-          message.error("Invalid disk gift card link");
+          toast.error(<span>Invalid disk gift card link</span>);
         }
       } else {
-        message.error("No disk gift card data found");
+        toast.error(<span>No disk gift card data found</span>);
       }
       setLoading(false);
     };
@@ -78,19 +79,22 @@ const RedeemDiskGiftCard = () => {
 
   const handleRedeem = async () => {
     if (!currentOrg?.host) {
-      message.error(
-        "Cannot redeem gift card unless you connect cloud. You are currently in an offline organization."
+      toast.error(
+        <span>
+          Cannot redeem gift card unless you connect cloud. You are currently in
+          an offline organization.
+        </span>
       );
       return;
     }
 
     if (!redeemData || !currentOrg || !currentProfile) {
-      message.error("Missing required data for redemption");
+      toast.error(<span>Missing required data for redemption</span>);
       return;
     }
 
     setIsProcessing(true);
-    message.info("Processing your disk claim request...");
+    toast(<span>Processing your disk claim request...</span>);
 
     try {
       // Prepare disk data from redeemData
@@ -117,7 +121,7 @@ const RedeemDiskGiftCard = () => {
         auth_token
       );
 
-      message.info("Creating your disk...");
+      toast(<span>Creating your disk...</span>);
 
       const response = await fetch(url, {
         method: "POST",
@@ -136,8 +140,10 @@ const RedeemDiskGiftCard = () => {
       const responseData = await response.json();
 
       // Show success message
-      message.success(`Disk "${diskData.name}" has been successfully claimed!`);
-      message.info("Redirecting to your disks page in 5 seconds...");
+      toast.success(
+        <span>Disk "${diskData.name}" has been successfully claimed!</span>
+      );
+      toast(<span>Redirecting to your disks page in 5 seconds...</span>);
 
       // Wait 5 seconds before redirecting
       await sleep(5000);
@@ -147,8 +153,11 @@ const RedeemDiskGiftCard = () => {
       window.location.href = disksPageUrl; // Using location.href to force a reload
     } catch (error) {
       console.error("Error claiming disk:", error);
-      message.error(
-        `Failed to claim disk: ${error instanceof Error ? error.message : "Unknown error"}`
+      toast.error(
+        <span>
+          Failed to claim disk:{" "}
+          {error instanceof Error ? error.message : "Unknown error"}
+        </span>
       );
       setIsProcessing(false);
     }

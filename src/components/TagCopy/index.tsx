@@ -1,5 +1,6 @@
 import { shortenAddress } from "../../framework/identity/constants";
 import { message, Tag, Tooltip } from "antd";
+import toast from "react-hot-toast";
 
 const TagCopy = ({
   id,
@@ -16,7 +17,7 @@ const TagCopy = ({
     e.preventDefault();
     e.stopPropagation();
     navigator.clipboard.writeText(id);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   return (

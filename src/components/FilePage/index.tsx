@@ -32,6 +32,7 @@ import { createPseudoShareLink } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
 import { isFreeTrialStorj } from "../../api/storj";
 import { useIdentitySystem } from "../../framework/identity";
+import toast from "react-hot-toast";
 import {
   FileFEO,
   shouldBehaveOfflineDiskUIIntent,
@@ -462,7 +463,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
         lastLoadedFileRef.current = file.id;
       } catch (error) {
         console.error("Error loading file content", error);
-        // message.info("Failed to load file content");
+        // toast("Failed to load file content");
       } finally {
         setIsLoading(false);
         currentLoadingFileRef.current = null;
@@ -591,7 +592,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
     const oldName = file.name;
     if (oldName === newName) return;
     if (newName.split(".").length === 1) {
-      message.error(`Filename must include extension`);
+      toast.error(<span>Filename must include extension</span>);
       return;
     }
     setIsUpdatingName(true);
@@ -612,9 +613,9 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
           shouldBehaveOfflineDiskUIIntent(file.disk_id)
         )
       );
-      message.success("File renamed successfully");
+      toast.success(<span>File renamed successfully</span>);
     } catch (error) {
-      message.error("Failed to rename file");
+      toast.error(<span>Failed to rename file</span>);
     } finally {
       setIsUpdatingName(false);
       setIsEditing(false);
@@ -642,7 +643,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
       // Open file URL in a new tab
       window.open(fileUrl, "_blank");
     } else {
-      message.error("File URL not available for download");
+      toast.error(<span>File URL not available for download</span>);
     }
   };
 
@@ -772,7 +773,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
               <Button
                 onClick={() => {
                   navigator.clipboard.writeText(file.raw_url || fileUrl);
-                  message.success("Copied to clipboard");
+                  toast.success(<span>Copied to clipboard</span>);
                 }}
                 type="link"
                 style={{ color: "rgba(0,0,0,0.3)" }}
@@ -897,7 +898,7 @@ const FilePage: React.FC<FilePreviewProps> = ({ file }) => {
             >
               <Result
                 icon={<FileExcelOutlined />}
-                title="Preview Unavailable"
+                title={<span>Preview Unavailable</span>}
                 extra={
                   <Button
                     type="primary"

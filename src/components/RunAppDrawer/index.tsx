@@ -18,6 +18,7 @@ import {
   Alert,
   message,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   CopyOutlined,
   LinkOutlined,
@@ -178,13 +179,13 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard!");
+    toast.success(<span>Copied to clipboard!</span>);
   };
 
   const handleSubmit = async () => {
     if (!checkoutInitResponse) return;
     setIsFinalizingLoading(true);
-    message.info("Finalizing checkout... This can take up to 2 mins...");
+    toast(<span>Finalizing checkout... This can take up to 2 mins...</span>);
     try {
       // create the purchase record
       const purchase_id = GenerateID.PurchaseID();
@@ -222,9 +223,10 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         await response_finalize_checkout.json();
 
       if (!data_finalize_checkout.success) {
-        message.error(
-          `Failed to finalize checkout | ${data_finalize_checkout.message}`,
-          30
+        toast.error(
+          <span>
+            Failed to finalize checkout | {data_finalize_checkout.message}
+          </span>
         );
         setIsFinalizingLoading(false);
         return;
@@ -264,14 +266,16 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       let finalApiKey = apiKeyInputValue;
       if (checkoutInitResponse?.post_payment.auth_installation_url) {
         if (!finalApiKey) {
-          message.loading("Generating quick signature...", 0);
+          message.loading(<span>Generating quick signature...</span>, 0);
           finalApiKey = await generateSignature();
           if (finalApiKey) {
             message.destroy();
-            message.success("Signature generated!");
+            toast.success(<span>Signature generated!</span>);
           } else {
-            message.error(
-              "Did not provide API key and failed to generate signature"
+            toast.error(
+              <span>
+                Did not provide API key and failed to generate signature
+              </span>
             );
             setIsFinalizingLoading(false);
             return;
@@ -310,7 +314,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         const data: IResponseAuthInstallation = await response.json();
       }
 
-      message.success(
+      toast.success(
         <span>
           Checkout successful! View your{" "}
           <Link to={wrapOrgCode(`/resources/purchases`)}>purchase history</Link>
@@ -331,9 +335,10 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     } catch (error: any) {
       console.error("Submission failed:", error);
       // Display the error message from the caught error, or a generic one
-      message.error(
-        `Submission failed: ${error.message || "An unexpected error occurred."}`,
-        30
+      toast.error(
+        <span>
+          Submission failed: {error.message || "An unexpected error occurred."}
+        </span>
       );
       setIsFinalizingLoading(false);
     }
@@ -407,7 +412,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       !selectedDepositOption ||
       !selectedDepositOption.checkout_init_endpoint
     ) {
-      message.error("Error | No checkout init endpoint found");
+      toast.error(<span>Error | No checkout init endpoint found</span>);
       return;
     }
     try {
@@ -438,7 +443,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           }
         });
         setPreferenceInputs(initialPreferenceInputs);
-        message.info("Checkout has begun, please proceed with payment");
+        toast(<span>Checkout has begun, please proceed with payment</span>);
       }
     } catch (error) {
       console.error("Error initiating checkout:", error);
@@ -468,16 +473,18 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       const data: IResponseCheckoutValidate = await response.json();
       if (data.success) {
         setValidatedPayment(true);
-        message.success(
-          `Validated | You may now proceed to finalizing the purchase`
+        toast.success(
+          <span>
+            Validated | You may now proceed to finalizing the purchase
+          </span>
         );
       } else {
-        message.error(data.message, 30);
+        toast.error(<span>{data.message}</span>);
         setValidatedPayment(false);
       }
     } catch (error) {
       console.error("Error validating payment:", error);
-      message.error(`Error validating payment`, 10);
+      toast.error(<span>Error validating payment</span>);
     } finally {
       setIsValidatingLoading(false);
     }

@@ -3393,7 +3393,7 @@ record.avatar
 onClick={() => {
 // copy to clipboard
 formatUserString(record.name, record.id);
-message.success("Copied to clipboard");
+toast.success("Copied to clipboard");
 }}
 color="default" >
 {shortenAddress(record.icp_principal)}
@@ -3413,7 +3413,7 @@ color="default" >
 // onClick={() => {
 // // copy to clipboard
 // formatUserString(record.name, record.id);
-// message.success("Copied to clipboard");
+// toast.success("Copied to clipboard");
 // }}
 // color="default"
 // >
@@ -3539,7 +3539,7 @@ Syncing
 ) : (
 <SyncOutlined
 onClick={() => {
-message.info("Syncing latest...");
+toast("Syncing latest...");
 syncLatest();
 }}
 style={{ color: "rgba(0,0,0,0.2)" }}
@@ -3976,7 +3976,7 @@ const changedFields: IRequestUpdateDisk = { id: disk.id as DiskID };
           })
         );
 
-        message.success(
+        toast.success(
           isOnline
             ? "Updating disk..."
             : "Queued disk update for when you're back online"
@@ -3987,7 +3987,7 @@ const changedFields: IRequestUpdateDisk = { id: disk.id as DiskID };
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast("No changes detected");
       }
 
       setIsEditing(false);
@@ -4005,7 +4005,7 @@ day: "numeric",
 
 const copyToClipboard = (text: string) => {
 navigator.clipboard.writeText(text);
-message.success("Copied to clipboard");
+toast.success("Copied to clipboard");
 };
 
 const renderReadOnlyField = (
@@ -4203,11 +4203,11 @@ endpoint: disk.endpoint || "",
 
       // Copy to clipboard
       await navigator.clipboard.writeText(url);
-      message.success(`Gift link copied to clipboard!`);
+      toast.success(`Gift link copied to clipboard!`);
       setGiftLink(url);
     } catch (error) {
       console.error("Error generating gift link:", error);
-      message.error("Please fill in at least the name and disk type fields");
+      toast.error("Please fill in at least the name and disk type fields");
     }
 
 };
@@ -4388,7 +4388,7 @@ Edit
                     cancelText="No"
                     onConfirm={() => {
                       dispatch(deleteDiskAction({ id: disk.id }));
-                      message.success(
+                      toast.success(
                         isOnline
                           ? "Deleting disk..."
                           : "Queued disk delete for when you're back online"
@@ -4485,7 +4485,7 @@ Edit
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast("Syncing latest...");
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -4654,7 +4654,7 @@ Edit
                                 <span
                                   onClick={() => {
                                     navigator.clipboard.writeText(giftLink);
-                                    message.success("Copied to clipboard");
+                                    toast.success("Copied to clipboard");
                                   }}
                                   style={{ cursor: "pointer" }}
                                 >
@@ -4894,13 +4894,13 @@ endpoint: values.endpoint || undefined,
         // Dispatch the create disk action
         dispatch(createDiskAction(diskData));
 
-        message.success(
+        toast.success(
           isOnline
             ? "Creating disk..."
             : "Queued disk creation for when you're back online"
         );
 
-        message.success(`Page will refresh upon successful disk creation...`);
+        toast.success(`Page will refresh upon successful disk creation...`);
 
         // Call the parent's onAddDisk for any additional handling
         onAddDisk(diskData);
@@ -4936,11 +4936,11 @@ const formValues = await form.validateFields();
 
       // Copy to clipboard
       await navigator.clipboard.writeText(url);
-      message.success(`Gift link copied to clipboard!`);
+      toast.success(`Gift link copied to clipboard!`);
       setGiftLink(url);
     } catch (error) {
       console.error("Error generating gift link:", error);
-      message.error("Please fill in at least the name and disk type fields");
+      toast.error("Please fill in at least the name and disk type fields");
     }
 
 };
@@ -5215,7 +5215,7 @@ style={{ backgroundColor: "#fafafa" }} >
                   <CopyOutlined
                     onClick={() => {
                       navigator.clipboard.writeText(giftLink);
-                      message.success("Copied to clipboard");
+                      toast.success("Copied to clipboard");
                     }}
                   />
                 }

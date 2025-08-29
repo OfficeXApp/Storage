@@ -88,7 +88,10 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
       <div
         style={{ width: "100%", justifyContent: "center", marginTop: "32px" }}
       >
-        <Result icon={<FileExcelOutlined />} title="Preview Unavailable" />
+        <Result
+          icon={<FileExcelOutlined />}
+          title={<span>Preview Unavailable</span>}
+        />
       </div>
     );
   }
@@ -100,8 +103,12 @@ const SheetJSPreview: React.FC<SheetJSPreviewProps> = ({
       >
         <Result
           icon={<FileExcelOutlined />}
-          title="Preview Unavailable"
-          subTitle={`File size exceeded the max preview size of ${maxPreviewSize} mb`}
+          title={<span>Preview Unavailable</span>}
+          subTitle={
+            <span>
+              File size exceeded the max preview size of {maxPreviewSize} mb
+            </span>
+          }
           extra={
             <Button type="primary" onClick={() => window.open(url, "_blank")}>
               Download

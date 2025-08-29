@@ -15,6 +15,7 @@ import {
   Spin,
   Radio,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   InfoCircleOutlined,
   UserOutlined,
@@ -257,10 +258,12 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
 
       dispatch(getGroupAction(group.id));
 
-      message.success(
-        isOnline
-          ? "Magic invite link generated!"
-          : "Queued invite creation for when you're back online"
+      toast.success(
+        isOnline ? (
+          <span>Magic invite link generated!</span>
+        ) : (
+          <span>Queued invite creation for when you're back online</span>
+        )
       );
     }
   };
@@ -286,14 +289,14 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             break;
           case InviteType.SELECT_CONTACT:
             if (!selectedContact) {
-              message.error("Please select a contact");
+              toast.error(<span>Please select a contact</span>);
               return;
             }
             inviteeId = selectedContact.id;
             break;
           case InviteType.ENTER_USERLABEL:
             if (!validUserID) {
-              message.error("Please enter a valid user ID");
+              toast.error(<span>Please enter a valid user ID</span>);
               return;
             }
             inviteeId = validUserID;
@@ -363,17 +366,27 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
           );
           setInviteCreated(groupInviteRedeemLink);
 
-          message.success(
-            isOnline
-              ? "Invite link generated!"
-              : "Queued invite creation for when you're back online"
+          toast.success(
+            isOnline ? (
+              <span>Invite link generated!</span>
+            ) : (
+              <span>Queued invite creation for when you're back online</span>
+            )
           );
         }
 
-        message.success(
-          isOnline
-            ? `Creating ${inviteType === InviteType.PUBLIC ? "public" : ""} group invite...`
-            : `Queued ${inviteType === InviteType.PUBLIC ? "public" : ""} group invite creation for when you're back online`
+        toast.success(
+          isOnline ? (
+            <span>
+              Creating {inviteType === InviteType.PUBLIC ? "public" : ""} group
+              invite...
+            </span>
+          ) : (
+            <span>
+              Queued {inviteType === InviteType.PUBLIC ? "public" : ""} group
+              invite creation for when you're back online
+            </span>
+          )
         );
 
         dispatch(getGroupAction(group.id));
@@ -430,7 +443,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
               icon={<CopyOutlined />}
               onClick={() => {
                 navigator.clipboard.writeText(inviteCreated);
-                message.success(`Copied link`);
+                toast.success(<span>Copied link</span>);
               }}
             >
               Copy Link
@@ -472,7 +485,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
               <span
                 onClick={() => {
                   navigator.clipboard.writeText(inviteLink);
-                  message.success(`Copied link`);
+                  toast.success(<span>Copied link</span>);
                 }}
                 style={{ cursor: "pointer", paddingRight: "8px" }}
               >

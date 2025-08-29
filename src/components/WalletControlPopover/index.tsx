@@ -7,6 +7,7 @@ import {
   InfoCircleOutlined,
   CloseOutlined, // For the tooltip icon
 } from "@ant-design/icons";
+import toast from "react-hot-toast";
 import TagCopy from "../TagCopy";
 import {
   Card,
@@ -50,7 +51,7 @@ const WalletControlPopover = ({ children }: { children: React.ReactNode }) => {
       signedNote,
       customTokenAddress,
     });
-    message.success("Transaction initiated (simulated)");
+    toast.success(<span>Transaction initiated (simulated)</span>);
     // Reset form fields after sending
     setReceiverAddress("");
     setAmount(0);
@@ -87,7 +88,7 @@ const WalletControlPopover = ({ children }: { children: React.ReactNode }) => {
   const tabItems = [
     {
       key: "receive",
-      label: "Receive",
+      label: <span>Receive</span>,
       children: (
         <div
           style={{
@@ -144,7 +145,7 @@ const WalletControlPopover = ({ children }: { children: React.ReactNode }) => {
     },
     {
       key: "send",
-      label: "Send",
+      label: <span>Send</span>,
       children: (
         <div
           style={{
@@ -215,7 +216,7 @@ const WalletControlPopover = ({ children }: { children: React.ReactNode }) => {
                         navigator.clipboard.writeText(
                           getBalanceForSelectedCurrency().toString()
                         );
-                        message.success("Balance copied!");
+                        toast.success(<span>Balance copied!</span>);
                       }}
                     />
                   </Space>
@@ -246,7 +247,7 @@ const WalletControlPopover = ({ children }: { children: React.ReactNode }) => {
     },
     {
       key: "balance",
-      label: "Balance",
+      label: <span>Balance</span>,
       children: (
         <div
           style={{

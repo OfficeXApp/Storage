@@ -64,7 +64,7 @@ const ApiKeysPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "API Keys List",
+      label: <span>API Keys List</span>,
       children: null,
       closable: false,
     },

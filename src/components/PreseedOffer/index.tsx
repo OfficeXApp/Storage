@@ -18,6 +18,7 @@ import {
   Tabs,
 } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
+import toast from "react-hot-toast";
 import "./PreseedOffer.css";
 
 // Import images
@@ -69,7 +70,7 @@ const OfficeXCardList: React.FC = () => {
     <Row gutter={[24, 24]} justify="start" align="stretch">
       {[
         {
-          title: "Storage",
+          title: <span>Storage</span>,
           image: driveImage,
           description:
             "Keep your files safe & organized on your computer, or shared on a secure decentralized cloud. Private file storage.",
@@ -82,7 +83,7 @@ const OfficeXCardList: React.FC = () => {
           ),
         },
         {
-          title: "Documents",
+          title: <span>Documents</span>,
           image: docsImage,
           description:
             "Write and edit documents with ease. No signup required, realtime collaboration & a professional author experience.",
@@ -93,7 +94,7 @@ const OfficeXCardList: React.FC = () => {
           ),
         },
         {
-          title: "Spreadsheets",
+          title: <span>Spreadsheets</span>,
           image: sheetsImage,
           description:
             "Calculate powerful models & rich volume of data, on a smooth infinite spreadsheet. Simple and expressive.",
@@ -104,7 +105,7 @@ const OfficeXCardList: React.FC = () => {
           ),
         },
         {
-          title: "Presentations",
+          title: <span>Presentations</span>,
           image: slidesImage,
           description:
             "Deliver rich presentations with confidence. Easy to design, or clone from pre-built templates.",
@@ -120,7 +121,6 @@ const OfficeXCardList: React.FC = () => {
             hoverable
             cover={
               <img
-                alt={item.title}
                 src={item.image}
                 style={{ height: 200, objectFit: "cover" }}
               />
@@ -191,7 +191,9 @@ const items: TabsProps["items"] = [
               <CopyOutlined
                 onClick={() => {
                   navigator.clipboard.writeText(ETH_PRESALE_WALLET);
-                  message.success("Wallet Address copied to clipboard!");
+                  toast.success(
+                    <span>Wallet Address copied to clipboard!</span>
+                  );
                 }}
               />
             }
@@ -254,7 +256,9 @@ const items: TabsProps["items"] = [
               <CopyOutlined
                 onClick={() => {
                   navigator.clipboard.writeText(BINANCE_PRESALE_WALLET);
-                  message.success("Wallet Address copied to clipboard!");
+                  toast.success(
+                    <span>Wallet Address copied to clipboard!</span>
+                  );
                 }}
               />
             }
@@ -317,7 +321,9 @@ const items: TabsProps["items"] = [
               <CopyOutlined
                 onClick={() => {
                   navigator.clipboard.writeText(BINANCE_PRESALE_WALLET);
-                  message.success("Wallet Address copied to clipboard!");
+                  toast.success(
+                    <span>Wallet Address copied to clipboard!</span>
+                  );
                 }}
               />
             }
@@ -381,7 +387,9 @@ const items: TabsProps["items"] = [
               <CopyOutlined
                 onClick={() => {
                   navigator.clipboard.writeText(SOLANA_PRESALE_WALLET);
-                  message.success("Wallet Address copied to clipboard!");
+                  toast.success(
+                    <span>Wallet Address copied to clipboard!</span>
+                  );
                 }}
               />
             }

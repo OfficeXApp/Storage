@@ -22,6 +22,7 @@ import {
   Switch,
   Select,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   LinkOutlined,
@@ -69,12 +70,12 @@ const { Option } = Select;
 
 // Mock webhook event types for dropdown
 const WEBHOOK_EVENT_TYPES = [
-  { value: "document.created", label: "Document Created" },
-  { value: "document.updated", label: "Document Updated" },
-  { value: "document.deleted", label: "Document Deleted" },
-  { value: "contact.created", label: "Contact Created" },
-  { value: "contact.updated", label: "Contact Updated" },
-  { value: "contact.deleted", label: "Contact Deleted" },
+  { value: "document.created", label: <span>Document Created</span> },
+  { value: "document.updated", label: <span>Document Updated</span> },
+  { value: "document.deleted", label: <span>Document Deleted</span> },
+  { value: "contact.created", label: <span>Contact Created</span> },
+  { value: "contact.updated", label: <span>Contact Updated</span> },
+  { value: "contact.deleted", label: <span>Contact Deleted</span> },
 ];
 
 // Define the props for the WebhookTab component
@@ -166,10 +167,12 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating webhook..."
-            : "Queued webhook update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating webhook...</span>
+          ) : (
+            <span>Queued webhook update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -177,7 +180,7 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -194,7 +197,7 @@ const WebhookTab: React.FC<WebhookTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   // Function to shorten URLs for display
@@ -584,10 +587,14 @@ async function listWebhooks(page = 1, limit = 10) {
                     cancelText="No"
                     onConfirm={() => {
                       dispatch(deleteWebhookAction({ id: webhook.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting webhook..."
-                          : "Queued webhook delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting webhook...</span>
+                        ) : (
+                          <span>
+                            Queued webhook delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(webhook.id);
@@ -677,7 +684,7 @@ async function listWebhooks(page = 1, limit = 10) {
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}

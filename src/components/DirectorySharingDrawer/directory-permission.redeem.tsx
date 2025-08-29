@@ -11,6 +11,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   DirectoryPermissionFE,
   DirectoryPermissionID,
@@ -76,10 +77,10 @@ const RedeemDirectoryPermitPage = () => {
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
-          message.error("Invalid resource access link");
+          toast.error(<span>Invalid resource access link</span>);
         }
       } else {
-        message.error("No resource access data found");
+        toast.error(<span>No resource access data found</span>);
       }
       setLoading(false);
     };
@@ -104,17 +105,17 @@ const RedeemDirectoryPermitPage = () => {
 
   const handleRedeem = async () => {
     if (!redeemData || !currentOrg || !selectedProfile) {
-      message.error("Missing required data for redemption");
+      toast.error(<span>Missing required data for redemption</span>);
       return;
     }
 
     setIsProcessing(true);
     try {
       await processDirectoryPermissionRedeem(redeemData);
-      message.success("Successfully gained access to resource!");
+      toast.success(<span>Successfully gained access to resource!</span>);
     } catch (error) {
       console.error("Error processing resource access:", error);
-      message.error("Failed to process resource access");
+      toast.error(<span>Failed to process resource access</span>);
     } finally {
       setIsProcessing(false);
     }
@@ -170,8 +171,10 @@ const RedeemDirectoryPermitPage = () => {
       redeem_data.ok.data.permission
     ) {
       // Redirect to the resource page
-      message.success(
-        `Successfully accepted file sharing! Redirecting to the file...`
+      toast.success(
+        <span>
+          Successfully accepted file sharing! Redirecting to the file...
+        </span>
       );
       await sleep(2000);
       if (data.redirect_url) {

@@ -13,6 +13,7 @@ import {
   DatePicker,
   Divider,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   KeyOutlined,
   InfoCircleOutlined,
@@ -128,10 +129,12 @@ const ApiKeyAddDrawer: React.FC<ApiKeyAddDrawerProps> = ({
         // Dispatch the create API key action
         dispatch(createApiKeyAction(apiKeyData));
 
-        message.success(
-          isOnline
-            ? "Creating API key..."
-            : "Queued API key creation for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Creating API key...</span>
+          ) : (
+            <span>Queued API key creation for when you're back online</span>
+          )
         );
 
         // Call the parent's onAddApiKey for any additional handling

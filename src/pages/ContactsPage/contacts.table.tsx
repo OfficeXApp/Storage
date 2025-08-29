@@ -14,6 +14,7 @@ import {
   Popover,
   Result,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   BarsOutlined,
   ClockCircleOutlined,
@@ -40,7 +41,7 @@ import {
   checkContactTablePermissionsAction,
   listContactsAction,
 } from "../../redux-offline/contacts/contacts.actions";
-import { formatUserString, getLastOnlineStatus } from "../../api/helpers";
+import { formatUserString, getLastOnlineStatus } from "../../api/helpers.tsx";
 import { useIdentitySystem } from "../../framework/identity";
 import { Link } from "react-router-dom";
 import ConnectICPButton from "../../components/ConnectICPButton";
@@ -125,19 +126,19 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     {
       key: "1",
       icon: <UserAddOutlined />,
-      label: "Add to Group",
+      label: <span>Add to Group</span>,
       disabled: true,
     },
     {
       key: "2",
       icon: <MailOutlined />,
-      label: "Send Invites",
+      label: <span>Send Invites</span>,
       disabled: true,
     },
     {
       key: "3",
       icon: <DeleteOutlined />,
-      label: "Delete",
+      label: <span>Delete</span>,
       disabled: true,
     },
   ];
@@ -145,7 +146,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
   // Define table columns
   const columns: ColumnsType<ContactFE> = [
     {
-      title: "Contact",
+      title: <span>Contact</span>,
       dataIndex: "name",
       key: "name",
       render: (_: any, record: ContactFE) => {
@@ -188,7 +189,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               onClick={() => {
                 // copy to clipboard
                 formatUserString(record.name, record.id);
-                message.success("Copied to clipboard");
+                toast.success(<span>Copied to clipboard</span>);
               }}
               color="default"
             >
@@ -209,7 +210,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
     //       onClick={() => {
     //         // copy to clipboard
     //         formatUserString(record.name, record.id);
-    //         message.success("Copied to clipboard");
+    //         toast.success("Copied to clipboard");
     //       }}
     //       color="default"
     //     >
@@ -221,9 +222,9 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Coming Soon" },
-    { key: "2", label: "Coming Soon" },
-    { key: "3", label: "Coming Soon" },
+    { key: "1", label: <span>Coming Soon</span> },
+    { key: "2", label: <span>Coming Soon</span> },
+    { key: "3", label: <span>Coming Soon</span> },
   ];
 
   const renderMobileList = () => {
@@ -341,7 +342,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Syncing latest...");
+                    toast(<span>Syncing latest...</span>);
                     syncLatest();
                   }}
                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -519,7 +520,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
       ) : !currentOrg?.host ? (
         <Result
           icon={<CloudSyncOutlined />}
-          title="Connect Cloud"
+          title={<span>Connect Cloud</span>}
           subTitle={
             <div>
               <span>This is an offline organization</span>
@@ -548,7 +549,7 @@ const ContactsTableList: React.FC<ContactsTableListProps> = ({
       ) : (
         <Result
           icon={<LockOutlined />}
-          title="Unauthorized"
+          title={<span>Unauthorized</span>}
           subTitle={
             <div>
               <span>Sorry, you are not authorized to view contacts.</span>

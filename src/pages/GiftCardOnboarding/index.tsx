@@ -16,6 +16,7 @@ import {
   notification,
   theme,
 } from "antd";
+import toast from "react-hot-toast";
 import { Content } from "antd/es/layout/layout";
 import React, { useState } from "react";
 import useScreenType from "react-screentype-hook";
@@ -65,7 +66,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
   // Define steps with content
   const steps = [
     {
-      title: "Owner",
+      title: <span>Owner</span>,
       icon: <UserOutlined />,
       content: (
         <div
@@ -131,7 +132,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       ),
     },
     {
-      title: "Organization",
+      title: <span>Organization</span>,
       icon: <HomeOutlined />,
       content: (
         <div
@@ -206,7 +207,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       ),
     },
     {
-      title: "Create",
+      title: <span>Create</span>,
       icon: <CloudUploadOutlined />,
       content: (
         <div
@@ -310,9 +311,13 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       mixpanel.track("Connect Cloud With GiftCard");
 
       apiNotifs.open({
-        message: "Creating Organization",
-        description:
-          "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready.",
+        message: <span>Creating Organization</span>,
+        description: (
+          <span>
+            Please allow up to 2 minutes to deploy to the World Computer. You
+            will be redirected to the new organization once it is ready.
+          </span>
+        ),
         icon: <LoadingOutlined />,
         duration: 0,
       });
@@ -320,7 +325,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       // Extract ICP principal from profile UserID
       const icpPrincipal = currentProfile.userID.replace("UserID_", "");
 
-      message.info("Redeeming Gift Card...");
+      toast(<span>Redeeming Gift Card...</span>);
 
       // Make the POST request to redeem the voucher
       const redeemResponse = await fetch(
@@ -352,9 +357,9 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       }
 
       await sleep(5000);
-      message.info("Minting Anonymous Blockchain...");
+      toast(<span>Minting Anonymous Blockchain...</span>);
       await sleep(5000);
-      message.info("Promoting you to Admin...");
+      toast(<span>Promoting you to Admin...</span>);
       await sleep(5000);
 
       const { drive_id, host, redeem_code, bundled_default_disk } =
@@ -381,7 +386,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       const completeRedeemData = await completeRedeemResponse.json();
 
       if (!completeRedeemData.ok || !completeRedeemData.ok.data) {
-        message.error(`Error deploying organization - ${redeem_code}`);
+        toast.error(<span>Error deploying organization - {redeem_code}</span>);
         localStorage.setItem("FACTORY_REDEEM_CODE", redeem_code);
         throw new Error("Invalid response from organization setup");
       }
@@ -438,13 +443,15 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       // Switch to this organization with the profile
       await switchOrganization(newOrg, currentProfile.userID);
 
-      message.success(
-        `Successfully Created Organization "${orgName}" with Gift Card`
+      toast.success(
+        <span>
+          Successfully Created Organization "${orgName}" with Gift Card
+        </span>
       );
 
       if (bundled_default_disk) {
         try {
-          message.success("Setting up cloud storage...");
+          toast.success(<span>Setting up cloud storage...</span>);
 
           // Make POST request to create disk
           const { url, headers } = wrapAuthStringOrHeader(
@@ -473,7 +480,7 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
               await createDiskResponse.text()
             );
           } else {
-            message.success("Cloud storage configured successfully!");
+            toast.success(<span>Cloud storage configured successfully!</span>);
           }
         } catch (error) {
           console.error("Error creating disk:", error);
@@ -481,15 +488,18 @@ const GiftCardOnboarding: React.FC<GiftCardOnboardingProps> = () => {
       }
 
       // Refresh the page
-      message.success("Syncing... please wait");
+      toast.success(<span>Syncing... please wait</span>);
       await sleep(3000);
-      message.success(`Success! Entering new organization...`);
+      toast.success(<span>Success! Entering new organization...</span>);
       navigate("/org/current/welcome");
       window.location.reload();
     } catch (error) {
       console.error("Error connecting to cloud:", error);
-      message.error(
-        `Failed to connect: ${error instanceof Error ? error.message : "Unknown error"}`
+      toast.error(
+        <span>
+          Failed to connect:{" "}
+          {error instanceof Error ? error.message : "Unknown error"}
+        </span>
       );
     } finally {
       setLoading(false);

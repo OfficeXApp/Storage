@@ -192,7 +192,7 @@
 //     }
 
 //     if (!adapterRegistered) {
-//       message.error(
+//       toast.error(
 //         "Storj adapter not initialized. Please check your settings."
 //       );
 //       return;
@@ -216,7 +216,7 @@
 //             });
 
 //             if (matchingFile) {
-//               message.success(
+//               toast.success(
 //                 `File ${matchingFile.name} uploaded successfully`
 //               );
 //               console.log(
@@ -229,7 +229,7 @@
 //             }
 //           },
 //           onAllComplete: () => {
-//             message.success("All files uploaded successfully");
+//             toast.success("All files uploaded successfully");
 //             setFileList([]);
 //           },
 //         }
@@ -248,7 +248,7 @@
 //       console.log("Started uploads with IDs:", uploadIds);
 //     } catch (error) {
 //       console.error("Error starting uploads:", error);
-//       message.error("Failed to start uploads. Check console for details.");
+//       toast.error("Failed to start uploads. Check console for details.");
 //     }
 //   };
 
@@ -296,13 +296,13 @@
 //     try {
 //       const paused = await pauseUpload(id);
 //       if (paused) {
-//         message.info(`Upload paused: ${id}`);
+//         toast(`Upload paused: ${id}`);
 //       } else {
-//         message.error(`Failed to pause upload: ${id}`);
+//         toast.error(`Failed to pause upload: ${id}`);
 //       }
 //     } catch (error) {
 //       console.error(`Error pausing upload ${id}:`, error);
-//       message.error("Failed to pause upload. Check console for details.");
+//       toast.error("Failed to pause upload. Check console for details.");
 //     }
 //   };
 
@@ -311,13 +311,13 @@
 //     try {
 //       const resumed = await resumeUpload(id, item.fileID, item.file);
 //       if (resumed) {
-//         message.info(`Upload resumed: ${id}`);
+//         toast(`Upload resumed: ${id}`);
 //       } else {
-//         message.error(`Failed to resume upload: ${id}`);
+//         toast.error(`Failed to resume upload: ${id}`);
 //       }
 //     } catch (error) {
 //       console.error(`Error resuming upload ${id}:`, error);
-//       message.error("Failed to resume upload. Check console for details.");
+//       toast.error("Failed to resume upload. Check console for details.");
 //     }
 //   };
 
@@ -327,13 +327,13 @@
 //       const cancelled = await cancelUpload(id);
 //       if (cancelled) {
 //         revokeObjectURL(id);
-//         message.info(`Upload cancelled: ${id}`);
+//         toast(`Upload cancelled: ${id}`);
 //       } else {
-//         message.error(`Failed to cancel upload: ${id}`);
+//         toast.error(`Failed to cancel upload: ${id}`);
 //       }
 //     } catch (error) {
 //       console.error(`Error cancelling upload ${id}:`, error);
-//       message.error("Failed to cancel upload. Check console for details.");
+//       toast.error("Failed to cancel upload. Check console for details.");
 //     }
 //   };
 
@@ -353,7 +353,7 @@
 //       }, 100);
 //     } catch (error) {
 //       console.error("Error downloading file:", error);
-//       message.error("Failed to download file. Please try again.");
+//       toast.error("Failed to download file. Please try again.");
 //     }
 //   };
 

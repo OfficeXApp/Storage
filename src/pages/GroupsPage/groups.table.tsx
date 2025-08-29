@@ -13,6 +13,7 @@ import {
   Popover,
   Result,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   BarsOutlined,
   ClockCircleOutlined,
@@ -120,19 +121,19 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
           {
             key: "add-group",
             icon: <UserAddOutlined />,
-            label: "Add Group",
+            label: <span>Add Group</span>,
             disabled: !tablePermissions.includes(SystemPermissionType.CREATE),
           },
           {
             key: "manage-permissions",
             icon: <LockOutlined />,
-            label: "Permissions",
+            label: <span>Permissions</span>,
             disabled: true,
           },
           {
             key: "manage-webhooks",
             icon: <SisternodeOutlined />,
-            label: "Webhooks",
+            label: <span>Webhooks</span>,
             disabled: true,
           },
         ]
@@ -140,19 +141,19 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
           {
             key: "add-members",
             icon: <UserAddOutlined />,
-            label: "Add Members",
+            label: <span>Add Members</span>,
             disabled: true,
           },
           {
             key: "edit-group",
             icon: <EditOutlined />,
-            label: "Edit Group",
+            label: <span>Edit Group</span>,
             disabled: true,
           },
           {
             key: "delete-group",
             icon: <DeleteOutlined />,
-            label: "Delete",
+            label: <span>Delete</span>,
             disabled: true,
           },
         ];
@@ -160,7 +161,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
   // Define table columns
   const columns: ColumnsType<GroupFE> = [
     {
-      title: "Group",
+      title: <span>Group</span>,
       dataIndex: "name",
       key: "name",
       render: (_: any, record: GroupFE) => (
@@ -189,7 +190,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
             onClick={() => {
               // copy to clipboard
               formatUserString(record.name, record.id);
-              message.success("Copied to clipboard");
+              toast.success(<span>Copied to clipboard</span>);
             }}
             color="default"
           >
@@ -199,7 +200,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
       ),
     },
     {
-      title: "Size",
+      title: <span>Size</span>,
       key: "actions",
       width: 120,
       render: (_: any, record: GroupFE) => (
@@ -214,7 +215,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
       ),
     },
     {
-      title: "Description",
+      title: <span>Description</span>,
       dataIndex: "public_note",
       key: "public_note",
       ellipsis: true,
@@ -233,9 +234,9 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Recently Created" },
-    { key: "2", label: "Alphabetical (A-Z)" },
-    { key: "3", label: "Alphabetical (Z-A)" },
+    { key: "1", label: <span>Recently Created</span> },
+    { key: "2", label: <span>Alphabetical (A-Z)</span> },
+    { key: "3", label: <span>Alphabetical (Z-A)</span> },
   ];
 
   const renderMobileList = () => {
@@ -348,7 +349,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Syncing latest...");
+                    toast(<span>Syncing latest...</span>);
                     syncLatest();
                   }}
                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -381,7 +382,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
                 type="primary"
                 icon={<TeamOutlined />}
                 onClick={() => {
-                  message.info("Create group functionality to be implemented");
+                  toast("Create group functionality to be implemented");
                 }}
               >
                 Create Group
@@ -455,7 +456,9 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
                 type="primary"
                 icon={<TeamOutlined />}
                 onClick={() => {
-                  message.info("Create group functionality to be implemented");
+                  toast(
+                    <span>Create group functionality to be implemented</span>
+                  );
                 }}
               >
                 Create
@@ -504,7 +507,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
       ) : !currentOrg?.host ? (
         <Result
           icon={<CloudSyncOutlined />}
-          title="Connect Cloud"
+          title={<span>Connect Cloud</span>}
           subTitle={
             <div>
               <span>This is an offline organization</span>
@@ -533,7 +536,7 @@ const GroupsTable: React.FC<GroupsTableProps> = ({
       ) : (
         <Result
           icon={<LockOutlined />}
-          title="Unauthorized"
+          title={<span>Unauthorized</span>}
           subTitle={
             <div>
               <span>Sorry, you are not authorized to view groups.</span>

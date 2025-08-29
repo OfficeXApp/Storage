@@ -20,6 +20,7 @@ import { generateRandomSeed } from "../../api/icp";
 import { v4 as uuidv4 } from "uuid";
 import { useReduxOfflineMultiTenant } from "../../redux-offline/ReduxProvider";
 import { debounce } from "lodash";
+import toast from "react-hot-toast";
 import {
   CloseOutlined,
   DeleteOutlined,
@@ -174,10 +175,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                   navigator.clipboard
                     .writeText(userstring)
                     .then(() => {
-                      message.success("Copied to clipboard!");
+                      toast.success(<span>Copied to clipboard!</span>);
                     })
                     .catch(() => {
-                      message.error("Failed to copy to clipboard.");
+                      toast.error(<span>Failed to copy to clipboard.</span>);
                     });
                 }
               }}
@@ -835,14 +836,16 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                 // Select the new profile
                 await switchProfile(newProfile);
 
-                message.success(`User ${nicknameToUse} added successfully!`);
+                toast.success(
+                  <span>User {nicknameToUse} added successfully!</span>
+                );
               } else if (activeTabKey === "importApi") {
                 // Only proceed if we have valid API preview data
                 if (
                   !importApiPreviewData.userID ||
                   !importApiPreviewData.icpAddress
                 ) {
-                  message.error("Invalid or expired password");
+                  toast.error(<span>Invalid or expired password</span>);
                   return;
                 }
 
@@ -855,8 +858,11 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                   atSymbolIndex === -1 ||
                   atSymbolIndex === importApiKey.length - 1
                 ) {
-                  message.error(
-                    "Invalid format. Expected: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)"
+                  toast.error(
+                    <span>
+                      Invalid format. Expected: drive:password@endpoint (e.g.
+                      DriveID_abc123:password123@https://endpoint.com)
+                    </span>
                   );
                   return;
                 }
@@ -870,8 +876,11 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
 
                 // Validate driveID
                 if (!driveID.startsWith("DriveID_")) {
-                  message.error(
-                    "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+                  toast.error(
+                    <span>
+                      Invalid Drive ID format. Expected format starts with{" "}
+                      'DriveID_'
+                    </span>
                   );
                   return;
                 }
@@ -921,7 +930,9 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                   host: endpoint,
                 });
 
-                message.success(`Successfully logged in as ${nickToUse}`);
+                toast.success(
+                  <span>Successfully logged in as {nickToUse}</span>
+                );
                 setImportApiKey("");
                 setImportApiUserNickname("");
                 setImportApiPreviewData({
@@ -939,7 +950,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
               window.location.reload();
             } catch (error) {
               console.error("Error adding user:", error);
-              message.error("Failed to add user. Please try again.");
+              toast.error(<span>Failed to add user. Please try again.</span>);
             }
           }}
         >
@@ -1162,14 +1173,16 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                           selectedProfileId
                         );
                       }
-                      message.success("Profile removed successfully!");
+                      toast.success(<span>Profile removed successfully!</span>);
                       setIsModalVisible(false);
                       window.location.reload();
                     }
                   } catch (error) {
                     console.error("Error removing currentProfile:", error);
-                    message.error(
-                      "Failed to remove currentProfile. Please try again."
+                    toast.error(
+                      <span>
+                        Failed to remove currentProfile. Please try again.
+                      </span>
                     );
                   }
                 }}
@@ -1206,8 +1219,11 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                         //   nickname: existingUserNickname,
                         // };
                         if (!selectedProfile) {
-                          message.error(
-                            "Failed to read preexisting profile. Please try again."
+                          toast.error(
+                            <span>
+                              Failed to read preexisting profile. Please try
+                              again.
+                            </span>
                           );
                           return;
                         }
@@ -1216,13 +1232,18 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                           nickname: existingUserNickname,
                         };
                         await updateProfile(updatedProfile);
-                        message.success(
-                          `Profile updated to ${existingUserNickname} successfully!`
+                        toast.success(
+                          <span>
+                            Profile updated to {existingUserNickname}{" "}
+                            successfully!
+                          </span>
                         );
                       } catch (error) {
                         console.error("Error updating currentProfile:", error);
-                        message.error(
-                          "Failed to update currentProfile. Please try again."
+                        toast.error(
+                          <span>
+                            Failed to update currentProfile. Please try again.
+                          </span>
                         );
                         return;
                       }
@@ -1235,8 +1256,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                       try {
                         // Then switch to selected profile
                         if (!selectedProfile) {
-                          message.error(
-                            "Failed to read selected profile. Please try again."
+                          toast.error(
+                            <span>
+                              Failed to read selected profile. Please try again.
+                            </span>
                           );
                           return;
                         }
@@ -1244,16 +1267,19 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                         await switchProfile(selectedProfile);
 
                         await sleep(1000);
-                        message.success(
-                          `Switched to ${existingUserNickname || "Anon"} (${shortenAddress(
-                            selectedProfile.icpPublicAddress
-                          )})`
+                        toast.success(
+                          <span>
+                            Switched to {existingUserNickname || "Anon"} (
+                            {shortenAddress(selectedProfile.icpPublicAddress)})
+                          </span>
                         );
                         window.location.reload();
                       } catch (error) {
                         console.error("Error switching currentProfile:", error);
-                        message.error(
-                          "Failed to switch currentProfile. Please try again."
+                        toast.error(
+                          <span>
+                            Failed to switch currentProfile. Please try again.
+                          </span>
                         );
                         return;
                       }

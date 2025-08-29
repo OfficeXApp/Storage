@@ -8,6 +8,7 @@ import {
   LoadingOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   GiftCardOption,
   initialGiftCardOptions,
@@ -154,7 +155,7 @@ const WelcomeAutoSpawn = () => {
     const completeRedeemData = await completeRedeemResponse.json();
 
     if (!completeRedeemData.ok || !completeRedeemData.ok.data) {
-      message.error(`Error deploying organization - ${redeem_code}`);
+      toast.error(<span>Error deploying organization - {redeem_code}</span>);
       localStorage.setItem("FACTORY_REDEEM_CODE", redeem_code);
       throw new Error("Invalid response from organization setup");
     }
@@ -212,13 +213,13 @@ const WelcomeAutoSpawn = () => {
     await switchProfile(profile);
     await switchOrganization(newOrg, profile.userID);
 
-    message.success(
-      `Successfully Created Organization "${orgName}" with Gift Card`
+    toast.success(
+      <span>Successfully Created Organization "${orgName}" with Gift Card</span>
     );
 
     if (bundled_default_disk) {
       try {
-        message.success("Setting up cloud storage...");
+        toast.success(<span>Setting up cloud storage...</span>);
 
         // Make POST request to create disk
         const { url, headers } = wrapAuthStringOrHeader(
@@ -246,7 +247,7 @@ const WelcomeAutoSpawn = () => {
             await createDiskResponse.text()
           );
         } else {
-          message.success("Cloud storage configured successfully!");
+          toast.success(<span>Cloud storage configured successfully!</span>);
         }
       } catch (error) {
         console.error("Error creating disk:", error);
@@ -254,9 +255,9 @@ const WelcomeAutoSpawn = () => {
     }
 
     // Refresh the page
-    message.success("Syncing... please wait");
+    toast.success(<span>Syncing... please wait</span>);
     await sleep(isWeb3 ? 3000 : 0);
-    message.success(`Success! Entering new organization...`);
+    toast.success(<span>Success! Entering new organization...</span>);
     navigate("/org/current/welcome");
     window.location.reload();
   };
@@ -290,7 +291,11 @@ const WelcomeAutoSpawn = () => {
               Anonymous Cloud...
             </span>
           }
-          subTitle="You will automatically be redirected to your new organization..."
+          subTitle={
+            <span>
+              You will automatically be redirected to your new organization...
+            </span>
+          }
         />
       </Content>
     </Layout>

@@ -20,6 +20,7 @@ import {
   Popconfirm,
   ColorPicker,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   TagOutlined,
@@ -154,10 +155,12 @@ const LabelTab: React.FC<LabelTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating label..."
-            : "Queued label update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating label...</span>
+          ) : (
+            <span>Queued label update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -165,7 +168,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -182,7 +185,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
@@ -426,10 +429,14 @@ const LabelTab: React.FC<LabelTabProps> = ({
                     cancelText="No"
                     onConfirm={() => {
                       dispatch(deleteLabelAction({ id: label.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting label..."
-                          : "Queued label delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting label...</span>
+                        ) : (
+                          <span>
+                            Queued label delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(label.id);
@@ -518,7 +525,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}

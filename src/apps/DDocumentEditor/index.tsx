@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
+import toast from "react-hot-toast";
 import {
   Modal,
   Button,
@@ -194,7 +195,7 @@ const DDocumentEditor = () => {
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
-          message.error("Invalid resource access link");
+          toast.error(<span>Invalid resource access link</span>);
         }
       }
     };
@@ -570,7 +571,7 @@ const DDocumentEditor = () => {
         lastLoadedFileRef.current = file.id;
       } catch (error) {
         console.error("Error loading file content", error);
-        // message.info("Failed to load file content");
+        // toast(<span>Failed to load file content</span>);
       } finally {
         setIsLoading(false);
         currentLoadingFileRef.current = null;
@@ -685,7 +686,7 @@ const DDocumentEditor = () => {
     const oldName = file.name;
     if (oldName === newName) return;
     if (newName.split(".").length === 1) {
-      message.error(`Filename must include extension`);
+      toast.error(<span>Filename must include extension</span>);
       return;
     }
     setIsUpdatingName(true);
@@ -706,9 +707,9 @@ const DDocumentEditor = () => {
           shouldBehaveOfflineDiskUIIntent(file.disk_id)
         )
       );
-      message.success("File renamed successfully");
+      toast.success(<span>File renamed successfully</span>);
     } catch (error) {
-      message.error("Failed to rename file");
+      toast.error(<span>Failed to rename file</span>);
     } finally {
       setIsUpdatingName(false);
       setIsEditing(false);
@@ -731,7 +732,7 @@ const DDocumentEditor = () => {
 
   const saveFileContent = async (fileContent: any) => {
     if (!file || !fileContent) {
-      message.error("No file or content to save");
+      toast.error(<span>No file or content to save</span>);
       return false;
     }
 
@@ -763,7 +764,7 @@ const DDocumentEditor = () => {
       const diskID = file.disk_id || diskIDFromUrl || uploadTargetDiskID;
 
       if (!diskID) {
-        message.error("No disk ID available for saving");
+        toast.error(<span>No disk ID available for saving</span>);
         return false;
       }
 
@@ -835,13 +836,13 @@ const DDocumentEditor = () => {
       });
 
       // setTimeout(() => {
-      //   message.success(`File ${_currentFileName} saved successfully`);
+      //   toast.success(`File ${_currentFileName} saved successfully`);
       // }, 5000);
 
       return true;
     } catch (error) {
       console.error("Error saving file:", error);
-      message.error("Failed to save file");
+      toast.error(<span>Failed to save file</span>);
       return false;
     }
   };

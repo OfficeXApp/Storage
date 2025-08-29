@@ -25,6 +25,7 @@ import {
   EditOutlined,
   CheckOutlined,
 } from "@ant-design/icons";
+import toast from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
 import { FileUUID, StorageLocationEnum, useDrive } from "../../framework";
 import useScreenType from "react-screentype-hook";
@@ -199,7 +200,7 @@ const DocumentEditor = () => {
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
-          message.error("Invalid resource access link");
+          toast.error(<span>Invalid resource access link</span>);
         }
       }
     };
@@ -572,7 +573,7 @@ const DocumentEditor = () => {
         lastLoadedFileRef.current = file.id;
       } catch (error) {
         console.error("Error loading file content", error);
-        // message.info("Failed to load file content");
+        // toast("Failed to load file content");
       } finally {
         setIsLoading(false);
         currentLoadingFileRef.current = null;
@@ -687,7 +688,7 @@ const DocumentEditor = () => {
     const oldName = file.name;
     if (oldName === newName) return;
     if (newName.split(".").length === 1) {
-      message.error(`Filename must include extension`);
+      toast.error(<span>Filename must include extension</span>);
       return;
     }
     setIsUpdatingName(true);
@@ -708,9 +709,9 @@ const DocumentEditor = () => {
           shouldBehaveOfflineDiskUIIntent(file.disk_id)
         )
       );
-      message.success("File renamed successfully");
+      toast.success(<span>File renamed successfully</span>);
     } catch (error) {
-      message.error("Failed to rename file");
+      toast.error(<span>Failed to rename file</span>);
     } finally {
       setIsUpdatingName(false);
       setIsEditing(false);
@@ -719,7 +720,7 @@ const DocumentEditor = () => {
 
   const saveFileContent = async (fileContent: string) => {
     if (!file || !fileContent) {
-      message.error("No file or content to save");
+      toast.error(<span>No file or content to save</span>);
       return false;
     }
 
@@ -754,7 +755,7 @@ const DocumentEditor = () => {
       const diskID = file.disk_id || diskIDFromUrl || uploadTargetDiskID;
 
       if (!diskID) {
-        message.error("No disk ID available for saving");
+        toast.error(<span>No disk ID available for saving</span>);
         return false;
       }
 
@@ -764,7 +765,7 @@ const DocumentEditor = () => {
         fileID: file.id as FileID, // Use the existing file ID to overwrite
       };
 
-      message.info(`Saving file, please wait...`);
+      toast(<span>Saving file, please wait...</span>);
       // Upload the file (which will overwrite the existing one)
       // The useMultiUploader will handle all disk types appropriately
       uploadFiles([uploadFileObject], parentFolderID, diskType, diskID, {
@@ -828,12 +829,12 @@ const DocumentEditor = () => {
       });
 
       setTimeout(() => {
-        message.success(`File ${_currentFileName} saved successfully`);
+        toast.success(<span>File ${_currentFileName} saved successfully</span>);
       }, 5000);
       return true;
     } catch (error) {
       console.error("Error saving file:", error);
-      message.error("Failed to save file");
+      toast.error(<span>Failed to save file</span>);
       return false;
     }
   };

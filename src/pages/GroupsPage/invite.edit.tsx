@@ -15,6 +15,7 @@ import {
   Spin,
   Popconfirm,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   InfoCircleOutlined,
   UserOutlined,
@@ -148,10 +149,12 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
 
     dispatch(deleteGroupInviteAction(deletePayload));
 
-    message.success(
-      isOnline
-        ? "Deleting group invite..."
-        : "Queued group invite deletion for when you're back online"
+    toast.success(
+      isOnline ? (
+        <span>Deleting group invite...</span>
+      ) : (
+        <span>Queued group invite deletion for when you're back online</span>
+      )
     );
 
     dispatch(getGroupAction(currentInvite.group_id));
@@ -213,15 +216,17 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating group invite..."
-            : "Queued group invite update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating group invite...</span>
+          ) : (
+            <span>Queued group invite update for when you're back online</span>
+          )
         );
 
         onClose();
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
     });
   };

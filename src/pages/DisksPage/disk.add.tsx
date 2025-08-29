@@ -14,6 +14,7 @@ import {
   Divider,
   Popover,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   DatabaseOutlined,
   TagOutlined,
@@ -148,13 +149,15 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
         // Dispatch the create disk action
         dispatch(createDiskAction(diskData));
 
-        message.info(
-          isOnline
-            ? "Creating disk..."
-            : "Queued disk creation for when you're back online"
+        toast(
+          isOnline ? (
+            <span>Creating disk...</span>
+          ) : (
+            <span>Queued disk creation for when you're back online</span>
+          )
         );
 
-        message.info(`Page will refresh upon successful disk creation...`);
+        toast(<span>Page will refresh upon successful disk creation...</span>);
 
         // Call the parent's onAddDisk for any additional handling
         onAddDisk(diskData);
@@ -189,11 +192,13 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
 
       // Copy to clipboard
       await navigator.clipboard.writeText(url);
-      message.success(`Gift link copied to clipboard!`);
+      toast.success(<span>Gift link copied to clipboard!</span>);
       setGiftLink(url);
     } catch (error) {
       console.error("Error generating gift link:", error);
-      message.error("Please fill in at least the name and disk type fields");
+      toast.error(
+        <span>Please fill in at least the name and disk type fields</span>
+      );
     }
   };
 
@@ -471,7 +476,7 @@ const DisksAddDrawer: React.FC<DisksAddDrawerProps> = ({
                   <CopyOutlined
                     onClick={() => {
                       navigator.clipboard.writeText(giftLink);
-                      message.success("Copied to clipboard");
+                      toast.success(<span>Copied to clipboard</span>);
                     }}
                   />
                 }

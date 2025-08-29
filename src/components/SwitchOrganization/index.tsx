@@ -44,6 +44,7 @@ import {
   LOCAL_DEV_MODE,
   shortenAddress,
 } from "../../framework/identity/constants";
+import toast from "react-hot-toast";
 import { debounce } from "lodash";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
@@ -520,7 +521,7 @@ const OrganizationSwitcher = () => {
   const handleApiLogin = async () => {
     // Only proceed if we have valid API preview data
     if (!importApiPreviewData.userID || !importApiPreviewData.icpAddress) {
-      message.error("Invalid or expired password");
+      toast.error(<span>Invalid or expired password</span>);
       return;
     }
 
@@ -533,8 +534,11 @@ const OrganizationSwitcher = () => {
       atSymbolIndex === -1 ||
       atSymbolIndex === importApiKey.length - 1
     ) {
-      message.error(
-        "Invalid format. Expected: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)"
+      toast.error(
+        <span>
+          Invalid format. Expected: drive:password@endpoint (e.g.
+          DriveID_abc123:password123@https://endpoint.com)
+        </span>
       );
       return;
     }
@@ -548,8 +552,10 @@ const OrganizationSwitcher = () => {
 
     // Validate driveID
     if (!driveID.startsWith("DriveID_")) {
-      message.error(
-        "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+      toast.error(
+        <span>
+          Invalid Drive ID format. Expected format starts with 'DriveID_'
+        </span>
       );
       return;
     }
@@ -617,8 +623,8 @@ const OrganizationSwitcher = () => {
       await switchProfile(profileToUse);
       await switchOrganization(newOrg, profileToUse.userID);
 
-      message.success(
-        `Successfully logged in to organization "${orgNickToUse}"`
+      toast.success(
+        <span>Successfully logged in to organization "${orgNickToUse}"</span>
       );
       setImportApiKey("");
       setImportApiUserNickname("");
@@ -634,12 +640,14 @@ const OrganizationSwitcher = () => {
       });
 
       // Refresh the page
-      message.success(`Success! Entering organization...`);
+      toast.success(<span>Success! Entering organization...</span>);
       navigate("/org/current/welcome");
       window.location.reload();
     } catch (error) {
       console.error("Error logging in to organization:", error);
-      message.error("Failed to log in to organization. Please try again.");
+      toast.error(
+        <span>Failed to log in to organization. Please try again.</span>
+      );
     }
   };
 
@@ -701,9 +709,13 @@ const OrganizationSwitcher = () => {
       if (giftcardRedeemID && giftcardRedeemID.trim() !== "") {
         try {
           apiNotifs.open({
-            message: "Creating Organization",
-            description:
-              "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready.",
+            message: <span>Creating Organization</span>,
+            description: (
+              <span>
+                Please allow up to 2 minutes to deploy to the World Computer.
+                You will be redirected to the new organization once it is ready.
+              </span>
+            ),
             icon: <LoadingOutlined />,
             duration: 0,
           });
@@ -720,7 +732,7 @@ const OrganizationSwitcher = () => {
           // Extract ICP principal from profile UserID (remove the UserID prefix)
           const icpPrincipal = profile.userID.replace("UserID_", "");
 
-          message.info("Redeeming Gift Card...");
+          toast(<span>Redeeming Gift Card...</span>);
 
           // Make the first POST request to redeem the voucher
           const redeemResponse = await fetch(
@@ -742,7 +754,7 @@ const OrganizationSwitcher = () => {
           );
 
           if (!redeemResponse.ok) {
-            message.error("Failed to redeem gift card");
+            toast.error(<span>Failed to redeem gift card</span>);
             throw new Error(
               `Failed to redeem gift card: ${redeemResponse.statusText}`
             );
@@ -760,12 +772,12 @@ const OrganizationSwitcher = () => {
 
           await sleep(isWeb3 ? 5000 : 0);
 
-          message.info("Minting Anonymous Blockchain...");
+          toast(<span>Minting Anonymous Blockchain...</span>);
 
           // wait 5 seconds
           await sleep(isWeb3 ? 5000 : 0);
 
-          message.info("Promoting you to Admin...");
+          toast(<span>Promoting you to Admin...</span>);
 
           await sleep(isWeb3 ? 5000 : 0);
 
@@ -793,7 +805,9 @@ const OrganizationSwitcher = () => {
           const completeRedeemData = await completeRedeemResponse.json();
 
           if (!completeRedeemData.ok || !completeRedeemData.ok.data) {
-            message.error(`Error deploying organization - ${redeem_code}`);
+            toast.error(
+              <span>Error deploying organization - {redeem_code}</span>
+            );
             localStorage.setItem("FACTORY_REDEEM_CODE", redeem_code);
             throw new Error("Invalid response from organization setup");
           }
@@ -861,14 +875,16 @@ const OrganizationSwitcher = () => {
           await switchProfile(profile);
           await switchOrganization(newOrg, profile.userID);
 
-          message.success(
-            `Successfully Created Organization "${orgNickToUse}" with Gift Card`
+          toast.success(
+            <span>
+              Successfully Created Organization "${orgNickToUse}" with Gift Card
+            </span>
           );
           setGiftCardValue("");
 
           if (bundled_default_disk) {
             try {
-              message.success("Setting up cloud storage...", 0);
+              toast.success(<span>Setting up cloud storage...</span>);
 
               // Make POST request to create disk
               const { url, headers } = wrapAuthStringOrHeader(
@@ -897,22 +913,27 @@ const OrganizationSwitcher = () => {
                   await createDiskResponse.text()
                 );
               } else {
-                message.success("Cloud storage configured successfully!", 0);
+                toast.success(
+                  <span>Cloud storage configured successfully!</span>
+                );
               }
             } catch (error) {
               console.error("Error creating disk:", error);
             }
           }
-          message.success("Syncing... please wait");
+          toast.success(<span>Syncing... please wait</span>);
           await sleep(isWeb3 ? 3000 : 0);
-          message.success(`Success! Entering new organization...`);
+          toast.success(<span>Success! Entering new organization...</span>);
 
           navigate("/org/current/welcome");
           window.location.reload();
         } catch (error) {
           console.error("Error redeeming gift card:", error);
-          message.error(
-            `Failed to redeem gift card: ${error instanceof Error ? error.message : "Unknown error"}`
+          toast.error(
+            <span>
+              Failed to redeem gift card:{" "}
+              {error instanceof Error ? error.message : "Unknown error"}
+            </span>
           );
         }
       } else {
@@ -935,15 +956,17 @@ const OrganizationSwitcher = () => {
         // Switch to the new organization
         await switchOrganization(newOrg, selectedProfileId);
 
-        message.success(
-          `Organization "${newOrgNickname}" created successfully!`
+        toast.success(
+          <span>Organization "${newOrgNickname}" created successfully!</span>
         );
         navigate("/org/current/welcome");
         window.location.reload();
       }
     } catch (error) {
       console.error("Error creating organization:", error);
-      message.error("Failed to create organization. Please try again.");
+      toast.error(
+        <span>Failed to create organization. Please try again.</span>
+      );
     } finally {
       setCreateLoading(false);
     }
@@ -961,7 +984,7 @@ const OrganizationSwitcher = () => {
         editOrgEndpoint !== org.host &&
         !isValidUrl(editOrgEndpoint)
       ) {
-        message.error("Please enter a valid URL for the endpoint");
+        toast.error(<span>Please enter a valid URL for the endpoint</span>);
         return;
       }
 
@@ -978,8 +1001,8 @@ const OrganizationSwitcher = () => {
         };
 
         await updateOrganization(updatedOrg);
-        message.success(
-          `Organization "${editOrgNickname}" updated successfully!`
+        toast.success(
+          <span>Organization "${editOrgNickname}" updated successfully!</span>
         );
         setHasChanges(false);
 
@@ -988,7 +1011,9 @@ const OrganizationSwitcher = () => {
       }
     } catch (error) {
       console.error("Error updating organization:", error);
-      message.error("Failed to update organization. Please try again.");
+      toast.error(
+        <span>Failed to update organization. Please try again.</span>
+      );
     }
   };
 
@@ -1002,12 +1027,14 @@ const OrganizationSwitcher = () => {
           await deleteReduxOfflineStore(selectedOrgId, profile.userID);
         }
 
-        message.success("Organization removed successfully!");
+        toast.success(<span>Organization removed successfully!</span>);
         window.location.reload();
       }
     } catch (error) {
       console.error("Error deleting organization:", error);
-      message.error("Failed to remove organization. Please try again.");
+      toast.error(
+        <span>Failed to remove organization. Please try again.</span>
+      );
     }
   };
 
@@ -1028,7 +1055,7 @@ const OrganizationSwitcher = () => {
 
       // Switch to the organization
       await switchOrganization(org, profile?.userID);
-      message.success(`Entering "${org.nickname}" organization...`);
+      toast.success(<span>Entering "${org.nickname}" organization...</span>);
       navigate("/org/current/welcome");
       window.location.reload();
     }
@@ -1137,10 +1164,10 @@ const OrganizationSwitcher = () => {
                     `DriveID_${typedCurrentOrg.icpPublicAddress}@${typedCurrentOrg.host}`
                   )
                   .then(() => {
-                    message.success("Copied to clipboard!");
+                    toast.success(<span>Copied to clipboard!</span>);
                   })
                   .catch(() => {
-                    message.error("Failed to copy to clipboard.");
+                    toast.error(<span>Failed to copy to clipboard.</span>);
                   });
               }}
               style={{ flexShrink: 0, marginLeft: "8px", cursor: "pointer" }}

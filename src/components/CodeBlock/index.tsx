@@ -3,6 +3,7 @@ import { CopyOutlined } from "@ant-design/icons";
 import { Tooltip, message } from "antd";
 import "highlight.js/styles/default.min.css";
 import hljs from "./highlightjs"; // Import your custom hljs configuration
+import toast from "react-hot-toast";
 
 interface CodeBlockProps {
   code: string;
@@ -27,7 +28,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(code);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   // Get shortened language label

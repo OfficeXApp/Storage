@@ -98,7 +98,7 @@
 //           setAdapterRegistered(true);
 //         } catch (error) {
 //           console.error("Failed to register Cloud S3 adapter:", error);
-//           message.error("Failed to initialize Cloud S3 uploader");
+//           toast.error("Failed to initialize Cloud S3 uploader");
 //         }
 //       }
 //     };
@@ -164,18 +164,18 @@
 //             dispatch: dispatch,
 //           },
 //           onFileComplete: (id) => {
-//             message.success(`File upload completed successfully`);
+//             toast.success(`File upload completed successfully`);
 //             fetchFileUrl(id);
 //           },
 //           onAllComplete: () => {
-//             message.success("All files uploaded successfully");
+//             toast.success("All files uploaded successfully");
 //             setFileList([]);
 //           },
 //         }
 //       );
 //     } catch (error) {
 //       console.error("Error starting uploads:", error);
-//       message.error("Failed to start uploads");
+//       toast.error("Failed to start uploads");
 //     }
 //   };
 
@@ -197,13 +197,13 @@
 //     try {
 //       const paused = await pauseUpload(id);
 //       if (paused) {
-//         message.info(`Upload paused`);
+//         toast(`Upload paused`);
 //       } else {
-//         message.error(`Failed to pause upload`);
+//         toast.error(`Failed to pause upload`);
 //       }
 //     } catch (error) {
 //       console.error(`Error pausing upload ${id}:`, error);
-//       message.error("Failed to pause upload");
+//       toast.error("Failed to pause upload");
 //     }
 //   };
 
@@ -212,13 +212,13 @@
 //     try {
 //       const resumed = await resumeUpload(id, item.fileID, item.file);
 //       if (resumed) {
-//         message.info(`Upload resumed`);
+//         toast(`Upload resumed`);
 //       } else {
-//         message.error(`Failed to resume upload`);
+//         toast.error(`Failed to resume upload`);
 //       }
 //     } catch (error) {
 //       console.error(`Error resuming upload ${id}:`, error);
-//       message.error("Failed to resume upload");
+//       toast.error("Failed to resume upload");
 //     }
 //   };
 
@@ -235,13 +235,13 @@
 //             return newUrls;
 //           });
 //         }
-//         message.info(`Upload cancelled`);
+//         toast(`Upload cancelled`);
 //       } else {
-//         message.error(`Failed to cancel upload`);
+//         toast.error(`Failed to cancel upload`);
 //       }
 //     } catch (error) {
 //       console.error(`Error cancelling upload ${id}:`, error);
-//       message.error("Failed to cancel upload");
+//       toast.error("Failed to cancel upload");
 //     }
 //   };
 
@@ -250,7 +250,7 @@
 //     const url = urls[id];
 //     console.log(`url=`, url);
 //     if (!url) {
-//       message.error("Download URL not available yet");
+//       toast.error("Download URL not available yet");
 //       return;
 //     }
 
@@ -266,10 +266,10 @@
 //         document.body.removeChild(link);
 //       }, 100);
 
-//       message.success(`Downloading ${fileName}`);
+//       toast.success(`Downloading ${fileName}`);
 //     } catch (error) {
 //       console.error("Error downloading file:", error);
-//       message.error("Failed to download file");
+//       toast.error("Failed to download file");
 //     }
 //   };
 
@@ -295,10 +295,10 @@
 //       setPreviewImage(imageUrl);
 //       setPreviewTitle(fileName);
 //       setPreviewVisible(true);
-//       message.success({ content: "Preview loaded", key: "preview" });
+//       toast.success({ content: "Preview loaded", key: "preview" });
 //     } catch (error) {
 //       console.error("Error preparing image preview:", error);
-//       message.error({
+//       toast.error({
 //         content: `Failed to preview image: ${(error as Error).message}`,
 //         key: "preview",
 //       });

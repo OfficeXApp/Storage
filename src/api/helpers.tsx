@@ -83,7 +83,7 @@ export const getLastOnlineStatus = (lastOnlineMs: number) => {
   if (!lastOnlineMs) {
     return {
       status: "default",
-      text: "Not Seen Yet",
+      text: <span>Not Seen Yet</span>,
     };
   }
 
@@ -95,7 +95,7 @@ export const getLastOnlineStatus = (lastOnlineMs: number) => {
   if (diffHours <= 3) {
     return {
       status: "success",
-      text: `Last online ${formatTimeAgo(lastOnlineMs)}`,
+      text: <span>Last online {formatTimeAgo(lastOnlineMs)}</span>,
     };
   }
 
@@ -103,7 +103,7 @@ export const getLastOnlineStatus = (lastOnlineMs: number) => {
   if (diffHours <= 24) {
     return {
       status: "processing",
-      text: `Last online ${formatTimeAgo(lastOnlineMs)}`,
+      text: <span>Last online {formatTimeAgo(lastOnlineMs)}</span>,
     };
   }
 

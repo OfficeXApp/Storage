@@ -21,6 +21,7 @@ import {
   Divider,
   Popconfirm,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   GlobalOutlined,
@@ -147,10 +148,12 @@ const DriveTab: React.FC<DriveTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating drive..."
-            : "Queued drive update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating drive...</span>
+          ) : (
+            <span>Queued drive update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -158,7 +161,7 @@ const DriveTab: React.FC<DriveTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -175,7 +178,7 @@ const DriveTab: React.FC<DriveTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
@@ -475,10 +478,14 @@ const listDrives = async (page = 1, limit = 10) => {
                     cancelText="No"
                     onConfirm={() => {
                       dispatch(deleteDriveAction({ id: drive.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting drive..."
-                          : "Queued drive delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting drive...</span>
+                        ) : (
+                          <span>
+                            Queued drive delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(drive.id);
@@ -560,7 +567,7 @@ const listDrives = async (page = 1, limit = 10) => {
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}

@@ -71,7 +71,7 @@ const PermissionsPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Permissions List",
+      label: <span>Permissions List</span>,
       children: null,
       closable: false,
     },

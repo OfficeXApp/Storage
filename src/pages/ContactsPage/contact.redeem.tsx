@@ -12,6 +12,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   GenerateID,
   IRequestRedeemContact,
@@ -139,10 +140,10 @@ const ContactRedeem = () => {
           setOrgName(decodedData.org_name || "");
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
-          message.error("Invalid invitation link");
+          toast.error(<span>Invalid invitation link</span>);
         }
       } else {
-        message.error("No invitation data found");
+        toast.error(<span>No invitation data found</span>);
       }
       setLoading(false);
     };
@@ -164,7 +165,7 @@ const ContactRedeem = () => {
       }
     } catch (error) {
       console.error("Error processing invitation:", error);
-      message.error("Failed to process invitation");
+      toast.error(<span>Failed to process invitation</span>);
     } finally {
       setIsProcessing(false);
     }
@@ -245,7 +246,7 @@ const ContactRedeem = () => {
       };
       await createProfile(profile);
       await switchProfile(profile);
-      message.success("Successfully joined organization!");
+      toast.success(<span>Successfully joined organization!</span>);
       if (data.redirect_url) {
         window.location.href = data.redirect_url;
       } else {
@@ -311,7 +312,7 @@ const ContactRedeem = () => {
     await createApiKey(apiKey);
     await switchOrganization(org);
     await switchProfile(profile);
-    message.success("Successfully joined organization!");
+    toast.success(<span>Successfully joined organization!</span>);
     if (data.redirect_url) {
       window.location.href = data.redirect_url;
     } else {
@@ -377,7 +378,7 @@ const ContactRedeem = () => {
     }
     await switchOrganization(org);
     await switchProfile(profile);
-    message.success("Successfully joined organization!");
+    toast.success(<span>Successfully joined organization!</span>);
     if (data.redirect_url) {
       window.location.href = data.redirect_url;
     } else {

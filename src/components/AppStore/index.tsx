@@ -150,7 +150,7 @@ const AppStore = () => {
           style={{ marginBottom: "32px", maxWidth: "600px", margin: "0 auto" }}
         >
           <Input.Search
-            placeholder="Search for apps, agents & services..."
+            placeholder={`Search for apps, agents & services...`}
             allowClear
             enterButton={<SearchOutlined />}
             size="large"

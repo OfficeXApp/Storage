@@ -13,6 +13,7 @@ import {
   Tabs,
   Result,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   BarsOutlined,
   ClockCircleOutlined,
@@ -201,13 +202,13 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
     {
       key: "1",
       icon: <UserAddOutlined />,
-      label: "Add to Group",
+      label: <span>Add to Group</span>,
       disabled: true,
     },
     {
       key: "2",
       icon: <DeleteOutlined />,
-      label: "Delete Selected",
+      label: <span>Delete Selected</span>,
       disabled: false,
     },
   ];
@@ -215,7 +216,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
   // Define system permission table columns
   const systemColumns: ColumnsType<SystemPermissionFEO> = [
     {
-      title: "Resource",
+      title: <span>Resource</span>,
       dataIndex: "resource_id",
       key: "resource_id",
       render: (_: any, record: SystemPermissionFEO) => {
@@ -272,7 +273,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       },
     },
     {
-      title: "Granted To",
+      title: <span>Granted To</span>,
       dataIndex: "granted_to",
       key: "granted_to",
       render: (_: any, record: SystemPermissionFEO) => (
@@ -289,7 +290,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       ),
     },
     {
-      title: "Permissions",
+      title: <span>Permissions</span>,
       dataIndex: "permission_types",
       key: "permission_types",
       render: (_: any, record: SystemPermissionFEO) => (
@@ -306,7 +307,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       ),
     },
     {
-      title: "Expiry",
+      title: <span>Expiry</span>,
       dataIndex: "expiry_date_ms",
       key: "expiry_date_ms",
       render: (_: any, record: SystemPermissionFEO) => (
@@ -329,9 +330,9 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Coming Soon" },
-    { key: "2", label: "Coming Soon" },
-    { key: "3", label: "Coming Soon" },
+    { key: "1", label: <span>Coming Soon</span> },
+    { key: "2", label: <span>Coming Soon</span> },
+    { key: "3", label: <span>Coming Soon</span> },
   ];
 
   // Render the mobile list view for system permissions
@@ -538,7 +539,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Syncing latest...");
+                    toast(<span>Syncing latest...</span>);
                     syncLatest();
                   }}
                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -688,7 +689,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       ) : !currentOrg?.host ? (
         <Result
           icon={<CloudSyncOutlined />}
-          title="Connect Cloud"
+          title={<span>Connect Cloud</span>}
           subTitle={
             <div>
               <span>This is an offline organization</span>
@@ -717,7 +718,7 @@ const PermissionsTableList: React.FC<PermissionsTableListProps> = ({
       ) : (
         <Result
           icon={<LockOutlined />}
-          title="Unauthorized"
+          title={<span>Unauthorized</span>}
           subTitle={
             <div>
               <span>Sorry, you are not authorized to view permissions.</span>

@@ -18,6 +18,7 @@ import {
   Tag,
   Steps,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   InfoCircleOutlined,
   UserOutlined,
@@ -149,14 +150,14 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
   // Define steps content and validation requirements
   const steps = [
     {
-      title: "Who",
+      title: <span>Who</span>,
       icon: <UserOutlined />,
       description: "Select who to grant permissions to",
       content: renderGranteeSelection,
       isValid: () => !!selectedGrantee?.id,
     },
     {
-      title: "Can",
+      title: <span>Can</span>,
       icon: <KeyOutlined />,
       description: "Choose permission types",
       content: renderPermissionTypes,
@@ -165,14 +166,14 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
       },
     },
     {
-      title: "What",
+      title: <span>What</span>,
       icon: <DatabaseOutlined />,
       description: "Select resource to access",
       content: renderResourceSelection,
       isValid: () => !!form.getFieldValue("resourceId"),
     },
     {
-      title: "Advanced",
+      title: <span>Advanced</span>,
       icon: <SettingOutlined />,
       description: "Optional settings",
       content: renderAdvancedOptions,
@@ -277,7 +278,7 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
     if (canGoToStep || stepIndex < currentStep) {
       setCurrentStep(stepIndex);
     } else {
-      message.warning("Please complete the current step first");
+      message.warning(<span>Please complete the current step first</span>);
     }
   };
 
@@ -386,7 +387,7 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
       .validateFields()
       .then((values) => {
         if (!selectedGrantee?.id) {
-          message.error("Please select a grantee");
+          toast.error(<span>Please select a grantee</span>);
           return;
         }
 
@@ -419,10 +420,14 @@ const SystemPermissionAddDrawer: React.FC<SystemPermissionAddDrawerProps> = ({
         dispatch(createSystemPermissionAction(systemPermissionData));
         onAddPermission(systemPermissionData);
 
-        message.success(
-          isOnline
-            ? "Creating system permission..."
-            : "Queued system permission creation for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Creating system permission...</span>
+          ) : (
+            <span>
+              Queued system permission creation for when you're back online
+            </span>
+          )
         );
 
         onClose();

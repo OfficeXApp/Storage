@@ -19,6 +19,7 @@ import {
   Popconfirm,
   Switch,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   KeyOutlined,
@@ -150,10 +151,12 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
         // Dispatch the update action if we're online
         dispatch(updateApiKeyAction(changedFields));
 
-        message.success(
-          isOnline
-            ? "Updating API key..."
-            : "Queued API key update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating API key...</span>
+          ) : (
+            <span>Queued API key update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided
@@ -161,7 +164,7 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -181,7 +184,7 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
@@ -452,7 +455,7 @@ const data = await response.json();`;
                         is_revoked: true,
                       })
                     );
-                    message.success("API key revoked");
+                    toast.success(<span>API key revoked</span>);
                   }}
                   okText="Yes"
                   cancelText="No"
@@ -592,10 +595,14 @@ const data = await response.json();`;
                     cancelText="No"
                     onConfirm={() => {
                       dispatch(deleteApiKeyAction({ id: apiKey.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting API key..."
-                          : "Queued API key delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting API key...</span>
+                        ) : (
+                          <span>
+                            Queued API key delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(apiKey.id);
@@ -676,7 +683,7 @@ const data = await response.json();`;
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}

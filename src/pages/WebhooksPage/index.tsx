@@ -77,7 +77,7 @@ const WebhooksPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Webhooks List",
+      label: <span>Webhooks List</span>,
       children: null,
       closable: false,
     },
@@ -203,8 +203,10 @@ const WebhooksPage: React.FC = () => {
     return (
       <Result
         icon={<ExperimentOutlined />}
-        title="Coming Soon"
-        subTitle="This feature is coming soon for this organization."
+        title={<span>Coming Soon</span>}
+        subTitle={
+          <span>This feature is coming soon for this organization.</span>
+        }
         extra={
           <Button onClick={() => navigate(-1)} type="primary">
             Back

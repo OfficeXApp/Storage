@@ -63,7 +63,7 @@ const GroupsPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Groups List",
+      label: <span>Groups List</span>,
       children: null,
       closable: false,
     },

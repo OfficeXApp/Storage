@@ -148,7 +148,7 @@ const SystemPermissionsManager: React.FC<SystemPermissionsManagerProps> = ({
   // Table columns
   const columns: TableProps<SystemPermissionFE>["columns"] = [
     {
-      title: "Grantee",
+      title: <span>Grantee</span>,
       dataIndex: ["grantee_name"],
       key: "grantee",
       render: (text, record) => (
@@ -161,13 +161,13 @@ const SystemPermissionsManager: React.FC<SystemPermissionsManagerProps> = ({
       ),
     },
     {
-      title: "Resource",
+      title: <span>Resource</span>,
       dataIndex: ["resource_name"],
       key: "resource",
       render: (text, record) => text || record.system_permission.resource_id,
     },
     {
-      title: "Permissions",
+      title: <span>Permissions</span>,
       dataIndex: ["permission_previews"],
       key: "permissions",
       render: (permissions: SystemPermissionType[]) => (
@@ -181,25 +181,25 @@ const SystemPermissionsManager: React.FC<SystemPermissionsManagerProps> = ({
       ),
     },
     {
-      title: "Granted By",
+      title: <span>Granted By</span>,
       dataIndex: ["granter_name"],
       key: "granter",
       render: (text, record) => text || record.system_permission.granted_by,
     },
     {
-      title: "Start Date",
+      title: <span>Start Date</span>,
       dataIndex: ["system_permission", "begin_date_ms"],
       key: "start_date",
       render: (date) => formatDate(date),
     },
     {
-      title: "Expiry Date",
+      title: <span>Expiry Date</span>,
       dataIndex: ["system_permission", "expiry_date_ms"],
       key: "expiry_date",
       render: (date) => formatDate(date),
     },
     {
-      title: "Notes",
+      title: <span>Notes</span>,
       dataIndex: ["system_permission", "note"],
       key: "note",
       ellipsis: {

@@ -14,6 +14,7 @@ import {
   Popover,
   Result,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   BarsOutlined,
   ClockCircleOutlined,
@@ -44,7 +45,6 @@ import {
   checkPurchasesTablePermissionsAction,
   listPurchasesAction,
 } from "../../redux-offline/purchases/purchases.actions";
-import { formatUserString, getLastOnlineStatus } from "../../api/helpers"; // Re-evaluate if needed for Purchases
 import { useIdentitySystem } from "../../framework/identity";
 import { Link } from "react-router-dom";
 import TagCopy from "../../components/TagCopy";
@@ -133,13 +133,13 @@ const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
     {
       key: "1",
       icon: <RocketOutlined />,
-      label: "Update Status",
+      label: <span>Update Status</span>,
       disabled: true,
     },
     {
       key: "2",
       icon: <DeleteOutlined />,
-      label: "Delete",
+      label: <span>Delete</span>,
       disabled: true,
     },
   ];
@@ -169,7 +169,7 @@ const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
   // Define table columns
   const columns: ColumnsType<PurchaseFE> = [
     {
-      title: "Purchase",
+      title: <span>Purchase</span>,
       dataIndex: "title",
       key: "title",
       render: (_, record: PurchaseFE) => (
@@ -197,7 +197,7 @@ const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
       ),
     },
     {
-      title: "Vendor",
+      title: <span>Vendor</span>,
       dataIndex: "vendor_name",
       key: "vendor_name",
       render: (text: string, record: PurchaseFE) => (
@@ -208,7 +208,7 @@ const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
       ),
     },
     {
-      title: "Created At",
+      title: <span>Created At</span>,
       dataIndex: "created_at",
       key: "created_at",
       render: (timestamp: number) => new Date(timestamp).toLocaleDateString(),
@@ -217,9 +217,9 @@ const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Coming Soon" },
-    { key: "2", label: "Coming Soon" },
-    { key: "3", label: "Coming Soon" },
+    { key: "1", label: <span>Coming Soon</span> },
+    { key: "2", label: <span>Coming Soon</span> },
+    { key: "3", label: <span>Coming Soon</span> },
   ];
 
   const renderMobileList = () => {
@@ -332,7 +332,7 @@ const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Syncing latest...");
+                    toast(<span>Syncing latest...</span>);
                     syncLatest();
                   }}
                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -510,7 +510,7 @@ const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
       ) : !currentOrg?.host ? (
         <Result
           icon={<CloudSyncOutlined />}
-          title="Connect Cloud"
+          title={<span>Connect Cloud</span>}
           subTitle={
             <div>
               <span>This is an offline organization</span>
@@ -539,7 +539,7 @@ const PurchasesTableList: React.FC<PurchasesTableListProps> = ({
       ) : (
         <Result
           icon={<LockOutlined />}
-          title="Unauthorized"
+          title={<span>Unauthorized</span>}
           subTitle={
             <div>
               <span>Sorry, you are not authorized to view purchases.</span>

@@ -13,6 +13,7 @@ import {
   Switch,
   message,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   UserOutlined,
   MailOutlined,
@@ -106,10 +107,12 @@ const GroupsAddDrawer: React.FC<GroupsAddDrawerProps> = ({
         // Dispatch the create group action
         dispatch(createGroupAction(groupData));
 
-        message.info(
-          isOnline
-            ? "Creating group..."
-            : "Queued group creation for when you're back online"
+        toast(
+          isOnline ? (
+            <span>Creating group...</span>
+          ) : (
+            <span>Queued group creation for when you're back online</span>
+          )
         );
 
         // Call the parent's onAddGroup for any additional handling

@@ -36,13 +36,13 @@ export const language_dropdown_options = [
   // Chinese Variants
   {
     id: "zh-Hans-CN",
-    code: "zh-Hans",
+    code: "zh",
     title: "🇨🇳 简体中文 (中国大陆)",
     hint: "Chinese Simplified",
   },
   {
     id: "zh-Hant-HK",
-    code: "zh-Hant",
+    code: "zh",
     title: "🇭🇰 繁體中文 (香港)",
     hint: "Chinese Traditional",
   },
@@ -161,18 +161,18 @@ export const language_dropdown_options = [
   { id: "fi-FI", code: "fi", title: "🇫🇮 Suomi", hint: "Finnish" },
 
   // Norwegian Variants
-  {
-    id: "nb-NO",
-    code: "nb",
-    title: "🇳🇴 Norsk (Bokmål)",
-    hint: "Norwegian Bokmål",
-  },
-  {
-    id: "nn-NO",
-    code: "nn",
-    title: "🇳🇴 Norsk (Nynorsk)",
-    hint: "Norwegian Nynorsk",
-  },
+  // {
+  //   id: "nb-NO",
+  //   code: "nb",
+  //   title: "🇳🇴 Norsk (Bokmål)",
+  //   hint: "Norwegian Bokmål",
+  // },
+  // {
+  //   id: "nn-NO",
+  //   code: "nn",
+  //   title: "🇳🇴 Norsk (Nynorsk)",
+  //   hint: "Norwegian Nynorsk",
+  // },
 
   // Ukrainian
   { id: "uk-UA", code: "uk", title: "🇺🇦 Українська", hint: "Ukrainian" },
@@ -211,37 +211,37 @@ export const language_dropdown_options = [
   { id: "cy-GB", code: "cy", title: "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Cymraeg", hint: "Welsh" },
 
   // Hebrew
-  { id: "he-IL", code: "he", title: "🇮🇱 עברית", hint: "Hebrew" },
+  // { id: "he-IL", code: "he", title: "🇮🇱 עברית", hint: "Hebrew" }, --- enable this!
 
   // Swahili Variants
-  { id: "sw-KE", code: "sw", title: "🇰🇪 Kiswahili (Kenya)", hint: "Swahili" },
-  {
-    id: "sw-TZ",
-    code: "sw",
-    title: "🇹🇿 Kiswahili (Tanzania)",
-    hint: "Swahili",
-  },
+  // { id: "sw-KE", code: "sw", title: "🇰🇪 Kiswahili (Kenya)", hint: "Swahili" }, --- enable this!
+  // {
+  //   id: "sw-TZ",
+  //   code: "sw",
+  //   title: "🇹🇿 Kiswahili (Tanzania)",
+  //   hint: "Swahili",
+  // },
 
   // Amharic
-  { id: "am-ET", code: "am", title: "🇪🇹 አማርኛ", hint: "Amharic" },
+  // { id: "am-ET", code: "am", title: "🇪🇹 አማርኛ", hint: "Amharic" },
 
   // Yoruba
-  { id: "yo-NG", code: "yo", title: "🇳🇬 Yorùbá", hint: "Yoruba" },
+  // { id: "yo-NG", code: "yo", title: "🇳🇬 Yorùbá", hint: "Yoruba" },
 
   // Hausa
-  { id: "ha-NG", code: "ha", title: "🇳🇬 Hausa", hint: "Hausa" },
+  // { id: "ha-NG", code: "ha", title: "🇳🇬 Hausa", hint: "Hausa" },
 
   // Oromo
-  { id: "om-ET", code: "om", title: "🇪🇹 Oromoo", hint: "Oromo" },
+  // { id: "om-ET", code: "om", title: "🇪🇹 Oromoo", hint: "Oromo" },
 
   // Zulu
-  { id: "zu-ZA", code: "zu", title: "🇿🇦 IsiZulu", hint: "Zulu" },
+  // { id: "zu-ZA", code: "zu", title: "🇿🇦 IsiZulu", hint: "Zulu" },
 
   // Afrikaans
   { id: "af-ZA", code: "af", title: "🇿🇦 Afrikaans", hint: "Afrikaans" },
 
   // Xhosa
-  { id: "xh-ZA", code: "xh", title: "🇿🇦 IsiXhosa", hint: "Xhosa" },
+  // { id: "xh-ZA", code: "xh", title: "🇿🇦 IsiXhosa", hint: "Xhosa" },
 
   // Catalan
   { id: "ca-ES", code: "ca", title: "🇪🇸 Català", hint: "Catalan" },
@@ -264,41 +264,41 @@ export const language_dropdown_options = [
   { id: "te-IN", code: "te", title: "🇮🇳 తెలుగు", hint: "Telugu" },
 
   // Marathi
-  { id: "mr-IN", code: "mr", title: "🇮🇳 मराठी", hint: "Marathi" },
+  // { id: "mr-IN", code: "mr", title: "🇮🇳 मराठी", hint: "Marathi" },
 
   // Gujarati
-  { id: "gu-IN", code: "gu", title: "🇮🇳 ગુજરાતી", hint: "Gujarati" },
+  // { id: "gu-IN", code: "gu", title: "🇮🇳 ગુજરાતી", hint: "Gujarati" },
 
   // Kannada
-  { id: "kn-IN", code: "kn", title: "🇮🇳 ಕನ್ನಡ", hint: "Kannada" },
+  // { id: "kn-IN", code: "kn", title: "🇮🇳 ಕನ್ನಡ", hint: "Kannada" },
 
   // Malayalam
-  { id: "ml-IN", code: "ml", title: "🇮🇳 മലയാളം", hint: "Malayalam" },
+  // { id: "ml-IN", code: "ml", title: "🇮🇳 മലയാളം", hint: "Malayalam" },
 
   // Punjabi Variants
   { id: "pa-IN", code: "pa", title: "🇮🇳 ਪੰਜਾਬੀ (ਭਾਰਤ)", hint: "Punjabi" },
   { id: "pa-PK", code: "pa", title: "🇵🇰 ਪੰਜਾਬੀ (ਪਾਕਿਸਤਾਨ)", hint: "Punjabi" },
 
   // Burmese
-  { id: "my-MM", code: "my", title: "🇲🇲 မြန်မာဘာသာ", hint: "Burmese" },
+  // { id: "my-MM", code: "my", title: "🇲🇲 မြန်မာဘာသာ", hint: "Burmese" },
 
   // Khmer
   { id: "km-KH", code: "km", title: "🇰🇭 ខ្មែរ", hint: "Khmer" },
 
   // Lao
-  { id: "lo-LA", code: "lo", title: "🇱🇦 ພາສາລາວ", hint: "Lao" },
+  // { id: "lo-LA", code: "lo", title: "🇱🇦 ພາສາລາວ", hint: "Lao" },
 
   // Nepali
-  { id: "ne-NP", code: "ne", title: "🇳🇵 नेपाली", hint: "Nepali" },
+  // { id: "ne-NP", code: "ne", title: "🇳🇵 नेपाली", hint: "Nepali" },
 
   // Sinhala
-  { id: "si-LK", code: "si", title: "🇱🇰 සිංහල", hint: "Sinhala" },
+  // { id: "si-LK", code: "si", title: "🇱🇰 සිංහල", hint: "Sinhala" },
 
   // Georgian
   { id: "ka-GE", code: "ka", title: "🇬🇪 ქართული", hint: "Georgian" },
 
   // Armenian
-  { id: "hy-AM", code: "hy", title: "🇦🇲 Հայերեն", hint: "Armenian" },
+  // { id: "hy-AM", code: "hy", title: "🇦🇲 Հայերեն", hint: "Armenian" },
 
   // Azerbaijani
   { id: "az-AZ", code: "az", title: "🇦🇿 Azərbaycan dili", hint: "Azerbaijani" },
@@ -310,226 +310,226 @@ export const language_dropdown_options = [
   { id: "uz-UZ", code: "uz", title: "🇺🇿 Oʻzbek tili", hint: "Uzbek" },
 
   // Mongolian
-  { id: "mn-MN", code: "mn", title: "🇲🇳 Монгол хэл", hint: "Mongolian" },
+  // { id: "mn-MN", code: "mn", title: "🇲🇳 Монгол хэл", hint: "Mongolian" },
 
   // Bosnian
-  { id: "bs-BA", code: "bs", title: "🇧🇦 Bosanski", hint: "Bosnian" },
+  // { id: "bs-BA", code: "bs", title: "🇧🇦 Bosanski", hint: "Bosnian" },
 
   // Macedonian
-  { id: "mk-MK", code: "mk", title: "🇲🇰 Македонски", hint: "Macedonian" },
+  // { id: "mk-MK", code: "mk", title: "🇲🇰 Македонски", hint: "Macedonian" },
 
   // Albanian
   { id: "sq-AL", code: "sq", title: "🇦🇱 Shqip", hint: "Albanian" },
 
   // Ewe
-  { id: "ee-GH", code: "ee", title: "🇬🇭 Eʋegbe", hint: "Ewe" },
+  // { id: "ee-GH", code: "ee", title: "🇬🇭 Eʋegbe", hint: "Ewe" },
 
   // Twi
-  { id: "tw-GH", code: "tw", title: "🇬🇭 Twi", hint: "Twi" },
+  // { id: "tw-GH", code: "tw", title: "🇬🇭 Twi", hint: "Twi" },
 
   // Igbo
-  { id: "ig-NG", code: "ig", title: "🇳🇬 Igbo", hint: "Igbo" },
+  // { id: "ig-NG", code: "ig", title: "🇳🇬 Igbo", hint: "Igbo" },
 
   // Kinyarwanda
   { id: "rw-RW", code: "rw", title: "🇷🇼 Ikinyarwanda", hint: "Kinyarwanda" },
 
   // Malagasy
-  { id: "mg-MG", code: "mg", title: "🇲🇬 Malagasy", hint: "Malagasy" },
+  // { id: "mg-MG", code: "mg", title: "🇲🇬 Malagasy", hint: "Malagasy" },
 
   // Maori
-  { id: "mi-NZ", code: "mi", title: "🇳🇿 Te Reo Māori", hint: "Maori" },
+  // { id: "mi-NZ", code: "mi", title: "🇳🇿 Te Reo Māori", hint: "Maori" },
 
   // Samoan
-  { id: "sm-WS", code: "sm", title: "🇼🇸 Gagana Sāmoa", hint: "Samoan" },
+  // { id: "sm-WS", code: "sm", title: "🇼🇸 Gagana Sāmoa", hint: "Samoan" },
 
   // Tongan
-  { id: "to-TO", code: "to", title: "🇹🇴 Lea Faka-Tonga", hint: "Tongan" },
+  // { id: "to-TO", code: "to", title: "🇹🇴 Lea Faka-Tonga", hint: "Tongan" },
 
   // Fijian
-  { id: "fj-FJ", code: "fj", title: "🇫🇯 Na Vosa Vakaviti", hint: "Fijian" },
+  // { id: "fj-FJ", code: "fj", title: "🇫🇯 Na Vosa Vakaviti", hint: "Fijian" },
 
   // Haitian Creole
-  {
-    id: "ht-HT",
-    code: "ht",
-    title: "🇭🇹 Kreyòl Ayisyen",
-    hint: "Haitian Creole",
-  },
+  // {
+  //   id: "ht-HT",
+  //   code: "ht",
+  //   title: "🇭🇹 Kreyòl Ayisyen",
+  //   hint: "Haitian Creole",
+  // },
 
   // Luxembourgish
-  {
-    id: "lb-LU",
-    code: "lb",
-    title: "🇱🇺 Lëtzebuergesch",
-    hint: "Luxembourgish",
-  },
+  // {
+  //   id: "lb-LU",
+  //   code: "lb",
+  //   title: "🇱🇺 Lëtzebuergesch",
+  //   hint: "Luxembourgish",
+  // },
 
   // Breton
-  { id: "br-FR", code: "br", title: "🇫🇷 Brezhoneg", hint: "Breton" },
+  // { id: "br-FR", code: "br", title: "🇫🇷 Brezhoneg", hint: "Breton" },
 
   // Cornish
-  { id: "kw-GB", code: "kw", title: "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Kernewek", hint: "Cornish" },
+  // { id: "kw-GB", code: "kw", title: "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Kernewek", hint: "Cornish" },
 
   // Scots Gaelic
-  { id: "gd-GB", code: "gd", title: "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Gàidhlig", hint: "Scots Gaelic" },
+  // { id: "gd-GB", code: "gd", title: "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Gàidhlig", hint: "Scots Gaelic" },
 
   // Manx
-  { id: "gv-IM", code: "gv", title: "🇮🇲 Gaelg", hint: "Manx" },
+  // { id: "gv-IM", code: "gv", title: "🇮🇲 Gaelg", hint: "Manx" },
 
   // --- Additional Languages for Broader Coverage ---
 
   // Akan
-  { id: "ak-GH", code: "ak", title: "🇬🇭 Akan", hint: "Akan" },
+  // { id: "ak-GH", code: "ak", title: "🇬🇭 Akan", hint: "Akan" },
 
   // Fula Variants
-  { id: "ff-SN", code: "ff", title: "🇸🇳 Pulaar (Sénégal)", hint: "Fula" },
-  { id: "ff-NG", code: "ff", title: "🇳🇬 Fulfulde (Nijeriya)", hint: "Fula" },
+  // { id: "ff-SN", code: "ff", title: "🇸🇳 Pulaar (Sénégal)", hint: "Fula" },
+  // { id: "ff-NG", code: "ff", title: "🇳🇬 Fulfulde (Nijeriya)", hint: "Fula" },
 
   // Lingala
-  { id: "ln-CD", code: "ln", title: "🇨🇩 Lingála", hint: "Lingala" },
+  // { id: "ln-CD", code: "ln", title: "🇨🇩 Lingála", hint: "Lingala" },
 
   // Luganda
-  { id: "lg-UG", code: "lg", title: "🇺🇬 Luganda", hint: "Luganda" },
+  // { id: "lg-UG", code: "lg", title: "🇺🇬 Luganda", hint: "Luganda" },
 
   // Shona
-  { id: "sn-ZW", code: "sn", title: "🇿🇼 ChiShona", hint: "Shona" },
+  // { id: "sn-ZW", code: "sn", title: "🇿🇼 ChiShona", hint: "Shona" },
 
   // Sesotho
-  { id: "st-LS", code: "st", title: "🇱🇸 Sesotho", hint: "Sesotho" },
+  // { id: "st-LS", code: "st", title: "🇱🇸 Sesotho", hint: "Sesotho" },
 
   // Setswana
-  { id: "tn-BW", code: "tn", title: "🇧🇼 Setswana", hint: "Setswana" },
+  // { id: "tn-BW", code: "tn", title: "🇧🇼 Setswana", hint: "Setswana" },
 
   // Wolof
-  { id: "wo-SN", code: "wo", title: "🇸🇳 Wolof", hint: "Wolof" },
+  // { id: "wo-SN", code: "wo", title: "🇸🇳 Wolof", hint: "Wolof" },
 
   // Tamazight
-  {
-    id: "tzm-MA",
-    code: "tzm",
-    title: "🇲🇦 Tamazight (Central Atlas)",
-    hint: "Tamazight",
-  },
+  // {
+  //   id: "tzm-MA",
+  //   code: "tzm",
+  //   title: "🇲🇦 Tamazight (Central Atlas)",
+  //   hint: "Tamazight",
+  // },
 
   // Tigrinya Variants
   { id: "ti-ER", code: "ti", title: "🇪🇷 ትግርኛ (ኤርትራ)", hint: "Tigrinya" },
   { id: "ti-ET", code: "ti", title: "🇪🇹 ትግርኛ (ኢትዮጵያ)", hint: "Tigrinya" },
 
   // Assamese
-  { id: "as-IN", code: "as", title: "🇮🇳 অসমীয়া", hint: "Assamese" },
+  // { id: "as-IN", code: "as", title: "🇮🇳 অসমীয়া", hint: "Assamese" },
 
   // Odia
-  { id: "or-IN", code: "or", title: "🇮🇳 ଓଡ଼ିଆ", hint: "Odia" },
+  // { id: "or-IN", code: "or", title: "🇮🇳 ଓଡ଼ିଆ", hint: "Odia" },
 
   // Kashmiri
-  { id: "ks-IN", code: "ks", title: "🇮🇳 कॉशुर", hint: "Kashmiri" },
+  // { id: "ks-IN", code: "ks", title: "🇮🇳 कॉशुर", hint: "Kashmiri" },
 
   // Sindhi Variants
-  { id: "sd-PK", code: "sd", title: "🇵🇰 سنڌي (پاکستان)", hint: "Sindhi" },
-  { id: "sd-IN", code: "sd", title: "🇮🇳 سنڌي (ڀارت)", hint: "Sindhi" },
+  // { id: "sd-PK", code: "sd", title: "🇵🇰 سنڌي (پاکستان)", hint: "Sindhi" },
+  // { id: "sd-IN", code: "sd", title: "🇮🇳 سنڌي (ڀارت)", hint: "Sindhi" },
 
   // Dogri
-  { id: "doi-IN", code: "doi", title: "🇮🇳 डोगरी", hint: "Dogri" },
+  // { id: "doi-IN", code: "doi", title: "🇮🇳 डोगरी", hint: "Dogri" },
 
   // Maithili
-  { id: "mai-IN", code: "mai", title: "🇮🇳 मैथिली", hint: "Maithili" },
+  // { id: "mai-IN", code: "mai", title: "🇮🇳 मैथिली", hint: "Maithili" },
 
   // Santali
-  { id: "sat-IN", code: "sat", title: "🇮🇳 ᱥᱟᱱᱛᱟᱲᱤ", hint: "Santali" },
+  // { id: "sat-IN", code: "sat", title: "🇮🇳 ᱥᱟᱱᱛᱟᱲᱤ", hint: "Santali" },
 
   // Konkani
-  { id: "kok-IN", code: "kok", title: "🇮🇳 कोंकणी", hint: "Konkani" },
+  // { id: "kok-IN", code: "kok", title: "🇮🇳 कोंकणी", hint: "Konkani" },
 
   // Javanese
-  { id: "jv-ID", code: "jv", title: "🇮🇩 Basa Jawa", hint: "Javanese" },
+  // { id: "jv-ID", code: "jv", title: "🇮🇩 Basa Jawa", hint: "Javanese" },
 
   // Sundanese
-  { id: "su-ID", code: "su", title: "🇮🇩 Basa Sunda", hint: "Sundanese" },
+  // { id: "su-ID", code: "su", title: "🇮🇩 Basa Sunda", hint: "Sundanese" },
 
   // Cebuano
-  { id: "ceb-PH", code: "ceb", title: "🇵🇭 Sinugboanon", hint: "Cebuano" },
+  // { id: "ceb-PH", code: "ceb", title: "🇵🇭 Sinugboanon", hint: "Cebuano" },
 
   // Mon
-  { id: "mnw-MM", code: "mnw", title: "🇲🇲 မန်", hint: "Mon" },
+  // { id: "mnw-MM", code: "mnw", title: "🇲🇲 မန်", hint: "Mon" },
 
   // Sango
-  { id: "sg-CF", code: "sg", title: "🇨🇫 Sängö", hint: "Sango" },
+  // { id: "sg-CF", code: "sg", title: "🇨🇫 Sängö", hint: "Sango" },
 
   // Uyghur
-  { id: "ug-CN", code: "ug", title: "🇨🇳 ئۇيغۇرچە", hint: "Uyghur" },
+  // { id: "ug-CN", code: "ug", title: "🇨🇳 ئۇيغۇرچە", hint: "Uyghur" },
 
   // Tibetan
-  { id: "bo-CN", code: "bo", title: "🇨🇳 བོད་སྐད་", hint: "Tibetan" },
+  // { id: "bo-CN", code: "bo", title: "🇨🇳 བོད་སྐད་", hint: "Tibetan" },
 
   // Kyrgyz
-  { id: "ky-KG", code: "ky", title: "🇰🇬 Кыргызча", hint: "Kyrgyz" },
+  // { id: "ky-KG", code: "ky", title: "🇰🇬 Кыргызча", hint: "Kyrgyz" },
 
   // Tajik
-  { id: "tg-TJ", code: "tg", title: "🇹🇯 Тоҷикӣ", hint: "Tajik" },
+  // { id: "tg-TJ", code: "tg", title: "🇹🇯 Тоҷикӣ", hint: "Tajik" },
 
   // Turkmen
-  { id: "tk-TM", code: "tk", title: "🇹🇲 Türkmençe", hint: "Turkmen" },
+  // { id: "tk-TM", code: "tk", title: "🇹🇲 Türkmençe", hint: "Turkmen" },
 
   // Faroese
-  { id: "fo-FO", code: "fo", title: "🇫🇴 Føroyskt", hint: "Faroese" },
+  // { id: "fo-FO", code: "fo", title: "🇫🇴 Føroyskt", hint: "Faroese" },
 
   // Sami Variants
-  {
-    id: "se-NO",
-    code: "se",
-    title: "🇸🇪 Sámegiella (Nordsamisk, Norge)",
-    hint: "Sami",
-  },
-  {
-    id: "se-SE",
-    code: "se",
-    title: "🇸🇪 Sámegiella (Nordsamisk, Sverige)",
-    hint: "Sami",
-  },
+  // {
+  //   id: "se-NO",
+  //   code: "se",
+  //   title: "🇸🇪 Sámegiella (Nordsamisk, Norge)",
+  //   hint: "Sami",
+  // },
+  // {
+  //   id: "se-SE",
+  //   code: "se",
+  //   title: "🇸🇪 Sámegiella (Nordsamisk, Sverige)",
+  //   hint: "Sami",
+  // },
 
   // Walloon
-  { id: "wa-BE", code: "wa", title: "🇧🇪 Walon", hint: "Walloon" },
+  // { id: "wa-BE", code: "wa", title: "🇧🇪 Walon", hint: "Walloon" },
 
   // Western Frisian
-  { id: "fy-NL", code: "fy", title: "🇳🇱 Frysk", hint: "Western Frisian" },
+  // { id: "fy-NL", code: "fy", title: "🇳🇱 Frysk", hint: "Western Frisian" },
 
   // Aymara Variants
-  { id: "ay-BO", code: "ay", title: "🇧🇴 Aymar aru (Bolivia)", hint: "Aymara" },
-  { id: "ay-PE", code: "ay", title: "🇵🇪 Aymar aru (Perú)", hint: "Aymara" },
+  // { id: "ay-BO", code: "ay", title: "🇧🇴 Aymar aru (Bolivia)", hint: "Aymara" },
+  // { id: "ay-PE", code: "ay", title: "🇵🇪 Aymar aru (Perú)", hint: "Aymara" },
 
   // Guarani
-  { id: "gn-PY", code: "gn", title: "🇵🇾 Avañe'ẽ", hint: "Guarani" },
+  // { id: "gn-PY", code: "gn", title: "🇵🇾 Avañe'ẽ", hint: "Guarani" },
 
   // Nahuatl
-  { id: "nah-MX", code: "nah", title: "🇲🇽 Nāhuatl", hint: "Nahuatl" },
+  // { id: "nah-MX", code: "nah", title: "🇲🇽 Nāhuatl", hint: "Nahuatl" },
 
   // Quechua Variants
-  { id: "qu-PE", code: "qu", title: "🇵🇪 Runasimi (Perú)", hint: "Quechua" },
-  { id: "qu-BO", code: "qu", title: "🇧🇴 Runasimi (Bolivia)", hint: "Quechua" },
+  // { id: "qu-PE", code: "qu", title: "🇵🇪 Runasimi (Perú)", hint: "Quechua" },
+  // { id: "qu-BO", code: "qu", title: "🇧🇴 Runasimi (Bolivia)", hint: "Quechua" },
 
   // Inuktitut
-  { id: "iu-CA", code: "iu", title: "🇨🇦 ᐃᓄᒃᑎᑐᑦ", hint: "Inuktitut" },
+  // { id: "iu-CA", code: "iu", title: "🇨🇦 ᐃᓄᒃᑎᑐᑦ", hint: "Inuktitut" },
 
   // Papiamento Variants
-  {
-    id: "pap-AW",
-    code: "pap",
-    title: "🇦🇼 Papiamentu (Aruba)",
-    hint: "Papiamento",
-  },
-  {
-    id: "pap-CW",
-    code: "pap",
-    title: "🇨🇼 Papiamentu (Curaçao)",
-    hint: "Papiamento",
-  },
+  // {
+  //   id: "pap-AW",
+  //   code: "pap",
+  //   title: "🇦🇼 Papiamentu (Aruba)",
+  //   hint: "Papiamento",
+  // },
+  // {
+  //   id: "pap-CW",
+  //   code: "pap",
+  //   title: "🇨🇼 Papiamentu (Curaçao)",
+  //   hint: "Papiamento",
+  // },
 
   // Hawaiian
-  { id: "haw-US", code: "haw", title: "🇺🇸 ʻŌlelo Hawaiʻi", hint: "Hawaiian" },
+  // { id: "haw-US", code: "haw", title: "🇺🇸 ʻŌlelo Hawaiʻi", hint: "Hawaiian" },
 
   // Tahitian
-  { id: "ty-PF", code: "ty", title: "🇵🇫 Reo Tahiti", hint: "Tahitian" },
+  // { id: "ty-PF", code: "ty", title: "🇵🇫 Reo Tahiti", hint: "Tahitian" },
 
   // Marshallese
-  { id: "mh-MH", code: "mh", title: "🇲🇭 Kajin M̧ajeļ", hint: "Marshallese" },
+  // { id: "mh-MH", code: "mh", title: "🇲🇭 Kajin M̧ajeļ", hint: "Marshallese" },
 ];

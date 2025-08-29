@@ -9,6 +9,7 @@ import {
   Typography,
   message,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   UserOutlined,
   KeyOutlined,
@@ -176,7 +177,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
       }
     } catch (error) {
       console.error("Error creating API key:", error);
-      message.error("Failed to create API key. Please try again.");
+      toast.error(<span>Failed to create API key. Please try again.</span>);
       throw error;
     } finally {
       setIsLoading(false);
@@ -242,7 +243,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
       }
     } catch (error) {
       console.error("Error creating invite payload:", error);
-      message.error("Failed to create invite. Please try again.");
+      toast.error(<span>Failed to create invite. Please try again.</span>);
       throw error;
     }
   };
@@ -272,12 +273,14 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
 
         setGeneratedLink(link);
       }
-      message.success(
-        `Invitation link for ${contact.name} generated successfully!`
+      toast.success(
+        <span>Invitation link for {contact.name} generated successfully!</span>
       );
     } catch (err) {
       console.error("Error generating invitation link:", err);
-      message.error("Failed to generate invitation link. Please try again.");
+      toast.error(
+        <span>Failed to generate invitation link. Please try again.</span>
+      );
     } finally {
       setIsLoading(false);
     }
@@ -287,10 +290,10 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
     if (generatedLink) {
       navigator.clipboard
         .writeText(generatedLink)
-        .then(() => message.success("Link copied to clipboard!"))
+        .then(() => toast.success(<span>Link copied to clipboard!</span>))
         .catch((err) => {
           console.error("Failed to copy link:", err);
-          message.error("Failed to copy link. Please try again.");
+          toast.error(<span>Failed to copy link. Please try again.</span>);
         });
     }
   };
@@ -351,9 +354,11 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 color: "rgba(0,0,0,0.3)",
               }}
             >
-              {isOwnedUser
-                ? `Your organization owns this profile`
-                : `Contact will link their own identity`}
+              {isOwnedUser ? (
+                <span>Your organization owns this profile</span>
+              ) : (
+                <span>Contact will link their own identity</span>
+              )}
             </span>
           </Form.Item>
 

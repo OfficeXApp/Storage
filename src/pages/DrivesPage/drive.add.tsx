@@ -12,6 +12,7 @@ import {
   Tooltip,
   message,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   DatabaseOutlined,
   GlobalOutlined,
@@ -169,12 +170,12 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
         const driveEndpoint = endpointUrl || values.endpointUrl;
 
         if (!driveName) {
-          message.error("Drive name is required");
+          toast.error(<span>Drive name is required</span>);
           return;
         }
 
         if (!driveIcpPrincipal || !isValidIcpAddress(driveIcpPrincipal)) {
-          message.error("Valid ICP principal is required");
+          toast.error(<span>Valid ICP principal is required</span>);
           return;
         }
 
@@ -193,10 +194,12 @@ const DrivesAddDrawer: React.FC<DrivesAddDrawerProps> = ({
         // Dispatch the create drive action
         dispatch(createDriveAction(driveData));
 
-        message.info(
-          isOnline
-            ? "Creating drive..."
-            : "Queued drive creation for when you're back online"
+        toast(
+          isOnline ? (
+            <span>Creating drive...</span>
+          ) : (
+            <span>Queued drive creation for when you're back online</span>
+          )
         );
 
         // Call the parent's onAddDrive for any additional handling

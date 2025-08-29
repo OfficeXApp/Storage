@@ -17,6 +17,7 @@ import {
   MessageOutlined,
   EllipsisOutlined,
 } from "@ant-design/icons";
+import toast from "react-hot-toast";
 import { DriveFullFilePath, useDrive } from "../../framework";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import sheetsLogo from "../../assets/sheets-logo.png";
@@ -155,14 +156,17 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
           )
         );
 
-        message.success(`Folder "${newFolderName}" created successfully`);
+        toast.success(
+          <span>Folder "${newFolderName}" created successfully</span>
+        );
         setNewFolderName("");
         setIsModalVisible(false);
       } catch (error) {
-        message.error(`Failed to create folder: ${error}`);
+        console.error("Error creating folder:", error);
+        toast.error(<span>Failed to create folder</span>);
       }
     } else {
-      message.warning("Not Allowed, please check permissions");
+      message.warning(<span>Not Allowed, please check permissions</span>);
     }
   };
 
@@ -204,7 +208,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         if (window.location.pathname.includes("/drive/")) {
           handleUploadFiles();
         } else if (window.location.pathname === wrapOrgCode("/drive")) {
-          message.info("Select a disk first");
+          toast(<span>Select a disk first</span>);
         }
       },
     },
@@ -234,10 +238,10 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
         if (window.location.pathname.includes("/drive/")) {
           handleUploadFolder();
         } else if (window.location.pathname === wrapOrgCode("/drive")) {
-          message.info("Select a disk first");
+          toast(<span>Select a disk first</span>);
         } else {
           navigate(wrapOrgCode("/drive"));
-          message.info("Select a disk");
+          toast(<span>Select a disk</span>);
         }
       },
     },
@@ -316,7 +320,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       type: "divider" as const,
     },
     {
-      label: "Connect Hard Drive",
+      label: <span>Connect Hard Drive</span>,
       key: "connectHardDrive",
       disabled: true,
     },

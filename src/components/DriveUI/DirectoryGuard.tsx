@@ -19,6 +19,7 @@ import { extractDiskInfo, wrapAuthStringOrHeader } from "../../api/helpers";
 import { Link } from "react-router-dom";
 import useScreenType from "react-screentype-hook";
 import { generateDeterministicMnemonic } from "../../api/icp";
+import toast from "react-hot-toast";
 
 const { Text } = Typography;
 const { Password } = Input;
@@ -85,9 +86,9 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
       const res = await check_response.json();
 
       if (!res || !res[0].response.result) {
-        message.error(`Invalid password`);
+        toast.error(<span>Invalid password</span>);
       } else {
-        message.success(`Valid password, redirecting...`);
+        toast.success(<span>Valid password, redirecting...</span>);
         // Create the profile
         const newProfile = await createProfile({
           icpPublicAddress: auth_profile.icpPublicKey,
@@ -139,7 +140,7 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
               ) : (
                 <span
                   onClick={() => {
-                    message.info("Refetching...");
+                    toast(<span>Refetching...</span>);
                     fetchResource();
                   }}
                   style={{ cursor: "pointer" }}
@@ -156,7 +157,13 @@ const DirectoryGuard: React.FC<DirectoryGuardProps> = ({
             <span style={{ fontSize: "1.7rem" }}>Unauthorized</span>
           </Space>
         }
-        subTitle={`You do not have permission to view this ${resourceID.startsWith("FolderID_") ? "folder" : "file"}. Click "Check Again" just in case old cache.`}
+        subTitle={
+          <span>
+            You do not have permission to view this{" "}
+            {resourceID.startsWith("FolderID_") ? "folder" : "file"}. Click
+            "Check Again" just in case old cache.
+          </span>
+        }
         extra={
           <div style={{ maxWidth: 400, margin: "0 auto" }}>
             <Space direction="vertical" size="large" style={{ width: "100%" }}>

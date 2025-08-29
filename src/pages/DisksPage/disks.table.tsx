@@ -12,6 +12,7 @@ import {
   Popover,
   Result,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   BarsOutlined,
   ClockCircleOutlined,
@@ -94,10 +95,12 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
       }
     }
 
-    // message.success(
-    //   isOnline
-    //     ? "Fetching disks..."
-    //     : "Queued fetch disks for when you're back online"
+    // toast.success(
+    //   isOnline ? (
+    //     <span>Fetching disks...</span>
+    //   ) : (
+    //     <span>Queued fetch disks for when you're back online</span>
+    //   )
     // );
 
     const handleResize = () => {
@@ -138,19 +141,19 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
     {
       key: "1",
       icon: <TeamOutlined />,
-      label: "Share",
+      label: <span>Share</span>,
       disabled: true,
     },
     {
       key: "2",
       icon: <CloudOutlined />,
-      label: "Sync",
+      label: <span>Sync</span>,
       disabled: true,
     },
     {
       key: "3",
       icon: <DeleteOutlined />,
-      label: "Delete",
+      label: <span>Delete</span>,
       disabled: true,
     },
   ];
@@ -175,7 +178,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
   // Define table columns
   const columns: ColumnsType<DiskFEO> = [
     {
-      title: "Disk",
+      title: <span>Disk</span>,
       dataIndex: "name",
       key: "name",
       render: (_: any, record: DiskFEO) => {
@@ -223,7 +226,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
       },
     },
     {
-      title: "Type",
+      title: <span>Type</span>,
       dataIndex: "disk_type",
       key: "disk_type",
       width: 200,
@@ -242,9 +245,9 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Coming Soon" },
-    { key: "2", label: "Coming Soon" },
-    { key: "3", label: "Coming Soon" },
+    { key: "1", label: <span>Coming Soon</span> },
+    { key: "2", label: <span>Coming Soon</span> },
+    { key: "3", label: <span>Coming Soon</span> },
   ];
 
   const renderMobileList = () => {
@@ -368,7 +371,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Syncing latest...");
+                    toast(<span>Syncing latest...</span>);
                     syncLatest();
                   }}
                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -547,7 +550,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
       ) : !currentOrg?.host ? (
         <Result
           icon={<CloudSyncOutlined />}
-          title="Connect Cloud"
+          title={<span>Connect Cloud</span>}
           subTitle={
             <div>
               <span>This is an offline organization</span>
@@ -576,7 +579,7 @@ const DisksTableList: React.FC<DisksTableListProps> = ({
       ) : (
         <Result
           icon={<LockOutlined />}
-          title="Unauthorized"
+          title={<span>Unauthorized</span>}
           subTitle={
             <div>
               <span>Sorry, you are not authorized to view disks.</span>

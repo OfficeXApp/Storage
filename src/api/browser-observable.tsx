@@ -11,6 +11,7 @@ import {
 } from "../framework";
 import { green, red, grey } from "@ant-design/colors";
 import { UserID } from "@officexapp/types";
+import toast from "react-hot-toast";
 
 const UploadFiles: React.FC = () => {
   const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
@@ -32,7 +33,7 @@ const UploadFiles: React.FC = () => {
     const driveDB = driveDBRef.current;
 
     if (!driveDB) {
-      message.error("DriveDB is not initialized");
+      toast.error(<span>DriveDB is not initialized</span>);
       return;
     }
 
@@ -66,16 +67,16 @@ const UploadFiles: React.FC = () => {
           setUploadItems(getUploadQueue());
         },
         complete: () => {
-          message.success("All files uploaded successfully");
+          toast.success(<span>All files uploaded successfully</span>);
         },
         error: (err) => {
           console.error("Upload error:", err);
-          message.error("Upload failed.");
+          toast.error(<span>Upload failed.</span>);
         },
       });
     } catch (error) {
       console.error("Upload failed:", error);
-      message.error("Upload failed.");
+      toast.error(<span>Upload failed.</span>);
     }
   };
 

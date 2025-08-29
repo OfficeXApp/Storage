@@ -10,6 +10,7 @@ import type {
 import { DiskTypeEnum } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
+import toast from "react-hot-toast";
 import {
   createDiskAction,
   deleteDiskAction,
@@ -101,18 +102,22 @@ const SandboxPage = () => {
   };
   const handleDeleteDisk = () => {
     dispatch(deleteDiskAction({ id: deleteDiskID }));
-    message.success(
-      isOnline
-        ? "Deleting disk..."
-        : "Queued disk deletion for when you're back online"
+    toast.success(
+      isOnline ? (
+        <span>Deleting disk...</span>
+      ) : (
+        <span>Queued disk deletion for when you're back online</span>
+      )
     );
   };
   const handleGetDisk = () => {
     dispatch(getDiskAction(getDiskID));
-    message.success(
-      isOnline
-        ? "Getting disk..."
-        : "Queued disk read for when you're back online"
+    toast.success(
+      isOnline ? (
+        <span>Getting disk...</span>
+      ) : (
+        <span>Queued disk read for when you're back online</span>
+      )
     );
   };
 

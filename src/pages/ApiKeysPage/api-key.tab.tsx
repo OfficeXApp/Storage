@@ -19,6 +19,7 @@ import {
   Popconfirm,
   Switch,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   KeyOutlined,
@@ -150,10 +151,12 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
         // Dispatch the update action if we're online
         dispatch(updateApiKeyAction(changedFields));
 
-        message.success(
-          isOnline
-            ? "Updating API key..."
-            : "Queued API key update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating API key...</span>
+          ) : (
+            <span>Queued API key update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided
@@ -161,7 +164,7 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -181,11 +184,11 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -229,7 +232,7 @@ const ApiKeyTab: React.FC<ApiKeyTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -443,8 +446,12 @@ const data = await response.json();`;
                   Edit
                 </Button>
                 <Popconfirm
-                  title="Do you want to revoke this API key?"
-                  description="This will immediately prevent this key from being used."
+                  title={<span>Do you want to revoke this API key?</span>}
+                  description={
+                    <span>
+                      This will immediately prevent this key from being used.
+                    </span>
+                  }
                   onConfirm={() => {
                     dispatch(
                       updateApiKeyAction({
@@ -452,7 +459,7 @@ const data = await response.json();`;
                         is_revoked: true,
                       })
                     );
-                    message.success("API key revoked");
+                    toast.success(<span>API key revoked</span>);
                   }}
                   okText="Yes"
                   cancelText="No"
@@ -488,7 +495,7 @@ const data = await response.json();`;
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="name"
-                  label="Name"
+                  label={<span>Name</span>}
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
@@ -498,7 +505,7 @@ const data = await response.json();`;
                   />
                 </Form.Item>
 
-                <Form.Item name="is_revoked" label="Status">
+                <Form.Item name="is_revoked" label={<span>Status</span>}>
                   <Switch
                     checked={!form.getFieldValue("is_revoked")}
                     onChange={(checked) => {
@@ -509,7 +516,7 @@ const data = await response.json();`;
                   />
                 </Form.Item>
 
-                <Form.Item label="Expiration">
+                <Form.Item label={<span>Expiration</span>}>
                   <div
                     style={{
                       display: "flex",
@@ -560,7 +567,10 @@ const data = await response.json();`;
                     </summary>
 
                     <div style={{ padding: "12px 0" }}>
-                      <Form.Item name="external_id" label="External ID">
+                      <Form.Item
+                        name="external_id"
+                        label={<span>External ID</span>}
+                      >
                         <Input
                           prefix={<GlobalOutlined />}
                           placeholder="External identifier"
@@ -571,7 +581,7 @@ const data = await response.json();`;
 
                       <Form.Item
                         name="external_payload"
-                        label="External Payload"
+                        label={<span>External Payload</span>}
                       >
                         <TextArea
                           rows={3}
@@ -587,15 +597,21 @@ const data = await response.json();`;
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this API key?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this API key?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteApiKeyAction({ id: apiKey.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting API key..."
-                          : "Queued API key delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting API key...</span>
+                        ) : (
+                          <span>
+                            Queued API key delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(apiKey.id);
@@ -676,7 +692,7 @@ const data = await response.json();`;
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -803,14 +819,14 @@ const data = await response.json();`;
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "API Key ID",
+                          <span>API Key ID</span>,
                           apiKey.id,
                           <KeyOutlined />
                         )}
 
                         {apiKey.user_id &&
                           renderReadOnlyField(
-                            "User ID",
+                            <span>User ID</span>,
                             apiKey.user_id,
                             <UserOutlined />,
                             wrapOrgCode(`/resources/contacts/${apiKey.user_id}`)
@@ -818,7 +834,7 @@ const data = await response.json();`;
 
                         {apiKey.external_id &&
                           renderReadOnlyField(
-                            "External ID",
+                            <span>External ID</span>,
                             apiKey.external_id,
                             <GlobalOutlined />
                           )}

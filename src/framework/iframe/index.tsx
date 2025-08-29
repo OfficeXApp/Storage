@@ -8,6 +8,7 @@ import {
   useRef,
 } from "react";
 import { useIdentitySystem } from "../identity";
+import toast from "react-hot-toast";
 import {
   DiskID,
   DiskTypeEnum,
@@ -49,6 +50,7 @@ import {
 } from "../../redux-offline/directory/directory.actions";
 import { useMultiUploader } from "../uploader/hook";
 import { generateDeterministicMnemonic } from "../../api/icp";
+import { fromLocale } from "../../locales";
 
 interface InitData {
   ephemeral?: IFrameEphemeralConfig;
@@ -323,7 +325,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
       tracer?: string
     ) => {
       try {
-        message.info("Starting ephemeral initialization...");
+        toast(<span>Starting ephemeral initialization...</span>);
         const domain = extractDomainFromOrigin(origin);
 
         // 1. Deterministically generate org and profile IDs from seeds
@@ -348,13 +350,13 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("No existing organization found, creating new one...");
           targetOrg = await createOrganization({
             driveID: orgDriveID,
-            nickname: `${ephemeralConfig.org_name || "Anonymous Org"} | ${domain}`,
+            nickname: `${ephemeralConfig.org_name || fromLocale().default_orgs.anon_org.org_name} | ${domain}`,
             icpPublicAddress: orgIdentityProfile.icpPublicAddress,
             host: "",
             note: `Created via iframe from ${domain}`,
             defaultProfile: "",
           });
-          message.success(`New organization for ${domain} created.`);
+          toast.success(<span>New organization for {domain} created.</span>);
         }
 
         // 3. Check for existing Profile, or create if it doesn't exist.
@@ -364,10 +366,10 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           console.log("Found existing profile:", targetProfile.userID);
         } else {
           console.log("No existing profile found, creating new one...");
-          derivedProfile.nickname = `${ephemeralConfig.profile_name || "Anon"} | ${domain}`;
+          derivedProfile.nickname = `${ephemeralConfig.profile_name || fromLocale().default_orgs.anon_org.profile_name} | ${domain}`;
           derivedProfile.note = `Created via iframe from ${domain}`;
           targetProfile = await createProfile(derivedProfile);
-          message.success(`New profile for ${domain} created.`);
+          toast.success(<span>New profile for {domain} created.</span>);
         }
 
         // 4. Switch to the target org and profile
@@ -378,8 +380,8 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
           domain,
           orgID: targetOrg.driveID,
           profileID: targetProfile.userID,
-          org_name: `${ephemeralConfig.org_name || "Anonymous Org"} | ${domain}`,
-          profile_name: `${ephemeralConfig.profile_name || "Anon"} | ${domain}`,
+          org_name: `${ephemeralConfig.org_name || fromLocale().default_orgs.anon_org.org_name} | ${domain}`,
+          profile_name: `${ephemeralConfig.profile_name || fromLocale().default_orgs.anon_org.profile_name} | ${domain}`,
         });
 
         setIsInitialized(true);
@@ -429,7 +431,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
       tracer?: string
     ) => {
       try {
-        message.info("Starting ephemeral initialization...");
+        toast(<span>Starting ephemeral initialization...</span>);
         const domain = extractDomainFromOrigin(origin);
         const {
           host,
@@ -455,7 +457,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
             note: `Created via iframe from ${domain}`,
             defaultProfile: "",
           });
-          message.success(`New organization for ${domain} created.`);
+          toast.success(<span>New organization for {domain} created.</span>);
         }
 
         // 3. Check for existing Profile, or create if it doesn't exist.
@@ -493,7 +495,7 @@ export function IFrameProvider({ children }: { children: ReactNode }) {
             value: api_key_value,
             host: host,
           });
-          message.success(`New profile for ${domain} created.`);
+          toast.success(<span>New profile for {domain} created.</span>);
         }
 
         // 4. Switch to the target org and profile

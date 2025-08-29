@@ -21,6 +21,7 @@ import {
   Divider,
   Popconfirm,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   GlobalOutlined,
@@ -147,10 +148,12 @@ const DriveTab: React.FC<DriveTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating drive..."
-            : "Queued drive update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating drive...</span>
+          ) : (
+            <span>Queued drive update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -158,7 +161,7 @@ const DriveTab: React.FC<DriveTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -175,11 +178,11 @@ const DriveTab: React.FC<DriveTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -223,7 +226,7 @@ const DriveTab: React.FC<DriveTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -405,7 +408,7 @@ const listDrives = async (page = 1, limit = 10) => {
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="name"
-                  label="Name"
+                  label={<span>Name</span>}
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
@@ -415,7 +418,7 @@ const listDrives = async (page = 1, limit = 10) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="host_url" label="Endpoint URL">
+                <Form.Item name="host_url" label={<span>Endpoint URL</span>}>
                   <Input
                     prefix={<GlobalOutlined />}
                     placeholder="https://example.com/endpoint"
@@ -424,7 +427,7 @@ const listDrives = async (page = 1, limit = 10) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="public_note" label="Public Note">
+                <Form.Item name="public_note" label={<span>Public Note</span>}>
                   <TextArea
                     rows={2}
                     placeholder="Public information about this drive"
@@ -438,8 +441,12 @@ const listDrives = async (page = 1, limit = 10) => {
                 ) && (
                   <Form.Item
                     name="private_note"
-                    label="Private Note"
-                    extra="Only organization owners and editors can view this note"
+                    label={<span>Private Note</span>}
+                    extra={
+                      <span>
+                        Only organization owners and editors can view this note
+                      </span>
+                    }
                   >
                     <TextArea
                       rows={3}
@@ -450,7 +457,7 @@ const listDrives = async (page = 1, limit = 10) => {
                   </Form.Item>
                 )}
 
-                <Form.Item name="external_id" label="External ID">
+                <Form.Item name="external_id" label={<span>External ID</span>}>
                   <Input
                     placeholder="External identifier"
                     variant="borderless"
@@ -458,7 +465,10 @@ const listDrives = async (page = 1, limit = 10) => {
                   />
                 </Form.Item>
 
-                <Form.Item name="external_payload" label="External Payload">
+                <Form.Item
+                  name="external_payload"
+                  label={<span>External Payload</span>}
+                >
                   <TextArea
                     rows={2}
                     placeholder="Additional data for external systems"
@@ -470,15 +480,21 @@ const listDrives = async (page = 1, limit = 10) => {
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this drive?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this drive?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteDriveAction({ id: drive.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting drive..."
-                          : "Queued drive delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting drive...</span>
+                        ) : (
+                          <span>
+                            Queued drive delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(drive.id);
@@ -560,7 +576,7 @@ const listDrives = async (page = 1, limit = 10) => {
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -689,13 +705,13 @@ const listDrives = async (page = 1, limit = 10) => {
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Drive ID",
+                          <span>Drive ID</span>,
                           drive.id,
                           <DatabaseOutlined />
                         )}
 
                         {renderReadOnlyField(
-                          "ICP Principal",
+                          <span>ICP Principal</span>,
                           drive.icp_principal,
                           <WalletOutlined />
                         )}
@@ -708,7 +724,12 @@ const listDrives = async (page = 1, limit = 10) => {
                               <Space align="center">
                                 <Text strong>Private Note:</Text>
                                 <Popover
-                                  content="Only organization owners and editors can view this note"
+                                  content={
+                                    <span>
+                                      Only organization owners and editors can
+                                      view this note
+                                    </span>
+                                  }
                                   trigger="hover"
                                 >
                                   <InfoCircleOutlined

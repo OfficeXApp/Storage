@@ -32,6 +32,7 @@ import {
 } from "../redux-offline/directory/directory.reducer";
 import { fetchDemoGalleryFiles, fetchDemoTutorialFiles } from "./demo-gallery";
 import { PURCHASES_DEXIE_TABLE } from "../redux-offline/purchases/purchases.reducer";
+import { fromLocale } from "../locales";
 
 /**
  * Singleton class to manage Dexie database connections
@@ -255,9 +256,8 @@ export const initDexieDb = async (
         // Create the default Browser Cache disk
         const browserCacheDisk: DiskFEO = {
           id: defaultBrowserCacheDiskID,
-          name: "Offline Browser Cache",
-          public_note:
-            "Local browser cache for offline access. Files get deleted if you clear browser history for this site.",
+          name: fromLocale().default_disks.browser_cache.title,
+          public_note: fromLocale().default_disks.browser_cache.public_note,
           disk_type: DiskTypeEnum.BrowserCache,
           labels: [],
           created_at: Date.now(),
@@ -289,10 +289,10 @@ export const initDexieDb = async (
         // Create the Free Cloud Sharing disk
         const cloudSharingDisk: DiskFEO = {
           id: defaultTempCloudSharingDiskID,
-          name: "Free Cloud Sharing",
+          name: fromLocale().default_disks.free_cloud_filesharing.title,
           disk_type: DiskTypeEnum.StorjWeb3,
           public_note:
-            "Free public filesharing. Files expire within 24 hours, UTC midnight daily.",
+            fromLocale().default_disks.free_cloud_filesharing.public_note,
           labels: [],
           created_at: Date.now(),
           permission_previews: [],
@@ -329,7 +329,7 @@ export const initDexieDb = async (
         // Create the root folder for Browser Cache disk
         const browserCacheRootFolder: FolderFEO = {
           id: defaultBrowserCacheRootFolderID,
-          name: "Root",
+          name: fromLocale().default_disks.folders.root,
           subfolder_uuids: [],
           file_uuids: [],
           full_directory_path: `${defaultBrowserCacheDiskID}::/`,
@@ -360,7 +360,7 @@ export const initDexieDb = async (
           breadcrumbs: [
             {
               resource_id: defaultBrowserCacheRootFolderID,
-              resource_name: "Offline Browser Cache",
+              resource_name: fromLocale().default_disks.browser_cache.title,
               visibility_preview: [
                 BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
               ],
@@ -372,7 +372,7 @@ export const initDexieDb = async (
 
         const browserCacheTrashFolder: FolderFEO = {
           id: defaultBrowserCacheTrashFolderID,
-          name: "Trash",
+          name: fromLocale().default_disks.folders.trash,
           subfolder_uuids: [],
           file_uuids: [],
           full_directory_path: `${defaultBrowserCacheDiskID}::.trash/`,
@@ -403,14 +403,14 @@ export const initDexieDb = async (
           breadcrumbs: [
             {
               resource_id: defaultBrowserCacheRootFolderID,
-              resource_name: "Offline Browser Cache",
+              resource_name: fromLocale().default_disks.browser_cache.title,
               visibility_preview: [
                 BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
               ],
             },
             {
               resource_id: defaultBrowserCacheTrashFolderID,
-              resource_name: "Trash",
+              resource_name: fromLocale().default_disks.folders.trash,
               visibility_preview: [
                 BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
               ],
@@ -437,7 +437,7 @@ export const initDexieDb = async (
         // Create the root folder for Free Cloud Sharing disk
         const cloudSharingRootFolder: FolderFEO = {
           id: defaultTempCloudSharingRootFolderID,
-          name: "Root",
+          name: fromLocale().default_disks.folders.root,
           subfolder_uuids: [
             defaultTempCloudSharingDefaultUploadFolderID,
             defaultTempCloudSharingDemoGalleryFolderID,
@@ -471,7 +471,8 @@ export const initDexieDb = async (
           breadcrumbs: [
             {
               resource_id: defaultTempCloudSharingRootFolderID,
-              resource_name: "Free Cloud Sharing",
+              resource_name:
+                fromLocale().default_disks.free_cloud_filesharing.title,
               visibility_preview: [
                 BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
               ],
@@ -483,7 +484,7 @@ export const initDexieDb = async (
 
         const cloudSharingTrashFolder: FolderFEO = {
           id: defaultTempCloudSharingTrashFolderID,
-          name: "Trash",
+          name: fromLocale().default_disks.folders.trash,
           subfolder_uuids: [],
           file_uuids: [],
           full_directory_path: `${defaultTempCloudSharingDiskID}::.trash/`,
@@ -514,14 +515,15 @@ export const initDexieDb = async (
           breadcrumbs: [
             {
               resource_id: defaultTempCloudSharingRootFolderID,
-              resource_name: "Free Cloud Sharing",
+              resource_name:
+                fromLocale().default_disks.free_cloud_filesharing.title,
               visibility_preview: [
                 BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
               ],
             },
             {
               resource_id: defaultTempCloudSharingTrashFolderID,
-              resource_name: "Trash",
+              resource_name: fromLocale().default_disks.folders.trash,
               visibility_preview: [
                 BreadcrumbVisibilityPreviewEnum.PRIVATE_VIEW,
               ],
@@ -533,7 +535,7 @@ export const initDexieDb = async (
 
         const cloudSharingDefaultUploadFolder: FolderFEO = {
           id: defaultTempCloudSharingDefaultUploadFolderID,
-          name: "Throwaway",
+          name: fromLocale().default_disks.folders.throwaway,
           subfolder_uuids: [],
           file_uuids: [],
           parent_folder_uuid: defaultTempCloudSharingRootFolderID,
@@ -565,12 +567,13 @@ export const initDexieDb = async (
           breadcrumbs: [
             {
               resource_id: defaultTempCloudSharingRootFolderID,
-              resource_name: "Free Cloud Sharing",
+              resource_name:
+                fromLocale().default_disks.free_cloud_filesharing.title,
               visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
             },
             {
               resource_id: defaultTempCloudSharingDefaultUploadFolderID,
-              resource_name: "Throwaway",
+              resource_name: fromLocale().default_disks.folders.throwaway,
               visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
             },
           ],
@@ -588,7 +591,7 @@ export const initDexieDb = async (
 
         const cloudSharingDemoGalleryFolder: FolderFEO = {
           id: defaultTempCloudSharingDemoGalleryFolderID,
-          name: "Demo Gallery",
+          name: fromLocale().default_disks.folders.demo_gallery,
           subfolder_uuids: [defaultTempCloudSharingTutorialVideosFolderID],
           file_uuids: demoGalleryFiles.map((f) => f.id),
           parent_folder_uuid: defaultTempCloudSharingRootFolderID,
@@ -620,12 +623,13 @@ export const initDexieDb = async (
           breadcrumbs: [
             {
               resource_id: defaultTempCloudSharingRootFolderID,
-              resource_name: "Free Cloud Sharing",
+              resource_name:
+                fromLocale().default_disks.free_cloud_filesharing.title,
               visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
             },
             {
               resource_id: defaultTempCloudSharingDemoGalleryFolderID,
-              resource_name: "Demo Gallery",
+              resource_name: fromLocale().default_disks.folders.demo_gallery,
               visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
             },
           ],
@@ -637,7 +641,7 @@ export const initDexieDb = async (
 
         const cloudSharingTutorialVideosFolder: FolderFEO = {
           id: defaultTempCloudSharingTutorialVideosFolderID,
-          name: "Tutorial Videos",
+          name: fromLocale().default_disks.folders.tutorial_videos,
           subfolder_uuids: [],
           file_uuids: demoTutorialFiles.map((f) => f.id),
           parent_folder_uuid: defaultTempCloudSharingDemoGalleryFolderID,
@@ -669,17 +673,18 @@ export const initDexieDb = async (
           breadcrumbs: [
             {
               resource_id: defaultTempCloudSharingRootFolderID,
-              resource_name: "Free Cloud Sharing",
+              resource_name:
+                fromLocale().default_disks.free_cloud_filesharing.title,
               visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
             },
             {
               resource_id: defaultTempCloudSharingDemoGalleryFolderID,
-              resource_name: "Demo Gallery",
+              resource_name: fromLocale().default_disks.folders.demo_gallery,
               visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
             },
             {
               resource_id: defaultTempCloudSharingTutorialVideosFolderID,
-              resource_name: "Tutorial Videos",
+              resource_name: fromLocale().default_disks.folders.tutorial_videos,
               visibility_preview: [BreadcrumbVisibilityPreviewEnum.PUBLIC_VIEW],
             },
           ],

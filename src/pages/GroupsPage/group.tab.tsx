@@ -21,6 +21,7 @@ import {
   List,
   Dropdown,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   TeamOutlined,
@@ -61,7 +62,10 @@ import {
   updateGroupAction,
 } from "../../redux-offline/groups/groups.actions";
 import AddGroupInviteDrawer from "./invite.add";
-import { getLastOnlineStatus, wrapAuthStringOrHeader } from "../../api/helpers";
+import {
+  getLastOnlineStatus,
+  wrapAuthStringOrHeader,
+} from "../../api/helpers.tsx";
 import EditGroupInviteDrawer from "./invite.edit";
 import PermissionsManager from "../../components/PermissionsManager";
 import WebhookManager from "../../components/WebhookManager";
@@ -171,10 +175,12 @@ const GroupTab: React.FC<GroupTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating group..."
-            : "Queued group update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating group...</span>
+          ) : (
+            <span>Queued group update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -182,7 +188,7 @@ const GroupTab: React.FC<GroupTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setViewMode("view");
@@ -199,11 +205,11 @@ const GroupTab: React.FC<GroupTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -247,7 +253,7 @@ const GroupTab: React.FC<GroupTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -393,28 +399,28 @@ const data = await response.json();`;
     {
       key: "edit-details",
       icon: <EditOutlined />,
-      label: "Edit Details",
+      label: <span>Edit Details</span>,
       onClick: () => setViewMode("edit"),
       disabled: !group.permission_previews?.includes(SystemPermissionType.EDIT),
     },
     {
       key: "permissions",
       icon: <LockOutlined />,
-      label: "Permissions",
+      label: <span>Permissions</span>,
       onClick: () => setViewMode("permissions"),
       disabled: true,
     },
     {
       key: "webhooks",
       icon: <SisternodeOutlined />,
-      label: "Webhooks",
+      label: <span>Webhooks</span>,
       onClick: () => setViewMode("webhooks"),
       disabled: true,
     },
     {
       key: "invite-member",
       icon: <UserOutlined />,
-      label: "Invite Member",
+      label: <span>Invite Member</span>,
       onClick: () => setInviteDrawerVisible(true),
       disabled: !group.permission_previews?.includes(SystemPermissionType.EDIT),
     },
@@ -507,7 +513,7 @@ const data = await response.json();`;
                 >
                   <Form.Item
                     name="name"
-                    label="Group Name"
+                    label={<span>Group Name</span>}
                     rules={[
                       { required: true, message: "Please enter group name" },
                     ]}
@@ -519,7 +525,7 @@ const data = await response.json();`;
                     />
                   </Form.Item>
 
-                  <Form.Item name="host_url" label="Endpoint">
+                  <Form.Item name="host_url" label={<span>Endpoint</span>}>
                     <Input
                       prefix={<GlobalOutlined />}
                       placeholder="https://example.com/api/webhook"
@@ -528,7 +534,10 @@ const data = await response.json();`;
                     />
                   </Form.Item>
 
-                  <Form.Item name="public_note" label="Public Note">
+                  <Form.Item
+                    name="public_note"
+                    label={<span>Public Note</span>}
+                  >
                     <TextArea
                       rows={2}
                       placeholder="Public information about this group"
@@ -542,8 +551,12 @@ const data = await response.json();`;
                   ) && (
                     <Form.Item
                       name="private_note"
-                      label="Private Note"
-                      extra="Only group owners and editors can view this note"
+                      label={<span>Private Note</span>}
+                      extra={
+                        <span>
+                          Only group owners and editors can view this note
+                        </span>
+                      }
                     >
                       <TextArea
                         rows={3}
@@ -554,7 +567,10 @@ const data = await response.json();`;
                     </Form.Item>
                   )}
 
-                  <Form.Item name="external_id" label="External ID">
+                  <Form.Item
+                    name="external_id"
+                    label={<span>External ID</span>}
+                  >
                     <Input
                       placeholder="External identifier"
                       variant="borderless"
@@ -562,7 +578,10 @@ const data = await response.json();`;
                     />
                   </Form.Item>
 
-                  <Form.Item name="external_payload" label="External Payload">
+                  <Form.Item
+                    name="external_payload"
+                    label={<span>External Payload</span>}
+                  >
                     <TextArea
                       rows={2}
                       placeholder="JSON or other data format"
@@ -574,15 +593,21 @@ const data = await response.json();`;
                   <Divider />
                   <Form.Item name="delete">
                     <Popconfirm
-                      title="Are you sure you want to delete this group?"
-                      okText="Yes"
-                      cancelText="No"
+                      title={
+                        <span>Are you sure you want to delete this group?</span>
+                      }
+                      okText={<span>Yes</span>}
+                      cancelText={<span>No</span>}
                       onConfirm={() => {
                         dispatch(deleteGroupAction({ id: group.id }));
-                        message.success(
-                          isOnline
-                            ? "Deleting group..."
-                            : "Queued group delete for when you're back online"
+                        toast.success(
+                          isOnline ? (
+                            <span>Deleting group...</span>
+                          ) : (
+                            <span>
+                              Queued group delete for when you're back online
+                            </span>
+                          )
                         );
                         if (onDelete) {
                           onDelete(group.id);
@@ -676,7 +701,7 @@ const data = await response.json();`;
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -783,14 +808,14 @@ const data = await response.json();`;
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Group ID",
+                          <span>Group ID</span>,
                           group.id,
                           <TeamOutlined />
                         )}
 
                         {group.host_url &&
                           renderReadOnlyField(
-                            "Endpoint",
+                            <span>Endpoint</span>,
                             group.host_url,
                             <GlobalOutlined />
                           )}
@@ -803,7 +828,12 @@ const data = await response.json();`;
                               <Space align="center">
                                 <Text strong>Private Note:</Text>
                                 <Popover
-                                  content="Only group owners and editors can view this note"
+                                  content={
+                                    <span>
+                                      Only group owners and editors can view
+                                      this note
+                                    </span>
+                                  }
                                   trigger="hover"
                                 >
                                   <InfoCircleOutlined
@@ -983,7 +1013,7 @@ const data = await response.json();`;
                                           items: [
                                             {
                                               key: "copy-invite",
-                                              label: "Copy Invite",
+                                              label: <span>Copy Invite</span>,
                                               disabled:
                                                 member.user_id !== "PUBLIC" &&
                                                 !member.user_id.startsWith(
@@ -992,8 +1022,10 @@ const data = await response.json();`;
                                               onClick: async () => {
                                                 if (!currentOrg) return;
                                                 // we must make a REST call to /v1/driveid/team-invites/get/{invite_id}
-                                                message.info(
-                                                  "Getting invite link..."
+                                                toast(
+                                                  <span>
+                                                    Getting invite link...
+                                                  </span>
                                                 );
                                                 const auth_token =
                                                   currentAPIKey?.value ||
@@ -1038,23 +1070,27 @@ const data = await response.json();`;
                                                       },
                                                       wrapOrgCode
                                                     );
-                                                  // and auto-copy to clipboard with ant message.success()
+                                                  // and auto-copy to clipboard with ant toast.success()
                                                   navigator.clipboard.writeText(
                                                     groupInviteRedeemLink
                                                   );
-                                                  message.success(
-                                                    "Copied invite link"
+                                                  toast.success(
+                                                    <span>
+                                                      Copied invite link
+                                                    </span>
                                                   );
                                                 } catch (e) {
-                                                  message.error(
-                                                    "Failed to get invite link"
+                                                  toast.error(
+                                                    <span>
+                                                      Failed to get invite link
+                                                    </span>
                                                   );
                                                 }
                                               },
                                             },
                                             {
                                               key: "delete",
-                                              label: "Delete",
+                                              label: <span>Delete</span>,
                                               onClick: () => {
                                                 setInviteForEdit(member);
                                               },
@@ -1085,15 +1121,17 @@ const data = await response.json();`;
                                   />
                                   <Popover content={member.note || ""}>
                                     <Text>
-                                      {member.name
-                                        ? member.name
-                                        : member.user_id.startsWith(
-                                              "PlaceholderGroupInviteeID_"
-                                            )
-                                          ? "Awaiting Anon"
-                                          : member.user_id === "PUBLIC"
-                                            ? "Public Invite Link"
-                                            : "Unnamed Contact"}
+                                      {member.name ? (
+                                        member.name
+                                      ) : member.user_id.startsWith(
+                                          "PlaceholderGroupInviteeID_"
+                                        ) ? (
+                                        <span>Awaiting Anon</span>
+                                      ) : member.user_id === "PUBLIC" ? (
+                                        <span>Public Invite Link</span>
+                                      ) : (
+                                        <span>Unnamed Contact</span>
+                                      )}
                                     </Text>
                                   </Popover>
                                   {member.user_id.startsWith(
@@ -1101,8 +1139,12 @@ const data = await response.json();`;
                                   ) && (
                                     <Popover
                                       content={
-                                        member.note ||
-                                        "Add notes to keep track of who received magic links"
+                                        member.note || (
+                                          <span>
+                                            Add notes to keep track of who
+                                            received magic links
+                                          </span>
+                                        )
                                       }
                                     >
                                       <InfoCircleOutlined

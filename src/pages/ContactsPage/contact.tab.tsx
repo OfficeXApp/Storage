@@ -19,6 +19,7 @@ import {
   Divider,
   Popconfirm,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   MailOutlined,
@@ -50,7 +51,7 @@ import {
 } from "../../framework/identity/constants";
 import CodeBlock from "../../components/CodeBlock";
 import useScreenType from "react-screentype-hook";
-import { getLastOnlineStatus } from "../../api/helpers";
+import { getLastOnlineStatus } from "../../api/helpers.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxAppState } from "../../redux-offline/ReduxProvider";
 import {
@@ -152,10 +153,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating contact..."
-            : "Queued contact update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating contact...</span>
+          ) : (
+            <span>Queued contact update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -163,7 +166,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -180,11 +183,11 @@ const ContactTab: React.FC<ContactTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -228,7 +231,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -386,7 +389,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="name"
-                  label="Name"
+                  label={<span>Name</span>}
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
@@ -396,7 +399,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="email" label="Email">
+                <Form.Item name="email" label={<span>Email</span>}>
                   <Input
                     prefix={<MailOutlined />}
                     placeholder="Email address"
@@ -405,7 +408,10 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="evm_public_address" label="EVM Wallet Address">
+                <Form.Item
+                  name="evm_public_address"
+                  label={<span>EVM Wallet Address</span>}
+                >
                   <Input
                     prefix={<WalletOutlined />}
                     placeholder="EVM wallet address"
@@ -415,7 +421,10 @@ const ContactTab: React.FC<ContactTabProps> = ({
                 </Form.Item>
 
                 {/* Advanced section in edit mode */}
-                <Form.Item name="notifications_url" label="Notifications">
+                <Form.Item
+                  name="notifications_url"
+                  label={<span>Notifications</span>}
+                >
                   <Input
                     prefix={<BellOutlined />}
                     placeholder="Notifications"
@@ -424,7 +433,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="public_note" label="Public Note">
+                <Form.Item name="public_note" label={<span>Public Note</span>}>
                   <TextArea
                     rows={2}
                     placeholder="Public information about this contact"
@@ -438,8 +447,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
                 ) && (
                   <Form.Item
                     name="private_note"
-                    label="Private Note"
-                    extra="Only organization owners and editors can view this note"
+                    label={<span>Private Note</span>}
+                    extra={
+                      <span>
+                        Only organization owners and editors can view this note
+                      </span>
+                    }
                   >
                     <TextArea
                       rows={3}
@@ -452,15 +465,21 @@ const ContactTab: React.FC<ContactTabProps> = ({
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this contact?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this contact?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteContactAction({ id: contact.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting contact..."
-                          : "Queued contact delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting contact...</span>
+                        ) : (
+                          <span>
+                            Queued contact delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(contact.id);
@@ -542,7 +561,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -601,7 +620,7 @@ const ContactTab: React.FC<ContactTabProps> = ({
                     >
                       <Card size="small" style={{ marginTop: 8 }}>
                         <GlobalOutlined style={{ marginRight: 8 }} />
-                        {contact.public_note || "Add a public note"}
+                        {contact.public_note || <span>Add a public note</span>}
                       </Card>
                     </div>
 
@@ -652,45 +671,47 @@ const ContactTab: React.FC<ContactTabProps> = ({
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "User ID",
+                          <span>User ID</span>,
                           contact.id,
                           <UserOutlined />
                         )}
 
                         {renderReadOnlyField(
-                          "Email",
+                          <span>Email</span>,
                           contact.email,
                           <MailOutlined />
                         )}
 
                         {contact.notifications_url &&
                           renderReadOnlyField(
-                            "Notifications",
+                            <span>Notifications</span>,
                             contact.notifications_url,
                             <BellOutlined />
                           )}
 
                         {contact.evm_public_address &&
                           renderReadOnlyField(
-                            "EVM Wallet",
+                            <span>EVM Wallet</span>,
                             contact.evm_public_address,
                             <WalletOutlined />
                           )}
 
                         {contact.icp_principal &&
                           renderReadOnlyField(
-                            "ICP Wallet",
+                            <span>ICP Wallet</span>,
                             contact.icp_principal,
                             <WalletOutlined />
                           )}
 
                         {renderReadOnlyField(
-                          "Owner",
+                          <span>Owner</span>,
                           // @ts-ignore
                           contact.is_placeholder ||
-                            contact.from_placeholder_user_id
-                            ? "Self-Custodied Account"
-                            : "Owned by Organization",
+                            contact.from_placeholder_user_id ? (
+                            <span>Self-Custodied Account</span>
+                          ) : (
+                            <span>Owned by Organization</span>
+                          ),
                           <WalletOutlined />
                         )}
 
@@ -702,7 +723,12 @@ const ContactTab: React.FC<ContactTabProps> = ({
                               <Space align="center">
                                 <Text strong>Private Note:</Text>
                                 <Popover
-                                  content="Only organization owners and editors can view this note"
+                                  content={
+                                    <span>
+                                      Only organization owners and editors can
+                                      view this note
+                                    </span>
+                                  }
                                   trigger="hover"
                                 >
                                   <InfoCircleOutlined

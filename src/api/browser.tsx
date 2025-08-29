@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button, List, message } from "antd";
 import IndexedDBStorage from "./indexdb-storage";
 import { FileMetadataFragment } from "../framework";
+import toast from "react-hot-toast";
 
 interface FileWithThumbnail extends FileMetadataFragment {
   thumbnailUrl?: string;
@@ -104,7 +105,7 @@ const BrowserSandbox: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await storageRef.current?.deleteFile(id);
-      message.success("File deleted successfully");
+      toast.success(<span>File deleted successfully</span>);
       listFiles(); // Refresh the file list after deletion
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));

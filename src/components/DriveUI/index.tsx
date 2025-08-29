@@ -71,6 +71,7 @@ import {
 import useScreenType from "react-screentype-hook";
 import ActionMenuButton from "../ActionMenuButton";
 import UploadDropZone from "../UploadDropZone";
+import toast from "react-hot-toast";
 
 export const LOCAL_STORAGE_ROW_GRID_VIEW = "LOCAL_STORAGE_ROW_GRID_VIEW";
 
@@ -498,9 +499,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       if (isFreeTrialStorjCreds) {
         apiNotifs.open({
           key: "free-public-sharing",
-          message: "Free Public Sharing",
-          description:
-            "Public files are deleted every 24 hours. Please upgrade OfficeX for your own private storage.",
+          message: <span>Free Public Sharing</span>,
+          description: (
+            <span>
+              Public files are deleted every 24 hours. Please upgrade OfficeX
+              for your own private storage.
+            </span>
+          ),
           icon: <FieldTimeOutlined />,
           btn: (
             <Space>
@@ -626,10 +631,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           file_uuids: [],
           full_directory_path: `${recent.disk_type}::/` as DriveFullFilePath,
           labels: [],
-          created_by: "Owner" as UserID,
+          created_by: "" as UserID,
           created_at: Date.now(),
           last_updated_date_ms: recent.last_opened || 0,
-          last_updated_by: "Owner" as UserID,
+          last_updated_by: "" as UserID,
           disk_id: recent.disk_id,
           disk_type: recent.disk_type,
           deleted: false,
@@ -727,10 +732,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               file_uuids: [],
               full_directory_path: `${disk.disk_type}::/` as DriveFullFilePath,
               labels: [],
-              created_by: "Owner" as UserID,
+              created_by: "" as UserID,
               created_at: Date.now(),
               last_updated_date_ms: disk.created_at || 0,
-              last_updated_by: "Owner" as UserID,
+              last_updated_by: "" as UserID,
               disk_id: disk.id,
               disk_type: disk.disk_type,
               deleted: false,
@@ -914,7 +919,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   const columns = useMemo(
     () => [
       {
-        title: "Name",
+        title: <span>Name</span>,
         dataIndex: "title",
         key: "title",
         width: "60%",
@@ -953,8 +958,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   if (isTrashBin) {
                     e.preventDefault();
                     e.stopPropagation();
-                    message.error(
-                      "You cannot access files in the Trash. Restore it first."
+                    toast.error(
+                      <span>
+                        You cannot access files in the Trash. Restore it first.
+                      </span>
                     );
                     return;
                   }
@@ -1033,7 +1040,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         },
       },
       {
-        title: "Status",
+        title: <span>Status</span>,
         dataIndex: "status",
         key: "status",
         render: (_: any, record: DriveItemRow) => {
@@ -1054,8 +1061,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                       return;
                     } else {
                       if (isTrashBin) {
-                        message.error(
-                          "You cannot access files in the Trash. Restore it first."
+                        toast.error(
+                          <span>
+                            You cannot access files in the Trash. Restore it
+                            first.
+                          </span>
                         );
                       } else {
                         handleFileFolderClick(record);
@@ -1077,7 +1087,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         responsive: ["md"] as Breakpoint[],
       },
       {
-        title: screenType.isMobile ? "" : "Actions",
+        title: screenType.isMobile ? "" : <span>Actions</span>,
         key: "actions",
         align: "right" as const,
         render: (_: any, record: DriveItemRow) => (
@@ -1107,7 +1117,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         : [
             {
               key: "rename",
-              label: "Rename",
+              label: <span>Rename</span>,
               onClick: () => {
                 setRenamingItems((prev) => ({
                   ...prev,
@@ -1117,7 +1127,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             },
             {
               key: "move",
-              label: "Move",
+              label: <span>Move</span>,
               onClick: () => {
                 setIsMoveDirectoryModalVisible(true);
                 setSelectedRowKeys([record.id]);
@@ -1129,7 +1139,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             },
             {
               key: "copy",
-              label: "Copy",
+              label: <span>Copy</span>,
               onClick: () => {
                 setIsMoveDirectoryModalVisible(true);
                 setSelectedRowKeys([record.id]);
@@ -1158,7 +1168,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     if (record.hasDiskTrash) {
       menuItems.push({
         key: "trash",
-        label: "Open Trash",
+        label: <span>Open Trash</span>,
         onClick: () => {
           navigate(
             wrapOrgCode(
@@ -1169,7 +1179,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       });
       menuItems.push({
         key: "shared-with-me",
-        label: "Shared With Me",
+        label: <span>Shared With Me</span>,
         onClick: () => {
           navigate(
             wrapOrgCode(
@@ -1184,8 +1194,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         key: "restore",
         label: (
           <Popconfirm
-            title="Confirm Restore"
-            description="Are you sure you want to restore trash?"
+            title={<span>Confirm Restore</span>}
+            description={<span>Are you sure you want to restore trash?</span>}
             onConfirm={() => handleRestore(record)}
           >
             Restore Trash
@@ -1237,8 +1247,8 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         );
       }
 
-      message.success(
-        `${record.isFolder ? "Folder" : "File"} deleted successfully`
+      toast.success(
+        <span>{record.isFolder ? "Folder" : "File"} deleted successfully</span>
       );
 
       // Update the local state to remove the item
@@ -1247,7 +1257,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         files: prev.files.filter((f) => f.id !== record.id),
       }));
     } catch (error) {
-      message.error(`Failed to delete ${record.isFolder ? "folder" : "file"}`);
+      toast.error(
+        <span>Failed to delete {record.isFolder ? "folder" : "file"}</span>
+      );
     }
   };
 
@@ -1267,14 +1279,16 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         )
       );
     } catch (e) {
-      message.error(`Failed to restore ${record.isFolder ? "folder" : "file"}`);
+      toast.error(
+        <span>Failed to restore {record.isFolder ? "folder" : "file"}</span>
+      );
       console.error(e);
     }
   };
 
   const itemsRowGrid: MenuProps["items"] = [
     {
-      label: "Row View",
+      label: <span>Row View</span>,
       key: "row-view",
       onClick: () => {
         setViewRowTile("row");
@@ -1282,7 +1296,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
       },
     },
     {
-      label: "Grid View",
+      label: <span>Grid View</span>,
       key: "grid-view",
       onClick: () => {
         setViewRowTile("grid");
@@ -1293,19 +1307,19 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const items: MenuProps["items"] = [
     {
-      label: "Coming Soon",
+      label: <span>Coming Soon</span>,
       key: "1",
       disabled: true,
     },
     {
-      label: "Coming Soon",
+      label: <span>Coming Soon</span>,
       key: "2",
       disabled: true,
     },
   ];
 
   const onClick: MenuProps["onClick"] = ({ key }) => {
-    // message.info(`Click on item ${key}`);
+    // toast(`Click on item ${key}`);
   };
 
   // Generate breadcrumb items
@@ -1437,7 +1451,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           });
         } else {
           if (newName.split(".").length === 1) {
-            message.error(`Filename must include extension`);
+            toast.error(<span>Filename must include extension</span>);
             return;
           }
           // update file action
@@ -1458,13 +1472,15 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           );
         }
 
-        message.success(
-          `${record.isFolder ? "Folder" : "File"} renamed successfully`
+        toast.success(
+          <span>
+            {record.isFolder ? "Folder" : "File"} renamed successfully
+          </span>
         );
       } catch (error) {
         console.log(error);
-        message.error(
-          `Failed to rename ${record.isFolder ? "folder" : "file"}`
+        toast.error(
+          <span>Failed to rename {record.isFolder ? "folder" : "file"}</span>
         );
       }
     }
@@ -1527,7 +1543,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     {
       key: "move",
       icon: <ScissorOutlined />,
-      label: "Move",
+      label: <span>Move</span>,
       onClick: () => {
         setIsMoveDirectoryModalVisible(true);
         setModalMoveCopyOperation("move");
@@ -1536,7 +1552,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     {
       key: "copy",
       icon: <CopyOutlined />,
-      label: "Copy",
+      label: <span>Copy</span>,
       onClick: () => {
         setIsMoveDirectoryModalVisible(true);
         setModalMoveCopyOperation("copy");
@@ -1545,13 +1561,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     {
       key: "delete",
       icon: <DeleteOutlined />,
-      label: "Delete",
+      label: <span>Delete</span>,
       disabled: true,
     },
     {
       key: "download",
       icon: <DownloadOutlined />,
-      label: "Download",
+      label: <span>Download</span>,
       disabled: true,
     },
   ];
@@ -1763,7 +1779,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                 ) : (
                   <SyncOutlined
                     onClick={() => {
-                      message.info("Refetching directory...");
+                      toast(<span>Refetching directory...</span>);
                       appendRefreshParam();
                     }}
                     style={{ color: "rgba(0,0,0,0.2)" }}
@@ -1854,7 +1870,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Refetching file...");
+                    toast(<span>Refetching file...</span>);
                     if (currentFileId && currentDiskId) {
                       fetchFileById(currentFileId, currentDiskId);
                     }
@@ -1868,8 +1884,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             <div style={{ background: "rgba(0,0,0,0.02)" }}>
               <Result
                 icon={<FileUnknownOutlined />}
-                title="404 Not Found"
-                subTitle="The file you are looking for does not exist or has been deleted."
+                title={<span>404 Not Found</span>}
+                subTitle={
+                  <span>
+                    The file you are looking for does not exist or has been
+                    deleted.
+                  </span>
+                }
                 extra={[
                   <div key="home">
                     <Link to={wrapOrgCode("/drive")}>
@@ -1898,8 +1919,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           ) : isTrashBin && tableRows.length === 0 ? (
             <Result
               icon={<DeleteOutlined style={{ fontSize: 64 }} />}
-              title="Trash is Empty"
-              subTitle="There are no items in your trash bin at the moment."
+              title={<span>Trash is Empty</span>}
+              subTitle={
+                <span>There are no items in your trash bin at the moment.</span>
+              }
               extra={
                 <Link to={wrapOrgCode("/drive")}>
                   <Button type="primary">Return to Drive</Button>
@@ -1910,8 +1933,13 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
           ) : isSharedWithMePage && tableRows.length === 0 ? (
             <Result
               icon={<FolderOpenOutlined />}
-              title="Nothing Shared Yet"
-              subTitle="When the organization shares files with you, they can be found as shortcuts here"
+              title={<span>Nothing Shared Yet</span>}
+              subTitle={
+                <span>
+                  When the organization shares files with you, they can be found
+                  as shortcuts here
+                </span>
+              }
               extra={
                 <Link to={wrapOrgCode("/drive")}>
                   <Button type="primary">Back to Drive</Button>
@@ -1923,8 +1951,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
             listDirectoryResults?.isFirstTime ? (
             <Result
               icon={<LoadingOutlined />}
-              title="Decrypting for first time..."
-              subTitle="This may take a few seconds, but will be fast after that"
+              title={<span>Decrypting for first time...</span>}
+              subTitle={
+                <span>
+                  This may take a few seconds, but will be fast after that
+                </span>
+              }
               style={{ marginTop: screenType.isMobile ? "10vh" : "20vh" }}
             />
           ) : (
@@ -2066,8 +2098,10 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   {tableRows.length === 0 ? (
                     <Result
                       icon={<DatabaseOutlined />}
-                      title="No Disks Found"
-                      subTitle="Ask the admin to give you access to a disk"
+                      title={<span>No Disks Found</span>}
+                      subTitle={
+                        <span>Ask the admin to give you access to a disk</span>
+                      }
                       style={{ marginTop: "10vh" }}
                     />
                   ) : viewRowTile === "row" ? (
@@ -2127,8 +2161,11 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                               }
                               if (isTrashBin) {
                                 e.preventDefault();
-                                message.error(
-                                  "You cannot access files in the Trash. Restore it first."
+                                toast.error(
+                                  <span>
+                                    You cannot access files in the Trash.
+                                    Restore it first.
+                                  </span>
                                 );
                                 return;
                               }

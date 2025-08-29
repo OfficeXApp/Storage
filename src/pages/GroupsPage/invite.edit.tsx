@@ -15,6 +15,7 @@ import {
   Spin,
   Popconfirm,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   InfoCircleOutlined,
   UserOutlined,
@@ -148,10 +149,12 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
 
     dispatch(deleteGroupInviteAction(deletePayload));
 
-    message.success(
-      isOnline
-        ? "Deleting group invite..."
-        : "Queued group invite deletion for when you're back online"
+    toast.success(
+      isOnline ? (
+        <span>Deleting group invite...</span>
+      ) : (
+        <span>Queued group invite deletion for when you're back online</span>
+      )
     );
 
     dispatch(getGroupAction(currentInvite.group_id));
@@ -213,15 +216,17 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating group invite..."
-            : "Queued group invite update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating group invite...</span>
+          ) : (
+            <span>Queued group invite update for when you're back online</span>
+          )
         );
 
         onClose();
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
     });
   };
@@ -264,10 +269,10 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
           }}
         >
           <Popconfirm
-            title="Are you sure you want to delete this invite?"
+            title={<span>Are you sure you want to delete this invite?</span>}
             onConfirm={handleDeleteInvite}
-            okText="Yes"
-            cancelText="No"
+            okText={<span>Yes</span>}
+            cancelText={<span>No</span>}
             disabled={
               !currentInvite?.permission_previews?.includes(
                 SystemPermissionType.DELETE
@@ -367,7 +372,7 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
           <Form.Item
             name="role"
             label={
-              <Tooltip title="Role to assign to the invited user">
+              <Tooltip title={<span>Role to assign to the invited user</span>}>
                 <Space>
                   <InfoCircleOutlined style={{ color: "#aaa" }} /> Role
                 </Space>
@@ -389,7 +394,7 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
           <Form.Item
             name="activeFrom"
             label={
-              <Tooltip title="When this invite becomes active">
+              <Tooltip title={<span>When this invite becomes active</span>}>
                 <Space>
                   <InfoCircleOutlined style={{ color: "#aaa" }} /> Active From
                 </Space>
@@ -410,7 +415,7 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
           <Form.Item
             name="expiresAt"
             label={
-              <Tooltip title="When this invite expires">
+              <Tooltip title={<span>When this invite expires</span>}>
                 <Space>
                   <InfoCircleOutlined style={{ color: "#aaa" }} /> Expires At
                 </Space>
@@ -431,7 +436,7 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
           <Form.Item
             name="note"
             label={
-              <Tooltip title="Note included with this invitation">
+              <Tooltip title={<span>Note included with this invitation</span>}>
                 <Space>
                   <InfoCircleOutlined style={{ color: "#aaa" }} /> Note
                 </Space>
@@ -453,7 +458,9 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
             <Form.Item
               name="external_id"
               label={
-                <Tooltip title="External identifier for this invite">
+                <Tooltip
+                  title={<span>External identifier for this invite</span>}
+                >
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> External ID
                   </Space>
@@ -474,7 +481,7 @@ const EditGroupInviteDrawer: React.FC<EditGroupInviteDrawerProps> = ({
             <Form.Item
               name="external_payload"
               label={
-                <Tooltip title="External data payload">
+                <Tooltip title={<span>External data payload</span>}>
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> External
                     Payload

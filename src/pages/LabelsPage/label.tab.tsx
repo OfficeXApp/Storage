@@ -20,6 +20,7 @@ import {
   Popconfirm,
   ColorPicker,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   TagOutlined,
@@ -154,10 +155,12 @@ const LabelTab: React.FC<LabelTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating label..."
-            : "Queued label update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating label...</span>
+          ) : (
+            <span>Queued label update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -165,7 +168,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -182,11 +185,11 @@ const LabelTab: React.FC<LabelTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -230,7 +233,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -376,7 +379,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="value"
-                  label="Label Name"
+                  label={<span>Label Name</span>}
                   rules={[
                     { required: true, message: "Please enter label name" },
                   ]}
@@ -388,7 +391,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="description" label="Description">
+                <Form.Item name="description" label={<span>Description</span>}>
                   <TextArea
                     rows={3}
                     placeholder="Description of this label"
@@ -397,11 +400,11 @@ const LabelTab: React.FC<LabelTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="color" label="Color">
+                <Form.Item name="color" label={<span>Color</span>}>
                   <ColorPicker />
                 </Form.Item>
 
-                <Form.Item name="external_id" label="External ID">
+                <Form.Item name="external_id" label={<span>External ID</span>}>
                   <Input
                     placeholder="External system identifier"
                     variant="borderless"
@@ -409,7 +412,10 @@ const LabelTab: React.FC<LabelTabProps> = ({
                   />
                 </Form.Item>
 
-                <Form.Item name="external_payload" label="External Payload">
+                <Form.Item
+                  name="external_payload"
+                  label={<span>External Payload</span>}
+                >
                   <TextArea
                     rows={2}
                     placeholder="Additional data for external systems"
@@ -421,15 +427,21 @@ const LabelTab: React.FC<LabelTabProps> = ({
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this label?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this label?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteLabelAction({ id: label.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting label..."
-                          : "Queued label delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting label...</span>
+                        ) : (
+                          <span>
+                            Queued label delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(label.id);
@@ -518,7 +530,7 @@ const LabelTab: React.FC<LabelTabProps> = ({
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -580,13 +592,13 @@ const LabelTab: React.FC<LabelTabProps> = ({
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Label ID",
+                          <span>Label ID</span>,
                           label.id,
                           <TagOutlined />
                         )}
 
                         {renderReadOnlyField(
-                          "Color",
+                          <span>Color</span>,
                           label.color || "",
                           <div
                             style={{
@@ -600,14 +612,14 @@ const LabelTab: React.FC<LabelTabProps> = ({
 
                         {label.external_id &&
                           renderReadOnlyField(
-                            "External ID",
+                            <span>External ID</span>,
                             label.external_id,
                             <InfoCircleOutlined />
                           )}
 
                         {label.external_payload &&
                           renderReadOnlyField(
-                            "Ext. Payload",
+                            <span>External Payload</span>,
                             label.external_payload,
                             <InfoCircleOutlined />
                           )}

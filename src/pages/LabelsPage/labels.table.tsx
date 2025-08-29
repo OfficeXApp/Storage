@@ -14,6 +14,7 @@ import {
   Popover,
   Result,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   BarsOutlined,
   ClockCircleOutlined,
@@ -116,13 +117,13 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
     {
       key: "1",
       icon: <EditOutlined />,
-      label: "Edit Selected",
+      label: <span>Edit Selected</span>,
       disabled: true,
     },
     {
       key: "2",
       icon: <DeleteOutlined />,
-      label: "Delete",
+      label: <span>Delete</span>,
       disabled: true,
     },
   ];
@@ -130,7 +131,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
   // Define table columns
   const columns: ColumnsType<LabelFE> = [
     {
-      title: "Label",
+      title: <span>Label</span>,
       dataIndex: "value",
       key: "value",
       render: (_: any, record: LabelFE) => (
@@ -164,7 +165,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
               e.stopPropagation();
               // copy to clipboard
               navigator.clipboard.writeText(record.id);
-              message.success("Copied to clipboard");
+              toast.success(<span>Copied to clipboard</span>);
             }}
             color="default"
           >
@@ -174,7 +175,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
       ),
     },
     {
-      title: "Description",
+      title: <span>Description</span>,
       dataIndex: "description",
       key: "description",
       ellipsis: true,
@@ -184,9 +185,9 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Coming Soon" },
-    { key: "2", label: "Coming Soon" },
-    { key: "3", label: "Coming Soon" },
+    { key: "1", label: <span>Coming Soon</span> },
+    { key: "2", label: <span>Coming Soon</span> },
+    { key: "3", label: <span>Coming Soon</span> },
   ];
 
   const renderMobileList = () => {
@@ -311,7 +312,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Syncing latest...");
+                    toast(<span>Syncing latest...</span>);
                     syncLatest();
                   }}
                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -467,7 +468,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
       ) : !currentOrg?.host ? (
         <Result
           icon={<CloudSyncOutlined />}
-          title="Connect Cloud"
+          title={<span>Connect Cloud</span>}
           subTitle={
             <div>
               <span>This is an offline organization</span>
@@ -496,7 +497,7 @@ const LabelsTableList: React.FC<LabelsTableListProps> = ({
       ) : (
         <Result
           icon={<LockOutlined />}
-          title="Unauthorized"
+          title={<span>Unauthorized</span>}
           subTitle={
             <div>
               <span>Sorry, you are not authorized to view labels.</span>

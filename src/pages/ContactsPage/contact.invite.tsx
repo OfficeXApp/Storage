@@ -9,6 +9,7 @@ import {
   Typography,
   message,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   UserOutlined,
   KeyOutlined,
@@ -176,7 +177,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
       }
     } catch (error) {
       console.error("Error creating API key:", error);
-      message.error("Failed to create API key. Please try again.");
+      toast.error(<span>Failed to create API key. Please try again.</span>);
       throw error;
     } finally {
       setIsLoading(false);
@@ -242,7 +243,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
       }
     } catch (error) {
       console.error("Error creating invite payload:", error);
-      message.error("Failed to create invite. Please try again.");
+      toast.error(<span>Failed to create invite. Please try again.</span>);
       throw error;
     }
   };
@@ -272,12 +273,14 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
 
         setGeneratedLink(link);
       }
-      message.success(
-        `Invitation link for ${contact.name} generated successfully!`
+      toast.success(
+        <span>Invitation link for {contact.name} generated successfully!</span>
       );
     } catch (err) {
       console.error("Error generating invitation link:", err);
-      message.error("Failed to generate invitation link. Please try again.");
+      toast.error(
+        <span>Failed to generate invitation link. Please try again.</span>
+      );
     } finally {
       setIsLoading(false);
     }
@@ -287,10 +290,10 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
     if (generatedLink) {
       navigator.clipboard
         .writeText(generatedLink)
-        .then(() => message.success("Link copied to clipboard!"))
+        .then(() => toast.success(<span>Link copied to clipboard!</span>))
         .catch((err) => {
           console.error("Failed to copy link:", err);
-          message.error("Failed to copy link. Please try again.");
+          toast.error(<span>Failed to copy link. Please try again.</span>);
         });
     }
   };
@@ -351,9 +354,11 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 color: "rgba(0,0,0,0.3)",
               }}
             >
-              {isOwnedUser
-                ? `Your organization owns this profile`
-                : `Contact will link their own identity`}
+              {isOwnedUser ? (
+                <span>Your organization owns this profile</span>
+              ) : (
+                <span>Contact will link their own identity</span>
+              )}
             </span>
           </Form.Item>
 
@@ -380,7 +385,16 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 label={
                   <span>
                     Login with API Key{" "}
-                    <Tooltip title="This will generate a new API key for the user. Disabled if you don't have authorization to create API keys on behalf of other users. Speak with your org admin.">
+                    <Tooltip
+                      title={
+                        <span>
+                          This will generate a new API key for the user.
+                          Disabled if you don't have authorization to create API
+                          keys on behalf of other users. Speak with your org
+                          admin.
+                        </span>
+                      }
+                    >
                       <InfoCircleOutlined style={{ color: "#aaa" }} />
                     </Tooltip>
                   </span>
@@ -399,7 +413,13 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                   label={
                     <span>
                       API Key Validity Period{" "}
-                      <Tooltip title="If not specified, the API key will never expire">
+                      <Tooltip
+                        title={
+                          <span>
+                            If not specified, the API key will never expire
+                          </span>
+                        }
+                      >
                         <InfoCircleOutlined style={{ color: "#aaa" }} />
                       </Tooltip>
                     </span>
@@ -418,7 +438,13 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 label={
                   <span>
                     Redirect URL{" "}
-                    <Tooltip title="Where to redirect the user after successful login">
+                    <Tooltip
+                      title={
+                        <span>
+                          Where to redirect the user after successful login
+                        </span>
+                      }
+                    >
                       <InfoCircleOutlined style={{ color: "#aaa" }} />
                     </Tooltip>
                   </span>
@@ -437,7 +463,7 @@ const InviteContactModal: React.FC<InviteContactModalProps> = ({
                 label={
                   <span>
                     API Key Nickname{" "}
-                    <Tooltip title="A nickname for the API key">
+                    <Tooltip title={<span>A nickname for the API key</span>}>
                       <InfoCircleOutlined style={{ color: "#aaa" }} />
                     </Tooltip>
                   </span>

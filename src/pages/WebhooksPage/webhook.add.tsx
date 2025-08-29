@@ -11,6 +11,7 @@ import {
   message,
   Select,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   LinkOutlined,
   TagOutlined,
@@ -282,10 +283,12 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
     // Dispatch the create webhook action
     dispatch(createWebhookAction(webhookData));
 
-    message.success(
-      isOnline
-        ? "Creating webhook..."
-        : "Queued webhook creation for when you're back online"
+    toast.success(
+      isOnline ? (
+        <span>Creating webhook...</span>
+      ) : (
+        <span>Queued webhook creation for when you're back online</span>
+      )
     );
 
     // Call the parent's onAddWebhook for any additional handling
@@ -347,7 +350,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
               fontSize: "14px",
             }}
           >
-            <Tooltip title="Filter inbox notifications by topic">
+            <Tooltip title={<span>Filter inbox notifications by topic</span>}>
               <Space>
                 Topic Filter <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -401,7 +404,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
             fontSize: "14px",
           }}
         >
-          <Tooltip title={"Alternative index for the webhook"}>
+          <Tooltip title={<span>Alternative index for the webhook</span>}>
             <Space>
               Listen To
               <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -476,7 +479,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
               fontSize: "14px",
             }}
           >
-            <Tooltip title="URL to send webhook events to">
+            <Tooltip title={<span>URL to send webhook events to</span>}>
               <Space>
                 Endpoint URL <InfoCircleOutlined style={{ color: "#aaa" }} />{" "}
                 <span style={{ color: "#ff4d4f" }}>*</span>
@@ -511,7 +514,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
               fontSize: "14px",
             }}
           >
-            <Tooltip title="Event type to trigger the webhook">
+            <Tooltip title={<span>Event type to trigger the webhook</span>}>
               <Space>
                 Event Type <InfoCircleOutlined style={{ color: "#aaa" }} />{" "}
                 <span style={{ color: "#ff4d4f" }}>*</span>
@@ -572,7 +575,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   fontSize: "14px",
                 }}
               >
-                <Tooltip title="Name of this webhook">
+                <Tooltip title={<span>Name of this webhook</span>}>
                   <Space>
                     Name <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -599,7 +602,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   fontSize: "14px",
                 }}
               >
-                <Tooltip title="Description of this webhook">
+                <Tooltip title={<span>Description of this webhook</span>}>
                   <Space>
                     Description <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -627,7 +630,9 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   fontSize: "14px",
                 }}
               >
-                <Tooltip title="Signature for webhook verification">
+                <Tooltip
+                  title={<span>Signature for webhook verification</span>}
+                >
                   <Space>
                     Signature <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -655,7 +660,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   fontSize: "14px",
                 }}
               >
-                <Tooltip title="Whether the webhook is active">
+                <Tooltip title={<span>Whether the webhook is active</span>}>
                   <Space>
                     Active <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -679,7 +684,7 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   fontSize: "14px",
                 }}
               >
-                <Tooltip title="Labels to categorize this webhook">
+                <Tooltip title={<span>Labels to categorize this webhook</span>}>
                   <Space>
                     Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -725,7 +730,13 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   fontSize: "14px",
                 }}
               >
-                <Tooltip title="External identifier for integration with other systems">
+                <Tooltip
+                  title={
+                    <span>
+                      External identifier for integration with other systems
+                    </span>
+                  }
+                >
                   <Space>
                     External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Space>
@@ -752,7 +763,13 @@ const WebhooksAddDrawer: React.FC<WebhooksAddDrawerProps> = ({
                   fontSize: "14px",
                 }}
               >
-                <Tooltip title="Additional data for external integrations (JSON format)">
+                <Tooltip
+                  title={
+                    <span>
+                      Additional data for external integrations (JSON format)
+                    </span>
+                  }
+                >
                   <Space>
                     External Payload{" "}
                     <InfoCircleOutlined style={{ color: "#aaa" }} />

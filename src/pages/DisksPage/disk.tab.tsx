@@ -20,6 +20,7 @@ import {
   Select,
   Switch,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   TagOutlined,
@@ -150,10 +151,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
           })
         );
 
-        message.info(
-          isOnline
-            ? "Updating disk..."
-            : "Queued disk update for when you're back online"
+        toast(
+          isOnline ? (
+            <span>Updating disk...</span>
+          ) : (
+            <span>Queued disk update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -161,7 +164,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -178,11 +181,11 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string,
     icon: React.ReactNode,
     navigationRoute?: string
@@ -227,7 +230,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
             </div>
           }
           suffix={
-            <Tooltip title="Copy to clipboard">
+            <Tooltip title={<span>Copy to clipboard</span>}>
               <CopyOutlined
                 onClick={() => copyToClipboard(value)}
                 style={{ cursor: "pointer", color: "#1890ff" }}
@@ -261,7 +264,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -376,11 +379,13 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
       // Copy to clipboard
       await navigator.clipboard.writeText(url);
-      message.success(`Gift link copied to clipboard!`);
+      toast.success(<span>Gift link copied to clipboard!</span>);
       setGiftLink(url);
     } catch (error) {
       console.error("Error generating gift link:", error);
-      message.error("Please fill in at least the name and disk type fields");
+      toast.error(
+        <span>Please fill in at least the name and disk type fields</span>
+      );
     }
   };
 
@@ -451,7 +456,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
               <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                   name="name"
-                  label="Name"
+                  label={<span>Name</span>}
                   rules={[{ required: true, message: "Please enter name" }]}
                 >
                   <Input
@@ -463,7 +468,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
                 <Form.Item
                   name="disk_type"
-                  label="Disk Type"
+                  label={<span>Disk Type</span>}
                   rules={[
                     { required: true, message: "Please select disk type" },
                   ]}
@@ -487,7 +492,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                   </Select>
                 </Form.Item>
 
-                <Form.Item name="public_note" label="Public Note">
+                <Form.Item name="public_note" label={<span>Public Note</span>}>
                   <TextArea
                     rows={6}
                     placeholder="Public information about this disk"
@@ -500,7 +505,10 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                   SystemPermissionType.EDIT
                 ) && (
                   <>
-                    <Form.Item name="endpoint" label="Endpoint URL">
+                    <Form.Item
+                      name="endpoint"
+                      label={<span>Endpoint URL</span>}
+                    >
                       <Input
                         prefix={<GlobalOutlined />}
                         placeholder="URL for disk billing and info"
@@ -510,8 +518,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                     </Form.Item>
                     <Form.Item
                       name="private_note"
-                      label="Private Note"
-                      extra="Only organization owners and editors can view this note"
+                      label={<span>Private Note</span>}
+                      extra={
+                        <span>
+                          Only organization owners and editors can view this note
+                        </span>
+                      }
                     >
                       <TextArea
                         rows={6}
@@ -524,8 +536,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                     {disk.disk_type !== DiskTypeEnum.BrowserCache && (
                       <Form.Item
                         name="auth_json"
-                        label="Authentication JSON"
-                        extra="Authentication information for cloud storage"
+                        label={<span>Authentication JSON</span>}
+                        extra={
+                          <span>
+                            Authentication information for cloud storage
+                          </span>
+                        }
                       >
                         <TextArea
                           rows={4}
@@ -536,7 +552,10 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                       </Form.Item>
                     )}
 
-                    <Form.Item name="external_id" label="External ID">
+                    <Form.Item
+                      name="external_id"
+                      label={<span>External ID</span>}
+                    >
                       <Input
                         placeholder="External identifier"
                         variant="borderless"
@@ -544,7 +563,10 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                       />
                     </Form.Item>
 
-                    <Form.Item name="external_payload" label="External Payload">
+                    <Form.Item
+                      name="external_payload"
+                      label={<span>External Payload</span>}
+                    >
                       <TextArea
                         rows={2}
                         placeholder="Additional data for external systems"
@@ -558,15 +580,21 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this disk?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>Are you sure you want to delete this disk?</span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deleteDiskAction({ id: disk.id }));
-                      message.info(
-                        isOnline
-                          ? "Deleting disk..."
-                          : "Queued disk delete for when you're back online"
+                      toast(
+                        isOnline ? (
+                          <span>Deleting disk...</span>
+                        ) : (
+                          <span>
+                            Queued disk delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(disk.id);
@@ -660,7 +688,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -767,7 +795,7 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Disk ID",
+                          <span>Disk ID</span>,
                           disk.id,
                           <DatabaseOutlined />
                         )}
@@ -777,14 +805,14 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                             SystemPermissionType.EDIT
                           ) &&
                           renderReadOnlyField(
-                            "Auth JSON",
+                            <span>Auth JSON</span>,
                             disk.auth_json,
                             <KeyOutlined />
                           )}
 
                         {disk.billing_url &&
                           renderReadOnlyField(
-                            "Billing",
+                            <span>Billing</span>,
                             disk.billing_url,
                             <GlobalOutlined />
                           )}
@@ -797,7 +825,12 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                               <Space align="center">
                                 <Text strong>Private Note:</Text>
                                 <Popover
-                                  content="Only organization owners and editors can view this note"
+                                  content={
+                                    <span>
+                                      Only organization owners and editors can
+                                      view this note
+                                    </span>
+                                  }
                                   trigger="hover"
                                 >
                                   <InfoCircleOutlined
@@ -829,7 +862,9 @@ const DiskTab: React.FC<DiskTabProps> = ({ diskCache, onSave, onDelete }) => {
                                 <span
                                   onClick={() => {
                                     navigator.clipboard.writeText(giftLink);
-                                    message.success("Copied to clipboard");
+                                    toast.success(
+                                      <span>Copied to clipboard</span>
+                                    );
                                   }}
                                   style={{ cursor: "pointer" }}
                                 >

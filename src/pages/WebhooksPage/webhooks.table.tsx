@@ -14,6 +14,7 @@ import {
   Popover,
   Result,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   BarsOutlined,
   ClockCircleOutlined,
@@ -131,13 +132,13 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
     {
       key: "1",
       icon: <ApiOutlined />,
-      label: "Test Webhooks",
+      label: <span>Test Webhooks</span>,
       disabled: true,
     },
     {
       key: "2",
       icon: <DeleteOutlined />,
-      label: "Delete",
+      label: <span>Delete</span>,
       disabled: true,
     },
   ];
@@ -145,7 +146,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
   // Define table columns
   const columns: ColumnsType<WebhookFE> = [
     {
-      title: "Webhook",
+      title: <span>Webhook</span>,
       dataIndex: "url",
       key: "url",
       render: (_: any, record: WebhookFE) => {
@@ -164,7 +165,11 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
                 window.history.pushState({}, "", newUrl);
               }}
             >
-              <Popover content={record.active ? "Active" : "Inactive"}>
+              <Popover
+                content={
+                  record.active ? <span>Active</span> : <span>Inactive</span>
+                }
+              >
                 <Badge
                   status={record.active ? "success" : "error"}
                   dot
@@ -196,14 +201,14 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
       },
     },
     {
-      title: "Event",
+      title: <span>Event</span>,
       dataIndex: "event",
       key: "event",
       width: 180,
       render: (event: string) => <Tag color="purple">{event}</Tag>,
     },
     {
-      title: "Status",
+      title: <span>Status</span>,
       key: "active",
       width: 120,
       render: (_: any, record: WebhookFE) => (
@@ -224,9 +229,9 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Coming Soon" },
-    { key: "2", label: "Coming Soon" },
-    { key: "3", label: "Coming Soon" },
+    { key: "1", label: <span>Coming Soon</span> },
+    { key: "2", label: <span>Coming Soon</span> },
+    { key: "3", label: <span>Coming Soon</span> },
   ];
 
   const renderMobileList = () => {
@@ -355,7 +360,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Syncing latest...");
+                    toast(<span>Syncing latest...</span>);
                     syncLatest();
                   }}
                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -511,7 +516,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
       ) : !currentOrg?.host ? (
         <Result
           icon={<CloudSyncOutlined />}
-          title="Connect Cloud"
+          title={<span>Connect Cloud</span>}
           subTitle={
             <div>
               <span>This is an offline organization</span>
@@ -540,7 +545,7 @@ const WebhooksTableList: React.FC<WebhooksTableListProps> = ({
       ) : (
         <Result
           icon={<LockOutlined />}
-          title="Unauthorized"
+          title={<span>Unauthorized</span>}
           subTitle={
             <div>
               <span>Sorry, you are not authorized to view webhooks.</span>

@@ -10,6 +10,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   GroupInviteID,
   GroupRole,
@@ -71,10 +72,10 @@ const RedeemGroupInvite = () => {
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
-          message.error("Invalid group invite link");
+          toast.error(<span>Invalid group invite link</span>);
         }
       } else {
-        message.error("No group invite data found");
+        toast.error(<span>No group invite data found</span>);
       }
       setLoading(false);
     };
@@ -99,7 +100,7 @@ const RedeemGroupInvite = () => {
 
   const handleRedeem = async () => {
     if (!redeemData || !currentOrg || !selectedProfile) {
-      message.error("Missing required data for redemption");
+      toast.error(<span>Missing required data for redemption</span>);
       return;
     }
 
@@ -107,8 +108,8 @@ const RedeemGroupInvite = () => {
     try {
       await processGroupInviteRedeem(redeemData);
     } catch (error: any) {
-      console.error("Error processing group invite:", error);
-      message.error(error.message || "Failed to process group invite");
+      console.error(<span>Error processing group invite:</span>, error);
+      toast.error(error.message || <span>Failed to process group invite</span>);
     } finally {
       setIsProcessing(false);
     }
@@ -162,7 +163,7 @@ const RedeemGroupInvite = () => {
     if (redeem_data.invite) {
       // Redirect to the specified URL or groups page
 
-      message.success(`Successfully joined the group! Redirecting...`);
+      toast.success(<span>Successfully joined the group! Redirecting...</span>);
       if (redeemData && redeemData.org_name) {
         updateOrganization({
           ...currentOrg,
@@ -274,7 +275,14 @@ const RedeemGroupInvite = () => {
                     >
                       {redeemData.role || "Member"}
                     </Tag>
-                    <Tooltip title="This determines what actions you can perform within this group.">
+                    <Tooltip
+                      title={
+                        <span>
+                          This determines what actions you can perform within
+                          this group.
+                        </span>
+                      }
+                    >
                       <QuestionCircleOutlined
                         style={{ marginLeft: 8, color: "#1890ff" }}
                       />

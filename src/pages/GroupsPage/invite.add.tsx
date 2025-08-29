@@ -15,6 +15,7 @@ import {
   Spin,
   Radio,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   InfoCircleOutlined,
   UserOutlined,
@@ -257,10 +258,12 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
 
       dispatch(getGroupAction(group.id));
 
-      message.success(
-        isOnline
-          ? "Magic invite link generated!"
-          : "Queued invite creation for when you're back online"
+      toast.success(
+        isOnline ? (
+          <span>Magic invite link generated!</span>
+        ) : (
+          <span>Queued invite creation for when you're back online</span>
+        )
       );
     }
   };
@@ -286,14 +289,14 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             break;
           case InviteType.SELECT_CONTACT:
             if (!selectedContact) {
-              message.error("Please select a contact");
+              toast.error(<span>Please select a contact</span>);
               return;
             }
             inviteeId = selectedContact.id;
             break;
           case InviteType.ENTER_USERLABEL:
             if (!validUserID) {
-              message.error("Please enter a valid user ID");
+              toast.error(<span>Please enter a valid user ID</span>);
               return;
             }
             inviteeId = validUserID;
@@ -363,17 +366,27 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
           );
           setInviteCreated(groupInviteRedeemLink);
 
-          message.success(
-            isOnline
-              ? "Invite link generated!"
-              : "Queued invite creation for when you're back online"
+          toast.success(
+            isOnline ? (
+              <span>Invite link generated!</span>
+            ) : (
+              <span>Queued invite creation for when you're back online</span>
+            )
           );
         }
 
-        message.success(
-          isOnline
-            ? `Creating ${inviteType === InviteType.PUBLIC ? "public" : ""} group invite...`
-            : `Queued ${inviteType === InviteType.PUBLIC ? "public" : ""} group invite creation for when you're back online`
+        toast.success(
+          isOnline ? (
+            <span>
+              Creating {inviteType === InviteType.PUBLIC ? "public" : ""} group
+              invite...
+            </span>
+          ) : (
+            <span>
+              Queued {inviteType === InviteType.PUBLIC ? "public" : ""} group
+              invite creation for when you're back online
+            </span>
+          )
         );
 
         dispatch(getGroupAction(group.id));
@@ -430,7 +443,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
               icon={<CopyOutlined />}
               onClick={() => {
                 navigator.clipboard.writeText(inviteCreated);
-                message.success(`Copied link`);
+                toast.success(<span>Copied link</span>);
               }}
             >
               Copy Link
@@ -466,13 +479,13 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
           inviteType: InviteType.MAGIC_LINK,
         }}
       >
-        <Form.Item label="Magic Invite Link">
+        <Form.Item label={<span>Magic Invite Link</span>}>
           <Input
             prefix={
               <span
                 onClick={() => {
                   navigator.clipboard.writeText(inviteLink);
-                  message.success(`Copied link`);
+                  toast.success(<span>Copied link</span>);
                 }}
                 style={{ cursor: "pointer", paddingRight: "8px" }}
               >
@@ -527,7 +540,9 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             <Form.Item
               name="inviteType"
               label={
-                <Tooltip title="Choose how to invite people to this group">
+                <Tooltip
+                  title={<span>Choose how to invite people to this group</span>}
+                >
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> Invite Type
                   </Space>
@@ -571,7 +586,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
               <Form.Item
                 name="contact"
                 label={
-                  <Tooltip title="Select a contact to invite">
+                  <Tooltip title={<span>Select a contact to invite</span>}>
                     <Space>
                       <InfoCircleOutlined style={{ color: "#aaa" }} /> Select
                       Contact
@@ -641,7 +656,7 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
               <Form.Item
                 name="userlabel"
                 label={
-                  <Tooltip title="Enter a user ID to invite">
+                  <Tooltip title={<span>Enter a user ID to invite</span>}>
                     <Space>
                       <InfoCircleOutlined style={{ color: "#aaa" }} /> User ID
                     </Space>
@@ -694,7 +709,9 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="Role to assign to the invited user">
+                <Tooltip
+                  title={<span>Role to assign to the invited user</span>}
+                >
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> Role
                   </Space>
@@ -712,7 +729,11 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
 
             <Form.Item
               label={
-                <Tooltip title="When this invite becomes active and expires">
+                <Tooltip
+                  title={
+                    <span>When this invite becomes active and expires</span>
+                  }
+                >
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> Date Range
                   </Space>
@@ -735,7 +756,9 @@ const AddGroupInviteDrawer: React.FC<AddGroupInviteDrawerProps> = ({
             <Form.Item
               name="note"
               label={
-                <Tooltip title="Note to include with this invitation">
+                <Tooltip
+                  title={<span>Note to include with this invitation</span>}
+                >
                   <Space>
                     <InfoCircleOutlined style={{ color: "#aaa" }} /> Note
                   </Space>

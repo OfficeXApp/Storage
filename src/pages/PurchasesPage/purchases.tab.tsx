@@ -22,6 +22,7 @@ import {
   Select,
   Switch,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   EditOutlined,
   TagOutlined,
@@ -180,10 +181,12 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
           })
         );
 
-        message.success(
-          isOnline
-            ? "Updating purchase..."
-            : "Queued purchase update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating purchase...</span>
+          ) : (
+            <span>Queued purchase update for when you're back online</span>
+          )
         );
 
         // Call the onSave prop if provided (for backward compatibility)
@@ -191,7 +194,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
           onSave(changedFields);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
 
       setIsEditing(false);
@@ -211,11 +214,11 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard");
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   const renderReadOnlyField = (
-    label: string,
+    label: React.ReactNode,
     value: string | undefined | null,
     icon: React.ReactNode,
     navigationRoute?: string,
@@ -265,7 +268,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
           </div>
         }
         suffix={
-          <Tooltip title="Copy to clipboard">
+          <Tooltip title={<span>Copy to clipboard</span>}>
             <CopyOutlined
               onClick={() => copyToClipboard(value)}
               style={{ cursor: "pointer", color: "#1890ff" }}
@@ -457,28 +460,28 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
           >
             {isEditing ? (
               <Form form={form} layout="vertical" initialValues={initialValues}>
-                <Form.Item name="title" label="Title">
+                <Form.Item name="title" label={<span>Title</span>}>
                   <Input
                     placeholder="Purchase Title"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="subtitle" label="Subtitle">
+                <Form.Item name="subtitle" label={<span>Subtitle</span>}>
                   <Input
                     placeholder="Purchase Subtitle"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="description" label="Description">
+                <Form.Item name="description" label={<span>Description</span>}>
                   <TextArea
                     rows={4}
                     placeholder="Detailed description of the purchase"
                     variant="borderless"
                   />
                 </Form.Item>
-                <Form.Item name="status" label="Status">
+                <Form.Item name="status" label={<span>Status</span>}>
                   <Select
                     placeholder="Select Status"
                     variant="borderless"
@@ -491,7 +494,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item name="pricing" label="Pricing">
+                <Form.Item name="pricing" label={<span>Pricing</span>}>
                   <Input
                     placeholder="Pricing information"
                     prefix={<DollarOutlined />}
@@ -499,7 +502,10 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="vendor_notes" label="Vendor Notes">
+                <Form.Item
+                  name="vendor_notes"
+                  label={<span>Vendor Notes</span>}
+                >
                   <TextArea
                     rows={3}
                     placeholder="Notes from the vendor"
@@ -507,7 +513,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="about_url" label="About URL">
+                <Form.Item name="about_url" label={<span>About URL</span>}>
                   <Input
                     prefix={<LinkOutlined />}
                     placeholder="URL for more info about this purchase"
@@ -515,7 +521,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="run_url" label="Run URL">
+                <Form.Item name="run_url" label={<span>Run URL</span>}>
                   <Input
                     prefix={<LinkOutlined />}
                     placeholder="URL to run or access the purchase"
@@ -523,7 +529,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="billing_url" label="Billing URL">
+                <Form.Item name="billing_url" label={<span>Billing URL</span>}>
                   <Input
                     prefix={<LinkOutlined />}
                     placeholder="URL for billing details"
@@ -531,7 +537,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="support_url" label="Support URL">
+                <Form.Item name="support_url" label={<span>Support URL</span>}>
                   <Input
                     prefix={<LinkOutlined />}
                     placeholder="URL for support"
@@ -539,7 +545,10 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="delivery_url" label="Delivery URL">
+                <Form.Item
+                  name="delivery_url"
+                  label={<span>Delivery URL</span>}
+                >
                   <Input
                     prefix={<LinkOutlined />}
                     placeholder="URL for delivery status/info"
@@ -547,7 +556,10 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="verification_url" label="Verification URL">
+                <Form.Item
+                  name="verification_url"
+                  label={<span>Verification URL</span>}
+                >
                   <Input
                     prefix={<LinkOutlined />}
                     placeholder="URL for verification"
@@ -557,7 +569,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                 </Form.Item>
                 <Form.Item
                   name="auth_installation_url"
-                  label="Installation URL"
+                  label={<span>Installation URL</span>}
                 >
                   <Input
                     prefix={<LinkOutlined />}
@@ -568,7 +580,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                 </Form.Item>
                 <Form.Item
                   name="related_resources"
-                  label="Related Resources (IDs)"
+                  label={<span>Related Resources (IDs)</span>}
                 >
                   <Select
                     mode="tags"
@@ -577,7 +589,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="labels" label="Labels">
+                <Form.Item name="labels" label={<span>Labels</span>}>
                   <Select
                     mode="tags"
                     placeholder="Add labels"
@@ -585,21 +597,24 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="tracer" label="Tracer">
+                <Form.Item name="tracer" label={<span>Tracer</span>}>
                   <Input
                     placeholder="Tracer string"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="external_id" label="External ID">
+                <Form.Item name="external_id" label={<span>External ID</span>}>
                   <Input
                     placeholder="External identifier"
                     variant="borderless"
                     style={{ backgroundColor: "#fafafa" }}
                   />
                 </Form.Item>
-                <Form.Item name="external_payload" label="External Payload">
+                <Form.Item
+                  name="external_payload"
+                  label={<span>External Payload</span>}
+                >
                   <TextArea
                     rows={2}
                     placeholder="Additional data for external systems"
@@ -610,15 +625,23 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                 <Divider />
                 <Form.Item name="delete">
                   <Popconfirm
-                    title="Are you sure you want to delete this purchase?"
-                    okText="Yes"
-                    cancelText="No"
+                    title={
+                      <span>
+                        Are you sure you want to delete this purchase?
+                      </span>
+                    }
+                    okText={<span>Yes</span>}
+                    cancelText={<span>No</span>}
                     onConfirm={() => {
                       dispatch(deletePurchaseAction({ id: purchase.id }));
-                      message.success(
-                        isOnline
-                          ? "Deleting purchase..."
-                          : "Queued purchase delete for when you're back online"
+                      toast.success(
+                        isOnline ? (
+                          <span>Deleting purchase...</span>
+                        ) : (
+                          <span>
+                            Queued purchase delete for when you're back online
+                          </span>
+                        )
                       );
                       if (onDelete) {
                         onDelete(purchase.id);
@@ -710,7 +733,7 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                               ) : (
                                 <SyncOutlined
                                   onClick={() => {
-                                    message.info("Syncing latest...");
+                                    toast(<span>Syncing latest...</span>);
                                     syncLatest();
                                   }}
                                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -815,22 +838,22 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
 
                       <div style={{ padding: "8px 0" }}>
                         {renderReadOnlyField(
-                          "Vendor Name",
+                          <span>Vendor Name</span>,
                           purchase.vendor_name,
                           <UserOutlined />
                         )}
                         {renderReadOnlyField(
-                          "Vendor ID",
+                          <span>Vendor ID</span>,
                           purchase.vendor_id,
                           <UserOutlined />
                         )}
                         {renderReadOnlyField(
-                          "Status",
+                          <span>Status</span>,
                           purchase.status,
                           <Tag color={getStatusTagColor(purchase.status)} />
                         )}
                         {renderReadOnlyField(
-                          "Pricing",
+                          <span>Pricing</span>,
                           purchase.pricing,
                           <DollarOutlined />
                         )}
@@ -838,52 +861,52 @@ const PurchaseTab: React.FC<PurchaseTabProps> = ({
                           SystemPermissionType.EDIT
                         ) &&
                           renderReadOnlyField(
-                            "Vendor Notes",
+                            <span>Vendor Notes</span>,
                             purchase.vendor_notes,
                             <FileTextOutlined />
                           )}
                         {renderReadOnlyField(
-                          "About URL",
+                          <span>About URL</span>,
                           purchase.about_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
-                          "Billing URL",
+                          <span>Billing URL</span>,
                           purchase.billing_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
-                          "Support URL",
+                          <span>Support URL</span>,
                           purchase.support_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
-                          "Delivery URL",
+                          <span>Delivery URL</span>,
                           purchase.delivery_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
-                          "Verification URL",
+                          <span>Verification URL</span>,
                           purchase.verification_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
-                          "Installation URL",
+                          <span>Installation URL</span>,
                           purchase.auth_installation_url,
                           <LinkOutlined />
                         )}
                         {renderReadOnlyField(
-                          "Tracer",
+                          <span>Tracer</span>,
                           purchase.tracer,
                           <FileTextOutlined />
                         )}
                         {renderReadOnlyField(
-                          "External ID",
+                          <span>External ID</span>,
                           purchase.external_id,
                           <FileTextOutlined />
                         )}
                         {renderReadOnlyField(
-                          "External Payload",
+                          <span>External Payload</span>,
                           purchase.external_payload,
                           <FileTextOutlined />
                         )}

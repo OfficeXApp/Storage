@@ -18,6 +18,7 @@ import {
   Alert,
   message,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   CopyOutlined,
   LinkOutlined,
@@ -178,13 +179,13 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
-    message.success("Copied to clipboard!");
+    toast.success(<span>Copied to clipboard!</span>);
   };
 
   const handleSubmit = async () => {
     if (!checkoutInitResponse) return;
     setIsFinalizingLoading(true);
-    message.info("Finalizing checkout... This can take up to 2 mins...");
+    toast(<span>Finalizing checkout... This can take up to 2 mins...</span>);
     try {
       // create the purchase record
       const purchase_id = GenerateID.PurchaseID();
@@ -222,9 +223,10 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         await response_finalize_checkout.json();
 
       if (!data_finalize_checkout.success) {
-        message.error(
-          `Failed to finalize checkout | ${data_finalize_checkout.message}`,
-          30
+        toast.error(
+          <span>
+            Failed to finalize checkout | {data_finalize_checkout.message}
+          </span>
         );
         setIsFinalizingLoading(false);
         return;
@@ -264,14 +266,16 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       let finalApiKey = apiKeyInputValue;
       if (checkoutInitResponse?.post_payment.auth_installation_url) {
         if (!finalApiKey) {
-          message.loading("Generating quick signature...", 0);
+          message.loading(<span>Generating quick signature...</span>, 0);
           finalApiKey = await generateSignature();
           if (finalApiKey) {
             message.destroy();
-            message.success("Signature generated!");
+            toast.success(<span>Signature generated!</span>);
           } else {
-            message.error(
-              "Did not provide API key and failed to generate signature"
+            toast.error(
+              <span>
+                Did not provide API key and failed to generate signature
+              </span>
             );
             setIsFinalizingLoading(false);
             return;
@@ -310,7 +314,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         const data: IResponseAuthInstallation = await response.json();
       }
 
-      message.success(
+      toast.success(
         <span>
           Checkout successful! View your{" "}
           <Link to={wrapOrgCode(`/resources/purchases`)}>purchase history</Link>
@@ -331,15 +335,16 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
     } catch (error: any) {
       console.error("Submission failed:", error);
       // Display the error message from the caught error, or a generic one
-      message.error(
-        `Submission failed: ${error.message || "An unexpected error occurred."}`,
-        30
+      toast.error(
+        <span>
+          Submission failed: {error.message || "An unexpected error occurred."}
+        </span>
       );
       setIsFinalizingLoading(false);
     }
   };
 
-  const DepositInfoPopoverContent = (explanation: string) => (
+  const DepositInfoPopoverContent = (explanation: React.ReactNode) => (
     <div>
       <Paragraph style={{ margin: 0 }}>{explanation}</Paragraph>
     </div>
@@ -407,7 +412,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       !selectedDepositOption ||
       !selectedDepositOption.checkout_init_endpoint
     ) {
-      message.error("Error | No checkout init endpoint found");
+      toast.error(<span>Error | No checkout init endpoint found</span>);
       return;
     }
     try {
@@ -438,7 +443,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
           }
         });
         setPreferenceInputs(initialPreferenceInputs);
-        message.info("Checkout has begun, please proceed with payment");
+        toast(<span>Checkout has begun, please proceed with payment</span>);
       }
     } catch (error) {
       console.error("Error initiating checkout:", error);
@@ -468,16 +473,18 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
       const data: IResponseCheckoutValidate = await response.json();
       if (data.success) {
         setValidatedPayment(true);
-        message.success(
-          `Validated | You may now proceed to finalizing the purchase`
+        toast.success(
+          <span>
+            Validated | You may now proceed to finalizing the purchase
+          </span>
         );
       } else {
-        message.error(data.message, 30);
+        toast.error(<span>{data.message}</span>);
         setValidatedPayment(false);
       }
     } catch (error) {
       console.error("Error validating payment:", error);
-      message.error(`Error validating payment`, 10);
+      toast.error(<span>Error validating payment</span>);
     } finally {
       setIsValidatingLoading(false);
     }
@@ -640,7 +647,10 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                   Select Payment Option
                   <Popover
                     content={DepositInfoPopoverContent(
-                      "Choose your preferred method for depositing funds to run the app."
+                      <span>
+                        Choose your preferred method for depositing funds to run
+                        the app.
+                      </span>
                     )}
                     trigger="hover"
                   >
@@ -830,9 +840,13 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                               <Text strong>Receiver</Text>{" "}
                               <Popover
                                 content={DepositInfoPopoverContent(
-                                  "The unique address for the deposit on the selected chain. Click to view on chain explorer."
+                                  <span>
+                                    The unique address for the deposit on the
+                                    selected chain. Click to view on chain
+                                    explorer.
+                                  </span>
                                 )}
-                                title="Deposit Address Explanation"
+                                title={<span>Deposit Address Explanation</span>}
                                 trigger="hover"
                               >
                                 <InfoCircleOutlined
@@ -899,9 +913,12 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                               <Text strong>Amount</Text>
                               <Popover
                                 content={DepositInfoPopoverContent(
-                                  "The exact amount of tokens required for this deposit."
+                                  <span>
+                                    The exact amount of tokens required for this
+                                    deposit.
+                                  </span>
                                 )}
-                                title="Amount Explanation"
+                                title={<span>Amount Explanation</span>}
                                 trigger="hover"
                               >
                                 <InfoCircleOutlined
@@ -1051,7 +1068,9 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                   Please review the permission scopes below.
                 </Paragraph>
                 <Alert
-                  message="Vendor Verification & API Key Best Practices"
+                  message={
+                    <span>Vendor Verification & API Key Best Practices</span>
+                  }
                   description={
                     <>
                       <Paragraph style={{ marginBottom: "8px" }}>
@@ -1060,7 +1079,14 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                         code being executed.
                       </Paragraph>
                       <Paragraph>
-                        <Tooltip title="View vendor's terms and conditions or general information.">
+                        <Tooltip
+                          title={
+                            <span>
+                              View vendor's terms and conditions or general
+                              information.
+                            </span>
+                          }
+                        >
                           <a
                             href={checkoutRun.aboutUrl}
                             target="_blank"
@@ -1075,7 +1101,15 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                           </a>
                         </Tooltip>
                         <Divider type="vertical" />
-                        <Tooltip title="Verify the code to be executed on checkout, usually pointing to a Trusted Execution Environment (TEE).">
+                        <Tooltip
+                          title={
+                            <span>
+                              Verify the code to be executed on checkout,
+                              usually pointing to a Trusted Execution
+                              Environment (TEE).
+                            </span>
+                          }
+                        >
                           <a
                             href={
                               checkoutInitResponse?.post_payment
@@ -1093,7 +1127,16 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                           </a>
                         </Tooltip>
                         <Divider type="vertical" />
-                        <Tooltip title="OfficeX is a permissionless platform and thus does not verify 3rd party apps. Appstore list providers and users to be responsible for their own security.">
+                        <Tooltip
+                          title={
+                            <span>
+                              OfficeX is a permissionless platform and thus does
+                              not verify 3rd party apps. Appstore list providers
+                              and users to be responsible for their own
+                              security.
+                            </span>
+                          }
+                        >
                           <a
                             href="#" // Replace with actual link to "Learn more about verification"
                             target="_blank"
@@ -1123,7 +1166,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                       Grant API Key Scope
                       <Popover
                         content={SecurityDisclaimerPopoverContent}
-                        title="API Key Security Hygiene"
+                        title={<span>API Key Security Hygiene</span>}
                         trigger="hover"
                       >
                         <InfoCircleOutlined
@@ -1171,7 +1214,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
                       <Text>{req.title}</Text>
                       <Popover
                         content={DepositInfoPopoverContent(req.explanation)}
-                        title={`${req.title} Explanation`}
+                        title={<span>{req.title} Explanation</span>}
                         trigger="hover"
                       >
                         <InfoCircleOutlined
@@ -1272,7 +1315,7 @@ const RunAppDrawer: React.FC<RunAppDrawerProps> = ({
         {finalRedirectUrl && finalRedirectCta && isFinalizedCheckout && (
           <>
             <Alert
-              message="🎉 Checkout Completed - View Your Purchase"
+              message={<span>🎉 Checkout Completed - View Your Purchase</span>}
               type="success"
               style={{ textAlign: "center" }}
             />

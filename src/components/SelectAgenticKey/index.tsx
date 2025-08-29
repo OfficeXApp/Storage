@@ -19,6 +19,7 @@ import {
   Divider,
   Alert,
 } from "antd";
+import toast from "react-hot-toast";
 import type { ApiKeyFE, IRequestCreateApiKey } from "@officexapp/types";
 import { SystemPermissionType } from "@officexapp/types";
 import { useDispatch, useSelector } from "react-redux";
@@ -170,7 +171,9 @@ const SelectAgenticKey: React.FC = () => {
 
   const handleContinue = () => {
     if (!selectedKeyId && !isCreatingNew) {
-      message.warning("Please select an API key or choose to create a new one");
+      message.warning(
+        <span>Please select an API key or choose to create a new one</span>
+      );
       return;
     }
 
@@ -181,7 +184,7 @@ const SelectAgenticKey: React.FC = () => {
 
     const selectedKey = activeApiKeys.find((key) => key.id === selectedKeyId);
     if (selectedKey) {
-      message.success("API key selected successfully!");
+      toast.success(<span>API key selected successfully!</span>);
 
       // Redirect back to the app if redirect URL is provided
       if (redirectUrl) {
@@ -195,7 +198,7 @@ const SelectAgenticKey: React.FC = () => {
           window.location.href = url.toString();
         } catch (error) {
           console.error("Invalid redirect URL:", error);
-          message.error("Invalid redirect URL provided");
+          toast.error(<span>Invalid redirect URL provided</span>);
         }
       }
     }
@@ -259,7 +262,7 @@ const SelectAgenticKey: React.FC = () => {
         setLoading(true);
         dispatch(createApiKeyAction(apiKeyData));
 
-        message.success("API key created successfully!");
+        toast.success(<span>API key created successfully!</span>);
 
         // Redirect back to the app if redirect URL is provided
         if (redirectUrl) {
@@ -270,7 +273,7 @@ const SelectAgenticKey: React.FC = () => {
             window.location.href = url.toString();
           } catch (error) {
             console.error("Invalid redirect URL:", error);
-            message.error("Invalid redirect URL provided");
+            toast.error(<span>Invalid redirect URL provided</span>);
           }
         }
 
@@ -412,8 +415,15 @@ const SelectAgenticKey: React.FC = () => {
 
         {/* Security Notice */}
         <Alert
-          message="Security Best Practice"
-          description="Each API key has full access to your profile. Creating separate keys for each app allows you to revoke access individually if needed. For max security, create an entirely new profile just for the app."
+          message={<span>Security Best Practice</span>}
+          description={
+            <span>
+              Each API key has full access to your profile. Creating separate
+              keys for each app allows you to revoke access individually if
+              needed. For max security, create an entirely new profile just for
+              the app.
+            </span>
+          }
           type="info"
           showIcon
           icon={<SafetyOutlined />}
@@ -766,7 +776,7 @@ const SelectAgenticKey: React.FC = () => {
           <Form.Item
             name="name"
             label={
-              <Tooltip title="Name for this API key">
+              <Tooltip title={<span>Name for this API key</span>}>
                 <Space>
                   Name <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -788,7 +798,7 @@ const SelectAgenticKey: React.FC = () => {
 
           <Form.Item
             label={
-              <Tooltip title="API key expiration settings">
+              <Tooltip title={<span>API key expiration settings</span>}>
                 <Space>
                   Expiration <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -819,7 +829,7 @@ const SelectAgenticKey: React.FC = () => {
 
           <Form.Item
             label={
-              <Tooltip title="Labels to categorize this API key">
+              <Tooltip title={<span>Labels to categorize this API key</span>}>
                 <Space>
                   Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -865,7 +875,7 @@ const SelectAgenticKey: React.FC = () => {
           <Form.Item
             name="externalId"
             label={
-              <Tooltip title="External identifier for integration">
+              <Tooltip title={<span>External identifier for integration</span>}>
                 <Space>
                   External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>

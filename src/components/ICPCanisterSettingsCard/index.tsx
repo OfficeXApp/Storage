@@ -24,6 +24,7 @@ import {
   ReloadOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
+import toast from "react-hot-toast";
 
 import { formatCycles } from "../../api/icp.js";
 import ConnectICPButton from "../ConnectICPButton/index.js";
@@ -108,21 +109,21 @@ const ICPCanisterSettingsCard = () => {
     navigator.clipboard
       .writeText(canisterAddress)
       .then(() => {
-        message.success("Canister address copied to clipboard!");
+        toast.success(<span>Canister address copied to clipboard!</span>);
       })
       .catch((err) => {
-        message.error("Failed to copy: " + err);
+        toast.error(<span>Failed to copy: {err}</span>);
       });
   };
 
   const handleRedeemGiftCard = async () => {
     if (!giftCardId.trim() || !driveAbout.canister_id) {
-      message.error("Gift card ID and canister address are required");
+      toast.error(<span>Gift card ID and canister address are required</span>);
       return;
     }
 
     setIsRedeeming(true);
-    message.info("Redeeming Gift Card...");
+    toast(<span>Redeeming Gift Card...</span>);
 
     try {
       // Prepare the request payload
@@ -156,7 +157,7 @@ const ICPCanisterSettingsCard = () => {
         throw new Error("Invalid response from gift card redemption");
       }
 
-      message.success("Gift card redeemed successfully!");
+      toast.success(<span>Gift card redeemed successfully!</span>);
 
       // Clear the form fields
       setGiftCardId("");
@@ -167,8 +168,11 @@ const ICPCanisterSettingsCard = () => {
       setIsModalVisible(false);
     } catch (error) {
       console.error("Error redeeming gift card:", error);
-      message.error(
-        `Failed to redeem gift card: ${error instanceof Error ? error.message : "Unknown error"}`
+      toast.error(
+        <span>
+          Failed to redeem gift card:{" "}
+          {error instanceof Error ? error.message : "Unknown error"}
+        </span>
       );
     } finally {
       setIsRedeeming(false);
@@ -193,7 +197,15 @@ const ICPCanisterSettingsCard = () => {
           label={
             <Space>
               Vendor Endpoint URL
-              <Tooltip title="Enter the endpoint URL of the vendor who will deposit gas for you. You can buy gift cards from any vendor that supports the Internet Computer.">
+              <Tooltip
+                title={
+                  <span>
+                    Enter the endpoint URL of the vendor who will deposit gas
+                    for you. You can buy gift cards from any vendor that
+                    supports the Internet Computer.
+                  </span>
+                }
+              >
                 <QuestionCircleOutlined />
               </Tooltip>
             </Space>
@@ -229,7 +241,7 @@ const ICPCanisterSettingsCard = () => {
         <Input
           value={driveAbout.organization_id || currentOrg?.driveID || ""}
           readOnly
-          addonBefore={"DriveID"}
+          addonBefore={<span>Drive ID</span>}
           addonAfter={
             <Button
               type="text"
@@ -240,10 +252,12 @@ const ICPCanisterSettingsCard = () => {
                     driveAbout?.organization_id || currentOrg?.driveID || ""
                   )
                   .then(() => {
-                    message.success("Organization DriveID copied to clipboard");
+                    toast.success(
+                      <span>Organization DriveID copied to clipboard</span>
+                    );
                   })
                   .catch((err) => {
-                    message.error("Failed to copy: " + err);
+                    toast.error(<span>Failed to copy: {err}</span>);
                   });
               }}
               style={{ border: "none", background: "transparent", padding: 0 }}
@@ -257,7 +271,7 @@ const ICPCanisterSettingsCard = () => {
             "Offline Organization has no endpoint url"
           }
           readOnly
-          addonBefore={"Host"}
+          addonBefore={<span>Host</span>}
           addonAfter={
             <Button
               type="text"
@@ -266,12 +280,12 @@ const ICPCanisterSettingsCard = () => {
                 navigator.clipboard
                   .writeText(driveAbout?.host || "")
                   .then(() => {
-                    message.success(
-                      "Organization Endpoint URL copied to clipboard"
+                    toast.success(
+                      <span>Organization Endpoint URL copied to clipboard</span>
                     );
                   })
                   .catch((err) => {
-                    message.error("Failed to copy: " + err);
+                    toast.error(<span>Failed to copy: {err}</span>);
                   });
               }}
               style={{
@@ -286,7 +300,7 @@ const ICPCanisterSettingsCard = () => {
         <Input
           value={driveAbout.owner || "Offline Organization has no owner"}
           readOnly
-          addonBefore={"Owner"}
+          addonBefore={<span>Owner</span>}
           addonAfter={
             <Button
               type="text"
@@ -295,10 +309,12 @@ const ICPCanisterSettingsCard = () => {
                 navigator.clipboard
                   .writeText(driveAbout?.owner || "")
                   .then(() => {
-                    message.success("Organization OwnerID copied to clipboard");
+                    toast.success(
+                      <span>Organization OwnerID copied to clipboard</span>
+                    );
                   })
                   .catch((err) => {
-                    message.error("Failed to copy: " + err);
+                    toast.error(<span>Failed to copy: {err}</span>);
                   });
               }}
               style={{ border: "none", background: "transparent", padding: 0 }}
@@ -327,7 +343,15 @@ const ICPCanisterSettingsCard = () => {
           <Statistic
             title={
               <span>
-                <Tooltip title="Gas cycles power your canister on the Internet World Computer, guaranteeing computational sovereignty and keeping your data private.">
+                <Tooltip
+                  title={
+                    <span>
+                      Gas cycles power your canister on the Internet World
+                      Computer, guaranteeing computational sovereignty and
+                      keeping your data private.
+                    </span>
+                  }
+                >
                   Canister Gas Balance{" "}
                   <QuestionCircleOutlined style={{ marginRight: 8 }} />
                   {isLoading ? (
@@ -340,7 +364,7 @@ const ICPCanisterSettingsCard = () => {
                   ) : (
                     <SyncOutlined
                       onClick={() => {
-                        message.info("Syncing latest...");
+                        toast(<span>Syncing latest...</span>);
                         checkGasBalance();
                       }}
                       style={{ color: "rgba(0,0,0,0.2)" }}
@@ -354,9 +378,27 @@ const ICPCanisterSettingsCard = () => {
             suffix={
               <Tooltip
                 title={
-                  gasBalance === 0n
-                    ? "Daily idle burn rate stats will appear here"
-                    : `Daily idle burn rate of ${(BigInt(driveAbout.daily_idle_cycle_burn_rate.replace(/_/g, "") || "1") / 1_000_000n).toString()} million gas cycles. Approximately ${(gasBalance * BigInt(1_000_000_000)) / BigInt(driveAbout.daily_idle_cycle_burn_rate || 1)} days remaining.`
+                  gasBalance === 0n ? (
+                    <span>Daily idle burn rate stats will appear here</span>
+                  ) : (
+                    <span>
+                      Daily idle burn rate of $
+                      {(
+                        BigInt(
+                          driveAbout.daily_idle_cycle_burn_rate.replace(
+                            /_/g,
+                            ""
+                          ) || "1"
+                        ) / 1_000_000n
+                      ).toString()}{" "}
+                      million gas cycles. Approximately $
+                      {(
+                        (gasBalance * BigInt(1_000_000_000)) /
+                        BigInt(driveAbout.daily_idle_cycle_burn_rate || 1)
+                      ).toString()}{" "}
+                      days remaining.
+                    </span>
+                  )
                 }
               >
                 <i style={{ fontSize: "0.8rem", color: "rgba(0,0,0,0.3)" }}>
@@ -418,7 +460,7 @@ const ICPCanisterSettingsCard = () => {
           </Text>
           <div style={{ marginTop: 16 }}>
             <Form layout="vertical">
-              <Form.Item label="Gift Card ID">
+              <Form.Item label={<span>Gift Card ID</span>}>
                 <Input
                   value={giftCardId}
                   onChange={(e) => setGiftCardId(e.target.value)}

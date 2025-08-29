@@ -108,7 +108,7 @@ const TemplatesTableList: React.FC<TemplatesTableListProps> = ({
   // Define table columns
   const columns: ColumnsType<TemplateItem> = [
     {
-      title: "Contact",
+      title: <span>Contact</span>,
       dataIndex: "name",
       key: "name",
       render: (_: any, record: TemplateItem) => (
@@ -142,7 +142,7 @@ const TemplatesTableList: React.FC<TemplatesTableListProps> = ({
       render: (id: string) => <Tag color="default">{shortenAddress(id)}</Tag>,
     },
     {
-      title: "Actions",
+      title: <span>Actions</span>,
       key: "actions",
       width: 150, // Increased width for actions column
       render: (_: any, record: TemplateItem) => (

@@ -64,7 +64,7 @@ const DisksPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Disks List",
+      label: <span>Disks List</span>,
       children: null,
       closable: false,
     },

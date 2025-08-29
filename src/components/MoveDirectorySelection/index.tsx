@@ -13,6 +13,7 @@ import { wrapAuthStringOrHeader } from "../../api/helpers";
 import { DiskFEO } from "../../redux-offline/disks/disks.reducer";
 import { FolderFEO } from "../../redux-offline/directory/directory.reducer";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 // For TypeScript, you can refine these types as needed.
 interface MoveDirectorySelectorProps {
@@ -272,22 +273,24 @@ const MoveDirectorySelector: React.FC<MoveDirectorySelectorProps> = ({
     const data = await res.json();
 
     if (data.every((d: any) => d.success)) {
-      message.success(
-        `Successfully ${mode === "move" ? "moved" : "copied"} all records`
+      toast.success(
+        <span>
+          Successfully {mode === "move" ? "moved" : "copied"} all records
+        </span>
       );
       setIsFinished(true);
       onFinish();
     } else if (data.every((d: any) => !d.success)) {
-      message.error(
-        `Failed to ${mode === "move" ? "move" : "copy"} all records`
+      toast.error(
+        <span>Failed to {mode === "move" ? "move" : "copy"} all records</span>
       );
     } else if (data.map((d: any) => d.success).includes(false)) {
       data
         .filter((d: any) => !d.success)
         .forEach((d: any) => {
-          message.error(`Error: ${d.response.error}`);
+          toast.error(<span>Error: {d.response.error}</span>);
         });
-      message.info(`Not all succeeded`);
+      toast(<span>Not all succeeded</span>);
       setIsFinished(true);
       onFinish();
     }
@@ -321,7 +324,7 @@ const MoveDirectorySelector: React.FC<MoveDirectorySelectorProps> = ({
               resource_ids.includes(folderID) ||
               folderID === currentFolderID
             ) {
-              message.info("Cannot move/copy to the same folder");
+              toast(<span>Cannot move/copy to the same folder</span>);
             } else {
               setSelectedFolderID(folderID);
             }

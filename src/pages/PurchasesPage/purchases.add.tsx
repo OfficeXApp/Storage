@@ -16,6 +16,7 @@ import {
   Divider,
   Popover,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   RocketOutlined, // Changed icon
   TagOutlined,
@@ -138,10 +139,12 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
         // Dispatch the create purchase action
         dispatch(createPurchaseAction(purchaseData));
 
-        message.info(
-          isOnline
-            ? "Creating purchase..."
-            : "Queued purchase creation for when you're back online"
+        toast(
+          isOnline ? (
+            <span>Creating purchase...</span>
+          ) : (
+            <span>Queued purchase creation for when you're back online</span>
+          )
         );
 
         // Call the parent's onAddPurchase for any additional handling
@@ -196,7 +199,7 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
         <Form.Item
           name="title"
           label={
-            <Tooltip title="Title of the purchase">
+            <Tooltip title={<span>Title of the purchase</span>}>
               <Space>
                 Title <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -216,7 +219,7 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
         <Form.Item
           name="status"
           label={
-            <Tooltip title="Current status of the purchase">
+            <Tooltip title={<span>Current status of the purchase</span>}>
               <Space>
                 Status <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -258,7 +261,9 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="vendor_name"
             label={
-              <Tooltip title="Name of the vendor providing this purchase">
+              <Tooltip
+                title={<span>Name of the vendor providing this purchase</span>}
+              >
                 <Space>
                   Vendor Name <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -277,7 +282,11 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="about_url"
             label={
-              <Tooltip title="URL with more information about this purchase">
+              <Tooltip
+                title={
+                  <span>URL with more information about this purchase</span>
+                }
+              >
                 <Space>
                   About URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -295,7 +304,11 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="template_id"
             label={
-              <Tooltip title="ID of the purchase template this run is based on">
+              <Tooltip
+                title={
+                  <span>ID of the purchase template this run is based on</span>
+                }
+              >
                 <Space>
                   Template ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -312,7 +325,9 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="description"
             label={
-              <Tooltip title="Detailed description of the purchase">
+              <Tooltip
+                title={<span>Detailed description of the purchase</span>}
+              >
                 <Space>
                   Description <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -330,7 +345,7 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="subtitle"
             label={
-              <Tooltip title="A short subtitle for the purchase">
+              <Tooltip title={<span>A short subtitle for the purchase</span>}>
                 <Space>
                   Subtitle <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -347,7 +362,9 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="pricing"
             label={
-              <Tooltip title="Pricing information for the purchase">
+              <Tooltip
+                title={<span>Pricing information for the purchase</span>}
+              >
                 <Space>
                   Pricing <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -365,7 +382,9 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="vendor_notes"
             label={
-              <Tooltip title="Notes visible only to the vendor (you)">
+              <Tooltip
+                title={<span>Notes visible only to the vendor (you)</span>}
+              >
                 <Space>
                   Vendor Notes <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -383,7 +402,9 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="notes"
             label={
-              <Tooltip title="Internal notes, not viewable by vendor">
+              <Tooltip
+                title={<span>Internal notes, not viewable by vendor</span>}
+              >
                 <Space>
                   Internal Notes{" "}
                   <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -402,7 +423,7 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="run_url"
             label={
-              <Tooltip title="URL to run or access the purchase">
+              <Tooltip title={<span>URL to run or access the purchase</span>}>
                 <Space>
                   Run URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -420,7 +441,11 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="billing_url"
             label={
-              <Tooltip title="URL for billing details related to this purchase">
+              <Tooltip
+                title={
+                  <span>URL for billing details related to this purchase</span>
+                }
+              >
                 <Space>
                   Billing URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -438,7 +463,9 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="support_url"
             label={
-              <Tooltip title="URL for support related to this purchase">
+              <Tooltip
+                title={<span>URL for support related to this purchase</span>}
+              >
                 <Space>
                   Support URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -456,7 +483,11 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="delivery_url"
             label={
-              <Tooltip title="URL for delivery status or output of the purchase">
+              <Tooltip
+                title={
+                  <span>URL for delivery status or output of the purchase</span>
+                }
+              >
                 <Space>
                   Delivery URL <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -474,7 +505,11 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="verification_url"
             label={
-              <Tooltip title="URL for verifying purchase completion or output">
+              <Tooltip
+                title={
+                  <span>URL for verifying purchase completion or output</span>
+                }
+              >
                 <Space>
                   Verification URL{" "}
                   <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -493,7 +528,14 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="auth_installation_url"
             label={
-              <Tooltip title="URL to the script or instructions for installing the purchase">
+              <Tooltip
+                title={
+                  <span>
+                    URL to the script or instructions for installing the
+                    purchase
+                  </span>
+                }
+              >
                 <Space>
                   Installation URL{" "}
                   <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -512,7 +554,9 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="related_resources"
             label={
-              <Tooltip title="IDs of resources related to this purchase">
+              <Tooltip
+                title={<span>IDs of resources related to this purchase</span>}
+              >
                 <Space>
                   Related Resources (IDs){" "}
                   <InfoCircleOutlined style={{ color: "#aaa" }} />
@@ -531,7 +575,9 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="tracer"
             label={
-              <Tooltip title="An optional tracer string for tracking">
+              <Tooltip
+                title={<span>An optional tracer string for tracking</span>}
+              >
                 <Space>
                   Tracer <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -548,7 +594,7 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="labels"
             label={
-              <Tooltip title="Labels to categorize this purchase">
+              <Tooltip title={<span>Labels to categorize this purchase</span>}>
                 <Space>
                   Labels <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -589,7 +635,13 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="external_id"
             label={
-              <Tooltip title="External identifier for integration with other systems">
+              <Tooltip
+                title={
+                  <span>
+                    External identifier for integration with other systems
+                  </span>
+                }
+              >
                 <Space>
                   External ID <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -606,7 +658,9 @@ const PurchasesAddDrawer: React.FC<PurchasesAddDrawerProps> = ({
           <Form.Item
             name="external_payload"
             label={
-              <Tooltip title="Additional data for external systems">
+              <Tooltip
+                title={<span>Additional data for external systems</span>}
+              >
                 <Space>
                   External Payload{" "}
                   <InfoCircleOutlined style={{ color: "#aaa" }} />

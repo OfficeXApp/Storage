@@ -20,6 +20,7 @@ import { generateRandomSeed } from "../../api/icp";
 import { v4 as uuidv4 } from "uuid";
 import { useReduxOfflineMultiTenant } from "../../redux-offline/ReduxProvider";
 import { debounce } from "lodash";
+import toast from "react-hot-toast";
 import {
   CloseOutlined,
   DeleteOutlined,
@@ -36,6 +37,7 @@ import { sleep, wrapAuthStringOrHeader } from "../../api/helpers";
 import TabPane from "antd/es/tabs/TabPane";
 import TagCopy from "../TagCopy";
 import { shortenAddress } from "../../framework/identity/constants";
+import { fromLocale } from "../../locales";
 
 const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
   const navigate = useNavigate();
@@ -106,6 +108,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
   } = useIdentitySystem();
   const { deleteReduxOfflineStore } = useReduxOfflineMultiTenant();
 
+  useEffect(() => {
+    setNewUserNickname(fromLocale().default_orgs.anon_org.profile_name);
+  }, []);
+
   // Effect to preview addresses based on current tab and seed phrase - now updated to use separate states
   useEffect(() => {
     const previewWalletAddresses = async () => {
@@ -164,7 +170,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
           <Space style={{ width: "100%", justifyContent: "space-between" }}>
             <Space>
               <UserOutlined />
-              <span>{currentProfile.nickname || "Anon"}</span>
+              <span>
+                {currentProfile.nickname ||
+                  fromLocale().default_orgs.anon_org.profile_name}
+              </span>
             </Space>
             <Tag
               onClick={() => {
@@ -174,10 +183,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                   navigator.clipboard
                     .writeText(userstring)
                     .then(() => {
-                      message.success("Copied to clipboard!");
+                      toast.success(<span>Copied to clipboard!</span>);
                     })
                     .catch(() => {
-                      message.error("Failed to copy to clipboard.");
+                      toast.error(<span>Failed to copy to clipboard.</span>);
                     });
                 }
               }}
@@ -202,7 +211,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
             <Space style={{ width: "100%", justifyContent: "space-between" }}>
               <Space>
                 <UserOutlined />
-                <span>{profile.nickname || "Anon"}</span>
+                <span>
+                  {profile.nickname ||
+                    fromLocale().default_orgs.anon_org.profile_name}
+                </span>
               </Space>
               <Tag color="default">
                 {shortenAddress(profile.icpPublicAddress)}
@@ -249,7 +261,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
 
           // If we have a profile, check if input matches nickname or address
           if (profile) {
-            const nickname = (profile.nickname || "Anon").toLowerCase();
+            const nickname = (
+              profile.nickname ||
+              fromLocale().default_orgs.anon_org.profile_name
+            ).toLowerCase();
             const icpAddress = profile.icpPublicAddress.toLowerCase();
             const inputLower = input.toLowerCase();
 
@@ -268,7 +283,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
         options={renderUserOptions()}
         onChange={(value: UserID) => {
           if (value === "add-currentProfile") {
-            setNewUserNickname("Anon");
+            setNewUserNickname(fromLocale().default_orgs.anon_org.profile_name);
             setImportUserNickname("A Past Life");
             setNewSeedPhrase(generateRandomSeed());
             setImportSeedPhrase("");
@@ -281,7 +296,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
             );
             if (currentProfile) {
               setSelectedProfileId(value);
-              setExistingUserNickname(currentProfile.nickname || "Anon");
+              setExistingUserNickname(
+                currentProfile.nickname ||
+                  fromLocale().default_orgs.anon_org.profile_name
+              );
               setModalMode("existing");
               setIsModalVisible(true);
             }
@@ -835,14 +853,16 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                 // Select the new profile
                 await switchProfile(newProfile);
 
-                message.success(`User ${nicknameToUse} added successfully!`);
+                toast.success(
+                  <span>User {nicknameToUse} added successfully!</span>
+                );
               } else if (activeTabKey === "importApi") {
                 // Only proceed if we have valid API preview data
                 if (
                   !importApiPreviewData.userID ||
                   !importApiPreviewData.icpAddress
                 ) {
-                  message.error("Invalid or expired password");
+                  toast.error(<span>Invalid or expired password</span>);
                   return;
                 }
 
@@ -855,8 +875,11 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                   atSymbolIndex === -1 ||
                   atSymbolIndex === importApiKey.length - 1
                 ) {
-                  message.error(
-                    "Invalid format. Expected: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)"
+                  toast.error(
+                    <span>
+                      Invalid format. Expected: drive:password@endpoint (e.g.
+                      DriveID_abc123:password123@https://endpoint.com)
+                    </span>
                   );
                   return;
                 }
@@ -870,8 +893,11 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
 
                 // Validate driveID
                 if (!driveID.startsWith("DriveID_")) {
-                  message.error(
-                    "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+                  toast.error(
+                    <span>
+                      Invalid Drive ID format. Expected format starts with{" "}
+                      'DriveID_'
+                    </span>
                   );
                   return;
                 }
@@ -921,7 +947,9 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                   host: endpoint,
                 });
 
-                message.success(`Successfully logged in as ${nickToUse}`);
+                toast.success(
+                  <span>Successfully logged in as {nickToUse}</span>
+                );
                 setImportApiKey("");
                 setImportApiUserNickname("");
                 setImportApiPreviewData({
@@ -939,23 +967,28 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
               window.location.reload();
             } catch (error) {
               console.error("Error adding user:", error);
-              message.error("Failed to add user. Please try again.");
+              toast.error(<span>Failed to add user. Please try again.</span>);
             }
           }}
         >
-          {activeTabKey === "newUser"
-            ? "Create Profile"
-            : activeTabKey === "importSeed"
-              ? "Import Profile"
-              : "Login Existing"}
+          {activeTabKey === "newUser" ? (
+            <span>Create Profile</span>
+          ) : activeTabKey === "importSeed" ? (
+            <span>Import Profile</span>
+          ) : (
+            <span>Login Existing</span>
+          )}
         </Button>,
       ]}
       width={500}
     >
       <Tabs activeKey={activeTabKey} onChange={setActiveTabKey}>
-        <TabPane tab="New Profile" key="newUser">
+        <TabPane tab={<span>New Profile</span>} key="newUser">
           <Form layout="vertical" style={{ marginBottom: "12px" }}>
-            <Form.Item label="Nickname" style={{ marginBottom: "12px" }}>
+            <Form.Item
+              label={<span>Nickname</span>}
+              style={{ marginBottom: "12px" }}
+            >
               <Input
                 value={newUserNickname}
                 onChange={(e) => setNewUserNickname(e.target.value)}
@@ -967,13 +1000,20 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
           {renderPreviewSection()}
         </TabPane>
 
-        <TabPane tab="Login Existing" key="importApi">
+        <TabPane tab={<span>Login Existing</span>} key="importApi">
           <Form layout="vertical">
             <Form.Item
               label={
                 <span>
                   Password&nbsp;
-                  <Tooltip title="Format: {drive}:{password}@{endpoint} (e.g. DriveID_abc123:password123@https://endpoint.com)">
+                  <Tooltip
+                    title={
+                      <span>
+                        Format: drive:password@endpoint (e.g.
+                        DriveID_abc123:password123@https://endpoint.com)
+                      </span>
+                    }
+                  >
                     <InfoCircleOutlined style={{ color: "#aaa" }} />
                   </Tooltip>
                 </span>
@@ -994,9 +1034,12 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
           {renderApiLoginPreviewSection()}
         </TabPane>
 
-        <TabPane tab="Import from Seed" key="importSeed">
+        <TabPane tab={<span>Import from Seed</span>} key="importSeed">
           <Form layout="vertical">
-            <Form.Item label="Nickname" style={{ marginBottom: "12px" }}>
+            <Form.Item
+              label={<span>Nickname</span>}
+              style={{ marginBottom: "12px" }}
+            >
               <Input
                 value={importUserNickname}
                 onChange={(e) => setImportUserNickname(e.target.value)}
@@ -1004,7 +1047,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
               />
             </Form.Item>
 
-            <Form.Item label="Seed Phrase" style={{ marginBottom: "16px" }}>
+            <Form.Item
+              label={<span>Seed Phrase</span>}
+              style={{ marginBottom: "16px" }}
+            >
               <Input.TextArea
                 value={importSeedPhrase}
                 onChange={(e) => setImportSeedPhrase(e.target.value)}
@@ -1125,7 +1171,7 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
         footer={null}
       >
         <Form layout="vertical">
-          <Form.Item label="Nickname">
+          <Form.Item label={<span>Nickname</span>}>
             <Input
               value={existingUserNickname}
               onChange={(e) => setExistingUserNickname(e.target.value)}
@@ -1149,8 +1195,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
           >
             <div>
               <Popconfirm
-                title="Are you sure you want to remove this profile?"
-                description="This action cannot be undone."
+                title={
+                  <span>Are you sure you want to remove this profile?</span>
+                }
+                description={<span>This action cannot be undone.</span>}
                 onConfirm={async () => {
                   try {
                     if (selectedProfileId) {
@@ -1162,19 +1210,21 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                           selectedProfileId
                         );
                       }
-                      message.success("Profile removed successfully!");
+                      toast.success(<span>Profile removed successfully!</span>);
                       setIsModalVisible(false);
                       window.location.reload();
                     }
                   } catch (error) {
                     console.error("Error removing currentProfile:", error);
-                    message.error(
-                      "Failed to remove currentProfile. Please try again."
+                    toast.error(
+                      <span>
+                        Failed to remove currentProfile. Please try again.
+                      </span>
                     );
                   }
                 }}
-                okText="Yes"
-                cancelText="No"
+                okText={<span>Yes</span>}
+                cancelText={<span>No</span>}
               >
                 <Button
                   danger
@@ -1206,8 +1256,11 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                         //   nickname: existingUserNickname,
                         // };
                         if (!selectedProfile) {
-                          message.error(
-                            "Failed to read preexisting profile. Please try again."
+                          toast.error(
+                            <span>
+                              Failed to read preexisting profile. Please try
+                              again.
+                            </span>
                           );
                           return;
                         }
@@ -1216,13 +1269,18 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                           nickname: existingUserNickname,
                         };
                         await updateProfile(updatedProfile);
-                        message.success(
-                          `Profile updated to ${existingUserNickname} successfully!`
+                        toast.success(
+                          <span>
+                            Profile updated to {existingUserNickname}{" "}
+                            successfully!
+                          </span>
                         );
                       } catch (error) {
                         console.error("Error updating currentProfile:", error);
-                        message.error(
-                          "Failed to update currentProfile. Please try again."
+                        toast.error(
+                          <span>
+                            Failed to update currentProfile. Please try again.
+                          </span>
                         );
                         return;
                       }
@@ -1235,8 +1293,10 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                       try {
                         // Then switch to selected profile
                         if (!selectedProfile) {
-                          message.error(
-                            "Failed to read selected profile. Please try again."
+                          toast.error(
+                            <span>
+                              Failed to read selected profile. Please try again.
+                            </span>
                           );
                           return;
                         }
@@ -1244,16 +1304,22 @@ const SwitchProfile = ({ showAvatar = false }: { showAvatar?: boolean }) => {
                         await switchProfile(selectedProfile);
 
                         await sleep(1000);
-                        message.success(
-                          `Switched to ${existingUserNickname || "Anon"} (${shortenAddress(
-                            selectedProfile.icpPublicAddress
-                          )})`
+                        toast.success(
+                          <span>
+                            Switched to{" "}
+                            {existingUserNickname ||
+                              fromLocale().default_orgs.anon_org
+                                .profile_name}{" "}
+                            ({shortenAddress(selectedProfile.icpPublicAddress)})
+                          </span>
                         );
                         window.location.reload();
                       } catch (error) {
                         console.error("Error switching currentProfile:", error);
-                        message.error(
-                          "Failed to switch currentProfile. Please try again."
+                        toast.error(
+                          <span>
+                            Failed to switch currentProfile. Please try again.
+                          </span>
                         );
                         return;
                       }

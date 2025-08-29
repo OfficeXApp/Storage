@@ -11,6 +11,7 @@ import {
 } from "@officexapp/types";
 import { Helmet } from "react-helmet";
 import mixpanel from "mixpanel-browser";
+import { fromLocale } from "../../locales";
 
 const { Title, Paragraph, Text } = Typography;
 const { Content } = Layout;
@@ -150,7 +151,7 @@ const AppStore = () => {
           style={{ marginBottom: "32px", maxWidth: "600px", margin: "0 auto" }}
         >
           <Input.Search
-            placeholder="Search for apps, agents & services..."
+            placeholder={fromLocale().appstore.input_placeholders.search_mall}
             allowClear
             enterButton={<SearchOutlined />}
             size="large"

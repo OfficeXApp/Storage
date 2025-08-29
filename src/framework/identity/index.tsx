@@ -44,6 +44,7 @@ import { useParams } from "react-router-dom";
 import { urlSafeBase64Decode, urlSafeBase64Encode } from "../../api/helpers";
 import { Button, message, notification, Space } from "antd";
 import LoadingAnimation from "../../components/NotFound/LoadingAnimation";
+import { fromLocale } from "../../locales";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -294,7 +295,8 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
               // Create initial profile
               const seedPhrase = (generate(12) as string[]).join(" ");
               const newProfile = await deriveProfileFromSeed(seedPhrase);
-              newProfile.nickname = "Anon";
+              newProfile.nickname =
+                fromLocale().default_orgs.anon_org.profile_name;
               await createProfile(newProfile);
               await hydrateFullAuthProfile(newProfile);
               overwriteLocalStorageProfile(newProfile);
@@ -320,7 +322,7 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
 
               const newOrg = await createOrganization({
                 driveID: newDriveID,
-                nickname: "Offline Org",
+                nickname: fromLocale().default_orgs.offline_org.org_name,
                 icpPublicAddress: tempProfile.icpPublicAddress,
                 host: "",
                 note: "",
@@ -1126,9 +1128,13 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       await switchOrganization(newOrg);
 
       notification.warning({
-        message: "Unknown Organization",
-        description:
-          "You're accessing an unknown organization. Please be careful and remember to remove it later if not needed.",
+        message: <span>Unknown Organization</span>,
+        description: (
+          <span>
+            You're accessing an unknown organization. Please be careful and
+            remember to remove it later if not needed.
+          </span>
+        ),
         duration: 10, // Show for 10 seconds
         placement: "topRight",
         key: "unknown-org-notification", // Unique key to prevent duplicates

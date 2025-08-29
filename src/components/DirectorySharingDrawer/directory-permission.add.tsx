@@ -19,6 +19,7 @@ import {
   Steps,
   Divider,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   InfoCircleOutlined,
   UserOutlined,
@@ -250,32 +251,32 @@ const DirectoryPermissionAddDrawer: React.FC<
   // Define steps content and validation requirements
   const steps = [
     {
-      title: "Who",
+      title: <span>Who</span>,
       icon: <UserOutlined />,
-      description: "Select who to grant permissions to",
+      description: <span>Select who to grant permissions to</span>,
       content: renderGranteeSelection,
       isValid: () => !!selectedGrantee?.id,
     },
     {
-      title: "Can",
+      title: <span>Can</span>,
       icon: <KeyOutlined />,
-      description: "Choose permission types",
+      description: <span>Choose permission types</span>,
       content: renderPermissionTypes,
       isValid: () => {
         return permissionTypes.length > 0;
       },
     },
     {
-      title: "Advanced",
+      title: <span>Advanced</span>,
       icon: <SettingOutlined />,
-      description: "Optional settings",
+      description: <span>Optional settings</span>,
       content: renderAdvancedOptions,
       isValid: () => true, // Advanced options are optional
     },
     {
-      title: "Finish",
+      title: <span>Finish</span>,
       icon: <LinkOutlined />,
-      description: "Share permission",
+      description: <span>Share permission</span>,
       content: renderShareStep,
       isValid: () => true, // Share step is always valid
     },
@@ -415,7 +416,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     if (canGoToStep || stepIndex < currentStep) {
       setCurrentStep(stepIndex);
     } else {
-      message.warning("Please complete the current step first");
+      message.warning(<span>Please complete the current step first</span>);
     }
   };
 
@@ -581,10 +582,14 @@ const DirectoryPermissionAddDrawer: React.FC<
         // More than just ID
         dispatch(updateDirectoryPermissionAction(updatePayload));
         onSubmitCallback();
-        message.success(
-          isOnline
-            ? "Updating directory permission..."
-            : "Queued directory permission update for when you're back online"
+        toast.success(
+          isOnline ? (
+            <span>Updating directory permission...</span>
+          ) : (
+            <span>
+              Queued directory permission update for when you're back online
+            </span>
+          )
         );
         setLoading(false);
         if (isMagicLink && currentOrg) {
@@ -604,7 +609,7 @@ const DirectoryPermissionAddDrawer: React.FC<
           setShareableURL(window.location.href);
         }
       } else {
-        message.info("No changes detected");
+        toast(<span>No changes detected</span>);
       }
     } else {
       // Create directory permission
@@ -670,7 +675,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         dispatch(createDirectoryPermissionAction(directoryPermissionData));
       } else {
         if (!selectedGrantee?.id) {
-          message.error("Please select a grantee");
+          toast.error(<span>Please select a grantee</span>);
           return;
         }
         directoryPermissionData.granted_to = selectedGrantee.id;
@@ -680,10 +685,14 @@ const DirectoryPermissionAddDrawer: React.FC<
 
       onSubmitCallback();
 
-      message.success(
-        isOnline
-          ? "Creating directory permission..."
-          : "Queued directory permission creation for when you're back online"
+      toast.success(
+        isOnline ? (
+          <span>Creating directory permission...</span>
+        ) : (
+          <span>
+            Queued directory permission creation for when you're back online
+          </span>
+        )
       );
 
       setLoading(false);
@@ -696,7 +705,9 @@ const DirectoryPermissionAddDrawer: React.FC<
     return (
       <Form.Item
         label={
-          <Tooltip title="User or group to grant this permission to">
+          <Tooltip
+            title={<span>User or group to grant this permission to</span>}
+          >
             <Space>
               Granted To <InfoCircleOutlined style={{ color: "#aaa" }} />
             </Space>
@@ -723,7 +734,7 @@ const DirectoryPermissionAddDrawer: React.FC<
                       navigator.clipboard.writeText(
                         preExistingStateForEdit.password || ""
                       );
-                      message.success(`Copied Password`);
+                      toast.success(<span>Copied Password</span>);
                     }}
                     size="small"
                     style={{ marginRight: 8 }}
@@ -1024,7 +1035,7 @@ const DirectoryPermissionAddDrawer: React.FC<
     return (
       <Form.Item
         label={
-          <Tooltip title="Types of permissions to grant">
+          <Tooltip title={<span>Types of permissions to grant</span>}>
             <Space>
               Permission Types <InfoCircleOutlined style={{ color: "#aaa" }} />
             </Space>
@@ -1224,7 +1235,13 @@ const DirectoryPermissionAddDrawer: React.FC<
         {resourceID.startsWith("FolderID_") && (
           <div style={{ marginBottom: 24 }}>
             <label>
-              <Tooltip title="Whether this permission applies to subfolders and files">
+              <Tooltip
+                title={
+                  <span>
+                    Whether this permission applies to subfolders and files
+                  </span>
+                }
+              >
                 <Space>
                   Inheritable <InfoCircleOutlined style={{ color: "#aaa" }} />
                 </Space>
@@ -1245,7 +1262,13 @@ const DirectoryPermissionAddDrawer: React.FC<
         {/* Date Range */}
         <div style={{ marginBottom: 24 }}>
           <label>
-            <Tooltip title="Set optional date range for when this permission is active">
+            <Tooltip
+              title={
+                <span>
+                  Set optional date range for when this permission is active
+                </span>
+              }
+            >
               <Space>
                 Date Range <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -1268,7 +1291,7 @@ const DirectoryPermissionAddDrawer: React.FC<
         {/* Notes */}
         <div style={{ marginBottom: 24 }}>
           <label>
-            <Tooltip title="Optional notes about this permission">
+            <Tooltip title={<span>Optional notes about this permission</span>}>
               <Space>
                 Notes <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -1295,7 +1318,7 @@ const DirectoryPermissionAddDrawer: React.FC<
       <div style={{ padding: "12px 0" }}>
         <div style={{ marginBottom: 24 }}>
           <label>
-            <Tooltip title="Copy this link to share">
+            <Tooltip title={<span>Copy this link to share</span>}>
               <Space>
                 Share This Link <InfoCircleOutlined style={{ color: "#aaa" }} />
               </Space>
@@ -1310,7 +1333,7 @@ const DirectoryPermissionAddDrawer: React.FC<
                   type="primary"
                   onClick={() => {
                     navigator.clipboard.writeText(shareableURL);
-                    message.success("Link copied to clipboard");
+                    toast.success(<span>Link copied to clipboard</span>);
                   }}
                 >
                   Copy
@@ -1443,7 +1466,7 @@ const DirectoryPermissionAddDrawer: React.FC<
               type="primary"
               onClick={() => {
                 navigator.clipboard.writeText(shareableURL);
-                message.success("Link copied to clipboard");
+                toast.success(<span>Link copied to clipboard</span>);
               }}
               style={{ marginLeft: 8 }}
               size="large"

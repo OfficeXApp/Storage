@@ -15,6 +15,7 @@ import {
   Popover,
   Result,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   BarsOutlined,
   ClockCircleOutlined,
@@ -121,19 +122,19 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
     {
       key: "1",
       icon: <UserAddOutlined />,
-      label: "Share Drive",
+      label: <span>Share Drive</span>,
       disabled: true,
     },
     {
       key: "2",
       icon: <LinkOutlined />,
-      label: "Copy URL",
+      label: <span>Copy URL</span>,
       disabled: true,
     },
     {
       key: "3",
       icon: <DeleteOutlined />,
-      label: "Delete",
+      label: <span>Delete</span>,
       disabled: true,
     },
   ];
@@ -161,7 +162,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
   // Define table columns
   const columns: ColumnsType<DriveFEO> = [
     {
-      title: "Drive",
+      title: <span>Drive</span>,
       dataIndex: "name",
       key: "name",
       render: (_: any, record: DriveFEO) => {
@@ -199,7 +200,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
                 // copy to clipboard
                 const driveString = `${record.name.replace(/ /g, "_")}@${record.id}`;
                 navigator.clipboard.writeText(driveString);
-                message.success("Copied to clipboard");
+                toast.success(<span>Copied to clipboard</span>);
               }}
               color="default"
             >
@@ -213,9 +214,9 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "Coming Soon" },
-    { key: "2", label: "Coming Soon" },
-    { key: "3", label: "Coming Soon" },
+    { key: "1", label: <span>Coming Soon</span> },
+    { key: "2", label: <span>Coming Soon</span> },
+    { key: "3", label: <span>Coming Soon</span> },
   ];
 
   const renderMobileList = () => {
@@ -360,7 +361,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Syncing latest...");
+                    toast(<span>Syncing latest...</span>);
                     syncLatest();
                   }}
                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -539,7 +540,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
       ) : !currentOrg?.host ? (
         <Result
           icon={<CloudSyncOutlined />}
-          title="Connect Cloud"
+          title={<span>Connect Cloud</span>}
           subTitle={
             <div>
               <span>This is an offline organization</span>
@@ -568,7 +569,7 @@ const DrivesTableList: React.FC<DrivesTableListProps> = ({
       ) : (
         <Result
           icon={<LockOutlined />}
-          title="Unauthorized"
+          title={<span>Unauthorized</span>}
           subTitle={
             <div>
               <span>Sorry, you are not authorized to view drives.</span>

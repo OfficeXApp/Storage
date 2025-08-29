@@ -13,6 +13,7 @@ import {
   Popover,
   Result,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   BarsOutlined,
   ClockCircleOutlined,
@@ -117,13 +118,13 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
     {
       key: "1",
       icon: <LockOutlined />,
-      label: "Revoke Selected",
+      label: <span>Revoke Selected</span>,
       disabled: selectedRowKeys.length === 0,
     },
     {
       key: "2",
       icon: <DeleteOutlined />,
-      label: "Delete Selected",
+      label: <span>Delete Selected</span>,
       disabled: selectedRowKeys.length === 0,
     },
   ];
@@ -187,7 +188,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
   // Define table columns - Restructured to match the desired layout
   const columns: ColumnsType<ApiKeyFE> = [
     {
-      title: "API Key",
+      title: <span>API Key</span>,
       dataIndex: "name",
       key: "name",
       render: (_: any, record: ApiKeyFE) => (
@@ -218,7 +219,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
       ),
     },
     {
-      title: "Expires",
+      title: <span>Expires</span>,
       dataIndex: "expires_at",
       key: "expires_at",
       width: 150,
@@ -237,18 +238,18 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
 
   // Example items for filter dropdowns
   const filterItems = [
-    { key: "1", label: "All Keys" },
-    { key: "2", label: "Active" },
-    { key: "3", label: "Expired" },
-    { key: "4", label: "Revoked" },
+    { key: "1", label: <span>All Keys</span> },
+    { key: "2", label: <span>Active</span> },
+    { key: "3", label: <span>Expired</span> },
+    { key: "4", label: <span>Revoked</span> },
   ];
 
   const sortItems = [
-    { key: "1", label: "Name (A-Z)" },
-    { key: "2", label: "Name (Z-A)" },
-    { key: "3", label: "Newest first" },
-    { key: "4", label: "Oldest first" },
-    { key: "5", label: "Expiring soon" },
+    { key: "1", label: <span>Name (A-Z)</span> },
+    { key: "2", label: <span>Name (Z-A)</span> },
+    { key: "3", label: <span>Newest first</span> },
+    { key: "4", label: <span>Oldest first</span> },
+    { key: "5", label: <span>Expiring soon</span> },
   ];
 
   // Updated mobile list to include ID, value label, and status inline with the name
@@ -377,7 +378,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
               ) : (
                 <SyncOutlined
                   onClick={() => {
-                    message.info("Syncing latest...");
+                    toast(<span>Syncing latest...</span>);
                     syncLatest();
                   }}
                   style={{ color: "rgba(0,0,0,0.2)" }}
@@ -533,7 +534,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
       ) : !currentOrg?.host ? (
         <Result
           icon={<CloudSyncOutlined />}
-          title="Connect Cloud"
+          title={<span>Connect Cloud</span>}
           subTitle={
             <div>
               <span>This is an offline organization</span>
@@ -562,7 +563,7 @@ const ApiKeysTableList: React.FC<ApiKeysTableListProps> = ({
       ) : (
         <Result
           icon={<LockOutlined />}
-          title="Unauthorized"
+          title={<span>Unauthorized</span>}
           subTitle={
             <div>
               <span>Sorry, you are not authorized to view api keys.</span>

@@ -8,8 +8,8 @@ const NotFoundPage = () => {
   return (
     <Result
       status="404"
-      title="404 Not Found"
-      subTitle="Sorry, the page you visited does not exist."
+      title={<span>404 Not Found</span>}
+      subTitle={<span>Sorry, the page you visited does not exist.</span>}
       extra={
         <Link to={wrapOrgCode("/drive")}>
           <Button type="primary">Go Home</Button>

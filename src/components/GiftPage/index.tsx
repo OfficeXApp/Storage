@@ -16,6 +16,7 @@ import {
 } from "../../api/pseudo-share";
 import mixpanel from "mixpanel-browser";
 import { useIdentitySystem } from "../../framework/identity";
+import toast from "react-hot-toast";
 
 const GiftPage: React.FC = () => {
   const [searchParams] = useSearchParams(); // Use to extract query params
@@ -77,8 +78,8 @@ const GiftPage: React.FC = () => {
         <Result
           status="error"
           icon={<DisconnectOutlined />}
-          title="No Gift Found"
-          subTitle="The gift you are looking for does not exist."
+          title={<span>No Gift Found</span>}
+          subTitle={<span>The gift you are looking for does not exist.</span>}
           extra={
             <Button type="primary">
               <Link to="/drive">Back to Drive</Link>
@@ -96,8 +97,8 @@ const GiftPage: React.FC = () => {
         <Result
           status="404"
           icon={<DisconnectOutlined />}
-          title="Gift Not Found"
-          subTitle={error}
+          title={<span>Gift Not Found</span>}
+          subTitle={<span>{error}</span>}
           extra={
             <Button type="primary">
               <Link to="/drive">Back to Drive</Link>
@@ -114,10 +115,10 @@ const GiftPage: React.FC = () => {
     navigator.clipboard
       .writeText(newUrl)
       .then(() => {
-        message.success("URL copied to clipboard!");
+        toast.success(<span>URL copied to clipboard!</span>);
       })
       .catch(() => {
-        message.error("Failed to copy the URL.");
+        toast.error(<span>Failed to copy the URL.</span>);
       });
     mixpanel.track("Share File", {
       "File Type": giftTitle.split(".").pop(),
@@ -128,8 +129,8 @@ const GiftPage: React.FC = () => {
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <Result
         icon={<GiftOutlined />}
-        title={giftTitle || "Loading gift..."}
-        subTitle="This file was shared with you"
+        title={<span>{giftTitle || "Loading gift..."}</span>}
+        subTitle={<span>This file was shared with you</span>}
         extra={[
           <a
             href={giftUrl}

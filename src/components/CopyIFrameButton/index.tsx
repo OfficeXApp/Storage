@@ -10,6 +10,7 @@ import {
 } from "antd";
 import { CodeOutlined, CopyOutlined } from "@ant-design/icons";
 import { useIdentitySystem } from "../../framework/identity";
+import toast from "react-hot-toast";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -52,10 +53,10 @@ const CopyIFrameButton: React.FC = () => {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        message.success("Copied to clipboard!");
+        toast.success(<span>Copied to clipboard!</span>);
       })
       .catch((err) => {
-        message.error("Failed to copy text.");
+        toast.error(<span>Failed to copy text.</span>);
       });
   };
 
@@ -162,7 +163,7 @@ export default OfficeXIFrame;`;
             outline: "none",
           }}
         />
-        <Tooltip title="Copy to clipboard">
+        <Tooltip title={<span>Copy to clipboard</span>}>
           <Button
             type="text"
             icon={<CopyOutlined />}

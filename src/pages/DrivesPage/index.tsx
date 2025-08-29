@@ -79,7 +79,7 @@ const DrivesPage: React.FC = () => {
   const [tabItems, setTabItems] = useState<TabItem[]>([
     {
       key: "list",
-      label: "Drives List",
+      label: <span>Drives List</span>,
       children: null,
       closable: false,
     },
@@ -192,8 +192,10 @@ const DrivesPage: React.FC = () => {
     return (
       <Result
         icon={<ExperimentOutlined />}
-        title="Coming Soon"
-        subTitle="This feature is coming soon for this organization."
+        title={<span>Coming Soon</span>}
+        subTitle={
+          <span>This feature is coming soon for this organization.</span>
+        }
         extra={
           <Button onClick={() => navigate(-1)} type="primary">
             Back

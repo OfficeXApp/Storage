@@ -208,13 +208,18 @@ const SideMenu = ({
       ? {
           key: "appstore",
           icon: <AppstoreAddOutlined />, // <ProductOutlined />, //
-          label: "App Store",
-          onClick: () => {
-            navigate(wrapOrgCode("/appstore"));
-            if (setSidebarVisible) {
-              setSidebarVisible(false);
-            }
-          },
+          label: (
+            <div
+              onClick={() => {
+                navigate(wrapOrgCode("/appstore"));
+                if (setSidebarVisible) {
+                  setSidebarVisible(false);
+                }
+              }}
+            >
+              App Store
+            </div>
+          ),
         }
       : null,
     {
@@ -303,12 +308,12 @@ const SideMenu = ({
     },
     {
       key: "organization",
-      label: "Company",
+      label: <div>Company</div>,
       icon: <TeamOutlined />,
       children: [
         {
           key: "people",
-          label: "Groups",
+          label: <div>Groups</div>,
           type: "group",
           children: [
             {
@@ -375,7 +380,7 @@ const SideMenu = ({
         },
         {
           key: "storage",
-          label: "Storage",
+          label: <div>Storage</div>,
           type: "group",
           children: [
             {
@@ -412,7 +417,7 @@ const SideMenu = ({
         },
         {
           key: "developers",
-          label: "Developers",
+          label: <div>Developers</div>,
           type: "group",
           children: [
             ENABLE_APPSTORE
@@ -479,13 +484,18 @@ const SideMenu = ({
     {
       key: "settings",
       icon: <SettingOutlined />,
-      label: "Settings",
-      onClick: () => {
-        navigate(wrapOrgCode("/settings"));
-        if (setSidebarVisible) {
-          setSidebarVisible(false);
-        }
-      },
+      label: (
+        <div
+          onClick={() => {
+            navigate(wrapOrgCode("/settings"));
+            if (setSidebarVisible) {
+              setSidebarVisible(false);
+            }
+          }}
+        >
+          Settings
+        </div>
+      ),
     },
   ];
 

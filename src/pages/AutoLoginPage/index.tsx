@@ -10,6 +10,7 @@ import {
   urlSafeBase64Decode,
   urlSafeBase64Encode,
 } from "../../api/helpers";
+import toast from "react-hot-toast";
 import {
   Card,
   Descriptions,
@@ -67,10 +68,10 @@ const AutoLoginPage = () => {
           proceedAutoLogin(decodedData);
         } catch (error) {
           console.error("Error decoding auto-login parameter:", error);
-          message.error("Invalid auto-login data");
+          toast.error(<span>Invalid auto-login data</span>);
         }
       } else {
-        message.error("No auto-login data found");
+        toast.error(<span>No auto-login data found</span>);
       }
       setLoading(false);
     };
@@ -93,8 +94,10 @@ const AutoLoginPage = () => {
       // Switch to the new profile
       await switchProfile(newProfile);
 
-      message.success(
-        `Successfully logged in as ${data.profile_name || "Recovered Profile"}`
+      toast.success(
+        <span>
+          Successfully logged in as {data.profile_name || "Recovered Profile"}
+        </span>
       );
 
       // Create organization with the provided data
@@ -110,8 +113,11 @@ const AutoLoginPage = () => {
       // Switch to the new organization with the current profile
       await switchOrganization(newOrg, newProfile.userID);
 
-      message.success(
-        `Successfully added organization ${data.org_name || "Recovered Organization"}`
+      toast.success(
+        <span>
+          Successfully added organization{" "}
+          {data.org_name || "Recovered Organization"}
+        </span>
       );
 
       // Create API key
@@ -123,7 +129,7 @@ const AutoLoginPage = () => {
         value: data.profile_api_key,
         host: data.org_host,
       });
-      message.success("Redirecting... please wait");
+      toast.success(<span>Redirecting... please wait</span>);
 
       await sleep(4000);
 
@@ -133,7 +139,9 @@ const AutoLoginPage = () => {
       window.location.reload();
     } catch (error) {
       console.error("Auto-login failed:", error);
-      message.error("Failed to auto-login. Please contact your administrator.");
+      toast.error(
+        <span>Failed to auto-login. Please contact your administrator.</span>
+      );
     }
   };
 
@@ -141,8 +149,13 @@ const AutoLoginPage = () => {
     return (
       <Result
         status="warning"
-        title="Invalid Login Link"
-        subTitle="The login link is invalid or has expired. Please contact your administrator for a new link."
+        title={<span>Invalid Login Link</span>}
+        subTitle={
+          <span>
+            The login link is invalid or has expired. Please contact your
+            administrator for a new link.
+          </span>
+        }
       />
     );
   }
@@ -160,7 +173,7 @@ const AutoLoginPage = () => {
         icon={
           <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
         }
-        title="Logging you in..."
+        title={<span>Logging you in...</span>}
         subTitle={
           <div>
             <Space direction="vertical" size={4}>

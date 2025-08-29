@@ -11,6 +11,7 @@ import { urlSafeBase64Decode } from "../../api/helpers";
 import { message, Typography } from "antd";
 import FilePage from "../FilePage";
 import Title from "antd/es/skeleton/Title";
+import toast from "react-hot-toast";
 
 const FreeFileSharePreview = () => {
   const params = useParams();
@@ -43,10 +44,10 @@ const FreeFileSharePreview = () => {
           setRedeemData(decodedData);
         } catch (error) {
           console.error("Error decoding redeem parameter:", error);
-          message.error("Invalid resource access link");
+          toast.error(<span>Invalid resource access link</span>);
         }
       } else {
-        message.error("No resource access data found");
+        toast.error(<span>No resource access data found</span>);
       }
       setLoading(false);
     };

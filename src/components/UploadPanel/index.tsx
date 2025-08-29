@@ -200,11 +200,16 @@ const UploadPanel: React.FC<{
     const state = getUploadState();
     switch (state) {
       case "empty":
-        return "Upload Files";
+        return <span>Upload Files</span>;
       case "uploading":
-        return `Uploading ${uploadProgress.completedFiles} of ${uploadProgress.totalFiles}`;
+        return (
+          <span>
+            Uploading {uploadProgress.completedFiles} of{" "}
+            {uploadProgress.totalFiles}
+          </span>
+        );
       case "completed":
-        return `${uploadProgress.completedFiles} Files Uploaded`;
+        return <span>{uploadProgress.completedFiles} Files Uploaded</span>;
     }
   };
 

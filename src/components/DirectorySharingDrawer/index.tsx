@@ -14,6 +14,7 @@ import {
   Popconfirm,
   Popover,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   CheckOutlined,
   CloseOutlined,
@@ -634,7 +635,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           ) : (
             <SyncOutlined
               onClick={() => {
-                message.info("Refetching permissions...");
+                toast(<span>Refetching permissions...</span>);
                 refetchPermissions();
               }}
               style={{ color: "rgba(0,0,0,0.2)" }}
@@ -647,7 +648,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       width: "45%",
       render: (name: string, record: PermissionRecord) => (
         <span style={{ fontSize: "16px" }}>
-          <Popover content={record.original.note || "Add Custom Notes"}>
+          <Popover
+            content={record.original.note || <span>Add Custom Notes</span>}
+          >
             {name}
           </Popover>
           {record.who_id !== "PUBLIC" && (
@@ -657,7 +660,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       ),
     },
     {
-      title: "Can",
+      title: <span>Can</span>,
       key: "can",
       width: "25%",
       render: (_: any, record: PermissionRecord) => {
@@ -669,7 +672,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       },
     },
     {
-      title: "When",
+      title: <span>When</span>,
       key: "when",
       width: "20%",
       render: (_: any, record: PermissionRecord) => {
@@ -722,7 +725,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                     },
                   });
                   navigator.clipboard.writeText(magicLink);
-                  message.success("Copied magic link!");
+                  toast.success(<span>Copied magic link!</span>);
                 }}
               >
                 Copy Magic Link
@@ -740,7 +743,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                     // @ts-ignore
                     record.original.metadata?.content?.DirectoryPassword || ""
                   );
-                  message.success("Copied password!");
+                  toast.success(<span>Copied password!</span>);
                 }}
               >
                 Copy Password
@@ -825,14 +828,16 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       return shortLink;
     } catch (error) {
       console.error("Error generating short link:", error);
-      message.error(`Failed to generate short link: ${error}`);
+      toast.error(<span>Failed to generate short link</span>);
       return null;
     }
   };
 
   const generateOnTheFlyShareLink = async (fileResource: FileFEO) => {
     if (!fileResource || !fileResource?.id?.startsWith("FileID_")) {
-      message.error("Cannot share a folder or invalid resource on the fly.");
+      toast.error(
+        <span>Cannot share a folder or invalid resource on the fly.</span>
+      );
       return;
     }
 
@@ -841,8 +846,12 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
 
     // Check file size from metadata if available
     if (fileResource.file_size && fileResource.file_size > MAX_FILE_SIZE) {
-      message.error(
-        `File is too large (${(fileResource.file_size / 1024 / 1024).toFixed(1)}MB) for offline disk sharing. Maximum allowed size is ${MAX_FILE_SIZE / 1024 / 1024}MB. Use another disk.`
+      toast.error(
+        <span>
+          File is too large ({(fileResource.file_size / 1024 / 1024).toFixed(1)}
+          MB) for offline disk sharing. Maximum allowed size is $
+          {MAX_FILE_SIZE / 1024 / 1024}MB. Use another disk.
+        </span>
       );
       return;
     }
@@ -855,7 +864,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
 
       // Attempt to get file from IndexedDB
       if (!fileResource.id) {
-        message.error("File ID is missing, cannot fetch from IndexedDB.");
+        toast.error(
+          <span>File ID is missing, cannot fetch from IndexedDB.</span>
+        );
         setIsGeneratingLink(false);
         return;
       }
@@ -863,7 +874,9 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
       try {
         const blobUrl = await getFileFromIndexedDB(fileResource.id as FileUUID);
         if (!blobUrl) {
-          message.error("Failed to retrieve file content from local cache.");
+          toast.error(
+            <span>Failed to retrieve file content from local cache.</span>
+          );
           setIsGeneratingLink(false);
           return;
         }
@@ -882,8 +895,8 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
           "Error fetching file from IndexedDB for sharing:",
           dbError
         );
-        message.error(
-          `Failed to get file from local cache: ${dbError.message}`
+        toast.error(
+          <span>Failed to get file from local cache: {dbError.message}</span>
         );
         setIsGeneratingLink(false);
         return;
@@ -919,11 +932,16 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
 
       // copy to clipboard
       navigator.clipboard.writeText(_setOnTheFlyShareUrl);
-      message.success("Generated & copied sharing link!");
+      toast.success(<span>Generated & copied sharing link!</span>);
     } catch (error: any) {
       console.error("Error generating on-the-fly share link:", error);
-      message.error(`Failed to generate share link: ${error.message}`);
+      toast.error(<span>Failed to generate share link</span>);
     }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(<span>Copied to clipboard</span>);
   };
 
   return (
@@ -959,8 +977,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
             uploadTargetDiskID === defaultBrowserCacheDiskID && (
               <div
                 onClick={() => {
-                  navigator.clipboard.writeText(onTheFlyShareUrl);
-                  message.success("Share URL copied to clipboard");
+                  copyToClipboard(onTheFlyShareUrl);
                 }}
                 style={{ color: "gray", cursor: "pointer" }}
               >
@@ -977,8 +994,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                 type="primary"
                 icon={<CopyOutlined />}
                 onClick={() => {
-                  navigator.clipboard.writeText(shortlinkUrl);
-                  message.success("Share URL copied to clipboard");
+                  copyToClipboard(shortlinkUrl);
                 }}
                 size="large"
                 style={{ marginLeft: 8 }}
@@ -1023,8 +1039,7 @@ const DirectorySharingDrawer: React.FC<DirectorySharingDrawerProps> = ({
                 type="primary"
                 icon={<CopyOutlined />}
                 onClick={() => {
-                  navigator.clipboard.writeText(shareUrl);
-                  message.success("Share URL copied to clipboard");
+                  copyToClipboard(shareUrl);
                 }}
                 size="large"
                 style={{ marginLeft: 8 }}

@@ -12,6 +12,7 @@ import {
   Popover,
   AutoComplete,
 } from "antd";
+import toast from "react-hot-toast";
 import {
   CloudSyncOutlined,
   DownOutlined,
@@ -36,6 +37,7 @@ import { DiskTypeEnum } from "@officexapp/types";
 import { useNavigate } from "react-router-dom";
 import { listDisksAction } from "../../redux-offline/disks/disks.actions";
 import { useDispatch } from "react-redux";
+import { fromLocale } from "../../locales";
 
 const { Text, Title } = Typography;
 
@@ -66,6 +68,10 @@ const ConnectICPButton = () => {
   const [filteredGiftCardOptions, setFilteredGiftCardOptions] = useState(
     initialGiftCardOptions
   );
+
+  useEffect(() => {
+    setOrgName(fromLocale().default_orgs.anon_org.org_name);
+  }, []);
 
   // Set default selected profile when profiles list changes
   useEffect(() => {
@@ -110,7 +116,10 @@ const ConnectICPButton = () => {
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
           <Space>
             <UserOutlined />
-            <span>{profile.nickname || "Anon"}</span>
+            <span>
+              {profile.nickname ||
+                fromLocale().default_orgs.anon_org.profile_name}
+            </span>
           </Space>
           <span style={{ color: "#8c8c8c" }}>
             {shortenAddress(profile.icpPublicAddress)}
@@ -137,9 +146,13 @@ const ConnectICPButton = () => {
       }
 
       apiNotifs.open({
-        message: "Creating Organization",
-        description:
-          "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready.",
+        message: <span>Creating Organization</span>,
+        description: (
+          <span>
+            Please allow up to 2 minutes to deploy to the World Computer. You
+            will be redirected to the new organization once it is ready.
+          </span>
+        ),
         icon: <LoadingOutlined />,
         duration: 0,
       });
@@ -147,7 +160,7 @@ const ConnectICPButton = () => {
       // Extract ICP principal from profile UserID
       const icpPrincipal = profile.userID.replace("UserID_", "");
 
-      message.info("Redeeming Gift Card...");
+      toast(<span>Redeeming Gift Card...</span>);
 
       let targetFactoryEndpoint = selectedFactoryEndpoint?.value;
       let giftcardRedeemID = giftCardValue;
@@ -216,9 +229,9 @@ const ConnectICPButton = () => {
         : selectedFactoryEndpoint?.value.includes("icp0.io");
 
       await sleep(isWeb3 ? 5000 : 0);
-      message.info("Minting Anonymous Blockchain...");
+      toast(<span>Minting Anonymous Blockchain...</span>);
       await sleep(isWeb3 ? 5000 : 0);
-      message.info("Promoting you to Admin...");
+      toast(<span>Promoting you to Admin...</span>);
       await sleep(isWeb3 ? 5000 : 0);
 
       const { drive_id, host, redeem_code, disk_auth_json } =
@@ -245,7 +258,7 @@ const ConnectICPButton = () => {
       const completeRedeemData = await completeRedeemResponse.json();
 
       if (!completeRedeemData.ok || !completeRedeemData.ok.data) {
-        message.error(`Error deploying organization - ${redeem_code}`);
+        toast.error(<span>Error deploying organization - {redeem_code}</span>);
         localStorage.setItem("FACTORY_REDEEM_CODE", redeem_code);
         throw new Error("Invalid response from organization setup");
       }
@@ -303,14 +316,16 @@ const ConnectICPButton = () => {
       await switchProfile(profile);
       await switchOrganization(newOrg, profile.userID);
 
-      message.success(
-        `Successfully Created Organization "${orgName}" with Gift Card`
+      toast.success(
+        <span>
+          Successfully Created Organization "${orgName}" with Gift Card
+        </span>
       );
       setGiftCardValue("");
 
       if (disk_auth_json) {
         try {
-          message.success("Setting up cloud storage...");
+          toast.success(<span>Setting up cloud storage...</span>);
 
           // Make POST request to create disk
           const { url, headers } = wrapAuthStringOrHeader(
@@ -337,7 +352,7 @@ const ConnectICPButton = () => {
               await createDiskResponse.text()
             );
           } else {
-            message.success("Cloud storage configured successfully!");
+            toast.success(<span>Cloud storage configured successfully!</span>);
           }
         } catch (error) {
           console.error("Error creating disk:", error);
@@ -345,15 +360,18 @@ const ConnectICPButton = () => {
       }
 
       // Refresh the page
-      message.success("Syncing... please wait");
+      toast.success(<span>Syncing... please wait</span>);
       await sleep(isWeb3 ? 3000 : 0);
-      message.success(`Success! Entering new organization...`);
+      toast.success(<span>Success! Entering new organization...</span>);
       navigate("/org/current/welcome");
       window.location.reload();
     } catch (error) {
       console.error("Error connecting to cloud:", error);
-      message.error(
-        `Failed to connect: ${error instanceof Error ? error.message : "Unknown error"}`
+      toast.error(
+        <span>
+          Failed to connect:{" "}
+          {error instanceof Error ? error.message : "Unknown error"}
+        </span>
       );
     } finally {
       setLoading(false);

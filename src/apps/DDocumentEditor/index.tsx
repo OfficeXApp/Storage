@@ -91,6 +91,7 @@ import SlimAppHeader from "../../components/SlimAppHeader";
 import { useMultiUploader } from "../../framework/uploader/hook";
 
 import DirectoryGuard from "../../components/DriveUI/DirectoryGuard";
+import AIChatPanel from "../../components/AIChatPanel";
 
 const { Text } = Typography;
 
@@ -1309,6 +1310,12 @@ const DDocumentEditor = () => {
         breadcrumbs={file?.breadcrumbs || []}
         currentUserPermissions={file?.permission_previews || []}
       />
+      {!screenType.isMobile && (
+        <AIChatPanel
+          uploadPanelVisible={true}
+          setUploadPanelVisible={() => {}}
+        />
+      )}
     </div>
   );
 };

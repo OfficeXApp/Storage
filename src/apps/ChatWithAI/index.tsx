@@ -1076,11 +1076,7 @@ const ChatWithAI = () => {
           style={{
             position: "absolute",
             top: "10vh",
-            right:
-              selectedChatEndpoint ===
-              `${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
-                ? "10px"
-                : "130px",
+            right: "130px",
             zIndex: 999,
             display: "flex",
             alignItems: "center",

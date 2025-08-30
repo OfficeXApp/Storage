@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useMultiUploader } from "../../framework/uploader/hook";
 
-import { Button, Typography } from "antd";
+import { Button, Tabs, Typography } from "antd";
 
 import {
   ExpandAltOutlined,
+  PlusOutlined,
   ShrinkOutlined,
   WechatWorkOutlined,
 } from "@ant-design/icons";
@@ -18,45 +19,60 @@ import { useLingoLocale } from "lingo.dev/react-client";
 
 const { Text } = Typography;
 
-const AIChatPanel: React.FC<{
-  uploadPanelVisible: boolean;
-  setUploadPanelVisible: (bool: boolean) => void;
-}> = ({ uploadPanelVisible, setUploadPanelVisible }) => {
+interface TabItem {
+  key: string;
+  label: React.ReactNode;
+  children: React.ReactNode;
+}
+
+const AIChatPanel: React.FC<{ isSheets?: boolean }> = ({
+  isSheets = false,
+}) => {
+  const [uploadPanelVisible, setUploadPanelVisible] = useState(false);
   const { wrapOrgCode } = useIdentitySystem();
   const currentLocale = useLingoLocale();
-  const dispatch = useDispatch();
   const screenType = useScreenType();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [selectedChatEndpoint, setSelectedChatEndpoint] = useState(
-    `${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}&pop_panel_mode=true`
-  );
 
-  const appendRefreshParam = () => {
-    const params = new URLSearchParams(location.search);
-    params.set("refresh", uuidv4()); // Set or update the refresh parameter
-    navigate(`${location.pathname}?${params.toString()}`, { replace: true }); // Update the URL
-  };
-
-  const renderUploadContent = () => (
-    <div
-      style={{
-        padding: "10px",
-        height: "calc(100% - 50px)",
-        overflowY: "auto",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "20px",
-        }}
-      >
+  const initialTabKey = uuidv4();
+  const [tabs, setTabs] = useState<TabItem[]>([
+    {
+      key: initialTabKey,
+      label: <span>Chat</span>,
+      children: (
         <iframe
-          ref={iframeRef}
-          src={selectedChatEndpoint}
+          src={`${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}&pop_panel_mode=true&refresh=${initialTabKey}`}
+          allow="clipboard-read; clipboard-write"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          style={
+            screenType.isMobile
+              ? {
+                  width: "100%",
+                  height: "500px",
+                  border: "none",
+                  position: "fixed",
+                  bottom: 0,
+                  paddingBottom: "0vh",
+                }
+              : {
+                  width: "100%",
+                  height: "530px",
+                  border: "none",
+                }
+          }
+        />
+      ),
+    },
+  ]);
+  const [activeTabKey, setActiveTabKey] = useState<string>(initialTabKey);
+
+  const addTab = () => {
+    const newTabKey = uuidv4();
+    const newTab: TabItem = {
+      key: newTabKey,
+      label: <span>Chat</span>,
+      children: (
+        <iframe
+          src={`${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}&pop_panel_mode=true&refresh=${newTabKey}`}
           allow="clipboard-read; clipboard-write"
           sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
           style={
@@ -76,28 +92,40 @@ const AIChatPanel: React.FC<{
                 }
           }
         />
-        {/* <div>
-          <Button
-            icon={<UploadOutlined />}
-            onClick={handleUploadFiles}
-            style={{ borderRadius: "5px 0px 0px 5px" }}
-          >
-            Upload Files
-          </Button>
-          <Button
-            icon={<FolderOutlined />}
-            onClick={handleUploadFolder}
-            style={{ borderRadius: "0px 5px 5px 0px", marginLeft: "-1px" }}
-          >
-            Upload Folder
-          </Button>
-        </div>
-        <Button icon={<ClearOutlined />} onClick={handleClearQueue}></Button> */}
-      </div>
+      ),
+    };
+    setTabs([...tabs, newTab]);
+    setActiveTabKey(newTabKey);
+  };
 
-      <section></section>
-    </div>
-  );
+  const removeTab = (targetKey: string) => {
+    let newActiveKey = activeTabKey;
+    let lastIndex = -1;
+    tabs.forEach((tab, i) => {
+      if (tab.key === targetKey) {
+        lastIndex = i - 1;
+      }
+    });
+    const newTabs = tabs.filter((tab) => tab.key !== targetKey);
+    if (newTabs.length && newActiveKey === targetKey) {
+      if (lastIndex >= 0) {
+        newActiveKey = newTabs[lastIndex].key;
+      } else {
+        newActiveKey = newTabs[0].key;
+      }
+    }
+    setTabs(newTabs);
+    setActiveTabKey(newActiveKey);
+  };
+
+  const onEdit = (
+    targetKey: React.MouseEvent | React.KeyboardEvent | string,
+    action: "add" | "remove"
+  ) => {
+    if (action === "remove" && tabs.length > 1) {
+      removeTab(targetKey as string);
+    }
+  };
 
   const renderMinimizedContent = () => (
     <div
@@ -118,13 +146,14 @@ const AIChatPanel: React.FC<{
         style={{
           position: "fixed",
           bottom: 0,
-          right: screenType.isMobile ? 0 : 20,
-          width: screenType.isMobile ? "100%" : "400px",
+          right: isSheets && !uploadPanelVisible ? 150 : 20,
+          width: screenType.isMobile ? "100%" : "500px",
           backgroundColor: "white",
           boxShadow: "0 -2px 8px rgba(0,0,0,0.15)",
           borderRadius: "8px 8px 0 0",
           transition: "height 0.3s ease-in-out",
-          height: uploadPanelVisible ? "600px" : "50px",
+          height: uploadPanelVisible ? "650px" : "50px",
+          maxHeight: "90vh",
           overflow: "hidden",
           zIndex: 1000,
         }}
@@ -153,7 +182,42 @@ const AIChatPanel: React.FC<{
             size="small"
           />
         </div>
-        {uploadPanelVisible ? renderUploadContent() : renderMinimizedContent()}
+        {!uploadPanelVisible && renderMinimizedContent()}
+
+        <div
+          style={{
+            padding: "10px",
+            height: "calc(100% - 50px)",
+            overflowY: "auto",
+          }}
+        >
+          <Tabs
+            type="editable-card"
+            hideAdd={true}
+            items={tabs}
+            activeKey={activeTabKey}
+            onChange={setActiveTabKey}
+            onEdit={onEdit}
+            size="small"
+            renderTabBar={(props, DefaultTabBar) => (
+              <div
+                style={{
+                  display: "flex",
+                  overflowX: "auto",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <Button
+                  type="text"
+                  icon={<PlusOutlined />}
+                  onClick={addTab}
+                  style={{ flexShrink: 0, marginRight: "8px" }}
+                />
+                <DefaultTabBar {...props} />
+              </div>
+            )}
+          />
+        </div>
       </div>
     </>
   );

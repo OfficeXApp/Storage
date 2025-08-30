@@ -91,6 +91,7 @@ import SlimAppHeader from "../../components/SlimAppHeader";
 import { useMultiUploader } from "../../framework/uploader/hook";
 
 import DirectoryGuard from "../../components/DriveUI/DirectoryGuard";
+import AIChatPanel from "../../components/AIChatPanel";
 
 const { Text } = Typography;
 
@@ -1297,7 +1298,7 @@ const DSpreadsheetEditor = () => {
           <Spin />
           <br />
           <p style={{ marginTop: 16, fontWeight: 500, color: "gray" }}>
-            Loading from Blockchain... <br />
+            Loading from Private Cloud... <br />
             May take up to 15 seconds...
           </p>
         </div>
@@ -1312,6 +1313,7 @@ const DSpreadsheetEditor = () => {
         breadcrumbs={file?.breadcrumbs || []}
         currentUserPermissions={file?.permission_previews || []}
       />
+      {!screenType.isMobile && <AIChatPanel isSheets={true} />}
     </div>
   );
 };

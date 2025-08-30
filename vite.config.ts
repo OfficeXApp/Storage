@@ -8,7 +8,7 @@ import { resolve } from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import lingoCompiler from "lingo.dev/compiler";
 
-const isProduction = false;
+const isProduction = true;
 
 // https://vitejs.dev/config/
 export default defineConfig(() =>

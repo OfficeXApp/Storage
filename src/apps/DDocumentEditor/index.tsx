@@ -1310,12 +1310,7 @@ const DDocumentEditor = () => {
         breadcrumbs={file?.breadcrumbs || []}
         currentUserPermissions={file?.permission_previews || []}
       />
-      {!screenType.isMobile && (
-        <AIChatPanel
-          uploadPanelVisible={true}
-          setUploadPanelVisible={() => {}}
-        />
-      )}
+      {!screenType.isMobile && <AIChatPanel />}
     </div>
   );
 };

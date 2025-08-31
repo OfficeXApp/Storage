@@ -802,6 +802,94 @@
           "skip": false,
           "overrides": {},
           "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
+        "29/0/init/body/37/expression/0/body/0/0/init/body/2/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d45f0c2223bfaba75ed48d7c7eda6c84",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid resource access link"
+        },
+        "29/0/init/body/51/0/init/body/2/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
+        },
+        "29/0/init/body/51/0/init/body/4/block/2/expression/0": {
+          "type": "element",
+          "hash": "25bf0ad539389118d7bd1ca726502cfc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File renamed successfully"
+        },
+        "29/0/init/body/51/0/init/body/4/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "8735303a20bec46786b7aa4f77a57361",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename file"
+        },
+        "29/0/init/body/53/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "962bccd00d917d96263f7d7f4a0ab38b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No file or content to save"
+        },
+        "29/0/init/body/53/0/init/body/3/block/5/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7b9f4dfacccf1ecc8521f01134fa6d1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No disk ID available for saving"
+        },
+        "29/0/init/body/53/0/init/body/3/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "b5b7cd1a0f6adcf772c4b106d9e58365",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to save file"
+        },
+        "29/0/init/body/68/argument/3/openingElement/0/value/expression/1/1": {
+          "type": "element",
+          "hash": "9d77a98ca397f0964736f6a9315e90be",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "OfficeX Documents are in Beta Preview<element:a>Learn More</element:a><element:span>Anonymous Workspace | Instant Access | No Signup Required<element:a>Join Community</element:a></element:span> "
+        },
+        "29/0/init/body/68/argument/3/openingElement/0/value/expression/1/3": {
+          "type": "element",
+          "hash": "27beb21b298538715d390caa59821a4a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "#OfficeX - Where Freedom Works | 100% Decentralized | 100% OpenSource <element:a>Learn More</element:a>"
+        },
+        "29/0/init/body/68/argument/5/openingElement/0/value/expression/1/1-alt": {
+          "type": "attribute",
+          "hash": "c3882fc98216636873ab9091f3453f0c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Documents"
+        },
+        "29/0/init/body/68/argument/7/expression/alternate/5": {
+          "type": "element",
+          "hash": "598a25c085917d2f8ba19ad13c4686e4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
         }
       }
     },
@@ -982,6 +1070,94 @@
           "skip": false,
           "overrides": {},
           "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
+        "29/0/init/body/37/expression/0/body/0/0/init/body/2/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d45f0c2223bfaba75ed48d7c7eda6c84",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid resource access link"
+        },
+        "29/0/init/body/51/0/init/body/2/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
+        },
+        "29/0/init/body/51/0/init/body/4/block/2/expression/0": {
+          "type": "element",
+          "hash": "25bf0ad539389118d7bd1ca726502cfc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File renamed successfully"
+        },
+        "29/0/init/body/51/0/init/body/4/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "8735303a20bec46786b7aa4f77a57361",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename file"
+        },
+        "29/0/init/body/53/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "962bccd00d917d96263f7d7f4a0ab38b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No file or content to save"
+        },
+        "29/0/init/body/53/0/init/body/3/block/5/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7b9f4dfacccf1ecc8521f01134fa6d1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No disk ID available for saving"
+        },
+        "29/0/init/body/53/0/init/body/3/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "b5b7cd1a0f6adcf772c4b106d9e58365",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to save file"
+        },
+        "29/0/init/body/68/argument/3/openingElement/0/value/expression/1/1": {
+          "type": "element",
+          "hash": "a9c41a97e9a7a14060dc81cff5cb7aa9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "OfficeX Spreadsheets are in Beta Preview<element:a>Learn More</element:a><element:span>Anonymous Workspace | Instant Access | No Signup Required<element:a>Join Community</element:a></element:span> "
+        },
+        "29/0/init/body/68/argument/3/openingElement/0/value/expression/1/3": {
+          "type": "element",
+          "hash": "27beb21b298538715d390caa59821a4a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "#OfficeX - Where Freedom Works | 100% Decentralized | 100% OpenSource <element:a>Learn More</element:a>"
+        },
+        "29/0/init/body/68/argument/5/openingElement/0/value/expression/1/1-alt": {
+          "type": "attribute",
+          "hash": "aef9e7c179aa850618f16a0d98935653",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Sheets"
+        },
+        "29/0/init/body/68/argument/7/expression/alternate/5": {
+          "type": "element",
+          "hash": "c16b6487be51f7e78a4aa162d8d690f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Private Cloud... <element:br></element:br> May take up to 15 seconds..."
         }
       }
     },
@@ -1406,6 +1582,146 @@
           "skip": false,
           "overrides": {},
           "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        }
+      }
+    },
+    "components/AIChatPanel/index.tsx": {
+      "scopes": {
+        "12/0/init/body/10/0/init/body/1": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "12/0/init/body/11/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "13/0/init/body/10/0/init/body/1": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "13/0/init/body/11/0/init/body/1": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "13/0/init/body/11/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "13/0/init/body/12/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "13/0/init/body/4/0/init/0/0/1/value": {
+          "type": "element",
+          "hash": "1171b63c16b3431dca319af1804de2a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat"
+        },
+        "13/0/init/body/5/0/init/0/0/1/value": {
+          "type": "element",
+          "hash": "1171b63c16b3431dca319af1804de2a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat"
+        },
+        "13/0/init/body/7/0/init/body/1/0/init/1/value": {
+          "type": "element",
+          "hash": "1171b63c16b3431dca319af1804de2a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat"
+        },
+        "16/0/init/body/7/0/init/body/1": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "16/0/init/body/8/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "17/0/init/body/7/0/init/body/1": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "17/0/init/body/8/0/init/body/1": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "17/0/init/body/8/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "17/0/init/body/9/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "19/0/init/body/10/0/init/body/1": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "19/0/init/body/11/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
         }
       }
     },

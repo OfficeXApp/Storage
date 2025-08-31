@@ -16,7 +16,7 @@ export default defineConfig(() =>
   lingoCompiler.vite({
     sourceRoot: "src",
     debug: true,
-    targetLocales: !isProduction
+    targetLocales: isProduction
       ? [
           // Common languages from your original list
           "es",

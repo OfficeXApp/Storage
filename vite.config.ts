@@ -7,6 +7,7 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import lingoCompiler from "lingo.dev/compiler";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 const isProduction = true;
 
@@ -210,6 +211,15 @@ export default defineConfig(() =>
       sentryVitePlugin({
         org: "officex",
         project: "officex-official",
+      }),
+      nodePolyfills({
+        include: ["crypto", "stream", "buffer", "util", "path"],
+        globals: {
+          Buffer: true,
+          global: true,
+          process: true,
+        },
+        exclude: ["fs"],
       }),
     ],
     build: {

@@ -26,7 +26,7 @@ import {
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 import { Principal } from "@dfinity/principal";
 import { mnemonicToAccount } from "viem/accounts";
-import { mnemonicToSeed, mnemonicToSeedSync } from "@scure/bip39";
+import { mnemonicToSeed } from "@scure/bip39";
 import { generate } from "random-words";
 import { generateRandomSeed } from "../../api/icp";
 import {
@@ -45,6 +45,8 @@ import { urlSafeBase64Decode, urlSafeBase64Encode } from "../../api/helpers";
 import { Button, message, notification, Space } from "antd";
 import LoadingAnimation from "../../components/NotFound/LoadingAnimation";
 import { fromLocale } from "../../locales";
+import { bytesToHex } from "viem";
+import { derivePath } from "ed25519-hd-key";
 
 // Define types for our data structures
 export interface IndexDB_Organization {
@@ -177,14 +179,6 @@ const ORGS_STORE_NAME = "organizations";
 const PROFILES_STORE_NAME = "profiles";
 const API_KEYS_STORE_NAME = "apiKeys";
 const API_KEY_GRANTS_STORE_NAME = "apiKeyGrants";
-
-// Function to derive Ed25519 key from seed (uses the first 32 bytes of the seed)
-const deriveEd25519KeyFromSeed = async (
-  seed: Uint8Array
-): Promise<Uint8Array> => {
-  const hashBuffer = await crypto.subtle.digest("SHA-256", seed);
-  return new Uint8Array(hashBuffer).slice(0, 32); // Ed25519 secret key should be 32 bytes
-};
 
 // Provider component
 export function IdentitySystemProvider({ children }: { children: ReactNode }) {
@@ -383,15 +377,11 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
       _setCurrentProfile(profile);
     }
     if (profile.seedPhrase) {
-      const derivedKey = await deriveEd25519KeyFromSeed(
-        mnemonicToSeedSync(profile.seedPhrase || "")
-      );
-      // Create the identity from the derived key
-      const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
-      const publicKeyBuffer = hexStringToUint8Array(
-        profile.icpPublicAddress || ""
-      );
-      const principal = Principal.selfAuthenticating(publicKeyBuffer);
+      const keySpecificSeed64 = await mnemonicToSeed(profile.seedPhrase);
+      const seedHex = bytesToHex(keySpecificSeed64).slice(2);
+      const { key } = derivePath("m/44'/223'/0'/0'/0'", seedHex);
+      const identity = Ed25519KeyIdentity.fromSecretKey(key);
+      const principal = identity.getPrincipal();
       const auth_profile = {
         evmPublicKey: profile.evmPublicAddress || "",
         icpPublicKey: profile.icpPublicAddress || "",
@@ -507,13 +497,10 @@ export function IdentitySystemProvider({ children }: { children: ReactNode }) {
         const evmAccount = mnemonicToAccount(seedPhrase);
         const evmAddress = evmAccount.address;
 
-        const derivedKey = await deriveEd25519KeyFromSeed(
-          mnemonicToSeedSync(seedPhrase || "")
-        );
-        // Create the identity from the derived key
-        const identity = Ed25519KeyIdentity.fromSecretKey(derivedKey);
-
-        // Get the principal using the identity's getPrincipal method
+        const keySpecificSeed64 = await mnemonicToSeed(seedPhrase);
+        const seedHex = bytesToHex(keySpecificSeed64).slice(2);
+        const { key } = derivePath("m/44'/223'/0'/0'/0'", seedHex);
+        const identity = Ed25519KeyIdentity.fromSecretKey(key);
         const principal = identity.getPrincipal();
         const principalStr = principal.toString();
 

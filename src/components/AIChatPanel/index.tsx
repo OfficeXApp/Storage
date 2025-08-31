@@ -136,7 +136,7 @@ const AIChatPanel: React.FC<{ isSheets?: boolean }> = ({
         padding: "0 10px",
       }}
     >
-      <Text>AI Copilot</Text>
+      <Text>Chat in OfficeX</Text>
     </div>
   );
 
@@ -172,7 +172,7 @@ const AIChatPanel: React.FC<{ isSheets?: boolean }> = ({
         >
           <div style={{ display: "flex", alignItems: "center" }}>
             <WechatWorkOutlined style={{ marginRight: "8px" }} />
-            <Text strong>AI Copilot</Text>
+            <Text strong>Chat in OfficeX</Text>
           </div>
           <Button
             type="text"

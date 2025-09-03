@@ -803,3 +803,23 @@ export const getConvoByConvoID = async (
     throw error;
   }
 };
+
+export const deleteConvoByConvoID = async (
+  userID: string,
+  orgID: string,
+  convoID: string
+): Promise<void> => {
+  if (!userID || !orgID || !convoID) {
+    throw new Error("Missing userID, orgID, or convoID");
+  }
+
+  const db = getDexieDb(userID, orgID);
+  const table = db.table<AIChatHistoryFEO, string>(AI_CHAT_HISTORY_DEXIE_TABLE);
+
+  try {
+    await table.delete(convoID);
+  } catch (error) {
+    console.error(`Error deleting AI chat history with ID ${convoID}:`, error);
+    throw error;
+  }
+};

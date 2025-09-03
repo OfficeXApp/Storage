@@ -24,6 +24,7 @@ import {
   WindowMessenger,
 } from "penpal";
 import {
+  deleteConvoByConvoID,
   getConvoByConvoID,
   listConvosByFileID,
   saveConvoToAIChatHistory,
@@ -66,15 +67,15 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
       if (convos.length === 0) {
         addTab();
       } else if (convos.length > 0) {
-        const sortedRecentFirst = convos
+        const sortedFIFO = convos
           .map((c) => ({ id: c.id, created_at: c.created_at }))
-          .sort((a, b) => b.created_at - a.created_at);
-        console.log(`sortedRecentFirst`, sortedRecentFirst);
-        // sortedRecentFirst.forEach((convo) => {
+          .sort((a, b) => a.created_at - b.created_at);
+        console.log(`sortedFIFO`, sortedFIFO);
+        // sortedFIFO.forEach((convo) => {
         //   addTab(convo.id);
         // });
-        for (let i = 0; i < sortedRecentFirst.length; i++) {
-          addTab(sortedRecentFirst[i].id);
+        for (let i = 0; i < sortedFIFO.length; i++) {
+          addTab(sortedFIFO[i].id);
         }
       }
     };
@@ -163,7 +164,7 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
     setActiveTabKey(convoID);
   };
 
-  const removeTab = (convoID: string) => {
+  const removeTab = async (convoID: string) => {
     // Destroy the Penpal connection for the tab being removed
     const connection = penpalConnections.current.get(convoID);
     if (connection) {
@@ -193,6 +194,12 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
     }
     setTabs(newTabs);
     setActiveTabKey(newActiveKey);
+
+    await deleteConvoByConvoID(
+      currentProfile?.userID || "",
+      currentOrg?.driveID || "",
+      convoID
+    );
   };
 
   const onEdit = (
@@ -241,9 +248,6 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
       );
       console.log("✈️ Loaded chat history:", convo);
       return convo?.chat_history || "";
-    },
-    deleteConvo: async (convoID: string) => {
-      //
     },
   };
 

@@ -283,9 +283,11 @@ export class CanisterAdapter implements IUploadAdapter {
       };
 
       // Make direct API call following the /directory/action pattern
-      const auth_token = this.generateSignature
-        ? await this.generateSignature()
-        : this.apiKey;
+      const auth_token = this.apiKey
+        ? this.apiKey
+        : this.generateSignature
+          ? await this.generateSignature()
+          : "";
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/action`,
         {
@@ -348,9 +350,11 @@ export class CanisterAdapter implements IUploadAdapter {
     signal: AbortSignal
   ): Promise<boolean> {
     try {
-      const auth_token = this.generateSignature
-        ? await this.generateSignature()
-        : this.apiKey;
+      const auth_token = this.apiKey
+        ? this.apiKey
+        : this.generateSignature
+          ? await this.generateSignature()
+          : "";
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/raw_upload/chunk`,
         {
@@ -395,9 +399,11 @@ export class CanisterAdapter implements IUploadAdapter {
     signal: AbortSignal
   ): Promise<boolean> {
     try {
-      const auth_token = this.generateSignature
-        ? await this.generateSignature()
-        : this.apiKey;
+      const auth_token = this.apiKey
+        ? this.apiKey
+        : this.generateSignature
+          ? await this.generateSignature()
+          : "";
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/raw_upload/complete`,
         {
@@ -683,9 +689,11 @@ export class CanisterAdapter implements IUploadAdapter {
 
     // Call the API to cancel the upload
     try {
-      const auth_token = this.generateSignature
-        ? await this.generateSignature()
-        : this.apiKey;
+      const auth_token = this.apiKey
+        ? this.apiKey
+        : this.generateSignature
+          ? await this.generateSignature()
+          : "";
       const fileId = metadata.customMetadata.fileId as string;
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.baseUrl}/directory/raw_upload/cancel`,

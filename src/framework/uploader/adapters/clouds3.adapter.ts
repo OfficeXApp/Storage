@@ -324,12 +324,11 @@ export class CloudS3Adapter implements IUploadAdapter {
       // console.log("Creating file record with action:", createAction);
 
       // Make direct API call following the /directory/action pattern
-      // const auth_token =
-      //   this.apiKey ||
-      //   (this.generateSignature ? await this.generateSignature() : "");
-      const auth_token = this.generateSignature
-        ? await this.generateSignature()
-        : this.apiKey;
+      const auth_token = this.apiKey
+        ? this.apiKey
+        : this.generateSignature
+          ? await this.generateSignature()
+          : "";
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.apiEndpoint}/directory/action`,
         {
@@ -417,9 +416,12 @@ export class CloudS3Adapter implements IUploadAdapter {
 
       // Make direct API call following the /directory/action pattern
 
-      const auth_token = this.generateSignature
-        ? await this.generateSignature()
-        : this.apiKey;
+      const auth_token = this.apiKey
+        ? this.apiKey
+        : this.generateSignature
+          ? await this.generateSignature()
+          : "";
+
       const { url, headers } = wrapAuthStringOrHeader(
         `${this.apiEndpoint}/directory/action`,
         {

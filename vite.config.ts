@@ -18,7 +18,6 @@ export default defineConfig(() =>
     debug: true,
     targetLocales: isProduction
       ? [
-          // Common languages from your original list
           "zh-Hans-CN",
           // "zh-Hant-TW",
           // "vi",
@@ -28,8 +27,8 @@ export default defineConfig(() =>
           // "ru",
           // "ar",
           // "es",
-
           // "pt",
+
           // "it",
           // "nl",
           // "sv",
@@ -41,12 +40,12 @@ export default defineConfig(() =>
           // "fil",
           // "hi",
           // "bn",
+
           // "ur",
           // "fa",
           // "ro",
           // "el",
           // "cs",
-
           // "hu",
           // "da",
           // "fi",
@@ -55,6 +54,7 @@ export default defineConfig(() =>
           // "sr",
           // "hr",
           // "sk",
+
           // "af",
           // "en",
           // "fr",

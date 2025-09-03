@@ -129,6 +129,7 @@ const DSpreadsheetEditor = () => {
   } = useIdentitySystem();
   const { evmPublicKey, icpAccount } = currentProfile || {};
   const dispatch = useDispatch();
+  const [isInitialBuffering, setIsInitialBuffering] = useState(true);
   // State for file content and UI
   const [fileUrl, setFileUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -185,6 +186,10 @@ const DSpreadsheetEditor = () => {
         fetchFileById(fileID);
       }, 1000);
     }
+
+    setTimeout(() => {
+      setIsInitialBuffering(false);
+    }, 2000);
   }, []);
 
   useEffect(() => {
@@ -1140,6 +1145,27 @@ const DSpreadsheetEditor = () => {
     !redeemData &&
     fileID !== "new"
   ) {
+    if (isInitialBuffering) {
+      return (
+        <div
+          style={{
+            width: "100vw",
+            height: "90vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+          }}
+        >
+          <Spin />
+          <br />
+          <p style={{ marginTop: 16, fontWeight: 500, color: "gray" }}>
+            Loading from Blockchain... <br />
+            May take up to 15 seconds...
+          </p>
+        </div>
+      );
+    }
     return (
       <DirectoryGuard
         resourceID={fileID}

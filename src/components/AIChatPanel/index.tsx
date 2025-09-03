@@ -56,21 +56,20 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
 
   useEffect(() => {
     const loadConvosOfFile = async () => {
-      console.log(`fileID`, fileID);
       if (!fileID) return;
       const convos = await listConvosByFileID(
         currentProfile?.userID || "",
         currentOrg?.driveID || "",
         fileID
       );
-      console.log(`convos`, convos);
+
       if (convos.length === 0) {
         addTab();
       } else if (convos.length > 0) {
         const sortedFIFO = convos
           .map((c) => ({ id: c.id, created_at: c.created_at }))
           .sort((a, b) => a.created_at - b.created_at);
-        console.log(`sortedFIFO`, sortedFIFO);
+
         // sortedFIFO.forEach((convo) => {
         //   addTab(convo.id);
         // });
@@ -84,20 +83,18 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
 
   useEffect(() => {
     if (!activeTabKey) return;
-    console.log(`Tab change detected. Active key: ${activeTabKey}`);
 
     const connectPenpalForTab = (convoID: string) => {
       // Check if the connection already exists
       if (penpalConnections.current.has(convoID)) {
-        console.log(
-          `Penpal connection already exists for tab: ${convoID}. Skipping.`
-        );
+        // console.log(
+        //   `Penpal connection already exists for tab: ${convoID}. Skipping.`
+        // );
         return;
       }
 
       const newIframe = iframeRefs.current.get(convoID);
       if (newIframe && newIframe.contentWindow) {
-        console.log(`Attempting to connect Penpal for tab: ${convoID}`);
         try {
           const connection = connect({
             messenger: new WindowMessenger({
@@ -107,7 +104,6 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
             methods: parentMethods,
           });
           penpalConnections.current.set(convoID, connection);
-          console.log(`✅ Penpal connection established for tab: ${convoID}`);
         } catch (error) {
           console.error("Failed to establish Penpal connection:", error);
         }
@@ -170,7 +166,7 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
     if (connection) {
       connection.destroy();
       penpalConnections.current.delete(convoID);
-      console.log(`Penpal connection destroyed for tab: ${convoID}`);
+      // console.log(`Penpal connection destroyed for tab: ${convoID}`);
     }
 
     // Remove the iframe reference
@@ -227,7 +223,7 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
   const parentMethods = {
     saveHistory: async (convoID: string, chatHistoryJsonString: string) => {
       if (!fileID) return;
-      console.log("> Saving chat history:", chatHistoryJsonString);
+
       await saveConvoToAIChatHistory(
         currentProfile?.userID || "",
         currentOrg?.driveID || "",
@@ -240,13 +236,12 @@ const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
       );
     },
     loadHistory: async (convoID: string) => {
-      console.log("✈️ Loading chat history:", convoID);
       const convo = await getConvoByConvoID(
         currentProfile?.userID || "",
         currentOrg?.driveID || "",
         convoID
       );
-      console.log("✈️ Loaded chat history:", convo);
+
       return convo?.chat_history || "";
     },
   };

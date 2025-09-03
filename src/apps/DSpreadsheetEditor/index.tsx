@@ -1313,7 +1313,9 @@ const DSpreadsheetEditor = () => {
         breadcrumbs={file?.breadcrumbs || []}
         currentUserPermissions={file?.permission_previews || []}
       />
-      {!screenType.isMobile && <AIChatPanel isSheets={true} />}
+      {!screenType.isMobile && file.id && (
+        <AIChatPanel isSheets={true} fileID={file.id} />
+      )}
     </div>
   );
 };

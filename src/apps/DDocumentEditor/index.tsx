@@ -1310,7 +1310,7 @@ const DDocumentEditor = () => {
         breadcrumbs={file?.breadcrumbs || []}
         currentUserPermissions={file?.permission_previews || []}
       />
-      {!screenType.isMobile && <AIChatPanel />}
+      {!screenType.isMobile && file.id && <AIChatPanel fileID={file.id} />}
     </div>
   );
 };

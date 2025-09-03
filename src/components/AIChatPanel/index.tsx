@@ -16,6 +16,19 @@ import { useDispatch } from "react-redux";
 import { useIdentitySystem } from "../../framework/identity";
 import { AI_CHAT_ENDPOINT } from "../../framework/identity/constants";
 import { useLingoLocale } from "lingo.dev/react-client";
+import {
+  connect,
+  Connection,
+  Methods,
+  RemoteProxy,
+  WindowMessenger,
+} from "penpal";
+import {
+  getConvoByConvoID,
+  listConvosByFileID,
+  saveConvoToAIChatHistory,
+} from "../../api/dexie-database";
+import { FileID } from "@officexapp/types";
 
 const { Text } = Typography;
 
@@ -25,54 +38,103 @@ interface TabItem {
   children: React.ReactNode;
 }
 
-const AIChatPanel: React.FC<{ isSheets?: boolean }> = ({
+const AIChatPanel: React.FC<{ isSheets?: boolean; fileID?: FileID }> = ({
+  fileID,
   isSheets = false,
 }) => {
   const [uploadPanelVisible, setUploadPanelVisible] = useState(false);
-  const { wrapOrgCode } = useIdentitySystem();
+  const { currentOrg, currentProfile } = useIdentitySystem();
   const currentLocale = useLingoLocale();
   const screenType = useScreenType();
+  const iframeRefs = useRef(new Map<string, HTMLIFrameElement>());
+  const penpalConnections = useRef(new Map<string, Connection>());
 
   const initialTabKey = uuidv4();
-  const [tabs, setTabs] = useState<TabItem[]>([
-    {
-      key: initialTabKey,
-      label: <span>Chat</span>,
-      children: (
-        <iframe
-          src={`${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}&pop_panel_mode=true&refresh=${initialTabKey}`}
-          allow="clipboard-read; clipboard-write"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          style={
-            screenType.isMobile
-              ? {
-                  width: "100%",
-                  height: "500px",
-                  border: "none",
-                  position: "fixed",
-                  bottom: 0,
-                  paddingBottom: "0vh",
-                }
-              : {
-                  width: "100%",
-                  height: "530px",
-                  border: "none",
-                }
-          }
-        />
-      ),
-    },
-  ]);
+  const [tabs, setTabs] = useState<TabItem[]>([]);
   const [activeTabKey, setActiveTabKey] = useState<string>(initialTabKey);
 
-  const addTab = () => {
-    const newTabKey = uuidv4();
+  useEffect(() => {
+    const loadConvosOfFile = async () => {
+      console.log(`fileID`, fileID);
+      if (!fileID) return;
+      const convos = await listConvosByFileID(
+        currentProfile?.userID || "",
+        currentOrg?.driveID || "",
+        fileID
+      );
+      console.log(`convos`, convos);
+      if (convos.length === 0) {
+        addTab();
+      } else if (convos.length > 0) {
+        const sortedRecentFirst = convos
+          .map((c) => ({ id: c.id, created_at: c.created_at }))
+          .sort((a, b) => b.created_at - a.created_at);
+        console.log(`sortedRecentFirst`, sortedRecentFirst);
+        // sortedRecentFirst.forEach((convo) => {
+        //   addTab(convo.id);
+        // });
+        for (let i = 0; i < sortedRecentFirst.length; i++) {
+          addTab(sortedRecentFirst[i].id);
+        }
+      }
+    };
+    loadConvosOfFile();
+  }, [fileID]);
+
+  useEffect(() => {
+    if (!activeTabKey) return;
+    console.log(`Tab change detected. Active key: ${activeTabKey}`);
+
+    const connectPenpalForTab = (convoID: string) => {
+      // Check if the connection already exists
+      if (penpalConnections.current.has(convoID)) {
+        console.log(
+          `Penpal connection already exists for tab: ${convoID}. Skipping.`
+        );
+        return;
+      }
+
+      const newIframe = iframeRefs.current.get(convoID);
+      if (newIframe && newIframe.contentWindow) {
+        console.log(`Attempting to connect Penpal for tab: ${convoID}`);
+        try {
+          const connection = connect({
+            messenger: new WindowMessenger({
+              remoteWindow: newIframe.contentWindow,
+              allowedOrigins: [new URL(AI_CHAT_ENDPOINT).origin],
+            }),
+            methods: parentMethods,
+          });
+          penpalConnections.current.set(convoID, connection);
+          console.log(`✅ Penpal connection established for tab: ${convoID}`);
+        } catch (error) {
+          console.error("Failed to establish Penpal connection:", error);
+        }
+      } else {
+        console.warn(
+          `Could not find iframe or contentWindow for tab: ${convoID}. Retrying in a moment.`
+        );
+        // Add a retry mechanism for robustness
+        setTimeout(() => connectPenpalForTab(convoID), 200);
+      }
+    };
+
+    connectPenpalForTab(activeTabKey);
+  }, [activeTabKey]);
+
+  const addTab = (tabKey?: string) => {
+    const convoID = tabKey || `ChatID_${uuidv4()}`;
     const newTab: TabItem = {
-      key: newTabKey,
+      key: convoID,
       label: <span>Chat</span>,
       children: (
         <iframe
-          src={`${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}&pop_panel_mode=true&refresh=${newTabKey}`}
+          ref={(el) => {
+            if (el) {
+              iframeRefs.current.set(convoID, el);
+            }
+          }}
+          src={`${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}&pop_panel_mode=true&convo_id=${convoID}`}
           allow="clipboard-read; clipboard-write"
           sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
           style={
@@ -94,20 +156,35 @@ const AIChatPanel: React.FC<{ isSheets?: boolean }> = ({
         />
       ),
     };
-    setTabs([...tabs, newTab]);
-    setActiveTabKey(newTabKey);
+    setTabs((prevTabs) => {
+      const filtered = prevTabs.filter((tab) => tab.key !== convoID);
+      return [...filtered, newTab];
+    });
+    setActiveTabKey(convoID);
   };
 
-  const removeTab = (targetKey: string) => {
+  const removeTab = (convoID: string) => {
+    // Destroy the Penpal connection for the tab being removed
+    const connection = penpalConnections.current.get(convoID);
+    if (connection) {
+      connection.destroy();
+      penpalConnections.current.delete(convoID);
+      console.log(`Penpal connection destroyed for tab: ${convoID}`);
+    }
+
+    // Remove the iframe reference
+    iframeRefs.current.delete(convoID);
+
+    // Your existing logic for updating tabs and active key
     let newActiveKey = activeTabKey;
     let lastIndex = -1;
     tabs.forEach((tab, i) => {
-      if (tab.key === targetKey) {
+      if (tab.key === convoID) {
         lastIndex = i - 1;
       }
     });
-    const newTabs = tabs.filter((tab) => tab.key !== targetKey);
-    if (newTabs.length && newActiveKey === targetKey) {
+    const newTabs = tabs.filter((tab) => tab.key !== convoID);
+    if (newTabs.length && newActiveKey === convoID) {
       if (lastIndex >= 0) {
         newActiveKey = newTabs[lastIndex].key;
       } else {
@@ -119,11 +196,11 @@ const AIChatPanel: React.FC<{ isSheets?: boolean }> = ({
   };
 
   const onEdit = (
-    targetKey: React.MouseEvent | React.KeyboardEvent | string,
+    convoID: React.MouseEvent | React.KeyboardEvent | string,
     action: "add" | "remove"
   ) => {
     if (action === "remove" && tabs.length > 1) {
-      removeTab(targetKey as string);
+      removeTab(convoID as string);
     }
   };
 
@@ -139,6 +216,36 @@ const AIChatPanel: React.FC<{ isSheets?: boolean }> = ({
       <Text>Chat in OfficeX</Text>
     </div>
   );
+
+  const parentMethods = {
+    saveHistory: async (convoID: string, chatHistoryJsonString: string) => {
+      if (!fileID) return;
+      console.log("> Saving chat history:", chatHistoryJsonString);
+      await saveConvoToAIChatHistory(
+        currentProfile?.userID || "",
+        currentOrg?.driveID || "",
+        {
+          id: convoID,
+          file_id: fileID,
+          chat_history: chatHistoryJsonString,
+          created_at: Date.now(),
+        }
+      );
+    },
+    loadHistory: async (convoID: string) => {
+      console.log("✈️ Loading chat history:", convoID);
+      const convo = await getConvoByConvoID(
+        currentProfile?.userID || "",
+        currentOrg?.driveID || "",
+        convoID
+      );
+      console.log("✈️ Loaded chat history:", convo);
+      return convo?.chat_history || "";
+    },
+    deleteConvo: async (convoID: string) => {
+      //
+    },
+  };
 
   return (
     <>
@@ -210,7 +317,7 @@ const AIChatPanel: React.FC<{ isSheets?: boolean }> = ({
                 <Button
                   type="text"
                   icon={<PlusOutlined />}
-                  onClick={addTab}
+                  onClick={() => addTab()}
                   style={{ flexShrink: 0, marginRight: "8px" }}
                 />
                 <DefaultTabBar {...props} />

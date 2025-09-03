@@ -5,6 +5,7 @@ import {
   DirectoryPermissionType,
   DiskTypeEnum,
   DriveID,
+  FileID,
   UserID,
 } from "@officexapp/types";
 import {
@@ -112,6 +113,7 @@ class DexieManager {
       [BREADCRUMBS_TABLE]: "id, resource_id",
       [RECENTS_DEXIE_TABLE]: "id, last_opened",
       [PURCHASES_DEXIE_TABLE]: "id, _syncConflict",
+      [AI_CHAT_HISTORY_DEXIE_TABLE]: "id, file_id",
     });
 
     // Set as current and return
@@ -726,4 +728,98 @@ export const defaultTempCloudSharingTutorialVideosFolderID = `FolderID_tutorial-
 export const defaultBrowserCacheTrashFolderID = `FolderID_trash-folder-${disk_browser_slug}`;
 export const defaultTempCloudSharingTrashFolderID = `FolderID_trash-folder-${disk_free_cloud_slug}`;
 
+export const AI_CHAT_HISTORY_DEXIE_TABLE = "AI_CHAT_HISTORY";
+
 export type DirectoryListQueryString = string;
+
+export interface AIChatHistoryFEO {
+  id: string; // convo_id
+  file_id: FileID;
+  chat_history: string;
+  created_at: number;
+}
+
+export const saveConvoToAIChatHistory = async (
+  userID: string,
+  orgID: string,
+  chatHistory: AIChatHistoryFEO
+): Promise<void> => {
+  if (!userID || !orgID) {
+    throw new Error("Missing userID or orgID");
+  }
+
+  const db = getDexieDb(userID, orgID);
+  const table = db.table<AIChatHistoryFEO, string>(AI_CHAT_HISTORY_DEXIE_TABLE);
+
+  try {
+    await db.transaction("rw", table, async () => {
+      // Add the new conversation to the table
+      await table.put(chatHistory);
+    });
+  } catch (error) {
+    console.error("Error saving AI chat history:", error);
+    throw error;
+  }
+};
+
+export const listConvosByFileID = async (
+  userID: string,
+  orgID: string,
+  file_id: string
+): Promise<AIChatHistoryFEO[]> => {
+  if (!userID || !orgID || !file_id) {
+    throw new Error("Missing userID, orgID, or file_id");
+  }
+
+  const db = getDexieDb(userID, orgID);
+  const table = db.table<AIChatHistoryFEO, string>(AI_CHAT_HISTORY_DEXIE_TABLE);
+
+  try {
+    const convos = await table.where("file_id").equals(file_id).toArray();
+    return convos;
+  } catch (error) {
+    console.error("Error listing AI chat history by file_id:", error);
+    throw error;
+  }
+};
+
+export const getConvoByConvoID = async (
+  userID: string,
+  orgID: string,
+  convoID: string
+): Promise<AIChatHistoryFEO | undefined> => {
+  if (!userID || !orgID || !convoID) {
+    throw new Error("Missing userID, orgID, or convoID");
+  }
+
+  const db = getDexieDb(userID, orgID);
+  const table = db.table<AIChatHistoryFEO, string>(AI_CHAT_HISTORY_DEXIE_TABLE);
+
+  try {
+    const convo = await table.get(convoID);
+    return convo;
+  } catch (error) {
+    console.error("Error retrieving AI chat history by convoID:", error);
+    throw error;
+  }
+};
+
+export const deleteConvoByConvoID = async (
+  userID: string,
+  orgID: string,
+  convoID: string
+): Promise<void> => {
+  if (!userID || !orgID || !convoID) {
+    throw new Error("Missing userID, orgID, or convoID");
+  }
+
+  const db = getDexieDb(userID, orgID);
+  const table = db.table<AIChatHistoryFEO, string>(AI_CHAT_HISTORY_DEXIE_TABLE);
+
+  try {
+    await table.delete(convoID);
+  } catch (error) {
+    console.error(`Error deleting AI chat history with ID ${convoID}:`, error);
+    throw error;
+  }
+};

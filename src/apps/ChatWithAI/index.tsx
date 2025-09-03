@@ -119,7 +119,7 @@ const ChatWithAI = () => {
   const [selectedChatEndpoint, setSelectedChatEndpoint] = useState(
     `${AI_CHAT_ENDPOINT}?lang=${currentLocale?.replace(/-/g, "_")}`
   );
-  console.log(`currentLocale`, currentLocale);
+
   const {
     uploadFiles,
     uploadTargetDiskID,
@@ -960,8 +960,8 @@ const ChatWithAI = () => {
       try {
         const messenger = new WindowMessenger({
           remoteWindow: iframeRef.current.contentWindow,
-          // Dynamically get the origin from your DOCUMENTS_APP_ENDPOINT
-          allowedOrigins: [new URL(DOCUMENTS_APP_ENDPOINT).origin],
+          // Dynamically get the origin from your AI_CHAT_ENDPOINT
+          allowedOrigins: [new URL(AI_CHAT_ENDPOINT).origin],
         });
 
         connection = connect({

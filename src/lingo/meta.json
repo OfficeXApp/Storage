@@ -583,6 +583,22 @@
           "overrides": {},
           "content": "Chat | OfficeX"
         },
+        "31/0/init/body/62/argument/5/expression/right/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "e07311f23f1a81c7a2d7fd17b4d63d2b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ONLINE"
+        },
+        "31/0/init/body/62/argument/5/expression/right/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "d9e2ab937325e95ea81df5eed78d797e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "OFFLINE"
+        },
         "31/0/init/body/63/argument/1/3": {
           "type": "element",
           "hash": "ef369a713798cf09b3d10c7562cfaa61",
@@ -811,6 +827,14 @@
           "overrides": {},
           "content": "Invalid resource access link"
         },
+        "29/0/init/body/38/expression/0/body/0/0/init/body/2/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d45f0c2223bfaba75ed48d7c7eda6c84",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid resource access link"
+        },
         "29/0/init/body/51/0/init/body/2/consequent/0/expression/0": {
           "type": "element",
           "hash": "7241033373fc08f330c1a4da14e7c936",
@@ -828,6 +852,30 @@
           "content": "File renamed successfully"
         },
         "29/0/init/body/51/0/init/body/4/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "8735303a20bec46786b7aa4f77a57361",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename file"
+        },
+        "29/0/init/body/52/0/init/body/2/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
+        },
+        "29/0/init/body/52/0/init/body/4/block/2/expression/0": {
+          "type": "element",
+          "hash": "25bf0ad539389118d7bd1ca726502cfc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File renamed successfully"
+        },
+        "29/0/init/body/52/0/init/body/4/handler/body/0/expression/0": {
           "type": "element",
           "hash": "8735303a20bec46786b7aa4f77a57361",
           "context": "",
@@ -859,6 +907,46 @@
           "overrides": {},
           "content": "Failed to save file"
         },
+        "29/0/init/body/54/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "962bccd00d917d96263f7d7f4a0ab38b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No file or content to save"
+        },
+        "29/0/init/body/54/0/init/body/3/block/5/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7b9f4dfacccf1ecc8521f01134fa6d1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No disk ID available for saving"
+        },
+        "29/0/init/body/54/0/init/body/3/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "b5b7cd1a0f6adcf772c4b106d9e58365",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to save file"
+        },
+        "29/0/init/body/67/consequent/0/consequent/0/argument": {
+          "type": "element",
+          "hash": "19dcb92d80cee372be7a2f5ffb26cf18",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Buffering..."
+        },
+        "29/0/init/body/67/consequent/0/consequent/0/argument/5": {
+          "type": "element",
+          "hash": "598a25c085917d2f8ba19ad13c4686e4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
         "29/0/init/body/68/argument/3/openingElement/0/value/expression/1/1": {
           "type": "element",
           "hash": "9d77a98ca397f0964736f6a9315e90be",
@@ -884,6 +972,38 @@
           "content": "Documents"
         },
         "29/0/init/body/68/argument/7/expression/alternate/5": {
+          "type": "element",
+          "hash": "598a25c085917d2f8ba19ad13c4686e4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
+        "29/0/init/body/69/argument/3/openingElement/0/value/expression/1/1": {
+          "type": "element",
+          "hash": "9d77a98ca397f0964736f6a9315e90be",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "OfficeX Documents are in Beta Preview<element:a>Learn More</element:a><element:span>Anonymous Workspace | Instant Access | No Signup Required<element:a>Join Community</element:a></element:span> "
+        },
+        "29/0/init/body/69/argument/3/openingElement/0/value/expression/1/3": {
+          "type": "element",
+          "hash": "27beb21b298538715d390caa59821a4a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "#OfficeX - Where Freedom Works | 100% Decentralized | 100% OpenSource <element:a>Learn More</element:a>"
+        },
+        "29/0/init/body/69/argument/5/openingElement/0/value/expression/1/1-alt": {
+          "type": "attribute",
+          "hash": "c3882fc98216636873ab9091f3453f0c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Documents"
+        },
+        "29/0/init/body/69/argument/7/expression/alternate/5": {
           "type": "element",
           "hash": "598a25c085917d2f8ba19ad13c4686e4",
           "context": "",
@@ -1079,6 +1199,14 @@
           "overrides": {},
           "content": "Invalid resource access link"
         },
+        "29/0/init/body/38/expression/0/body/0/0/init/body/2/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d45f0c2223bfaba75ed48d7c7eda6c84",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid resource access link"
+        },
         "29/0/init/body/51/0/init/body/2/consequent/0/expression/0": {
           "type": "element",
           "hash": "7241033373fc08f330c1a4da14e7c936",
@@ -1096,6 +1224,30 @@
           "content": "File renamed successfully"
         },
         "29/0/init/body/51/0/init/body/4/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "8735303a20bec46786b7aa4f77a57361",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename file"
+        },
+        "29/0/init/body/52/0/init/body/2/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
+        },
+        "29/0/init/body/52/0/init/body/4/block/2/expression/0": {
+          "type": "element",
+          "hash": "25bf0ad539389118d7bd1ca726502cfc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File renamed successfully"
+        },
+        "29/0/init/body/52/0/init/body/4/handler/body/0/expression/0": {
           "type": "element",
           "hash": "8735303a20bec46786b7aa4f77a57361",
           "context": "",
@@ -1127,6 +1279,54 @@
           "overrides": {},
           "content": "Failed to save file"
         },
+        "29/0/init/body/54/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "962bccd00d917d96263f7d7f4a0ab38b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No file or content to save"
+        },
+        "29/0/init/body/54/0/init/body/3/block/5/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7b9f4dfacccf1ecc8521f01134fa6d1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No disk ID available for saving"
+        },
+        "29/0/init/body/54/0/init/body/3/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "b5b7cd1a0f6adcf772c4b106d9e58365",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to save file"
+        },
+        "29/0/init/body/66/consequent/0/consequent/0/argument": {
+          "type": "element",
+          "hash": "19dcb92d80cee372be7a2f5ffb26cf18",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Buffering..."
+        },
+        "29/0/init/body/67/consequent/0/argument/5": {
+          "type": "element",
+          "hash": "94dac7f32393acc7d398799613fdca4f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
+        "29/0/init/body/67/consequent/0/consequent/0/argument/5": {
+          "type": "element",
+          "hash": "598a25c085917d2f8ba19ad13c4686e4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
         "29/0/init/body/68/argument/3/openingElement/0/value/expression/1/1": {
           "type": "element",
           "hash": "a9c41a97e9a7a14060dc81cff5cb7aa9",
@@ -1152,6 +1352,38 @@
           "content": "Sheets"
         },
         "29/0/init/body/68/argument/7/expression/alternate/5": {
+          "type": "element",
+          "hash": "c16b6487be51f7e78a4aa162d8d690f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Private Cloud... <element:br></element:br> May take up to 15 seconds..."
+        },
+        "29/0/init/body/69/argument/3/openingElement/0/value/expression/1/1": {
+          "type": "element",
+          "hash": "a9c41a97e9a7a14060dc81cff5cb7aa9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "OfficeX Spreadsheets are in Beta Preview<element:a>Learn More</element:a><element:span>Anonymous Workspace | Instant Access | No Signup Required<element:a>Join Community</element:a></element:span> "
+        },
+        "29/0/init/body/69/argument/3/openingElement/0/value/expression/1/3": {
+          "type": "element",
+          "hash": "27beb21b298538715d390caa59821a4a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "#OfficeX - Where Freedom Works | 100% Decentralized | 100% OpenSource <element:a>Learn More</element:a>"
+        },
+        "29/0/init/body/69/argument/5/openingElement/0/value/expression/1/1-alt": {
+          "type": "attribute",
+          "hash": "aef9e7c179aa850618f16a0d98935653",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Sheets"
+        },
+        "29/0/init/body/69/argument/7/expression/alternate/5": {
           "type": "element",
           "hash": "c16b6487be51f7e78a4aa162d8d690f5",
           "context": "",
@@ -1275,6 +1507,14 @@
           "overrides": {},
           "content": "Invalid resource access link"
         },
+        "28/0/init/body/37/expression/0/body/0/0/init/body/2/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d45f0c2223bfaba75ed48d7c7eda6c84",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid resource access link"
+        },
         "28/0/init/body/50/0/init/body/2/consequent/0/expression/0": {
           "type": "element",
           "hash": "7241033373fc08f330c1a4da14e7c936",
@@ -1306,6 +1546,14 @@
           "skip": false,
           "overrides": {},
           "content": "No file or content to save"
+        },
+        "28/0/init/body/51/0/init/body/2/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
         },
         "28/0/init/body/51/0/init/body/3/block/5/consequent/0/expression/0": {
           "type": "element",
@@ -1339,6 +1587,78 @@
           "overrides": {},
           "content": "Failed to save file"
         },
+        "28/0/init/body/51/0/init/body/4/block/2/expression/0": {
+          "type": "element",
+          "hash": "25bf0ad539389118d7bd1ca726502cfc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File renamed successfully"
+        },
+        "28/0/init/body/51/0/init/body/4/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "8735303a20bec46786b7aa4f77a57361",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename file"
+        },
+        "28/0/init/body/52/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "962bccd00d917d96263f7d7f4a0ab38b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No file or content to save"
+        },
+        "28/0/init/body/52/0/init/body/3/block/5/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7b9f4dfacccf1ecc8521f01134fa6d1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No disk ID available for saving"
+        },
+        "28/0/init/body/52/0/init/body/3/block/7/expression/0": {
+          "type": "element",
+          "hash": "e7c7572ee0076db2294e011a1302193a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Saving file, please wait..."
+        },
+        "28/0/init/body/52/0/init/body/3/block/9/expression/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "81fbde1ccb05010b50058d2bcbf163b8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File ${_currentFileName} saved successfully"
+        },
+        "28/0/init/body/52/0/init/body/3/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "b5b7cd1a0f6adcf772c4b106d9e58365",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to save file"
+        },
+        "28/0/init/body/58/consequent/0/consequent/0/argument": {
+          "type": "element",
+          "hash": "19dcb92d80cee372be7a2f5ffb26cf18",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Buffering..."
+        },
+        "28/0/init/body/59/consequent/0/consequent/0/argument": {
+          "type": "element",
+          "hash": "19dcb92d80cee372be7a2f5ffb26cf18",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Buffering..."
+        },
         "28/0/init/body/60/argument/3/openingElement/0/value/expression/1/1": {
           "type": "element",
           "hash": "9d77a98ca397f0964736f6a9315e90be",
@@ -1364,6 +1684,38 @@
           "content": "Sheets"
         },
         "28/0/init/body/60/argument/7/expression/alternate/5": {
+          "type": "element",
+          "hash": "598a25c085917d2f8ba19ad13c4686e4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
+        "28/0/init/body/61/argument/3/openingElement/0/value/expression/1/1": {
+          "type": "element",
+          "hash": "9d77a98ca397f0964736f6a9315e90be",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "OfficeX Documents are in Beta Preview<element:a>Learn More</element:a><element:span>Anonymous Workspace | Instant Access | No Signup Required<element:a>Join Community</element:a></element:span> "
+        },
+        "28/0/init/body/61/argument/3/openingElement/0/value/expression/1/3": {
+          "type": "element",
+          "hash": "27beb21b298538715d390caa59821a4a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "#OfficeX - Where Freedom Works | 100% Decentralized | 100% OpenSource <element:a>Learn More</element:a>"
+        },
+        "28/0/init/body/61/argument/5/openingElement/0/value/expression/1/1-alt": {
+          "type": "attribute",
+          "hash": "aef9e7c179aa850618f16a0d98935653",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Sheets"
+        },
+        "28/0/init/body/61/argument/7/expression/alternate/5": {
           "type": "element",
           "hash": "598a25c085917d2f8ba19ad13c4686e4",
           "context": "",
@@ -1659,6 +2011,126 @@
           "overrides": {},
           "content": "Chat"
         },
+        "14/0/init/body/12/0/init/body/1": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "14/0/init/body/14/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "14/0/init/body/9/0/init/body/1/0/init/1/value": {
+          "type": "element",
+          "hash": "1171b63c16b3431dca319af1804de2a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat"
+        },
+        "15/0/init/body/12/0/init/body/1": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "15/0/init/body/14/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "15/0/init/body/9/0/init/body/1/0/init/1/value": {
+          "type": "element",
+          "hash": "1171b63c16b3431dca319af1804de2a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat"
+        },
+        "16/0/init/body/10/0/init/body/1/0/init/1/value": {
+          "type": "element",
+          "hash": "1171b63c16b3431dca319af1804de2a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat"
+        },
+        "16/0/init/body/11/0/init/body/1/0/init/1/value": {
+          "type": "element",
+          "hash": "1171b63c16b3431dca319af1804de2a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat"
+        },
+        "16/0/init/body/11/0/init/body/1/0/init/1/value/1": {
+          "type": "element",
+          "hash": "1171b63c16b3431dca319af1804de2a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat"
+        },
+        "16/0/init/body/12/0/init/body/1": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "16/0/init/body/13/0/init/body/1": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "16/0/init/body/14/0/init/body/1": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "16/0/init/body/14/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "16/0/init/body/15/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
+        "16/0/init/body/16/argument/1/1/1/3": {
+          "type": "element",
+          "hash": "61a96848775cd4e7c64640d7b79378e0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat in OfficeX"
+        },
         "16/0/init/body/7/0/init/body/1": {
           "type": "element",
           "hash": "bdc7a9ea8d9723b9584c9abba18fbf1c",
@@ -1674,6 +2146,14 @@
           "skip": false,
           "overrides": {},
           "content": "Chat in OfficeX"
+        },
+        "16/0/init/body/9/0/init/body/1/0/init/1/value": {
+          "type": "element",
+          "hash": "1171b63c16b3431dca319af1804de2a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat"
         },
         "17/0/init/body/7/0/init/body/1": {
           "type": "element",
@@ -6215,6 +6695,102 @@
           "overrides": {},
           "content": "Close"
         },
+        "39/0/init/body/43/expression/0/body/7/alternate/consequent/2/consequent/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "c41eaf26d34c025fc64bf1bd03352b88",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Free Public Sharing"
+        },
+        "39/0/init/body/43/expression/0/body/7/alternate/consequent/2/consequent/0/expression/0/2/value": {
+          "type": "element",
+          "hash": "cd6ae7af8a1a69a80b91cc9334d09e2c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public files are deleted every 24 hours. Please upgrade OfficeX for your own private storage."
+        },
+        "39/0/init/body/43/expression/0/body/7/alternate/consequent/2/consequent/0/expression/0/4/value/1/1": {
+          "type": "element",
+          "hash": "1b97fac603d00b1ea575b745bab8ef3b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Upgrade"
+        },
+        "39/0/init/body/43/expression/0/body/7/alternate/consequent/2/consequent/0/expression/0/4/value/3": {
+          "type": "element",
+          "hash": "1a97bc2b1ad01b81b070928d056cc66b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Close"
+        },
+        "39/0/init/body/43/expression/0/body/8/consequent/0/expression/0/3/value/1/1": {
+          "type": "element",
+          "hash": "0641102e60754aac7c3d6646a7efc95b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Upgrade"
+        },
+        "39/0/init/body/43/expression/0/body/8/consequent/0/expression/0/3/value/3": {
+          "type": "element",
+          "hash": "a655681d2ed8e7fefc50238a3fc76b1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Close"
+        },
+        "39/0/init/body/44/expression/0/body/7/alternate/consequent/2/consequent/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "c41eaf26d34c025fc64bf1bd03352b88",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Free Public Sharing"
+        },
+        "39/0/init/body/44/expression/0/body/7/alternate/consequent/2/consequent/0/expression/0/2/value": {
+          "type": "element",
+          "hash": "cd6ae7af8a1a69a80b91cc9334d09e2c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Public files are deleted every 24 hours. Please upgrade OfficeX for your own private storage."
+        },
+        "39/0/init/body/44/expression/0/body/7/alternate/consequent/2/consequent/0/expression/0/4/value/1/1": {
+          "type": "element",
+          "hash": "1b97fac603d00b1ea575b745bab8ef3b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Upgrade"
+        },
+        "39/0/init/body/44/expression/0/body/7/alternate/consequent/2/consequent/0/expression/0/4/value/3": {
+          "type": "element",
+          "hash": "1a97bc2b1ad01b81b070928d056cc66b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Close"
+        },
+        "39/0/init/body/44/expression/0/body/8/consequent/0/expression/0/3/value/1/1": {
+          "type": "element",
+          "hash": "0641102e60754aac7c3d6646a7efc95b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Upgrade"
+        },
+        "39/0/init/body/44/expression/0/body/8/consequent/0/expression/0/3/value/3": {
+          "type": "element",
+          "hash": "a655681d2ed8e7fefc50238a3fc76b1a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Close"
+        },
         "39/0/init/body/50/0/init/body/1/0/0/argument-alt": {
           "type": "attribute",
           "hash": "3451fb6d72c9fc46321adc4daac3b600",
@@ -6303,6 +6879,86 @@
           "overrides": {},
           "content": "Actions"
         },
+        "39/0/init/body/51/0/init/body/1/0/0/argument-alt": {
+          "type": "attribute",
+          "hash": "3451fb6d72c9fc46321adc4daac3b600",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Spreadsheet"
+        },
+        "39/0/init/body/51/0/init/body/1/1/0/argument-alt": {
+          "type": "attribute",
+          "hash": "5ecdc0287221f041681ed05eecde53f4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Document"
+        },
+        "39/0/init/body/51/0/init/body/1/2/0/argument-alt": {
+          "type": "attribute",
+          "hash": "3451fb6d72c9fc46321adc4daac3b600",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Spreadsheet"
+        },
+        "39/0/init/body/51/0/init/body/1/3/0/argument-alt": {
+          "type": "attribute",
+          "hash": "5ecdc0287221f041681ed05eecde53f4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Document"
+        },
+        "39/0/init/body/52/0/init/0/body/0/0/value": {
+          "type": "element",
+          "hash": "9368b5a047572b6051f334af5aa76819",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name"
+        },
+        "39/0/init/body/52/0/init/0/body/0/4/value/body/0/argument/1/openingElement/1/value/expression/body/1/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "6e714de3016c7a5354c39f572b013a29",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You cannot access files in the Trash. Restore it first."
+        },
+        "39/0/init/body/52/0/init/0/body/1/0/value": {
+          "type": "element",
+          "hash": "4e1fcce15854d824919b4a582c697c90",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Status"
+        },
+        "39/0/init/body/52/0/init/0/body/1/3/value/body/0/alternate/0/argument/1/openingElement/0/value/expression/body/0/alternate/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "5c3c0525c9f7e222ef42fd32e754d537",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You cannot access files in the Trash. Restore it first."
+        },
+        "39/0/init/body/52/0/init/0/body/1/3/value/body/0/consequent/0/argument": {
+          "type": "element",
+          "hash": "9867adac185f8739c26c93cf93fc79c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Expired"
+        },
+        "39/0/init/body/52/0/init/0/body/2/0/value/alternate": {
+          "type": "element",
+          "hash": "c46571856723b03262fd33f511116298",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Actions"
+        },
         "39/0/init/body/52/0/init/body/0/0/init/alternate/0/1/value": {
           "type": "element",
           "hash": "6f9413e4606e8d83a010685008fb2931",
@@ -6342,6 +6998,38 @@
           "skip": false,
           "overrides": {},
           "content": "This action cannot be undone."
+        },
+        "39/0/init/body/52/0/init/body/1/0/0/argument-alt": {
+          "type": "attribute",
+          "hash": "3451fb6d72c9fc46321adc4daac3b600",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Spreadsheet"
+        },
+        "39/0/init/body/52/0/init/body/1/1/0/argument-alt": {
+          "type": "attribute",
+          "hash": "5ecdc0287221f041681ed05eecde53f4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Document"
+        },
+        "39/0/init/body/52/0/init/body/1/2/0/argument-alt": {
+          "type": "attribute",
+          "hash": "3451fb6d72c9fc46321adc4daac3b600",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Spreadsheet"
+        },
+        "39/0/init/body/52/0/init/body/1/3/0/argument-alt": {
+          "type": "attribute",
+          "hash": "5ecdc0287221f041681ed05eecde53f4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Document"
         },
         "39/0/init/body/52/0/init/body/1/consequent/0/expression/0/1/value": {
           "type": "element",
@@ -6383,6 +7071,94 @@
           "overrides": {},
           "content": "Confirm Restore"
         },
+        "39/0/init/body/53/0/init/0/body/0/0/value": {
+          "type": "element",
+          "hash": "9368b5a047572b6051f334af5aa76819",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Name"
+        },
+        "39/0/init/body/53/0/init/0/body/0/4/value/body/0/argument/1/openingElement/1/value/expression/body/1/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "6e714de3016c7a5354c39f572b013a29",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You cannot access files in the Trash. Restore it first."
+        },
+        "39/0/init/body/53/0/init/0/body/1/0/value": {
+          "type": "element",
+          "hash": "4e1fcce15854d824919b4a582c697c90",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Status"
+        },
+        "39/0/init/body/53/0/init/0/body/1/3/value/body/0/alternate/0/argument/1/openingElement/0/value/expression/body/0/alternate/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "5c3c0525c9f7e222ef42fd32e754d537",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You cannot access files in the Trash. Restore it first."
+        },
+        "39/0/init/body/53/0/init/0/body/1/3/value/body/0/consequent/0/argument": {
+          "type": "element",
+          "hash": "9867adac185f8739c26c93cf93fc79c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Expired"
+        },
+        "39/0/init/body/53/0/init/0/body/2/0/value/alternate": {
+          "type": "element",
+          "hash": "c46571856723b03262fd33f511116298",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Actions"
+        },
+        "39/0/init/body/53/0/init/body/0/0/init/alternate/0/1/value": {
+          "type": "element",
+          "hash": "6f9413e4606e8d83a010685008fb2931",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Rename"
+        },
+        "39/0/init/body/53/0/init/body/0/0/init/alternate/1/1/value": {
+          "type": "element",
+          "hash": "2d768c5078f1a7c55063b00b09933ae7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Move"
+        },
+        "39/0/init/body/53/0/init/body/0/0/init/alternate/2/1/value": {
+          "type": "element",
+          "hash": "627c00d2c850b9b45f7341a6ac01b6bb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy"
+        },
+        "39/0/init/body/53/0/init/body/0/0/init/alternate/3/1/value": {
+          "type": "element",
+          "hash": "4c637359dd8fc7200822312116659bde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Delete"
+        },
+        "39/0/init/body/53/0/init/body/0/0/init/alternate/3/1/value-description": {
+          "type": "attribute",
+          "hash": "3d8b13374ffd3cefc0f3f7ce077bd9c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This action cannot be undone."
+        },
         "39/0/init/body/53/0/init/body/0/block/1/expression/0": {
           "type": "element",
           "hash": "455c6cddafccf19f8f27fd308a48c8c9",
@@ -6399,13 +7175,109 @@
           "overrides": {},
           "content": "Failed to delete <expression/>"
         },
-        "39/0/init/body/54/0/init/body/0/handler/body/0/expression/0": {
+        "39/0/init/body/53/0/init/body/1/consequent/0/expression/0/1/value": {
           "type": "element",
-          "hash": "dfacf8b040abc2b1371edec87c5f02c7",
+          "hash": "cc16f2f6de9698c4007588d15676f2dc",
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Failed to restore <expression/>"
+          "content": "Open Trash"
+        },
+        "39/0/init/body/53/0/init/body/1/consequent/1/expression/0/1/value": {
+          "type": "element",
+          "hash": "ea199b2b9c9aa137d6d3b9f8c3f1cc7c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Shared With Me"
+        },
+        "39/0/init/body/53/0/init/body/2/consequent/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "3f2768f2c1ee55df6e2261dee4d650ce",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Confirm RestoreAre you sure you want to restore trash? Restore Trash"
+        },
+        "39/0/init/body/54/0/init/body/0/0/init/alternate/0/1/value": {
+          "type": "element",
+          "hash": "6f9413e4606e8d83a010685008fb2931",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Rename"
+        },
+        "39/0/init/body/54/0/init/body/0/0/init/alternate/1/1/value": {
+          "type": "element",
+          "hash": "2d768c5078f1a7c55063b00b09933ae7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Move"
+        },
+        "39/0/init/body/54/0/init/body/0/0/init/alternate/2/1/value": {
+          "type": "element",
+          "hash": "627c00d2c850b9b45f7341a6ac01b6bb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy"
+        },
+        "39/0/init/body/54/0/init/body/0/0/init/alternate/3/1/value": {
+          "type": "element",
+          "hash": "4c637359dd8fc7200822312116659bde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Delete"
+        },
+        "39/0/init/body/54/0/init/body/0/0/init/alternate/3/1/value-description": {
+          "type": "attribute",
+          "hash": "3d8b13374ffd3cefc0f3f7ce077bd9c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This action cannot be undone."
+        },
+        "39/0/init/body/54/0/init/body/0/block/1/expression/0": {
+          "type": "element",
+          "hash": "455c6cddafccf19f8f27fd308a48c8c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<expression/> deleted successfully"
+        },
+        "39/0/init/body/54/0/init/body/0/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "895e80ae64cdff71496fd84d753d75de",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to delete <expression/>"
+        },
+        "39/0/init/body/54/0/init/body/1/consequent/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "cc16f2f6de9698c4007588d15676f2dc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Open Trash"
+        },
+        "39/0/init/body/54/0/init/body/1/consequent/1/expression/0/1/value": {
+          "type": "element",
+          "hash": "ea199b2b9c9aa137d6d3b9f8c3f1cc7c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Shared With Me"
+        },
+        "39/0/init/body/54/0/init/body/2/consequent/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "3f2768f2c1ee55df6e2261dee4d650ce",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Confirm RestoreAre you sure you want to restore trash? Restore Trash"
         },
         "39/0/init/body/55/0/init/0/0/value": {
           "type": "element",
@@ -6423,7 +7295,63 @@
           "overrides": {},
           "content": "Grid View"
         },
+        "39/0/init/body/55/0/init/body/0/block/1/expression/0": {
+          "type": "element",
+          "hash": "455c6cddafccf19f8f27fd308a48c8c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<expression/> deleted successfully"
+        },
+        "39/0/init/body/55/0/init/body/0/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "895e80ae64cdff71496fd84d753d75de",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to delete <expression/>"
+        },
         "39/0/init/body/56/0/init/0/0/value": {
+          "type": "element",
+          "hash": "c9768ceb8d90860195baf017d8dcefad",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Row View"
+        },
+        "39/0/init/body/56/0/init/1/0/value": {
+          "type": "element",
+          "hash": "59c409c5ccd719e46ee3afb9cf5b067a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Grid View"
+        },
+        "39/0/init/body/56/0/init/body/0/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "dfacf8b040abc2b1371edec87c5f02c7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to restore <expression/>"
+        },
+        "39/0/init/body/57/0/init/0/0/value": {
+          "type": "element",
+          "hash": "c9768ceb8d90860195baf017d8dcefad",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Row View"
+        },
+        "39/0/init/body/57/0/init/1/0/value": {
+          "type": "element",
+          "hash": "59c409c5ccd719e46ee3afb9cf5b067a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Grid View"
+        },
+        "39/0/init/body/58/0/init/0/0/value": {
           "type": "element",
           "hash": "c9ce7bf24d51d515fb285af41004b193",
           "context": "",
@@ -6431,7 +7359,7 @@
           "overrides": {},
           "content": "Coming Soon"
         },
-        "39/0/init/body/56/0/init/1/0/value": {
+        "39/0/init/body/58/0/init/1/0/value": {
           "type": "element",
           "hash": "c9ce7bf24d51d515fb285af41004b193",
           "context": "",
@@ -6440,6 +7368,22 @@
           "content": "Coming Soon"
         },
         "39/0/init/body/58/0/init/body/0/0/init/0/0/value": {
+          "type": "element",
+          "hash": "2e2d943ce907d469318021c624a0513a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Drive"
+        },
+        "39/0/init/body/59/0/init/body/0/0/init/0/0/value": {
+          "type": "element",
+          "hash": "2e2d943ce907d469318021c624a0513a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Drive"
+        },
+        "39/0/init/body/60/0/init/body/0/0/init/0/0/value": {
           "type": "element",
           "hash": "2e2d943ce907d469318021c624a0513a",
           "context": "",
@@ -6471,7 +7415,79 @@
           "overrides": {},
           "content": "Failed to rename <expression/>"
         },
+        "39/0/init/body/63/0/init/body/1/consequent/0/block/0/alternate/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
+        },
+        "39/0/init/body/63/0/init/body/1/consequent/0/block/1/expression/0": {
+          "type": "element",
+          "hash": "00886351d5c204898be17aa2308aa5e5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<expression/> renamed successfully"
+        },
+        "39/0/init/body/63/0/init/body/1/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d11b0b7badff8d47c7ca30a6d2b92c52",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename <expression/>"
+        },
         "39/0/init/body/63/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "94dac7f32393acc7d398799613fdca4f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
+        "39/0/init/body/64/0/init/body/1/consequent/0/block/0/alternate/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
+        },
+        "39/0/init/body/64/0/init/body/1/consequent/0/block/1/expression/0": {
+          "type": "element",
+          "hash": "00886351d5c204898be17aa2308aa5e5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<expression/> renamed successfully"
+        },
+        "39/0/init/body/64/0/init/body/1/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "d11b0b7badff8d47c7ca30a6d2b92c52",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename <expression/>"
+        },
+        "39/0/init/body/64/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "94dac7f32393acc7d398799613fdca4f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
+        "39/0/init/body/65/0/init/body/0/argument/3": {
+          "type": "element",
+          "hash": "94dac7f32393acc7d398799613fdca4f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Loading from Blockchain... <element:br></element:br> May take up to 15 seconds..."
+        },
+        "39/0/init/body/65/consequent/0/argument/3": {
           "type": "element",
           "hash": "94dac7f32393acc7d398799613fdca4f",
           "context": "",
@@ -6504,6 +7520,38 @@
           "content": "Delete"
         },
         "39/0/init/body/66/0/init/3/2/value": {
+          "type": "element",
+          "hash": "56b7d0834952b39ee394b44bd8179178",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Download"
+        },
+        "39/0/init/body/67/0/init/0/2/value": {
+          "type": "element",
+          "hash": "2d768c5078f1a7c55063b00b09933ae7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Move"
+        },
+        "39/0/init/body/67/0/init/1/2/value": {
+          "type": "element",
+          "hash": "627c00d2c850b9b45f7341a6ac01b6bb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy"
+        },
+        "39/0/init/body/67/0/init/2/2/value": {
+          "type": "element",
+          "hash": "8bcf303dd10a645b5baacb02b47d72c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Delete"
+        },
+        "39/0/init/body/67/0/init/3/2/value": {
           "type": "element",
           "hash": "56b7d0834952b39ee394b44bd8179178",
           "context": "",
@@ -6552,6 +7600,86 @@
           "content": "Recents"
         },
         "39/0/init/body/67/0/init/body/3/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "e128e9e16f37c1e9caaa5cfe49ccd0c1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Files and folders you've accessed recently"
+        },
+        "39/0/init/body/68/0/init/0/2/value": {
+          "type": "element",
+          "hash": "2d768c5078f1a7c55063b00b09933ae7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Move"
+        },
+        "39/0/init/body/68/0/init/1/2/value": {
+          "type": "element",
+          "hash": "627c00d2c850b9b45f7341a6ac01b6bb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy"
+        },
+        "39/0/init/body/68/0/init/2/2/value": {
+          "type": "element",
+          "hash": "8bcf303dd10a645b5baacb02b47d72c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Delete"
+        },
+        "39/0/init/body/68/0/init/3/2/value": {
+          "type": "element",
+          "hash": "56b7d0834952b39ee394b44bd8179178",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Download"
+        },
+        "39/0/init/body/68/0/init/body/1/consequent/0/argument/1": {
+          "type": "element",
+          "hash": "be477acbba5071be235e14801f7b3cbc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Trashbins"
+        },
+        "39/0/init/body/68/0/init/body/1/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "99a35e5a9674b24072be983b37573ef2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Files and folders that have been deleted"
+        },
+        "39/0/init/body/68/0/init/body/2/consequent/0/argument/1": {
+          "type": "element",
+          "hash": "f1c18717843cc4dec7d1b68e1ac86a50",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Shared with Me"
+        },
+        "39/0/init/body/68/0/init/body/2/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "4899076704e00e43c0ea4fa90abf267c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Files and folders that others have shared with you"
+        },
+        "39/0/init/body/68/0/init/body/3/consequent/0/argument/1": {
+          "type": "element",
+          "hash": "cd0ca8a4b01cd2672f5b1a39a364499f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Recents"
+        },
+        "39/0/init/body/68/0/init/body/3/consequent/0/argument/3": {
           "type": "element",
           "hash": "e128e9e16f37c1e9caaa5cfe49ccd0c1",
           "context": "",
@@ -6798,6 +7926,854 @@
           "skip": false,
           "overrides": {},
           "content": "Home"
+        },
+        "39/0/init/body/69/0/init/0/2/value": {
+          "type": "element",
+          "hash": "2d768c5078f1a7c55063b00b09933ae7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Move"
+        },
+        "39/0/init/body/69/0/init/1/2/value": {
+          "type": "element",
+          "hash": "627c00d2c850b9b45f7341a6ac01b6bb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copy"
+        },
+        "39/0/init/body/69/0/init/2/2/value": {
+          "type": "element",
+          "hash": "8bcf303dd10a645b5baacb02b47d72c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Delete"
+        },
+        "39/0/init/body/69/0/init/3/2/value": {
+          "type": "element",
+          "hash": "56b7d0834952b39ee394b44bd8179178",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Download"
+        },
+        "39/0/init/body/69/0/init/body/1/consequent/0/argument/1": {
+          "type": "element",
+          "hash": "be477acbba5071be235e14801f7b3cbc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Trashbins"
+        },
+        "39/0/init/body/69/0/init/body/1/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "99a35e5a9674b24072be983b37573ef2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Files and folders that have been deleted"
+        },
+        "39/0/init/body/69/0/init/body/2/consequent/0/argument/1": {
+          "type": "element",
+          "hash": "f1c18717843cc4dec7d1b68e1ac86a50",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Shared with Me"
+        },
+        "39/0/init/body/69/0/init/body/2/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "4899076704e00e43c0ea4fa90abf267c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Files and folders that others have shared with you"
+        },
+        "39/0/init/body/69/0/init/body/3/consequent/0/argument/1": {
+          "type": "element",
+          "hash": "cd0ca8a4b01cd2672f5b1a39a364499f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Recents"
+        },
+        "39/0/init/body/69/0/init/body/3/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "e128e9e16f37c1e9caaa5cfe49ccd0c1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Files and folders you've accessed recently"
+        },
+        "39/0/init/body/69/argument/7/1/expression/consequent/1/expression/right": {
+          "type": "element",
+          "hash": "db8ebedd661a9db013869f61841501b2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Show All Disks"
+        },
+        "39/0/init/body/69/argument/7/3/1/expression/alternate/consequent/3": {
+          "type": "element",
+          "hash": "c165cbd745def0052f618bf421360ac5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Share"
+        },
+        "39/0/init/body/69/argument/7/3/1/expression/consequent/1": {
+          "type": "element",
+          "hash": "19155938a6d09e4345cf84bdbc28cf5a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Bulk Manage <expression/><element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/69/argument/9/1/1/expression/alternate/alternate/1": {
+          "type": "element",
+          "hash": "33867c5f2c6244d29ce8710d9f983467",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back "
+        },
+        "39/0/init/body/69/argument/9/1/1/expression/alternate/alternate/4/expression/alternate/openingElement/0/value/expression/body/0/expression/0": {
+          "type": "element",
+          "hash": "a20c448cc4e7173884b891974e3de08f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Refetching file..."
+        },
+        "39/0/init/body/69/argument/9/1/1/expression/alternate/alternate/4/expression/consequent/3": {
+          "type": "element",
+          "hash": "92df0d6c087c27feabc7092b53945b4a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing"
+        },
+        "39/0/init/body/69/argument/9/1/1/expression/consequent/1/1": {
+          "type": "element",
+          "hash": "33867c5f2c6244d29ce8710d9f983467",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back "
+        },
+        "39/0/init/body/69/argument/9/1/1/expression/consequent/1/4/expression/alternate/openingElement/0/value/expression/body/0/expression/0": {
+          "type": "element",
+          "hash": "023c6ebe4740dd72c10199eb3243fd1e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Refetching directory..."
+        },
+        "39/0/init/body/69/argument/9/1/1/expression/consequent/1/4/expression/consequent/3": {
+          "type": "element",
+          "hash": "cf58e6083e639243a8ee1b1174c7a9aa",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing"
+        },
+        "39/0/init/body/69/argument/9/1/1/expression/consequent/3/3/1/1": {
+          "type": "element",
+          "hash": "22a135f7d409a193f36c9d93f43a972c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:SortAscendingOutlined></element:SortAscendingOutlined> Type<element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/69/argument/9/1/1/expression/consequent/3/5/1/1": {
+          "type": "element",
+          "hash": "1e36acb4e28d90edf21628f71a72e4ef",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:TeamOutlined></element:TeamOutlined> People<element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/69/argument/9/1/1/expression/consequent/3/7/1/1": {
+          "type": "element",
+          "hash": "ba457944d2cada8c3e2e01a3e69059a8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:ClockCircleOutlined></element:ClockCircleOutlined> Modified<element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/1-placeholder": {
+          "type": "attribute",
+          "hash": "1702d485c5978360ecfddbe2e941cc35",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filter Results"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/3/expression/alternate/alternate/1/expression/0/body/0/argument/openingElement/2/value/expression/body/1/consequent/1/expression/0": {
+          "type": "element",
+          "hash": "f96f5eccb6b34e7030d9c39a0ee355b0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You cannot access files in the Trash. Restore it first."
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/3/expression/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "79ed7e543feb71095e763381284a3f64",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No Disks Found"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/3/expression/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "4229d5f72df907ac1152c0a8838202a9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Ask the admin to give you access to a disk"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "f0f49c608e6e0ac47b0bae9f440920a7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Upload Files"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/consequent/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "1c7c342ea0e340aecbd17652b5069846",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This folder is empty. Drag and drop files here to upload."
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/consequent/1/openingElement/3/value/expression/alternate/1/1": {
+          "type": "element",
+          "hash": "5f73fd477c38a45cf6ecbdd384d36966",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "View Demo Folder"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/alternate/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "684110ff0831b73df44e7d96b89ecbd7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Decrypting for first time..."
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/alternate/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "4fd7574a2da9346d36751109ff161ef6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This may take a few seconds, but will be fast after that"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "191229078e9ca83b563e335949bb3fc8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Nothing Shared Yet"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "d72c8ecd6366f79464e3c02bc0381b1e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "When the organization shares files with you, they can be found as shortcuts here"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/alternate/consequent/openingElement/3/value/expression/1": {
+          "type": "element",
+          "hash": "94d005098cc59575e185f64d65d3b29e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back to Drive"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3a9d3d0b9f0bed10b673a8c5ad71bcde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Trash is Empty"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "ace960fe9f817fbad6252c5a66364a5b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "There are no items in your trash bin at the moment."
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/alternate/alternate/consequent/openingElement/3/value/expression/1": {
+          "type": "element",
+          "hash": "85a88b5cb95e5ac7b2f0d2fe6bb05be4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Return to Drive"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "4592a50ac708c95652865c7572bc73a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "404 Not Found"
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/consequent/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "56b3a3c7fafc5e3470b96ed871978fde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "The file you are looking for does not exist or has been deleted."
+        },
+        "39/0/init/body/69/argument/9/1/3/expression/consequent/1/openingElement/3/value/expression/0/1/1": {
+          "type": "element",
+          "hash": "636df3b4b6124d1f0d7b48c64e1151ff",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Home"
+        },
+        "39/0/init/body/70/0/init/body/1/consequent/0/argument/1": {
+          "type": "element",
+          "hash": "be477acbba5071be235e14801f7b3cbc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Trashbins"
+        },
+        "39/0/init/body/70/0/init/body/1/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "99a35e5a9674b24072be983b37573ef2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Files and folders that have been deleted"
+        },
+        "39/0/init/body/70/0/init/body/2/consequent/0/argument/1": {
+          "type": "element",
+          "hash": "f1c18717843cc4dec7d1b68e1ac86a50",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Shared with Me"
+        },
+        "39/0/init/body/70/0/init/body/2/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "4899076704e00e43c0ea4fa90abf267c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Files and folders that others have shared with you"
+        },
+        "39/0/init/body/70/0/init/body/3/consequent/0/argument/1": {
+          "type": "element",
+          "hash": "cd0ca8a4b01cd2672f5b1a39a364499f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Recents"
+        },
+        "39/0/init/body/70/0/init/body/3/consequent/0/argument/3": {
+          "type": "element",
+          "hash": "e128e9e16f37c1e9caaa5cfe49ccd0c1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Files and folders you've accessed recently"
+        },
+        "39/0/init/body/70/argument/7/1/expression/consequent/1/expression/right": {
+          "type": "element",
+          "hash": "db8ebedd661a9db013869f61841501b2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Show All Disks"
+        },
+        "39/0/init/body/70/argument/7/3/1/expression/alternate/consequent/3": {
+          "type": "element",
+          "hash": "c165cbd745def0052f618bf421360ac5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Share"
+        },
+        "39/0/init/body/70/argument/7/3/1/expression/consequent/1": {
+          "type": "element",
+          "hash": "19155938a6d09e4345cf84bdbc28cf5a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Bulk Manage <expression/><element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/70/argument/9/1/1/expression/alternate/alternate/1": {
+          "type": "element",
+          "hash": "33867c5f2c6244d29ce8710d9f983467",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back "
+        },
+        "39/0/init/body/70/argument/9/1/1/expression/alternate/alternate/4/expression/alternate/openingElement/0/value/expression/body/0/expression/0": {
+          "type": "element",
+          "hash": "a20c448cc4e7173884b891974e3de08f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Refetching file..."
+        },
+        "39/0/init/body/70/argument/9/1/1/expression/alternate/alternate/4/expression/consequent/3": {
+          "type": "element",
+          "hash": "92df0d6c087c27feabc7092b53945b4a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing"
+        },
+        "39/0/init/body/70/argument/9/1/1/expression/consequent/1/1": {
+          "type": "element",
+          "hash": "33867c5f2c6244d29ce8710d9f983467",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back "
+        },
+        "39/0/init/body/70/argument/9/1/1/expression/consequent/1/4/expression/alternate/openingElement/0/value/expression/body/0/expression/0": {
+          "type": "element",
+          "hash": "023c6ebe4740dd72c10199eb3243fd1e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Refetching directory..."
+        },
+        "39/0/init/body/70/argument/9/1/1/expression/consequent/1/4/expression/consequent/3": {
+          "type": "element",
+          "hash": "cf58e6083e639243a8ee1b1174c7a9aa",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing"
+        },
+        "39/0/init/body/70/argument/9/1/1/expression/consequent/3/3/1/1": {
+          "type": "element",
+          "hash": "22a135f7d409a193f36c9d93f43a972c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:SortAscendingOutlined></element:SortAscendingOutlined> Type<element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/70/argument/9/1/1/expression/consequent/3/5/1/1": {
+          "type": "element",
+          "hash": "1e36acb4e28d90edf21628f71a72e4ef",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:TeamOutlined></element:TeamOutlined> People<element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/70/argument/9/1/1/expression/consequent/3/7/1/1": {
+          "type": "element",
+          "hash": "ba457944d2cada8c3e2e01a3e69059a8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:ClockCircleOutlined></element:ClockCircleOutlined> Modified<element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/1-placeholder": {
+          "type": "attribute",
+          "hash": "1702d485c5978360ecfddbe2e941cc35",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filter Results"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/3/expression/alternate/alternate/1/expression/0/body/0/argument/openingElement/2/value/expression/body/1/consequent/1/expression/0": {
+          "type": "element",
+          "hash": "f96f5eccb6b34e7030d9c39a0ee355b0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You cannot access files in the Trash. Restore it first."
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/3/expression/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "79ed7e543feb71095e763381284a3f64",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No Disks Found"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/3/expression/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "4229d5f72df907ac1152c0a8838202a9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Ask the admin to give you access to a disk"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "f0f49c608e6e0ac47b0bae9f440920a7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Upload Files"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/consequent/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "1c7c342ea0e340aecbd17652b5069846",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This folder is empty. Drag and drop files here to upload."
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/consequent/1/openingElement/3/value/expression/alternate/1/1": {
+          "type": "element",
+          "hash": "5f73fd477c38a45cf6ecbdd384d36966",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "View Demo Folder"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/alternate/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "684110ff0831b73df44e7d96b89ecbd7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Decrypting for first time..."
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/alternate/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "4fd7574a2da9346d36751109ff161ef6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This may take a few seconds, but will be fast after that"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "191229078e9ca83b563e335949bb3fc8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Nothing Shared Yet"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "d72c8ecd6366f79464e3c02bc0381b1e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "When the organization shares files with you, they can be found as shortcuts here"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/alternate/consequent/openingElement/3/value/expression/1": {
+          "type": "element",
+          "hash": "94d005098cc59575e185f64d65d3b29e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back to Drive"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3a9d3d0b9f0bed10b673a8c5ad71bcde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Trash is Empty"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "ace960fe9f817fbad6252c5a66364a5b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "There are no items in your trash bin at the moment."
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/alternate/alternate/consequent/openingElement/3/value/expression/1": {
+          "type": "element",
+          "hash": "85a88b5cb95e5ac7b2f0d2fe6bb05be4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Return to Drive"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "4592a50ac708c95652865c7572bc73a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "404 Not Found"
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/consequent/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "56b3a3c7fafc5e3470b96ed871978fde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "The file you are looking for does not exist or has been deleted."
+        },
+        "39/0/init/body/70/argument/9/1/3/expression/consequent/1/openingElement/3/value/expression/0/1/1": {
+          "type": "element",
+          "hash": "636df3b4b6124d1f0d7b48c64e1151ff",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Home"
+        },
+        "39/0/init/body/71/argument/7/1/expression/consequent/1/expression/right": {
+          "type": "element",
+          "hash": "db8ebedd661a9db013869f61841501b2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Show All Disks"
+        },
+        "39/0/init/body/71/argument/7/3/1/expression/alternate/consequent/3": {
+          "type": "element",
+          "hash": "c165cbd745def0052f618bf421360ac5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Share"
+        },
+        "39/0/init/body/71/argument/7/3/1/expression/consequent/1": {
+          "type": "element",
+          "hash": "19155938a6d09e4345cf84bdbc28cf5a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Bulk Manage <expression/><element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/71/argument/9/1/1/expression/alternate/alternate/1": {
+          "type": "element",
+          "hash": "33867c5f2c6244d29ce8710d9f983467",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back "
+        },
+        "39/0/init/body/71/argument/9/1/1/expression/alternate/alternate/4/expression/alternate/openingElement/0/value/expression/body/0/expression/0": {
+          "type": "element",
+          "hash": "a20c448cc4e7173884b891974e3de08f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Refetching file..."
+        },
+        "39/0/init/body/71/argument/9/1/1/expression/alternate/alternate/4/expression/consequent/3": {
+          "type": "element",
+          "hash": "92df0d6c087c27feabc7092b53945b4a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing"
+        },
+        "39/0/init/body/71/argument/9/1/1/expression/consequent/1/1": {
+          "type": "element",
+          "hash": "33867c5f2c6244d29ce8710d9f983467",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back "
+        },
+        "39/0/init/body/71/argument/9/1/1/expression/consequent/1/4/expression/alternate/openingElement/0/value/expression/body/0/expression/0": {
+          "type": "element",
+          "hash": "023c6ebe4740dd72c10199eb3243fd1e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Refetching directory..."
+        },
+        "39/0/init/body/71/argument/9/1/1/expression/consequent/1/4/expression/consequent/3": {
+          "type": "element",
+          "hash": "cf58e6083e639243a8ee1b1174c7a9aa",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing"
+        },
+        "39/0/init/body/71/argument/9/1/1/expression/consequent/3/3/1/1": {
+          "type": "element",
+          "hash": "22a135f7d409a193f36c9d93f43a972c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:SortAscendingOutlined></element:SortAscendingOutlined> Type<element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/71/argument/9/1/1/expression/consequent/3/5/1/1": {
+          "type": "element",
+          "hash": "1e36acb4e28d90edf21628f71a72e4ef",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:TeamOutlined></element:TeamOutlined> People<element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/71/argument/9/1/1/expression/consequent/3/7/1/1": {
+          "type": "element",
+          "hash": "ba457944d2cada8c3e2e01a3e69059a8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "<element:ClockCircleOutlined></element:ClockCircleOutlined> Modified<element:DownOutlined></element:DownOutlined>"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/1-placeholder": {
+          "type": "attribute",
+          "hash": "1702d485c5978360ecfddbe2e941cc35",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filter Results"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/3/expression/alternate/alternate/1/expression/0/body/0/argument/openingElement/2/value/expression/body/1/consequent/1/expression/0": {
+          "type": "element",
+          "hash": "f96f5eccb6b34e7030d9c39a0ee355b0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "You cannot access files in the Trash. Restore it first."
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/3/expression/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "79ed7e543feb71095e763381284a3f64",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No Disks Found"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/alternate/3/expression/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "4229d5f72df907ac1152c0a8838202a9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Ask the admin to give you access to a disk"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "f0f49c608e6e0ac47b0bae9f440920a7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Upload Files"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/consequent/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "1c7c342ea0e340aecbd17652b5069846",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This folder is empty. Drag and drop files here to upload."
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/alternate/alternate/1/expression/consequent/1/openingElement/3/value/expression/alternate/1/1": {
+          "type": "element",
+          "hash": "5f73fd477c38a45cf6ecbdd384d36966",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "View Demo Folder"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/alternate/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "684110ff0831b73df44e7d96b89ecbd7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Decrypting for first time..."
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/alternate/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "4fd7574a2da9346d36751109ff161ef6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This may take a few seconds, but will be fast after that"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "191229078e9ca83b563e335949bb3fc8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Nothing Shared Yet"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "d72c8ecd6366f79464e3c02bc0381b1e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "When the organization shares files with you, they can be found as shortcuts here"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/alternate/consequent/openingElement/3/value/expression/1": {
+          "type": "element",
+          "hash": "94d005098cc59575e185f64d65d3b29e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Back to Drive"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/consequent/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3a9d3d0b9f0bed10b673a8c5ad71bcde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Trash is Empty"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/consequent/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "ace960fe9f817fbad6252c5a66364a5b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "There are no items in your trash bin at the moment."
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/alternate/alternate/consequent/openingElement/3/value/expression/1": {
+          "type": "element",
+          "hash": "85a88b5cb95e5ac7b2f0d2fe6bb05be4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Return to Drive"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/consequent/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "4592a50ac708c95652865c7572bc73a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "404 Not Found"
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/consequent/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "56b3a3c7fafc5e3470b96ed871978fde",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "The file you are looking for does not exist or has been deleted."
+        },
+        "39/0/init/body/71/argument/9/1/3/expression/consequent/1/openingElement/3/value/expression/0/1/1": {
+          "type": "element",
+          "hash": "636df3b4b6124d1f0d7b48c64e1151ff",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Home"
         }
       }
     },
@@ -6971,7 +8947,39 @@
           "overrides": {},
           "content": "Failed to rename file"
         },
+        "23/0/init/body/32/0/init/body/2/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "7241033373fc08f330c1a4da14e7c936",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Filename must include extension"
+        },
+        "23/0/init/body/32/0/init/body/4/block/2/expression/0": {
+          "type": "element",
+          "hash": "25bf0ad539389118d7bd1ca726502cfc",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File renamed successfully"
+        },
+        "23/0/init/body/32/0/init/body/4/handler/body/0/expression/0": {
+          "type": "element",
+          "hash": "8735303a20bec46786b7aa4f77a57361",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to rename file"
+        },
         "23/0/init/body/34/0/init/body/0/alternate/0/expression/0": {
+          "type": "element",
+          "hash": "a7825cfa264a8c1bd766c33a96403328",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File URL not available for download"
+        },
+        "23/0/init/body/35/0/init/body/0/alternate/0/expression/0": {
           "type": "element",
           "hash": "a7825cfa264a8c1bd766c33a96403328",
           "context": "",
@@ -7116,6 +9124,134 @@
           "content": "Open Document"
         },
         "23/0/init/body/40/argument/7/expression/consequent/5/expression/right": {
+          "type": "element",
+          "hash": "cbd9509a28c8a65727a149a161f1b56f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Your browser does not support the audio tag."
+        },
+        "23/0/init/body/41/argument/1/1/1/3/1/expression/alternate/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "6f9413e4606e8d83a010685008fb2931",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Rename"
+        },
+        "23/0/init/body/41/argument/1/1/1/3/3": {
+          "type": "element",
+          "hash": "0d4d46e225a65748d9375b211433cd28",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File Size: <function:formatFileSize/>"
+        },
+        "23/0/init/body/41/argument/1/1/3/1/expression/right": {
+          "type": "element",
+          "hash": "4b90f283c593388dd503620d194c9004",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copied to clipboard Copy Raw"
+        },
+        "23/0/init/body/41/argument/1/1/3/3": {
+          "type": "element",
+          "hash": "588c5a6c67919b621a1b168625f5acfa",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Download"
+        },
+        "23/0/init/body/41/argument/1/1/3/5": {
+          "type": "element",
+          "hash": "eca9f9c4ba175f3126f1aec45ec89966",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Share"
+        },
+        "23/0/init/body/41/argument/3/expression/right/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "57147ab3e4d0cbae56b3328b140211f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File Uploading"
+        },
+        "23/0/init/body/41/argument/3/expression/right/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "ca28d16a88ab3cabe29355f168298360",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File is still uploading and cannot be previewed yet. Please wait for the upload to complete or try uploading again."
+        },
+        "23/0/init/body/41/argument/5/expression/right/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "440c35fa8ea8c9ecd957d96a8f26e910",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "File Too Large for Preview"
+        },
+        "23/0/init/body/41/argument/5/expression/right/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "fffec697fb0e963429c52110d9936c76",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This file is too large to preview ($<function:formatFileSize/>). $<expression/> Please download the file instead."
+        },
+        "23/0/init/body/41/argument/7/expression/consequent/11/expression/right/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "ba850f22975573101eb6f2f507408e46",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Preview Unavailable"
+        },
+        "23/0/init/body/41/argument/7/expression/consequent/11/expression/right/1/openingElement/2/value/expression": {
+          "type": "element",
+          "hash": "98e30e24c401f07d7632ef89770e0238",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Download"
+        },
+        "23/0/init/body/41/argument/7/expression/consequent/13/expression/right/1": {
+          "type": "element",
+          "hash": "fbf956fa692254883a939e1ba6417a8d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Open Spreadsheet"
+        },
+        "23/0/init/body/41/argument/7/expression/consequent/15/expression/right/1": {
+          "type": "element",
+          "hash": "fbf956fa692254883a939e1ba6417a8d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Open Spreadsheet"
+        },
+        "23/0/init/body/41/argument/7/expression/consequent/17/expression/right/1": {
+          "type": "element",
+          "hash": "a6b99ad07c4c485089d03d1a9ec5c329",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Open Document"
+        },
+        "23/0/init/body/41/argument/7/expression/consequent/19/expression/right/1": {
+          "type": "element",
+          "hash": "a6b99ad07c4c485089d03d1a9ec5c329",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Open Document"
+        },
+        "23/0/init/body/41/argument/7/expression/consequent/5/expression/right": {
           "type": "element",
           "hash": "cbd9509a28c8a65727a149a161f1b56f",
           "context": "",

@@ -134,6 +134,7 @@ const DDocumentEditor = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingShareLink, setIsGeneratingShareLink] = useState(false);
   const [isShareDrawerOpen, setIsShareDrawerOpen] = useState(false);
+  const [isInitialBuffering, setIsInitialBuffering] = useState(true);
   // IndexedDB specific state and methods
   const dbNameRef = useRef<string>(
     `OFFICEX-browser-cache-storage-${currentOrg?.driveID}-${currentProfile?.userID}`
@@ -183,6 +184,10 @@ const DDocumentEditor = () => {
         fetchFileById(fileID);
       }, 1000);
     }
+
+    setTimeout(() => {
+      setIsInitialBuffering(false);
+    }, 2000);
   }, []);
 
   useEffect(() => {
@@ -1137,6 +1142,27 @@ const DDocumentEditor = () => {
     !redeemData &&
     fileID !== "new"
   ) {
+    if (isInitialBuffering) {
+      return (
+        <div
+          style={{
+            width: "100vw",
+            height: "90vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+          }}
+        >
+          <Spin />
+          <br />
+          <p style={{ marginTop: 16, fontWeight: 500, color: "gray" }}>
+            Loading from Blockchain... <br />
+            May take up to 15 seconds...
+          </p>
+        </div>
+      );
+    }
     return (
       <DirectoryGuard
         resourceID={fileID}
@@ -1310,7 +1336,7 @@ const DDocumentEditor = () => {
         breadcrumbs={file?.breadcrumbs || []}
         currentUserPermissions={file?.permission_previews || []}
       />
-      {!screenType.isMobile && <AIChatPanel />}
+      {!screenType.isMobile && file.id && <AIChatPanel fileID={file.id} />}
     </div>
   );
 };

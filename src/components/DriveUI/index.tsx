@@ -205,6 +205,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
   } = useIdentitySystem();
   const [refreshToken, setRefreshToken] = useState("");
   const [showAncillary, setShowAncillary] = useState(false);
+  const [isInitialBuffering, setIsInitialBuffering] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<(FileID | FolderID)[]>(
     []
   );
@@ -265,6 +266,12 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   const [freshGeneratedSignature, setFreshGeneratedSignature] =
     useState<string>("");
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsInitialBuffering(false);
+    }, 2000);
+  }, []);
 
   useEffect(() => {
     const rowGrid = localStorage.getItem(LOCAL_STORAGE_ROW_GRID_VIEW);
@@ -1492,7 +1499,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
     });
   };
 
-  if (showInitialLoading) {
+  const returnInitialLoading = () => {
     return (
       <div
         style={{
@@ -1512,10 +1519,17 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
         </p>
       </div>
     );
+  };
+
+  if (showInitialLoading) {
+    return returnInitialLoading();
   }
 
   // unauthorized access to folder
   if (currentFolderId && listDirectoryResults && listDirectoryResults.error) {
+    if (isInitialBuffering) {
+      return returnInitialLoading();
+    }
     return (
       <DirectoryGuard
         resourceID={currentFolderId}
@@ -1527,6 +1541,9 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
 
   // unauthorized access to file
   if (!isOfflineDisk && currentFileId && !getFileResult) {
+    if (isInitialBuffering) {
+      return returnInitialLoading();
+    }
     return (
       <DirectoryGuard
         resourceID={currentFileId}

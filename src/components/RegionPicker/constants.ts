@@ -190,25 +190,25 @@ export const language_dropdown_options = [
   { id: "sk-SK", code: "sk", title: "🇸🇰 Slovenčina", hint: "Slovak" },
 
   // Lithuanian
-  { id: "lt-LT", code: "lt", title: "🇱🇹 Lietuvių", hint: "Lithuanian" },
+  // { id: "lt-LT", code: "lt", title: "🇱🇹 Lietuvių", hint: "Lithuanian" },
 
   // Latvian
-  { id: "lv-LV", code: "lv", title: "🇱🇻 Latviešu", hint: "Latvian" },
+  // { id: "lv-LV", code: "lv", title: "🇱🇻 Latviešu", hint: "Latvian" },
 
   // Estonian
-  { id: "et-EE", code: "et", title: "🇪🇪 Eesti", hint: "Estonian" },
+  // { id: "et-EE", code: "et", title: "🇪🇪 Eesti", hint: "Estonian" },
 
   // Slovenian
-  { id: "sl-SI", code: "sl", title: "🇸🇮 Slovenščina", hint: "Slovenian" },
+  // { id: "sl-SI", code: "sl", title: "🇸🇮 Slovenščina", hint: "Slovenian" },
 
   // Icelandic
-  { id: "is-IS", code: "is", title: "🇮🇸 Íslenska", hint: "Icelandic" },
+  // { id: "is-IS", code: "is", title: "🇮🇸 Íslenska", hint: "Icelandic" },
 
   // Irish
-  { id: "ga-IE", code: "ga", title: "🇮🇪 Gaeilge", hint: "Irish" },
+  // { id: "ga-IE", code: "ga", title: "🇮🇪 Gaeilge", hint: "Irish" },
 
   // Welsh
-  { id: "cy-GB", code: "cy", title: "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Cymraeg", hint: "Welsh" },
+  // { id: "cy-GB", code: "cy", title: "🏴󠁧󠁢󠁷󠁬󠁳󠁿 Cymraeg", hint: "Welsh" },
 
   // Hebrew
   // { id: "he-IL", code: "he", title: "🇮🇱 עברית", hint: "Hebrew" }, --- enable this!
@@ -244,16 +244,16 @@ export const language_dropdown_options = [
   // { id: "xh-ZA", code: "xh", title: "🇿🇦 IsiXhosa", hint: "Xhosa" },
 
   // Catalan
-  { id: "ca-ES", code: "ca", title: "🇪🇸 Català", hint: "Catalan" },
+  // { id: "ca-ES", code: "ca", title: "🇪🇸 Català", hint: "Catalan" },
 
   // Basque
-  { id: "eu-ES", code: "eu", title: "🇪🇸 Euskara", hint: "Basque" },
+  // { id: "eu-ES", code: "eu", title: "🇪🇸 Euskara", hint: "Basque" },
 
   // Galician
-  { id: "gl-ES", code: "gl", title: "🇪🇸 Galego", hint: "Galician" },
+  // { id: "gl-ES", code: "gl", title: "🇪🇸 Galego", hint: "Galician" },
 
   // Maltese
-  { id: "mt-MT", code: "mt", title: "🇲🇹 Malti", hint: "Maltese" },
+  // { id: "mt-MT", code: "mt", title: "🇲🇹 Malti", hint: "Maltese" },
 
   // Tamil Variants
   { id: "ta-IN", code: "ta", title: "🇮🇳 தமிழ் (இந்தியா)", hint: "Tamil" },
@@ -295,7 +295,7 @@ export const language_dropdown_options = [
   // { id: "si-LK", code: "si", title: "🇱🇰 සිංහල", hint: "Sinhala" },
 
   // Georgian
-  { id: "ka-GE", code: "ka", title: "🇬🇪 ქართული", hint: "Georgian" },
+  // { id: "ka-GE", code: "ka", title: "🇬🇪 ქართული", hint: "Georgian" },
 
   // Armenian
   // { id: "hy-AM", code: "hy", title: "🇦🇲 Հայերեն", hint: "Armenian" },
@@ -319,7 +319,7 @@ export const language_dropdown_options = [
   // { id: "mk-MK", code: "mk", title: "🇲🇰 Македонски", hint: "Macedonian" },
 
   // Albanian
-  { id: "sq-AL", code: "sq", title: "🇦🇱 Shqip", hint: "Albanian" },
+  // { id: "sq-AL", code: "sq", title: "🇦🇱 Shqip", hint: "Albanian" },
 
   // Ewe
   // { id: "ee-GH", code: "ee", title: "🇬🇭 Eʋegbe", hint: "Ewe" },

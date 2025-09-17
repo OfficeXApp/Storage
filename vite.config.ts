@@ -162,6 +162,36 @@ export default defineConfig(() =>
           chunkFileNames: "[name].[hash].js",
           assetFileNames: "[name].[hash].[ext]",
           format: "es",
+          // Manual chunking for better performance
+          manualChunks: {
+            // Core React libraries
+            vendor: ["react", "react-dom", "react-router-dom"],
+
+            // Ant Design UI library
+            antd: ["antd", "@ant-design/icons"],
+
+            // Crypto and blockchain libraries
+            crypto: [
+              "@dfinity/identity",
+              "@dfinity/principal",
+              "@scure/bip39",
+              "bip39",
+              "ed25519-hd-key",
+              "viem",
+            ],
+
+            // Large utility libraries
+            utils: ["lodash", "dayjs", "uuid", "fuse.js"],
+
+            // File handling libraries
+            files: ["xlsx", "highlight.js"],
+
+            // AWS and cloud storage
+            aws: ["@aws-sdk/client-s3", "@aws-sdk/s3-request-presigner"],
+
+            // Redux and state management
+            redux: ["react-redux", "@redux-offline/redux-offline", "rxjs"],
+          },
         },
       },
 

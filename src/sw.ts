@@ -32,7 +32,12 @@ precacheAndRoute(manifest);
 const handler = createHandlerBoundToURL("/index.html");
 const navigationRoute = new NavigationRoute(handler, {
   // Exclude paths that should not use the index.html shell
-  denylist: [/\/api\//, /\.(jpg|png|gif|svg|webp|json|css|js)$/],
+  denylist: [
+    /\/api\//,
+    /\/store\//,
+    /\/store$/,
+    /\.(jpg|png|gif|svg|webp|json|css|js)$/,
+  ],
 });
 registerRoute(navigationRoute);
 

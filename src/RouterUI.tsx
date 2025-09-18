@@ -216,11 +216,12 @@ const SideMenu = ({
     ENABLE_APPSTORE
       ? {
           key: "appstore",
-          icon: <AppstoreAddOutlined />, // <ProductOutlined />, //
+          icon: <AppstoreAddOutlined />,
           label: (
             <div
               onClick={() => {
-                navigate(wrapOrgCode("/appstore"));
+                window.open(`${window.location.origin}/store/`, "_blank");
+
                 if (setSidebarVisible) {
                   setSidebarVisible(false);
                 }

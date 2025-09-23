@@ -1,5 +1,5 @@
 // Router.tsx
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, Suspense, lazy } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -54,34 +54,57 @@ import PreseedOffer from "./components/PreseedOffer";
 import useScreenType from "react-screentype-hook";
 // import LoadSampleFiles from "./components/DriveUI/LoadSampleFiles";
 import ConnectICPButton from "./components/ConnectICPButton";
-import SettingsPage from "./components/SettingsPage";
-import GiftPage from "./components/GiftPage";
-import SandboxPage from "./components/SandboxPage";
-// import SandboxIndexdbUploader from "./components/SandboxPage/SandboxIndexdbUploader.tsx";
-// import SandboxCanisterUploader from "./components/SandboxPage/SandboxCanisterUploader.tsx";
-// import SandboxLocalStorjUploader from "./components/SandboxPage/SandboxLocalStorjUploader.tsx";
-// import SandboxCloudStorjUploader from "./components/SandboxPage/SandboxCloudStorjUploader.tsx";
-import ContactsPage from "./pages/ContactsPage";
-import ContactRedeem from "./pages/ContactsPage/contact.redeem";
-import GroupsPage from "./pages/GroupsPage";
-import PermissionsPage from "./pages/PermissionsPage";
-import LabelsPage from "./pages/LabelsPage";
-import DisksPage from "./pages/DisksPage";
-import DrivesPage from "./pages/DrivesPage";
-import ApiKeysPage from "./pages/ApiKeysPage";
-import WebhooksPage from "./pages/WebhooksPage";
-import OrganizationSwitcher from "./components/SwitchOrganization";
-import TemplateCrudPage from "./components/TemplateCrudPage";
-import ContactPage from "./pages/ContactsPage/contact.page";
-import GroupPage from "./pages/GroupsPage/group.page";
-import LabelPage from "./pages/LabelsPage/label.page";
-import DiskPage from "./pages/DisksPage/disk.page";
-import WebhookPage from "./pages/WebhooksPage/webhook.page";
-import DrivePage from "./pages/DrivesPage/drive.page";
-import ApiKeyPage from "./pages/ApiKeysPage/api-key.page";
-import PermissionPage from "./pages/PermissionsPage/permission.page";
-import RedeemDirectoryPermitPage from "./components/DirectorySharingDrawer/directory-permission.redeem";
-import RedeemGroupInvite from "./pages/GroupsPage/invite.redeem";
+import LoadingSpinner from "./components/LoadingSpinner";
+
+// Lazy load major page components for better performance
+const SettingsPage = lazy(() => import("./components/SettingsPage"));
+const GiftPage = lazy(() => import("./components/GiftPage"));
+const SandboxPage = lazy(() => import("./components/SandboxPage"));
+const ContactsPage = lazy(() => import("./pages/ContactsPage"));
+const ContactRedeem = lazy(() => import("./pages/ContactsPage/contact.redeem"));
+const GroupsPage = lazy(() => import("./pages/GroupsPage"));
+const PermissionsPage = lazy(() => import("./pages/PermissionsPage"));
+const LabelsPage = lazy(() => import("./pages/LabelsPage"));
+const DisksPage = lazy(() => import("./pages/DisksPage"));
+const DrivesPage = lazy(() => import("./pages/DrivesPage"));
+const ApiKeysPage = lazy(() => import("./pages/ApiKeysPage"));
+const WebhooksPage = lazy(() => import("./pages/WebhooksPage"));
+const TemplateCrudPage = lazy(() => import("./components/TemplateCrudPage"));
+const ContactPage = lazy(() => import("./pages/ContactsPage/contact.page"));
+const GroupPage = lazy(() => import("./pages/GroupsPage/group.page"));
+const LabelPage = lazy(() => import("./pages/LabelsPage/label.page"));
+const DiskPage = lazy(() => import("./pages/DisksPage/disk.page"));
+const WebhookPage = lazy(() => import("./pages/WebhooksPage/webhook.page"));
+const DrivePage = lazy(() => import("./pages/DrivesPage/drive.page"));
+const ApiKeyPage = lazy(() => import("./pages/ApiKeysPage/api-key.page"));
+const PermissionPage = lazy(
+  () => import("./pages/PermissionsPage/permission.page")
+);
+const RedeemDirectoryPermitPage = lazy(
+  () =>
+    import("./components/DirectorySharingDrawer/directory-permission.redeem")
+);
+const RedeemGroupInvite = lazy(
+  () => import("./pages/GroupsPage/invite.redeem")
+);
+const FreeFileSharePreview = lazy(
+  () => import("./components/FreeFileSharePreview")
+);
+const NotFoundPage = lazy(() => import("./components/NotFound"));
+const SearchResultsPage = lazy(() => import("./pages/SearchResults"));
+const WelcomePage = lazy(() => import("./components/WelcomePage"));
+const GiftCardOnboarding = lazy(() => import("./pages/GiftCardOnboarding"));
+const AutoLoginPage = lazy(() => import("./pages/AutoLoginPage"));
+const RedeemDiskGiftCard = lazy(() => import("./pages/DisksPage/disk.redeem"));
+const SpreadsheetEditor = lazy(() => import("./apps/SpreadsheetEditor"));
+const DocumentEditor = lazy(() => import("./apps/DocumentEditor"));
+const SelectAgenticKey = lazy(() => import("./components/SelectAgenticKey"));
+const AppStorePage = lazy(() => import("./components/AppStore"));
+const AppPage = lazy(() => import("./components/AppPage"));
+const ChatWithAI = lazy(() => import("./apps/ChatWithAI"));
+const DSpreadsheetEditor = lazy(() => import("./apps/DSpreadsheetEditor"));
+const DDocumentEditor = lazy(() => import("./apps/DDocumentEditor"));
+const PurchasesPage = lazy(() => import("./pages/PurchasesPage"));
 import {
   defaultBrowserCacheDiskID,
   defaultBrowserCacheRootFolderID,
@@ -97,36 +120,22 @@ import {
   IRequestListDirectory,
   SortDirection,
 } from "@officexapp/types";
-import FreeFileSharePreview from "./components/FreeFileSharePreview";
-import NotFoundPage from "./components/NotFound";
-import { generateListDirectoryKey } from "./redux-offline/directory/directory.actions";
-import SearchResultsPage from "./pages/SearchResults";
-import WelcomePage from "./components/WelcomePage";
-import GiftCardOnboarding from "./pages/GiftCardOnboarding";
-import AutoLoginPage from "./pages/AutoLoginPage";
-import RedeemDiskGiftCard from "./pages/DisksPage/disk.redeem";
-import SpreadsheetEditor from "./apps/SpreadsheetEditor";
-import DocumentEditor from "./apps/DocumentEditor";
-import SelectAgenticKey from "./components/SelectAgenticKey";
-import AppStorePage from "./components/AppStore";
-import AppPage from "./components/AppPage";
 import TagCopy from "./components/TagCopy";
 import { DriveProvider } from "./framework";
-import PurchasesPage from "./pages/PurchasesPage";
 import WalletControlPopover from "./components/WalletControlPopover";
-import ChatWithAI from "./apps/ChatWithAI";
 import {
   ENABLE_APPSTORE,
   isAIChatEnabled,
   ENABLE_WALLET,
   LOCALSTORAGE_IS_AI_CHAT_ENABLED,
 } from "./framework/flags/feature-flags";
-import PurchasePage from "./pages/PurchasesPage/purchases.page";
-import PrettyUrlShortener from "./components/PrettyUrlShortener";
-import WelcomeAutoSpawn from "./components/WelcomeAutoSpawn";
+const PrettyUrlShortener = lazy(
+  () => import("./components/PrettyUrlShortener")
+);
+const WelcomeAutoSpawn = lazy(() => import("./components/WelcomeAutoSpawn"));
 import { CONFIG } from "./config";
-import DSpreadsheetEditor from "./apps/DSpreadsheetEditor";
-import DDocumentEditor from "./apps/DDocumentEditor";
+import OrganizationSwitcher from "./components/SwitchOrganization";
+import PurchasePage from "./pages/PurchasesPage/purchases.page";
 
 const { Sider, Content } = Layout;
 
@@ -207,11 +216,12 @@ const SideMenu = ({
     ENABLE_APPSTORE
       ? {
           key: "appstore",
-          icon: <AppstoreAddOutlined />, // <ProductOutlined />, //
+          icon: <AppstoreAddOutlined />,
           label: (
             <div
               onClick={() => {
-                navigate(wrapOrgCode("/appstore"));
+                window.open(`${window.location.origin}/store/`, "_blank");
+
                 if (setSidebarVisible) {
                   setSidebarVisible(false);
                 }
@@ -840,24 +850,40 @@ const RouterUI = () => {
                       />
                       <Route
                         path="/org/:orgcode/settings"
-                        element={<SettingsPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <SettingsPage />
+                          </Suspense>
+                        }
                       />
                       {ENABLE_APPSTORE && (
                         <Route
                           path="/org/:orgcode/appstore"
-                          element={<AppStorePage />}
+                          element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                              <AppStorePage />
+                            </Suspense>
+                          }
                         />
                       )}
                       {ENABLE_APPSTORE && (
                         <Route
                           path="/org/:orgcode/appstore/app/:app_id"
-                          element={<AppPage />}
+                          element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                              <AppPage />
+                            </Suspense>
+                          }
                         />
                       )}
                       {true && (
                         <Route
                           path="/org/:orgcode/chat"
-                          element={<ChatWithAI />}
+                          element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                              <ChatWithAI />
+                            </Suspense>
+                          }
                         />
                       )}
                       <Route
@@ -866,19 +892,35 @@ const RouterUI = () => {
                       />
                       <Route
                         path="/org/:orgcode/welcome"
-                        element={<WelcomePage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <WelcomePage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/search"
-                        element={<SearchResultsPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <SearchResultsPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/grant-agentic-key"
-                        element={<SelectAgenticKey />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <SelectAgenticKey />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/to/:shortlink_slug"
-                        element={<PrettyUrlShortener />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <PrettyUrlShortener />
+                          </Suspense>
+                        }
                       />
 
                       <Route path="/sandbox" element={<SandboxPage />} />
@@ -916,106 +958,205 @@ const RouterUI = () => {
 
                       <Route
                         path="/org/:orgcode/resources/contacts"
-                        element={<ContactsPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <ContactsPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/contacts/redeem"
-                        element={<ContactRedeem />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <ContactRedeem />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/contacts/:userID"
-                        element={<ContactPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <ContactPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/groups"
-                        element={<GroupsPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <GroupsPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/groups/:groupID"
-                        element={<GroupPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <GroupPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/permissions"
-                        element={<PermissionsPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <PermissionsPage />
+                          </Suspense>
+                        }
                       />
 
                       <Route
                         path="/org/:orgcode/redeem/directory-permit"
-                        element={<RedeemDirectoryPermitPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <RedeemDirectoryPermitPage />
+                          </Suspense>
+                        }
                       />
 
                       <Route
                         path="/org/:orgcode/redeem/group-invite"
-                        element={<RedeemGroupInvite />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <RedeemGroupInvite />
+                          </Suspense>
+                        }
                       />
 
                       <Route
                         path="/org/:orgcode/share/free-cloud-filesharing"
-                        element={<FreeFileSharePreview />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <FreeFileSharePreview />
+                          </Suspense>
+                        }
                       />
 
                       <Route
                         path="/org/:orgcode/resources/permissions/:permissionVariant/:permissionID"
-                        element={<PermissionPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <PermissionPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/labels"
-                        element={<LabelsPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <LabelsPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/labels/:labelID"
-                        element={<LabelPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <LabelPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/disks"
-                        element={<DisksPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <DisksPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/disks/:diskID"
-                        element={<DiskPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <DiskPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/canisters"
-                        element={<DrivesPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <DrivesPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/canisters/:driveID"
-                        element={<DrivePage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <DrivePage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/templates"
-                        element={<TemplateCrudPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <TemplateCrudPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/webhooks"
-                        element={<WebhooksPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <WebhooksPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/webhooks/:webhookID"
-                        element={<WebhookPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <WebhookPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/api-keys"
-                        element={<ApiKeysPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <ApiKeysPage />
+                          </Suspense>
+                        }
                       />
                       <Route
                         path="/org/:orgcode/resources/api-keys/:apiKeyID"
-                        element={<ApiKeyPage />}
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <ApiKeyPage />
+                          </Suspense>
+                        }
                       />
                       {ENABLE_APPSTORE && (
                         <Route
                           path="/org/:orgcode/resources/purchases"
-                          element={<PurchasesPage />}
+                          element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                              <PurchasesPage />
+                            </Suspense>
+                          }
                         />
                       )}
 
                       {ENABLE_APPSTORE && (
                         <Route
                           path="/org/:orgcode/resources/purchases/:purchaseID"
-                          element={<PurchasePage />}
+                          element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                              <PurchasePage />
+                            </Suspense>
+                          }
                         />
                       )}
-                      <Route path="*" element={<NotFoundPage />} />
+                      <Route
+                        path="*"
+                        element={
+                          <Suspense fallback={<LoadingSpinner />}>
+                            <NotFoundPage />
+                          </Suspense>
+                        }
+                      />
                     </Routes>
                   </Content>
                 </Layout>

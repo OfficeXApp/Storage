@@ -19041,27 +19041,27 @@
       "scopes": {
         "7/0/init/body/2/0/init/0/0/1/value": {
           "type": "element",
+          "hash": "2b26c7d964b4003347f011150f1e443c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Explore Appstore"
+        },
+        "7/0/init/body/2/0/init/0/1/1/value": {
+          "type": "element",
           "hash": "b8d4dd3a7b102936cac501c87a58ee62",
           "context": "",
           "skip": false,
           "overrides": {},
           "content": "Upload and share files"
         },
-        "7/0/init/body/2/0/init/0/1/1/value": {
+        "7/0/init/body/2/0/init/0/2/1/value": {
           "type": "element",
           "hash": "c2c66c73e473f140af8eaf4b9e00114f",
           "context": "",
           "skip": false,
           "overrides": {},
           "content": "Invite your team (optional)"
-        },
-        "7/0/init/body/2/0/init/0/2/1/value": {
-          "type": "element",
-          "hash": "23313406a073ac5910b02c2e22807177",
-          "context": "",
-          "skip": false,
-          "overrides": {},
-          "content": "Login on multiple devices (optional)"
         },
         "7/0/init/body/2/0/init/0/3/1/value": {
           "type": "element",

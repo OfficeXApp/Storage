@@ -86,7 +86,7 @@ export const WEB2_FACTORY_ENDPOINT = LOCAL_DEV_MODE
 
 export const AI_CHAT_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:3000"
-  : "https://chat.otterpad.cc";
+  : "https://chat-with-ai-officex.web.app/";
 
 export const LOCAL_CHAT_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:3003"

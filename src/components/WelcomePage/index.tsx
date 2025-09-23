@@ -22,21 +22,21 @@ const WelcomePage = () => {
   const [tasks, setTasks] = useState([
     {
       id: "1",
+      text: <span>Explore Appstore</span>,
+      done: false,
+      route: wrapOrgCode("/store"),
+    },
+    {
+      id: "2",
       text: <span>Upload and share files</span>,
       done: false,
       route: wrapOrgCode("/drive"),
     },
     {
-      id: "2",
+      id: "3",
       text: <span>Invite your team (optional)</span>,
       done: false,
       route: wrapOrgCode("/resources/groups"),
-    },
-    {
-      id: "3",
-      text: <span>Login on multiple devices (optional)</span>,
-      done: false,
-      route: wrapOrgCode("/settings"),
     },
     {
       id: "4",

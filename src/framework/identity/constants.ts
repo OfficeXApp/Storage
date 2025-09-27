@@ -74,15 +74,15 @@ export const SPREADSHEET_APP_ENDPOINT = LOCAL_DEV_MODE
 
 export const DDOCS_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:5201"
-  : "https://docs-static.web.app";
+  : "https://docs-static-officex.web.app";
 
 export const DSHEETS_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:5202"
-  : "https://sheets-static.web.app";
+  : "https://sheets-static-officex.web.app";
 
 export const WEB2_FACTORY_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:8888"
-  : "https://officex.otterpad.cc";
+  : "https://ap-southeast-2.officex.app";
 
 export const AI_CHAT_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:3000"
@@ -90,7 +90,7 @@ export const AI_CHAT_ENDPOINT = LOCAL_DEV_MODE
 
 export const LOCAL_CHAT_ENDPOINT = LOCAL_DEV_MODE
   ? "http://localhost:3003"
-  : "https://webllm.web.app";
+  : "https://webllm-officex.web.app";
 
 // Hardcoded Gift Card Options
 export const initialGiftCardOptions: GiftCardOption[] = [

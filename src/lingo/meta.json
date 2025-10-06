@@ -15915,6 +15915,86 @@
           "overrides": {},
           "content": "Verifying password..."
         },
+        "19/0/init/body/35/0/init/body/0/argument/1": {
+          "type": "element",
+          "hash": "15ac6c9d2fcd5a4215648ee1b960117d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Preview"
+        },
+        "19/0/init/body/35/0/init/body/0/argument/3/1/expression/alternate/alternate/alternate": {
+          "type": "element",
+          "hash": "3da6a94510f4fcf5620d8ada7b9617f7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter a valid password to see organization details"
+        },
+        "19/0/init/body/35/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/1/1/1": {
+          "type": "element",
+          "hash": "4b585947c6cc054a2ad66032bad14934",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Org Name"
+        },
+        "19/0/init/body/35/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/1/3-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "19/0/init/body/35/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/3/1/1": {
+          "type": "element",
+          "hash": "b18bd0e85c7a5dad55f1657b60d99093",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Org ICP"
+        },
+        "19/0/init/body/35/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/5/1/1": {
+          "type": "element",
+          "hash": "48507a908ebbf8d399269a93d8e0e30d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Profile"
+        },
+        "19/0/init/body/35/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/5/3-placeholder": {
+          "type": "attribute",
+          "hash": "18fd87177479428206a5267f7114a227",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter profile nickname"
+        },
+        "19/0/init/body/35/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/7/1/1": {
+          "type": "element",
+          "hash": "3de1bba3a21f472933c08f0f354886d8",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "ICP"
+        },
+        "19/0/init/body/35/0/init/body/0/argument/3/1/expression/alternate/alternate/consequent/9/1/1": {
+          "type": "element",
+          "hash": "e209099be31c5f48eb1e6bea3d606526",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "EVM"
+        },
+        "19/0/init/body/35/0/init/body/0/argument/3/1/expression/consequent/3": {
+          "type": "element",
+          "hash": "1514e0f052123970383cd8c1f98f70de",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Verifying password..."
+        },
         "19/0/init/body/35/0/init/body/0/consequent/0/expression/0": {
           "type": "element",
           "hash": "b118d94ace5f86e963d6f9ed7fcd83ff",
@@ -15956,6 +16036,54 @@
           "content": "Successfully logged in to organization \"${orgNickToUse}\""
         },
         "19/0/init/body/35/0/init/body/9/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "0ea6169d8c4bf06fa6dfc75cb9d38702",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to log in to organization. Please try again."
+        },
+        "19/0/init/body/36/0/init/body/0/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b118d94ace5f86e963d6f9ed7fcd83ff",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid or expired password"
+        },
+        "19/0/init/body/36/0/init/body/3/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b72d0b1aca515eca3aa525f8cdd7d4c4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid format. Expected: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)"
+        },
+        "19/0/init/body/36/0/init/body/7/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "d4b4d13b2e99708c7d08ba1485d541ce",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Invalid Drive ID format. Expected format starts with 'DriveID_'"
+        },
+        "19/0/init/body/36/0/init/body/9/block/14/expression/0": {
+          "type": "element",
+          "hash": "de5bf1dd33b9b18058a3432447aa89e3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering organization..."
+        },
+        "19/0/init/body/36/0/init/body/9/block/9/expression/0": {
+          "type": "element",
+          "hash": "4900641df92f1f2f33f0de8904675938",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully logged in to organization \"${orgNickToUse}\""
+        },
+        "19/0/init/body/36/0/init/body/9/handler/body/1/expression/0": {
           "type": "element",
           "hash": "0ea6169d8c4bf06fa6dfc75cb9d38702",
           "context": "",
@@ -16107,6 +16235,350 @@
           "overrides": {},
           "content": "Failed to update organization. Please try again."
         },
+        "19/0/init/body/39/0/init/body/1/block/6/alternate/5/expression/0": {
+          "type": "element",
+          "hash": "64a5a04ad5f9d610dec06da265dd157f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization \"${newOrgNickname}\" created successfully!"
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/0/expression/0/0/value": {
+          "type": "element",
+          "hash": "4f0a7b832f7bb21ada5e252803aa352b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Creating Organization"
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "42d390efa29ec27c363b04f01d44fd37",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready."
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/11/expression/0": {
+          "type": "element",
+          "hash": "d517e582287e414a238ebec3a7a21dd6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Minting Anonymous Blockchain..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/13/expression/0": {
+          "type": "element",
+          "hash": "f7b74e5dcbb59be71a7954f8de17d3a9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Promoting you to Admin..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/20/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "88d30d945686294e0e3f7f8c33d188f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Error deploying organization - {redeem_code}"
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/36/expression/0": {
+          "type": "element",
+          "hash": "f383874d2b3b21ef91757dc0afb9243d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully Created Organization \"${orgNickToUse}\" with Gift Card"
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/38/consequent/0/block/0/expression/0": {
+          "type": "element",
+          "hash": "60af3735372ddf3fe7dec8ddb42d463a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Setting up cloud storage..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/38/consequent/0/block/4/alternate/0/expression/0": {
+          "type": "element",
+          "hash": "caa79f80dcaf0c90e9959f184231b77b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cloud storage configured successfully!"
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/39/expression/0": {
+          "type": "element",
+          "hash": "e89d08130a59fe5bb876cd76025c033d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing... please wait"
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/4/expression/0": {
+          "type": "element",
+          "hash": "9b50c5de7660412b1d7083e56d07fea1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Redeeming Gift Card..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/41/expression/0": {
+          "type": "element",
+          "hash": "93717e8a2e13c9e9415861bea8ad18eb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering new organization..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/block/6/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b68d64138835ee907f13254afcc66068",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card"
+        },
+        "19/0/init/body/39/0/init/body/1/block/6/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "779256d1c6a26bf1d293d7b705e9df7e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card: <expression/>"
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/alternate/5/expression/0": {
+          "type": "element",
+          "hash": "64a5a04ad5f9d610dec06da265dd157f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization \"${newOrgNickname}\" created successfully!"
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/0/expression/0/0/value": {
+          "type": "element",
+          "hash": "4f0a7b832f7bb21ada5e252803aa352b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Creating Organization"
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "42d390efa29ec27c363b04f01d44fd37",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready."
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/11/expression/0": {
+          "type": "element",
+          "hash": "d517e582287e414a238ebec3a7a21dd6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Minting Anonymous Blockchain..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/13/expression/0": {
+          "type": "element",
+          "hash": "f7b74e5dcbb59be71a7954f8de17d3a9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Promoting you to Admin..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/20/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "88d30d945686294e0e3f7f8c33d188f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Error deploying organization - {redeem_code}"
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/36/expression/0": {
+          "type": "element",
+          "hash": "f383874d2b3b21ef91757dc0afb9243d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully Created Organization \"${orgNickToUse}\" with Gift Card"
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/38/consequent/0/block/0/expression/0": {
+          "type": "element",
+          "hash": "60af3735372ddf3fe7dec8ddb42d463a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Setting up cloud storage..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/38/consequent/0/block/4/alternate/0/expression/0": {
+          "type": "element",
+          "hash": "caa79f80dcaf0c90e9959f184231b77b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cloud storage configured successfully!"
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/39/expression/0": {
+          "type": "element",
+          "hash": "e89d08130a59fe5bb876cd76025c033d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing... please wait"
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/4/expression/0": {
+          "type": "element",
+          "hash": "9b50c5de7660412b1d7083e56d07fea1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Redeeming Gift Card..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/41/expression/0": {
+          "type": "element",
+          "hash": "93717e8a2e13c9e9415861bea8ad18eb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering new organization..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/block/6/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b68d64138835ee907f13254afcc66068",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card"
+        },
+        "19/0/init/body/39/0/init/body/1/block/7/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "779256d1c6a26bf1d293d7b705e9df7e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card: <expression/>"
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/alternate/5/expression/0": {
+          "type": "element",
+          "hash": "64a5a04ad5f9d610dec06da265dd157f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization \"${newOrgNickname}\" created successfully!"
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/0/expression/0/0/value": {
+          "type": "element",
+          "hash": "4f0a7b832f7bb21ada5e252803aa352b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Creating Organization"
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/0/expression/0/1/value": {
+          "type": "element",
+          "hash": "42d390efa29ec27c363b04f01d44fd37",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Please allow up to 2 minutes to deploy to the World Computer. You will be redirected to the new organization once it is ready."
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/11/expression/0": {
+          "type": "element",
+          "hash": "d517e582287e414a238ebec3a7a21dd6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Minting Anonymous Blockchain..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/13/expression/0": {
+          "type": "element",
+          "hash": "f7b74e5dcbb59be71a7954f8de17d3a9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Promoting you to Admin..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/20/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "88d30d945686294e0e3f7f8c33d188f5",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Error deploying organization - {redeem_code}"
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/36/expression/0": {
+          "type": "element",
+          "hash": "f383874d2b3b21ef91757dc0afb9243d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Successfully Created Organization \"${orgNickToUse}\" with Gift Card"
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/38/consequent/0/block/0/expression/0": {
+          "type": "element",
+          "hash": "60af3735372ddf3fe7dec8ddb42d463a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Setting up cloud storage..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/38/consequent/0/block/4/alternate/0/expression/0": {
+          "type": "element",
+          "hash": "caa79f80dcaf0c90e9959f184231b77b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cloud storage configured successfully!"
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/39/expression/0": {
+          "type": "element",
+          "hash": "e89d08130a59fe5bb876cd76025c033d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Syncing... please wait"
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/4/expression/0": {
+          "type": "element",
+          "hash": "9b50c5de7660412b1d7083e56d07fea1",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Redeeming Gift Card..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/41/expression/0": {
+          "type": "element",
+          "hash": "93717e8a2e13c9e9415861bea8ad18eb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Success! Entering new organization..."
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/block/6/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b68d64138835ee907f13254afcc66068",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card"
+        },
+        "19/0/init/body/39/0/init/body/1/block/8/consequent/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "779256d1c6a26bf1d293d7b705e9df7e",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to redeem gift card: <expression/>"
+        },
+        "19/0/init/body/39/0/init/body/1/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "cb2526ffb280834b9e8b31cc075d4dd2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to create organization. Please try again."
+        },
         "19/0/init/body/40/0/init/body/0/block/0/consequent/2/expression/0": {
           "type": "element",
           "hash": "b90cf4db7e776ab3dd5406b8af65c031",
@@ -16115,7 +16587,39 @@
           "overrides": {},
           "content": "Organization removed successfully!"
         },
+        "19/0/init/body/40/0/init/body/0/block/1/consequent/0/expression/0": {
+          "type": "element",
+          "hash": "b8642984ca6014ea463905f8e215b021",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Please enter a valid URL for the endpoint"
+        },
+        "19/0/init/body/40/0/init/body/0/block/2/consequent/3/expression/0": {
+          "type": "element",
+          "hash": "618a08abce4b0fc106fc849480f98cf9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization \"${editOrgNickname}\" updated successfully!"
+        },
         "19/0/init/body/40/0/init/body/0/handler/body/1/expression/0": {
+          "type": "element",
+          "hash": "c929aecd0bf339395ec938c12400ce06",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to update organization. Please try again."
+        },
+        "19/0/init/body/41/0/init/body/0/block/0/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "b90cf4db7e776ab3dd5406b8af65c031",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization removed successfully!"
+        },
+        "19/0/init/body/41/0/init/body/0/handler/body/1/expression/0": {
           "type": "element",
           "hash": "2b67a0515f49ca9049889131cac5a8aa",
           "context": "",
@@ -16180,6 +16684,86 @@
           "content": "Gift Card<element:Tooltip>Gift Cards let you connect to the world computer $ICP<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
         },
         "19/0/init/body/42/0/init/body/0/argument/7/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "3a2bc1948e1549dce55babe9ac4afc85",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Factory Endpoint"
+        },
+        "19/0/init/body/42/0/init/body/2/consequent/2/expression/0": {
+          "type": "element",
+          "hash": "d1733b8d8ecb5b56284504c2fc35b018",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Entering \"${org.nickname}\" organization..."
+        },
+        "19/0/init/body/43/0/init/body/0/argument/1": {
+          "type": "element",
+          "hash": "2fdf82eb4b0720138e03822a3af73dac",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Advanced"
+        },
+        "19/0/init/body/43/0/init/body/0/argument/3/1-placeholder": {
+          "type": "attribute",
+          "hash": "f67d5c121f94be22fff6d66b576ef381",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Select Profile"
+        },
+        "19/0/init/body/43/0/init/body/0/argument/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "9c0b3aeca046c3ebd3bdc352edc83e88",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Owner"
+        },
+        "19/0/init/body/43/0/init/body/0/argument/5/expression/right/1-placeholder": {
+          "type": "attribute",
+          "hash": "cacf853452837722aac7686bd5e86491",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "GiftCardID_abc123"
+        },
+        "19/0/init/body/43/0/init/body/0/argument/5/expression/right/1/openingElement/4/value/expression": {
+          "type": "element",
+          "hash": "7a32095b63d0acbf8f629958e81e082f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Buy Now"
+        },
+        "19/0/init/body/43/0/init/body/0/argument/5/expression/right/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "8b5a0fb508565d5e0f9dfcb8d8e0109f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Gift Card<element:Tooltip>Gift Cards let you connect to the world computer $ICP<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "19/0/init/body/43/0/init/body/0/argument/7/expression/right/1-placeholder": {
+          "type": "attribute",
+          "hash": "04cd270086b9f48843d4864253c67fd7",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "https://your-backend.example.com"
+        },
+        "19/0/init/body/43/0/init/body/0/argument/7/expression/right/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "dbf5666c030586de3281431533ce32f9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Custom Endpoint<element:Tooltip>Enter the full URL to your backend (e.g. https://api.yourdomain.com)<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "19/0/init/body/43/0/init/body/0/argument/9/1/1-placeholder": {
           "type": "attribute",
           "hash": "3a2bc1948e1549dce55babe9ac4afc85",
           "context": "",
@@ -16284,6 +16868,110 @@
           "content": "Login Organization"
         },
         "19/0/init/body/44/0/init/body/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "6bdf250878600d873955eea27673fc05",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Login Existing"
+        },
+        "19/0/init/body/44/0/init/body/1/consequent/1/expression/0/1/value/3/openingElement/0/value/expression/body/0/expression/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "e7c7181a28c54a377a48b5814c460ef4",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Failed to copy to clipboard."
+        },
+        "19/0/init/body/44/0/init/body/1/consequent/1/expression/0/1/value/3/openingElement/0/value/expression/body/0/expression/callee/object/0/body/0/expression/0": {
+          "type": "element",
+          "hash": "db67e602babbabd7fd9c646ea33d4622",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Copied to clipboard!"
+        },
+        "19/0/init/body/44/0/init/body/3/expression/0/1/value/3": {
+          "type": "element",
+          "hash": "d60df3948aded8e7fce7a17bced2ab1f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add Organization"
+        },
+        "19/0/init/body/45/0/init/body-title": {
+          "type": "attribute",
+          "hash": "d60df3948aded8e7fce7a17bced2ab1f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Add Organization"
+        },
+        "19/0/init/body/45/0/init/body/1/1/1/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "19/0/init/body/45/0/init/body/1/1/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "73c9b31c9032a22bd84a07881942bb04",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization Name"
+        },
+        "19/0/init/body/45/0/init/body/1/1/1/5/1/1": {
+          "type": "element",
+          "hash": "25b06367926e28e1cf86d51b92ed9802",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "19/0/init/body/45/0/init/body/1/1/1/5/1/3": {
+          "type": "element",
+          "hash": "52de4615cbc6bcdd5654d8a12f47df9f",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Create Organization"
+        },
+        "19/0/init/body/45/0/init/body/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "7fb29fa0ab25d2942a33f184ece4ac7d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Create New"
+        },
+        "19/0/init/body/45/0/init/body/1/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "183841910818585612b0b17bd0e26f0c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Password<element:Tooltip>Format: drive:password@endpoint (e.g. DriveID_abc123:password123@https://endpoint.com)<element:InfoCircleOutlined></element:InfoCircleOutlined></element:Tooltip>"
+        },
+        "19/0/init/body/45/0/init/body/1/3/1/5/1/1": {
+          "type": "element",
+          "hash": "25b06367926e28e1cf86d51b92ed9802",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "19/0/init/body/45/0/init/body/1/3/1/5/1/3": {
+          "type": "element",
+          "hash": "894f0dbbe82c225a106f78efd3208008",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Login Organization"
+        },
+        "19/0/init/body/45/0/init/body/1/3/openingElement/0/value/expression": {
           "type": "element",
           "hash": "6bdf250878600d873955eea27673fc05",
           "context": "",
@@ -16411,7 +17099,135 @@
           "overrides": {},
           "content": "Edit Org"
         },
+        "19/0/init/body/47/0/init/body/2/argument/1/1/1/3/1/1": {
+          "type": "element",
+          "hash": "643431b4a45271ffb02d2957be7884b3",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/1/1/3/1/3": {
+          "type": "element",
+          "hash": "df6353d5e8e3aa11f4a024aae8725427",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter Organization"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "fec7631f877e94026b5b0f5252a2f95d",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter Organization"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/1/1-placeholder": {
+          "type": "attribute",
+          "hash": "fecc09f536a1731e6bd21f1ee4872835",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Enter organization nickname"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "d9e5c1a40585b135e17dce3af6fc649b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Organization Name<element:Tooltip>Edit the organization nickname<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/3/1-placeholder": {
+          "type": "attribute",
+          "hash": "c74cc9a98a1495f289033c9bb0a3b522",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "https://api.officex.app"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "1d832c984ae4cd44e29354e05b124047",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Endpoint URL<element:Tooltip>Edit the endpoint URL of this organization<element:QuestionCircleOutlined></element:QuestionCircleOutlined></element:Tooltip>"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/7/1/1/1": {
+          "type": "element",
+          "hash": "feb15e75efc81c54cb85538c42a7a5c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Remove"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/7/1/1/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "011dc03dec8dfd8d4b0e53b2951435a0",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Are you sure you want to remove this organization?"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/7/1/1/openingElement/1/value/expression": {
+          "type": "element",
+          "hash": "3d8b13374ffd3cefc0f3f7ce077bd9c9",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "This action cannot be undone."
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/7/1/1/openingElement/3/value/expression": {
+          "type": "element",
+          "hash": "ec580fd11a45779b039466f1e35eed2a",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Yes"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/7/1/1/openingElement/4/value/expression": {
+          "type": "element",
+          "hash": "8c708225830b06df2d1141c536f2a0d6",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "No"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/7/3/1/1": {
+          "type": "element",
+          "hash": "7afaa05272026382c83d9f963f45e3e2",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Cancel"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/1/7/3/1/3": {
+          "type": "element",
+          "hash": "e6d0a1a8040f041c1da7149b270e1bbb",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Update"
+        },
+        "19/0/init/body/47/0/init/body/2/argument/1/3/openingElement/0/value/expression": {
+          "type": "element",
+          "hash": "4b94332ab39fdd49706a2bbde9aab60b",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Edit Org"
+        },
         "19/0/init/body/50/argument/3-placeholder": {
+          "type": "attribute",
+          "hash": "99080febce87d8a780622296d9e35f4c",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Switch Organization"
+        },
+        "19/0/init/body/51/argument/3-placeholder": {
           "type": "attribute",
           "hash": "99080febce87d8a780622296d9e35f4c",
           "context": "",
@@ -19049,27 +19865,27 @@
         },
         "7/0/init/body/2/0/init/0/1/1/value": {
           "type": "element",
+          "hash": "03ee29e0f3cab6979a238f05ffbca753",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat with AI"
+        },
+        "7/0/init/body/2/0/init/0/2/1/value": {
+          "type": "element",
           "hash": "b8d4dd3a7b102936cac501c87a58ee62",
           "context": "",
           "skip": false,
           "overrides": {},
           "content": "Upload and share files"
         },
-        "7/0/init/body/2/0/init/0/2/1/value": {
-          "type": "element",
-          "hash": "c2c66c73e473f140af8eaf4b9e00114f",
-          "context": "",
-          "skip": false,
-          "overrides": {},
-          "content": "Invite your team (optional)"
-        },
         "7/0/init/body/2/0/init/0/3/1/value": {
           "type": "element",
-          "hash": "e8db26b7478ac12372157f622937f68e",
+          "hash": "439a26ba43ca9631ba724a81ff071fd4",
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Setup advanced permissions (optional)"
+          "content": "Setup team permissions (optional)"
         },
         "7/0/init/body/2/0/init/0/4/1/value": {
           "type": "element",

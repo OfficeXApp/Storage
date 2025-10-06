@@ -108,6 +108,7 @@ const OrganizationSwitcher = () => {
   // Preview states
   const [previewEndpoint, setPreviewEndpoint] = useState("");
   const [giftCardValue, setGiftCardValue] = useState("");
+  const [customEndpoint, setCustomEndpoint] = useState("");
 
   const [importApiLoading, setImportApiLoading] = useState(false);
   const [importApiError, setImportApiError] = useState<string | null>(null);
@@ -548,12 +549,12 @@ const OrganizationSwitcher = () => {
       return;
     }
 
-    // Extract driveID, password and host
+    // Extract driveID, password and endpoint
     const driveID = importApiKey.substring(0, colonIndex).trim();
     const password = importApiKey
       .substring(colonIndex + 1, atSymbolIndex)
       .trim();
-    let host = importApiKey.substring(atSymbolIndex + 1).trim();
+    let endpoint = importApiKey.substring(atSymbolIndex + 1).trim();
 
     // Validate driveID
     if (!driveID.startsWith("DriveID_")) {
@@ -566,8 +567,8 @@ const OrganizationSwitcher = () => {
     }
 
     // Remove trailing slash if present in endpoint
-    if (host.endsWith("/")) {
-      host = host.slice(0, -1);
+    if (endpoint.endsWith("/")) {
+      endpoint = endpoint.slice(0, -1);
     }
 
     try {
@@ -609,7 +610,7 @@ const OrganizationSwitcher = () => {
         driveID: importApiPreviewData.driveID as DriveID,
         nickname: orgNickToUse,
         icpPublicAddress: importApiPreviewData.driveID.replace("DriveID_", ""),
-        host,
+        host: endpoint,
         note: `Organization imported via API for user ${profileNickToUse}`,
         defaultProfile: profileToUse.userID,
       });
@@ -619,9 +620,9 @@ const OrganizationSwitcher = () => {
         apiKeyID: `ApiKey_${uuidv4()}`,
         userID: profileToUse.userID,
         driveID: driveID,
-        note: `Auto-generated for ${orgNickToUse} (${host})`,
+        note: `Auto-generated for ${orgNickToUse} (${endpoint})`,
         value: password,
-        host,
+        host: endpoint,
       });
 
       // Switch to this organization with the profile
@@ -680,14 +681,30 @@ const OrganizationSwitcher = () => {
       let targetFactoryEndpoint = selectedFactoryEndpoint?.value;
       let giftcardRedeemID = giftCardValue;
 
+      // If user selected custom endpoint option, validate and use the customEndpoint state instead
+      if (selectedFactoryEndpoint?.value === "enter custom url endpoint") {
+        if (!customEndpoint || customEndpoint.trim() === "") {
+          throw new Error("Please enter a custom endpoint URL");
+        }
+        if (!isValidUrl(customEndpoint)) {
+          throw new Error("Please enter a valid URL for the custom endpoint");
+        }
+        targetFactoryEndpoint = normalizeUrl(customEndpoint.trim());
+      }
+
+      console.log(`targetFactoryEndpoint`, targetFactoryEndpoint);
+
       if (!targetFactoryEndpoint) {
         throw new Error("Selected factory endpoint not found");
       }
 
-      if (!selectedFactoryEndpoint?.buyLink) {
+      if (
+        !selectedFactoryEndpoint?.buyLink ||
+        selectedFactoryEndpoint?.value === "enter custom url endpoint"
+      ) {
         // assumes its a free server and thus we can create a gift card ourselves
         const giftcardSpawnOrgResponse = await fetch(
-          `${selectedFactoryEndpoint?.value}/v1/factory/giftcards/spawnorg/create`,
+          `${targetFactoryEndpoint}/v1/factory/giftcards/spawnorg/create`,
           {
             method: "POST",
             headers: {
@@ -772,8 +789,8 @@ const OrganizationSwitcher = () => {
           }
 
           const isWeb3 = LOCAL_DEV_MODE
-            ? selectedFactoryEndpoint?.value.includes("localhost:8000")
-            : selectedFactoryEndpoint?.value.includes("icp0.io");
+            ? (targetFactoryEndpoint || "").includes("localhost:8000")
+            : (targetFactoryEndpoint || "").includes("icp0.io");
 
           await sleep(isWeb3 ? 5000 : 0);
 
@@ -1121,6 +1138,16 @@ const OrganizationSwitcher = () => {
                   Buy Now
                 </a>
               }
+            />
+          </Form.Item>
+        )}
+        {selectedFactoryEndpoint?.value === "enter custom url endpoint" && (
+          <Form.Item style={{ marginTop: "-16px" }} required>
+            <Input
+              value={customEndpoint}
+              onChange={(e) => setCustomEndpoint(e.target.value)}
+              placeholder="https://your-backend.example.com"
+              style={{ width: "100%" }}
             />
           </Form.Item>
         )}

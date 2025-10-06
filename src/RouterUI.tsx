@@ -784,12 +784,10 @@ const RouterUI = () => {
                         element={
                           <Navigate
                             to={
-                              "/org/current/welcome"
-                              // isAIChatEnabled()
-                              //   ? "/org/current/chat"
-                              //   : currentOrg && currentOrg.host
-                              //     ? `/org/current/drive/`
-                              //     : `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/`
+                              currentOrg && currentOrg.host
+                                ? `/org/current/chat`
+                                : `/org/current/welcome`
+                              // `/org/current/drive/${DiskTypeEnum.StorjWeb3}/${defaultTempCloudSharingDiskID}/${defaultTempCloudSharingDefaultUploadFolderID}/`
                             }
                           />
                         }

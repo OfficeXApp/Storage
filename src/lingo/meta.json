@@ -19049,27 +19049,27 @@
         },
         "7/0/init/body/2/0/init/0/1/1/value": {
           "type": "element",
+          "hash": "03ee29e0f3cab6979a238f05ffbca753",
+          "context": "",
+          "skip": false,
+          "overrides": {},
+          "content": "Chat with AI"
+        },
+        "7/0/init/body/2/0/init/0/2/1/value": {
+          "type": "element",
           "hash": "b8d4dd3a7b102936cac501c87a58ee62",
           "context": "",
           "skip": false,
           "overrides": {},
           "content": "Upload and share files"
         },
-        "7/0/init/body/2/0/init/0/2/1/value": {
-          "type": "element",
-          "hash": "c2c66c73e473f140af8eaf4b9e00114f",
-          "context": "",
-          "skip": false,
-          "overrides": {},
-          "content": "Invite your team (optional)"
-        },
         "7/0/init/body/2/0/init/0/3/1/value": {
           "type": "element",
-          "hash": "e8db26b7478ac12372157f622937f68e",
+          "hash": "439a26ba43ca9631ba724a81ff071fd4",
           "context": "",
           "skip": false,
           "overrides": {},
-          "content": "Setup advanced permissions (optional)"
+          "content": "Setup team permissions (optional)"
         },
         "7/0/init/body/2/0/init/0/4/1/value": {
           "type": "element",

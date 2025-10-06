@@ -30,5 +30,6 @@ export const setAIChatRemoteDefault = (enabled: boolean) => {
 };
 export const isAIChatRemoteDefault = () => {
   const isRemote = localStorage.getItem(LOCALSTORAGE_IS_AI_CHAT_REMOTE);
-  return isRemote === "true";
+  // return isRemote === "true";
+  return true;
 };

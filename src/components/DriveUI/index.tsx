@@ -1082,7 +1082,7 @@ const DriveUI: React.FC<DriveUIProps> = ({ toggleUploadPanel }) => {
                   style={{ color: "gray", width: "100%" }}
                 >
                   {record.hasDiskTrash || (record as any).isRecentShortcut
-                    ? `${(record as any).public_note.slice(0, 80)}...`
+                    ? `${(record as any).public_note?.slice(0, 80)}...`
                     : record.expires_at === -1
                       ? `Active`
                       : `Expires ${dayjs(record.expires_at).fromNow()}`}

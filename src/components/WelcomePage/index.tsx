@@ -28,19 +28,19 @@ const WelcomePage = () => {
     },
     {
       id: "2",
+      text: <span>Chat with AI</span>,
+      done: false,
+      route: wrapOrgCode("/chat"),
+    },
+    {
+      id: "3",
       text: <span>Upload and share files</span>,
       done: false,
       route: wrapOrgCode("/drive"),
     },
     {
-      id: "3",
-      text: <span>Invite your team (optional)</span>,
-      done: false,
-      route: wrapOrgCode("/resources/groups"),
-    },
-    {
       id: "4",
-      text: <span>Setup advanced permissions (optional)</span>,
+      text: <span>Setup team permissions (optional)</span>,
       done: false,
       route: wrapOrgCode("/resources/permissions"),
     },
